@@ -1,5 +1,10 @@
 {
   "name": "dbarchowsky/littled",
+  "autoload": {
+    "psr-0": {
+      "Littled": "src"
+    }
+  },
   "require": {
 
   }
