@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Exception;
 
-class RecordNotFoundException extends \Exception
+class ContentValidationException extends \Exception
 {
     public function __construct($message, $code = 0, Exception $previous = null) {
         // some code
