@@ -10,72 +10,15 @@ namespace Littled\Validation;
 class Validation
 {
 	/**
-	 * Validation constructor.
-	 * All methods are static. This is unused.
-	 */
-	function __construct ( )
-	{
-		/* nothing necessary here */
-	}
-
-	/**
-	 * do all necessary processing to content entered in form textarea fields to save it in XML
-	 */
-	public static function clean_text_for_xml($sContent)
-	{
-		/* remove newline characters */
-		$sContent = preg_replace("/[\n\r]/", "<br />", $sContent);
-
-		/* convert non-ASCII characters */
-		$sContent = htmlentities($sContent, ENT_NOQUOTES, "iso-8859-1");
-
-		/* restore HTML tags */
-		$sContent = str_replace("&lt;", "<", $sContent);
-		$sContent = str_replace("&gt;", ">", $sContent);
-		$sContent = str_replace("&amp;", "&", $sContent);
-
-		return ($sContent);
-	}
-
-	/**
-	 * Does all necessary processing to content created in TinyMCE editor to save it in XML
-	 * @param string $sContent Text to fix.
-	 * @return string Fixed text.
-	 */
-	public static function clean_tinymce_text_for_xml( $sContent )
-	{
-		/* remove newline characters */
-		$sContent = preg_replace("/[\n\r]/", "", $sContent);
-
-		/* convert non-ASCII characters */
-		$sContent = htmlentities($sContent, ENT_NOQUOTES, "iso-8859-1");
-
-		/* restore HTML tags */
-		$sContent = str_replace("&lt;", "<", $sContent);
-		$sContent = str_replace("&gt;", ">", $sContent);
-		$sContent = str_replace("&amp;", "&", $sContent);
-
-		/* swap <b> for <strong> and <i> for <em> */
-		$sContent = str_replace("<strong>", "<b>", $sContent);
-		$sContent = str_replace("</strong>", "</b>", $sContent);
-		$sContent = str_replace("<em>", "<i>", $sContent);
-		$sContent = str_replace("</em>", "</i>", $sContent);
-
-		$sContent = self::html_p_tags_to_br_tags($sContent);
-
-		return ($sContent);
-	}
-
-	/**
 	 * Searches POST and GET data in that order, for a property corresponding to
 	 * $key.
 	 * @param string $key Key of the variable value to collect.
-	 * @param token $filter Filter token corresponding to the 3rd parameter of
+	 * @param string $filter Filter token corresponding to the 3rd parameter of
 	 * PHP's built-in filter_input() routine.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collect_request_var ( $key, $filter=FILTER_SANITIZE_STRING )
+	public static function collectRequestVar( $key, $filter=FILTER_SANITIZE_STRING )
 	{
 		$value = trim(filter_input(INPUT_POST, $key, $filter));
 		if (!$value) {
@@ -88,38 +31,30 @@ class Validation
 	 * Searches POST, GET and session data, in that order, for a property
 	 * corresponding to $key.
 	 * @param string $key Key of the variable value to collect.
-	 * @param token $filter Filter token corresponding to the 3rd parameter of
+	 * @param string $filter Filter token corresponding to the 3rd parameter of
 	 * PHP's built-in filter_input() routine.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collect_string_input( $key, $filter=FILTER_SANITIZE_STRING )
+	public static function collectStringInput( $key, $filter=FILTER_SANITIZE_STRING )
 	{
-		$value = validation_class::collect_request_var($key, $filter);
+		$value = Validation::collectRequestVar($key, $filter);
 		if (!$value && isset($_SESSION[$key]) && strlen(trim($_SESSION[$key])) > 0) {
 			$value = trim($_SESSION[$key]);
 		}
 		return ($value);
 	}
-
-	/**
-	 * convert HTML paragraph tags to <br /> tags
-	 */
-	public static function html_p_tags_to_br_tags ( $sHTML )
-	{
-		$sHTML = preg_replace('/<p[^>]*>/', '', $sHTML); /* Remove the start <p> or <p attr=""> */
-		$sHTML = preg_replace('/<\/p>/', '<br /><br />', $sHTML); /* Replace the end */
-		return ($sHTML);
-	}
-
 	/**
 	 * Tests POST data for the current requested action. Returns a token indicating
 	 * the action that can be used in place of testing POST data directly on
 	 * a page.
 	 * @return string
 	 */
-	public static function get_page_action()
+	public static function getPageAction()
 	{
+		if (!defined('P_COMMIT') || !defined('P_CANCEL')) {
+			return ('');
+		}
 		$action = trim(filter_input(INPUT_POST, P_COMMIT, FILTER_SANITIZE_STRING));
 		if (strlen($action) > 0) {
 			$action = P_COMMIT;
@@ -140,8 +75,10 @@ class Validation
 	 * @param mixed $value Value to test.
 	 * @return TRUE, FALSE, or NULL
 	 */
-	public static function parse_boolean( $value )
+	public static function parseBoolean( $value )
 	{
+		/** @todo test if the value is a string. Return null if not. */
+
 		if ($value==="1" || $value==="true" || $value==="on" || $value===true || $value===1) {
 			return (true);
 		}
@@ -160,7 +97,7 @@ class Validation
 	 * @param array $src (Optional) array to use in place of GET or POST data.
 	 * @return boolean TRUE/FALSE depending on the value of the input variable.
 	 */
-	public static function parse_boolean_input( $key, $index=null, $src=null)
+	public static function parseBooleanInput( $key, $index=null, $src=null)
 	{
 		$value = null;
 		if ($src===null) {
@@ -182,7 +119,7 @@ class Validation
 			$value = trim(filter_var($src[$key], FILTER_SANITIZE_STRING));
 		}
 
-		return validation_class::parse_boolean($value);
+		return Validation::parseBoolean($value);
 	}
 
 	/**
@@ -191,7 +128,7 @@ class Validation
 	 * @param null $index integer Index to parse if the variable is an array.
 	 * @return float|null
 	 */
-	public static function parse_float_input( $key, $index=null )
+	public static function parseFloatInput( $key, $index=null )
 	{
 		/** @todo Use filter_var() instead of accessing $_REQUEST directly. */
 		if (!isset($_REQUEST[$key])) return (null);
@@ -204,9 +141,17 @@ class Validation
 	 * @param $value string Value to parse.
 	 * @return int|null
 	 */
-	public static function parse_numeric( $value )
+	public static function parseNumeric( $value )
 	{
-		return ((is_int($value))?((int)$value):(null));
+		if (is_numeric($value)) {
+			if (strpos($value, ".") !== false) {
+				return ((float)$value);
+			}
+			else {
+				return ((int)$value);
+			}
+		}
+		return (null);
 	}
 
 	/**
@@ -214,8 +159,9 @@ class Validation
 	 * @param string $key Key containing potential numeric values.
 	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
 	 */
-	public static function parse_numeric_array_input( $key )
+	public static function parseNumericArrayInput( $key )
 	{
+		/** @todo use filter_var() in place of accessing $_REQUEST directly */
 		if (isset($_REQUEST[$key]))
 		{
 			if (is_array($_REQUEST[$key]))
@@ -257,7 +203,7 @@ class Validation
 	 * @param integer $index (Optional) index within input array of the value of interest.
 	 * @return mixed Float or integer value.
 	 */
-	public static function parse_numeric_input( $key, $index=null, $src=null )
+	public static function parseNumericInput( $key, $index=null, $src=null )
 	{
 		$value = null;
 		if ($src===null) {
@@ -282,27 +228,11 @@ class Validation
 	}
 
 	/**
-	 * - Remove all newline characters (don't replace them with <br> tags)
-	 * - Strip out all problematic html characters
-	 * - Do NOT preserve any html tags
-	 */
-	public static function strip_newlines_for_xml($sContent)
-	{
-		/* remove newline characters */
-		$sContent = preg_replace("/[\n\r]/", "", $sContent);
-
-		/* convert non-ASCII characters */
-		$sContent = htmlentities($sContent, ENT_NOQUOTES, "iso-8859-1");
-
-		return ($sContent);
-	}
-
-	/**
 	 * Validates email address.
 	 * @param string $sEmail Email address to validate
 	 * @return boolean true/false indicating valid or invalid email address.
 	 */
-	public static function validate_email_address ( $sEmail )
+	public static function validateEmailAddress( $sEmail )
 	{
 		return (preg_match("/\S+\@\S+\.\S+/", $sEmail) && (!preg_match("/,\/\\;/", $sEmail)));
 	}
