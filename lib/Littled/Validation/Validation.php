@@ -69,6 +69,27 @@ class Validation
 	}
 
 	/**
+	 * Tests if string value represents an integer value.
+	 * @param mixed $value Value to test.
+	 * @return bool
+	 */
+	public static function isInteger( $value )
+	{
+		if (is_int($value)) {
+			return (true);
+		}
+		if (is_string($value)) {
+			if ($value[0] == '-') {
+				return ctype_digit(substr($value, 1));
+			}
+			else {
+				return ctype_digit($value);
+			}
+		}
+		return (false);
+	}
+
+	/**
 	 * Tests value and returns TRUE if it evaluates to some string that equates with a "true" flag.
 	 * Returns FALSE only if the value evaluates to some string that equates with a "false" flag.
 	 * Returns NULL if the value doesn't make sense in a TRUE/FALSE context.
@@ -134,6 +155,21 @@ class Validation
 		if (!isset($_REQUEST[$key])) return (null);
 		$value = (($index!==null)?($_REQUEST[$key][(int)$index]):($_REQUEST[$key]));
 		return ((is_numeric($value))?((float)$value):(null));
+	}
+
+	/**
+	 * Tests a variable and returns its equivalent explicit integer value, or null if the variable value doesn't
+	 * represent an integer value.
+	 * @param mixed $value Value to test.
+	 * @return int|null Value explicitly converted to an integer value, or null if the value does not represent an
+	 * integer value.
+	 */
+	public static function parseInteger( $value )
+	{
+		if (Validation::isInteger($value)) {
+			return ((int)$value);
+		}
+		return (null);
 	}
 
 	/**
