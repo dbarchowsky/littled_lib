@@ -10,6 +10,39 @@ namespace Littled\Validation;
 class Validation
 {
 	/**
+	 * Returns request variable as explicit integer value, or null if the request variable is not set or does not
+	 * represent a float value.
+	 * @param int $filter Filter to apply to the variable value, e.g. FILTER_VALIDATE_INT or FILTER_VALIDATE_FLOAT
+	 * @param string $key Key in the collection storing the value to look up.
+	 * @param int $index Index of the array to look up, if the variable's value is an array.
+	 * @param array $src Array to search for $key, e.g. $_GET or $_POST
+	 * @return string|null
+	 */
+	protected static function _parseInput( $filter, $key, $index=null, $src=null )
+	{
+		$value = null;
+		if ($src===null) {
+			$src = array_merge($_GET, $_POST);
+		}
+		if (!isset($src[$key])) {
+			return (null);
+		}
+		if ($index!==null)
+		{
+			$arr = filter_var($src[$key], $filter, FILTER_REQUIRE_ARRAY);
+			if (is_array($arr) && count($arr) >= ($index-1))
+			{
+				$value = $arr[$index];
+			}
+		}
+		else
+		{
+			$value = filter_var($src[$key], $filter);
+		}
+		return ($value);
+	}
+
+	/**
 	 * Searches POST and GET data in that order, for a property corresponding to
 	 * $key.
 	 * @param string $key Key of the variable value to collect.
@@ -98,17 +131,19 @@ class Validation
 	 */
 	public static function parseBoolean( $value )
 	{
-		/** @todo test if the value is a string. Return null if not. */
-
-		if ($value==="1" || $value==="true" || $value==="on" || $value===true || $value===1) {
-			return (true);
+		if (is_bool($value)) {
+			return ($value);
 		}
-		elseif ($value=="0" || $value==="false" || $value==="off" || $value===0 || $value===false) {
-			return (false);
+		if (is_string($value)) {
+			if ($value === "1" || $value === "true" || $value === "on" || $value === true || $value === 1) {
+				return (true);
+			} elseif ($value == "0" || $value === "false" || $value === "off" || $value === 0 || $value === false) {
+				return (false);
+			} else {
+				return (null);
+			}
 		}
-		else {
-			return (null);
-		}
+		return (null);
 	}
 
 	/**
@@ -144,17 +179,20 @@ class Validation
 	}
 
 	/**
-	 * Forces GET variables values into decimal format.
-	 * @param $key string Variable name.
-	 * @param null $index integer Index to parse if the variable is an array.
+	 * Returns request variable as explicit float value, or null if the request variable is not set or does not
+	 * represent a float value.
+	 * @param string $key Key in the collection storing the value to look up.
+	 * @param int $index Index of the array to look up, if the variable's value is an array.
+	 * @param array $src Array to search for $key, e.g. $_GET or $_POST
 	 * @return float|null
 	 */
-	public static function parseFloatInput( $key, $index=null )
+	public static function parseFloatInput( $key, $index=null, $src=null )
 	{
-		/** @todo Use filter_var() instead of accessing $_REQUEST directly. */
-		if (!isset($_REQUEST[$key])) return (null);
-		$value = (($index!==null)?($_REQUEST[$key][(int)$index]):($_REQUEST[$key]));
-		return ((is_numeric($value))?((float)$value):(null));
+		$value = Validation::parseNumericInput( $key, $index, $src);
+		if ($value !== null) {
+			return ((float)$value);
+		}
+		return (null);
 	}
 
 	/**
@@ -170,6 +208,20 @@ class Validation
 			return ((int)$value);
 		}
 		return (null);
+	}
+
+	/**
+	 * Returns request variable as explicit integer value, or null if the request variable is not set or does not
+	 * represent a float value.
+	 * @param string $key Key in the collection storing the value to look up.
+	 * @param int $index Index of the array to look up, if the variable's value is an array.
+	 * @param array $src Array to search for $key, e.g. $_GET or $_POST
+	 * @return int|null|string
+	 */
+	public static function parseIntegerInput( $key, $index=null, $src=null )
+	{
+		$value = Validation::_parseInput(FILTER_VALIDATE_INT, $key, $index, $src);
+		return Validation::parseInteger($value);
 	}
 
 	/**
@@ -241,25 +293,7 @@ class Validation
 	 */
 	public static function parseNumericInput( $key, $index=null, $src=null )
 	{
-		$value = null;
-		if ($src===null) {
-			$src = array_merge($_GET, $_POST);
-		}
-		if (!isset($src[$key])) {
-			return (null);
-		}
-		if ($index!==null)
-		{
-			$arr = filter_var($src[$key], FILTER_VALIDATE_FLOAT,FILTER_REQUIRE_ARRAY);
-			if (is_array($arr) && count($arr) >= ($index-1))
-			{
-				$value = $arr[$index];
-			}
-		}
-		else
-		{
-			$value = filter_var($src[$key], FILTER_VALIDATE_FLOAT);
-		}
+		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return((is_numeric($value))?($value):(null));
 	}
 

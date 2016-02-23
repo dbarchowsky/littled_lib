@@ -36,6 +36,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 		$this->assertFalse(Validation::isInteger(false));
 		$this->assertFalse(Validation::isInteger(4.5));
 		$this->assertFalse(Validation::isInteger('4.5'));
+		$this->assertFalse(Validation::isInteger(null));
 	}
 
 	public function testParseInteger()
@@ -53,5 +54,6 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 		$this->assertNull(Validation::parseInteger(false));
 		$this->assertNull(Validation::parseInteger(4.5));
 		$this->assertNull(Validation::parseInteger('4.5'));
+		$this->assertNull(Validation::parseInteger(null));
 	}
 }
