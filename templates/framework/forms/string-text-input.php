@@ -1,0 +1,1 @@
+<input type="text"<?php if ($input->cssClass): ?> class="<?=$input->cssClass ?>"<?php endif; ?>name="<?=$input->param.(($input->index===null)?(""):("[{$input->index}]"))?>" id="<?=$input->param.$input->index ?>" value="<?=((strlen($input->error)>0)?($input->error):($input->value))?>" maxlength="<?=$input->sizeLimit?>" />
