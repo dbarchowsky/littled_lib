@@ -132,10 +132,15 @@ class PageContentBase extends MySQLConnection
 		if ($p_template_path===null || $p_template_path==='') {
 			$p_template_path = $this->templatePath;
 		}
-		if (is_array($context)) {
-			foreach($context as $key => $val) {
-				${$key} = $val;
-			}
+		if (!is_array($context)) {
+			$context = array(
+				'content' => &$this->content,
+				'filters' => &$this->filters,
+				'qs' => $this->qs
+			);
+		}
+		foreach($context as $key => $val) {
+			${$key} = $val;
 		}
 		include ($p_template_path);
 	}
