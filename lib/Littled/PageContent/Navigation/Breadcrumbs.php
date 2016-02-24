@@ -2,7 +2,6 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\PageContent\PageContent;
-use Littled\PageContent\Navigation\BreadcrumbsNode;
 
 
 /**
@@ -19,7 +18,7 @@ class Breadcrumbs
 	/** @var string Path to template used to display the breadcrumbs. */
 	public static $breadcrumbsTemplate = "";
 	/** @var string Class name of the class used to render the breadcrumb nodes. */
-	public static $nodeType = "BreadcrumbsNode";
+	public static $nodeType = 'Littled\PageContent\Navigation\BreadcrumbsNode';
 
 	/**
 	 * Class constructor.
