@@ -1,13 +1,16 @@
 <?php
 namespace Littled\PageContent;
 
+use Littled\Database\MySQLConnection;
+use Littled\Request\HttpInput;
+
 /**
  * Class PageContentBase
  * Intended as a base utility class for managing and rendering content for different types of pages.
  * @todo have it inherit from base database connection class
  * @package Littled\Content
  */
-class PageContentBase /* extends DBConnection */
+class PageContentBase extends MySQLConnection
 {
     /** @var object Page content. */
     public $content;
@@ -18,9 +21,9 @@ class PageContentBase /* extends DBConnection */
     /** @var string Token representing the current action to take on the page. */
     public $action;
 	/** @var string URL to use for redirects. */
-	public $redirect_url;
+	public $redirectURL;
 	/** @var string Path to template file. */
-	public $template_path;
+	public $templatePath;
 
     /**
      * class constructor
@@ -30,9 +33,9 @@ class PageContentBase /* extends DBConnection */
 	    $this->content = null;
 	    $this->filters = null;
 	    $this->qs = '';
-	    $this->template_path = '';
+	    $this->templatePath = '';
 	    $this->action = '';
-	    $this->redirect_url = '';
+	    $this->redirectURL = '';
     }
 
     /**
@@ -71,11 +74,12 @@ class PageContentBase /* extends DBConnection */
 	 * @param array $page_vars Array of Input objects used to collect page variable values
 	 * to store in query string.
 	 */
-	protected function preserve_page_variables( $page_vars )
+	protected function preservePageVariables($page_vars )
 	{
 		$qs_vars = array();
 		foreach($page_vars as $input) {
-			$input->fillFromInput();
+			/** @var $input HttpInput */
+			$input->collectValue();
 			if ($input->value===true) {
 				array_push($qs_vars, "{$input->param}=1");
 			}
@@ -114,13 +118,13 @@ class PageContentBase /* extends DBConnection */
 
     /**
      * Inserts data into a template file and renders the result.
-     * @param string $p_template_path Path to template to render.
-     * @param array $context Data to insert into the template.
+     * @param string|null $p_template_path Path to template to render.
+     * @param array|null $context Data to insert into the template.
      */
 	public function render( $p_template_path=null, $context=null )
 	{
 		if ($p_template_path===null || $p_template_path==='') {
-			$p_template_path = $this->template_path;
+			$p_template_path = $this->templatePath;
 		}
 		if (is_array($context)) {
 			foreach($context as $key => $val) {
@@ -128,5 +132,15 @@ class PageContentBase /* extends DBConnection */
 			}
 		}
 		include ($p_template_path);
+	}
+
+	/**
+	 * Inserts data into a template file and renders the result. Alias for class's render() method.
+	 * @param string|null $template_path Path to template to render.
+	 * @param array|null $context Data to insert into the template.
+	 */
+	public function sendResponse( $template_path=null, $context=null )
+	{
+		$this->render($template_path, $context);
 	}
 }
