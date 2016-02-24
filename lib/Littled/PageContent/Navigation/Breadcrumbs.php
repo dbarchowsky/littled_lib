@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\PageContent\PageContent;
+use Littled\PageContent\Navigation\BreadcrumbsNode;
 
 
 /**
