@@ -1,8 +1,6 @@
 <?php
 namespace Littled\Database;
 
-require_once ("../App/AppBase.php");
-
 use Littled\App\AppBase;
 
 
