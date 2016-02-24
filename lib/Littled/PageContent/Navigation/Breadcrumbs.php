@@ -18,7 +18,7 @@ class Breadcrumbs
 	/** @var string Path to template used to display the breadcrumbs. */
 	public static $breadcrumbsTemplate = "";
 	/** @var string Class name of the class used to render the breadcrumb nodes. */
-	public static $nodeType = "BreadCrumbsNode";
+	public static $nodeType = "BreadcrumbsNode";
 
 	/**
 	 * Class constructor.
