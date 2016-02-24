@@ -10,24 +10,24 @@ use Littled\PageContent\PageContent;
  */
 class NavigationMenuNode
 {
-	/** @var string Node label displayed on the page */
-	public $label;
-	/** @var string URL that the node links to */
-	public $url;
-	/** @var string Named browser target. For opening new browser windows, e.g. "_blank" */
-	public $target;
-	/** @var int Nesting level of the node. */
-	public $level;
+	/** @var string Extra attributes to add to the node HTML tag, e.g. "data-id" */
+	public $attributes;
 	/** @var string CSS class to apply to the node */
 	public $cssClass;
 	/** @var string DOM id value */
 	public $domId;
-	/** @var string Extra attributes to add to the node HTML tag, e.g. "data-id" */
-	public $attributes;
-	/** @var NavigationMenuNode Link to previous node in the menu. */
-	public $prevNode;
+	/** @var string Node label displayed on the page */
+	public $label;
+	/** @var int Nesting level of the node. */
+	public $level;
 	/** @var NavigationMenuNode Link to next node in the menu. */
 	public $nextNode;
+	/** @var NavigationMenuNode Link to previous node in the menu. */
+	public $prevNode;
+	/** @var string Named browser target. For opening new browser windows, e.g. "_blank" */
+	public $target;
+	/** @var string URL that the node links to */
+	public $url;
 
 	/** @var string Path to template to use to render the node */
 	public static $menuNodeTemplate = "";

@@ -14,9 +14,14 @@ class NavigationMenu
 	/** @var NavigationMenuNode Pointer to last node in the menu. */
 	public $last;
 
+	/** @var string Path to template to use to render the menu in markup. */
 	public static $menuTemplate = "";
+	/** @var string Class name to use to manage the navigation menu nodes. Default is NavigationMenuNode. */
 	public static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
+	/**
+	 * NavigationMenu constructor.
+	 */
 	public function __construct()
 	{
 		if (defined('LITTLED_TEMPLATE_DIR')) {
@@ -24,16 +29,6 @@ class NavigationMenu
 		}
 		/* @todo throw configuration error if LITTLED_TEMPLATE_DIR is not defined */
 		/* @todo throw resource not found error if template file doesn't exist */
-	}
-	
-	/**
-	 * Outputs navigation menu markup.
-	 */
-	function render () 
-	{
-		PageContent::render($this::$menuTemplate, array(
-			'menu' => &$this
-		));
 	}
 	
 	/**
@@ -88,4 +83,14 @@ class NavigationMenu
 	{
 		return (isset($this->first));
 	}
-} 
+
+	/**
+	 * Outputs navigation menu markup.
+	 */
+	function render ()
+	{
+		PageContent::render($this::$menuTemplate, array(
+			'menu' => &$this
+		));
+	}
+}

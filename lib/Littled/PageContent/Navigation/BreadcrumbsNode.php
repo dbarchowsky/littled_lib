@@ -11,18 +11,20 @@ use Littled\PageContent\PageContent;
  */
 class BreadcrumbsNode
 {
+	/** @var string CSS class to apply to the node. */
+	public $cssClass;
+	/** @var string DOM id for the node element */
+	public $domId;
 	/** @var string Node label to display on the page. */
     public $label;
-	/** @var null|string URL that the node links to */
-    public $url;
-	/** @var string CSS class to apply to the node. */
-    public $cssClass;
-	/** @var string DOM id for the node element */
-    public $domId;
-
-    public $prevNode;
+	/** @var BreadcrumbsNode Pointer to next node in the list. */
     public $nextNode;
+	/** @var BreadcrumbsNode Pointer to previous node in the list. */
+	public $prevNode;
+	/** @var null|string URL that the node links to */
+	public $url;
 
+	/** @var string Path to template to use to render individual breadcrumb nodes. */
 	public static $breadcrumbsNodeTemplate = "";
 	
     /**
@@ -35,7 +37,7 @@ class BreadcrumbsNode
     function __construct ( $label, $url=null, $dom_id="", $css_class="")
     {
 	    if (defined('LITTLED_TEMPLATE_DIR')) {
-		    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs_node.php";
+		    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs-node.php";
 	    }
 	    /* @todo throw configuration error if LITTLED_TEMPLATE_DIR not defined */
 	    /* @todo throw resource not found error if template file doesn't exist */

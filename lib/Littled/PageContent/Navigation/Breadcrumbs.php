@@ -33,16 +33,6 @@ class Breadcrumbs
 	}
 	
 	/**
-	 * Outputs navigation menu markup.
-	 */
-	function render () 
-	{
-		PageContent::render($this::$breadcrumbsTemplate, array(
-			'breadcrumbs' => &$this
-		));
-	}
-	
-	/**
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label Text to display for this item within the navigation menu.
 	 * @param string $url (Optional) URL where the menu item will link to.
@@ -66,25 +56,6 @@ class Breadcrumbs
 	}
 	
 	/**
-	 * removes the last node from the chain
-	 */
-	function dropLast ( )
-	{
-		if (!isset($this->last)) {
-			return;
-		}
-		
-		if (isset($this->last->prevNode)) {
-			$node = $this->last->prevNode;
-			unset($node->nextNode);
-			$this->last = $node;
-		} 
-		else {
-			unset($this->last);
-		} 
-	}
-	
-	/**
 	 * Remove and delete all nodes on the tree.
 	 */
 	public function clearNodes()
@@ -101,7 +72,26 @@ class Breadcrumbs
 		}
 		unset($this->first);
 	}
-	
+
+	/**
+	 * removes the last node from the chain
+	 */
+	function dropLast ( )
+	{
+		if (!isset($this->last)) {
+			return;
+		}
+
+		if (isset($this->last->prevNode)) {
+			$node = $this->last->prevNode;
+			unset($node->nextNode);
+			$this->last = $node;
+		}
+		else {
+			unset($this->last);
+		}
+	}
+
 	/**
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool true if the menu has nodes, false otherwise
@@ -110,4 +100,14 @@ class Breadcrumbs
 	{
 		return (isset($this->first));
 	}
-} 
+
+	/**
+	 * Outputs navigation menu markup.
+	 */
+	function render ()
+	{
+		PageContent::render($this::$breadcrumbsTemplate, array(
+			'breadcrumbs' => &$this
+		));
+	}
+}
