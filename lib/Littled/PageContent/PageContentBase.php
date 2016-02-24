@@ -79,7 +79,13 @@ class PageContentBase extends MySQLConnection
 		$qs_vars = array();
 		foreach($page_vars as $input) {
 			/** @var $input HttpInput */
-			$input->collectValue();
+			if ($input instanceof HttpInput) {
+				$input->collectValue();
+			}
+			else {
+				/* @todo remove this after common_lib is removed from all projects */
+				$input->fill_from_input();
+			}
 			if ($input->value===true) {
 				array_push($qs_vars, "{$input->param}=1");
 			}
