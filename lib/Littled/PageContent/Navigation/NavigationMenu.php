@@ -15,7 +15,7 @@ class NavigationMenu
 	public $last;
 
 	public static $menuTemplate = "";
-	public static $nodeType = "NavigationMenuNode";
+	public static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
 	public function __construct()
 	{
