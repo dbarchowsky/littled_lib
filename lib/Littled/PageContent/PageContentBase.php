@@ -2,7 +2,9 @@
 namespace Littled\PageContent;
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Request\HttpInput;
+use Littled\Validation\Validation;
 
 /**
  * Class PageContentBase
@@ -37,6 +39,31 @@ class PageContentBase extends MySQLConnection
 	    $this->action = '';
 	    $this->redirectURL = '';
     }
+
+	/**
+	 * Sets the id property value of the object's content from request variable values, e.g. GET, POST, etc.
+	 * First checks if a variable named "id" is present. 2nd, checks for a variable corresponding to the content
+	 * object's id's internal parameter name.
+	 * @return int|null Id value that was found, or null if no valid integer value was found for the content id.
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function collectContentId()
+	{
+		if (!defined('P_ID')) {
+			throw new ConfigurationUndefinedException("P_ID not defined in app settings.");
+		}
+		$this->content->id->value = Validation::parseIntegerInput(P_ID);
+		if ($this->content->id->value===null) {
+			if ($this->content->id instanceof HttpInput) {
+				$this->content->id->collectValue();
+			}
+			else {
+				/* @todo remove this call after older version of IntegerInput class is fully removed from all apps */
+				$this->content->id->fill_from_input();
+			}
+		}
+		return ($this->content->id->value);
+	}
 
     /**
      * Sets the value of the object's $action property based on
