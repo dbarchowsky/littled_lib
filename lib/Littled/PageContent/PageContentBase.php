@@ -168,6 +168,14 @@ class PageContentBase extends MySQLConnection
 				'filters' => &$this->filters,
 				'qs' => $this->qs
 			);
+			if (is_object($this->content)) {
+				if (property_exists($this->content, 'errorString')) {
+					$context['page_errors'] = $this->content->errorString;
+				}
+				elseif(property_exists($this->content, 'error_string')) {
+					$context['page_errors'] = $this->content->error_string;
+				}
+			}
 		}
 		foreach($context as $key => $val) {
 			${$key} = $val;
