@@ -27,6 +27,9 @@ class PageContentBase extends MySQLConnection
 	/** @var string Path to template file. */
 	public $templatePath;
 
+	const CANCEL_ACTION = "cancel";
+	const COMMIT_ACTION = "commit";
+
     /**
      * class constructor
      */
@@ -76,12 +79,12 @@ class PageContentBase extends MySQLConnection
         }
         $this->action = filter_input(INPUT_POST, P_CANCEL, FILTER_SANITIZE_STRING);
         if ($this->action) {
-            $this->action = "cancel";
+            $this->action = self::CANCEL_ACTION;
         }
         else {
             $this->action = filter_input(INPUT_POST, P_COMMIT, FILTER_SANITIZE_STRING);
             if ($this->action) {
-                $this->action = "commit";
+                $this->action = self::COMMIT_ACTION;
             }
         }
     }
