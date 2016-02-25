@@ -1,6 +1,6 @@
-/** @var $menu Littled\PageContent\Navigation\NavigationMenu */
-<? if ($this->url): ?>
-		<li<? if ($this->next_node===null): ?> class="page-title"<? endif; ?>><a href="<?=htmlentities($this->url) ?>"<? if ($this->id): ?> id="<?=$this->id?>"<? endif; ?><? if ($this->class): ?> class="<?=$this->class?>"<? endif; ?>><?=$this->label?></a></li>
-<? else: ?>
-		<li<? if ($this->next_node===null): ?> class="page-title"<? endif; ?><? if ($this->id): ?> id="<?=$this->id?>"<? endif; ?><? if ($this->class): ?> class="<?=$this->class?>"<? endif; ?>><?=$this->label?></li>
-<? endif; ?>
+/** @var $node Littled\PageContent\Navigation\BreadcrumbsNode */
+<?php if ($node->url): ?>
+		<li<?php if ($node->nextNode===null): ?> class="page-title"<?php endif; ?>><a href="<?=htmlentities($node->url) ?>"<?php if ($node->domId): ?> id="<?=$node->domId?>"<?php endif; ?><?php if ($node->cssClass): ?> class="<?=$node->cssClass?>"<?php endif; ?>><?=$node->label?></a></li>
+<?php else: ?>
+		<li<?php if ($node->nextNode===null): ?> class="page-title"<?php endif; ?><?php if ($node->domId): ?> id="<?=$node->domId?>"<?php endif; ?><?php if ($node->cssClass): ?> class="<?=$node->cssClass?>"<?php endif; ?>><?=$node->label?></li>
+<?php endif; ?>
