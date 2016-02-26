@@ -1,7 +1,10 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
+
 
 /**
  * Class NavigationMenuNode
@@ -40,14 +43,19 @@ class NavigationMenuNode
 	 * @param integer $level (Optional) Indentation level of the menu item.
 	 * @param string $dom_id  (Optional) Sets the id attribute of the menu item element.
 	 * @param string $attributes (Optional) Hook to insert any extra attributes into the menu item element.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ResourceNotFoundException
 	 */
 	function __construct ( $label=null, $url=null, $target=null, $level=0, $dom_id=null, $attributes=null)
 	{
-		if (defined('LITTLED_TEMPLATE_DIR')) {
-			$this::$menuNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/navmenu-node.php";
+		if (!defined('LITTLED_TEMPLATE_DIR')) {
+			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
 		}
-		/* @todo throw configuration error if LITTLED_TEMPLATE_DIR is not defined */
-		/* @todo throw resource not found error if template file doesn't exist */
+
+		$this::$menuNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/navmenu-node.php";
+		if (!file_exists($this::$menuNodeTemplate)) {
+			throw new ResourceNotFoundException("Navigation menu template not found at {$this::$menuNodeTemplate}.");
+		}
 
 		$this->label = $label;
 		$this->url = $url;

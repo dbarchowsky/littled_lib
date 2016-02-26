@@ -2,6 +2,9 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\PageContent\PageContent;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ResourceNotFoundException;
+
 
 /**
  * Class NavigationMenu
@@ -21,14 +24,18 @@ class NavigationMenu
 
 	/**
 	 * NavigationMenu constructor.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ResourceNotFoundException
 	 */
 	public function __construct()
 	{
-		if (defined('LITTLED_TEMPLATE_DIR')) {
-			$this::$menuTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/navmenu.php";
+		if (!defined('LITTLED_TEMPLATE_DIR')) {
+			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
 		}
-		/* @todo throw configuration error if LITTLED_TEMPLATE_DIR is not defined */
-		/* @todo throw resource not found error if template file doesn't exist */
+		$this::$menuTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/navmenu.php";
+		if (!file_exists($this::$menuTemplate)) {
+			throw new ResourceNotFoundException("Navigation menu template not found at {$this::$menuTemplate}.");
+		}
 	}
 	
 	/**

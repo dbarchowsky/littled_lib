@@ -2,6 +2,8 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\PageContent\PageContent;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ResourceNotFoundException;
 
 
 /**
@@ -31,21 +33,26 @@ class BreadcrumbsNode
      * Class constructor.
      * @param string $label Text to display for this item within the navigation menu.
      * @param string $url (Optional) URL where the menu item will link to.
-     * @param string $dom_id (Optional) value for the breadcrumb node's id attribute.
-     * @param string $css_class (Optional) value for the breadcrumb node's class attribute.
+     * @param string $dom_dom_id (Optional) value for the breadcrumb node's id attribute.
+     * @param string $css_css_class (Optional) value for the breadcrumb node's class attribute.
+     * @throws ConfigurationUndefinedException
+     * @throws ResourceNotFoundException
      */
-    function __construct ( $label, $url=null, $dom_id="", $css_class="")
+    function __construct ($label, $url=null, $dom_dom_id="", $css_css_class="")
     {
-	    if (defined('LITTLED_TEMPLATE_DIR')) {
-		    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs-node.php";
+	    if (!defined('LITTLED_TEMPLATE_DIR')) {
+		    throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
 	    }
-	    /* @todo throw configuration error if LITTLED_TEMPLATE_DIR not defined */
-	    /* @todo throw resource not found error if template file doesn't exist */
+
+	    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs-node.php";
+	    if (!file_exists($this::$breadcrumbsNodeTemplate)) {
+		    throw new ResourceNotFoundException("Breadcrumbs template not found at {$this::$breadcrumbsNodeTemplate}.");
+	    }
 
 		$this->label = $label;
 		$this->url = $url;
-		$this->cssClass = $css_class;
-		$this->domId = $dom_id;
+		$this->cssClass = $css_css_class;
+		$this->domId = $dom_dom_id;
     }
 
     /**
