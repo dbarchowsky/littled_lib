@@ -184,6 +184,14 @@ class PageContentBase extends MySQLConnection
 	}
 
 	/**
+	 * Prevents any variable values that were previously cached from being passed along to subsequent pages.
+	 */
+	public function resetPageVariables()
+	{
+		$this->qs = '';
+	}
+
+	/**
 	 * Inserts data into a template file and renders the result. Alias for class's render() method.
 	 * @param string|null $template_path Path to template to render.
 	 * @param array|null $context Data to insert into the template.
