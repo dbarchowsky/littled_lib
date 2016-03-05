@@ -235,6 +235,9 @@ class Validation
 			if (strpos($value, ".") !== false) {
 				return ((float)$value);
 			}
+			elseif($value > PHP_INT_MAX) {
+				return ((float)$value);
+			}
 			else {
 				return ((int)$value);
 			}

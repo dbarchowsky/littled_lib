@@ -5,11 +5,14 @@ class ValidationTest extends PHPUnit_Framework_TestCase
 {
 	public function testParseNumeric()
 	{
+		$int_overflow = (PHP_INT_MAX+1);
+
 		$this->assertEquals(Littled\Validation\Validation::parseNumeric("1"), 1, "\"1\" returns numeric value.");
 		$this->assertEquals(Littled\Validation\Validation::parseNumeric("0"), 0, "\"0\" returns numeric value.");
 		$this->assertEquals(Littled\Validation\Validation::parseNumeric("-1"), -1);
 		$this->assertEquals(Littled\Validation\Validation::parseNumeric("5"), 5);
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("9757848484"), 9757848484);
+		$this->assertEquals(Littled\Validation\Validation::parseNumeric("".PHP_INT_MAX), PHP_INT_MAX, "parseNumeric() with largest possible integer value");
+		$this->assertEquals(Littled\Validation\Validation::parseNumeric("".(PHP_INT_MAX+1)), $int_overflow, "parseNumeric() with value overflowing int max value");
 		$this->assertEquals(Littled\Validation\Validation::parseNumeric("0.01"), 0.01);
 		$this->assertEquals(Littled\Validation\Validation::parseNumeric("4.5"), 4.5);
 		$this->assertNull(Littled\Validation\Validation::parseNumeric("zero"));
