@@ -20,6 +20,8 @@ class CacheControl
 {
 	/** @var string URI of the original request. */
 	public $sourceURI;
+	/** @var string Path to root directory for assets. */
+	public $rootDir;
 	/** @var string URI of the original request. */
 	public $fullpath;
 	/** @var CacheControlType Object representing the cache controls for the requested file type. */
@@ -45,6 +47,7 @@ class CacheControl
 			new CacheControlType('svg', 'image/svg+xml', true, CacheControlType::MAX_AGE_1_WEEK, false)
 		);
 		$this->sourceURI     = '';
+		$this->rootDir       = '';
 		$this->fullpath      = '';
 		$this->CacheControlType     = null;
 	}
@@ -98,12 +101,21 @@ class CacheControl
 	}
 
 	/**
+	 * Sets the root path under which assets are located, e.g. the site's root directory.
+	 * @param string $path Path of the assets' base directory.
+	 */
+	public function setRootDir($path)
+	{
+		$this->rootDir = $path;
+	}
+
+	/**
 	 * Validates the requested asset's file.
 	 * @throws ResourceNotFoundException
 	 */
 	public function validateAsset()
 	{
-		$this->fullpath = realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR.$this->sourceURI;
+		$this->fullpath = $this->rootDir.$this->sourceURI;
 		if (!file_exists($this->fullpath)) {
 			throw new ResourceNotFoundException("{$this->sourceURI} not found.");
 		}
