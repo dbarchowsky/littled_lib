@@ -32,16 +32,16 @@ class StringInput extends RequestInput
 		$this->value = null;
 		if ($this->index===null) {
 			/* single value */
-			$this->value = filter_input(INPUT_POST, $this->param, $filters);
+			$this->value = filter_input(INPUT_POST, $this->key, $filters);
 			if ($this->value===null || $this->value===false) {
-				$this->value = filter_input(INPUT_GET, $this->param, $filters);
+				$this->value = filter_input(INPUT_GET, $this->key, $filters);
 			}
 		}
 		else {
 			/* array */
-			$arr = filter_input(INPUT_POST, $this->param, FILTER_REQUIRE_ARRAY, $filters);
+			$arr = filter_input(INPUT_POST, $this->key, FILTER_REQUIRE_ARRAY, $filters);
 			if (!is_array($arr)) {
-				$arr = filter_input(INPUT_GET, $this->param, FILTER_REQUIRE_ARRAY, $filters);
+				$arr = filter_input(INPUT_GET, $this->key, FILTER_REQUIRE_ARRAY, $filters);
 			}
 			if (is_array($arr) && array_key_exists($this->index, $arr)) {
 				$this->value = $arr[$this->index];

@@ -36,7 +36,7 @@ class RequestInput
 	/** @var string Label to display where descriptions of the input are needed. */
 	public $label;
 	/** @var string  Name of script argument. Name of key in query string or form data. */
-	public $param;
+	public $key;
 	/** @var bool Set to TRUE if a value for this form data is required. */
 	public $required;
 	/** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textbox inputs. */
@@ -59,19 +59,19 @@ class RequestInput
 	 */
 	function __construct ( $label, $param, $required=false, $value=null, $size_limit=0, $index=null )
 	{
-		$this->label = $label;
-		$this->param = $param;
-		$this->value = $value;
-		$this->sizeLimit = $size_limit;
-		$this->required = $required;
-		$this->index = $index;
-		$this->hasErrors = false;
-		$this->class = "";
-		$this->width = "";
-		$this->error = "";
-		$this->dbField = true;
+		$this->label              = $label;
+		$this->key                = $param;
+		$this->value              = $value;
+		$this->sizeLimit          = $size_limit;
+		$this->required           = $required;
+		$this->index              = $index;
+		$this->hasErrors          = false;
+		$this->class              = "";
+		$this->width              = "";
+		$this->error              = "";
+		$this->dbField            = true;
 		$this->displayPlaceholder = false;
-		$this->contentType = "text";
+		$this->contentType        = "text";
 	}
 
 	/**
@@ -93,6 +93,19 @@ class RequestInput
 	}
 
 	/**
+	 * Escapes the object's value property for inclusion in SQL queries.
+	 * @param \mysqli $mysqli
+	 * @return string Escaped value.
+	 */
+	public function escapeSQL($mysqli)
+	{
+		if ($this->value===null) {
+			return ("null");
+		}
+		return "'".$mysqli->real_escape_string($this->value)."'";
+	}
+
+	/**
 	 * Sets the $value property of the object from the value of the session value corresponding to the object's
 	 * $param property.
 	 * @param string $cookie_name Name of the cookie collection containing the value to be retrieved.
@@ -100,11 +113,11 @@ class RequestInput
 	 */
 	public function fillFromSession($cookie_name)
 	{
-		if (isset($_SESSION[$this->param])) {
-			$this->value = $_SESSION[$this->param];
+		if (isset($_SESSION[$this->key])) {
+			$this->value = $_SESSION[$this->key];
 		}
-		elseif(isset($_COOKIE[$cookie_name][$this->param])) {
-			$this->value = $_COOKIE[$cookie_name][$this->param];
+		elseif(isset($_COOKIE[$cookie_name][$this->key])) {
+			$this->value = $_COOKIE[$cookie_name][$this->key];
 		}
 	}
 
@@ -171,7 +184,7 @@ class RequestInput
 			return;
 		}
 		PageContent::render(LITTLED_TEMPLATE_DIR.self::TEMPLATE_PATH."hidden-input.php", array(
-			'param' => $this->param,
+			'key' => $this->key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
 		));

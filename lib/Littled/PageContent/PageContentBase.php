@@ -117,10 +117,10 @@ class PageContentBase extends MySQLConnection
 				$input->fill_from_input();
 			}
 			if ($input->value===true) {
-				array_push($qs_vars, "{$input->param}=1");
+				array_push($qs_vars, "{$input->key}=1");
 			}
 			elseif(strlen($input->value) > 0) {
-				array_push($qs_vars, "{$input->param}=".urlencode($input->value));
+				array_push($qs_vars, "{$input->key}=" . urlencode($input->value));
 			}
 		}
 		if (count($qs_vars) > 0) {

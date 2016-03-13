@@ -1,1 +1,1 @@
-<input type="hidden" name="<?=$param.$index?>" value="<?=$value?>" />
+<input type="hidden" name="<?=$key.$index?>" value="<?=$value?>" />
