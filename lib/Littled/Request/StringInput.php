@@ -5,7 +5,7 @@ namespace Littled\Request;
  * Class StringInput
  * @package Littled\Request
  */
-class StringInput extends HttpInput
+class StringInput extends RequestInput
 {
 	/**
 	 * Clears the data container value.

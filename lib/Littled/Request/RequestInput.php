@@ -6,11 +6,11 @@ use Littled\Exception\NotImplementedException;
 use Littled\PageContent\PageContent;
 
 /**
- * Class Input
+ * Class RequestInput
  * Base class for all varieties of request input
  * @package Littled\Request
  */
-class HttpInput
+class RequestInput
 {
 	/** @var string Name of CSS class to be used when displaying the form input. */
 	public $cssClass;
