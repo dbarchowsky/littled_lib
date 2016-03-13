@@ -2,9 +2,9 @@
 namespace Littled\Model;
 
 require_once ("./Utilities.php");
-require_once ("../Forms/Input.php");
+require_once( "../Forms/RequestInput.php" );
 
-use Littled\Forms\Input;
+use Littled\Forms\RequestInput;
 
 class Validation extends Utilities
 {
@@ -25,8 +25,8 @@ class Validation extends Utilities
 	 */
 	protected function is_input(&$key, &$item, &$used_params)
 	{
-		$is_input = (($item instanceof Input) &&
-			($key != "id") &&
+		$is_input = ( ( $item instanceof RequestInput) &&
+		              ($key != "id") &&
 			($key != "index") &&
 			($item->db_field==true));
 		if ($is_input) {

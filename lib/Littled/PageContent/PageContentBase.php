@@ -3,7 +3,7 @@ namespace Littled\PageContent;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Request\HttpInput;
+use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
 /**
@@ -57,7 +57,7 @@ class PageContentBase extends MySQLConnection
 		}
 		$this->content->id->value = Validation::parseIntegerInput(P_ID);
 		if ($this->content->id->value===null) {
-			if ($this->content->id instanceof HttpInput) {
+			if ( $this->content->id instanceof RequestInput) {
 				$this->content->id->collectValue();
 			}
 			else {
@@ -108,8 +108,8 @@ class PageContentBase extends MySQLConnection
 	{
 		$qs_vars = array();
 		foreach($page_vars as $input) {
-			/** @var $input HttpInput */
-			if ($input instanceof HttpInput) {
+			/** @var $input RequestInput */
+			if ( $input instanceof RequestInput) {
 				$input->collectValue();
 			}
 			else {
