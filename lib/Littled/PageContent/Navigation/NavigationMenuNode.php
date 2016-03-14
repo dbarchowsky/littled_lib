@@ -17,6 +17,8 @@ class NavigationMenuNode
 	public $attributes;
 	/** @var string CSS class to apply to the node */
 	public $cssClass;
+	/** @var string Description */
+	public $title;
 	/** @var string DOM id value */
 	public $domId;
 	/** @var string Node label displayed on the page */
@@ -38,6 +40,7 @@ class NavigationMenuNode
 	/**
 	 * Class constructor.
 	 * @param string $label Text to display for this item within the navigation menu.
+	 * @param string $title Title attribute value for the node element.
 	 * @param string $url (Optional) URL where the menu item will link to.
 	 * @param string $target (Optional) Target window for the link. Defaults to the same window.
 	 * @param integer $level (Optional) Indentation level of the menu item.
@@ -46,7 +49,7 @@ class NavigationMenuNode
 	 * @throws ConfigurationUndefinedException
 	 * @throws ResourceNotFoundException
 	 */
-	function __construct ( $label=null, $url=null, $target=null, $level=0, $dom_id=null, $attributes=null)
+	function __construct ( $label=null, $url=null, $target=null, $title='', $level=0, $dom_id=null, $attributes=null)
 	{
 		if (!defined('LITTLED_TEMPLATE_DIR')) {
 			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
@@ -60,6 +63,7 @@ class NavigationMenuNode
 		$this->label = $label;
 		$this->url = $url;
 		$this->target = $target;
+		$this->title = $title;
 		$this->level = $level;
 		$this->domId = $dom_id;
 		$this->attributes = $attributes;

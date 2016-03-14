@@ -7,8 +7,8 @@
 				endif;
 			else: ?> href="#" rel="nofollow"<?php
 			endif;
-			if ($node->domId): ?> id="<?=$node->domId?>"<?php
-			endif;
+			if ($node->title): ?> title="<?=$node->title?>"<?php endif;
+			if ($node->domId): ?> id="<?=$node->domId?>"<?php endif;
 			if ($node->attributes):
 				print " ".$node->attributes;
 			endif; ?>><?=$node->label?></a></li>
