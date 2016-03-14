@@ -10,9 +10,11 @@ class BooleanInputTest extends DatabaseTestCase
 {
 	public function testCollectValue()
 	{
-		// $_POST["test"] = 'true';
-		// $test = filter_input(INPUT_POST, 'test', FILTER_SANITIZE_STRING);
-		// $this->assertEquals('test', $test);
+		$key = "test";
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$_POST = array($key => 'true');
+		$test = filter_input(INPUT_POST, $key, FILTER_SANITIZE_STRING);
+		$this->assertEquals('true', $test);
 	}
 
 	public function testEscapeSQL()
