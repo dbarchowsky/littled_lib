@@ -318,15 +318,26 @@ class Validation
 	}
 
 	/**
-	 * Tests a string to see if it represents a recognized value that can be converted into a valid date.
-	 * @param string $src Date string to test.
+	 * Tests date string to see if it is in Y-m-d, d/m/y, or d/m/Y format.
+	 * @param string $date Date string to test.
+	 * @returns \DateTime
 	 * @throws ContentValidationException
 	 */
-	public static function validateDateString($src)
+	public static function validateDateString($date)
 	{
-		if (strtotime($src)) {
-			throw new ContentValidationException("Unrecognized date value.");
+		$d = \DateTime::createFromFormat('Y-m-d', $date);
+		if ($d && $d->format('Y-m-d') == $date) {
+			return ($d);
 		}
+		$d = \DateTime::createFromFormat('d/m/y', $date);
+		if ($d && $d->format('Y-m-d') == $date) {
+			return ($d);
+		}
+		$d = \DateTime::createFromFormat('d/m/Y', $date);
+		if ($d && $d->format('Y-m-d') == $date) {
+			return ($d);
+		}
+		throw new ContentValidationException("Unrecognized date value.");
 	}
 
 	/**

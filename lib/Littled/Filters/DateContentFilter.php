@@ -17,8 +17,8 @@ class DateContentFilter extends StringContentFilter
 		parent::collectValue($read_cookies);
 		if ($this->value) {
 			try {
-				Validation::validateDateString($this->value);
-				$this->value = date("m/d/Y", strtotime($this->value));
+				$d = Validation::validateDateString($this->value);
+				$this->value = $d->format("m/d/Y");
 			}
 			catch (ContentValidationException $ex) {
 				$this->value = "[".$ex->getMessage()."]";
