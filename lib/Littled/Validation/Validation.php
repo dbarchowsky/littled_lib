@@ -26,7 +26,10 @@ class Validation
 				return (array_filter($input_value, 'Littled\Validation\Validation::isInteger'));
 			}
 			else {
-				return (array(Validation::parseInteger($input_value)));
+				$value = Validation::parseInteger($input_value);
+				if ($value) {
+					return (array($value));
+				}
 			}
 		}
 		return (null);
