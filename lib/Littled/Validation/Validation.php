@@ -104,7 +104,7 @@ class Validation
 			return ($result);
 		}
 		$value = Validation::collectIntegerRequestVar($key);
-		if ($value) {
+		if ($value!==null) {
 			return (array($value));
 		}
 		return (array());
