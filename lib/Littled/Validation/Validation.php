@@ -1,6 +1,7 @@
 <?php
 
 namespace Littled\Validation;
+use Littled\Exception\ContentValidationException;
 
 /**
  * Class Validation
@@ -43,10 +44,58 @@ class Validation
 	}
 
 	/**
+	 * Converts script argument (query string or form data) to array of numeric values.
+	 * @param string $key Key containing potential numeric values.
+	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
+	 */
+	public static function collectIntegerArrayRequestVar($key)
+	{
+		$result = filter_input_array(INPUT_GET, array($key => FILTER_VALIDATE_INT), FILTER_NULL_ON_FAILURE);
+		if ($result===null || $result===false) {
+			$result = filter_input_array(INPUT_POST, array($key => FILTER_VALIDATE_INT), FILTER_NULL_ON_FAILURE);
+		}
+		if ($result===null || $result===false) {
+			return (array());
+		}
+		return ($result);
+	}
+
+	/**
+	 * Returns request variable as explicit integer value, or null if the request variable is not set or does not
+	 * represent a float value.
+	 * @param string $key Key in the collection storing the value to look up.
+	 * @param int $index Index of the array to look up, if the variable's value is an array.
+	 * @param array $src Array to search for $key, e.g. $_GET or $_POST
+	 * @return int|null|string
+	 */
+	public static function collectIntegerRequestVar($key, $index=null, $src=null)
+	{
+		$value = Validation::_parseInput(FILTER_VALIDATE_INT, $key, $index, $src);
+		return Validation::parseInteger($value);
+	}
+
+	/**
+	 * Converts script argument (query string or form data) to array of numeric values.
+	 * @param string $key Key containing potential numeric values.
+	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
+	 */
+	public static function collectNumericArrayRequestVar($key)
+	{
+		$result = filter_input_array(INPUT_GET, array($key => FILTER_VALIDATE_FLOAT), FILTER_NULL_ON_FAILURE);
+		if ($result===null || $result===false) {
+			$result = filter_input_array(INPUT_POST, array($key => FILTER_VALIDATE_FLOAT), FILTER_NULL_ON_FAILURE);
+		}
+		if ($result===null || $result===false) {
+			return (array());
+		}
+		return ($result);
+	}
+
+	/**
 	 * Searches POST and GET data in that order, for a property corresponding to
 	 * $key.
 	 * @param string $key Key of the variable value to collect.
-	 * @param string $filter Filter token corresponding to the 3rd parameter of
+	 * @param int $filter Filter token corresponding to the 3rd parameter of
 	 * PHP's built-in filter_input() routine.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
@@ -211,17 +260,15 @@ class Validation
 	}
 
 	/**
-	 * Returns request variable as explicit integer value, or null if the request variable is not set or does not
-	 * represent a float value.
-	 * @param string $key Key in the collection storing the value to look up.
-	 * @param int $index Index of the array to look up, if the variable's value is an array.
-	 * @param array $src Array to search for $key, e.g. $_GET or $_POST
-	 * @return int|null|string
+	 * @param string $key
+	 * @param int $index
+	 * @param array $src
+	 * @return int|null
+	 * @deprecated Use collectIntegerRequestVar() instead.
 	 */
 	public static function parseIntegerInput( $key, $index=null, $src=null )
 	{
-		$value = Validation::_parseInput(FILTER_VALIDATE_INT, $key, $index, $src);
-		return Validation::parseInteger($value);
+		return Validation::parseIntegerInput($key,$index,$src);
 	}
 
 	/**
@@ -246,44 +293,14 @@ class Validation
 	}
 
 	/**
-	 * Converts script argument (query string or form data) to array of numeric values.
-	 * @param string $key Key containing potential numeric values.
-	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
+	 * Deprecated. Use collectNumericArrayRequestVar() instead.
+	 * @param string $key
+	 * @return mixed
+	 * @deprecated
 	 */
-	public static function parseNumericArrayInput( $key )
+	public static function parseNumericArrayInput($key)
 	{
-		/** @todo use filter_var() in place of accessing $_REQUEST directly */
-		if (isset($_REQUEST[$key]))
-		{
-			if (is_array($_REQUEST[$key]))
-			{
-				$arTemp = array();
-				foreach($_REQUEST[$key] as $value)
-				{
-					if (is_numeric($value))
-					{
-						$arTemp[count($arTemp)] = (int)$value;
-					}
-					elseif (strpos($value, ",")>0)
-					{
-						$arVals = explode(",", $value);
-						foreach($arVals as $subval)
-						{
-							if (is_numeric(trim($subval)))
-							{
-								$arTemp[count($arTemp)] = (int)trim($subval);
-							}
-						}
-					}
-				}
-				return ($arTemp);
-			}
-			elseif (is_numeric($_REQUEST[$key]))
-			{
-				return(array((int)$_REQUEST[$key]));
-			}
-		}
-		return (null);
+		return (Validation::collectNumericArrayRequestVar($key));
 	}
 
 	/**
@@ -298,6 +315,18 @@ class Validation
 	{
 		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return((is_numeric($value))?($value):(null));
+	}
+
+	/**
+	 * Tests a string to see if it represents a recognized value that can be converted into a valid date.
+	 * @param string $src Date string to test.
+	 * @throws ContentValidationException
+	 */
+	public static function validateDateString($src)
+	{
+		if (strtotime($src)) {
+			throw new ContentValidationException("Unrecognized date value.");
+		}
 	}
 
 	/**
