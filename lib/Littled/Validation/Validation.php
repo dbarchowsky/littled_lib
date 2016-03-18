@@ -11,6 +11,28 @@ use Littled\Exception\ContentValidationException;
 class Validation
 {
 	/**
+	 * Retrieves any valid integer values passed as request paramters.
+	 * @param int $input_type Token representing input type, e.g. INPUT_GET or INPUT_POST
+	 * @param string $key Key in the input collection to use to collect values.
+	 * @param array $definition Filtering definition to pass to PHP's filter_input_array() routine.
+	 * @return array|null
+	 */
+	protected static function _filterIntegerInputArray($input_type, $key, $definition)
+	{
+		$result = filter_input_array($input_type, $definition);
+		if (is_array($result)) {
+			$input_value = $result[$key];
+			if (is_array($input_value)) {
+				return (array_filter($input_value, 'Littled\Validation\Validation::isInteger'));
+			}
+			else {
+				return (array(Validation::parseInteger($input_value)));
+			}
+		}
+		return (null);
+	}
+
+	/**
 	 * Returns request variable as explicit integer value, or null if the request variable is not set or does not
 	 * represent a float value.
 	 * @param int $filter Filter to apply to the variable value, e.g. FILTER_VALIDATE_INT or FILTER_VALIDATE_FLOAT
@@ -70,13 +92,13 @@ class Validation
 			'filter' => FILTER_VALIDATE_INT,
 			'flags' => FILTER_REQUIRE_ARRAY
 		));
-		$result = filter_input_array(INPUT_GET, $args);
-		if (is_array($result)) {
-			return(array_filter($result[$key], "Littled\Validation\Validation::isInteger"));
+		$result = Validation::_filterIntegerInputArray(INPUT_GET, $key, $args);
+		if (is_array($result) && count($result) > 0) {
+			return ($result);
 		}
-		$result = filter_input_array(INPUT_POST, $args);
-		if (is_array($result)) {
-			return(array_filter($result[$key], "Littled\Validation\Validation::isInteger"));
+		$result = Validation::_filterIntegerInputArray(INPUT_POST, $key, $args);
+		if (is_array($result) && count($result) > 0) {
+			return ($result);
 		}
 		$value = Validation::collectIntegerRequestVar($key);
 		if ($value) {
