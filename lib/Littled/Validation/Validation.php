@@ -72,11 +72,11 @@ class Validation
 		));
 		$result = filter_input_array(INPUT_GET, $args);
 		if (is_array($result)) {
-			return(array_filter($result[$key], "Validation::isInteger"));
+			return(array_filter($result[$key], "Littled\Validation\Validation::isInteger"));
 		}
 		$result = filter_input_array(INPUT_POST, $args);
 		if (is_array($result)) {
-			return(array_filter($result[$key], "Validation::isInteger"));
+			return(array_filter($result[$key], "Littled\Validation\Validation::isInteger"));
 		}
 		$value = Validation::collectIntegerRequestVar($key);
 		if ($value) {
