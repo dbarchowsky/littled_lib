@@ -66,14 +66,23 @@ class Validation
 	 */
 	public static function collectIntegerArrayRequestVar($key)
 	{
-		$result = filter_input_array(INPUT_GET, array($key => FILTER_VALIDATE_INT), FILTER_NULL_ON_FAILURE);
-		if ($result===null || $result===false) {
-			$result = filter_input_array(INPUT_POST, array($key => FILTER_VALIDATE_INT), FILTER_NULL_ON_FAILURE);
+		$args = array($key => array(
+			'filter' => FILTER_VALIDATE_INT,
+			'flags' => FILTER_REQUIRE_ARRAY
+		));
+		$result = filter_input_array(INPUT_GET, $args);
+		if (is_array($result)) {
+			return(array_filter($result[$key], "Validation::isInteger"));
 		}
-		if ($result===null || $result===false) {
-			return (array());
+		$result = filter_input_array(INPUT_POST, $args);
+		if (is_array($result)) {
+			return(array_filter($result[$key], "Validation::isInteger"));
 		}
-		return ($result);
+		$value = Validation::collectIntegerRequestVar($key);
+		if ($value) {
+			return (array($value));
+		}
+		return (array());
 	}
 
 	/**
