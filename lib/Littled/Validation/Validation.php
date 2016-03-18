@@ -44,6 +44,22 @@ class Validation
 	}
 
 	/**
+	 * Tests a date string against a specified date format string.
+	 * @param string $date Date string to test.
+	 * @param string $format Date format string to use to evaluate the date string.
+	 * @return \DateTime|null Returns DateTime object representing the date if the date string matches the date format
+	 * string. Returns null otherwise.
+	 */
+	protected static function _testDateFormat($date, $format)
+	{
+		$d = \DateTime::createFromFormat($format, $date);
+		if ($d && $d->format($format) == $date) {
+			return ($d);
+		}
+		return (null);
+	}
+
+	/**
 	 * Converts script argument (query string or form data) to array of numeric values.
 	 * @param string $key Key containing potential numeric values.
 	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
@@ -318,24 +334,36 @@ class Validation
 	}
 
 	/**
-	 * Tests date string to see if it is in Y-m-d, d/m/y, or d/m/Y format.
+	 * Tests date string to see if it is in a recognized format.
 	 * @param string $date Date string to test.
+	 * @param array|null $formats Data formats to test.
 	 * @returns \DateTime
 	 * @throws ContentValidationException
 	 */
-	public static function validateDateString($date)
+	public static function validateDateString($date, $formats=null)
 	{
-		$d = \DateTime::createFromFormat('Y-m-d', $date);
-		if ($d && $d->format('Y-m-d') == $date) {
-			return ($d);
+		if ($formats==null) {
+			$formats = array(
+				'Y-m-d',
+				'd/m/y',
+				'd/m/Y',
+				'j/n/y',
+				'j/n/Y',
+				'F d, Y',
+				'F j, Y',
+				'M d, Y',
+				'M j, Y'
+			);
 		}
-		$d = \DateTime::createFromFormat('d/m/y', $date);
-		if ($d && $d->format('Y-m-d') == $date) {
-			return ($d);
+		elseif (!is_array($formats)) {
+			$formats = array($formats);
 		}
-		$d = \DateTime::createFromFormat('d/m/Y', $date);
-		if ($d && $d->format('Y-m-d') == $date) {
-			return ($d);
+
+		foreach($formats as $format) {
+			$d = Validation::_testDateFormat($date, $format);
+			if ($d instanceof \DateTime) {
+				return ($d);
+			}
 		}
 		throw new ContentValidationException("Unrecognized date value.");
 	}
