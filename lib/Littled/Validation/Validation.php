@@ -345,10 +345,10 @@ class Validation
 		if ($formats==null) {
 			$formats = array(
 				'Y-m-d',
-				'd/m/y',
-				'd/m/Y',
-				'j/n/y',
-				'j/n/Y',
+				'm/d/y',
+				'm/d/Y',
+				'n/j/y',
+				'n/j/Y',
 				'F d, Y',
 				'F j, Y',
 				'M d, Y',
