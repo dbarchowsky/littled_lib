@@ -1,10 +1,7 @@
 <?php
 use Littled\Database\MySQLConnection;
 
-define('MYSQL_HOST', 'littledamienii');
-define('MYSQL_USER', 'chicot_bfhcom');
-define('MYSQL_PASS', 'bP@@BGf17G2z');
-define('MYSQL_SCHEMA', 'chicot_bfhcom');
+require_once ('../../_dbo/bootstrap.php');
 
 class MySQLConnectionTest extends PHPUnit_Framework_TestCase
 {

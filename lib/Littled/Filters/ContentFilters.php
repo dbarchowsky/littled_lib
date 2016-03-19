@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Filters;
 
+use Littled\SiteContent\ContentProperties;
 
 /**
  * Class ContentFilters
@@ -8,5 +9,7 @@ namespace Littled\Filters;
  */
 class ContentFilters extends FilterCollection
 {
+	/** @var ContentProperties Content properties. */
 	public $contentProperties;
+	
 }
