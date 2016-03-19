@@ -1,6 +1,8 @@
 <?php
 namespace Littled\Filters;
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\PageContent\PageContent;
 use Littled\Validation\Validation;
 
 
@@ -133,5 +135,20 @@ class ContentFilter
 		else {
 			setcookie($this->key, $this->value, $expires);
 		}
+	}
+
+	/**
+	 * Output markup that will preserve the filter's value in an HTML form.
+	 */
+	public function saveInForm()
+	{
+		if (!defined('LITTLED_TEMPLATE_DIR')) {
+			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not found in app settings.");
+		}
+		PageContent::render(LITTLED_TEMPLATE_DIR . "framework/forms/hidden-input.php", array(
+			'key' => $this->key,
+			'index' => '',
+			'value' => $this->value
+		));
 	}
 }

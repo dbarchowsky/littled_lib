@@ -37,7 +37,7 @@ class Operations extends MySQLConnection
 			throw new \Exception("[".__METHOD__."] Table name not set. ");
 		}
 
-		$this->open_mysqli();
+		$this->openMysqli();
 
 		$fields = $this->collect_table_columns();
 
