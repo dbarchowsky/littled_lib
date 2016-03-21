@@ -35,16 +35,7 @@ class BooleanInput extends RequestInput
 	 */
 	public function escapeSQL( $mysqli )
 	{
-		if ($this->value===null) {
-			return ("null");
-		}
-		if ($this->value===true) {
-			return ("1");
-		}
-		if ($this->value===false) {
-			return ("0");
-		}
-		return ("");
+		return (($this->value===false || $this->value===null)?('0'):('1'));
 	}
 
 	/**

@@ -104,6 +104,19 @@ class ContentFilter
 	}
 
 	/**
+	 * Escapes the object's value property for inclusion in SQL queries.
+	 * @param \mysqli $mysqli
+	 * @return string Escaped value.
+	 */
+	public function escapeSQL($mysqli)
+	{
+		if ($this->value===null) {
+			return ("null");
+		}
+		return "'".$mysqli->real_escape_string($this->value)."'";
+	}
+	
+	/**
 	 * Returns name/value pair from within query string representing the
 	 * current "param" and "value" property values of the object.
 	 * @return string Name/value pair formatted for insertion into a query string.

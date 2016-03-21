@@ -23,4 +23,14 @@ class BooleanContentFilter extends ContentFilter
 			$this->value = Validation::parseBoolean($this->value);
 		}
 	}
+
+	/**
+	 * Escapes the object's value property for inclusion in SQL queries.
+	 * @param \mysqli $mysqli
+	 * @return string Escaped value.
+	 */
+	public function escapeSQL($mysqli)
+	{
+		return (($this->value===false || $this->value===null)?('0'):('1'));
+	}
 }
