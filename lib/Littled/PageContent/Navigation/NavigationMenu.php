@@ -16,6 +16,8 @@ class NavigationMenu
 	public $first;
 	/** @var NavigationMenuNode Pointer to last node in the menu. */
 	public $last;
+	/** @var string CSS class to apply to the breadcrumbs menu parent element */
+	public $cssClass;
 
 	/** @var string Path to template to use to render the menu in markup. */
 	public static $menuTemplate = "";
@@ -99,5 +101,14 @@ class NavigationMenu
 		PageContent::render($this::$menuTemplate, array(
 			'menu' => &$this
 		));
+	}
+
+	/**
+	 * Sets the CSS class of the breadcrumbs parent element.
+	 * @param string $css_class
+	 */
+	public function setCSSClass($css_class)
+	{
+		$this->cssClass = $css_class;
 	}
 }

@@ -1,5 +1,5 @@
 <?php /** @var $breadcrumbs Littled\PageContent\Navigation\Breadcrumbs */ ?>
-			<ul>
+			<ul<?=(($breadcrumbs->cssClass)?(" class=\"{$breadcrumbs->cssClass}\""):(""))?>
 <?php
 $node = $breadcrumbs->first;
 if (isset($node)) {

@@ -16,6 +16,8 @@ class Breadcrumbs
 	public $first;
 	/** @var BreadcrumbsNode Pointer to last node in the list of breadcrumbs. */
 	public $last;
+	/** @var string CSS class to apply to the breadcrumbs menu parent element */
+	public $cssClass;
 
 	/** @var string Path to template used to display the breadcrumbs. */
 	public static $breadcrumbsTemplate = "";
@@ -115,5 +117,14 @@ class Breadcrumbs
 		PageContent::render($this::$breadcrumbsTemplate, array(
 			'breadcrumbs' => &$this
 		));
+	}
+
+	/**
+	 * Sets the CSS class of the breadcrumbs parent element.
+	 * @param string $css_class
+	 */
+	public function setCSSClass($css_class)
+	{
+		$this->cssClass = $css_class;
 	}
 }
