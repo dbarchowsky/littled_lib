@@ -1,6 +1,9 @@
 <?php
 namespace Littled\Request;
 
+use Littled\Exception\ContentValidationException;
+
+
 /**
  * Class StringInput
  * @package Littled\Request

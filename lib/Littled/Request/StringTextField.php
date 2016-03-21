@@ -1,10 +1,14 @@
 <?php
 namespace Littled\Request;
 
-
 use Littled\PageContent\PageContent;
 
-class StringTextFieldInput extends StringInput
+
+/**
+ * Class StringTextFieldInput
+ * @package Littled\Request
+ */
+class StringTextField extends StringInput
 {
 	/**
 	 * Returns string containing HTML to render the input elements in a form.

@@ -3,6 +3,7 @@ namespace Littled\SiteContent;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 use Littled\Request\RequestInput;
@@ -294,6 +295,35 @@ class ContentOperations extends MySQLConnection
 	}
 
 	/**
+	 * Returns an appropriate label given the value of $count if $count requires the label to be pluralized.
+	 * @param integer $count Number determining if the label is plural or not.
+	 * @param string $property_name Name of the property of the object to use as the basis for the pural label.
+	 * @return string Plural form of the record label if $count is not 1.
+	 */
+	public function pluralLabel($count, $property_name)
+	{
+		if (property_exists($this, $property_name)) {
+			$label = strtolower($this->{$property_name}->value);
+		}
+		else {
+			return ('');
+		}
+
+		if ($count==1) {
+			return ($label);
+		}
+		elseif (substr($label, -1)=='y') {
+			return (substr($label, 0, -1).'ies');
+		}
+		elseif (substr($label, -1)=='s') {
+			return ($label);
+		}
+		else {
+			return ($label.'s');
+		}
+	}
+
+	/**
 	 * Retrieves record from database and uses it to hydrate object properties.
 	 */
 	public function read()
@@ -314,5 +344,28 @@ class ContentOperations extends MySQLConnection
 		}
 
 		$this->hydrate($data[0]);
+	}
+
+	/**
+	 * Validates form data collected by the object.
+	 * @throws ContentValidationException
+	 * @throws \Littled\Exception\NotImplementedException
+	 */
+	public function validateInput()
+	{
+		$form_errors = '';
+		foreach($this as $key => &$property) {
+			if ($property instanceof RequestInput) {
+				try {
+					$property->validate();
+				}
+				catch(ContentValidationException $ex) {
+					$form_errors .= $ex->getMessage();
+				}
+			}
+		}
+		if ($form_errors) {
+			throw new ContentValidationException($form_errors);
+		}
 	}
 }
