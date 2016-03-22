@@ -29,7 +29,7 @@ CREATE DEFINER=`tester`@`localhost` PROCEDURE `contentPropertiesSelect`(
       p.`name` `parent`
     FROM `site_section` ss
     LEFT JOIN `section_operations` so ON ss.id = so.section_id
-    LEFT JOIN `{$table}` p ON ss.parent_id = p.id
+    LEFT JOIN `site_section` p ON ss.parent_id = p.id
     WHERE (ss.id = p_id);
   END$$
 

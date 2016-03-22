@@ -161,7 +161,7 @@ SQL;
 	 */
 	public function read()
 	{
-		$query = "CALL `contentPropertiesSelect`({$this->id})";
+		$query = "CALL `contentPropertiesSelect`({$this->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("The requested content properties could not be found.");

@@ -2,7 +2,6 @@
 namespace Littled\Filters;
 
 use Littled\Exception\NotImplementedException;
-use Littled\Request\IntegerInput;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
 
@@ -19,6 +18,10 @@ class ContentFilters extends FilterCollection
 	/** @var int Content type id */
 	public $contentTypeId;
 
+	/**
+	 * @return int Content type id
+	 * @throws NotImplementedException
+	 */
 	public static function CONTENT_TYPE_ID()
 	{
 		throw new NotImplementedException(__METHOD__." not implemented.");
@@ -32,12 +35,21 @@ class ContentFilters extends FilterCollection
 	function __construct( $param_prefix='' )
 	{
 		parent::__construct( $param_prefix );
-		$this->contentTypeId = self::CONTENT_TYPE_ID();
+		$this->contentTypeId = $this->CONTENT_TYPE_ID();
 		$this->contentProperties = new ContentProperties($this->contentTypeId);
 		$this->ajaxProperties = new ContentAjaxProperties();
 		$this->ajaxProperties->section_id->value = $this->contentTypeId;
 		$this->contentProperties->read();
 		$this->ajaxProperties->retrieveSectionProperties();
+	}
+
+	/**
+	 * Returns object's content type id value
+	 * @return int
+	 */
+	public function getContentTypeId()
+	{
+		return ($this->contentTypeId);
 	}
 
 	/**

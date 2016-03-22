@@ -1,9 +1,12 @@
 <?php
+namespace Littled\Tests\Database;
+
+require_once (realpath(dirname(__FILE__).'/../../').'/_dbo/bootstrap.php');
+
 use Littled\Database\MySQLConnection;
 
-require_once ('../../_dbo/bootstrap.php');
 
-class MySQLConnectionTest extends PHPUnit_Framework_TestCase
+class MySQLConnectionTest extends \PHPUnit_Framework_TestCase
 {
 	public function testConnection()
 	{
