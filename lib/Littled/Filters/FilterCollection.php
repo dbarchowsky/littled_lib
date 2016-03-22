@@ -91,7 +91,7 @@ class FilterCollection extends MySQLConnection
 	/**
 	 * Derived classes will return a string containing a WHERE clause used to filter listings.
 	 */
-	protected function formatSQL()
+	protected function formatQueryClause()
 	{
 		/* placeholder for derived classes */
 	}

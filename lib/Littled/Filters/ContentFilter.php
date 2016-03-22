@@ -107,9 +107,13 @@ class ContentFilter
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param \mysqli $mysqli
 	 * @return string Escaped value.
+	 * @throws ConfigurationUndefinedException
 	 */
 	public function escapeSQL($mysqli)
 	{
+		if (!$mysqli instanceof \mysqli) {
+			throw new ConfigurationUndefinedException("Escape query object not available.");
+		}
 		if ($this->value===null) {
 			return ("null");
 		}

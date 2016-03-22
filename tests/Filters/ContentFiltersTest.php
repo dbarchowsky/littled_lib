@@ -10,14 +10,20 @@ use Littled\Filters\ContentFilters;
 define('VALID_CONTENT_TYPE_ID', 2);
 define('INVALID_CONTENT_TYPE_ID', 145);
 
-class InvalidContentType extends ContentFilters
+class InvalidContentFilters extends ContentFilters
 {
 	public static function CONTENT_TYPE_ID() { return (INVALID_CONTENT_TYPE_ID); }
 }
 
-class ValidContentType extends ContentFilters
+class ValidContentFilters extends ContentFilters
 {
 	public static function CONTENT_TYPE_ID() { return(VALID_CONTENT_TYPE_ID); }
+	
+	protected function formatListingsQuery()
+	{
+		$query = "CALL shippingRatesListings(1, 10, '', @total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`;";
+		return ($query);
+	}
 }
 
 class ContentFiltersTest extends \PHPUnit_Framework_TestCase
@@ -35,7 +41,7 @@ class ContentFiltersTest extends \PHPUnit_Framework_TestCase
 
 		$ex_msg = "";
 		try {
-			$d = new ValidContentType();
+			$d = new ValidContentFilters();
 		}
 		catch(NotImplementedException $ex) {
 			$ex_msg = $ex->getMessage();
@@ -46,11 +52,20 @@ class ContentFiltersTest extends \PHPUnit_Framework_TestCase
 
 		$ex_msg = '';
 		try {
-			$i = new InvalidContentType();
+			$i = new InvalidContentFilters();
 		}
 		catch(RecordNotFoundException $ex) {
 			$ex_msg = $ex->getMessage();
 		}
 		$this->assertEquals("The requested record was not found.", $ex_msg, "Setting content type id to non-existent record.");
+	}
+	
+	public function testRetrieveListings()
+	{
+		$f = new ValidContentFilters();
+		$data = $f->retrieveListings();
+		$this->assertGreaterThan(0, count($data), "Listings records returned.");
+		$this->assertEquals(11, $f->recordCount, "Record count.");
+		$this->assertEquals('USA', $data[6]->region, "Expected cell value.");
 	}
 }

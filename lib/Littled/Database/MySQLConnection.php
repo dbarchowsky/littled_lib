@@ -57,7 +57,7 @@ class MySQLConnection extends AppBase
 	{
 		$this->query($query);
 		$rs = array();
-		do {
+		// do {
 			$result = $this->mysqli->store_result();
 			if ($result) {
 				while($row = $result->fetch_object()) {
@@ -65,7 +65,11 @@ class MySQLConnection extends AppBase
 				}
 				$result->free();
 			}
-		} while($this->mysqli->more_results() && $this->mysqli->next_result());
+		// } while($this->mysqli->more_results() && $this->mysqli->next_result());
+		/** 
+		 * Note that without the do...while loop there might be more results available
+		 * in the mysqli object. Leave it to the calling routine to handle those results.  
+		 */
 		return ($rs);
 	}
 

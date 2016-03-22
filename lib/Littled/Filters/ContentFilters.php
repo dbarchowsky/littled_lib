@@ -44,6 +44,17 @@ class ContentFilters extends FilterCollection
 	}
 
 	/**
+	 * Placeholder for method intended to be implemented by derived classes.
+	 * Format a query that will be used to retrieve listings recordset.
+	 * @return string
+	 * @throws NotImplementedException
+	 */
+	protected function formatListingsQuery()
+	{
+		throw new NotImplementedException(__METHOD__." not implemented.");
+	}
+
+	/**
 	 * Returns object's content type id value
 	 * @return int
 	 */
@@ -59,8 +70,12 @@ class ContentFilters extends FilterCollection
 	 * @param string $query SQL query to execute.
 	 * @return array List of generic objects containing the records returned by the query.
 	 */
-	protected function _retrieveListings( $query )
+	public function retrieveListings($query='')
 	{
+		$this->connectToDatabase();
+		if ($query=='') {
+			$query = $this->formatListingsQuery();
+		}
 		$data = $this->fetchRecords($query);
 		$this->getSprocPageCount();
 		return ($data);
