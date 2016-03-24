@@ -11,4 +11,4 @@
 			if ($node->domId): ?> id="<?=$node->domId?>"<?php endif;
 			if ($node->attributes):
 				print " ".$node->attributes;
-			endif; ?>><?php if($node->imgPath): ?><img src="<?=$node->imgPath?>" alt="<?=$node->label?>" /><?php else: print $node->label; endif; ?></a></li>
+			endif; ?>><?php if($node->imgPath): ?><img src="<?=$node->imgPath?>" alt="<?=$node->title?>" /><?php else: print $node->label; endif; ?></a></li>
