@@ -12,8 +12,10 @@ use Littled\PageContent\Navigation\Breadcrumbs;
  * Site configuration.
  * @package Littled\PageContent
  */
-class PageConfig {
-
+class PageConfig 
+{
+	/** @var string CSS class to apply to the page content. */
+	public static $contentCSSClass;
 	/** @var array List of css includes. */
 	public static $stylesheets = array();
 	/** @var array List of script includes. */
@@ -100,6 +102,15 @@ class PageConfig {
 		if(isset($_SESSION[P_MESSAGE])) {
 			unset($_SESSION[P_MESSAGE]);
 		}
+	}
+
+	/**
+	 * Gets the current content CSS class value.
+	 * @return string
+	 */
+	public static function getContentCSSClass()
+	{
+		return(self::$contentCSSClass);
 	}
 
 	/**
@@ -227,6 +238,15 @@ class PageConfig {
 	public static function setBreadcrumbsCssClass($css_class)
 	{
 		self::$breadcrumbs->setCSSClass($css_class);
+	}
+
+	/**
+	 * Sets a css class to assign to the page content element.
+	 * @param string $css_class
+	 */
+	public static function setContentCSSClass($css_class)
+	{
+		self::$contentCSSClass = $css_class;
 	}
 
 	/**
