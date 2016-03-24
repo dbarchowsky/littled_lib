@@ -44,6 +44,7 @@ class MySQLConnection extends AppBase
 		if (!is_object($this->mysqli)) {
 			$c = MySQLConnection::getConnectionSettings();
 			$this->mysqli = new \mysqli($c->host, $c->user, $c->password, $c->schema);
+			$this->mysqli->set_charset('utf8');
 		}
 	}
 
