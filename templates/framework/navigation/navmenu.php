@@ -1,5 +1,5 @@
-<?php /** @var $menu Littled\PageContent\Navigation\NavigationMenu */ ?>
-			<ul<?=(($breadcrumbs->cssClass)?(" class=\"{$breadcrumbs->cssClass}\""):(""))?>
+<?php /** @var Littled\PageContent\Navigation\NavigationMenu $menu */ ?>
+			<ul<?=(($menu->cssClass)?(" class=\"{$menu->cssClass}\""):(""))?>>
 <?php
 $node = $menu->first;
 if (isset($node)) {
