@@ -323,4 +323,32 @@ class PageConfig
 	{
 		self::$utilityLinks->setCSSClass($css_class);
 	}
+
+	/**
+	 * Pushes the URL of a script, typically a JavaScript file, to load with the page.
+	 * @param string $src
+	 */
+	public static function unregisterScript($src)
+	{
+		for($i=0; $i < count(self::$scripts); $i++) {
+			if (self::$scripts[$i] == $src) {
+				unset(self::$scripts[$i]);
+			}
+		}
+		self::$scripts = array_values(self::$scripts);
+	}
+
+	/**
+	 * Pushes the URL of a stylesheet to load with the page.
+	 * @param string $src
+	 */
+	public static function unregisterStylesheet($src)
+	{
+		for($i=0; $i < count(self::$stylesheets); $i++) {
+			if (self::$stylesheets[$i] == $src) {
+				unset(self::$stylesheets[$i]);
+			}
+		}
+		self::$stylesheets = array_values(self::$stylesheets);
+	}
 }
