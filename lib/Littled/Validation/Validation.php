@@ -163,7 +163,7 @@ class Validation
 	 * Searches POST, GET and session data, in that order, for a property
 	 * corresponding to $key.
 	 * @param string $key Key of the variable value to collect.
-	 * @param string $filter Filter token corresponding to the 3rd parameter of
+	 * @param mixed $filter Filter token corresponding to the 3rd parameter of
 	 * PHP's built-in filter_input() routine.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
@@ -318,7 +318,7 @@ class Validation
 	 */
 	public static function parseIntegerInput( $key, $index=null, $src=null )
 	{
-		return Validation::parseIntegerInput($key,$index,$src);
+		return Validation::collectIntegerRequestVar($key, $index, $src);
 	}
 
 	/**
@@ -359,6 +359,7 @@ class Validation
 	 * value is numeric.
 	 * @param string $key Name of the input parameter holding the value of interest.
 	 * @param integer $index (Optional) index within input array of the value of interest.
+     * @param string $src
 	 * @return mixed Float or integer value.
 	 */
 	public static function parseNumericInput( $key, $index=null, $src=null )
@@ -371,7 +372,7 @@ class Validation
 	 * Tests date string to see if it is in a recognized format.
 	 * @param string $date Date string to test.
 	 * @param array|null $formats Data formats to test.
-	 * @returns \DateTime
+	 * @return \DateTime
 	 * @throws ContentValidationException
 	 */
 	public static function validateDateString($date, $formats=null)
