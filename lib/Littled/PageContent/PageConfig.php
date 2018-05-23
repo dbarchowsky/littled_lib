@@ -12,8 +12,10 @@ use Littled\PageContent\Navigation\Breadcrumbs;
  * Site configuration.
  * @package Littled\PageContent
  */
-class PageConfig {
-
+class PageConfig 
+{
+	/** @var string CSS class to apply to the page content. */
+	public static $contentCSSClass;
 	/** @var array List of css includes. */
 	public static $stylesheets = array();
 	/** @var array List of script includes. */
@@ -100,6 +102,15 @@ class PageConfig {
 		if(isset($_SESSION[P_MESSAGE])) {
 			unset($_SESSION[P_MESSAGE]);
 		}
+	}
+
+	/**
+	 * Gets the current content CSS class value.
+	 * @return string
+	 */
+	public static function getContentCSSClass()
+	{
+		return(self::$contentCSSClass);
 	}
 
 	/**
@@ -230,6 +241,15 @@ class PageConfig {
 	}
 
 	/**
+	 * Sets a css class to assign to the page content element.
+	 * @param string $css_class
+	 */
+	public static function setContentCSSClass($css_class)
+	{
+		self::$contentCSSClass = $css_class;
+	}
+
+	/**
 	 * Sets the metadata page description value.
 	 * @param string $description
 	 */
@@ -302,5 +322,33 @@ class PageConfig {
 	public static function setUtilityLinksCssClass($css_class)
 	{
 		self::$utilityLinks->setCSSClass($css_class);
+	}
+
+	/**
+	 * Pushes the URL of a script, typically a JavaScript file, to load with the page.
+	 * @param string $src
+	 */
+	public static function unregisterScript($src)
+	{
+		for($i=0; $i < count(self::$scripts); $i++) {
+			if (self::$scripts[$i] == $src) {
+				unset(self::$scripts[$i]);
+			}
+		}
+		self::$scripts = array_values(self::$scripts);
+	}
+
+	/**
+	 * Pushes the URL of a stylesheet to load with the page.
+	 * @param string $src
+	 */
+	public static function unregisterStylesheet($src)
+	{
+		for($i=0; $i < count(self::$stylesheets); $i++) {
+			if (self::$stylesheets[$i] == $src) {
+				unset(self::$stylesheets[$i]);
+			}
+		}
+		self::$stylesheets = array_values(self::$stylesheets);
 	}
 }

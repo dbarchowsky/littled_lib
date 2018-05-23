@@ -21,6 +21,8 @@ class NavigationMenuNode
 	public $title;
 	/** @var string DOM id value */
 	public $domId;
+	/** @var string Path to image to display as content of the menu node. */
+	public $imgPath;
 	/** @var string Node label displayed on the page */
 	public $label;
 	/** @var int Nesting level of the node. */
@@ -79,4 +81,13 @@ class NavigationMenuNode
 		    'node' => &$this
 	    ));
     }
+	
+	/**
+	 * Sets the path to an image file to use as the content of the menu node.
+	 * @param string $path Path to image.
+	 */
+	public function setImagePath($path)
+	{
+		$this->imgPath = $path;		
+	}
 }
