@@ -31,6 +31,12 @@ class BooleanContentFilter extends ContentFilter
 	 */
 	public function escapeSQL($mysqli)
 	{
-		return (($this->value===false || $this->value===null)?('0'):('1'));
+		if ($this->value===true || $this->value===1) {
+			return('1');
+		}
+		if ($this->value===false || $this->value===0) {
+			return('0');
+		}
+		return ('null');
 	}
 }
