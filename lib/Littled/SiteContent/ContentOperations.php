@@ -99,14 +99,6 @@ class ContentOperations extends MySQLConnection
 	}
 
 	/**
-	 * Makes database connection.
-	 */
-	public function connect()
-	{
-		$this->connection = new MySQLConnection();
-	}
-
-	/**
 	 * Copies the property values from one object into this instance.
 	 * @param mixed $src Object to use to copy values over to this object.
 	 */

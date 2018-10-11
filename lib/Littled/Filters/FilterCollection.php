@@ -35,6 +35,8 @@ class FilterCollection extends MySQLConnection
 	public $referringURL;
 	/** @var string SQL WHERE clause matching the current filter values. */
 	public $sqlClause;
+	/** @var integer Default page length override. */
+	public $defaultPageLength;
 
 	const PAGE_PARAM = 'p';
 	const LISTINGS_LENGTH_PARAM = 'pl';
@@ -143,8 +145,9 @@ class FilterCollection extends MySQLConnection
 	protected function getSprocPageCount()
 	{
 		if ($this->mysqli->more_results()) {
-			while ($this->mysqli->next_result()) {
+			while ($this->mysqli->more_results()) {
 				/** @var \mysqli_result $result */
+				$this->mysqli->next_result();
 				if ($result = $this->mysqli->store_result()) {
 					$this->recordCount = $result->fetch_object()->total_matches;
 					$this->calcPageCount();

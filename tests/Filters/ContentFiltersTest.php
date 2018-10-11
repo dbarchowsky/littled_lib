@@ -6,6 +6,7 @@ require_once (realpath(dirname(__FILE__).'/../../').'/_dbo/bootstrap.php');
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\ContentFilters;
+use PHPUnit\Framework\TestCase;
 
 define('VALID_CONTENT_TYPE_ID', 2);
 define('INVALID_CONTENT_TYPE_ID', 145);
@@ -26,7 +27,7 @@ class ValidContentFilters extends ContentFilters
 	}
 }
 
-class ContentFiltersTest extends \PHPUnit_Framework_TestCase
+class ContentFiltersTest extends TestCase
 {
 	public function testContentTypeId()
 	{

@@ -19,7 +19,8 @@ class ContentFilters extends FilterCollection
 	public $contentTypeId;
 
 	/**
-	 * @return int Content type id
+	 * Intended to be implemented in inherited classes, where they return the value of the content type of that
+	 * particular kind of content.
 	 * @throws NotImplementedException
 	 */
 	public static function CONTENT_TYPE_ID()
@@ -29,8 +30,8 @@ class ContentFilters extends FilterCollection
 
 	/**
 	 * ContentFilters constructor.
-	 *
 	 * @param string $param_prefix
+	 * @throws \Exception Error retrieving content section properties.
 	 */
 	function __construct( $param_prefix='' )
 	{
@@ -67,16 +68,13 @@ class ContentFilters extends FilterCollection
 	 * Retrieves listings using sql in $query argument. Stores the total
 	 * number of matches and updates internal values of total number of pages
 	 * and current page number.
-	 * @param string $query SQL query to execute.
 	 * @return array List of generic objects containing the records returned by the query.
+	 * @throws \Exception Error running query.
 	 */
-	public function retrieveListings($query='')
+	public function retrieveListings()
 	{
-		$this->connectToDatabase();
-		if ($query=='') {
-			$query = $this->formatListingsQuery();
-		}
-		$data = $this->fetchRecords($query);
+		$this->formatListingsQuery();
+		$data = $this->fetchRecords($this->queryString);
 		$this->getSprocPageCount();
 		return ($data);
 	}

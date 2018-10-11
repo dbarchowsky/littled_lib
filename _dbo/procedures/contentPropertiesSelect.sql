@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `contentPropertiesSelect`;
 DELIMITER $$
-CREATE DEFINER=`chicot`@`localhost` PROCEDURE `contentPropertiesSelect`(
+CREATE PROCEDURE `contentPropertiesSelect`(
   IN p_id INT
 )
   BEGIN

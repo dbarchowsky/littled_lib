@@ -1,3 +1,5 @@
 .idea/
+_gsdata_/
 vendor/
 composer.lock
+_dbo/connections

@@ -27,9 +27,9 @@ class ContentFilter
 	 * ContentFilter constructor.
 	 * @param string $label Label to display on filter form inputs.
 	 * @param string $key Variable name used to pass along filter values.
-	 * @param mixed $value Filter value.
-	 * @param int $size Size limit of the filter value.
-	 * @param string $cookieKey Key of the cookie element holding the filter value.
+	 * @param mixed[optional] $value Filter value.
+	 * @param int[optional] $size Size limit of the filter value.
+	 * @param string[optional] $cookieKey Key of the cookie element holding the filter value.
 	 */
 	function __construct($label, $key, $value='', $size=0, $cookieKey='')
 	{
@@ -105,7 +105,7 @@ class ContentFilter
 
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param \mysqli $mysqli
+	 * @param \mysqli $mysqli Database connection.
 	 * @return string Escaped value.
 	 * @throws ConfigurationUndefinedException
 	 */
@@ -116,6 +116,12 @@ class ContentFilter
 		}
 		if ($this->value===null) {
 			return ("null");
+		}
+		if ($this->value===true) {
+			return ('1');
+		}
+		if ($this->value===false) {
+			return ('0');
 		}
 		return "'".$mysqli->real_escape_string($this->value)."'";
 	}
@@ -156,6 +162,8 @@ class ContentFilter
 
 	/**
 	 * Output markup that will preserve the filter's value in an HTML form.
+	 * @throws ConfigurationUndefinedException Shared template directory constant (LITTLED_TEMPLATE_DIR) is undefined.
+	 * @throws \Exception Error rendering page content.
 	 */
 	public function saveInForm()
 	{

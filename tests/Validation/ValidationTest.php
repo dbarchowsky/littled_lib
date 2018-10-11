@@ -1,7 +1,7 @@
 <?php
 use Littled\Validation\Validation;
 
-class ValidationTest extends PHPUnit_Framework_TestCase
+class ValidationTest extends \PHPUnit\Framework\TestCase
 {
 	public function testParseNumeric()
 	{

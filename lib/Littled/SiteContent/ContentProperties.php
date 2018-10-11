@@ -69,31 +69,30 @@ class ContentProperties extends ContentOperations
 
 	/**
 	 * ContentProperties constructor.
-	 *
-	 * @param int|null $id Initial id value
+	 * @param int $id[optional] Initial id value
 	 */
 	function __construct($id=null)
 	{
 		parent::__construct();
-		$this->id = new IntegerInput("Id", self::ID_PARAM, null, true);
-		$this->format = new StringSelect("Image format", 'cpFormat', '', false, 4);
+		$this->id = new IntegerInput("Id", self::ID_PARAM, true, $id);
+		$this->format = new StringSelect("Image format", 'cpFormat', false, '', 4);
 		$this->gallery_thumbnail = new BooleanCheckbox("Has gallery thumbnail", "cpGallThumb", false, false);
-		$this->height = new IntegerTextFIeld("Target image height", "cpImgH", null, false);
-		$this->image_label = new StringTextField("Image label", "cpImgLabel", '', false, 100);
-		$this->image_path = new StringTextField("Image path", "cpImgPath", '', false, 255);
+		$this->height = new IntegerTextFIeld("Target image height", "cpImgH", false, null);
+		$this->image_label = new StringTextField("Image label", "cpImgLabel", false, '', 100);
+		$this->image_path = new StringTextField("Image path", "cpImgPath", false, '', 255);
 		$this->is_cached = new BooleanCheckbox("Cached", "cpCached", false, false);
-		$this->med_height = new IntegerSelect("Medium-sized image target height", "cpMedH", null, false);
-		$this->med_width = new IntegerSelect("Medium-sized image target width", "cpMedW", null, false);
-		$this->mini_height = new IntegerSelect("Small-sized image target height", "cpMiniH", null, false);
-		$this->mini_width = new IntegerSelect("Small-sized image target width", "cpMiniW", null, false);
-		$this->name = new StringTextField("Name", "cpName", '', true, 50);
-		$this->param_prefix = new StringTextField("Parameter prefix", "cpParamPrefix", '', false, 8);
-		$this->parent_id = new IntegerSelect("Parent", "cpParentId", null, false);
-		$this->root_dir = new StringTextField("Root path", "cpRoot", '', false, 255);
-		$this->slug = new StringTextField("Slug", "cpSlug", '', false, 50);
-		$this->sub_dir = new StringTextField("Sub-directory path", "cpSubPath", '', false, 255);
-		$this->table = new StringTextField("Table name", "cpTable", '', true, 50);
-		$this->width = new IntegerSelect("Target image width", "cpImgW", null, false);
+		$this->med_height = new IntegerSelect("Medium-sized image target height", "cpMedH", false, null);
+		$this->med_width = new IntegerSelect("Medium-sized image target width", "cpMedW", false, null);
+		$this->mini_height = new IntegerSelect("Small-sized image target height", "cpMiniH", false, null);
+		$this->mini_width = new IntegerSelect("Small-sized image target width", "cpMiniW", false, null);
+		$this->name = new StringTextField("Name", "cpName", true, '', 50);
+		$this->param_prefix = new StringTextField("Parameter prefix", "cpParamPrefix", false, '', 8);
+		$this->parent_id = new IntegerSelect("Parent", "cpParentId", false, null);
+		$this->root_dir = new StringTextField("Root path", "cpRoot", false, '', 255);
+		$this->slug = new StringTextField("Slug", "cpSlug", false, '', 50);
+		$this->sub_dir = new StringTextField("Sub-directory path", "cpSubPath", false, '', 255);
+		$this->table = new StringTextField("Table name", "cpTable", true, '', 50);
+		$this->width = new IntegerSelect("Target image width", "cpImgW", false, null);
 
 		$this->id_param = '';
 		$this->label = '';
@@ -104,6 +103,7 @@ class ContentProperties extends ContentOperations
 	 * Deletes the record from the database. Uses the value object's id property to look up the record.
 	 * @return string Message indicating result of the deletion.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Exception Error running query.
 	 */
 	public function delete()
 	{
@@ -115,6 +115,7 @@ class ContentProperties extends ContentOperations
 	/**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
 	 * @return int|null Id of parent record.
+	 * @throws \Exception Error running query.
 	 */
 	public function getParentId()
 	{
@@ -129,6 +130,7 @@ class ContentProperties extends ContentOperations
 	/**
 	 * Retrieves the id of the parent content type if it exists.
 	 * @return int|null Parent content type id if it is found, null otherwise.
+	 * @throws \Exception Error running query.
 	 */
 	public function getParentTypeId()
 	{
@@ -157,7 +159,8 @@ SQL;
 
 	/**
 	 * Retrieves object property values from database and uses them to hydrate the object.
-	 * @throws RecordNotFoundException
+	 * @throws RecordNotFoundException Record not found.
+	 * @throws \Exception Error running query.
 	 */
 	public function read()
 	{

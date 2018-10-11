@@ -25,4 +25,32 @@ class DateContentFilter extends StringContentFilter
 			}
 		}
 	}
+
+	/**
+	 * Escapes date string to format expected in SQL statements.
+	 * @param \mysqli $mysqli
+	 * @return string
+	 */
+	public function escapeSQL($mysqli)
+	{
+		if ($this->value===null) {
+			return ('null');
+		}
+		if ($this->value=='') {
+			return ('null');
+		}
+		try
+		{
+			$dt = new \DateTime($this->value);
+		}
+		catch(\Exception $e)
+		{
+			return ('null');
+		}
+		$value = $dt->format('Y-m-d');
+		if ($value===false) {
+			return ('null');
+		}
+		return ("'{$value}'");
+	}
 }
