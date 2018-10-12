@@ -1,16 +1,31 @@
 <?php
 namespace Littled\Exception;
 
-class InvalidQueryException extends \Exception {
-    public function __construct($message, $code = 0, Exception $previous = null) {
+/**
+ * Class InvalidQueryException
+ * @package Littled\Exception
+ */
+class InvalidQueryException extends \Exception
+{
+	/**
+	 * InvalidQueryException constructor.
+	 * @param string $message Error message.
+	 * @param int[optional] $code Error code.
+	 * @param \Exception|null $previous
+	 */
+    public function __construct($message, $code = 0, \Exception $previous = null)
+    {
         // some code
 
         // make sure everything is assigned properly
         parent::__construct($message, $code, $previous);
     }
 
-    // custom string representation of object
-    public function __toString() {
+	/**
+	 * custom string representation of object
+	 */
+    public function __toString()
+    {
         return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
     }
 }

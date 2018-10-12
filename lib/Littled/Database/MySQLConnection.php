@@ -86,6 +86,7 @@ class MySQLConnection extends AppBase
 	 * @param string[optional] $port Port number of MySQL server if not using default.
 	 * @throws \Exception On database connection properties not defined.
 	 * @throws ConnectionException On connection error.
+	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
 	public function connectToDatabase($host='', $user='', $password='', $schema='', $port='')
 	{

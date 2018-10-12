@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Filters;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
@@ -31,6 +32,7 @@ class ContentFilters extends FilterCollection
 	/**
 	 * ContentFilters constructor.
 	 * @param string $param_prefix
+	 * @throws ConfigurationUndefinedException Database connections properties not set.
 	 * @throws \Exception Error retrieving content section properties.
 	 */
 	function __construct( $param_prefix='' )

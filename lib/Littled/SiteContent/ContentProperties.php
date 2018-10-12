@@ -1,5 +1,6 @@
 <?php
 namespace Littled\SiteContent;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
@@ -70,6 +71,7 @@ class ContentProperties extends ContentOperations
 	/**
 	 * ContentProperties constructor.
 	 * @param int $id[optional] Initial id value
+	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
 	function __construct($id=null)
 	{

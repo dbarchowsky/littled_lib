@@ -24,9 +24,12 @@ class ContentOperations extends MySQLConnection
 	
 	/**
 	 * ContentOperations constructor.
+	 * @throws \Exception Error establishing database connection.
+	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
 	function __construct()
 	{
+		parent::__construct();
 		$this->connectToDatabase();
 	}
 
@@ -47,6 +50,7 @@ class ContentOperations extends MySQLConnection
 	/**
 	 * Queries the database for the latest id created.
 	 * @return int Record id
+	 * @throws \Exception Error running query.
 	 * @throws RecordNotFoundException
 	 */
 	protected function fetchRecordId()
@@ -79,6 +83,7 @@ class ContentOperations extends MySQLConnection
 
 	/**
 	 * Commits object property values to database record.
+	 * @throws ConfigurationUndefinedException Table name not specified.
 	 */
 	public function commit()
 	{
@@ -104,18 +109,21 @@ class ContentOperations extends MySQLConnection
 	 */
 	public function copy( $src )
 	{
-		if (get_class($this) != get_class($src)) {
+		if (get_class($this) != get_class($src))
+		{
 			return;
 		}
-		foreach($this as $key => &$val) {
-			$this->$key = $src->$key;
+		$keys = $src->keys();
+		foreach($keys as $key)
+		{
+			$this->$key = $key;
 		}
 	}
 
 	/**
 	 * Deletes the record from the database. Uses the value object's id property to look up the record.
-	 * @return string Message indicating result of the deletion.
 	 * @throws ConfigurationUndefinedException
+	 * @throws \Exception Error executing query.
 	 */
 	function delete ( )
 	{
@@ -143,7 +151,7 @@ class ContentOperations extends MySQLConnection
 		foreach ($this as $key => $item) {
 			if ($this->isInput($key, $item, $used_params)) {
 				/* format column name and value for SQL statement */
-				$fields["`{$key}`"] = $item->escape_sql();
+				$fields["`{$key}`"] = $item->escapeSQL();
 			}
 		}
 
@@ -190,6 +198,7 @@ class ContentOperations extends MySQLConnection
 	 * @param string $field (optional) Column name containing the value to retrieve. Defaults to "name".
 	 * @param string $id_field (optional) Column name containg the id value to retrieve. Defaults to "id".
 	 * @return mixed Retrieved value.
+	 * @throws \Exception Error executing query.
 	 */
 	public function getTypeName( $table, $id, $field="name", $id_field="id" )
 	{
@@ -231,6 +240,7 @@ class ContentOperations extends MySQLConnection
 	 * Returns records from database query.
 	 * @param string $query SQL query to execute
 	 * @throws RecordNotFoundException
+	 * @throws \Exception Error executing query.
 	 */
 	public function hydrateFromQuery($query)
 	{
@@ -317,6 +327,9 @@ class ContentOperations extends MySQLConnection
 
 	/**
 	 * Retrieves record from database and uses it to hydrate object properties.
+	 * @throws ConfigurationUndefinedException Table name not specified.
+	 * @throws RecordNotFoundException Expected record not returned.
+	 * @throws \Exception Error executing query.
 	 */
 	public function read()
 	{
