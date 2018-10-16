@@ -233,14 +233,11 @@ class Validation
 		if (is_bool($value)) {
 			return ($value);
 		}
-		if (is_string($value)) {
-			if ($value === "1" || $value === "true" || $value === "on" || $value === true || $value === 1) {
-				return (true);
-			} elseif ($value == "0" || $value === "false" || $value === "off" || $value === 0 || $value === false) {
-				return (false);
-			} else {
-				return (null);
-			}
+		if ($value === 1 || $value === "1" || $value === "true" || $value === "on") {
+			return (true);
+		}
+		if ($value === 0 || $value == "0" || $value === "false" || $value === "off") {
+			return (false);
 		}
 		return (null);
 	}

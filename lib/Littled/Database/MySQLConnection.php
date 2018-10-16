@@ -40,6 +40,20 @@ class MySQLConnection extends AppBase
 	}
 
 	/**
+	 * Check if a column exists in a given database table.
+	 * @param string $column_name name of the column to check for
+	 * @param string $table_name name of the table to look in
+	 * @return boolean True/false depending on if the column is found.
+	 * @throws InvalidQueryException Error executing query.
+	 */
+	public function columnExists( $column_name, $table_name )
+	{
+		$data = $this->fetchRecords("SHOW COLUMNS FROM `{$table_name}` LIKE '{$column_name}'");
+		$has_rows = (count($data) > 0);
+		return ($has_rows);
+	}
+
+	/**
 	 * Returns the latest connection error reported by mysqli.
 	 * @return string Internal mysqli connection error string, or null if there are no errors.
 	 */
@@ -84,7 +98,6 @@ class MySQLConnection extends AppBase
 	 * @param string[optional] $password Password for connecting to MySQL server.
 	 * @param string[optional] $schema Name of schema.
 	 * @param string[optional] $port Port number of MySQL server if not using default.
-	 * @throws \Exception On database connection properties not defined.
 	 * @throws ConnectionException On connection error.
 	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
@@ -108,7 +121,8 @@ class MySQLConnection extends AppBase
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param mixed $value Value to escape.
 	 * @return string Escaped value.
-	 * @throws \Exception Error establishing database connection.
+	 * @throws ConnectionException On connection error.
+	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
 	public function escapeSQLValue($value)
 	{
@@ -126,16 +140,34 @@ class MySQLConnection extends AppBase
 	}
 
 	/**
-	 * Returns records from database query.
+	 * Executes SQL statement without doing anything with the results of that statement. Uses currently open
+	 * connection if one exists. Makes a connection to the database if one is not already open.
+	 * @param string $query SQL statement to execute.
+	 * @throws InvalidQueryException
+	 * @throws \Exception Error connecting to database
+	 */
+	protected function executeQuery($query)
+	{
+		if (!$this->mysqli instanceof \mysqli) {
+			$this->connectToDatabase();
+		}
+		if (!$this->mysqli->multi_query($query)) {
+			throw new InvalidQueryException($this->mysqli->error);
+		}
+	}
+
+	/**
+	 * Returns records from database query. This routine will eat up all result sets returned by
+	 * the execution of the query. Use fetchRecordsNonExhaustive() to return only the first result.
 	 * @param string $query SQL query to execute
 	 * @return array Array of generic objects holding the data returned by the query.
 	 * @throws InvalidQueryException
 	 */
 	public function fetchRecords($query)
 	{
-		$this->query($query);
+		$this->executeQuery($query);
 		$rs = array();
-		// do {
+		do {
 			$result = $this->mysqli->store_result();
 			if ($result) {
 				while($row = $result->fetch_object()) {
@@ -143,12 +175,36 @@ class MySQLConnection extends AppBase
 				}
 				$result->free();
 			}
-		// } while($this->mysqli->more_results() && $this->mysqli->next_result());
-		/** 
-		 * Note that without the do...while loop there might be more results available
-		 * in the mysqli object. Leave it to the calling routine to handle those results.  
-		 */
+		} while($this->mysqli->more_results() && $this->mysqli->next_result());
 		return ($rs);
+	}
+
+	/**
+	 * Returns only the first set of results from a query. Intended to be used when calling
+	 * stored procedures that return more than a single set of results, e.g. a rowset plus an integer
+	 * representing the total number of records available.
+	 *
+	 * It is necessary to continue fetching results after calling this method to ensure that all the results have been
+	 * retrieved before executing another query.
+	 * @param string $query Query to execute.
+	 * @throws InvalidQueryException Error executing query.
+	 */
+	public function fetchRecordsNonExhaustive($query)
+	{
+		$this->executeQuery($query);
+
+		/*
+		 * Normally, this would be wrapped in a do...while statement to ensure that all results are retrieved,
+		 * but here we only want the first result.
+		 */
+		$rs = array();
+		$result = $this->mysqli->store_result();
+		if ($result) {
+			while($row = $result->fetch_object()) {
+				array_push($rs, $row);
+			}
+			$result->free();
+		}
 	}
 
 	/**
@@ -227,11 +283,26 @@ class MySQLConnection extends AppBase
 	 */
 	public function query($query)
 	{
-		if (!$this->mysqli instanceof \mysqli) {
-			$this->connectToDatabase();
+		$this->executeQuery($query);
+
+		/* eat up any results of the query */
+		while ($this->mysqli->more_results()) {
+			$this->mysqli->next_result();
+			if ($result = $this->mysqli->store_result()) {
+				while ($row = $result->fetch_row()) {
+					continue;
+				}
+				$result->free();
+			}
 		}
-		if (!$this->mysqli->multi_query($query)) {
-			throw new InvalidQueryException($this->mysqli->error);
-		}
+	}
+
+	/**
+	 * Retrieves the last insert id created in the database.
+	 * @return int Last insert id value.
+	 */
+	public function retrieveInsertID()
+	{
+		return ($this->mysqli->insert_id);
 	}
 }

@@ -1,17 +1,15 @@
 <?php
 namespace Littled\Tests\Filters;
 
-require_once(realpath(dirname(__FILE__) . '/../../') . '/_dbo/connections/damienjay.php');
-
 use Littled\Filters\SocialGalleryFilters;
 
-class TypedSocialGalleryFilters extends SocialGalleryFilters
+class SocialGalleryFiltersChild extends SocialGalleryFilters
 {
 	const TEST_CONTENT_TYPE_ID = 10; /* damien jay database: "Comics Page" in site_section table */
 
 	public static function CONTENT_TYPE_ID()
 	{
-		return (TypedSocialGalleryFilters::TEST_CONTENT_TYPE_ID);
+		return (SocialGalleryFiltersChild::TEST_CONTENT_TYPE_ID);
 	}
 }
 
@@ -27,7 +25,7 @@ class SocialGalleryFiltersTest extends \PHPUnit\Framework\TestCase
 	 */
 	public function testRetrieveListings()
 	{
-		$this->filters = new TypedSocialGalleryFilters();
+		$this->filters = new SocialGalleryFiltersChild();
 		$data = $this->filters->retrieveListings();
 		$this->assertEquals(CURRENT_SKETCHBOOK_IMAGES, count($data), "Returned records with default filters.");
 	}
@@ -37,7 +35,7 @@ class SocialGalleryFiltersTest extends \PHPUnit\Framework\TestCase
 	 */
 	public function testRetrieveWordpressListings()
 	{
-		$this->filters = new TypedSocialGalleryFilters();
+		$this->filters = new SocialGalleryFiltersChild();
 		$this->filters->onWordpress->value = true;
 		$data = $this->filters->retrieveListings();
 		$this->assertEquals(CURRENT_SKETCHBOOK_WP_IMAGES, count($data), "Returned records with default filters.");
@@ -52,7 +50,7 @@ class SocialGalleryFiltersTest extends \PHPUnit\Framework\TestCase
 	 */
 	public function testRetrieveTwitterListings()
 	{
-		$this->filters = new TypedSocialGalleryFilters();
+		$this->filters = new SocialGalleryFiltersChild();
 		$this->filters->onTwitter->value = true;
 		$data = $this->filters->retrieveListings();
 		$this->assertEquals(CURRENT_SKETCHBOOK_TWITTER_IMAGES, count($data), "Returned records with default filters.");
@@ -67,7 +65,7 @@ class SocialGalleryFiltersTest extends \PHPUnit\Framework\TestCase
 	 */
 	public function testRetrieveShortURLListings()
 	{
-		$this->filters = new TypedSocialGalleryFilters();
+		$this->filters = new SocialGalleryFiltersChild();
 		$this->filters->hasShortURL->value = true;
 		$data = $this->filters->retrieveListings();
 		$this->assertEquals(CURRENT_SKETCHBOOK_SHORT_URL_IMAGES, count($data), "Returned records with default filters.");

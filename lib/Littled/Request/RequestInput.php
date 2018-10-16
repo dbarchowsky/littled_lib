@@ -3,6 +3,7 @@ namespace Littled\Request;
 
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 
 /**
@@ -125,6 +126,7 @@ class RequestInput
 	 * Default routine for rendering the label of the input.
 	 * @param string $label Text to display as the label for the form input. A null value will cause the internal label value to be used. An empty string will cause the label to not be rendered at all.
 	 * @return string Label markup to insert into form content.
+	 * @throws ResourceNotFoundException Template not found.
 	 */
 	public function formatLabelMarkup( $label )
 	{
@@ -142,11 +144,20 @@ class RequestInput
 	}
 
 	/**
+	 * Tests if the value of the object is not currently set.
+	 * @return bool True/false depending on whether the value is set or not.
+	 */
+	public function isEmpty()
+	{
+		return ($this->value===null || $this->value==='');
+	}
+
+	/**
 	 * Renders the corresponding form field with a label to collect the input data.
 	 * @param string $label Text to display as the label for the form input.
 	 * A null value will cause the internal label value to be used. An empty
 	 * string will cause the label to not be rendered at all.
-	 * @param string $cssClass (Optional) CSS class name(s) to apply to the
+	 * @param string $css_class (Optional) CSS class name(s) to apply to the
 	 * input container.
 	 * @throws NotImplementedException
 	 */
@@ -177,6 +188,7 @@ class RequestInput
 
 	/**
 	 * Prints out markup to save input value in a hidden form input element.
+	 * @throws ResourceNotFoundException Template not found.
 	 */
 	public function saveInForm()
 	{
@@ -226,10 +238,16 @@ class RequestInput
 
 	/**
 	 * Validates the object's current value stored in its $value property.
-	 * @throws NotImplementedException
+	 * @returns True if no validation errors are found.
+	 * @throws ContentValidationException
 	 */
 	public function validate()
 	{
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+		if ($this->required) {
+			if ($this->isEmpty()) {
+				$this->throwValidationError(ucfirst($this->label)." is required.");
+			}
+		}
+		return (true);
 	}
 }

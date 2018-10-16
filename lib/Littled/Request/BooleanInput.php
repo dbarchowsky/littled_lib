@@ -29,13 +29,28 @@ class BooleanInput extends RequestInput
 	}
 
 	/**
+	 * Assigns a value to the object, with checks to make sure that the stored value is a boolean.
+	 * @param boolean $value Value to assign.
+	 */
+	public function setInputValue ($value)
+	{
+		$this->value = Validation::parseBoolean($value);
+	}
+
+	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param \mysqli $mysqli
 	 * @return string SQL-escaped value
 	 */
 	public function escapeSQL( $mysqli )
 	{
-		return (($this->value===false || $this->value===null)?('0'):('1'));
+		if ($this->value===false || $this->value==='false' || $this->value==='0' || $this->value===0) {
+			return ('0');
+		}
+		if ($this->value===true || $this->value==='true' || $this->value==='1' || $this->value===1) {
+			return ('1');
+		}
+		return ('null');
 	}
 
 	/**

@@ -116,7 +116,7 @@ class ContentOperations extends MySQLConnection
 		$keys = $src->keys();
 		foreach($keys as $key)
 		{
-			$this->$key = $key;
+			$this->$key = $src->$key;
 		}
 	}
 

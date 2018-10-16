@@ -48,6 +48,8 @@ pecl install xdebug
 
 (In PHPStorm, set the PHP interpreter with **PHPStorm** > **Preferences** > **Languages & Frameworks** > **PHP** > **CLI Interpreter**.)
 
+[Install Composer locally](https://getcomposer.org/download/) in the `app` directory.
+
 Install PHPUnit with composer:
 ```$xslt
 php composer.phar install
@@ -57,4 +59,12 @@ or
 php composer.phar upgrade
 ```
 
-Database connection parameter values are found in `/_dbo/connections/`, which is not included in the repo. 
+Database connection properties are defined in different PHPUnit config files located in `/tests/config/`. 
+
+The PHPUnit config files are excluded from the git repo. Copy them from an existing development environment.
+
+In **PHPStorm**, load the configuration files in the PHPUnit test configuration:
+* **Run** > **Edit Configurations...**
+  * **Use alternative configuration file**: `checked`
+  * Enter the path to the XML file in `/tests/config/` containing the appropriate database connection values.
+  * The XML files define constants (e.g. `MYSQL_HOST`, `MYSQL_SCHEMA`, etc.) that are used to establish database connections.

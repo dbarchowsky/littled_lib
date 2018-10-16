@@ -3,6 +3,7 @@ namespace Littled\PageContent;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\NotImplementedException;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -35,6 +36,7 @@ class PageContentBase extends MySQLConnection
      */
     function __construct()
     {
+    	parent::__construct();
 	    $this->content = null;
 	    $this->filters = null;
 	    $this->qs = '';
@@ -103,6 +105,7 @@ class PageContentBase extends MySQLConnection
 	 * Sets $qs property value to preserve initial GET variable values.
 	 * @param array $page_vars Array of Input objects used to collect page variable values
 	 * to store in query string.
+	 * @throws NotImplementedException Parameter names not defined.
 	 */
 	protected function preservePageVariables($page_vars )
 	{

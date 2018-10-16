@@ -1,0 +1,313 @@
+<?php
+namespace Littled\PageContent\Serialized;
+
+
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Request\IntegerInput;
+
+class SerializedContent extends SerializedContentUtils
+{
+	/** @var IntegerInput Record id. */
+	public $id;
+
+	/**
+	 * Interface to retrieve table name associated with inherited classes.
+	 * @throws NotImplementedException
+	 */
+	public static function TABLE_NAME()
+	{
+		throw new NotImplementedException('TABLE_NAME() not implemented in inherited class.');
+	}
+
+	/**
+	 * SerializedContent constructor.
+	 */
+	function __construct()
+	{
+		parent::__construct();
+		$this->id = new IntegerInput('id', 'id', false);
+	}
+
+	/**
+	 * Check if a column exists in a given database table in the content item's database table.
+	 * @param string $column_name Name of the column to check for.
+	 * @param string[optional] $table_name This parameter is ignored in this class's implementation of the routine.
+	 * @return boolean True/false depending on if the column is found.
+	 * @throws NotImplementedException Inherited classes haven't set table name value.
+	 * @throws InvalidQueryException Error executing query.
+	 */
+	public function columnExists($column_name, $table_name='')
+	{
+		return(parent::columnExists($column_name, $this->TABLE_NAME()));
+	}
+
+	/**
+	 * Deletes the record from the database. Uses the value object's id property to look up the record.
+	 * @return string Message indicating result of the deletion.
+	 * @throws ContentValidationException Record id not provided.
+	 * @throws NotImplementedException Table name not set in inherited class.
+	 * @throws InvalidQueryException SQL error raised running deletion query.
+	 */
+	function delete ( )
+	{
+		if ($this->id->value===null || $this->id->value<1) {
+			throw new ContentValidationException("Id not provided.");
+		}
+
+		if (!$this->recordExists()) {
+			return("The requested record could not be found. \n");
+		}
+
+		$query = "DELETE FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$this->query($query);
+		return ("The record has been deleted. \n");
+	}
+
+	/**
+	 * Create a SQL insert statement using the values of the object's input properties & execute the insert statement.
+	 * @throws ConnectionException On connection error.
+	 * @throws ConfigurationUndefinedException Database connection properties not set.
+	 * @throws NotImplementedException Table name not specified in inherited class.
+	 * @throws InvalidQueryException SQL error raised running insert query.
+	 */
+	protected function executeInsertQuery()
+	{
+		$fields = array();
+		$used_keys = array();
+
+		/* pick out object properties that match columns of the record in the database */
+		foreach ($this as $key => $item) {
+			if ($this->isInput($key, $item, $used_keys)) {
+				/* format column name and value for SQL statement */
+				$fields["`{$key}`"] = $this->escapeSQLValue($item->value);
+			}
+		}
+
+		/* build sql statement */
+		$query = "INSERT INTO `".$this->TABLE_NAME()."` (".
+			implode(',', array_keys($fields)).
+			") VALUES (".
+			implode(',', array_values($fields)).
+			")";
+
+		/* execute sql and store id value of the new record. */
+		$this->query($query);
+		$this->id->value = $this->retrieveInsertID();
+	}
+
+	/**
+	 * Create a SQL update statement using the values of the object's input properties & execute the update statement.
+	 * @throws ConnectionException On connection error.
+	 * @throws ConfigurationUndefinedException Database connection properties not set.
+	 * @throws InvalidQueryException SQL error raised running insert query.
+	 * @throws NotImplementedException Table name not specified in inherited class.
+	 * @throws RecordNotFoundException No record exists that matches the id value.
+	 */
+	protected function executeUpdateQuery()
+	{
+		$used_keys = array();
+		$fields = array();
+
+		/* pick out object properties that match columns of the record in the database */
+		foreach ($this as $key => &$item) {
+			if ($this->isInput($key, $item, $used_keys)) {
+				/* format column name and value for SQL statement */
+				$fields[] = "`{$key}` = ".$this->escapeSQLValue($item->value);
+			}
+		}
+
+		/* confirm that the record exists */
+		if (!$this->recordExists()) {
+			throw new RecordNotFoundException("Requested record not available for update.");
+		}
+
+		/* build and execute sql statement */
+		$query = "UPDATE `".$this->TABLE_NAME()."` SET ".
+			implode(',', $fields)." ".
+			"WHERE id = {$this->id->value};";
+		$this->query($query);
+	}
+
+	/**
+	 * Attempts to determine which column in a table holds title or name values.
+	 * @todo This routine exists for the benefit of the getRecordName() routine. If the switch that is in that routine
+	 * @todo be implemented in inherited classes, then this routine is no longer necessary and can be removed.
+	 * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
+	 * @throws NotImplementedException Inherited classes haven't set table name value.
+	 * @throws InvalidQueryException Error executing query.
+	 */
+	public function getNameColumnIdentifier()
+	{
+		switch(1) {
+			case ($this->columnExists('name')):
+				return ('name');
+				break;
+			case ($this->columnExists('title')):
+				return('title');
+				break;
+			default:
+				return('');
+		}
+	}
+
+	/**
+	 * Attempts to read the title or name from a record in the database and use
+	 * its value to set the title or name property of the class instance. Uses the
+	 * value of the internal TABLE_NAME() property to determine which table to search.
+	 * @throws NotImplementedException Table name not specified in inherited classes.
+	 * @throws RecordNotFoundException Requested data not found.
+	 * @throws InvalidQueryException Error executing SQL queries.
+	 */
+	function getRecordLabel()
+	{
+		$column = $this->getNameColumnIdentifier();
+
+		$query = "SELECT `{$column}` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$data = $this->fetchRecords($query);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException('Column value not found');
+		}
+
+		/** @todo Move this logic to the appropriate inherited classes. */
+		switch (1) {
+			case (property_exists($this, "name")):
+				list($this->name->value) = $data[0];
+				break;
+			case (property_exists($this, "title")):
+				list($this->title->value) = $data[0];
+				break;
+			default:
+				break;
+		}
+	}
+
+	/**
+	 * Retrieves the name of the record represented by the provided id value.
+	 * @param string $table Name of the table containing the records.
+	 * @param int $id ID value of the record.
+	 * @param string[optional] $field Column name containing the value to retrieve. Defaults to "name".
+	 * @param string[optional] $id_field Column name containing the id value to retrieve. Defaults to "id".
+	 * @throws InvalidQueryException SQL error raised running insert query.
+	 * @return string|null Retrieved value.
+	 */
+	public function getTypeName($table, $id, $field="name", $id_field="id" )
+	{
+		if ($id===null || $id<1) {
+			return(null);
+		}
+
+		$query = "SELECT `{$field}` AS `result` FROM `{$table}` WHERE `{$id_field}` = {$id}";
+		$data = $this->fetchRecords($query);
+		$ret_value = $data[0]->result;
+		return($ret_value);
+	}
+
+	/**
+	 * Indicates if any form data has been entered for the current instance of the object.
+	 * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
+	 * have been uploaded. Most likely should be overridden in derived classes.
+	 */
+	public function hasData( )
+	{
+		return ($this->id->value!==null);
+	}
+
+	/**
+	 * Retrieves data from the database based on the internal properties of the
+	 * class instance. Sets the values of the internal properties of the class
+	 * instance using the database data.
+	 * @throws NotImplementedException Table name not set.
+	 * @throws InvalidQueryException Error executing query.
+	 * @throws RecordNotFoundException Requested record not available.
+	 */
+	public function read ()
+	{
+		$fields = $this->collectTableColumns();
+		$query = "SELECT ".
+			implode(',', $fields)." ".
+			"FROM `".$this->TABLE_NAME()."` ".
+			"WHERE id = {$this->id->value}";
+		$data = $this->fetchRecords($query);
+		if (count($data) < 1) {
+			$error_msg = "The requested ".$this->TABLE_NAME()." record could not be found.";
+			throw new RecordNotFoundException($error_msg);
+		}
+		$this->assignRecordValues($data[0]);
+	}
+
+	/**
+	 * Retrieves a list of records from the database using $query. Converts each
+	 * row in the result to an object of type $type. Stores the objects as an
+	 * array in the object's property specified with $property.
+	 * @param string $property Name of property to use to store list.
+	 * @param string $type Object type to push onto the array.
+	 * @param string $query SQL query to execute to retrieve list.
+	 * @throws InvalidQueryException Error executing query.
+	 * @throws NotImplementedException Currently only stored procedures are supported.
+	 * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
+	 */
+	public function readList( $property, $type, $query )
+	{
+		if (stripos($query, "call")===0) {
+			$data = $this->fetchRecords($query);
+		}
+		else {
+			throw new NotImplementedException("Unsupported query type for retrieving record list.");
+		}
+
+		$this->$property = array();
+		foreach($data as $row) {
+			$obj = new $type;
+			if (!($obj instanceof SerializedContent)) {
+				throw new InvalidTypeException("Cannot store records in object provided.");
+			}
+			$obj->fill($row);
+			array_push($this->$property, $obj);
+		}
+	}
+
+	/**
+	 * Commits the values stored in the class instance's properties to the database.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException Unable to establish database connection.
+	 * @throws ContentValidationException Record contains invalid data.
+	 * @throws InvalidQueryException Error executing query.
+	 * @throws NotImplementedException Table name value not set in inherited class.
+	 * @throws RecordNotFoundException No record exists that matches the id value.
+	 */
+	public function save ()
+	{
+		if (!$this->hasData()) {
+			throw new ContentValidationException("Record has no data to save.");
+		}
+		if (is_numeric($this->id->value)) {
+			$this->executeUpdateQuery();
+		}
+		else {
+			$this->executeInsertQuery();
+		}
+	}
+
+	/**
+	 * Confirm that a record with id value matching the current id value of the object currently exists in the database.
+	 * @return bool True/False depending on if a matching record is found.
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 */
+	public function recordExists()
+	{
+		if ($this->id->value===null || $this->id->value==='' || $this->id->value < 1) {
+			return (false);
+		}
+
+		$query = "SELECT EXISTS(SELECT 1 FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}) AS `record_exists`";
+		$data = $this->fetchRecords($query);
+		return ((int)("0".$data[0]->record_exists) === 1);
+	}
+}

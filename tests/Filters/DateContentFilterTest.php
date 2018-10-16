@@ -1,8 +1,6 @@
 <?php
 namespace Littled\Tests\Filters;
 
-require_once (realpath(dirname(__FILE__).'/../../').'/_dbo/connections/test_data.php');
-
 use Littled\Filters\DateContentFilter;
 use PHPUnit\Framework\TestCase;
 
