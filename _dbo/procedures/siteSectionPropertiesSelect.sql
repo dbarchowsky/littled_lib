@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `sectionPropertiesSelect`;
+DROP PROCEDURE IF EXISTS `siteSectionPropertiesSelect`;
 DELIMITER $$
-CREATE PROCEDURE `sectionPropertiesSelect`(
+CREATE PROCEDURE `siteSectionPropertiesSelect`(
   IN p_section_id INT
 )
 BEGIN

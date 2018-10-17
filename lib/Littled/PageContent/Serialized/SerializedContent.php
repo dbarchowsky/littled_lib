@@ -27,11 +27,12 @@ class SerializedContent extends SerializedContentUtils
 
 	/**
 	 * SerializedContent constructor.
+	 * @param integer[optional] Initial value to assign to the object's id property.
 	 */
-	function __construct()
+	function __construct($id=null)
 	{
 		parent::__construct();
-		$this->id = new IntegerInput('id', 'id', false);
+		$this->id = new IntegerInput('id', 'id', false, $id);
 	}
 
 	/**
@@ -78,21 +79,12 @@ class SerializedContent extends SerializedContentUtils
 	 */
 	protected function executeInsertQuery()
 	{
-		$fields = array();
-		$used_keys = array();
-
-		/* pick out object properties that match columns of the record in the database */
-		foreach ($this as $key => $item) {
-			if ($this->isInput($key, $item, $used_keys)) {
-				/* format column name and value for SQL statement */
-				$fields["`{$key}`"] = $this->escapeSQLValue($item->value);
-			}
-		}
+		$fields = $this->formatDatabaseColumnList();
 
 		/* build sql statement */
-		$query = "INSERT INTO `".$this->TABLE_NAME()."` (".
-			implode(',', array_keys($fields)).
-			") VALUES (".
+		$query = "INSERT INTO `".$this->TABLE_NAME()."` (`".
+			implode('`,`', array_keys($fields)).
+			"`) VALUES (".
 			implode(',', array_values($fields)).
 			")";
 
@@ -111,25 +103,18 @@ class SerializedContent extends SerializedContentUtils
 	 */
 	protected function executeUpdateQuery()
 	{
-		$used_keys = array();
-		$fields = array();
-
-		/* pick out object properties that match columns of the record in the database */
-		foreach ($this as $key => &$item) {
-			if ($this->isInput($key, $item, $used_keys)) {
-				/* format column name and value for SQL statement */
-				$fields[] = "`{$key}` = ".$this->escapeSQLValue($item->value);
-			}
-		}
+		$fields = $this->formatDatabaseColumnList();
 
 		/* confirm that the record exists */
 		if (!$this->recordExists()) {
 			throw new RecordNotFoundException("Requested record not available for update.");
 		}
 
+		$fields_cb = function($key, $value) { return("`{$key}`={$value}"); };
+
 		/* build and execute sql statement */
 		$query = "UPDATE `".$this->TABLE_NAME()."` SET ".
-			implode(',', $fields)." ".
+			implode(',', array_map($fields_cb, array_keys($fields), $fields))." ".
 			"WHERE id = {$this->id->value};";
 		$this->query($query);
 	}
@@ -222,15 +207,17 @@ class SerializedContent extends SerializedContentUtils
 	 * Retrieves data from the database based on the internal properties of the
 	 * class instance. Sets the values of the internal properties of the class
 	 * instance using the database data.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
 	 * @throws NotImplementedException Table name not set.
 	 * @throws InvalidQueryException Error executing query.
 	 * @throws RecordNotFoundException Requested record not available.
 	 */
 	public function read ()
 	{
-		$fields = $this->collectTableColumns();
-		$query = "SELECT ".
-			implode(',', $fields)." ".
+		$fields = $this->formatDatabaseColumnList();
+		$query = "SELECT `".
+			implode('`,`', array_keys($fields))."` ".
 			"FROM `".$this->TABLE_NAME()."` ".
 			"WHERE id = {$this->id->value}";
 		$data = $this->fetchRecords($query);

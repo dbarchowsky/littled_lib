@@ -1,11 +1,13 @@
 <?php
 namespace Littled\SiteContent;
+
+
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
-use Littled\Request\IntegerTextFIeld;
+use Littled\Request\IntegerTextField;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 
@@ -21,7 +23,7 @@ class ContentProperties extends ContentOperations
 	/** @var BooleanCheckbox Flag indicating that the record's thumbnail is a link to a image in the gallery linked to
 	 * the record (as opposed to a stand-alone image record). */
 	public $gallery_thumbnail;
-	/** @var IntegerTextFIeld Target height of images linked to the parent record. */
+	/** @var IntegerTextField Target height of images linked to the parent record. */
 	public $height;
 	/** @var string Name of the argument used to pass the record id to and from pages and scripts. Stored in the section_operations table. */
 	public $id_param;
@@ -33,13 +35,13 @@ class ContentProperties extends ContentOperations
 	public $is_cached;
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
 	public $label;
-	/** @var IntegerTextFIeld Target height for medium-sized images. */
+	/** @var IntegerTextField Target height for medium-sized images. */
 	public $med_height;
-	/** @var IntegerTextFIeld Target width for medium-sized images. */
+	/** @var IntegerTextField Target width for medium-sized images. */
 	public $med_width;
-	/** @var IntegerTextFIeld Target height for smallest-sized images. */
+	/** @var IntegerTextField Target height for smallest-sized images. */
 	public $mini_height;
-	/** @var IntegerTextFIeld Target width for smallest-sized images. */
+	/** @var IntegerTextField Target width for smallest-sized images. */
 	public $mini_width;
 	/** @var StringTextField Name of the content type. */
 	public $name;
@@ -59,7 +61,7 @@ class ContentProperties extends ContentOperations
 	public $table;
 	/** @var array Array of templates used to render the section's content. */
 	public $templates;
-	/** @var IntegerTextFIeld Target width of images linked to the main record. */
+	/** @var IntegerTextField Target width of images linked to the main record. */
 	public $width;
 
 	const ID_PARAM = 'cpId';
@@ -79,7 +81,7 @@ class ContentProperties extends ContentOperations
 		$this->id = new IntegerInput("Id", self::ID_PARAM, true, $id);
 		$this->format = new StringSelect("Image format", 'cpFormat', false, '', 4);
 		$this->gallery_thumbnail = new BooleanCheckbox("Has gallery thumbnail", "cpGallThumb", false, false);
-		$this->height = new IntegerTextFIeld("Target image height", "cpImgH", false, null);
+		$this->height = new IntegerTextField("Target image height", "cpImgH", false, null);
 		$this->image_label = new StringTextField("Image label", "cpImgLabel", false, '', 100);
 		$this->image_path = new StringTextField("Image path", "cpImgPath", false, '', 255);
 		$this->is_cached = new BooleanCheckbox("Cached", "cpCached", false, false);

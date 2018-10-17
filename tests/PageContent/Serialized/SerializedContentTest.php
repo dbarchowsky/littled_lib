@@ -11,6 +11,7 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
+use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
 
 
@@ -103,6 +104,11 @@ class SerializedContentNameTestHarness extends SerializedContent
 	public $bool_col;
 	public $date_col;
 
+	public static function TABLE_NAME()
+	{
+		return ('serialized_content_name_test');
+	}
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -112,9 +118,37 @@ class SerializedContentNameTestHarness extends SerializedContent
 		$this->date_col = new IntegerInput('Date field', 'pdate');
 	}
 
+	public function hasData()
+	{
+		return ($this->id->value > 0 || strlen("".$this->name->value) > 0);
+	}
+}
+
+
+class SerializedContentNonDefaultColumn extends SerializedContentNameTestHarness
+{
+	/** @var StringTextField Column to use to test non-default column names */
+	public $nonDefaultCol;
+
 	public static function TABLE_NAME()
 	{
-		return ('serialized_content_name_test');
+		return ('serialized_content_column_test');
+	}
+
+	public function __construct()
+	{
+		parent::__construct();
+		$this->nonDefaultCol = new StringTextField('Non-default column', 'pnfc', true, null, 50);
+		$this->nonDefaultCol->columnName = 'non_default';
+	}
+
+	public function hasData()
+	{
+		$result = parent::hasData();
+		if ($this->nonDefaultCol->value) {
+			$result = true;
+		}
+		return ($result);
 	}
 }
 
@@ -160,6 +194,16 @@ class SerializedContentTest extends TestCase
 			"`date_col` DATE);";
 		$c->query($query);
 
+		$query = "DROP TABLE IF EXISTS `".SerializedContentNonDefaultColumn::TABLE_NAME()."`; ".
+			"CREATE TABLE `".SerializedContentNonDefaultColumn::TABLE_NAME()."` (".
+			"`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,".
+			"`name` VARCHAR(50),".
+			"`vc_col` VARCHAR(255),".
+			"`bool_col` BOOLEAN,".
+			"`date_col` DATE,".
+			"`non_default` VARCHAR(50));";
+		$c->query($query);
+
 		$query = "DROP PROCEDURE IF EXISTS `testListSelect`;";
 		$c->query($query);
 
@@ -191,6 +235,8 @@ class SerializedContentTest extends TestCase
 		$query = 'DROP TABLE `'.SerializedContentNameTestHarness::TABLE_NAME().'`';
 		$c->query($query);
 		$query = 'DROP TABLE `'.SerializedContentTitleTestHarness::TABLE_NAME().'`';
+		$c->query($query);
+		$query = 'DROP TABLE `'.SerializedContentNonDefaultColumn::TABLE_NAME().'`';
 		$c->query($query);
 	}
 
@@ -357,6 +403,19 @@ class SerializedContentTest extends TestCase
 		$this->assertEquals('', $obj->vc_col2->value);
 		$this->assertNull($obj->int_col->value);
 		$this->assertNull($obj->bool_col->value);
+	}
+
+	public function testSaveNonDefaultColumns()
+	{
+		$o1 = new SerializedContentNonDefaultColumn();
+		$o1->name->setInputValue('foozizzle');
+		$o1->nonDefaultCol->setInputValue('drooplizzle');
+		$o1->save();
+
+		$query = "SELECT * FROM `".SerializedContentNonDefaultColumn::TABLE_NAME()."` WHERE `id` = {$o1->id->value}";
+		$data = $this->conn->fetchRecords($query);
+
+		$this->assertEquals($o1->nonDefaultCol->value, $data[0]->non_default);
 	}
 
 	/**

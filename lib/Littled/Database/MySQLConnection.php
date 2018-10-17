@@ -136,6 +136,9 @@ class MySQLConnection extends AppBase
 		if ($value===false) {
 			return ('0');
 		}
+		if (is_numeric($value)) {
+			return($value);
+		}
 		return "'".$this->mysqli->real_escape_string($value)."'";
 	}
 

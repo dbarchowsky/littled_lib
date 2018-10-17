@@ -3,10 +3,10 @@ namespace Littled\Request;
 
 
 /**
- * Class IntegerTextFIeld
+ * Class IntegerTextField
  * @package Littled\Request
  */
-class IntegerTextFIeld extends IntegerInput
+class IntegerTextField extends IntegerInput
 {
 
 }

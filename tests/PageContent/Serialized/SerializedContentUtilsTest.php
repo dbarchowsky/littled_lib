@@ -194,36 +194,6 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertEquals('', $this->obj->child->vc_col2->value);
 	}
 
-	public function testCollectTableColumns()
-	{
-		/* test no fields returned with only "id" property */
-		$fields = $this->obj->collectTableColumns();
-		$this->assertEquals(0, count($fields));
-
-		/* test properties named "index" are ignored */
-		$this->obj->index = new IntegerInput("Record index", "index_param", true);
-		$fields = $this->obj->collectTableColumns();
-		$this->assertEquals(0, count($fields));
-
-		/* test properties that are not derived from RequestInput are ignored */
-		$this->obj->plain_var = 56;
-		$fields = $this->obj->collectTableColumns();
-		$this->assertEquals(0, count($fields));
-
-		/* test properties of some other class are ignored */
-		$this->obj->filter = new BooleanContentFilter("Boolean filter", "bool_param");
-		$fields = $this->obj->collectTableColumns();
-		$this->assertEquals(0, count($fields));
-
-		/* test RequestInput properties */
-		$this->obj->p1 = new StringInput("String input", "string_param");
-		$this->obj->p2 = new IntegerInput("Integer input", "int_param");
-		$fields = $this->obj->collectTableColumns();
-		$this->assertEquals(2, count($fields));
-		$this->assertEquals('`p1`', $fields[0]);
-		$this->assertEquals('`p2`', $fields[1]);
-	}
-
     /**
      * @throws \Littled\Exception\InvalidTypeException
      */

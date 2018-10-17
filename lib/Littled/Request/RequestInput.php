@@ -21,7 +21,12 @@ class RequestInput
 	 * @var boolean If FALSE this property will be passed over when retrieving or saving its value from or to the
 	 * database. Default value is TRUE.
 	 */
-	public $dbField;
+	public $isDatabaseField;
+	/** @var string Name to use to override the default name of the column in the database holding the value linked to
+	 * this property. The default value is the name of the property in the parent class.
+	 */
+	public $columnName;
+
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
 	 * when rendering the input. If TRUE, a placeholder attribute will be added
@@ -53,10 +58,10 @@ class RequestInput
 	 * class constructor
 	 * @param string $label Input label
 	 * @param string $param value of the name attribute of the input
-	 * @param boolean $required Flag indicating if this form data is required. Defaults to FALSE.
-	 * @param string $value Initial value of the input. Defaults to NULL.
-	 * @param int $size_limit Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
-	 * @param int $index Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
+	 * @param boolean[optional] $required Flag indicating if this form data is required. Defaults to FALSE.
+	 * @param mixed[optional] $value Initial value of the input. Defaults to NULL.
+	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
+	 * @param int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
 	 */
 	function __construct ( $label, $param, $required=false, $value=null, $size_limit=0, $index=null )
 	{
@@ -70,7 +75,8 @@ class RequestInput
 		$this->class              = "";
 		$this->width              = "";
 		$this->error              = "";
-		$this->dbField            = true;
+		$this->isDatabaseField    = true;
+		$this->columnName         = "";
 		$this->displayPlaceholder = false;
 		$this->contentType        = "text";
 	}

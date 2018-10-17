@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
@@ -10,6 +11,9 @@ use Littled\Request\StringInput;
 
 class SerializedContentUtils extends MySQLConnection
 {
+	/** @var array Container for validation error messages. */
+	public $validationErrors;
+
 	/**
 	 * Returns the form data members of the objects as series of nested associative arrays.
 	 * @param array[optional] $arExclude array of parameter names to exclude from the returned array.
@@ -49,7 +53,13 @@ class SerializedContentUtils extends MySQLConnection
 			/** @var RequestInput $item */
 			if ($this->isInput($key, $item, $used_keys)) {
 				/* store value retrieved from database */
-				$item->setInputValue($row->$key);
+				if ($item->columnName) {
+					$custom_key = $item->columnName;
+					$item->setInputValue($row->$custom_key);
+				}
+				else {
+					$item->setInputValue($row->$key);
+				}
 			}
 		}
 	}
@@ -68,24 +78,6 @@ class SerializedContentUtils extends MySQLConnection
 				$item->clearValues();
 			}
 		}
-	}
-
-	/**
-	 * Returns list of columns based on the object's property names. The column name values are escaped for the use
-	 * in queries.
-	 * @return array List of columns based on the object's property names. The column name values are escaped for the
-	 * use in queries.
-	 */
-	public function collectTableColumns()
-	{
-		$used_keys = array();
-		$fields = array();
-		foreach ($this as $key => $item) {
-			if ($this->isInput($key, $item, $used_keys)) {
-				array_push($fields, "`{$key}`");
-			}
-		}
-		return ($fields);
 	}
 
 	/**
@@ -115,6 +107,33 @@ class SerializedContentUtils extends MySQLConnection
 	}
 
 	/**
+	 * Returns a list of column names to use to format SQL queries that will be used to read and update
+	 * records.
+	 * @param array[optional] $used_keys Properties that have already been added to the stack.
+	 * @return array Key/value pairs for each RequestInput property of the class.
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 */
+	protected function formatDatabaseColumnList($used_keys=[])
+	{
+		$fields = array();
+		foreach ($this as $key => $item) {
+			if ($this->isInput($key, $item, $used_keys)) {
+				if ($item->isDatabaseField===false) {
+					continue;
+				}
+				/* format column name and value for SQL statement */
+				if ($item->columnName) {
+					$fields[$item->columnName] = $this->escapeSQLValue($item->value);
+				} else {
+					$fields[$key] = $this->escapeSQLValue($item->value);
+				}
+			}
+		}
+		return ($fields);
+	}
+
+	/**
 	 * Checks if the class property is an input object and should be used for
 	 * various operations such as updating or retrieving data from the database,
 	 * or retrieving data from forms.
@@ -129,7 +148,7 @@ class SerializedContentUtils extends MySQLConnection
 		$is_input = (($item instanceof RequestInput) &&
 			($key != "id") &&
 			($key != "index") &&
-			($item->dbField==true));
+			($item->isDatabaseField==true));
 		if ($is_input) {
 			/* Check if this item has already been used as in input property.
 			 * This prevents references used as aliases of existing properties
@@ -243,5 +262,41 @@ class SerializedContentUtils extends MySQLConnection
 		fputs($f, ob_get_contents());
 		fclose($f);
 		ob_end_clean();
+	}
+
+	/**
+	 * Validates the internal property values of the object for data that is not valid.
+	 * Updates the $validation_errors property of the object with messages describing the invalid values.
+	 * @param array[optional] $exclude_properties Names of class properties to exclude from validation.
+	 * @throws ContentValidationException Invalid content found.
+	 */
+	public function validateInput($exclude_properties=[])
+	{
+		$this->validationErrors = [];
+		foreach($this as $key => $property) {
+			if (in_array($key, $exclude_properties)) {
+				continue;
+			}
+			if ($property instanceof RequestInput) {
+				try {
+					$property->validate();
+				}
+				catch(ContentValidationException $ex) {
+					array_push($this->validationErrors, $ex->getMessage());
+				}
+			}
+			elseif($property instanceof SerializedContentUtils) {
+				try {
+					$property->validateInput();
+				}
+				catch(ContentValidationException $ex) {
+					array_push($this->validationErrors, $ex->getMessage());
+					array_merge($this->validationErrors, $property->validationErrors);
+				}
+			}
+		}
+		if (count($this->validationErrors) > 0) {
+			throw new ContentValidationException("Error validating content.");
+		}
 	}
 }
