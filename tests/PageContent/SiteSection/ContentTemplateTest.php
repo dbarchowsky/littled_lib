@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace Littled\Tests\PageContent\SiteSection;
 
 
 use Littled\Database\MySQLConnection;
