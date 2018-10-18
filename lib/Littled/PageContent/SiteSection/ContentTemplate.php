@@ -20,16 +20,14 @@ class ContentTemplate extends SerializedContent
 	const TABLE_NAME = "content_template";
 	public static function TABLE_NAME() { return (self::TABLE_NAME); }
 
-	/** @var IntegerInput Record id. */
-	public $id;
 	/** @var StringTextField Template name. */
 	public $name;
 	/** @var IntegerInput Content type id. */
-	public $contentTypeID;
+	public $content_type_id;
 	/** @var string Root directory of the content type, as specified in the parent site_section table. */
-	public $templatePath;
+	public $template_dir;
 	/** @var StringTextField Relative path to the content template. */
-	public $templateFile;
+	public $path;
 	/** @var StringSelect Location of the template, e.g. local vs. shared. */
 	public $location;
 	/** @var IntegerInput Pointer to $site_section_id property */
@@ -51,24 +49,23 @@ class ContentTemplate extends SerializedContent
 		$this->id->label = "Template id";
 		$this->id->param = 'templateID';
 		$this->id->required = false;
-		$this->contentTypeID = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
+		$this->content_type_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
 		$this->name = new StringTextField("Name", "templateName", true, $name, 45);
-		$this->templatePath = new StringTextField("Template directory", "templateDir", false, $base_dir, 200);
-		$this->templateFile = new StringTextField("Template file", "templatePath", true, $path, 255);
+		$this->template_dir = new StringTextField("Template directory", "templateDir", false, $base_dir, 200);
+		$this->path = new StringTextField("Template file", "templatePath", true, $path, 255);
 		$this->location = new StringSelect("Location", "templateLocation", false, $location, 20);
 
 		/* non-default column names in database table */
-		$this->templatePath->isDatabaseField = false;
-		$this->contentTypeID->columnName = 'site_section_id';
-		$this->templateFile->columnName = 'path';
+		$this->template_dir->isDatabaseField = false;
+		$this->content_type_id->columnName = 'site_section_id';
 
 		/* pointer to site section id for the benefit of editing these
 		 * records in the CMS */
-		$this->parentID = &$this->contentTypeID;
+		$this->parentID = &$this->content_type_id;
 
 		/* ensure this has a trailing slash */
 		if ($base_dir) {
-			$this->templatePath->setInputValue(rtrim($base_dir, '/').'/');
+			$this->template_dir->setInputValue(rtrim($base_dir, '/').'/');
 		}
 	}
 
@@ -78,7 +75,7 @@ class ContentTemplate extends SerializedContent
 	 */
 	public function hasData()
 	{
-		return ($this->id->value > 0 || $this->templateFile->value || $this->name->value);
+		return ($this->id->value > 0 || $this->path->value || $this->name->value);
 	}
 
 	/**
@@ -89,7 +86,7 @@ class ContentTemplate extends SerializedContent
 	 */
 	public function formatFullPath()
 	{
-		$path = $this->templateFile->value;
+		$path = $this->path->value;
 		if ($path) {
 			switch ($this->location->value)
 			{
@@ -100,8 +97,8 @@ class ContentTemplate extends SerializedContent
 					$path = rtrim(CMS_COMMON_TEMPLATE_DIR, '/').'/'.$path;
 					break;
 				default:
-					if ($this->templatePath->value) {
-						$path = rtrim(APP_BASE_DIR, '/').'/'.trim($this->templatePath->value, '/').'/'.ltrim($path,'/');
+					if ($this->template_dir->value) {
+						$path = rtrim(APP_BASE_DIR, '/').'/'.trim($this->template_dir->value, '/').'/'.ltrim($path,'/');
 					}
 					break;
 			}
@@ -125,14 +122,14 @@ class ContentTemplate extends SerializedContent
 		}
 		catch (ContentValidationException $ex) { ; /* continue */ }
 
-		if (!$this->templatePath->value && !$this->location->value) {
+		if (!$this->template_dir->value && !$this->location->value) {
 			array_push($this->validationErrors, "Either a template path or location must be specified.");
 		}
 
-		if ($this->id->value===null && $this->contentTypeID->value > 0 && $this->name->value) {
+		if ($this->id->value===null && $this->content_type_id->value > 0 && $this->name->value) {
 			$this->connectToDatabase();
 			$escaped_name = $this->name->escapeSQL($this->mysqli);
-			$query = "CALL contentTemplateSectionNameSelect({$this->contentTypeID->value}, {$escaped_name})";
+			$query = "CALL contentTemplateSectionNameSelect({$this->content_type_id->value}, {$escaped_name})";
 			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$error = "A \"{$this->name->value}\" template already exists for the \"{$data[0]->section}\" area of the site.";

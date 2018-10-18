@@ -11,7 +11,8 @@ SELECT
   t.`path`,
   t.`location`
 FROM `content_template` t
-WHERE (t.`site_section_id` = p_id);
+WHERE (t.`site_section_id` = p_id)
+ORDER BY t.`id`;
 
 END$$
 

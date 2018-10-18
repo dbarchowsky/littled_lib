@@ -63,8 +63,8 @@ class ContentTemplateTest extends TestCase
 		$this->assertEquals(5, $obj->id->value);
 		$this->assertEquals(10, $obj->parentID->value);
 		$this->assertEquals('Test Section', $obj->name->value);
-		$this->assertEquals('/path/to/templates/', $obj->templatePath->value);
-		$this->assertEquals('template-file.php', $obj->templateFile->value);
+		$this->assertEquals('/path/to/templates/', $obj->template_dir->value);
+		$this->assertEquals('template-file.php', $obj->path->value);
 		$this->assertEquals('top', $obj->location->value);
 	}
 
@@ -74,8 +74,8 @@ class ContentTemplateTest extends TestCase
 		$this->assertNull($obj->id->value);
 		$this->assertNull($obj->parentID->value);
 		$this->assertEquals('', $obj->name->value);
-		$this->assertEquals('', $obj->templatePath->value);
-		$this->assertEquals('', $obj->templateFile->value);
+		$this->assertEquals('', $obj->template_dir->value);
+		$this->assertEquals('', $obj->path->value);
 		$this->assertEquals('', $obj->location->value);
 	}
 
@@ -93,19 +93,19 @@ class ContentTemplateTest extends TestCase
 		$this->assertTrue($this->obj->hasData());
 
 		$this->obj->name->setInputValue('');
-		$this->obj->templateFile->setInputValue('mytemplate.php');
+		$this->obj->path->setInputValue('mytemplate.php');
 		$this->assertTrue($this->obj->hasData());
 
-		$this->obj->templateFile->setInputValue('');
+		$this->obj->path->setInputValue('');
 		$this->assertFalse($this->obj->hasData());
 
-		$this->obj->templatePath->setInputValue('/path/to/templates/');
-		$this->obj->contentTypeID->setInputValue(72);
+		$this->obj->template_dir->setInputValue('/path/to/templates/');
+		$this->obj->content_type_id->setInputValue(72);
 		$this->obj->location->setInputValue('bottom');
 		$this->assertFalse($this->obj->hasData());
 
 		$this->obj->name->setInputValue('test name');
-		$this->obj->templateFile->setInputValue('template.php');
+		$this->obj->path->setInputValue('template.php');
 		$this->assertTrue($this->obj->hasData());
 	}
 
@@ -115,15 +115,15 @@ class ContentTemplateTest extends TestCase
 		$this->assertEquals('', $this->obj->formatFullPath());
 
 		/* just path */
-		$this->obj->templateFile->setInputValue('template.php');
-		$this->assertEquals($this->obj->templateFile->value, $this->obj->formatFullPath());
+		$this->obj->path->setInputValue('template.php');
+		$this->assertEquals($this->obj->path->value, $this->obj->formatFullPath());
 
 		/* path and template directory with no trailing slash */
-		$this->obj->templatePath->setInputValue('/templates/html');
+		$this->obj->template_dir->setInputValue('/templates/html');
 		$this->assertEquals(APP_BASE_DIR.'templates/html/template.php', $this->obj->formatFullPath());
 
 		/* path and template directory with trailing slash */
-		$this->obj->templatePath->value = "{$this->obj->templatePath->value}/";
+		$this->obj->template_dir->value = "{$this->obj->template_dir->value}/";
 		$this->assertEquals(APP_BASE_DIR.'templates/html/template.php', $this->obj->formatFullPath());
 
 		/* location value set to SHARED */
@@ -161,7 +161,7 @@ class ContentTemplateTest extends TestCase
 			$this->assertNotContains("Name is required.", $this->obj->validationErrors);
 		}
 
-		$this->obj->contentTypeID->setInputValue(2);
+		$this->obj->content_type_id->setInputValue(2);
 		try {
 			$this->obj->validateInput();
 		}
@@ -169,7 +169,7 @@ class ContentTemplateTest extends TestCase
 			$this->assertNotContains("Content type is required.", $this->obj->validationErrors);
 		}
 
-		$this->obj->templateFile->setInputValue('template.php');
+		$this->obj->path->setInputValue('template.php');
 		try {
 			$this->obj->validateInput();
 		}
@@ -177,7 +177,7 @@ class ContentTemplateTest extends TestCase
 			$this->assertNotContains("Template file is required.", $this->obj->validationErrors);
 		}
 
-		$this->obj->templatePath->setInputValue('templates/html/');
+		$this->obj->template_dir->setInputValue('templates/html/');
 		try {
 			$this->obj->validateInput();
 		}
@@ -204,9 +204,9 @@ class ContentTemplateTest extends TestCase
 		$data = $this->conn->fetchRecords($query);
 		$section_name = $data[0]->name;
 
-		$this->obj->contentTypeID->setInputValue($content_type_id);
+		$this->obj->content_type_id->setInputValue($content_type_id);
 		$this->obj->name->setInputValue($template_name);
-		$this->obj->templateFile->setInputValue("template.php");
+		$this->obj->path->setInputValue("template.php");
 		$this->obj->location->setInputValue('local');
 		$this->obj->save();
 
@@ -235,9 +235,9 @@ class ContentTemplateTest extends TestCase
 		$this->obj->id->setInputValue($data[0]->id);
 		$this->obj->read();
 
-		$this->assertEquals(CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->contentTypeID->value);
+		$this->assertEquals(CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->content_type_id->value);
 		$this->assertEquals(ContentTemplateTest::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-		$this->assertEquals('/path/to/templates/template.php', $this->obj->templateFile->value);
+		$this->assertEquals('/path/to/templates/template.php', $this->obj->path->value);
 		$this->assertEquals('local', $this->obj->location->value);
 	}
 
@@ -252,12 +252,12 @@ class ContentTemplateTest extends TestCase
 	public function testSave()
 	{
 		/* set object property values */
-		$this->obj->contentTypeID->setInputValue(45);
+		$this->obj->content_type_id->setInputValue(45);
 		$this->obj->name->setInputValue("Unit Test");
-		$this->obj->templatePath->setInputValue("unit_tests/");
-		$this->obj->templateFile->setInputValue("test-template.php");
+		$this->obj->template_dir->setInputValue("unit_tests/");
+		$this->obj->path->setInputValue("test-template.php");
 		$this->obj->location->setInputValue("shared");
-		$this->obj->templateFile->setInputValue($this->obj->formatFullPath());
+		$this->obj->path->setInputValue($this->obj->formatFullPath());
 
 		/* save new record */
 		$this->obj->save();
@@ -268,9 +268,9 @@ class ContentTemplateTest extends TestCase
 
 		/* compare fetched record data to object property values */
 		$this->assertEquals($this->obj->id->value, $data[0]->id);
-		$this->assertEquals($this->obj->contentTypeID->value, $data[0]->site_section_id);
+		$this->assertEquals($this->obj->content_type_id->value, $data[0]->site_section_id);
 		$this->assertEquals($this->obj->name->value, $data[0]->name);
-		$this->assertEquals($this->obj->templateFile->value, $data[0]->path);
+		$this->assertEquals($this->obj->path->value, $data[0]->path);
 		$this->assertEquals($this->obj->location->value, $data[0]->location);
 	}
 }

@@ -25,8 +25,6 @@ class SiteSection extends SerializedContent
 	const TABLE_NAME = 'site_section';
 	public static function TABLE_NAME() { return SiteSection::TABLE_NAME; }
 
-	/** @var IntegerTextField ID of the content type. */
-	public $id;
 	/** @var StringTextField Name of the content. */
 	public $name;
 	/** @var StringTextField Root directory for section content. */
@@ -79,7 +77,7 @@ class SiteSection extends SerializedContent
 	public function __construct($id=null)
 	{
 		parent::__construct($id);
-		$this->id->label = SiteSection::ID_PARAM;
+		$this->id->key = SiteSection::ID_PARAM;
 		$this->name = new StringTextField("Name", "ssna", true, "", 50);
 		$this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
 		$this->image_path = new StringTextField("Image directory", "ssdr", false, "", 255);
@@ -98,10 +96,27 @@ class SiteSection extends SerializedContent
 		$this->parent_id = new IntegerSelect("Parent", "sspi", false, null);
 		$this->is_cached = new BooleanCheckbox("Cache content", "sscc", false, false);
 		$this->gallery_thumbnail = new BooleanCheckbox("Gallery thumbnail", "ssgt", false, false);
+		$this->initializeExtraProperties();
+	}
+
+	/**
+	 * Sets initial values for the object's extra properties.
+	 */
+	protected function initializeExtraProperties()
+	{
 		$this->templates = array();
 		$this->id_param = "";
 		$this->label = "";
 		$this->parent = "";
+	}
+
+	/**
+	 * Resets the object's property values.
+	 */
+	public function clearValues()
+	{
+		parent::clearValues();
+		$this->initializeExtraProperties();
 	}
 
 	/**
@@ -171,7 +186,9 @@ class SiteSection extends SerializedContent
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function read()
@@ -179,25 +196,26 @@ class SiteSection extends SerializedContent
 		parent::read();
 		$query = "CALL siteSectionExtraPropertiesSelect({$this->id->value})";
 		$data = $this->fetchRecords($query);
+		$this->initializeExtraProperties();
 		if (count($data) > 0) {
 			$this->id_param = $data[0]->id_param;
 			$this->parent = $data[0]->parent;
 			$this->label = $data[0]->label;
-			$this->readTemplates();
 		}
+		$this->readTemplates();
 	}
 
 	/**
 	 * Retrieve content templates linked to this content type.
-	 * @throws RecordNotFoundException Content template records not found.
 	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
 	 */
 	public function readTemplates()
 	{
-		$query = "CALL contentTemplatesSelectBySectionID({$this->id->value})";
+		$query = "CALL contentTemplateSelectBySectionID({$this->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
-			throw new RecordNotFoundException("Error retrieving content templates.");
+			return;
+			// throw new RecordNotFoundException("Error retrieving content templates.");
 		}
 		foreach($data as $row) {
 			$i = count($this->templates);

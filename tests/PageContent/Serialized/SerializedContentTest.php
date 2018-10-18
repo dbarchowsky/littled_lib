@@ -4,6 +4,7 @@ namespace Littled\Tests\PageContent;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\BooleanContentFilter;
@@ -502,6 +503,7 @@ class SerializedContentTest extends TestCase
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
 	 */
     public function testRead()
     {
@@ -524,17 +526,61 @@ class SerializedContentTest extends TestCase
     }
 
 	/**
+	 * @throws ContentValidationException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
 	 */
     public function testReadNonExistentRecord()
     {
-	    $obj = new SerializedContentChild();
+    	$obj = new SerializedContentChild();
 	    $obj->id->setInputValue(99988999);
 	    $this->expectException(RecordNotFoundException::class);
 	    $obj->read();
     }
+
+	/**
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 */
+	public function testReadNullID()
+	{
+		$obj = new SerializedContentChild();
+		try {
+			$obj->read();
+		}
+		catch(ContentValidationException $ex) {
+			$this->assertEquals("Record id not set.", $ex->getMessage());
+		}
+	}
+
+
+	/**
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
+	public function testReadInvalidObject()
+	{
+		$obj = new SerializedContentChild();
+		$obj->id = 563;
+		try {
+			$obj->read();
+		}
+		catch(InvalidTypeException $ex) {
+			$this->assertEquals("Record id not in expected format.", $ex->getMessage());
+		}
+	}
 
 	/**
 	 * @throws NotImplementedException

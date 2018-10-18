@@ -209,12 +209,21 @@ class SerializedContent extends SerializedContentUtils
 	 * instance using the database data.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
+	 * @throws ContentValidationException Record id not set.
 	 * @throws NotImplementedException Table name not set.
 	 * @throws InvalidQueryException Error executing query.
+	 * @throws InvalidTypeException Record id is not an instance of IntegerInput.
 	 * @throws RecordNotFoundException Requested record not available.
 	 */
 	public function read ()
 	{
+		if ($this->id instanceof IntegerInput === false) {
+			throw new InvalidTypeException("Record id not in expected format.");
+		}
+		if ($this->id->value===null || $this->id->value<0) {
+			throw new ContentValidationException("Record id not set.");
+		}
+
 		$fields = $this->formatDatabaseColumnList();
 		$query = "SELECT `".
 			implode('`,`', array_keys($fields))."` ".
