@@ -113,7 +113,7 @@ class PageContentBase extends MySQLConnection
 		foreach($page_vars as $input) {
 			/** @var $input RequestInput */
 			if ( $input instanceof RequestInput) {
-				$input->collectValue();
+				$input->collectFromInput();
 			}
 			else {
 				/* @todo remove this after common_lib is removed from all projects */

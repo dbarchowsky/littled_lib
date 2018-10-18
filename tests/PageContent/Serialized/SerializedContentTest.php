@@ -561,7 +561,6 @@ class SerializedContentTest extends TestCase
 		}
 	}
 
-
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException

@@ -15,6 +15,8 @@ class SerializedContent extends SerializedContentUtils
 {
 	/** @var IntegerInput Record id. */
 	public $id;
+	/** @var boolean Flag to skip filling object values from input variables (GET or POST). */
+	public $bypassCollectFromInput;
 
 	/**
 	 * Interface to retrieve table name associated with inherited classes.
@@ -33,6 +35,7 @@ class SerializedContent extends SerializedContentUtils
 	{
 		parent::__construct();
 		$this->id = new IntegerInput('id', 'id', false, $id);
+		$this->bypassCollectFromInput = false;
 	}
 
 	/**
@@ -55,7 +58,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws NotImplementedException Table name not set in inherited class.
 	 * @throws InvalidQueryException SQL error raised running deletion query.
 	 */
-	function delete ( )
+	public function delete ( )
 	{
 		if ($this->id->value===null || $this->id->value<1) {
 			throw new ContentValidationException("Id not provided.");

@@ -25,6 +25,16 @@ class IntegerInput extends RequestInput
 	}
 
 	/**
+	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
+	 * @param int|null[optional] $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
+	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 */
+	public function collectFromInput($filters = null, $src = null)
+	{
+		$this->value = Validation::collectIntegerRequestVar($this->key, null, $src);
+	}
+
+	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param \mysqli $mysqli
 	 * @return string Escaped value.

@@ -81,6 +81,21 @@ class SerializedContentUtils extends MySQLConnection
 	}
 
 	/**
+	 * Set property values using input variable values, e.g. GET, POST, cookies
+	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 */
+	public function collectFromInput($src=null)
+	{
+		foreach($this as $key => $item) {
+			if (is_object($item) && method_exists($item, 'collectFromInput')) {
+				if (!property_exists($item, 'bypassCollectFromInput') || $item->bypassCollectFromInput===false) {
+					$item->collectFromInput(null, $src);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Copies the property values from one object into this instance.
 	 * @param mixed $src Object to use to copy values over to this object.
 	 * @throws InvalidTypeException Source is not a valid object.

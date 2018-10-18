@@ -50,19 +50,16 @@ class Validation
 		if ($src===null) {
 			$src = array_merge($_GET, $_POST);
 		}
-		if (!isset($src[$key])) {
+		if (!array_key_exists($key, $src)) {
 			return (null);
 		}
-		if ($index!==null)
-		{
+		if ($index!==null) {
 			$arr = filter_var($src[$key], $filter, FILTER_REQUIRE_ARRAY);
-			if (is_array($arr) && count($arr) >= ($index-1))
-			{
+			if (is_array($arr) && count($arr) >= ($index-1)) {
 				$value = $arr[$index];
 			}
 		}
-		else
-		{
+		else {
 			$value = filter_var($src[$key], $filter);
 		}
 		return ($value);
@@ -145,13 +142,19 @@ class Validation
 	 * Searches POST and GET data in that order, for a property corresponding to
 	 * $key.
 	 * @param string $key Key of the variable value to collect.
-	 * @param int $filter Filter token corresponding to the 3rd parameter of
-	 * PHP's built-in filter_input() routine.
+	 * @param int $filter Filter token corresponding to the 3rd parameter of PHP's built-in filter_input() routine.
+	 * @param array|null[optional] $src Array to use in place of POST or GET data.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectRequestVar( $key, $filter=FILTER_SANITIZE_STRING )
+	public static function collectRequestVar($key, $filter=FILTER_SANITIZE_STRING, $src=null )
 	{
+		if (is_array($src)) {
+			if (!array_key_exists($key, $src)) {
+				return(null);
+			}
+			return trim(filter_var($src[$key], $filter));
+		}
 		$value = trim(filter_input(INPUT_POST, $key, $filter));
 		if (!$value) {
 			$value = trim(filter_input(INPUT_GET, $key, $filter));

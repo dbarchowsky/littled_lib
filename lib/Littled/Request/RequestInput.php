@@ -91,10 +91,11 @@ class RequestInput
 
 	/**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
-	 * @param int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
+	 * @param int|null[optional] $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
+	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @throws NotImplementedException
 	 */
-	public function collectValue( $filters=null )
+	public function collectFromInput($filters=null, $src=null)
 	{
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}
