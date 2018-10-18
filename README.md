@@ -68,3 +68,25 @@ In **PHPStorm**, load the configuration files in the PHPUnit test configuration:
   * **Use alternative configuration file**: `checked`
   * Enter the path to the XML file in `/tests/config/` containing the appropriate database connection values.
   * The XML files define constants (e.g. `MYSQL_HOST`, `MYSQL_SCHEMA`, etc.) that are used to establish database connections.
+  
+## PHP class structure
+
+```text
+Littled/Database/MySQLConnection
+ |
+ +- Littled/PageContent/Serialzied/SerializedContentUtils
+     |
+     +- Littled/Keyword/Keyword
+     |
+     +- Littled/PageContent/Serialized/SerializedContent
+         |
+         +- Littled/PageContent/SiteSection/SiteSection
+         |
+         +- Littled/PageContent/SiteSection/SectionContent
+             |
+             +- Littled/PageContent/SiteSection/KeywordSectionContent
+                 |
+                 +- Littled/PageContent/Albums/Album
+                     |
+                     +- Littled/PageContent/Albums/SocialXPostAlbum
+```
