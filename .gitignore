@@ -1,6 +1,7 @@
 .idea/
 _gsdata_/
 vendor/
+composer.phar
 composer.lock
 tests/config/
 tests/assets/*-output-template.php
