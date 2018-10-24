@@ -9,12 +9,29 @@ use Littled\PageContent\Albums\Gallery;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 
+
+/**
+ * Class SerializedContentUtils
+ * @package Littled\PageContent\Serialized
+ */
 class SerializedContentUtils extends MySQLConnection
 {
 	/** @var array Container for validation error messages. */
 	public $validationErrors;
+	/** @var string Error message returned when invalid form data is encountered. */
+	public $validationMessage;
 
-	/**
+    /**
+     * SerializedContentUtils constructor.
+     */
+	public function __construct()
+    {
+        parent::__construct();
+        $this->validationErrors = [];
+        $this->validationMessage = "Errors were found in the content.";
+    }
+
+    /**
 	 * Returns the form data members of the objects as series of nested associative arrays.
 	 * @param array[optional] $arExclude array of parameter names to exclude from the returned array.
 	 * @return array Associative array containing the object's form data members as name/value pairs.
@@ -305,13 +322,15 @@ class SerializedContentUtils extends MySQLConnection
 					$property->validateInput();
 				}
 				catch(ContentValidationException $ex) {
-					array_push($this->validationErrors, $ex->getMessage());
-					array_merge($this->validationErrors, $property->validationErrors);
+				    if (strlen($ex->getMessage()) > 0) {
+                        array_push($this->validationErrors, $ex->getMessage());
+                    }
+					$this->validationErrors = array_merge($this->validationErrors, $property->validationErrors);
 				}
 			}
 		}
 		if (count($this->validationErrors) > 0) {
-			throw new ContentValidationException("Error validating content.");
+			throw new ContentValidationException($this->validationMessage);
 		}
 	}
 }

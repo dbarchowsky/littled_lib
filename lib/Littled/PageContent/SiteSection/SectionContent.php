@@ -24,6 +24,8 @@ class SectionContent extends SerializedContent
 	{
 		parent::__construct($id);
 		$this->siteSection = new SiteSection($site_section_id);
+		$this->siteSection->id->label = "Content type";
+		$this->siteSection->id->required = true;
 	}
 
 	/**

@@ -63,6 +63,13 @@ Database connection properties are defined in different PHPUnit config files loc
 
 The PHPUnit config files are excluded from the git repo. Copy them from an existing development environment.
 
+### PHPStorm configuration
+
+Make sure that the project autoloader script is used to load PHPUnit. (Otherwise there will be errors in the console to the effect that PHPUnit is not installed or cannot be found.)
+
+* **Preferences** > **Languages & Frameworks** > **PHP** > **Test Frameworks** 
+    * **Use Composer autoloader:** `/path/to/project/vender/autoload.php`
+
 In **PHPStorm**, load the configuration files in the PHPUnit test configuration:
 * **Run** > **Edit Configurations...**
   * **Use alternative configuration file**: `checked`
