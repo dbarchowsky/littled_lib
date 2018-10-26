@@ -111,6 +111,21 @@ class DateInputTest extends TestCase
         }
     }
 
+    public function testValidateValueSize()
+    {
+        $str = "";
+        for ($i = 0; $i < $this->obj->sizeLimit+1; $i++) {
+            $str .= "a";
+        }
+        $this->obj->value = $str;
+        try {
+            $this->obj->validate();
+        }
+        catch(ContentValidationException $ex) {
+            $this->assertEquals("{$this->obj->label} is limited to {$this->obj->sizeLimit} characters.", $ex->getMessage());
+        }
+    }
+
     public function testValidateInvalidDateFormats()
     {
         $this->obj->required = false;
@@ -134,7 +149,7 @@ class DateInputTest extends TestCase
     public function testEscapeSQL()
     {
 	    $mysqli = new \mysqli();
-	    $mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+	    $mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
     	$this->obj->setInputValue('May 23, 2018');
     	$this->assertEquals("'2018-05-23 00:00:00'", $this->obj->escapeSQL($mysqli));

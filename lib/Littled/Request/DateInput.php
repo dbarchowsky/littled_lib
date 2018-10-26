@@ -68,11 +68,12 @@ class DateInput extends StringInput
 	}
 
 	/**
-	 * Converts the current value of the object to a standard date format.
+	 * Returns the current value of the object as formatted string value.
 	 * @param string $date_format Date format to apply to the current value of the object.
+     * @return string|null Formatted date string.
 	 * @throws ContentValidationException Current value not a valid date value.
-	 */
-	protected function setDateValue( $date_format='Y-m-d H:i:00' )
+     */
+	public function formatDateValue( $date_format='Y-m-d H:i:00' )
 	{
 		$valid = (strtotime($this->value)!==false);
 		if (!$valid) {
@@ -85,9 +86,22 @@ class DateInput extends StringInput
 			throw new ContentValidationException("{$this->label} is not in a recognized date format.");
 		}
 		if ($date_format !== null) {
-			$this->value = date($date_format, strtotime($this->value));
+			return (date($date_format, strtotime($this->value)));
 		}
+		return $this->value;
 	}
+
+    /**
+     * Converts the current value of the object to a standard date format.
+     * @param string $date_format Date format to apply to the current value of the object.
+     * @throws ContentValidationException Current value not a valid date value.
+     */
+	protected function setDateValue( $date_format='Y-m-d H:i:00' )
+    {
+        if (strlen($date_format) > 0) {
+            $this->value = $this->formatDateValue($date_format);
+        }
+    }
 
 	/**
 	 * Assigns a value to the object after parsing the value so it is in a workable format.
