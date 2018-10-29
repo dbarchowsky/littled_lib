@@ -68,7 +68,7 @@ class PageUtils
 	 * Formats a date stored in a string. Similar to PHP built-in routine strftime, but date passed in as a string instead of as a timestamp.
 	 * @param string $date Date value.
 	 * @param string $format See PHP built-in function strftime.
-	 * @returns string Formatted date.
+	 * @return string Formatted date.
 	 */
 	public static function formatDate( $date, $format )
 	{
@@ -82,7 +82,7 @@ class PageUtils
 	/**
 	 * Returns string with date value formatted as mm/dd/yyyy.
 	 * @param string $date Date value.
-	 * @returns string Formatted date.
+	 * @return string Formatted date.
 	 */
 	public static function formatDateMMDDYY( $date ) {
 		return(PageUtils::formatDate($date, '%m/%d/%Y'));
@@ -91,7 +91,7 @@ class PageUtils
 	/**
 	 * Returns string with date value formatted as Mon dd, YYYY.
 	 * @param string $date Date value.
-	 * @returns string Formatted date.
+	 * @return string Formatted date.
 	 */
 	public static function formatDateMonDDYYYY( $date ) {
 		return(PageUtils::formatDate($date, '%b %d, %Y'));

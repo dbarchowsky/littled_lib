@@ -29,7 +29,7 @@ class SerializedContent extends SerializedContentUtils
 
 	/**
 	 * SerializedContent constructor.
-	 * @param integer[optional] Initial value to assign to the object's id property.
+	 * @param integer[optional] $id Initial value to assign to the object's id property.
 	 */
 	function __construct($id=null)
 	{
