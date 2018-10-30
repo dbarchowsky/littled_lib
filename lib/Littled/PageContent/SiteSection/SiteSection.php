@@ -141,6 +141,9 @@ class SiteSection extends SerializedContent
 	 */
 	public function getParentID()
 	{
+		if ($this->id->value===null || $this->id->value < 1) {
+			return (null);
+		}
 		$query = "CALL siteSectionParentIDSelect({$this->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
@@ -150,13 +153,22 @@ class SiteSection extends SerializedContent
 	}
 
 	/**
-	 * @deprecated Use getParentID() instead.
-	 * @return int|null
+	 * Retrieves the content type for the parent of the current content type.
+	 * @return int|null Content type id of the parent record.
+	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getParentTypeID()
 	{
-		return ($this->getParentID());
+		if ($this->id->value===null || $this->id->value < 1) {
+			return (null);
+		}
+		$query = "CALL siteSectionParentTypeID({$this->id->value});";
+		$data = $this->fetchRecords($query);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException("Parent content type not found.");
+		}
+		return($data[0]->content_type_id);
 	}
 
 	/**

@@ -23,9 +23,14 @@ class StringInput extends RequestInput
 	 * Collects the value of this form input and stores it in the object.
 	 * @param int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
 	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param string|null[optional] $key Key to use in place of the internal $key property value.
 	 */
-	public function collectFromInput ($filters=null, $src=null)
+	public function collectFromInput ($filters=null, $src=null, $key=null)
 	{
+		if (!$key) {
+			$key = $this->key;
+		}
+
 		if ($filters===null) {
 			if (strpos($this->class, "mce-editor")!==false) {
 				$filters = FILTER_UNSAFE_RAW;
@@ -40,15 +45,15 @@ class StringInput extends RequestInput
 			if (is_array($src)) {
 				/* user-defined source array */
 				$this->value = null;
-				if(array_key_exists($this->key, $src)) {
-					$this->value = filter_var($src[$this->key], $filters);
+				if(array_key_exists($key, $src)) {
+					$this->value = filter_var($src[$key], $filters);
 				}
 			}
 			else {
 				/* POST or GET */
-				$this->value = filter_input(INPUT_POST, $this->key, $filters);
+				$this->value = filter_input(INPUT_POST, $key, $filters);
 				if ($this->value===null || $this->value===false) {
-					$this->value = filter_input(INPUT_GET, $this->key, $filters);
+					$this->value = filter_input(INPUT_GET, $key, $filters);
 				}
 			}
 		}
@@ -57,8 +62,8 @@ class StringInput extends RequestInput
 			if (is_array($src)) {
 				/* user-defined source array */
 				$arr = [];
-				if (array_key_exists($this->key, $src)) {
-					$arr = filter_var($src[$this->key], FILTER_REQUIRE_ARRAY, $filters);
+				if (array_key_exists($key, $src)) {
+					$arr = filter_var($src[$key], FILTER_REQUIRE_ARRAY, $filters);
 				}
 				if (is_array($arr) && array_key_exists($this->index, $arr)) {
 					$this->value = $arr[$this->index];
@@ -66,9 +71,9 @@ class StringInput extends RequestInput
 			}
 			else {
 				/* POST and GET */
-				$arr = filter_input(INPUT_POST, $this->key, FILTER_REQUIRE_ARRAY, $filters);
+				$arr = filter_input(INPUT_POST, $key, FILTER_REQUIRE_ARRAY, $filters);
 				if (!is_array($arr)) {
-					$arr = filter_input(INPUT_GET, $this->key, FILTER_REQUIRE_ARRAY, $filters);
+					$arr = filter_input(INPUT_GET, $key, FILTER_REQUIRE_ARRAY, $filters);
 				}
 				if (is_array($arr) && array_key_exists($this->index, $arr)) {
 					$this->value = $arr[$this->index];

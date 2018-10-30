@@ -43,6 +43,8 @@ class RequestInput
 	public $label;
 	/** @var string  Name of script argument. Name of key in query string or form data. */
 	public $key;
+	/** @var string CSS class identifier. */
+	public $class;
 	/** @var bool Set to TRUE if a value for this form data is required. */
 	public $required;
 	/** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textbox inputs. */
@@ -91,11 +93,9 @@ class RequestInput
 
 	/**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
-	 * @param int|null[optional] $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
-	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @throws NotImplementedException
 	 */
-	public function collectFromInput($filters=null, $src=null)
+	public function collectFromInput()
 	{
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}
@@ -161,14 +161,9 @@ class RequestInput
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
-	 * @param string $label Text to display as the label for the form input.
-	 * A null value will cause the internal label value to be used. An empty
-	 * string will cause the label to not be rendered at all.
-	 * @param string $css_class (Optional) CSS class name(s) to apply to the
-	 * input container.
 	 * @throws NotImplementedException
 	 */
-	public function render( $label=null, $css_class='' )
+	public function render()
 	{
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}

@@ -24,10 +24,11 @@ class BooleanInput extends RequestInput
 	 * Collects the value of this form input and stores it in the object.
 	 * @param int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
 	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param string|null[optional] $key Key to use in place of the internal $key property value.
 	 */
-	public function collectFromInput ($filters=null, $src=null)
+	public function collectFromInput ($filters=null, $src=null, $key=null)
 	{
-		$this->value = Validation::parseBooleanInput($this->key, $this->index, $src);
+		$this->value = Validation::parseBooleanInput((($key)?($key):($this->key)), $this->index, $src);
 	}
 
 	/**
