@@ -5,7 +5,6 @@ namespace Littled\PageContent\Images;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -17,7 +16,7 @@ use Littled\Request\StringInput;
  * Class ImageFile
  * @package Littled\PageContent\Images
  */
-class ImageFile extends Image
+class ImageFile extends ImageBase
 {
 	/** @var string Target filename of image file that is saved to disk. */
 	protected $target_name = '';
@@ -135,29 +134,6 @@ class ImageFile extends Image
 	}
 
 	/**
-	 * Returns file size in bytes as a descriptive string.
-	 * @param int $file_size File size in bytes.
-	 * @return string Formatted file size.
-	 */
-	protected function formatFileSize( $file_size )
-	{
-		if (is_numeric($file_size)) {
-			$decr = 1024;
-			$step = 0;
-			$prefix = array('Byte','KB','MB','GB','TB','PB');
-
-			while(($file_size / $decr) > 0.9) {
-				$file_size = $file_size / $decr;
-				$step++;
-			}
-			return (round($file_size,2).' '.$prefix[$step]);
-		}
-		else {
-			return 'NaN';
-		}
-	}
-
-	/**
 	 * Returns SQL query used to save image properties to the database.
 	 * @return string SQL query.
 	 */
@@ -269,10 +245,6 @@ class ImageFile extends Image
      * @param $tmp_path
      * @param $target_name
      * @param $upload_dir
-     * @param null $target_dims
-     * @param string $target_ext
-     * @param string $sub_dir
-     * @throws NotImplementedException
      * @throws OperationAbortedException
      */
 	protected function moveUploadToDestination($tmp_path, $target_name, $upload_dir)
@@ -285,14 +257,11 @@ class ImageFile extends Image
     }
 
 	/**
-	 * @param ImageDims[optional] $target_dims
-	 * @param string[optional] $target_ext
 	 * @param string[optional] $sub_dir
 	 * @param string[optional] $target_basename
 	 * @param bool[optional] $randomize
 	 * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
-	 * @throws NotImplementedException
      * @throws OperationAbortedException
 	 * @throws ResourceNotFoundException
 	 */
@@ -351,7 +320,6 @@ class ImageFile extends Image
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
 	 * @throws OperationAbortedException
 	 * @throws RecordNotFoundException
 	 * @throws ResourceNotFoundException
@@ -365,7 +333,7 @@ class ImageFile extends Image
 		}
 
 		/* upload, resize, rename, & extract keywords from the image file */
-		$this->target_name = $this->placeUploadFile($target_dims, $target_ext, $sub_dir, $target_basename, $randomize);
+		$this->target_name = $this->placeUploadFile($sub_dir, $target_basename, $randomize);
 
 		if ($this->id->value>0 && $this->target_name) {
 			/* delete the old image file if uploading a replacement */
@@ -407,7 +375,7 @@ class ImageFile extends Image
         }
 
         /* check for invalid file types */
-        if (!$this->checkFileType($target_name)) {
+        if (!$this->validateFileType($target_name)) {
             throw new InvalidTypeException("File type not allowed.");
         }
 
