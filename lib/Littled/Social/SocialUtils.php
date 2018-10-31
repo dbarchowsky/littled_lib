@@ -107,6 +107,7 @@ class SocialUtils
 		$client = new WP_HTTP_IXR_CLIENT(WP_XMLRPC_URL);
 		// $client->debug = 1;
 
+		/** TODO Determine if the "post_status" value should be a string or boolean */
 		$post = array(
 			'post_status' => $publish,
 			'post_title' => $title,
