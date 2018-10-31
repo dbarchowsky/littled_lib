@@ -52,11 +52,11 @@ class ImageLink extends KeywordSectionContent
 	public $access;
 	/** @var DateTextField $release_date Date after which the record will be accessible as front-end content. */
 	public $release_date;
-	/** @var ImageOperations $full Full-resolution image record. */
+	/** @var Image $full Full-resolution image record. */
 	public $full;
-	/** @var ImageOperations $med Medium-resolution image record. */
+	/** @var Image $med Medium-resolution image record. */
 	public $med;
-	/** @var ImageOperations $mini Smallest-resolution image record. */
+	/** @var Image $mini Smallest-resolution image record. */
 	public $mini;
 	/** @var IntegerInput $type_id Pointer to site_section id property. */
 	public $type_id;
@@ -90,17 +90,17 @@ class ImageLink extends KeywordSectionContent
 		parent::__construct($section_id, $param_prefix);
 		$this->id = new IntegerInput("ID", $param_prefix.self::vars['id'], false, $id);
 		$this->parent_id = new IntegerInput("Image parent", $param_prefix.self::vars['parent_id'], false, $parent_id);
-		$this->title = new StringTextField("Title", $param_prefix.Image::vars['alt'], false, "", 50);
-		$this->description = new StringTextarea("Description", $param_prefix.Image::vars['caption'], false, "", 1000);
+		$this->title = new StringTextField("Title", $param_prefix.ImageBase::vars['alt'], false, "", 50);
+		$this->description = new StringTextarea("Description", $param_prefix.ImageBase::vars['caption'], false, "", 1000);
 		$this->slot = new IntegerTextField("Slot", $param_prefix.self::vars['slot'], false, $slot);
 		$this->page_number = new IntegerTextField("Page Number", $param_prefix.self::vars['page_number'], false, null);
 		$this->access = new StringSelect("Access", $param_prefix.self::vars['access'], true, $access, "20");
 		$this->release_date = new DateTextField("Release date", $param_prefix.self::vars['release_date'], false, date("n/j/Y"));
-		$this->full = new ImageOperations(null, $image_dir, $param_prefix, $image_id, $path, $width, $height, $alt_tag, $url, $target, $caption);
+		$this->full = new Image(null, $image_dir, $param_prefix, $image_id, $path, $width, $height, $alt_tag, $url, $target, $caption);
 		$this->full->alt->label = "Name";
 		$this->full->caption->label = "Text";
-		$this->med = new ImageOperations(null, $image_dir, $param_prefix."md");
-		$this->mini = new ImageOperations(null, $image_dir, $param_prefix."mn");
+		$this->med = new Image(null, $image_dir, $param_prefix."md");
+		$this->mini = new Image(null, $image_dir, $param_prefix."mn");
 
 		$this->siteSection->image_path->value = $image_dir;
 		$this->siteSection->sub_dir->value = "full/";
@@ -204,7 +204,7 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Delete image record linked to the ImageLink record.
-	 * @param ImageOperations $image Image object to be removed.
+	 * @param Image $image Image object to be removed.
 	 * @param string $description Description of the image being removed.
 	 * @return string Description of the results of the operation.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
@@ -237,7 +237,7 @@ class ImageLink extends KeywordSectionContent
 			 * record independent from the gallery)
 			 */
 			$parent_table = '';
-			$query = "CALL siteSectionTableSelect($this->siteSection->id->value);";
+			$query = "CALL siteSectionParentTableSelect($this->siteSection->id->value);";
 			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$parent_table = $data[0]->table;
@@ -515,8 +515,8 @@ class ImageLink extends KeywordSectionContent
 				$this->$property->key = $prefix.$default_name;
 			}
 		}
-		$this->title->key = Image::vars['alt'];
-		$this->description->key = Image::vars['caption'];
+		$this->title->key = ImageBase::vars['alt'];
+		$this->description->key = ImageBase::vars['caption'];
 		$this->siteSection->id->key = self::vars['content_type'];
 		$this->full->setPrefix($prefix);
 		$this->med->setPrefix($prefix.'md');
@@ -598,7 +598,6 @@ class ImageLink extends KeywordSectionContent
 	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\OperationAbortedException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */

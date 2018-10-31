@@ -5,10 +5,9 @@ CREATE PROCEDURE `siteSectionTableSelect`(
 )
   BEGIN
 
-    SELECT p.`table`
-    FROM `site_section` p
-    INNER JOIN `site_section` c ON p.`id` = c.`parent_id`
-    WHERE c.`id` = p_content_type_id;
+    SELECT `table`
+    FROM `site_section`
+    WHERE `id` = p_content_type_id;
 
   END$$
 DELIMITER ;
