@@ -32,6 +32,9 @@ class IntegerInput extends RequestInput
 	 */
 	public function collectFromInput($filters = null, $src = null, $key=null)
 	{
+		if ($this->bypassCollectFromInput===true) {
+			return;
+		}
 		$this->value = Validation::collectIntegerRequestVar((($key)?($key):($this->key)), null, $src);
 	}
 

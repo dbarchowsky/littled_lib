@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Albums;
 
 
+use JsonSchema\Exception\ValidationException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -14,6 +15,7 @@ use Littled\Request\IntegerTextField;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
+use Littled\PageContent\PageController;
 use Littled\PageContent\Images\ImageLink;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 
@@ -105,6 +107,12 @@ class Album extends KeywordSectionContent
 	 * parameter (GET and POST), derived class's specific id parameter (GET and
 	 * POST), and any slug that may have been used to request the album.
 	 * Throws exception if album id cannot be found.
+	 * @param array[optional] Array of variables to use to fill object properties if not using POST data to fill object property values.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function collectAlbumID( $src=null )
 	{
@@ -124,13 +132,13 @@ class Album extends KeywordSectionContent
 		$php_self = $_SERVER['PHP_SELF'];
 		$exclude = array(rtrim(dirname($php_self), '/').'/', $php_self);
 		$controller = new PageController();
-		$controller->collect_album_properties($exclude);
+		$controller->collectAlbumProperties($exclude);
 		$this->id->value = $controller->album_id;
 		if ($this->id->value > 0) {
 			return;
 		}
 
-		throw new Exception("A record was not specified.");
+		throw new ValidationException("A record was not specified.");
 	}
 
 	/**
@@ -350,6 +358,29 @@ class Album extends KeywordSectionContent
 			/* don't attempt to save the thumbnail id unless image uploads are required */
 			$this->gallery->tn_id->value > 0
 		);
+	}
+
+	/**
+	 * Looks up the id of the record matching the current slug property value of the object. The id
+	 * value will be stored in the object's id property. An exception is thrown if a corresponding
+	 * slug value is not located.
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
+	 */
+	public function lookupSlug()
+	{
+		$this->connectToDatabase();
+		$query = "SEL"."ECT `id` FROM `".$this::TABLE_NAME()."` ".
+			"WHERE (`section_id` = {$this->section_id->value}) ".
+			"AND (`slug` = ".$this->slug->escapeSQL($this->mysqli).")";
+		$data = $this->fetchRecords($query);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException("Slug not found.");
+		}
+		$this->id->value = $data[0]->id;
 	}
 
 	/**
@@ -632,9 +663,45 @@ class Album extends KeywordSectionContent
 	}
 
 	/**
-	 * Validates the current value of the object's $slug property against
-	 * existing records in the database.
-	 * @return bool TRUE/FALSE depending on the validity of the object's $slug value.
+	 * Validate form data collected with fill_from_input() routine.
+	 * @param array[optional] List of object properties that do not require validation.
+	 * @throws ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
+	 */
+	public function validateInput ( $exclude_properties=array() )
+	{
+		try {
+			parent::validateInput();
+		}
+		catch (ContentValidationException $ex) {
+			; /* continue */
+		}
+
+		try {
+			$this->gallery->validateInput();
+		}
+		catch (ContentValidationException $ex) {
+			array_push($this->validationErrors, $ex->getMessage());
+			$this->validationErrors = array_merge($this->validationErrors, $this->gallery->validationErrors);
+		}
+
+		if ($this->slug->value) {
+			try {
+				$this->validateSlug();
+			}
+			catch (ContentValidationException $ex) {
+				array_push($this->validationErrors, $ex->getMessage());
+			}
+		}
+
+		if (count($this->validationErrors) > 0) {
+			throw new ContentValidationException("Errors were found in the album.");
+		}
+	}
+
+	/**
+	 * Validates the current value of the object's $slug property against existing records in the database.
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
@@ -654,7 +721,7 @@ class Album extends KeywordSectionContent
 
 			if ($slug == $this->slug->value && $slug != "") {
 				/* current $slug value matches the value in the database */
-				return (true);
+				return;
 			}
 		}
 
@@ -663,11 +730,11 @@ class Album extends KeywordSectionContent
 			$this->formatSlug();
 		}
 
-		/* query to search for existing records with slug values that match
-		 * the object's $slug property value.
+		/**
+		 * Query to search for existing records with slug values that match the object's $slug property value.
 		 */
 		$query = "SEL"."ECT COUNT(1) AS `count` FROM `".$this->TABLE_NAME()."` ";
-		if (property_exists($this, "seciton_id") && $this->section_id->value > 0) {
+		if (property_exists($this, "section_id") && $this->section_id->value > 0) {
 			$query .= "WHERE (section_id = {$this->section_id->value}) ";
 		}
 		$query .= ((strpos($query, "WHERE") > 0)?('AND '):('WHERE '));
@@ -676,6 +743,8 @@ class Album extends KeywordSectionContent
 			$query .= "AND (`id` <> {$this->id->value}) ";
 		}
 		$data = $this->fetchRecords($query);
-		return ($data[0]->count < 1);
+		if (count($data) > 0) {
+			throw new ContentValidationException("A &ldquo;{$this->slug->value}&rdquo; slug already exists.");
+		}
 	}
 }

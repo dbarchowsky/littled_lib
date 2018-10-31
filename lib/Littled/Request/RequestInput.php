@@ -22,10 +22,13 @@ class RequestInput
 	 * database. Default value is TRUE.
 	 */
 	public $isDatabaseField;
-	/** @var string Name to use to override the default name of the column in the database holding the value linked to
+	/**
+	 * @var string Name to use to override the default name of the column in the database holding the value linked to
 	 * this property. The default value is the name of the property in the parent class.
 	 */
 	public $columnName;
+	/** @var bool Flag indicating that the object value should not be assigned from request variable values. */
+	public $bypassCollectFromInput;
 
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
@@ -81,6 +84,7 @@ class RequestInput
 		$this->columnName         = "";
 		$this->displayPlaceholder = false;
 		$this->contentType        = "text";
+		$this->bypassCollectFromInput = false;
 	}
 
 	/**

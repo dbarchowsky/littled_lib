@@ -23,7 +23,7 @@ class Gallery extends MySQLConnection
 	public $parent_id;
 	/** @var string Label for inserting into page content. */
 	public $label;
-	/** @var array List of image_link_class objects representing the images in the gallery */
+	/** @var ImageLink[] List of image_link_class objects representing the images in the gallery */
 	public $list;
 	/** @var ImageLink Thumbnail record. */
 	public $tn;
@@ -220,6 +220,16 @@ class Gallery extends MySQLConnection
 	}
 
 	/**
+	 * Formats a string that reports the number of items in the gallery and
+	 * the type of items represented by the gallery.
+	 * @return string String reporting number of items and type of items.
+	 */
+	public function formatItemCountString()
+	{
+		return (count($this->list)." ".strtolower($this->siteSection->image_label->value).((count($this->list)!=1)?("s"):("")));
+	}
+
+	/**
 	 * Returns the number of images in the gallery even if the gallery array hasn't been filled yet.
 	 * @param string[optional] $access Limits count to a particular access level.
 	 * @return int image count
@@ -245,13 +255,17 @@ class Gallery extends MySQLConnection
 	}
 
 	/**
-	 * Formats a string that reports the number of items in the gallery and
-	 * the type of items represented by the gallery.
-	 * @return string String reporting number of items and type of items.
+	 * Checks if any form data has been stored in the object that in turns requires storage in the database.
+	 * @return bool TRUE if data is found in the object. FALSE if data is not found in the object.
 	 */
-	public function formatItemCountString()
+	public function hasData()
 	{
-		return (count($this->list)." ".strtolower($this->siteSection->image_label->value).((count($this->list)!=1)?("s"):("")));
+		foreach($this->list as $image_link) {
+			if ($image_link->hasData()) {
+				return(true);
+			}
+		}
+		return (false);
 	}
 
 	/**

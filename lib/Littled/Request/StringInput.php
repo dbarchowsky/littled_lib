@@ -27,6 +27,10 @@ class StringInput extends RequestInput
 	 */
 	public function collectFromInput ($filters=null, $src=null, $key=null)
 	{
+		if ($this->bypassCollectFromInput===true) {
+			return;
+		}
+
 		if (!$key) {
 			$key = $this->key;
 		}

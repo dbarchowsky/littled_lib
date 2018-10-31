@@ -6,6 +6,7 @@ use Littled\Cache\ContentCache;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
+use Littled\Request\BooleanInput;
 use Littled\Request\DateTextField;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerTextField;
@@ -64,6 +65,10 @@ class ImageLink extends KeywordSectionContent
 	public $randomize;
 	/** @var string Name of the content type of this set of images. */
 	public $type_name;
+	/** @var BooleanInput Flag indicating this record is the first image in a series of images. */
+	public $isFirstPage;
+	/** @var BooleanInput Flag indicating this record is the last image in a series of images. */
+	public $isLastPage;
 
 	public static function TABLE_NAME() { return (ImageLink::TABLE_NAME); }
 
@@ -108,6 +113,11 @@ class ImageLink extends KeywordSectionContent
 		$this->type_id = &$this->siteSection->id;
 		$this->randomize = new StringInput("Randomize filename", self::vars['randomize_filename'], false, false);
 		$this->randomize->isDatabaseField = false;
+
+		$this->isFirstPage = new BooleanInput("Is first page", "ifp", false, false);
+		$this->isLastPage = new BooleanInput("Is last page", "ilp", false, false);
+		$this->isFirstPage->isDatabaseField = false;
+		$this->isLastPage->isDatabaseField = false;
 	}
 
 	/**
@@ -450,7 +460,6 @@ class ImageLink extends KeywordSectionContent
 	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\OperationAbortedException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
