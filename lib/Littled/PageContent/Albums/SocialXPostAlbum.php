@@ -21,8 +21,8 @@ class SocialXPostAlbum extends Album
 
 	/**
 	 * SocialXPostAlbum constructor.
-	 * @param int $section_id Id of the content's site section. (dbo: site_section.id)
-	 * @param int $images_section_id ID of the gallery's site section (dbo: site_section.id)
+	 * @param int|null[optional] $section_id Id of the content's site section. (dbo: site_section.id)
+	 * @param int|null[optional] $images_section_id ID of the gallery's site section (dbo: site_section.id)
 	 * @param int|null[optional] $id Id of the content record. (dbo: [content_table].id)
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
@@ -32,7 +32,7 @@ class SocialXPostAlbum extends Album
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct ( $section_id, $images_section_id, $id=null )
+	function __construct ( $section_id=null, $images_section_id=null, $id=null )
 	{
 		parent::__construct($section_id, $images_section_id, $id);
 		$this->update_blog = new BooleanCheckbox("Update blog", "axub", false, false);
