@@ -225,7 +225,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	public function getKeywordTermsArray($fetch_from_database)
+	public function getKeywordTermsArray( $fetch_from_database=true )
 	{
 		if ($fetch_from_database && $this->hasData()) {
 			$this->readKeywords();
