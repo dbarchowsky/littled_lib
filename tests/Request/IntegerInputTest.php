@@ -7,9 +7,18 @@ use PHPUnit\Framework\TestCase;
 
 class IntegerInputTest extends TestCase
 {
-	/**
-	 *
-	 */
+	public function testConstructor()
+	{
+		$obj = new IntegerInput("Label", "key", false, 0);
+		$this->assertEquals(0, $obj->value);
+	}
+
+	public function testConstructorUsingStringValue()
+	{
+		$this->expectException(\TypeError::class);
+		$obj = new IntegerInput("Label", "key", false, "string value");
+	}
+
 	public function testEscapeSQL()
 	{
 		$o = new IntegerInput("Test", "test");

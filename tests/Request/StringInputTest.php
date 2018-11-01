@@ -24,6 +24,23 @@ class StringInputTest extends TestCase
 		$this->conn = new MySQLConnection();
 	}
 
+	public function testConstructor()
+	{
+		$obj = new StringInput("Label", "key", false, "test value", 200, 4);
+		$this->assertEquals("Label", $obj->label);
+		$this->assertEquals("key", $obj->key);
+		$this->assertFalse($obj->required);
+		$this->assertEquals("test value", $obj->value);
+		$this->assertEquals(200, $obj->sizeLimit);
+		$this->assertEquals(4, $obj->index);
+	}
+
+	public function testConstructorUsingIntegerValue()
+	{
+		$obj = new StringInput("Label", "key", false, 43);
+		$this->assertEquals("43", $obj->value);
+	}
+
 	public function testSetInputValue()
 	{
 		$this->obj->setInputValue('');
