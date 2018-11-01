@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\PageContent\SiteSection;
+namespace Littled\SiteContent;
 
 
 use Littled\Exception\RecordNotFoundException;
