@@ -67,7 +67,7 @@ class FilterCollection extends MySQLConnection
 
 	/**
 	 * Returns a query string containing name/value pairs for each filter that currently holds a value.
-	 * @param array $exclude Array containing the names of parameters that should not be included in the query string.
+	 * @param array|null[optional] $exclude Array containing the names of parameters that should not be included in the query string.
 	 * @return string Query string containing filters
 	 */
 	public function formatQueryString ($exclude=null )

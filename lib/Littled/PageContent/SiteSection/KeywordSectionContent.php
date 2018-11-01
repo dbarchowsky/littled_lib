@@ -23,9 +23,9 @@ class KeywordSectionContent extends SectionContent
 	 * @param int|null[optional] $site_section_id ID of this object's content type. Defaults to NULL.
 	 * @param string[optional] $keyword_param Name of the variable containing comma-delimited keywords collected from HTML forms.
 	 */
-	function __construct($id = null, $site_section_id = null, $keyword_param='kw')
+	function __construct($id = null, $site_contenttype_id = null, $keyword_param='kw')
 	{
-		parent::__construct($id, $site_section_id);
+		parent::__construct($id, $site_contenttype_id);
 
 		/** @todo Replace with assignment that isn't hard-coded. */
 		$this::$keywordListTemplate = CONTENT_TEMPLATE_DIR."content/keywords/keyword_list.php";

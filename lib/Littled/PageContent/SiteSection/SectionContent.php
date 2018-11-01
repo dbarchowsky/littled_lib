@@ -20,10 +20,10 @@ class SectionContent extends SerializedContent
 	 * @param int|null[optional] $id Id of record to retrieve.
 	 * @param int|null[optional] $site_section_id Id of site section where this piece of content belongs.
 	 */
-	public function __construct($id=null, $site_section_id=null)
+	public function __construct($id=null, $site_contenttype_id=null)
 	{
 		parent::__construct($id);
-		$this->siteSection = new SiteSection($site_section_id);
+		$this->siteSection = new SiteSection($site_contenttype_id);
 		$this->siteSection->id->label = "Content type";
 		$this->siteSection->id->required = true;
 	}
