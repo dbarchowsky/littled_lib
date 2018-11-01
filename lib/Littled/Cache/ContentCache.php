@@ -13,7 +13,7 @@ use Littled\Database\MySQLConnection;
 class ContentCache extends MySQLConnection
 {
 	/**
-	 * @param \Littled\PageContent\SiteSection\SiteSection $site_section Object containing content type information
+	 * @param \Littled\PageContent\SiteSection\ContentProperties $site_section Object containing content type information
 	 * for the page being cached.
 	 */
 	public static function updateKeywords($site_section)

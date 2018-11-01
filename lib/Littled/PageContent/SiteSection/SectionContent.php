@@ -3,7 +3,6 @@ namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Request\RequestInput;
 
 
 /**
@@ -12,7 +11,7 @@ use Littled\Request\RequestInput;
  */
 class SectionContent extends SerializedContent
 {
-	/** @var SiteSection Site section properties. */
+	/** @var ContentProperties Site section properties. */
 	public $siteSection;
 
 	/**
@@ -23,7 +22,7 @@ class SectionContent extends SerializedContent
 	public function __construct($id=null, $site_contenttype_id=null)
 	{
 		parent::__construct($id);
-		$this->siteSection = new SiteSection($site_contenttype_id);
+		$this->siteSection = new ContentProperties($site_contenttype_id);
 		$this->siteSection->id->label = "Content type";
 		$this->siteSection->id->required = true;
 	}

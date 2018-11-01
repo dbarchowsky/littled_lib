@@ -3,13 +3,14 @@ namespace Littled\SiteContent;
 
 
 use Littled\Exception\RecordNotFoundException;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
 
-class ContentAjaxProperties extends ContentOperations
+class ContentAjaxProperties extends SerializedContent
 {
 	/** @var IntegerInput Record id. */
 	public $id;

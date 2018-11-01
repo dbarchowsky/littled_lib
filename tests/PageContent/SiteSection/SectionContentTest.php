@@ -6,7 +6,7 @@ use DeepCopy\Filter\SetNullFilter;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\SiteSection\SectionContent;
-use Littled\PageContent\SiteSection\SiteSection;
+use Littled\PageContent\SiteSection\ContentProperties;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
@@ -40,7 +40,7 @@ class SectionContentTest extends TestCase
 	{
 		$src = array(
 			'id' => 82,
-			SiteSection::ID_PARAM => 33,
+			ContentProperties::ID_PARAM => 33,
 			'ssna' => 'Unit Test Request Input',
 			'ssrd'=> 'path/to/root/',
 			'ssdr' => 'path/to/images/',

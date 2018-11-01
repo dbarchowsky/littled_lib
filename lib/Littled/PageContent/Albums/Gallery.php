@@ -7,7 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Images\ImageLink;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\PageContent\SiteSection\SiteSection;
+use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\IntegerInput;
 
 
@@ -17,7 +17,7 @@ use Littled\Request\IntegerInput;
  */
 class Gallery extends MySQLConnection
 {
-	/** @var SiteSection Section properties. */
+	/** @var ContentProperties Section properties. */
 	public $siteSection;
 	/** @var integer Parent record id. */
 	public $parent_id;
@@ -52,7 +52,7 @@ class Gallery extends MySQLConnection
 	function __construct ($content_type_id, $parent_id=null )
 	{
 		parent::__construct();
-		$this->siteSection = new SiteSection($content_type_id);
+		$this->siteSection = new ContentProperties($content_type_id);
 		$this->parent_id = $parent_id;
 		$this->label = "Image";
 

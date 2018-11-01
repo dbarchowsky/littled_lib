@@ -12,10 +12,10 @@ use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 
 /**
- * Class SiteSection
+ * Class ContentProperties
  * @package Littled\PageContent\SiteSection
  */
-class SiteSection extends SerializedContent
+class ContentProperties extends SerializedContent
 {
 	/** @var string Variable name that holds the site section id value. */
 	const ID_PARAM = 'ssid';
@@ -23,7 +23,7 @@ class SiteSection extends SerializedContent
 	const SECTION_ID = 27;
 	/** @var string Name of the table holding site section data. */
 	const TABLE_NAME = 'site_section';
-	public static function TABLE_NAME() { return SiteSection::TABLE_NAME; }
+	public static function TABLE_NAME() { return ContentProperties::TABLE_NAME; }
 
 	/** @var StringTextField Name of the content. */
 	public $name;
@@ -77,7 +77,7 @@ class SiteSection extends SerializedContent
 	public function __construct($id=null)
 	{
 		parent::__construct($id);
-		$this->id->key = SiteSection::ID_PARAM;
+		$this->id->key = ContentProperties::ID_PARAM;
 		$this->name = new StringTextField("Name", "ssna", true, "", 50);
 		$this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
 		$this->image_path = new StringTextField("Image directory", "ssdr", false, "", 255);
