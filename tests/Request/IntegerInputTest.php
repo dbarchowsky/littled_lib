@@ -15,8 +15,8 @@ class IntegerInputTest extends TestCase
 
 	public function testConstructorUsingStringValue()
 	{
-		$this->expectException(\TypeError::class);
 		$obj = new IntegerInput("Label", "key", false, "string value");
+		$this->assertEquals(null, $obj->value);
 	}
 
 	public function testEscapeSQL()

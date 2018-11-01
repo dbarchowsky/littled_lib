@@ -12,21 +12,6 @@ use Littled\Exception\ContentValidationException;
 class StringInput extends RequestInput
 {
 	/**
-	 * IntegerInput constructor
-	 * @param string $label Input label
-	 * @param string $param value of the name attribute of the input
-	 * @param boolean[optional] $required Flag indicating if this form data is required. Defaults to FALSE.
-	 * @param string[optional] $value Initial value of the input. Defaults to NULL.
-	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
-	 * @param int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
-	 */
-	public function __construct(string $label, string $param, bool $required = false, ?string $value = null, int $size_limit = 0, ?int $index = null)
-	{
-		parent::__construct($label, $param, $required, $value, $size_limit, $index);
-		$this->setInputValue($value);
-	}
-
-	/**
 	 * Clears the data container value.
 	 */
 	public function clearValue()

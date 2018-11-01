@@ -72,7 +72,7 @@ class RequestInput
 	{
 		$this->label              = $label;
 		$this->key                = $param;
-		$this->value              = $value;
+		$this->setInputValue($value);
 		$this->sizeLimit          = $size_limit;
 		$this->required           = $required;
 		$this->index              = $index;

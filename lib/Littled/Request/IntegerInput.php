@@ -10,21 +10,6 @@ use Littled\Validation\Validation;
 class IntegerInput extends RequestInput
 {
 	/**
-	 * IntegerInput constructor
-	 * @param string $label Input label
-	 * @param string $param value of the name attribute of the input
-	 * @param boolean[optional] $required Flag indicating if this form data is required. Defaults to FALSE.
-	 * @param int[optional] $value Initial value of the input. Defaults to NULL.
-	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
-	 * @param int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
-	 */
-	public function __construct(string $label, string $param, bool $required = false, ?int $value = null, int $size_limit = 0, ?int $index = null)
-	{
-		parent::__construct($label, $param, $required, $value, $size_limit, $index);
-		$this->setInputValue($value);
-	}
-
-	/**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @param int|null[optional] $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
 	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
