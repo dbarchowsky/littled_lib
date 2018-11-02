@@ -17,7 +17,7 @@ class InlineAccessInput extends InlineInput
 	{
 		parent::__construct();
 		$this->access = new StringSelect("Access", "aid", true, "", 20);
-		$this->validateProperties = array('parent_id', 'table', 'op', 'access');
+		array_push($this->validateProperties,'access');
 	}
 
 	/**
