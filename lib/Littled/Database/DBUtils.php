@@ -2,6 +2,9 @@
 namespace Littled\Database;
 
 
+use http\Exception\InvalidArgumentException;
+use Littled\Exception\InvalidQueryException;
+
 /**
  * Class DBUtils
  * @package Littled\Database
@@ -93,13 +96,17 @@ class DBUtils
 	 * Prints out all of the possible values from an ENUM column in the database as a series of HTML option tags.
 	 * @param string $table_name Name of the table containing the ENUM column.
 	 * @param string $column Name of the ENUM column.
-	 * @param array $selected_options Array containting the values of any selected options.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @param array $selected_options Array containing the values of any selected options.
 	 */
 	public static function displayEnumOptions( $table_name, $column, $selected_options )
 	{
-		$arOptions = DBUtils::getEnumOptions($table_name, $column);
-		DBUtils::displayCachedOptions($arOptions, $selected_options);
+		try {
+			$arOptions = DBUtils::getEnumOptions($table_name, $column);
+			DBUtils::displayCachedOptions($arOptions, $selected_options);
+		}
+		catch(InvalidQueryException $ex) {
+			?><option value="" disabled="disabled" style="background-color:#ff0000;color:#ffffff;font-weight:bold;">Error retrieving options: <?=$ex->getMessage()?></option><?php
+		}
 	}
 
 
