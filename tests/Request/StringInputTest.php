@@ -59,4 +59,15 @@ class StringInputTest extends TestCase
 		$this->assertEquals('873.03', $this->obj->value);
 	}
 
+	public function testSetTemplatePath()
+	{
+		$path = "/path/to/templates/";
+		\Littled\Request\RequestInput::setTemplatePath($path);
+		$this->assertEquals($path, $this->obj::getTemplatePath());
+
+		$new_path = "/new/path/to/templates/";
+		$this->obj::setTemplatePath($new_path);
+		$this->assertNotEquals($path, $this->obj::getTemplatePath());
+		$this->assertEquals($new_path, $this->obj::getTemplatePath());
+	}
 }

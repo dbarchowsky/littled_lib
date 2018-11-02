@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Request;
 
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 
 
@@ -92,24 +91,18 @@ class StringInput extends RequestInput
 	 * A null value will cause the internal label value to be used. An empty
 	 * string will cause the label to not be rendered at all.
 	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
-	 * @throws ConfigurationUndefinedException
 	 */
 	public function render( $label=null,  $css_class='' )
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			throw new ConfigurationUndefinedException("Form input directory path not defined.");
-		}
+		print('');
 	}
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
-	 * @throws ConfigurationUndefinedException
 	 */
 	function renderInput()
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			throw new ConfigurationUndefinedException("Form input directory path not defined.");
-		}
+		print('');
 	}
 
 	/**

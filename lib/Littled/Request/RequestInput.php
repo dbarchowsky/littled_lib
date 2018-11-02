@@ -56,8 +56,8 @@ class RequestInput
 	public $value;
 	/** @var string If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
 	public $width;
-
-	const TEMPLATE_PATH = "framework/forms/";
+	/** @var string Path to form input templates. */
+	protected static $template_base_path = '';
 
 	/**
 	 * class constructor
@@ -141,17 +141,23 @@ class RequestInput
 	 */
 	public function formatLabelMarkup( $label )
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			return ('');
-		}
 		if ($label===null) { $label=$this->label;}
 		if (strlen($label) > 0 && $this->displayPlaceholder===false) {
-			return (PageContent::loadTemplateContent(LITTLED_TEMPLATE_DIR.self::TEMPLATE_PATH."form-input-label.php", array(
+			return (PageContent::loadTemplateContent(self::$template_base_path."form-input-label.php", array(
 				'label' => $label,
 				'input' => &$this
 			)));
 		}
 		return ('');
+	}
+
+	/**
+	 * Template path getter.
+	 * @return string Current internal template path value.
+	 */
+	public static function getTemplatePath()
+	{
+		return (self::$template_base_path);
 	}
 
 	/**
@@ -198,10 +204,7 @@ class RequestInput
 	 */
 	public function saveInForm()
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			return;
-		}
-		PageContent::render(LITTLED_TEMPLATE_DIR.self::TEMPLATE_PATH."hidden-input.php", array(
+		PageContent::render(self::$template_base_path."hidden-input.php", array(
 			'key' => $this->key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
@@ -228,6 +231,15 @@ class RequestInput
 		if (property_exists($this, $property)) {
 			$this->$property = $value;
 		}
+	}
+
+	/**
+	 * Sets the internal template path value.
+	 * @param string $path Path to template directory.
+	 */
+	public static function setTemplatePath( $path )
+	{
+		self::$template_base_path = $path;
 	}
 
 	/**

@@ -2,28 +2,42 @@
 namespace Littled\Tests\Request;
 require_once (realpath(dirname(__FILE__).DIRECTORY_SEPARATOR."..")."/Base/DatabaseTestCase.php");
 
-use Littled\Tests\Base\DatabaseTestCase;
 use Littled\Request\RequestInput;
+use PHPUnit\Framework\TestCase;
 
 
-class RequestInputTest extends DatabaseTestCase
+class RequestInputTest extends TestCase
 {
-	public function testEscapeSQL()
+	/** @var \mysqli Test database connection. */
+	public $mysqli;
+	/** @var RequestInput Test RequestInput object. */
+	public $obj;
+
+	public function setUp()
 	{
-		$o = new RequestInput("Test", "test");
-		$mysqli = new \mysqli();
-		$this->loadConnectionVars();
-		$mysqli->connect($this->db_host, $this->db_user, $this->db_password, $this->db_schema);
-
-		$this->assertEquals("null", $o->escapeSQL($mysqli), "Defaults to 'null'");
-
-		$o->value = '';
-		$this->assertEquals("''", $o->escapeSQL($mysqli), "Empty string");
-
-		$o->value = "abc";
-		$this->assertEquals("'abc'", $o->escapeSQL($mysqli), "Strings are quoted");
-
-		$this->unloadConnectionVars();
+		$this->mysqli = new \mysqli();
+		$this->mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+		$this->obj = new RequestInput("Test", "test_param");
 	}
 
+	public function testEscapeSQL()
+	{
+		$this->assertEquals("null", $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
+
+		$this->obj->value = '';
+		$this->assertEquals("''", $this->obj->escapeSQL($this->mysqli), "Empty string");
+
+		$this->obj->value = "abc";
+		$this->assertEquals("'abc'", $this->obj->escapeSQL($this->mysqli), "Strings are quoted");
+	}
+
+	public function testSetTemplatePath()
+	{
+		$path = "/path/to/templates/";
+		$this->obj::setTemplatePath($path);
+		$this->assertEquals($path, $this->obj::getTemplatePath());
+
+		$new_obj = new RequestInput("New label", "new_param");
+		$this->assertEquals($path, $new_obj::getTemplatePath());
+	}
 }

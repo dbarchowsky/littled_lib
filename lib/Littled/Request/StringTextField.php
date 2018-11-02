@@ -16,14 +16,13 @@ class StringTextField extends StringInput
 	 * A null value will cause the internal label value to be used. An empty
 	 * string will cause the label to not be rendered at all.
 	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	function render( $label=null,  $css_class='' )
 	{
 		parent::render($label, $css_class);
 		if ($label===null) { $label=$this->label;}
-		PageContent::render(LITTLED_TEMPLATE_DIR.self::TEMPLATE_PATH."string-text-field.php", array(
+		PageContent::render(self::$template_base_path."string-text-field.php", array(
 			'input' => &$this,
 			'label' => $label,
 			'css_class' => $css_class
@@ -36,8 +35,7 @@ class StringTextField extends StringInput
 	 */
 	function renderInput()
 	{
-		parent::render();
-		PageContent::render(LITTLED_TEMPLATE_DIR.self::TEMPLATE_PATH."string-text-input.php", array(
+		PageContent::render(self::$template_base_path."string-text-input.php", array(
 			'input' => &$this
 		));
 	}
