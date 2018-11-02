@@ -23,7 +23,7 @@ class InlineDateInput extends InlineInput
 		parent::__construct();
 		$this->date = new DateTextField("Date", "d", true, date("n/j/Y"));
 		array_push($this->validateProperties,'date');
-		$this->columnNameOptions = array("release_date", "post_date", "posted_date", "date");
+		$this->columnNameOptions = array_merge(array("release_date", "post_date", "posted_date", "date"), $column_names);
 	}
 
 	/**
