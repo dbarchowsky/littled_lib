@@ -43,9 +43,10 @@ class BooleanInput extends RequestInput
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param \mysqli $mysqli
+	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
 	 * @return string SQL-escaped value
 	 */
-	public function escapeSQL( $mysqli )
+	public function escapeSQL($mysqli, $include_quotes=false)
 	{
 		if ($this->value===false || $this->value==='false' || $this->value==='0' || $this->value===0) {
 			return ('0');

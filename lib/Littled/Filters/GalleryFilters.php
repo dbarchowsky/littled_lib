@@ -54,11 +54,12 @@ class GalleryFilters extends ContentFilters
 	}
 
 	/**
-	 * class constructor
-	 * @param integer[optional] $default_page_len Length of the pages of listings.
+	 * GalleryFilters constructor
+	 * @param int[optional] $content_type_id
+	 * @param int[optional] $default_page_len Length of the pages of listings.
 	 * @throws \Exception
 	 */
-	function __construct ( $default_page_len=10 )
+	function __construct ( $content_type_id=null, $default_page_len=10 )
 	{
 		parent::__construct("i");
 
@@ -80,15 +81,11 @@ class GalleryFilters extends ContentFilters
 		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, '', 50, self::COOKIE_NAME);
 		$this->slot = new IntegerContentFilter("page", self::SLOT_PARAM, null, null, self::COOKIE_NAME);
 
-		$this->siteSection = new ContentProperties($this::CONTENT_TYPE_ID());
-		try
-		{
-			$this->siteSection->read();
+		if ($content_type_id===null) {
+			$content_type_id = self::CONTENT_TYPE_ID();
 		}
-		catch (\Exception $ex)
-		{
-			throw ($ex);
-		}
+		$this->siteSection = new ContentProperties($content_type_id);
+		$this->siteSection->read();
 	}
 
 

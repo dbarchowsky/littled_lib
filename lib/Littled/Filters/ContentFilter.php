@@ -90,7 +90,7 @@ class ContentFilter
 			return;
 		}
 
-		if ($this->cookieKey) {
+		if ($read_cookies && $this->cookieKey) {
 			if (isset($_COOKIE[$this->cookieKey])) {
 				$ar = explode('|', $_COOKIE[$this->cookieKey]);
 				if (array_key_exists($this->key, $ar)) {
@@ -106,10 +106,11 @@ class ContentFilter
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param \mysqli $mysqli Database connection.
+	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 * @throws ConfigurationUndefinedException
 	 */
-	public function escapeSQL($mysqli)
+	public function escapeSQL($mysqli, $include_quotes=true)
 	{
 		if (!$mysqli instanceof \mysqli) {
 			throw new ConfigurationUndefinedException("Escape query object not available.");
@@ -123,7 +124,7 @@ class ContentFilter
 		if ($this->value===false) {
 			return ('0');
 		}
-		return "'".$mysqli->real_escape_string($this->value)."'";
+		return (($include_quotes)?("'"):("")).$mysqli->real_escape_string($this->value).(($include_quotes)?("'"):(""));
 	}
 	
 	/**

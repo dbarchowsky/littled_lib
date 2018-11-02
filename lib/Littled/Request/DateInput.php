@@ -43,9 +43,10 @@ class DateInput extends StringInput
 	/**
 	 * Returns a string to use to save the object's value to a datbase record.
 	 * @param \mysqli $mysqli MySQLi connection to use for its escape_string() routine.
+	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 */
-	public function escapeSQL($mysqli)
+	public function escapeSQL($mysqli, $include_quotes=true)
 	{
         if ($this->value===null || $this->value=="") {
             return ("NULL");
@@ -64,7 +65,7 @@ class DateInput extends StringInput
                 $date_string = $this->value;
             }
         }
-        return("'".$mysqli->real_escape_string($date_string)."'");
+        return((($include_quotes)?("'"):("")).$mysqli->real_escape_string($date_string).(($include_quotes)?("'"):("")));
 	}
 
 	/**

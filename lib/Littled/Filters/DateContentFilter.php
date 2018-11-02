@@ -29,9 +29,10 @@ class DateContentFilter extends StringContentFilter
 	/**
 	 * Escapes date string to format expected in SQL statements.
 	 * @param \mysqli $mysqli
+	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string
 	 */
-	public function escapeSQL($mysqli)
+	public function escapeSQL($mysqli, $include_quotes=true)
 	{
 		if ($this->value===null) {
 			return ('null');
@@ -51,6 +52,6 @@ class DateContentFilter extends StringContentFilter
 		if ($value===false) {
 			return ('null');
 		}
-		return ("'{$value}'");
+		return ((($include_quotes)?("'"):("")).$value.(($include_quotes)?("'"):("")));
 	}
 }

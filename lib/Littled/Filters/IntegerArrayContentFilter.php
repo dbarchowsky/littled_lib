@@ -22,6 +22,8 @@ class IntegerArrayContentFilter extends IntegerContentFilter
 
 	/**
 	 * Output markup that will preserve the filter's value in an HTML form.
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function saveInForm()
 	{
