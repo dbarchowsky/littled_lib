@@ -2,22 +2,22 @@
 namespace Littled\Request\Inline;
 
 
-use Littled\Request\StringSelect;
+use Littled\Request\IntegerInput;
 
 /**
- * Class InlineAccessInput
- * Handles inline editing of "access" values for content records, e.g. "public", "private", etc.
+ * Class InlineSlotInput
+ * Handles inline editing of "slot" values for content records that are a part of a series.
  * @package Littled\Request\Inline
  */
-class InlineAccessInput extends InlineInput
+class InlineSlotInput extends InlineInput
 {
-	public $access;
+	public $slot;
 
 	function __construct()
 	{
 		parent::__construct();
-		$this->access = new StringSelect("Access", "aid", true, "", 20);
-		array_push($this->validateProperties,'op');
+		$this->slot = new IntegerInput("Slot", "slt", true, null);
+		array_push($this->validateProperties,'slot');
 	}
 
 	/**
@@ -25,7 +25,7 @@ class InlineAccessInput extends InlineInput
 	 */
 	protected function formatSelectQuery()
 	{
-		return("SEL"."ECT `access` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
+		return("SEL"."ECT `slot` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
 	}
 
 	/**
@@ -37,7 +37,7 @@ class InlineAccessInput extends InlineInput
 	{
 		$this->connectToDatabase();
 		return("UPD"."ATE `{$this->table->value}` ".
-			"SET access = ".$this->access->escapeSQL($this->mysqli)." ".
+			"SET `slot` = ".$this->slot->escapeSQL($this->mysqli)." ".
 			"WHERE id = {$this->parent_id->value}");
 	}
 
@@ -51,6 +51,6 @@ class InlineAccessInput extends InlineInput
 	public function read()
 	{
 		$data = parent::read();
-		$this->access->value = $data[0]->access;
+		$this->slot->value = $data[0]->slot;
 	}
 }

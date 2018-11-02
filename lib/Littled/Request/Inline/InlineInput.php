@@ -40,7 +40,7 @@ class InlineInput extends MySQLConnection
 		$this->parent_id = new IntegerInput("Parent id", "id", true, false);
 		$this->table = new StringInput("Table", "t", true, "", 200);
 		$this->op = new StringInput("Operation", "op", true, "", 20);
-		$this->validateProperties = array('parent_id', 'table', 'op');
+		$this->validateProperties = array('parent_id', 'table');
 		$this->validationErrors = array();
 		$this->columnNameOptions = array();
 		$this->columnName = "";

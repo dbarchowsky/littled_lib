@@ -17,7 +17,6 @@ class InlinePageInput extends InlineInput
 	{
 		parent::__construct();
 		$this->page = new IntegerInput("Page", "pn", true, null);
-		array_push($this->validateProperties,'page');
 	}
 
 	/**

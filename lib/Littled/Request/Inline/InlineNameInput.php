@@ -21,7 +21,6 @@ class InlineNameInput extends InlineInput
 		parent::__construct();
 		$this->name = new StringInput("Name", "n", true, "", 100);
 		$this->columnNameOptions = array_merge(array("name", "title", "catno", "code"), $column_names);
-		$this->validateProperties = array('parent_id', 'table');
 	}
 
 	public function formatSelectQuery()
