@@ -237,7 +237,7 @@ class SerializedContent extends SerializedContentUtils
 			$error_msg = "The requested ".$this->TABLE_NAME()." record could not be found.";
 			throw new RecordNotFoundException($error_msg);
 		}
-		$this->assignRecordValues($data[0]);
+		$this->hydrateFromQuery($data[0]);
 	}
 
 	/**

@@ -63,7 +63,7 @@ class SerializedContentUtils extends MySQLConnection
 	 * Assign values contained in array to object input properties.
 	 * @param array $row Row returned by mysql query.
 	 */
-	protected function assignRecordValues( &$row )
+	protected function hydrateFromQuery(&$row )
 	{
 		$used_keys = array();
 		foreach ($this as $key => &$item) {
