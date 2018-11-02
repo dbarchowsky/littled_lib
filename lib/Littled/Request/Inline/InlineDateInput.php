@@ -13,15 +13,17 @@ class InlineDateInput extends InlineInput
 {
 	/** @var DateTextField Date value */
 	public $date;
-	/** @var string Name of column holding date value. */
-	public $column_name;
 
-	function __construct()
+	/**
+	 * InlineDateInput constructor.
+	 * @param array $column_names List of possible column names representing the column in the table that stores the "name" value.
+	 */
+	function __construct( $column_names=array() )
 	{
 		parent::__construct();
 		$this->date = new DateTextField("Date", "d", true, date("n/j/Y"));
 		array_push($this->validateProperties,'date');
-		$this->column_name = "";
+		$this->columnNameOptions = array("release_date", "post_date", "posted_date", "date");
 	}
 
 	/**
@@ -32,31 +34,34 @@ class InlineDateInput extends InlineInput
 	protected function formatSelectQuery()
 	{
 		$this->getColumnName();
-		return ("SEL"."ECT date_format(`{$this->column_name}`,'%m/%d/%Y') ".
+		return ("SEL"."ECT date_format(`{$this->columnName}`,'%m/%d/%Y') ".
 			"FROM `{$this->table->value}` ".
 			"WHERE id = {$this->parent_id->value}");
 	}
 
+	/**
+	 * @return string
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 */
 	protected function formatUpdateQuery()
 	{
+		$this->connectToDatabase();
 		return("UPD"."ATE `{$this->table->value}` ".
-			"SET `{$this->column_name}` = ".$this->date->escapeSQL($this->mysqli)." ".
+			"SET `{$this->columnName}` = ".$this->date->escapeSQL($this->mysqli)." ".
 			"WHERE id = {$this->parent_id->value}");
 	}
 
 	/**
-	 * @throws RecordNotFoundException
+	 * Retrieves the access value and stores it in the object properties.
+	 * @return void
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	protected function getColumnName()
+	public function read()
 	{
-		$arrNames = Array("release_date", "post_date", "posted_date", "date");
-		foreach ($arrNames as $col_name) {
-			if ($this->columnExists($col_name, $this->table->value)) {
-				$this->column_name = $col_name;
-				return;
-			}
-		}
-		throw new RecordNotFoundException("No matching columns were found.");
+		$data = parent::read();
+		$this->date->value = $data[0]->access;
 	}
 }

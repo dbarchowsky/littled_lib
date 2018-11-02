@@ -17,15 +17,19 @@ use Littled\Database\MySQLConnection;
 class InlineInput extends MySQLConnection
 {
 	/** @var IntegerInput Parent record id. */
-	var $parent_id;
+	public $parent_id;
 	/** @var StringInput Name of table in database that stores the value that is being updated. */
-	var $table;
+	public $table;
 	/** @var StringInput Operation to be performed, e.g. "edit", "delete", etc. */
-	var $op;
+	public $op;
 	/** @var array Property values to validate after changes are made in an HTML form. */
-	var $validateProperties;
+	public $validateProperties;
 	/** @var array Array of validation errors. */
-	var $validationErrors;
+	public $validationErrors;
+	/** @var string Possible column names. */
+	public $columnNameOptions;
+	/** @var string Name of column holding date value. */
+	public $columnName;
 
 	/**
 	 * InlineInput constructor.
@@ -38,6 +42,8 @@ class InlineInput extends MySQLConnection
 		$this->op = new StringInput("Operation", "op", true, "", 20);
 		$this->validateProperties = array('parent_id', 'table', 'op');
 		$this->validationErrors = array();
+		$this->columnNameOptions = array();
+		$this->columnName = "";
 	}
 
 	/**
@@ -59,13 +65,31 @@ class InlineInput extends MySQLConnection
 	}
 
 	/**
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
+	protected function getColumnName()
+	{
+		foreach ($this->columnNameOptions as $column) {
+			if ($this->columnExists($column, $this->table->value)) {
+				$this->columnName = $column;
+				return;
+			}
+		}
+		throw new RecordNotFoundException("No matching columns were found.");
+	}
+
+	/**
 	 * Retrieves data from database used to fill inline HTML forms.
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function read()
 	{
+		if (count($this->columnNameOptions) > 0) {
+			$this->getColumnName();
+		}
 		$data = $this->fetchRecords($this->formatSelectQuery());
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Record not found.");
@@ -76,10 +100,14 @@ class InlineInput extends MySQLConnection
 	/**
 	 * Commits changes made to specific field values through inline HTML forms.
 	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function save()
 	{
+		if (count($this->columnNameOptions) > 0) {
+			$this->getColumnName();
+		}
 		$this->query($this->formatUpdateQuery());
 	}
 
