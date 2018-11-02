@@ -5,7 +5,6 @@ namespace Littled\PageContent\SiteSection;
 use Littled\Cache\ContentCache;
 use Littled\Exception\ContentValidationException;
 use Littled\Keyword\Keyword;
-use Littled\Request\RequestInput;
 use Littled\Request\StringTextarea;
 
 class KeywordSectionContent extends SectionContent

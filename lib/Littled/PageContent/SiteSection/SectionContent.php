@@ -3,6 +3,7 @@ namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\SiteContent\ContentProperties;
 
 
 /**
