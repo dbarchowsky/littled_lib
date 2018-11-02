@@ -46,6 +46,17 @@ class IntegerInput extends RequestInput
 	}
 
 	/**
+	 * Render the form input element(s) in the DOM.
+	 * @param string|null[optional] $label String to use as input label. If this value is not provided, the object's
+	 * $label property value will be used. Defaults to NULL.
+	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+	 */
+	public function render( $label=null, $css_class=null )
+	{
+		print ("<span class='\"alert alert-warning\">IntegerInput::renderInput() )Not implemented.</span></div>");
+	}
+
+	/**
 	 * Validates the object's current value stored in its $value property.
 	 * @returns True if no validation errors are found.
 	 * @throws \Littled\Exception\ContentValidationException

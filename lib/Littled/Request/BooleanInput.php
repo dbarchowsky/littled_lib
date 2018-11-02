@@ -57,6 +57,17 @@ class BooleanInput extends RequestInput
 	}
 
 	/**
+	 * Render the form input element(s) in the DOM.
+	 * @param string|null[optional] $label String to use as input label. If this value is not provided, the object's
+	 * $label property value will be used. Defaults to NULL.
+	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+	 */
+	public function render( $label=null, $css_class=null )
+	{
+		print ("<span class='\"alert alert-warning\">BooleanInput::renderInput() )Not implemented.</span></div>");
+	}
+
+	/**
 	 * Validates the collected value as a non-empty string within its size limit.
 	 * @throws ContentValidationException
 	 */

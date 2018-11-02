@@ -87,22 +87,14 @@ class StringInput extends RequestInput
 
 	/**
 	 * Returns the HTML to use to include the form input in a DOM.
-	 * @param string $label Text to display as the label for the form input.
+	 * @param string|null[optional] $label Text to display as the label for the form input.
 	 * A null value will cause the internal label value to be used. An empty
 	 * string will cause the label to not be rendered at all.
 	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
 	 */
 	public function render( $label=null,  $css_class='' )
 	{
-		print('');
-	}
-
-	/**
-	 * Renders the corresponding form field with a label to collect the input data.
-	 */
-	function renderInput()
-	{
-		print('');
+		print ("<span class='\"alert alert-warning\">StringInput::renderInput() )Not implemented.</span></div>");
 	}
 
 	/**
