@@ -95,11 +95,11 @@ class AlbumFilters extends FilterCollection
 	/**
 	 * Returns SQL to retrieve album listings.
 	 * @return string SQL string used to retrieve album listings
+	 * @throws InvalidQueryException
 	 */
-	protected function formatListingsQuery( )
+	protected function formatListingsQuery()
 	{
-		$lower_limit = $upper_limit = "";
-		$this->formatQueryLimits($lower_limit, $upper_limit);
+		list($lower_limit, $upper_limit) = $this->getQueryLimits();
 
 		$query = $this->formatListingsSelectQuery();
 		$query .= <<<SQL
@@ -320,6 +320,28 @@ SQL;
 		}
 		/* get record count from sproc results */
 		$this->getSprocPageCount();
+		return ($data);
+	}
+
+	/**
+	 * Retrieves listings data from database using object's filter values.
+	 * @return array Listings data
+	 */
+	public function retrieveListings()
+	{
+		$data = array();
+		try {
+			list($lower_limit, $upper_limit) = $this->getQueryLimits();
+			$query = $this->formatListingsQuery();
+			$query .= <<<SQL
+ORDER BY IFNULL(a.slot,999999) ASC, IFNULL(a.release_date,'1980-01-01') DESC, a.id DESC 
+LIMIT {$lower_limit},{$upper_limit}
+SQL;
+			$data = $this->fetchRecords($query);
+		}
+		catch(\Exception $ex) {
+			print("<div class=\"alert alert-error\">Error retrieving listings: ".$ex->getMessage());
+		}
 		return ($data);
 	}
 }

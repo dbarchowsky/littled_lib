@@ -173,17 +173,28 @@ class FilterCollection extends MySQLConnection
 
 	/**
 	 * Formats SQL clauses to the offset and page size of the recordset.
-	 * @param int $lower_limit Sets the lower limit of the SQL clause
-	 * @param int $upper_limit Set the upper limit of the SQL clause
+	 * @return array First element is the lower limit value and the 2nd element is the upper limit value.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	public function formatQueryLimits(&$lower_limit, &$upper_limit)
+	public function getQueryLimits()
 	{
-		if ($this->page->value > 0 && $this->listingsLength->value > 0) {
-			$lower_limit = "LIMIT ".(($this->page->value-1)*$this->listingsLength->value);
-			$upper_limit = ", {$this->listingsLength->value}";
-		} else {
-			$lower_limit = $upper_limit = "";
+		if ($this->page->value > 0) {
+			$lower_limit =($this->page->value-1)*$this->listingsLength->value;
 		}
+		else {
+			$lower_limit = 1;
+		}
+		if ($this->listingsLength->value > 0) {
+			$upper_limit = $this->listingsLength->value;
+		}
+		elseif ($this->recordCount > 0) {
+			$upper_limit = $this->recordCount;
+		}
+		else {
+			$this->getPageCount();
+			$upper_limit = $this->recordCount;
+		}
+		return(array($lower_limit, $upper_limit));
 	}
 
 	/**
@@ -219,9 +230,10 @@ class FilterCollection extends MySQLConnection
 	{
 		$this->formatQueryClause();
 
-		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` FROM `album` a ".
+		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` ".
+			"FROM `album` a ".
 			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
-			$this->queryString;
+			$this->sqlClause;
 		$data = $this->fetchRecords($query);
 
 		$this->recordCount = $data[0]->count;
@@ -299,7 +311,6 @@ class FilterCollection extends MySQLConnection
 	{
 		$data = array();
 		try {
-			$this->getPageCount();
 			$data = $this->fetchRecords($this->formatListingsQuery());
 		}
 		catch(\Exception $ex) {
