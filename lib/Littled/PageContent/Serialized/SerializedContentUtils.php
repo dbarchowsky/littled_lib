@@ -60,6 +60,15 @@ class SerializedContentUtils extends MySQLConnection
 	}
 
 	/**
+	 * Tests if the object currently has any validation errors.
+	 * @return bool Returns TRUE if validation errors are detected, FALSE otherwise.
+	 */
+	public function hasValidationErrors()
+	{
+		return (count($this->validationErrors) > 0);
+	}
+
+	/**
 	 * Assign values contained in array to object input properties.
 	 * @param array $row Row returned by mysql query.
 	 */
