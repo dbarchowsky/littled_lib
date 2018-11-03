@@ -37,6 +37,8 @@ class PageConfig
 	 * @param string $url Breadcrumb URL
 	 * @param string $dom_id Breadcrumb element selector.
 	 * @param string $css_class CSS class to assign to the breadcrumb node.
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public static function addBreadcrumb($label, $url='', $dom_id='', $css_class='')
 	{
@@ -54,6 +56,8 @@ class PageConfig
 	 * @param string $level Menu node level
 	 * @param string $dom_id Menu node element selector
 	 * @param string $attributes String containing any additional attributes to assign to the node element.
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public static function addUtilityLink($label, $url='', $target='', $level='', $dom_id='', $attributes='')
 	{
@@ -321,6 +325,9 @@ class PageConfig
 	 */
 	public static function setUtilityLinksCssClass($css_class)
 	{
+		if (self::$utilityLinks===null) {
+			return;
+		}
 		self::$utilityLinks->setCSSClass($css_class);
 	}
 
