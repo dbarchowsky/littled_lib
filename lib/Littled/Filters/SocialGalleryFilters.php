@@ -3,9 +3,9 @@ namespace Littled\Filters;
 
 class SocialGalleryFilters extends GalleryFilters
 {
-	protected const DEFAULT_PAGE_LEN = 50;
-	protected const FRONTEND_URI = '';
-	protected const LISTINGS_LABEL = '';
+	const DEFAULT_PAGE_LEN = 50;
+	const FRONTEND_URI = '';
+	const LISTINGS_LABEL = '';
 
 	/** @var BooleanContentFilter Control to filter records that have been previously posted on Wordpress. */
 	public $onWordpress;

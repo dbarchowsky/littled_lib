@@ -127,7 +127,7 @@ class ImageLink extends KeywordSectionContent
 	{
 		$this->id->value = null;
 		// $this->parent_id->value = null;
-		// $this->site_section->id->value = null;
+		// $this->siteSection->id->value = null;
 		$this->title->value = "";
 		$this->description->value = "";
 		$this->slot->value = null;
