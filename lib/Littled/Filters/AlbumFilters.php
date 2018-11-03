@@ -72,63 +72,41 @@ class AlbumFilters extends FilterCollection
 		$this->previousRecordId = $this->nextRecordId = 0;
 	}
 
-
 	/**
-	 * Create SQL string containing WHERE clause that will filter down the listings.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * Get filter values from query string and/or form data.
+	 * @param bool[optional] $save_filters
+	 * @return void
 	 */
-	public function formatQueryClause( )
+	public function collectFilterValues ($save_filters=true )
 	{
-		$this->connectToDatabase();
-		$this->sqlClause = "WHERE (a.section_id = {$this->siteSection->id->value}) ";
-		if ($this->gallery->albumId->value>0) {
-			$this->sqlClause .= "AND (a.id = {$this->gallery->albumId->value}) ";
+		parent::collectFilterValues($save_filters);
+		if (!isset($this->page->value)) {
+			$this->page->value = 1;
 		}
-		if ($this->title->value) {
-			$this->sqlClause .= "AND (a.title LIKE '%".$this->title->escapeSQL($this->mysqli, false)."%') ";
+		if (!isset($this->listingsLength->value)) {
+			$this->listingsLength->value = $this->DEFAULT_PAGE_LEN();
 		}
-		if ($this->date->value) {
-			$this->sqlClause .= "AND (a.`date` LIKE '%".$this->date->escapeSQL($this->mysqli, false)."%') ";
+		if ($this->next->value=="") {
+			$this->next->value = "view";
 		}
-		if ($this->releaseAfter->value) {
-			$this->sqlClause .= "AND (DATEDIFF(a.`release_date`,".$this->releaseAfter->escapeSQL($this->mysqli).")>=0) ";
-		}
-		if ($this->releaseBefore->value) {
-			$this->sqlClause .= "AND (DATEDIFF(a.`release_date`,".$this->releaseBefore->escapeSQL($this->mysqli).")<=0) ";
-		}
-		if ($this->access->value) {
-			$this->sqlClause .= "AND (a.`access` = ".$this->access->escapeSQL($this->mysqli).") ";
-		}
-		if ($this->slot->value) {
-			$this->sqlClause .= "AND (a.`slot` = ".$this->slot->escapeSQL($this->mysqli).") ";
-		}
-		if ($this->keyword->value) {
-			$this->sqlClause .= "AND (MATCH(a.title,a.description,a.keywords) AGAINST (".$this->keyword->escapeSQL($this->mysqli)." IN BOOLEAN MODE)) ";
-		}
+		$this->gallery->collectFilterValues($save_filters);
 	}
 
 	/**
-	 * Sets values of internal properties of the object to the number of records and pages in the current set of listings.
+	 * Returns SQL to retrieve album listings.
+	 * @return string SQL string used to retrieve album listings
 	 */
-	public function getPageCount ()
+	protected function formatListingsQuery( )
 	{
-		try
-		{
-			$this->formatQueryClause();
+		$lower_limit = $upper_limit = "";
+		$this->formatQueryLimits($lower_limit, $upper_limit);
 
-			$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` FROM `album` a ".
-				"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
-				$this->sqlClause;
-			$data = $this->fetchRecords($query);
-
-			$this->recordCount = $data[0]->count;
-			$this->calcPageCount();
-		}
-		catch (\Exception $ex)
-		{
-			print ("<div class=\"alert alert-error\">Error retrieving image count: ".$ex->getMessage()."</div>");
-		}
+		$query = $this->formatListingsSelectQuery();
+		$query .= <<<SQL
+ORDER BY a.slot, a.id DESC 
+{$lower_limit}{$upper_limit}
+SQL;
+		return ($query);
 	}
 
 	/**
@@ -176,50 +154,51 @@ SQL;
 	}
 
 	/**
-	 * Returns SQL to retrieve album listings.
-	 * @return string SQL string used to retrieve album listings
+	 * Create SQL string containing WHERE clause that will filter down the listings.
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
-	protected function formatListingsQuery( )
+	public function formatQueryClause( )
 	{
-		$lower_limit = $upper_limit = "";
-		$this->formatQueryLimits($lower_limit, $upper_limit);
-
-		$query = $this->formatListingsSelectQuery();
-		$query .= <<<SQL
-ORDER BY a.slot, a.id DESC 
-{$lower_limit}{$upper_limit}
-SQL;
-		return ($query);
+		$this->connectToDatabase();
+		$this->sqlClause = "WHERE (a.section_id = {$this->siteSection->id->value}) ";
+		if ($this->gallery->albumId->value>0) {
+			$this->sqlClause .= "AND (a.id = {$this->gallery->albumId->value}) ";
+		}
+		if ($this->title->value) {
+			$this->sqlClause .= "AND (a.title LIKE '%".$this->title->escapeSQL($this->mysqli, false)."%') ";
+		}
+		if ($this->date->value) {
+			$this->sqlClause .= "AND (a.`date` LIKE '%".$this->date->escapeSQL($this->mysqli, false)."%') ";
+		}
+		if ($this->releaseAfter->value) {
+			$this->sqlClause .= "AND (DATEDIFF(a.`release_date`,".$this->releaseAfter->escapeSQL($this->mysqli).")>=0) ";
+		}
+		if ($this->releaseBefore->value) {
+			$this->sqlClause .= "AND (DATEDIFF(a.`release_date`,".$this->releaseBefore->escapeSQL($this->mysqli).")<=0) ";
+		}
+		if ($this->access->value) {
+			$this->sqlClause .= "AND (a.`access` = ".$this->access->escapeSQL($this->mysqli).") ";
+		}
+		if ($this->slot->value) {
+			$this->sqlClause .= "AND (a.`slot` = ".$this->slot->escapeSQL($this->mysqli).") ";
+		}
+		if ($this->keyword->value) {
+			$this->sqlClause .= "AND (MATCH(a.title,a.description,a.keywords) AGAINST (".$this->keyword->escapeSQL($this->mysqli)." IN BOOLEAN MODE)) ";
+		}
 	}
 
 	/**
-	 * Retrieves recordset containing album titles matching the current filters.
-	 * @return \mysqli_result Album titles data set.
-	 * @throws InvalidQueryException
-	 * @throws ResourceNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Exception
+	 * Overrides parent function to include image filters.
+	 * @param array $exclude List of parameters to exclude from the query string.
+	 * @return string Query string containing all filters as parameter/value pairs.
 	 */
-	public function searchTitles()
+	public function formatQueryString ($exclude=null )
 	{
-		$this->connectToDatabase();
-		$sQuery = "CALL albumTitlesSelect(".
-			$this->page->escapeSQL($this->mysqli).",".
-			$this->listingsLength->escapeSQL($this->mysqli).",".
-			$this->keyword->escapeSQL($this->mysqli).",".
-			$this->siteSection->id->escapeSQL($this->mysqli).",".
-			"@total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`";
-		if (!$this->mysqli->multi_query($sQuery)) {
-			throw new InvalidQueryException("Error retrieving titles: {$this->mysqli->error}");
-		}
-		$data = $this->mysqli->store_result();
-		if (!$data) {
-			throw new ResourceNotFoundException("Error retrieving title: {$this->mysqli->error}");
-		}
-		/* get record count from sproc results */
-		$this->getSprocPageCount();
-		return ($data);
+		parent::formatQueryString($exclude);
+		$gqs = $this->gallery->formatQueryString($exclude);
+		$this->queryString .= preg_replace("/^\?/", "&", $gqs);
+		return ($this->queryString);
 	}
 
 	/**
@@ -244,36 +223,45 @@ SQL;
 	}
 
 	/**
-	 * Get filter values from query string and/or form data.
-	 * @param bool[optional] $save_filters
-	 * @return void
+	 * Retrieves from database the uri of the page used to display details for this content type.
+	 * @return string Uri of details page.
+	 * @throws InvalidQueryException
 	 */
-	public function collectFilterValues ($save_filters=true )
+	public function getDetailsURI()
 	{
-		parent::collectFilterValues($save_filters);
-		if (!isset($this->page->value)) {
-			$this->page->value = 1;
+		if ($this->siteSection->id->value===null || $this->siteSection->id->value<1) {
+			return ("");
 		}
-		if (!isset($this->listingsLength->value)) {
-			$this->listingsLength->value = $this->DEFAULT_PAGE_LEN();
+
+		$query = "SELECT details_uri FROM section_operations WHERE section_id = {$this->siteSection->id->value}";
+		$data = $this->fetchRecords($query);
+		if (count($data) > 0) {
+			return($data[0]->details_uri);
 		}
-		if ($this->next->value=="") {
-			$this->next->value = "view";
-		}
-		$this->gallery->collectFilterValues($save_filters);
+		return ("");
 	}
 
 	/**
-	 * Overrides parent function to include image filters.
-	 * @param array $exclude List of parameters to exclude from the query string.
-	 * @return string Query string containing all filters as parameter/value pairs.
+	 * Sets values of internal properties of the object to the number of records and pages in the current set of listings.
 	 */
-	public function formatQueryString ($exclude=null )
+	public function getPageCount ()
 	{
-		parent::formatQueryString($exclude);
-		$gqs = $this->gallery->formatQueryString($exclude);
-		$this->queryString .= preg_replace("/^\?/", "&", $gqs);
-		return ($this->queryString);
+		try
+		{
+			$this->formatQueryClause();
+
+			$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` FROM `album` a ".
+				"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
+				$this->sqlClause;
+			$data = $this->fetchRecords($query);
+
+			$this->recordCount = $data[0]->count;
+			$this->calcPageCount();
+		}
+		catch (\Exception $ex)
+		{
+			print ("<div class=\"alert alert-error\">Error retrieving image count: ".$ex->getMessage()."</div>");
+		}
 	}
 
 	/**
@@ -306,21 +294,32 @@ SQL;
 	}
 
 	/**
-	 * Retrieves from database the uri of the page used to display details for this content type.
-	 * @return string Uri of details page.
+	 * Retrieves recordset containing album titles matching the current filters.
+	 * @return \mysqli_result Album titles data set.
 	 * @throws InvalidQueryException
+	 * @throws ResourceNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Exception
 	 */
-	public function getDetailsURI()
+	public function searchTitles()
 	{
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value<1) {
-			return ("");
+		$this->connectToDatabase();
+		$sQuery = "CALL albumTitlesSelect(".
+			$this->page->escapeSQL($this->mysqli).",".
+			$this->listingsLength->escapeSQL($this->mysqli).",".
+			$this->keyword->escapeSQL($this->mysqli).",".
+			$this->siteSection->id->escapeSQL($this->mysqli).",".
+			"@total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`";
+		if (!$this->mysqli->multi_query($sQuery)) {
+			throw new InvalidQueryException("Error retrieving titles: {$this->mysqli->error}");
 		}
-
-		$query = "SELECT details_uri FROM section_operations WHERE section_id = {$this->siteSection->id->value}";
-		$data = $this->fetchRecords($query);
-		if (count($data) > 0) {
-			return($data[0]->details_uri);
+		$data = $this->mysqli->store_result();
+		if (!$data) {
+			throw new ResourceNotFoundException("Error retrieving title: {$this->mysqli->error}");
 		}
-		return ("");
+		/* get record count from sproc results */
+		$this->getSprocPageCount();
+		return ($data);
 	}
 }
