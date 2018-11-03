@@ -144,6 +144,25 @@ class GalleryFilters extends ContentFilters
 	}
 
 	/**
+	 * Retrieve section properties.
+	 * @param int|null[optional] $content_type_id Id of site section to retrieve properties for.
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws \Littled\Exception\NotImplementedException
+	 */
+	public function getContentProperties ($content_type_id=null)
+	{
+		if ($content_type_id>0) {
+			$this->siteSection->id->value = $content_type_id;
+		}
+		$this->siteSection->read();
+	}
+
+	/**
 	 * Retrieves from database the uri of the page used to display details for this content type.
 	 * @returns string URI of the page used to display detailed image properties.
 	 * @throws \Exception Error connecting to database, or running query.
