@@ -180,4 +180,23 @@ class GalleryFilters extends ContentFilters
 		$this->detailsURI = $data[0]->details_uri;
 		return ($this->detailsURI);
 	}
+
+	/**
+	 * Returns an appropriate label given the value of $count if $count requires the label to be pluralized.
+	 * @param int|null[optional] $count Number determining if the label is plural or not.
+	 * @return string Plural form of the record label if $count is not 1.
+	 */
+	public function pluralLabel( $count=null )
+	{
+		if ($count===null) {
+			$count = $this->recordCount;
+		}
+		if ($this->contentProperties->label) {
+			return($this->contentProperties->pluralLabel($count));
+		}
+		if ($this->siteSection->label) {
+			return($this->siteSection->pluralLabel($count));
+		}
+		return ('');
+	}
 }

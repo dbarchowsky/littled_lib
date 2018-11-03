@@ -283,6 +283,15 @@ class FilterCollection extends MySQLConnection
 	}
 
 	/**
+	 * Intended to be implemented in inherited classes that have either a $contentOperations or $siteSection property.
+	 * @return string
+	 */
+	public function pluralLabel( )
+	{
+		return('');
+	}
+
+	/**
 	 * Print out current filters as hidden inputs to be included in a form in order to preserve the filters after form submission.
 	 * @param array $exclude List of parameter names that should not be included in the hidden form inputs.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
