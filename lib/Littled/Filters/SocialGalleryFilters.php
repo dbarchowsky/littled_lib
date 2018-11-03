@@ -3,12 +3,20 @@ namespace Littled\Filters;
 
 class SocialGalleryFilters extends GalleryFilters
 {
+	protected const DEFAULT_PAGE_LEN = 50;
+	protected const FRONTEND_URI = '';
+	protected const LISTINGS_LABEL = '';
+
 	/** @var BooleanContentFilter Control to filter records that have been previously posted on Wordpress. */
 	public $onWordpress;
 	/** @var BooleanContentFilter Control to filter records that have been previously posted to Twitter. */
 	public $onTwitter;
 	/** @var BooleanContentFilter Control to filter records that have been assigned a short URL. */
 	public $hasShortURL;
+
+	public static function DEFAULT_PAGE_LEN() { return(self::DEFAULT_PAGE_LEN); }
+	public static function FRONTEND_URI() { return(self::FRONTEND_URI); }
+	public static function LISTINGS_LABEL() { return(self::LISTINGS_LABEL); }
 
 	/**
 	 * class constructor
