@@ -241,6 +241,9 @@ class PageConfig
 	 */
 	public static function setBreadcrumbsCssClass($css_class)
 	{
+		if (self::$breadcrumbs===null) {
+			return;
+		}
 		self::$breadcrumbs->setCSSClass($css_class);
 	}
 
