@@ -1,7 +1,13 @@
 <?php
 namespace Littled\PageContent;
 
+use http\Env\Request;
+use Littled\App\LittledGlobals;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Filters\FilterCollection;
+use Littled\PageContent\Serialized\SerializedContent;
+use Littled\Request\RequestInput;
 
 /**
  * Class PageContent
@@ -10,6 +16,67 @@ use Littled\Exception\ResourceNotFoundException;
  */
 class PageContent
 {
+	/** @var SerializedContent Page content. */
+	public $content;
+	/** @var FilterCollection Content filters. */
+	public $filters;
+	/** @var string Query string containing variables defining page state. */
+	public $qs;
+	/** @var string Token representing the current action to take on the page. */
+	public $action;
+	/** @var string URL to use for redirects. */
+	public $redirectURL;
+	/** @var string Path to template file. */
+	public $templatePath;
+
+
+	/**
+	 * PageContent constructor
+	 */
+	function __construct()
+	{
+		$this->content = null;
+		$this->filters = null;
+		$this->qs = '';
+		$this->templatePath = '';
+		$this->action = '';
+		$this->redirectURL = '';
+	}
+
+	/**
+	 * @param array|null[optional] $src Array of variables to use in place of POST data.
+	 * Sets the value of the object's $action property based on action variables in POST data.
+	 */
+	public function collectEditAction( $src=null )
+	{
+		if ($src===null) {
+			$src = $_POST;
+		}
+		if(array_key_exists(LittledGlobals::P_CANCEL, $src)) {
+			$this->action = filter_var($src[LittledGlobals::P_CANCEL], FILTER_SANITIZE_STRING);
+		}
+		if ($this->action) {
+			$this->action = "cancel";
+		}
+		else {
+			if(array_key_exists(LittledGlobals::P_COMMIT, $src)) {
+				$this->action = filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING);
+			}
+			if ($this->action) {
+				$this->action = "commit";
+			}
+		}
+	}
+
+	/**
+	 * Uses current filter values to generate a query string that
+	 * will preserver the current page state. The query string value is
+	 * stored as the value of the object's $qs property.
+	 */
+	public function formatPageStateQueryString() {
+		$this->qs = $this->filters->formatQueryString();
+	}
+
 	/**
 	 * Inserts data into a template file and stores the resulting content in the object's $content property.
 	 * @param string $template_path Path to content template file.
@@ -36,6 +103,30 @@ class PageContent
 	}
 
 	/**
+	 * Sets $qs property value to preserve initial GET variable values.
+	 * @param array $page_vars Array of input_class objects used to collect page variable values
+	 * to store in query string.
+	 * @throws NotImplementedException
+	 */
+	protected function preservePageVariables( $page_vars )
+	{
+		$qs_vars = array();
+		foreach($page_vars as $input) {
+			/** @var RequestInput $input */
+			$input->collectFromInput();
+			if ($input->value===true) {
+				array_push($qs_vars, "{$input->key}=1");
+			}
+			elseif(strlen($input->value) > 0) {
+				array_push($qs_vars, "{$input->key}=".urlencode($input->value));
+			}
+		}
+		if (count($qs_vars) > 0) {
+			$this->qs = '?'.implode('&', $qs_vars);
+		}
+	}
+
+	/**
 	 * Inserts data into a template file and renders the result.
 	 * @param string $template_path Path to template to render.
 	 * @param array $context Data to insert into the template.
@@ -52,5 +143,28 @@ class PageContent
 			}
 		}
 		include ($template_path);
+	}
+
+	/**
+	 * Forces a page to use https protocol.
+	 * @param bool[optional] $bypass_on_dev Flag to skip this in dev environment.
+	 */
+	public static function require_ssl( $bypass_on_dev=true )
+	{
+		if ($bypass_on_dev===true && defined('IS_DEV') && IS_DEV===true) {
+			return;
+		}
+		if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
+			header("Location: https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+			exit();
+		}
+	}
+
+	/**
+	 * Sets the error message to display on a page.
+	 * @param string $error_msg string
+	 */
+	public function setPageError( $error_msg ) {
+		array_push($this->content->validationErrors, $error_msg);
 	}
 }
