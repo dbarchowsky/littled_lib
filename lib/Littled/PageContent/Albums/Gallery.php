@@ -7,7 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Images\ImageLink;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\SiteContent\ContentProperties;
 use Littled\Request\IntegerInput;
 
 
@@ -406,7 +406,6 @@ class Gallery extends MySQLConnection
 	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\OperationAbortedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 * @throws \Littled\Exception\ResourceNotFoundException
