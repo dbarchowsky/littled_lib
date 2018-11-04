@@ -90,21 +90,46 @@ class AlbumViewer extends SocialXPostAlbum
 	}
 
 	/**
-	 * Populates the core properties of the sketchbook object with data from database.
-	 * @param bool[optional] $read_images Ignored. Here for compatibility with parent class function definition.
-	 * @param bool[optional] $read_image_keywords Ignored. Here for compatibility with parent class function definition.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * Strips all values from page objects' properties.
 	 */
-	function read ($read_images=true, $read_image_keywords=false)
+	protected function clearPages()
 	{
-		/* don't retrieve page images */
-		parent::read(false, false);
+		foreach ($this->pages as &$image) {
+			$image->clearValues();
+		}
+	}
+
+	/**
+	 * Overrides parent to fill only:
+	 *   - the id (of the sketchbook)
+	 *   - id (of the current left-hand page)
+	 *   - the direction of navigation
+	 * @param array|null[optional] $src Array of variables to use instead of POST data.
+	 */
+	public function collectFromInput( $src=null )
+	{
+		$this->id->collectFromInput($src);
+		if ($this->id->value===null) {
+			$this->id->value = Validation::collectIntegerRequestVar(self::BOOK_PARAM, null, $src);
+		}
+		$this->pages[0]->id->collectFromInput($src);
+		$this->direction->collectFromInput($src);
+	}
+
+	/**
+	 * @param Album $album
+	 * @param ImageLink $page
+	 * @return string
+	 */
+	public function formatURI ( &$album, &$page=null ) {
+		if (strlen($this::$viewer_uri)<1) {
+			return('');
+		}
+		$uri = $this::$viewer_uri.((substr($this::$viewer_uri, -1)=="/")?(""):("/")).$album->slug->value;
+		if (is_object($page)) {
+			$uri .= "/p/{$page->id->value}";
+		}
+		return ($uri);
 	}
 
 	/**
@@ -180,6 +205,39 @@ SQL;
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
+	public function getNextPublicPage()
+	{
+		$this->getPagePosition();
+
+		$query = <<<SQL
+SELECT 
+	il.id, 
+	il.title, 
+	il.description, 
+	il.slot, 
+	il.page_number, 
+	f.path full_path, 
+	f.width full_width, 
+	f.height full_height 
+FROM image_link il 
+INNER JOIN images f ON il.fullres_id = f.id 
+WHERE (il.id = {$this->pages[0]->id->value}) 
+SQL;
+		$data = $this->fetchRecords($query);
+		if (count($data) > 0) {
+			$this->hydratePageFromQuery($this->pages[0], $data[0]);
+			$this->markLimits();
+		}
+	}
+
+	/**
+	 * Given a page position (image_link.id) and a direction, retrieves the next two pages in the sequence if available.
+	 *   - Skips ahead to the next available spread what would be the next spread in the physical book is unavailable.
+	 *   - If either the left or right page is unavailable, one page is returned and the adjacent page will have no properties.
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
 	public function getNextPublicPageset ()
 	{
 		$this->getPagePosition();
@@ -231,86 +289,6 @@ SQL;
 		if (count($data) > 0) {
 			$this->hydrateFromQuery($data[0]);
 			$this->markLimits();
-		}
-	}
-
-	/**
-	 * Given a page position (image_link.id) and a direction, retrieves the next two pages in the sequence if available.
-	 *   - Skips ahead to the next available spread what would be the next spread in the physical book is unavailable.
-	 *   - If either the left or right page is unavailable, one page is returned and the adjacent page will have no properties.
-	 * @throws ConfigurationUndefinedException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function getNextPublicPage ()
-	{
-		$this->getPagePosition();
-
-		$query = <<<SQL
-SELECT 
-	il.id, 
-	il.title, 
-	il.description, 
-	il.slot, 
-	il.page_number, 
-	f.path full_path, 
-	f.width full_width, 
-	f.height full_height 
-FROM image_link il 
-INNER JOIN images f ON il.fullres_id = f.id 
-WHERE (il.id = {$this->pages[0]->id->value}) 
-SQL;
-		$data = $this->fetchRecords($query);
-		if (count($data) > 0) {
-			$this->hydratePageFromQuery($this->pages[0], $data[0]);
-			$this->markLimits();
-		}
-	}
-
-	/**
-	 * Overrides parent to fill only:
-	 *   - the id (of the sketchbook)
-	 *   - id (of the current left-hand page)
-	 *   - the direction of navigation
-	 * @param array|null[optional] $src Array of variables to use instead of POST data.
-	 */
-	public function collectFromInput( $src=null )
-	{
-		$this->id->collectFromInput($src);
-		if ($this->id->value===null) {
-			$this->id->value = Validation::collectIntegerRequestVar(self::BOOK_PARAM, null, $src);
-		}
-		$this->pages[0]->id->collectFromInput($src);
-		$this->direction->collectFromInput($src);
-	}
-
-	/**
-	 * Overrides parent to check only for book id, page id, and direction.
-	 * @param array[optional] $exclude_properties
-	 * @throws ContentValidationException
-	 */
-	public function validateInput( $exclude_properties=array() )
-	{
-		try {
-			$this->id->validate();
-		}
-		catch(ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
-		}
-		try {
-			$this->pages[0]->id->validate();
-		}
-		catch(ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
-		}
-		try {
-			$this->direction->validate();
-		}
-		catch(ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
-		}
-		if ($this->hasValidationErrors()) {
-			throw new ContentValidationException("Error validating album viewer data.");
 		}
 	}
 
@@ -377,6 +355,58 @@ SQL;
 		}
 		else {
 			return ($this->pages[0]->id->value);
+		}
+	}
+
+	/**
+	 * Gets the page number and slot of the current left page.
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
+	protected function getPagePosition( )
+	{
+		if ($this->pages[0]->id->value===null || $this->pages[0]->id->value<1) {
+			throw new ConfigurationUndefinedException("Page id not set.");
+		}
+
+		$query = <<<SQL
+SELECT
+	il.page_number,  
+	il.slot 
+FROM image_link il 
+WHERE id = {$this->pages[0]->id->value}
+AND (il.access = 'public') 
+AND (DATEDIFF(il.release_date, NOW())<=0) 
+SQL;
+		$data = $this->fetchRecords($query);
+		if (count($data)<1) {
+			throw new RecordNotFoundException("Page not found.");
+		}
+
+		$page =  $data[0]->page_number;
+		$slot = $data[0]->slot;
+
+		if ($page===null) {
+			$page = 0;
+		}
+		if ($slot===null) {
+			$slot = 0;
+		}
+		if ($this->direction->value==self::PAGE_BACK) {
+			$this->loadPreviousPageSet($page, $slot);
+		}
+		elseif ($this->direction->value==self::PAGE_FORWARD) {
+			$this->loadNextPageSet($page, $slot);
+		}
+		else {
+			/* request was for this pageset. done. */
+			$this->pages[0]->page_number->value = $page;
+			$this->pages[0]->slot->value = $slot;
+		}
+
+		if ($this->isPagingBackInTwoPageLayout()) {
+			$this->loadPreviousOddPageSet();
 		}
 	}
 
@@ -461,12 +491,30 @@ SQL;
 	}
 
 	/**
-	 * Strips all values from page objects' properties.
+	 * Returns TRUE/FALSE depending on whether another page spread exists in the album.
+	 * @return bool TRUE/FALSE indicating there is another spread in the album.
 	 */
-	protected function clearPages()
+	public function isAtFirstSpread()
 	{
-		foreach ($this->pages as &$image) {
-			$image->clearValues();
+		switch($this->layout->value) {
+			case $this::$two_page_layout:
+				return ($this->pages[0]->is_first_page->value==true || (count($this->pages) > 1 && $this->pages[1]->is_first_page->value==true));
+			default:
+				return ($this->pages[0]->is_first_page->value==true);
+		}
+	}
+
+	/**
+	 * Returns TRUE/FALSE depending on whether another page spread exists in the album.
+	 * @return bool TRUE/FALSE indicating there is another spread in the album.
+	 */
+	public function isAtLastSpread()
+	{
+		switch($this->layout->value) {
+			case $this::$two_page_layout:
+				return ($this->pages[0]->is_last_page->value==true || (count($this->pages) > 1 && $this->pages[1]->is_last_page->value==true));
+			default:
+				return ($this->pages[0]->is_last_page->value==true);
 		}
 	}
 
@@ -481,58 +529,6 @@ SQL;
 			($this->direction->value==self::PAGE_BACK || $this->direction->value=="")  &&
 			(($this->pages[0]->page_number->value > 1 && ($this->pages[0]->page_number->value%2)==1)) ||
 			(empty($this->pages[0]->page_number->value) && empty($prev_page) && ($this->pages[0]->slot->value%2)==0));
-	}
-
-	/**
-	 * Gets the page number and slot of the current left page.
-	 * @throws ConfigurationUndefinedException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	protected function getPagePosition( )
-	{
-		if ($this->pages[0]->id->value===null || $this->pages[0]->id->value<1) {
-			throw new ConfigurationUndefinedException("Page id not set.");
-		}
-
-		$query = <<<SQL
-SELECT
-	il.page_number,  
-	il.slot 
-FROM image_link il 
-WHERE id = {$this->pages[0]->id->value}
-AND (il.access = 'public') 
-AND (DATEDIFF(il.release_date, NOW())<=0) 
-SQL;
-		$data = $this->fetchRecords($query);
-		if (count($data)<1) {
-			throw new RecordNotFoundException("Page not found.");
-		}
-
-		$page =  $data[0]->page_number;
-		$slot = $data[0]->slot;
-
-		if ($page===null) {
-			$page = 0;
-		}
-		if ($slot===null) {
-			$slot = 0;
-		}
-		if ($this->direction->value==self::PAGE_BACK) {
-			$this->loadPreviousPageSet($page, $slot);
-		}
-		elseif ($this->direction->value==self::PAGE_FORWARD) {
-			$this->loadNextPageSet($page, $slot);
-		}
-		else {
-			/* request was for this pageset. done. */
-			$this->pages[0]->page_number->value = $page;
-			$this->pages[0]->slot->value = $slot;
-		}
-
-		if ($this->isPagingBackInTwoPageLayout()) {
-			$this->loadPreviousOddPageSet();
-		}
 	}
 
 	/**
@@ -696,46 +692,50 @@ SQL;
 	}
 
 	/**
-	 * Returns TRUE/FALSE depending on whether another page spread exists in the album.
-	 * @return bool TRUE/FALSE indicating there is another spread in the album.
+	 * Populates the core properties of the sketchbook object with data from database.
+	 * @param bool[optional] $read_images Ignored. Here for compatibility with parent class function definition.
+	 * @param bool[optional] $read_image_keywords Ignored. Here for compatibility with parent class function definition.
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	public function isAtFirstSpread()
+	function read ($read_images=true, $read_image_keywords=false)
 	{
-		switch($this->layout->value) {
-			case $this::$two_page_layout:
-				return ($this->pages[0]->is_first_page->value==true || (count($this->pages) > 1 && $this->pages[1]->is_first_page->value==true));
-			default:
-				return ($this->pages[0]->is_first_page->value==true);
-		}
+		/* don't retrieve page images */
+		parent::read(false, false);
 	}
 
 	/**
-	 * Returns TRUE/FALSE depending on whether another page spread exists in the album.
-	 * @return bool TRUE/FALSE indicating there is another spread in the album.
+	 * Overrides parent to check only for book id, page id, and direction.
+	 * @param array[optional] $exclude_properties
+	 * @throws ContentValidationException
 	 */
-	public function isAtLastSpread()
+	public function validateInput( $exclude_properties=array() )
 	{
-		switch($this->layout->value) {
-			case $this::$two_page_layout:
-				return ($this->pages[0]->is_last_page->value==true || (count($this->pages) > 1 && $this->pages[1]->is_last_page->value==true));
-			default:
-				return ($this->pages[0]->is_last_page->value==true);
+		try {
+			$this->id->validate();
 		}
-	}
-
-	/**
-	 * @param Album $album
-	 * @param ImageLink $page
-	 * @return string
-	 */
-	public function formatURI ( &$album, &$page=null ) {
-		if (strlen($this::$viewer_uri)<1) {
-			return('');
+		catch(ContentValidationException $ex) {
+			array_push($this->validationErrors, $ex->getMessage());
 		}
-		$uri = $this::$viewer_uri.((substr($this::$viewer_uri, -1)=="/")?(""):("/")).$album->slug->value;
-		if (is_object($page)) {
-			$uri .= "/p/{$page->id->value}";
+		try {
+			$this->pages[0]->id->validate();
 		}
-		return ($uri);
+		catch(ContentValidationException $ex) {
+			array_push($this->validationErrors, $ex->getMessage());
+		}
+		try {
+			$this->direction->validate();
+		}
+		catch(ContentValidationException $ex) {
+			array_push($this->validationErrors, $ex->getMessage());
+		}
+		if ($this->hasValidationErrors()) {
+			throw new ContentValidationException("Error validating album viewer data.");
+		}
 	}
 }
