@@ -43,9 +43,9 @@ class AlbumViewer extends SocialXPostAlbum
 	 * @param int $content_type_id
 	 * @param int $page_content_type_id
 	 * @param string $image_dir
+	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
@@ -695,9 +695,9 @@ SQL;
 	 * Populates the core properties of the sketchbook object with data from database.
 	 * @param bool[optional] $read_images Ignored. Here for compatibility with parent class function definition.
 	 * @param bool[optional] $read_image_keywords Ignored. Here for compatibility with parent class function definition.
+	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
