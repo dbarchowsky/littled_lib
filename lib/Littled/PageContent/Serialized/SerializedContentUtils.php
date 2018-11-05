@@ -304,13 +304,13 @@ class SerializedContentUtils extends MySQLConnection
 	function updateCacheFile ($context=null, $cache_template=null, $output_cache_file=null)
 	{
 		if ($cache_template===null) {
-			$cache_template = self::$cache_template;
+			$cache_template = static::$cache_template;
 			if (!file_exists($cache_template)) {
 				throw new ResourceNotFoundException("External link cache template not available at \"{$cache_template}\".");
 			}
 		}
 		if ($output_cache_file===null) {
-			$output_cache_file = self::$output_cache_file;
+			$output_cache_file = static::$output_cache_file;
 		}
 		$cache_content = PageContent::loadTemplateContent($cache_template, $context);
 		$f = fopen($output_cache_file, "w");
