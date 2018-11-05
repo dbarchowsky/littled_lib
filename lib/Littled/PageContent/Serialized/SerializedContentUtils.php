@@ -6,6 +6,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
+use Littled\PageContent\PageContent;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 
@@ -20,6 +21,10 @@ class SerializedContentUtils extends MySQLConnection
 	public $validationErrors;
 	/** @var string Error message returned when invalid form data is encountered. */
 	public $validationMessage;
+	/** @var string Path to cache template. */
+	protected static $cache_template = '';
+	/** @var string Path to rendered cache file to use on site front-end. */
+	protected static $output_cache_file = '';
 
     /**
      * SerializedContentUtils constructor.
@@ -227,6 +232,15 @@ class SerializedContentUtils extends MySQLConnection
 	}
 
 	/**
+	 * Returns cache template path.
+	 * @return string Cache template path.
+	 */
+	public static function getCacheTemplatePath()
+	{
+		return (static::$cache_template);
+	}
+
+	/**
 	 * Checks of SECTION_ID has been defined as a constant of the class and returns its value if it has.
 	 * @return integer Class's content type id value, if it has been defined.
 	 */
@@ -281,28 +295,27 @@ class SerializedContentUtils extends MySQLConnection
 
 	/**
 	 * Loads content from a template file. Writes the parsed content to a separate file.
-	 * @param string $src_path Path to content template.
-	 * @param string $dst_path Path to cache file.
 	 * @param array[optional] $context Array containing name/value pairs representing variable names and values to insert into the source template at $src_path;
+	 * @param string|null[optional] $cache_template Path to content template. If not supplied, the internal $cache_template value will be used.
+	 * @param string|null[optional] $output_cache_file Path to cache file. If not supplied, the internal $output_cache_file value will be used.
 	 * @throws ResourceNotFoundException Cache template not found.
 	 * @throws \Exception File error.
 	 */
-	function updateCacheFile ($src_path, $dst_path, $context=null)
+	function updateCacheFile ($context=null, $cache_template=null, $output_cache_file=null)
 	{
-		if (!file_exists($src_path)) {
-			throw new ResourceNotFoundException('Cache template not available.');
-		}
-		if (is_array($context)) {
-			foreach($context as $key => $val) {
-				${$key} = $val;
+		if ($cache_template===null) {
+			$cache_template = self::$cache_template;
+			if (!file_exists($cache_template)) {
+				throw new ResourceNotFoundException("External link cache template not available at \"{$cache_template}\".");
 			}
 		}
-		ob_start();
-		include ($src_path);
-		$f = fopen($dst_path, "w");
-		fputs($f, ob_get_contents());
+		if ($output_cache_file===null) {
+			$output_cache_file = self::$output_cache_file;
+		}
+		$cache_content = PageContent::loadTemplateContent($cache_template, $context);
+		$f = fopen($output_cache_file, "w");
+		fputs($f, $cache_content);
 		fclose($f);
-		ob_end_clean();
 	}
 
 	/**

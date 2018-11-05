@@ -8,6 +8,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\BooleanContentFilter;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\Serialized\SerializedContentUtils;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
@@ -26,6 +27,7 @@ class SerializedContentUtilsChild extends SerializedContent
 	public $bool_col;
 	public $prop1;
 	public $prop2;
+	protected static $cache_template = "/path/to/templates/child-cache-template.php";
 
 	public const SECTION_ID = 10; /* sketchbook page */
 
@@ -39,7 +41,6 @@ class SerializedContentUtilsChild extends SerializedContent
 		$this->vc_col2 = new StringInput('Test varchar value 1', 'p_vc2', false, '', 255);
 		$this->int_col = new IntegerInput('Test int value', 'p_int');
 		$this->bool_col = new BooleanInput('Test bool value', 'p_bool');
-
 	}
 
 	public static function TABLE_NAME()
@@ -94,7 +95,7 @@ class SerializedContentUtilsTest extends TestCase
 	public static function tearDownAfterClass()
 	{
 		$c = new MySQLConnection();
-		$query = 'DROP TABLE `'.SerializedContentUtilsChild::TABLE_NAME().'`';
+		$query = "DR"."OP TABLE `".SerializedContentUtilsChild::TABLE_NAME()."`";
 		$c->query($query);
 	}
 
@@ -375,6 +376,12 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertNull($obj->pluralLabel(2, 'vc_col1'));
 	}
 
+	public function testCacheTemplatePath()
+	{
+		$this->assertEquals("/path/to/templates/child-cache-template.php", SerializedContentUtilsChild::getCacheTemplatePath());
+		$this->assertEquals("", SerializedContentUtils::getCacheTemplatePath());
+	}
+
 	/**
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
@@ -384,7 +391,7 @@ class SerializedContentUtilsTest extends TestCase
 		$src_template_path = realpath($dir."/".self::TEST_ASSETS_PATH.self::TEST_SOURCE_TEMPLATE);
 		$dst_path = realpath($dir."/".self::TEST_ASSETS_PATH)."/";
 		$context = array("page_title" => "My Test Title", "test_var" => "test value");
-		$this->obj->updateCacheFile($src_template_path, $dst_path.self::TEST_OUTPUT_TEMPLATE, $context);
+		$this->obj->updateCacheFile($context, $src_template_path, $dst_path.self::TEST_OUTPUT_TEMPLATE);
 		$result = file_get_contents($dst_path.self::TEST_OUTPUT_TEMPLATE);
 		$this->assertContains("<h1>My Test Title</h1>", $result);
 		$this->assertContains("sample content", $result);
