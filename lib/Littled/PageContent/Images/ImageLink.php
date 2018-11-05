@@ -3,6 +3,7 @@ namespace Littled\PageContent\Images;
 
 
 use Littled\Cache\ContentCache;
+use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
@@ -351,6 +352,20 @@ class ImageLink extends KeywordSectionContent
 			"`release_date` = ".$this->release_date->escapeSQL($this->mysqli)." ".
 			"WHERE `id` = {$this->id->value}";
 		$this->query($query);
+	}
+
+	/**
+	 * Gets thumbnail data for thumbnails linked to an album.
+	 * @param int $parent_id ID of the parent record to which the thumbnails are linked.
+	 * @param int[optional] $limit Number of records to return. Defaults to 5.
+	 * @return array Thumbnail data
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
+	public static function fetchPageThumbnails($parent_id, $limit=5 )
+	{
+		$conn = new MySQLConnection();
+		$query = "CALL imageLinkPageThumbnailsSelect({$parent_id},{$limit})";
+		return ($conn->fetchRecords($query));
 	}
 
 	/**
