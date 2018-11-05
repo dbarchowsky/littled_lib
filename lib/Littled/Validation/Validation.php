@@ -86,25 +86,19 @@ class Validation
 	 * @param string $key Key containing potential numeric values.
 	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
 	 */
-	public static function collectIntegerArrayRequestVar($key)
+	public static function collectIntegerArrayRequestVar($key, $src=null)
 	{
-		$args = array($key => array(
-			'filter' => FILTER_VALIDATE_INT,
-			'flags' => FILTER_REQUIRE_ARRAY
-		));
-		$result = Validation::_filterIntegerInputArray(INPUT_GET, $key, $args);
-		if (is_array($result) && count($result) > 0) {
-			return ($result);
+		if ($src===null) {
+			$src = array_merge($_GET, $_POST);
 		}
-		$result = Validation::_filterIntegerInputArray(INPUT_POST, $key, $args);
-		if (is_array($result) && count($result) > 0) {
-			return ($result);
+		if (!array_key_exists($key, $src)) {
+			return (null);
 		}
-		$value = Validation::collectIntegerRequestVar($key);
-		if ($value!==null) {
-			return (array($value));
+		$arr = filter_var($src[$key], FILTER_VALIDATE_INT, FILTER_FORCE_ARRAY);
+		if (!is_array($arr)) {
+			return (null);
 		}
-		return (array());
+		return (array_values(array_filter($arr)));
 	}
 
 	/**
@@ -124,18 +118,22 @@ class Validation
 	/**
 	 * Converts script argument (query string or form data) to array of numeric values.
 	 * @param string $key Key containing potential numeric values.
+	 * @param array|null[optional] Array of variables to use instead of GET or POST data.
 	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
 	 */
-	public static function collectNumericArrayRequestVar($key)
+	public static function collectNumericArrayRequestVar($key, $src=null)
 	{
-		$result = filter_input_array(INPUT_GET, array($key => FILTER_VALIDATE_FLOAT), FILTER_NULL_ON_FAILURE);
-		if ($result===null || $result===false) {
-			$result = filter_input_array(INPUT_POST, array($key => FILTER_VALIDATE_FLOAT), FILTER_NULL_ON_FAILURE);
+		if ($src===null) {
+			$src = array_merge($_GET, $_POST);
 		}
-		if ($result===null || $result===false) {
-			return (array());
+		if (!array_key_exists($key, $src)) {
+			return (null);
 		}
-		return ($result);
+		$arr = filter_var($src[$key], FILTER_VALIDATE_FLOAT, FILTER_FORCE_ARRAY);
+		if (!is_array($arr)) {
+			return (null);
+		}
+		return (array_values(array_filter($arr)));
 	}
 
 	/**

@@ -60,6 +60,9 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 		$this->assertNull(Validation::parseInteger(null));
 	}
 
+	/**
+	 * @throws \Littled\Exception\ContentValidationException
+	 */
 	public function testValidateDateString()
 	{
 		$d = Validation::validateDateString('2016-03-15');
@@ -86,5 +89,69 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 		catch (\Littled\Exception\ContentValidationException $ex) {
 			$this->assertEquals("Unrecognized date value.", $ex->getMessage(), "F d, y format");
 		}
+	}
+
+	public function testCollectIntegerArrayRequestVar()
+	{
+		$src = array('int' => 44,
+			'float' => 208.04,
+			'int_array' => array(5, 6, 8, 3),
+			'float_array' => array(1.5, 0.36, 10.05),
+			'mixed_array' => array(4.5, 'test value', 10, 22.6));
+		$result = Validation::collectIntegerArrayRequestVar('int', $src);
+		$this->assertEquals(1, count($result));
+		$this->assertEquals($src['int'], $result[0]);
+
+		$result = Validation::collectIntegerArrayRequestVar('float', $src);
+		$this->assertEquals(0, count($result));
+
+		$result = Validation::collectIntegerArrayRequestVar('int_array', $src);
+		$this->assertEquals(4, count($result));
+		$this->assertEquals($src['int_array'][0], $result[0]);
+		$this->assertEquals($src['int_array'][1], $result[1]);
+		$this->assertEquals($src['int_array'][2], $result[2]);
+		$this->assertEquals($src['int_array'][3], $result[3]);
+
+		$result = Validation::collectIntegerArrayRequestVar('float_array', $src);
+		$this->assertEquals(0, count($result));
+
+		$result = Validation::collectIntegerArrayRequestVar('mixed_array', $src);
+		$this->assertEquals(1, count($result));
+		$this->assertEquals($src['mixed_array'][2], $result[0]);
+	}
+
+	public function testCollectNumericArrayRequestVar()
+	{
+		$src = array('int' => 44,
+			'float' => 208.04,
+			'int_array' => array(5, 6, 8, 3),
+			'float_array' => array(1.5, 0.36, 10.05),
+			'mixed_array' => array(4.5, 'test value', 10, 22.6));
+		$result = Validation::collectNumericArrayRequestVar('int', $src);
+		$this->assertEquals(1, count($result));
+		$this->assertEquals($src['int'], $result[0]);
+
+		$result = Validation::collectNumericArrayRequestVar('float', $src);
+		$this->assertEquals(1, count($result));
+		$this->assertEquals($src['float'], $result[0]);
+
+		$result = Validation::collectNumericArrayRequestVar('int_array', $src);
+		$this->assertEquals(4, count($result));
+		$this->assertEquals($src['int_array'][0], $result[0]);
+		$this->assertEquals($src['int_array'][1], $result[1]);
+		$this->assertEquals($src['int_array'][2], $result[2]);
+		$this->assertEquals($src['int_array'][3], $result[3]);
+
+		$result = Validation::collectNumericArrayRequestVar('float_array', $src);
+		$this->assertEquals(3, count($result));
+		$this->assertEquals($src['float_array'][0], $result[0]);
+		$this->assertEquals($src['float_array'][1], $result[1]);
+		$this->assertEquals($src['float_array'][2], $result[2]);
+
+		$result = Validation::collectNumericArrayRequestVar('mixed_array', $src);
+		$this->assertEquals(3, count($result));
+		$this->assertEquals($src['mixed_array'][0], $result[0]);
+		$this->assertEquals($src['mixed_array'][2], $result[1]);
+		$this->assertEquals($src['mixed_array'][3], $result[2]);
 	}
 }
