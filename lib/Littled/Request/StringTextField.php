@@ -18,7 +18,7 @@ class StringTextField extends StringInput
 	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
-	function render( $label=null,  $css_class='' )
+	public function render( $label=null,  $css_class='' )
 	{
 		parent::render($label, $css_class);
 		if ($label===null) { $label=$this->label;}
@@ -33,7 +33,7 @@ class StringTextField extends StringInput
 	 * Renders the corresponding form field with a label to collect the input data.
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
-	function renderInput()
+	public function renderInput()
 	{
 		PageContent::render(self::$template_base_path."string-text-input.php", array(
 			'input' => &$this

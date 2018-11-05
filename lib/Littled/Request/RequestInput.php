@@ -257,7 +257,6 @@ class RequestInput
 
 	/**
 	 * Validates the object's current value stored in its $value property.
-	 * @returns True if no validation errors are found.
 	 * @throws ContentValidationException
 	 */
 	public function validate()
@@ -267,6 +266,5 @@ class RequestInput
 				$this->throwValidationError(ucfirst($this->label)." is required.");
 			}
 		}
-		return (true);
 	}
 }

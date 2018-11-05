@@ -59,7 +59,6 @@ class IntegerInput extends RequestInput
 
 	/**
 	 * Validates the object's current value stored in its $value property.
-	 * @returns True if no validation errors are found.
 	 * @throws \Littled\Exception\ContentValidationException
 	 */
 	public function validate()
@@ -68,6 +67,5 @@ class IntegerInput extends RequestInput
 		if (($this->isEmpty()===false) && (Validation::parseInteger($this->value)===null)) {
 			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
 		}
-		return (true);
 	}
 }
