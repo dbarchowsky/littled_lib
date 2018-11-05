@@ -12,6 +12,21 @@ use Littled\PageContent\PageContent;
 class URLTextField extends StringTextField
 {
 	/**
+	 * URLTextField constructor.
+	 * Override parent to set a default field length of 255 characters. This can be overridden if needed.
+	 * @param string $label Label to display in the browser for the form input.
+	 * @param string $param Variable name used to pass the value in the form or request data.
+	 * @param bool[optional] $required Flag indicating that a value is required for this element in the form. Defaults to FALSE.
+	 * @param string|null[optional] $value Value entered in the form for this property. Defaults to NULL.
+	 * @param int[optional] $size_limit Size limit of the field in the form element and in the database.
+	 * @param int|null[optional] $index Indicates that there are multiple values entered for this property.
+	 */
+	function __construct($label, $param, $required = false, $value = null, $size_limit = 255, $index = null)
+	{
+		parent::__construct($label, $param, $required, $value, $size_limit, $index);
+	}
+
+	/**
 	 * Returns string containing HTML to render the input elements in a form.
 	 * @param string $label Text to display as the label for the form input.
 	 * A null value will cause the internal label value to be used. An empty
