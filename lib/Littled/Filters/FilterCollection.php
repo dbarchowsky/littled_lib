@@ -204,7 +204,7 @@ class FilterCollection extends MySQLConnection
 	 */
 	public function formatQueryString ($exclude=null )
 	{
-		$excluded_properties = array('rec_count', 'page_count');
+		$excluded_properties = array('recordCount', 'pageCount');
 		$qs_array = array();
 		$this->queryString = "";
 		foreach($this as $key => $filter) {
@@ -231,7 +231,7 @@ class FilterCollection extends MySQLConnection
 		$this->formatQueryClause();
 
 		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` ".
-			"FROM `album` a ".
+			"FROM `".self::TABLE_NAME()."` a ".
 			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
 			$this->sqlClause;
 		$data = $this->fetchRecords($query);

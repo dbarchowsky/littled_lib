@@ -103,8 +103,8 @@ class AlbumFilters extends FilterCollection
 
 		$query = $this->formatListingsSelectQuery();
 		$query .= <<<SQL
-ORDER BY a.slot, a.id DESC 
-{$lower_limit}{$upper_limit}
+ORDER BY IFNULL(a.slot,999999) ASC, IFNULL(a.release_date,'1980-01-01') DESC, a.id DESC 
+LIMIT {$lower_limit},{$upper_limit}
 SQL;
 		return ($query);
 	}
@@ -350,13 +350,7 @@ SQL;
 	{
 		$data = array();
 		try {
-			list($lower_limit, $upper_limit) = $this->getQueryLimits();
-			$query = $this->formatListingsQuery();
-			$query .= <<<SQL
-ORDER BY IFNULL(a.slot,999999) ASC, IFNULL(a.release_date,'1980-01-01') DESC, a.id DESC 
-LIMIT {$lower_limit},{$upper_limit}
-SQL;
-			$data = $this->fetchRecords($query);
+			return($this->fetchRecords($this->formatListingsQuery()));
 		}
 		catch(\Exception $ex) {
 			print("<div class=\"alert alert-error\">Error retrieving listings: ".$ex->getMessage());
