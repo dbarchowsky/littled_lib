@@ -120,7 +120,7 @@ class FilterCollection extends MySQLConnection
 	 */
 	function collectFilterValues($save_filters=true)
 	{
-		$excluded_properties = array("display_listings");
+		$excluded_properties = array("displayListings");
 
 		$this->referringURL = Validation::collectRequestVar(self::REFERRING_URL_PARAM);
 
@@ -301,7 +301,7 @@ class FilterCollection extends MySQLConnection
 		if ($exclude==null) {
 			$exclude = array();
 		}
-		$exclude = $exclude + array('rec_count', 'page_count');
+		$exclude = $exclude + array('recordCount', 'pageCount');
 		foreach($this as $key => $filter) {
 			/** @var ContentFilter $filter */
 			if ($filter instanceof ContentFilter) {
