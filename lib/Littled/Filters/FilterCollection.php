@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Filters;
 
-use Littled\Database\MySQLConnection;
+use Littled\Database\AppContentBase;
 use Littled\Exception\NotImplementedException;
 use Littled\PageContent\PageUtils;
 use Littled\Validation\Validation;
@@ -12,7 +12,7 @@ use Littled\Validation\Validation;
  * Filter collection base class, inherits from db_connection_class
  * @package Littled\Filters
  */
-class FilterCollection extends MySQLConnection
+class FilterCollection extends AppContentBase
 {
 	/** @var BooleanContentFilter Flag to suppress the display of the listings. */
 	public $displayListings;

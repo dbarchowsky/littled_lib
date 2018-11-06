@@ -26,7 +26,7 @@ class ContentFilters extends FilterCollection
 	 */
 	public static function CONTENT_TYPE_ID()
 	{
-		throw new NotImplementedException(get_called_class()."::".__FUNCTION__." not implemented.");
+		throw new NotImplementedException(self::getMethodDescriptor()." not implemented.");
 	}
 
 	/**

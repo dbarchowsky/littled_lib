@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-use Littled\Database\MySQLConnection;
+use Littled\Database\AppContentBase;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
@@ -15,7 +15,7 @@ use Littled\Request\StringInput;
  * Class SerializedContentUtils
  * @package Littled\PageContent\Serialized
  */
-class SerializedContentUtils extends MySQLConnection
+class SerializedContentUtils extends AppContentBase
 {
 	/** @var array Container for validation error messages. */
 	public $validationErrors;
