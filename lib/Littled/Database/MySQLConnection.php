@@ -186,10 +186,10 @@ class MySQLConnection extends AppBase
 	 * Returns only the first set of results from a query. Intended to be used when calling
 	 * stored procedures that return more than a single set of results, e.g. a rowset plus an integer
 	 * representing the total number of records available.
-	 *
 	 * It is necessary to continue fetching results after calling this method to ensure that all the results have been
 	 * retrieved before executing another query.
 	 * @param string $query Query to execute.
+	 * @return array Data returned from query as an array.
 	 * @throws InvalidQueryException Error executing query.
 	 */
 	public function fetchRecordsNonExhaustive($query)
@@ -208,6 +208,7 @@ class MySQLConnection extends AppBase
 			}
 			$result->free();
 		}
+		return($rs);
 	}
 
 	/**
