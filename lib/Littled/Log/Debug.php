@@ -97,7 +97,7 @@ class Debug
 	 */
 	public static function logVariable( &$var )
 	{
-		$f = fopen(self::LOG_DIR().self::generate_log_filename(), 'a');
+		$f = fopen(self::LOG_DIR().self::generateLogFilename(), 'a');
 		if ($f) {
 			fwrite($f, json_encode($var));
 		}

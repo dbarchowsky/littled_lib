@@ -81,12 +81,12 @@ class PageContentBase extends MySQLConnection
         }
         $this->action = filter_input(INPUT_POST, P_CANCEL, FILTER_SANITIZE_STRING);
         if ($this->action) {
-            $this->action = self::CANCEL_ACTION;
+            $this->action = $this::CANCEL_ACTION;
         }
         else {
             $this->action = filter_input(INPUT_POST, P_COMMIT, FILTER_SANITIZE_STRING);
             if ($this->action) {
-                $this->action = self::COMMIT_ACTION;
+                $this->action = $this::COMMIT_ACTION;
             }
         }
     }

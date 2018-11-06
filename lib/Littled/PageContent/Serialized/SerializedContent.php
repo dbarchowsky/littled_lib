@@ -232,12 +232,13 @@ class SerializedContent extends SerializedContentUtils
 			implode('`,`', array_keys($fields))."` ".
 			"FROM `".$this->TABLE_NAME()."` ".
 			"WHERE id = {$this->id->value}";
-		$data = $this->fetchRecords($query);
-		if (count($data) < 1) {
+		try {
+			$this->hydrateFromQuery($query);
+		}
+		catch(RecordNotFoundException $ex) {
 			$error_msg = "The requested ".$this->TABLE_NAME()." record could not be found.";
 			throw new RecordNotFoundException($error_msg);
 		}
-		$this->hydrateFromQuery($data[0]);
 	}
 
 	/**

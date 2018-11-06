@@ -22,7 +22,7 @@ class StringTextField extends StringInput
 	{
 		parent::render($label, $css_class);
 		if ($label===null) { $label=$this->label;}
-		PageContent::render(self::$template_base_path."string-text-field.php", array(
+		PageContent::render(static::$template_base_path."string-text-field.php", array(
 			'input' => &$this,
 			'label' => $label,
 			'css_class' => $css_class
@@ -35,7 +35,7 @@ class StringTextField extends StringInput
 	 */
 	public function renderInput()
 	{
-		PageContent::render(self::$template_base_path."string-text-input.php", array(
+		PageContent::render(static::$template_base_path."string-text-input.php", array(
 			'input' => &$this
 		));
 	}

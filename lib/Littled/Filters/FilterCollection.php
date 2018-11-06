@@ -59,10 +59,10 @@ class FilterCollection extends AppContentBase
 	function __construct ($param_prefix='')
 	{
 		parent::__construct();
-		$this->page = new IntegerContentFilter("Page", $param_prefix.self::PAGE_PARAM, null, null, self::COOKIE_NAME());
-		$this->listingsLength = new IntegerContentFilter("Page length", $param_prefix.self::LISTINGS_LENGTH_PARAM, null, null, self::COOKIE_NAME());
-		$this->next = new StringContentFilter("Next", $param_prefix.self::NEXT_OPERATION_PARAM, '', 16, self::COOKIE_NAME());
-		$this->displayListings = new BooleanContentFilter("Display listings", $param_prefix.self::FILTER_PARAM, false, null, self::COOKIE_NAME());
+		$this->page = new IntegerContentFilter("Page", $param_prefix.$this::PAGE_PARAM, null, null, $this::COOKIE_NAME());
+		$this->listingsLength = new IntegerContentFilter("Page length", $param_prefix.$this::LISTINGS_LENGTH_PARAM, null, null, $this::COOKIE_NAME());
+		$this->next = new StringContentFilter("Next", $param_prefix.$this::NEXT_OPERATION_PARAM, '', 16, $this::COOKIE_NAME());
+		$this->displayListings = new BooleanContentFilter("Display listings", $param_prefix.$this::FILTER_PARAM, false, null, $this::COOKIE_NAME());
 		$this->referringURL = '';
 	}
 
@@ -72,7 +72,7 @@ class FilterCollection extends AppContentBase
 	 * @param int[optional] $page_len Number of records displayed on the individual pages.
 	 * @return int Total number of pages in the listings.
 	 */
-	function calcPageCount($rec_count=null, $page_len=null )
+	public function calcPageCount($rec_count=null, $page_len=null )
 	{
 		if ($rec_count===null) {
 			$rec_count = $this->recordCount;
@@ -118,11 +118,11 @@ class FilterCollection extends AppContentBase
 	 * @param boolean $save_filters (optional) If set to TRUE, save all filter values in session variables.
 	 * @return void
 	 */
-	function collectFilterValues($save_filters=true)
+	public function collectFilterValues($save_filters=true)
 	{
 		$excluded_properties = array("displayListings");
 
-		$this->referringURL = Validation::collectRequestVar(self::REFERRING_URL_PARAM);
+		$this->referringURL = Validation::collectRequestVar($this::REFERRING_URL_PARAM);
 
 		foreach ($this as $key => &$filter) {
 			if (($filter instanceof ContentFilter) && (!in_array($key, $excluded_properties))) {
@@ -136,7 +136,7 @@ class FilterCollection extends AppContentBase
 		if ($save_filters) {
 			foreach ($this as $key => &$filter) {
 				if (($filter instanceof ContentFilter) && (!in_array($key, $excluded_properties))) {
-					$_SESSION[self::COOKIE_NAME][$filter->key] = $filter->value;
+					$_SESSION[$this::COOKIE_NAME][$filter->key] = $filter->value;
 				}
 			}
 		}
@@ -231,7 +231,7 @@ class FilterCollection extends AppContentBase
 		$this->formatQueryClause();
 
 		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` ".
-			"FROM `".self::TABLE_NAME()."` a ".
+			"FROM `".$this::TABLE_NAME()."` a ".
 			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
 			$this->sqlClause;
 		$data = $this->fetchRecords($query);

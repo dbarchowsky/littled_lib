@@ -92,7 +92,7 @@ class ContentAjaxProperties extends SerializedContent
 		if ($this->section_id->value===null || $this->section_id->value < 1) {
 			return;
 		}
-		$query = "SELECT * FROM `".self::TABLE_NAME()."` WHERE `section_id` = {$this->section_id->value}";
+		$query = "SEL"."ECT * FROM `".$this::TABLE_NAME()."` WHERE `section_id` = {$this->section_id->value}";
 		$this->hydrateFromQuery($query);
 	}
 }

@@ -3,6 +3,7 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\Database\AppContentBase;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
@@ -75,9 +76,24 @@ class SerializedContentUtils extends AppContentBase
 
 	/**
 	 * Assign values contained in array to object input properties.
-	 * @param array $row Row returned by mysql query.
+	 * @param string $query SQL SELECT statement to use to hydrate object property values.
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	protected function hydrateFromQuery(&$row )
+	protected function hydrateFromQuery( $query )
+	{
+		$data = $this->fetchRecords($query);
+		if (count($data[0]) < 1) {
+			throw new RecordNotFoundException("Record not found.");
+		}
+		$this->hydrateFromRecordsetRow($data[0]);
+	}
+
+	/**
+	 * Assign values contained in array to object input properties.
+	 * @param object $row Object
+	 */
+	protected function hydrateFromRecordsetRow( &$row )
 	{
 		$used_keys = array();
 		foreach ($this as $key => &$item) {

@@ -80,15 +80,15 @@ class ImageBase extends SerializedContent
 	{
 		parent::__construct($id);
 		$this->id->label = "Image id";
-		$this->id->key = $key_prefix.self::vars['id'];
+		$this->id->key = $key_prefix.$this::vars['id'];
 		$this->id->index = $index;
-		$this->path = new StringInput("Image path", $key_prefix.self::vars['path'], true, $path, 255, $index);
-		$this->width = new IntegerInput("Image width", $key_prefix.self::vars['width'], false, $width, $index);
-		$this->height = new IntegerInput("Image height", $key_prefix.self::vars['height'], false, $height, $index);
-		$this->alt = new StringTextField("Alt tag", $key_prefix.self::vars['alt'], false, $alt, 255, $index);
-		$this->url = new StringTextField("URL", $key_prefix.self::vars['url'], false, $url, 255, $index);
-		$this->target = new StringTextField("Target", $key_prefix.self::vars['target'], false, $target, 16, $index);
-		$this->caption = new StringTextarea("Caption", $key_prefix.self::vars['caption'], false, $caption, 400, $index);
+		$this->path = new StringInput("Image path", $key_prefix.$this::vars['path'], true, $path, 255, $index);
+		$this->width = new IntegerInput("Image width", $key_prefix.$this::vars['width'], false, $width, $index);
+		$this->height = new IntegerInput("Image height", $key_prefix.$this::vars['height'], false, $height, $index);
+		$this->alt = new StringTextField("Alt tag", $key_prefix.$this::vars['alt'], false, $alt, 255, $index);
+		$this->url = new StringTextField("URL", $key_prefix.$this::vars['url'], false, $url, 255, $index);
+		$this->target = new StringTextField("Target", $key_prefix.$this::vars['target'], false, $target, 16, $index);
+		$this->caption = new StringTextarea("Caption", $key_prefix.$this::vars['caption'], false, $caption, 400, $index);
 		$this->key_prefix = $key_prefix;
 		$this->image_dir = $image_dir;
 	}
@@ -255,7 +255,7 @@ class ImageBase extends SerializedContent
 	 */
 	public function setPrefix( $prefix )
 	{
-		foreach(self::vars as $property => $default_name) {
+		foreach($this::vars as $property => $default_name) {
 			if (property_exists($this, $property) && $this->$property instanceof RequestInput) {
 				$this->$property->key = $prefix.$default_name;
 			}

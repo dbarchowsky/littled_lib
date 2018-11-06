@@ -144,7 +144,7 @@ class RequestInput
 	{
 		if ($label===null) { $label=$this->label;}
 		if (strlen($label) > 0 && $this->displayPlaceholder===false) {
-			return (PageContent::loadTemplateContent(self::$template_base_path."form-input-label.php", array(
+			return (PageContent::loadTemplateContent(static::$template_base_path."form-input-label.php", array(
 				'label' => $label,
 				'input' => &$this
 			)));
@@ -158,7 +158,7 @@ class RequestInput
 	 */
 	public static function getTemplatePath()
 	{
-		return (self::$template_base_path);
+		return (static::$template_base_path);
 	}
 
 	/**
@@ -205,7 +205,7 @@ class RequestInput
 	 */
 	public function saveInForm()
 	{
-		PageContent::render(self::$template_base_path."hidden-input.php", array(
+		PageContent::render(static::$template_base_path."hidden-input.php", array(
 			'key' => $this->key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
@@ -240,7 +240,7 @@ class RequestInput
 	 */
 	public static function setTemplatePath( $path )
 	{
-		self::$template_base_path = $path;
+		static::$template_base_path = $path;
 	}
 
 	/**

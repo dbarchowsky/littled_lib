@@ -56,7 +56,7 @@ class AlbumViewer extends SocialXPostAlbum
 		parent::__construct($content_type_id, $page_content_type_id);
 		$this->pageContentTypeID = &$this->gallery->siteSection->id->value;
 		$this->imagePath = $image_dir;
-		$this->id->key = self::ID_PARAM;
+		$this->id->key = $this::ID_PARAM;
 		$this->direction = new StringInput("Direction", "op", false, "", 10);
 
 		/* storage for albums's content type name used by ajax scripts to specify "category" in Google Analytics calls */
@@ -110,7 +110,7 @@ class AlbumViewer extends SocialXPostAlbum
 	{
 		$this->id->collectFromInput($src);
 		if ($this->id->value===null) {
-			$this->id->value = Validation::collectIntegerRequestVar(self::BOOK_PARAM, null, $src);
+			$this->id->value = Validation::collectIntegerRequestVar($this::BOOK_PARAM, null, $src);
 		}
 		$this->pages[0]->id->collectFromInput($src);
 		$this->direction->collectFromInput($src);
@@ -189,11 +189,7 @@ AND (DATEDIFF(il.`release_date`, NOW())<=0)
 ORDER BY IFNULL(il.page_number,999999) ASC, il.slot ASC, il.id ASC 
 LIMIT 4
 SQL;
-		$data = $this->fetchRecords($query);
-		if (count($data) < 0) {
-			throw new RecordNotFoundException("No pages are available.");
-		}
-		$this->hydrateFromQuery($data);
+		$this->hydrateFromQuery($query);
 		$this->markLimits();
 	}
 
@@ -276,7 +272,7 @@ AND
 ) 
 ORDER BY IFNULL(il.page_number,999999) ASC, il.slot ASC, il.id ASC 
 SQL;
-		if ($this->direction->value == self::PAGE_BACK) {
+		if ($this->direction->value == $this::PAGE_BACK) {
 			/* going backwards no need to preload extra images */
 			$query .= "LIMIT 2 ";
 		}
@@ -284,12 +280,8 @@ SQL;
 			/* going forward send next two images for preload */
 			$query .= "LIMIT 4 ";
 		}
-		$data = $this->fetchRecords($query);
-
-		if (count($data) > 0) {
-			$this->hydrateFromQuery($data[0]);
-			$this->markLimits();
-		}
+		$this->hydrateFromQuery($query);
+		$this->markLimits();
 	}
 
 	/**
@@ -393,10 +385,10 @@ SQL;
 		if ($slot===null) {
 			$slot = 0;
 		}
-		if ($this->direction->value==self::PAGE_BACK) {
+		if ($this->direction->value==$this::PAGE_BACK) {
 			$this->loadPreviousPageSet($page, $slot);
 		}
-		elseif ($this->direction->value==self::PAGE_FORWARD) {
+		elseif ($this->direction->value==$this::PAGE_FORWARD) {
 			$this->loadNextPageSet($page, $slot);
 		}
 		else {
@@ -412,12 +404,15 @@ SQL;
 
 	/**
 	 * Fills the page members of the class with the current recordset.
-	 * @param mixed $data Data to use to hydrate object property values.
+	 * @param string $query SQL SELECT statement to use to hydrate object property values.
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	protected function hydrateFromQuery( &$data )
+	protected function hydrateFromQuery( $query )
 	{
+		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
-			return;
+			throw new RecordNotFoundException("Pages not found.");
 		}
 
 		$index = 0;
@@ -425,8 +420,7 @@ SQL;
 		if (
 			($row->page_number===null && $row->slot===null) ||
 			($row->page_number===null && ($row->slot%2)==0) ||
-			($row->page_number%2)==0)
-		{
+			($row->page_number%2)==0) {
 			/* load first record into left-hand page */
 			$this->hydratePageFromQuery($this->pages[0], $row);
 
@@ -526,7 +520,7 @@ SQL;
 	protected function isPagingBackInTwoPageLayout()
 	{
 		return ($this->layout->value == $this::$two_page_layout &&
-			($this->direction->value==self::PAGE_BACK || $this->direction->value=="")  &&
+			($this->direction->value==$this::PAGE_BACK || $this->direction->value=="")  &&
 			(($this->pages[0]->page_number->value > 1 && ($this->pages[0]->page_number->value%2)==1)) ||
 			(empty($this->pages[0]->page_number->value) && empty($prev_page) && ($this->pages[0]->slot->value%2)==0));
 	}

@@ -42,10 +42,10 @@ class PageConfig
 	 */
 	public static function addBreadcrumb($label, $url='', $dom_id='', $css_class='')
 	{
-		if (!is_object(self::$breadcrumbs)) {
-			self::$breadcrumbs = new Breadcrumbs();
+		if (!is_object(static::$breadcrumbs)) {
+			static::$breadcrumbs = new Breadcrumbs();
 		}
-		self::$breadcrumbs->addNode($label, $url, $dom_id, $css_class);
+		static::$breadcrumbs->addNode($label, $url, $dom_id, $css_class);
 	}
 
 	/**
@@ -61,10 +61,10 @@ class PageConfig
 	 */
 	public static function addUtilityLink($label, $url='', $target='', $level='', $dom_id='', $attributes='')
 	{
-		if (!is_object(self::$utilityLinks)) {
-			self::$utilityLinks = new NavigationMenu();
+		if (!is_object(static::$utilityLinks)) {
+			static::$utilityLinks = new NavigationMenu();
 		}
-		self::$utilityLinks->addNode($label, $url, $target, $level, $dom_id, $attributes);
+		static::$utilityLinks->addNode($label, $url, $target, $level, $dom_id, $attributes);
 	}
 
 	/**
@@ -72,8 +72,8 @@ class PageConfig
 	 */
 	public static function clearBreadcrumbs()
 	{
-		if (isset(self::$breadcrumbs)) {
-			self::$breadcrumbs->clearNodes();
+		if (isset(static::$breadcrumbs)) {
+			static::$breadcrumbs->clearNodes();
 		}
 	}
 
@@ -82,7 +82,7 @@ class PageConfig
 	 */
 	public static function clearStylesheets( )
 	{
-		self::$stylesheets = array();
+		static::$stylesheets = array();
 	}
 
 	/**
@@ -90,7 +90,7 @@ class PageConfig
 	 */
 	public static function clearScripts( )
 	{
-		self::$scripts = array();
+		static::$scripts = array();
 	}
 
 	/**
@@ -102,7 +102,7 @@ class PageConfig
 		if (!defined('P_MESSAGE')) {
 			throw new ConfigurationUndefinedException("P_MESSAGE not defined in app settings.");
 		}
-		self::$status = Validation::collectStringInput(P_MESSAGE);
+		static::$status = Validation::collectStringInput(P_MESSAGE);
 		if(isset($_SESSION[P_MESSAGE])) {
 			unset($_SESSION[P_MESSAGE]);
 		}
@@ -114,7 +114,7 @@ class PageConfig
 	 */
 	public static function getContentCSSClass()
 	{
-		return(self::$contentCSSClass);
+		return(static::$contentCSSClass);
 	}
 
 	/**
@@ -124,7 +124,7 @@ class PageConfig
 	public static function getDescription()
 	{
 		self::metadata();
-		return(self::$metadata->description);
+		return(static::$metadata->description);
 	}
 
 	/**
@@ -134,7 +134,7 @@ class PageConfig
 	public static function getKeywords()
 	{
 		self::metadata();
-		return(self::$metadata->keywords);
+		return(static::$metadata->keywords);
 	}
 
 	/**
@@ -144,7 +144,7 @@ class PageConfig
 	public static function getMetaTitle()
 	{
 		self::metadata();
-		return(self::$metadata->meta_title);
+		return(static::$metadata->meta_title);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class PageConfig
 	 */
 	public static function getPageStatus()
 	{
-		return(self::$status);
+		return(static::$status);
 	}
 
 	/**
@@ -163,7 +163,7 @@ class PageConfig
 	public static function getPageTitle()
 	{
 		self::metadata();
-		return(self::$metadata->title);
+		return(static::$metadata->title);
 	}
 
 	/**
@@ -173,7 +173,7 @@ class PageConfig
 	public static function getSiteLabel()
 	{
 		self::metadata();
-		return(self::$metadata->site_label);
+		return(static::$metadata->site_label);
 	}
 
 	/**
@@ -181,8 +181,8 @@ class PageConfig
 	 */
 	public static function metadata()
 	{
-		if (!is_object(self::$metadata)) {
-			self::$metadata = new PageMetadata();
+		if (!is_object(static::$metadata)) {
+			static::$metadata = new PageMetadata();
 		}
 	}
 
@@ -192,7 +192,7 @@ class PageConfig
 	 */
 	public static function registerPreload($src)
 	{
-		array_push(self::$preloads, $src);
+		array_push(static::$preloads, $src);
 	}
 
 	/**
@@ -201,7 +201,7 @@ class PageConfig
 	 */
 	public static function registerScript($src)
 	{
-		array_push(self::$scripts, $src);
+		array_push(static::$scripts, $src);
 	}
 
 	/**
@@ -210,7 +210,7 @@ class PageConfig
 	 */
 	public static function registerStylesheet($src)
 	{
-		array_push(self::$stylesheets, $src);
+		array_push(static::$stylesheets, $src);
 	}
 
 	/**
@@ -218,10 +218,10 @@ class PageConfig
 	 */
 	public static function renderBreadcrumbs()
 	{
-		if (!is_object(self::$breadcrumbs)) {
+		if (!is_object(static::$breadcrumbs)) {
 			return;
 		}
-		self::$breadcrumbs->render();
+		static::$breadcrumbs->render();
 	}
 
 	/**
@@ -229,10 +229,10 @@ class PageConfig
 	 */
 	public static function renderUtilityLinks()
 	{
-		if (!is_object(self::$utilityLinks)) {
+		if (!is_object(static::$utilityLinks)) {
 			return;
 		}
-		self::$utilityLinks->render();
+		static::$utilityLinks->render();
 	}
 
 	/**
@@ -241,10 +241,10 @@ class PageConfig
 	 */
 	public static function setBreadcrumbsCssClass($css_class)
 	{
-		if (self::$breadcrumbs===null) {
+		if (static::$breadcrumbs===null) {
 			return;
 		}
-		self::$breadcrumbs->setCSSClass($css_class);
+		static::$breadcrumbs->setCSSClass($css_class);
 	}
 
 	/**
@@ -253,7 +253,7 @@ class PageConfig
 	 */
 	public static function setContentCSSClass($css_class)
 	{
-		self::$contentCSSClass = $css_class;
+		static::$contentCSSClass = $css_class;
 	}
 
 	/**
@@ -263,7 +263,7 @@ class PageConfig
 	public static function setDescription($description )
 	{
 		self::metadata();
-		self::$metadata->description = $description;
+		static::$metadata->description = $description;
 	}
 
 	/**
@@ -272,10 +272,10 @@ class PageConfig
 	 */
 	public static function setLinkAttributes($attributes)
 	{
-		if (!is_object(self::$utilityLinks)) {
+		if (!is_object(static::$utilityLinks)) {
 			return;
 		}
-		self::$utilityLinks->last->attributes = $attributes;
+		static::$utilityLinks->last->attributes = $attributes;
 	}
 
 	/**
@@ -289,7 +289,7 @@ class PageConfig
 			throw new \Exception("[".__METHOD__."] \$keywords parameter expects array.");
 		}
 		self::metadata();
-		self::$metadata->keywords = $keywords;
+		static::$metadata->keywords = $keywords;
 	}
 
 	/**
@@ -299,7 +299,7 @@ class PageConfig
 	public static function setMetaTitle($meta_title)
 	{
 		self::metadata();
-		self::$metadata->meta_title = $meta_title;
+		static::$metadata->meta_title = $meta_title;
 	}
 
 	/**
@@ -309,7 +309,7 @@ class PageConfig
 	public static function setPageTitle($title)
 	{
 		self::metadata();
-		self::$metadata->title = $title;
+		static::$metadata->title = $title;
 	}
 
 	/**
@@ -319,7 +319,7 @@ class PageConfig
 	public static function setSiteLabel($site_label)
 	{
 		self::metadata();
-		self::$metadata->site_label = $site_label;
+		static::$metadata->site_label = $site_label;
 	}
 
 	/**
@@ -328,10 +328,10 @@ class PageConfig
 	 */
 	public static function setUtilityLinksCssClass($css_class)
 	{
-		if (self::$utilityLinks===null) {
+		if (static::$utilityLinks===null) {
 			return;
 		}
-		self::$utilityLinks->setCSSClass($css_class);
+		static::$utilityLinks->setCSSClass($css_class);
 	}
 
 	/**
@@ -340,12 +340,12 @@ class PageConfig
 	 */
 	public static function unregisterScript($src)
 	{
-		for($i=0; $i < count(self::$scripts); $i++) {
-			if (self::$scripts[$i] == $src) {
-				unset(self::$scripts[$i]);
+		for($i=0; $i < count(static::$scripts); $i++) {
+			if (static::$scripts[$i] == $src) {
+				unset(static::$scripts[$i]);
 			}
 		}
-		self::$scripts = array_values(self::$scripts);
+		static::$scripts = array_values(static::$scripts);
 	}
 
 	/**
@@ -354,11 +354,11 @@ class PageConfig
 	 */
 	public static function unregisterStylesheet($src)
 	{
-		for($i=0; $i < count(self::$stylesheets); $i++) {
-			if (self::$stylesheets[$i] == $src) {
-				unset(self::$stylesheets[$i]);
+		for($i=0; $i < count(static::$stylesheets); $i++) {
+			if (static::$stylesheets[$i] == $src) {
+				unset(static::$stylesheets[$i]);
 			}
 		}
-		self::$stylesheets = array_values(self::$stylesheets);
+		static::$stylesheets = array_values(static::$stylesheets);
 	}
 }

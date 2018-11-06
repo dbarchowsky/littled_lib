@@ -27,11 +27,11 @@ class SocialAlbumFilters extends AlbumFilters
 	{
 		parent::__construct($content_type_id, $page_content_type_id, $default_page_len);
 
-		$this->posted_to_wordpress = new IntegerContentFilter("posted to wordpress", "fawp", null, 0, self::COOKIE_NAME);
-		$this->posted_to_flickr = new IntegerContentFilter("posted to flickr", "fafk", null, 0, self::COOKIE_NAME);
-		$this->posted_to_twitter = new IntegerContentFilter("posted to twitter", "fatw", null, 0, self::COOKIE_NAME);
-		$this->posted_to_facebook = new IntegerContentFilter("posted to facebook", "fafb", null, 0, self::COOKIE_NAME);
-		$this->posted_to_tumblr = new IntegerContentFilter("posted to tumblr", "fatm", null, 0, self::COOKIE_NAME);
+		$this->posted_to_wordpress = new IntegerContentFilter("posted to wordpress", "fawp", null, 0, $this::COOKIE_NAME);
+		$this->posted_to_flickr = new IntegerContentFilter("posted to flickr", "fafk", null, 0, $this::COOKIE_NAME);
+		$this->posted_to_twitter = new IntegerContentFilter("posted to twitter", "fatw", null, 0, $this::COOKIE_NAME);
+		$this->posted_to_facebook = new IntegerContentFilter("posted to facebook", "fafb", null, 0, $this::COOKIE_NAME);
+		$this->posted_to_tumblr = new IntegerContentFilter("posted to tumblr", "fatm", null, 0, $this::COOKIE_NAME);
 	}
 
 	/**

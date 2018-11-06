@@ -94,14 +94,14 @@ class ImageLink extends KeywordSectionContent
 	function __construct ($image_dir="", $param_prefix="", $section_id=null, $parent_id=null, $id=null, $image_id=null, $path=null, $width=null, $height=null, $alt_tag="", $url=null, $target=null, $caption="", $slot=null, $access="public")
 	{
 		parent::__construct($section_id, $param_prefix);
-		$this->id = new IntegerInput("ID", $param_prefix.self::vars['id'], false, $id);
-		$this->parent_id = new IntegerInput("Image parent", $param_prefix.self::vars['parent_id'], false, $parent_id);
+		$this->id = new IntegerInput("ID", $param_prefix.$this::vars['id'], false, $id);
+		$this->parent_id = new IntegerInput("Image parent", $param_prefix.$this::vars['parent_id'], false, $parent_id);
 		$this->title = new StringTextField("Title", $param_prefix.ImageBase::vars['alt'], false, "", 50);
 		$this->description = new StringTextarea("Description", $param_prefix.ImageBase::vars['caption'], false, "", 1000);
-		$this->slot = new IntegerTextField("Slot", $param_prefix.self::vars['slot'], false, $slot);
-		$this->page_number = new IntegerTextField("Page Number", $param_prefix.self::vars['page_number'], false, null);
-		$this->access = new StringSelect("Access", $param_prefix.self::vars['access'], true, $access, "20");
-		$this->release_date = new DateTextField("Release date", $param_prefix.self::vars['release_date'], false, date("n/j/Y"));
+		$this->slot = new IntegerTextField("Slot", $param_prefix.$this::vars['slot'], false, $slot);
+		$this->page_number = new IntegerTextField("Page Number", $param_prefix.$this::vars['page_number'], false, null);
+		$this->access = new StringSelect("Access", $param_prefix.$this::vars['access'], true, $access, "20");
+		$this->release_date = new DateTextField("Release date", $param_prefix.$this::vars['release_date'], false, date("n/j/Y"));
 		$this->full = new Image(null, $image_dir, $param_prefix, $image_id, $path, $width, $height, $alt_tag, $url, $target, $caption);
 		$this->full->alt->label = "Name";
 		$this->full->caption->label = "Text";
@@ -110,9 +110,9 @@ class ImageLink extends KeywordSectionContent
 
 		$this->siteSection->image_path->value = $image_dir;
 		$this->siteSection->sub_dir->value = "full/";
-		$this->siteSection->id->key = $param_prefix.self::vars['content_type'];
+		$this->siteSection->id->key = $param_prefix.$this::vars['content_type'];
 		$this->type_id = &$this->siteSection->id;
-		$this->randomize = new StringInput("Randomize filename", self::vars['randomize_filename'], false, false);
+		$this->randomize = new StringInput("Randomize filename", $this::vars['randomize_filename'], false, false);
 		$this->randomize->isDatabaseField = false;
 
 		$this->isFirstPage = new BooleanInput("Is first page", "ifp", false, false);
@@ -166,16 +166,16 @@ class ImageLink extends KeywordSectionContent
 	{
 		$this->id->collectFromInput(null, $src);
 		$this->parent_id->collectFromInput(null, $src);
-		if (($this->parent_id->key != self::vars['parent_id']) &&
+		if (($this->parent_id->key != $this::vars['parent_id']) &&
 			($this->parent_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
-			$this->parent_id->collectFromInput(null, $src, self::vars['parent_id']);
+			$this->parent_id->collectFromInput(null, $src, $this::vars['parent_id']);
 		}
 		$this->siteSection->id->collectFromInput();
-		if (($this->type_id->key != self::vars['content_type']) &&
+		if (($this->type_id->key != $this::vars['content_type']) &&
 			($this->type_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
-			$this->type_id->collectFromInput(null, $src, self::vars['content_type']);
+			$this->type_id->collectFromInput(null, $src, $this::vars['content_type']);
 		}
 		$this->randomize->collectFromInput(null, $src);
 	}
@@ -195,9 +195,9 @@ class ImageLink extends KeywordSectionContent
 		}
 
 		$status = "";
-		$status .= self::deleteLinkedImage($this->full, "full-resolution");
-		$status .= self::deleteLinkedImage($this->med, "medium-resolution");
-		$status .= self::deleteLinkedImage($this->mini, "thumbnail");
+		$status .= $this::deleteLinkedImage($this->full, "full-resolution");
+		$status .= $this::deleteLinkedImage($this->med, "medium-resolution");
+		$status .= $this::deleteLinkedImage($this->mini, "thumbnail");
 
 		$query = "CALL keywordDeleteLinked({$this->id->value},{$this->siteSection->id->value});";
 		$this->query($query);
@@ -534,14 +534,14 @@ class ImageLink extends KeywordSectionContent
 	 */
 	public function setPrefix( $prefix )
 	{
-		foreach(self::vars as $property => $default_name) {
+		foreach($this::vars as $property => $default_name) {
 			if (property_exists($this, $property) && $this->$property instanceof RequestInput) {
 				$this->$property->key = $prefix.$default_name;
 			}
 		}
 		$this->title->key = ImageBase::vars['alt'];
 		$this->description->key = ImageBase::vars['caption'];
-		$this->siteSection->id->key = self::vars['content_type'];
+		$this->siteSection->id->key = $this::vars['content_type'];
 		$this->full->setPrefix($prefix);
 		$this->med->setPrefix($prefix.'md');
 		$this->mini->setPrefix($prefix.'mn');

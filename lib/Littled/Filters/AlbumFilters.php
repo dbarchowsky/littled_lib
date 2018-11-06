@@ -55,13 +55,13 @@ class AlbumFilters extends FilterCollection
 	{
 		parent::__construct();
 
-		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, 50, "", self::COOKIE_NAME);
-		$this->title = new StringContentFilter("title", "fati", 50, "", self::COOKIE_NAME);
+		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, 50, "", $this::COOKIE_NAME);
+		$this->title = new StringContentFilter("title", "fati", 50, "", $this::COOKIE_NAME);
 		$this->name = &$this->title;
-		$this->date = new StringContentFilter("date", "fadt", 20, "", self::COOKIE_NAME);
-		$this->access = new StringContentFilter("access", "faac", 20, "", self::COOKIE_NAME);
-		$this->releaseAfter = new StringContentFilter("released after", self::RELEASED_AFTER_PARAM, 20, "", self::COOKIE_NAME);
-		$this->releaseBefore = new StringContentFilter("released before", self::RELEASED_BEFORE_PARAM, 20, "", self::COOKIE_NAME);
+		$this->date = new StringContentFilter("date", "fadt", 20, "", $this::COOKIE_NAME);
+		$this->access = new StringContentFilter("access", "faac", 20, "", $this::COOKIE_NAME);
+		$this->releaseAfter = new StringContentFilter("released after", $this::RELEASED_AFTER_PARAM, 20, "", $this::COOKIE_NAME);
+		$this->releaseBefore = new StringContentFilter("released before", $this::RELEASED_BEFORE_PARAM, 20, "", self::COOKIE_NAME);
 		$this->slot = new IntegerContentFilter("slot", "fasl", null, 0, self::COOKIE_NAME);
 
 		$this->siteSection = new ContentProperties($content_type_id);

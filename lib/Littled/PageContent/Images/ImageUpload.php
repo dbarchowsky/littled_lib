@@ -54,7 +54,7 @@ class ImageUpload extends ImageLink
 		}
 		$this->new_name = new StringInput("Replace name", "rn", false, "", 100);
 		$this->page = new StringInput("Page", "pg", false, "", 50);
-		$this->upload_type = new StringInput("Upload Type", self::UPLOAD_TYPE_PARAM, false, "", 50);
+		$this->upload_type = new StringInput("Upload Type", $this::UPLOAD_TYPE_PARAM, false, "", 50);
 
 		$this->parent_id->required = false;
 	}
