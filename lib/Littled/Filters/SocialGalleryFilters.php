@@ -20,10 +20,11 @@ class SocialGalleryFilters extends GalleryFilters
 
 	/**
 	 * class constructor
-	 * @param integer[optional] $default_page_len (Optional) Length of the pages of listings.
+	 * @param int|null[optional] $content_type_id Content type identifier, corresponds to site_section record.
+	 * @param int[optional] $default_page_len Length of the pages of listings.
 	 * @throws \Exception Error establishing database connection.
 	 */
-	function __construct ( $default_page_len=10 )
+	function __construct ( $content_type_id=null, $default_page_len=10 )
 	{
 		parent::__construct($default_page_len);
 		$this->onWordpress = new BooleanContentFilter("posted on wordpress", "gfwp", null, self::COOKIE_NAME);
