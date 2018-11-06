@@ -65,8 +65,8 @@ class GalleryFilters extends ContentFilters
 
 		$this->defaultPageLength = $default_page_len;
 
-		$this->albumId = new IntegerContentFilter("album", self::ALBUM_PARAM, null, null, self::COOKIE_NAME);
-		$this->title = new StringContentFilter("title", "filti", '', 50, self::COOKIE_NAME);
+		$this->albumId = new IntegerContentFilter("album", $this::ALBUM_PARAM, null, null, $this::COOKIE_NAME);
+		$this->title = new StringContentFilter("title", "filti", '', 50, $this::COOKIE_NAME);
 
 		/**
 		 * N.B. This causes problems in filter_collection_class::preserve_in_form
@@ -75,19 +75,18 @@ class GalleryFilters extends ContentFilters
 		 */
 		$this->name = &$this->title;
 
-		$this->releaseAfter = new DateContentFilter("start date", self::START_DATE_PARAM, '', 20, self::COOKIE_NAME);
-		$this->releaseBefore = new DateContentFilter("end date", self::END_DATE_PARAM, '', 20, self::COOKIE_NAME);
-		$this->access = new StringContentFilter("access", self::ACCESS_PARAM, '', 20, self::COOKIE_NAME);
-		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, '', 50, self::COOKIE_NAME);
-		$this->slot = new IntegerContentFilter("page", self::SLOT_PARAM, null, null, self::COOKIE_NAME);
+		$this->releaseAfter = new DateContentFilter("start date", $this::START_DATE_PARAM, '', 20, $this::COOKIE_NAME);
+		$this->releaseBefore = new DateContentFilter("end date", $this::END_DATE_PARAM, '', 20, $this::COOKIE_NAME);
+		$this->access = new StringContentFilter("access", $this::ACCESS_PARAM, '', 20, $this::COOKIE_NAME);
+		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, '', 50, $this::COOKIE_NAME);
+		$this->slot = new IntegerContentFilter("page", $this::SLOT_PARAM, null, null, $this::COOKIE_NAME);
 
 		if ($content_type_id===null) {
-			$content_type_id = self::CONTENT_TYPE_ID();
+			$content_type_id = $this::CONTENT_TYPE_ID();
 		}
 		$this->siteSection = new ContentProperties($content_type_id);
 		$this->siteSection->read();
 	}
-
 
 	/**
 	 * Format SQL string containing conditions used to filter down image listings.
