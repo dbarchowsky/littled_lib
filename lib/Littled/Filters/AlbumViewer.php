@@ -62,7 +62,7 @@ class AlbumViewer extends SocialXPostAlbum
 		/* storage for albums's content type name used by ajax scripts to specify "category" in Google Analytics calls */
 		$this->albumType = new StringInput("Album Type", "abtp", "", 50, false);
 		$this->albumType->isDatabaseField = false;
-		$this->albumType->value = &$this->siteSection->name->value;
+		$this->albumType->value = &$this->contentProperties->name->value;
 
 		$this->direction->isDatabaseField = false;
 
@@ -144,7 +144,7 @@ SELECT
 	a.id 
 FROM album a 
 INNER JOIN image_link il ON (a.id = il.parent_id AND il.type_id = {$this->pageContentTypeID}) 
-WHERE (a.section_id = {$this->siteSection->id->value}) 
+WHERE (a.section_id = {$this->contentProperties->id->value}) 
 AND (a.access = 'public') 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.`release_date`, NOW())<=0) 
