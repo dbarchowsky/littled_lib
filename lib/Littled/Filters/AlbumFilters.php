@@ -122,8 +122,8 @@ SELECT a.id
 	, a.description
 	, a.`date` 
 	, a.slot
-	, (SELECT COUNT(*) FROM image_link pub WHERE (pub.parent_id = a.id) AND (pub.type_id = {$this->gallery->siteSection->id->value})) private_pages
-	, (SELECT COUNT(*) FROM image_link pub WHERE (pub.parent_id = a.id) AND (pub.type_id = {$this->gallery->siteSection->id->value}) AND (pub.access LIKE 'public')) public_pages
+	, (SELECT COUNT(*) FROM image_link pub WHERE (pub.parent_id = a.id) AND (pub.type_id = {$this->gallery->contentProperties->id->value})) private_pages
+	, (SELECT COUNT(*) FROM image_link pub WHERE (pub.parent_id = a.id) AND (pub.type_id = {$this->gallery->contentProperties->id->value}) AND (pub.access LIKE 'public')) public_pages
 	, DATE_FORMAT(a.release_date,'%m/%d/%Y') release_date
 	, a.`access`
 	, a.`layout`
