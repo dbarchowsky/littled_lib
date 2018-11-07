@@ -16,32 +16,23 @@ class ContentFilters extends FilterCollection
 	public $contentProperties;
 	/** @var ContentAjaxProperties Ajax properties */
 	public $ajaxProperties;
-	/** @var int Content type id */
-	public $contentTypeId;
-
-	/**
-	 * Intended to be implemented in inherited classes, where they return the value of the content type of that
-	 * particular kind of content.
-	 * @throws NotImplementedException
-	 */
-	public static function CONTENT_TYPE_ID()
-	{
-		throw new NotImplementedException(self::getMethodDescriptor()." not implemented.");
-	}
+	/** @var int $contentTypeID Pointer to contentProperties->id->value for convenience */
+	public $contentTypeID;
 
 	/**
 	 * ContentFilters constructor.
+	 * @param int $content_type_id Content type identifier.
 	 * @param string $param_prefix
 	 * @throws ConfigurationUndefinedException Database connections properties not set.
 	 * @throws \Exception Error retrieving content section properties.
 	 */
-	function __construct( $param_prefix='' )
+	function __construct( $content_type_id, $param_prefix='' )
 	{
 		parent::__construct( $param_prefix );
-		$this->contentTypeId = $this->CONTENT_TYPE_ID();
-		$this->contentProperties = new ContentProperties($this->contentTypeId);
+		$this->contentProperties = new ContentProperties($content_type_id);
+		$this->contentTypeID = &$this->contentProperties->id->value;
 		$this->ajaxProperties = new ContentAjaxProperties();
-		$this->ajaxProperties->section_id->value = $this->contentTypeId;
+		$this->ajaxProperties->section_id->value = $this->contentTypeID;
 		$this->contentProperties->read();
 		$this->ajaxProperties->retrieveSectionProperties();
 	}
@@ -63,7 +54,7 @@ class ContentFilters extends FilterCollection
 	 */
 	public function getContentTypeId()
 	{
-		return ($this->contentTypeId);
+		return ($this->contentTypeID);
 	}
 
 	/**

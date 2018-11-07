@@ -29,8 +29,6 @@ class GalleryFilters extends ContentFilters
 	public $slot;
 	/** @var StringContentFilter Name filter. */
 	public $name;
-	/** @var ContentProperties Content type filters. */
-	public $siteSection;
 	/** @var string URI of details page. */
 	public $detailsURI;
 
@@ -55,13 +53,13 @@ class GalleryFilters extends ContentFilters
 
 	/**
 	 * GalleryFilters constructor
-	 * @param int|null[optional] $content_type_id Content type identifier, corresponds to site_section record.
+	 * @param int $content_type_id Content type identifier, corresponds to site_section record.
 	 * @param int[optional] $default_page_len Length of the pages of listings.
 	 * @throws \Exception
 	 */
 	function __construct ( $content_type_id=null, $default_page_len=10 )
 	{
-		parent::__construct("i");
+		parent::__construct($content_type_id, "i");
 
 		$this->defaultPageLength = $default_page_len;
 
@@ -80,12 +78,6 @@ class GalleryFilters extends ContentFilters
 		$this->access = new StringContentFilter("access", $this::ACCESS_PARAM, '', 20, $this::COOKIE_NAME);
 		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, '', 50, $this::COOKIE_NAME);
 		$this->slot = new IntegerContentFilter("page", $this::SLOT_PARAM, null, null, $this::COOKIE_NAME);
-
-		if ($content_type_id===null) {
-			$content_type_id = $this::CONTENT_TYPE_ID();
-		}
-		$this->siteSection = new ContentProperties($content_type_id);
-		$this->siteSection->read();
 	}
 
 	/**
@@ -96,7 +88,7 @@ class GalleryFilters extends ContentFilters
 	{
 		/* get db connection for the sake of real_escape_string() */
 		$this->connectToDatabase();
-		$this->queryString = "WHERE (il.type_id = {$this->siteSection->id->value}) ";
+		$this->queryString = "WHERE (il.type_id = {$this->contentProperties->id->value}) ";
 		if ($this->albumId->value>0) {
 			$this->queryString .= "AND (il.parent_id = {$this->albumId->value}) ";
 		}
@@ -156,9 +148,9 @@ class GalleryFilters extends ContentFilters
 	public function getContentProperties ($content_type_id=null)
 	{
 		if ($content_type_id>0) {
-			$this->siteSection->id->value = $content_type_id;
+			$this->contentProperties->id->value = $content_type_id;
 		}
-		$this->siteSection->read();
+		$this->contentProperties->read();
 	}
 
 	/**
@@ -168,7 +160,7 @@ class GalleryFilters extends ContentFilters
 	 */
 	public function getDetailsURI()
 	{
-		if ($this->contentTypeId===null || $this->contentTypeId < 1) {
+		if ($this->contentTypeID->id->value===null || $this->contentTypeID< 1) {
 			return('');
 		}
 		$this->connectToDatabase(); /* for the sake of real_escape_string */
@@ -191,8 +183,8 @@ class GalleryFilters extends ContentFilters
 		if ($this->contentProperties->label) {
 			return($this->contentProperties->pluralLabel($count));
 		}
-		if ($this->siteSection->label) {
-			return($this->siteSection->pluralLabel($count));
+		if ($this->contentProperties->label) {
+			return($this->contentProperties->pluralLabel($count));
 		}
 		return ('');
 	}

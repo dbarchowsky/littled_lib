@@ -66,7 +66,7 @@ ECT a.id
     , full.height full_height
 	, IF THEN ELSE END IF
 SQL;
-		if ($this->siteSection->gallery_thumbnail->value == true) {
+		if ($this->contentProperties->gallery_thumbnail->value == true) {
 			$query .= ",".<<<SQL
 	a.tn_id 
 FROM `album` a 
@@ -89,7 +89,7 @@ LEFT JOIN
     INNER JOIN images full ON tn.fullres_id = full.id
     LEFT JOIN images med ON tn.med_id = med.id
     LEFT JOIN images mini ON tn.mini_id = mini.id
-) ON (tn.parent_id = a.id and tn.type_id = {$this->siteSection->id->value}) 
+) ON (tn.parent_id = a.id and tn.type_id = {$this->contentProperties->id->value}) 
 SQL;
 		}
 		return ($query.$this->sqlClause);

@@ -20,13 +20,13 @@ class GalleryPaging extends FilterCollection
 	public $ref;
 
 	/** @var int Content type id. */
-	public $section_id;
+	public $contentTypeID;
 	/** @var int Page content type id. */
-	public $page_section_id;
+	public $pageContentTypeID;
 	/** @var int Next record id in the sequence of pages. */
-	public $next_id;
+	public $nextRecordID;
 	/** @var int Previous record id in the sequence of pages. */
-	public $prev_id;
+	public $previousRecordID;
 
 	/** @var string Cookie key */
 	const COOKIE_NAME = "cmc";
@@ -56,12 +56,12 @@ class GalleryPaging extends FilterCollection
 	function __construct ($content_type_id, $page_content_type_id )
 	{
 		parent::__construct();
-		$this->section_id = $content_type_id;
-		$this->page_section_id = $page_content_type_id;
-		$this->book_id = new IntegerContentFilter("book", self::BOOK_PARAM, null, 0, self::COOKIE_NAME);
-		$this->page_id = new IntegerContentFilter("page", self::PAGE_PARAM, null, 0, self::COOKIE_NAME);
-		$this->menu_page = new IntegerContentFilter("menu", self::MENU_PARAM, null, 0, self::COOKIE_NAME);
-		$this->ref = new StringContentFilter("referer", "ref", "", 200, self::COOKIE_NAME);
+		$this->contentTypeID = $content_type_id;
+		$this->pageContentTypeID = $page_content_type_id;
+		$this->book_id = new IntegerContentFilter("book", $this::BOOK_PARAM, null, 0, $this::COOKIE_NAME);
+		$this->page_id = new IntegerContentFilter("page", $this::PAGE_PARAM, null, 0, $this::COOKIE_NAME);
+		$this->menu_page = new IntegerContentFilter("menu", $this::MENU_PARAM, null, 0, $this::COOKIE_NAME);
+		$this->ref = new StringContentFilter("referer", "ref", "", 200, $this::COOKIE_NAME);
 	}
 
 	/**
@@ -87,15 +87,15 @@ class GalleryPaging extends FilterCollection
 		$this->connectToDatabase();
 		if ($this->page_id->value>0) {
 			/* get a requested page. make sure it's of the correct type */
-			$this->queryString .=
+			$this->sqlClause .=
 				"AND (p.id = {$this->page_id->value}) ".
 				"AND (p.type_id = {$this::$page_content_type_id}) ";
 		}
 		else {
 			/* no page specified - get the first page */
-			$this->queryString .= "ORDER BY IFNULL(p.page_number,999999) ASC, IFNULL(p.slot,999999) ASC LIMIT 1";
+			$this->sqlClause.= "ORDER BY IFNULL(p.page_number,999999) ASC, IFNULL(p.slot,999999) ASC LIMIT 1";
 		}
-		$this->queryString =
+		$this->sqlClause =
 			"WHERE (b.id = {$this->book_id->value}) ".
 			"AND (b.section_id = {$this::$content_type_id}) ".
 			"AND (b.access='public') AND (p.access='public') ".
@@ -148,7 +148,7 @@ INNER JOIN
 (
 	image_link il INNER JOIN images tn ON il.fullres_id = tn.id
 ) ON c.tn_id = il.id 
-WHERE (c.section_id = {$this::$content_type_id}) 
+WHERE (c.section_id = {$this->contentTypeID}) 
 AND (c.access = 'public') 
 AND (DATEDIFF(c.release_date, '{$date}')<=0) 
 ORDER BY IFNULL(c.slot,999999), c.release_date DESC, c.id DESC 
@@ -219,7 +219,7 @@ INNER JOIN
 (
 	image_link il INNER JOIN images tn ON il.fullres_id = tn.id
 ) ON c.tn_id = il.id 
-WHERE (c.section_id = {$this::$content_type_id}) 
+WHERE (c.section_id = {$this->contentTypeID}) 
 AND (c.access = 'public') 
 AND (DATEDIFF(c.release_date, '{$date}')<=0) 
 SQL;

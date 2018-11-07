@@ -36,9 +36,9 @@ class AlbumFilters extends FilterCollection
 	/** @var IntegerContentFilter Slot filter. */
 	public $slot;
 	/** @var ContentProperties Content properties. */
-	public $siteSection;
-	/** @var ContentAjaxProperties Extended content properties. */
 	public $contentProperties;
+	/** @var ContentAjaxProperties Extended content properties. */
+	public $ajaxProperties;
 	/** @var GalleryFilters Gallery filters. */
 	public $gallery;
 
@@ -64,10 +64,10 @@ class AlbumFilters extends FilterCollection
 		$this->releaseBefore = new StringContentFilter("released before", $this::RELEASED_BEFORE_PARAM, 20, "", self::COOKIE_NAME);
 		$this->slot = new IntegerContentFilter("slot", "fasl", null, 0, self::COOKIE_NAME);
 
-		$this->siteSection = new ContentProperties($content_type_id);
-		$this->contentProperties = new ContentAjaxProperties();
-		$this->contentProperties->section_id->value = $content_type_id;
-		$this->getContentProperties();
+		$this->contentProperties = new ContentProperties($content_type_id);
+		$this->ajaxProperties = new ContentAjaxProperties();
+		$this->ajaxProperties->section_id->value = $content_type_id;
+		$this->getAjaxProperties();
 		$this->gallery = new GalleryFilters($page_content_type_id, $default_page_len);
 		$this->previousRecordId = $this->nextRecordId = 0;
 	}
@@ -161,7 +161,7 @@ SQL;
 	public function formatQueryClause( )
 	{
 		$this->connectToDatabase();
-		$this->sqlClause = "WHERE (a.section_id = {$this->siteSection->id->value}) ";
+		$this->sqlClause = "WHERE (a.section_id = {$this->contentProperties->id->value}) ";
 		if ($this->gallery->albumId->value>0) {
 			$this->sqlClause .= "AND (a.id = {$this->gallery->albumId->value}) ";
 		}
@@ -212,15 +212,15 @@ SQL;
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
-	public function getContentProperties ($content_type_id=null)
+	public function getAjaxProperties ($content_type_id=null)
 	{
 		if ($content_type_id > 0) {
-			$this->siteSection->id->value = $content_type_id;
-			$this->contentProperties->section_id->value = $content_type_id;
+			$this->contentProperties->id->value = $content_type_id;
+			$this->ajaxProperties->section_id->value = $content_type_id;
 		}
-		if ($this->siteSection->id->value > 0) {
-			$this->siteSection->read();
-			$this->contentProperties->retrieveSectionProperties();
+		if ($this->contentProperties->id->value > 0) {
+			$this->contentProperties->read();
+			$this->ajaxProperties->retrieveSectionProperties();
 		}
 	}
 
@@ -231,11 +231,11 @@ SQL;
 	 */
 	public function getDetailsURI()
 	{
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value<1) {
+		if ($this->contentProperties->id->value===null || $this->contentProperties->id->value<1) {
 			return ("");
 		}
 
-		$query = "SELECT details_uri FROM section_operations WHERE section_id = {$this->siteSection->id->value}";
+		$query = "SELECT details_uri FROM section_operations WHERE section_id = {$this->contentProperties->id->value}";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			return($data[0]->details_uri);
@@ -305,11 +305,11 @@ SQL;
 		if ($count===null) {
 			$count = $this->recordCount;
 		}
-		if ($this->contentProperties->label->value) {
-			return($this->contentProperties->pluralLabel($count));
+		if ($this->ajaxProperties->label->value) {
+			return($this->ajaxProperties->pluralLabel($count));
 		}
-		if ($this->siteSection->label) {
-			return($this->siteSection->pluralLabel($count));
+		if ($this->contentProperties->label) {
+			return($this->contentProperties->pluralLabel($count));
 		}
 		return ('');
 	}
@@ -330,7 +330,7 @@ SQL;
 			$this->page->escapeSQL($this->mysqli).",".
 			$this->listingsLength->escapeSQL($this->mysqli).",".
 			$this->keyword->escapeSQL($this->mysqli).",".
-			$this->siteSection->id->escapeSQL($this->mysqli).",".
+			$this->contentProperties->id->escapeSQL($this->mysqli).",".
 			"@total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`";
 		if (!$this->mysqli->multi_query($sQuery)) {
 			throw new InvalidQueryException("Error retrieving titles: {$this->mysqli->error}");

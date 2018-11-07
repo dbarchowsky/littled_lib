@@ -283,7 +283,7 @@ class FilterCollection extends AppContentBase
 	}
 
 	/**
-	 * Intended to be implemented in inherited classes that have either a $contentOperations or $siteSection property.
+	 * Intended to be implemented in inherited classes that have either a $contentOperations or $contentProperties property.
 	 * @return string
 	 */
 	public function pluralLabel( )
