@@ -19,8 +19,8 @@ class SocialAlbumFilters extends AlbumFilters
 	/**
 	 * SocialAlbumFilters constructor
 	 * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
-	 * @param int $page_section_id (Optional) ID of the site_section representing the images within the listings (From the site_section table.)
-	 * @param int[optional] $default_page_len (Optional) Lenth of the pages of listings.
+	 * @param int $page_content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
+	 * @param int[optional] $default_page_len Length of the pages of listings.
 	 * @throws \Exception
 	 */
 	function __construct($content_type_id, $page_content_type_id, $default_page_len = 10)
@@ -37,12 +37,11 @@ class SocialAlbumFilters extends AlbumFilters
 	/**
 	 * Returns select portion of SQL statement to retrieve album listings.
 	 * @return string SQL string used to retrieve album listings
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function formatListingsQuery()
 	{
-		$query = <<<SQL
-SELECT a.id 
+		$query = "SEL".<<<SQL
+ECT a.id 
     , a.title
 	, a.slug
     , a.description
@@ -68,8 +67,8 @@ SELECT a.id
 	, IF THEN ELSE END IF
 SQL;
 		if ($this->siteSection->gallery_thumbnail->value == true) {
-			$query .= <<<SQL
-    , a.tn_id 
+			$query .= ",".<<<SQL
+	a.tn_id 
 FROM `album` a 
 LEFT JOIN 
 (
