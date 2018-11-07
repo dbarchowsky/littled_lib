@@ -27,6 +27,8 @@ class PageContentBase extends MySQLConnection
 	public $redirectURL;
 	/** @var string Path to template file. */
 	public $templatePath;
+	/** @var string Query string to attach to page links. */
+	protected $queryString;
 
 	const CANCEL_ACTION = "cancel";
 	const COMMIT_ACTION = "commit";
@@ -43,6 +45,7 @@ class PageContentBase extends MySQLConnection
 	    $this->templatePath = '';
 	    $this->action = '';
 	    $this->redirectURL = '';
+	    $this->queryString = '';
     }
 
 	/**
@@ -196,8 +199,8 @@ class PageContentBase extends MySQLConnection
 
 	/**
 	 * Inserts data into a template file and renders the result. Alias for class's render() method.
-	 * @param string|null $template_path Path to template to render.
-	 * @param array|null $context Data to insert into the template.
+	 * @param string|null[optional] $template_path Path to template to render.
+	 * @param array|null[optional] $context Data to insert into the template.
 	 */
 	public function sendResponse( $template_path=null, $context=null )
 	{

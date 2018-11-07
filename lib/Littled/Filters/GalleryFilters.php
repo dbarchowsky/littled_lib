@@ -4,6 +4,7 @@ namespace Littled\Filters;
 // use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
+use Littled\PageContent\SiteSection\ListingsKeywords;
 use Littled\SiteContent\ContentProperties;
 
 /**
@@ -123,7 +124,7 @@ class GalleryFilters extends ContentFilters
 		$this->queryString = "CALL galleryFilteredSelect (".
 			$this->page->escapeSQL($this->mysqli).
 			",".$this->escapeSQLValue($this->pageCount).
-			",".$this->escapeSQLValue($this->contentTypeId).
+			",".$this->escapeSQLValue($this->contentTypeID).
 			",".$this->albumId->escapeSQL($this->mysqli).
 			",".$this->title->escapeSQL($this->mysqli).
 			",".$this->releaseAfter->escapeSQL($this->mysqli).
@@ -164,7 +165,7 @@ class GalleryFilters extends ContentFilters
 			return('');
 		}
 		$this->connectToDatabase(); /* for the sake of real_escape_string */
-		$query = "CALL getContentDetailsURI(".$this->mysqli->real_escape_string($this->contentTypeId).")";
+		$query = "CALL getContentDetailsURI(".$this->mysqli->real_escape_string($this->contentTypeID).")";
 		$data = $this->fetchRecords($query);
 		$this->detailsURI = $data[0]->details_uri;
 		return ($this->detailsURI);
@@ -187,5 +188,29 @@ class GalleryFilters extends ContentFilters
 			return($this->contentProperties->pluralLabel($count));
 		}
 		return ('');
+	}
+
+	/**
+	 * Returns context to use to render gallery listings.
+	 * @param string $query_string
+	 * @return array $context
+	 * @throws \Exception
+	 */
+	public function prepareListingsContext($query_string)
+	{
+		$context = array(
+			'query_string' => htmlentities($query_string),
+			'keywords' => new ListingsKeywords(($this->contentTypeID)),
+			'data' => array());
+		if ($this->displayListings->value) {
+			$data = $this->retrieveListings();
+			foreach ($data as $row) {
+				$row->name_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->title);
+				$row->access_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->access);
+				$row->date_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->release_date);
+			}
+			$context['data'] = $data;
+		}
+		return ($context);
 	}
 }
