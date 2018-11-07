@@ -245,25 +245,21 @@ SQL;
 
 	/**
 	 * Sets values of internal properties of the object to the number of records and pages in the current set of listings.
+	 * @throws InvalidQueryException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getPageCount ()
 	{
-		try
-		{
-			$this->formatQueryClause();
+		$this->formatQueryClause();
 
-			$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` FROM `album` a ".
-				"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
-				$this->sqlClause;
-			$data = $this->fetchRecords($query);
+		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` FROM `album` a ".
+			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
+			$this->sqlClause;
+		$data = $this->fetchRecords($query);
 
-			$this->recordCount = $data[0]->count;
-			$this->calcPageCount();
-		}
-		catch (\Exception $ex)
-		{
-			print ("<div class=\"alert alert-error\">Error retrieving image count: ".$ex->getMessage()."</div>");
-		}
+		$this->recordCount = $data[0]->count;
+		$this->calcPageCount();
 	}
 
 	/**
@@ -347,16 +343,10 @@ SQL;
 	/**
 	 * Retrieves listings data from database using object's filter values.
 	 * @return array Listings data
+	 * @throws InvalidQueryException
 	 */
 	public function retrieveListings()
 	{
-		$data = array();
-		try {
-			return($this->fetchRecords($this->formatListingsQuery()));
-		}
-		catch(\Exception $ex) {
-			print("<div class=\"alert alert-error\">Error retrieving listings: ".$ex->getMessage());
-		}
-		return ($data);
+		return($this->fetchRecords($this->formatListingsQuery()));
 	}
 }
