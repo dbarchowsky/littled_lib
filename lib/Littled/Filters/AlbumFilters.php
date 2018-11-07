@@ -214,12 +214,14 @@ SQL;
 	 */
 	public function getContentProperties ($content_type_id=null)
 	{
-		if ($content_type_id>0) {
+		if ($content_type_id > 0) {
 			$this->siteSection->id->value = $content_type_id;
 			$this->contentProperties->section_id->value = $content_type_id;
 		}
-		$this->siteSection->read();
-		$this->contentProperties->retrieveSectionProperties();
+		if ($this->siteSection->id->value > 0) {
+			$this->siteSection->read();
+			$this->contentProperties->retrieveSectionProperties();
+		}
 	}
 
 	/**
