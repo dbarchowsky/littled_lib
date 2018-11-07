@@ -1,11 +1,9 @@
 <?php
 namespace Littled\Filters;
 
-// use Littled\Exception\InvalidQueryException;
+
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
-use Littled\PageContent\SiteSection\ListingsKeywords;
-use Littled\SiteContent\ContentProperties;
 
 /**
  * Class GalleryFilters
@@ -188,29 +186,5 @@ class GalleryFilters extends ContentFilters
 			return($this->contentProperties->pluralLabel($count));
 		}
 		return ('');
-	}
-
-	/**
-	 * Returns context to use to render gallery listings.
-	 * @param string $query_string
-	 * @return array $context
-	 * @throws \Exception
-	 */
-	public function prepareListingsContext($query_string)
-	{
-		$context = array(
-			'query_string' => htmlentities($query_string),
-			'keywords' => new ListingsKeywords(($this->contentTypeID)),
-			'data' => array());
-		if ($this->displayListings->value) {
-			$data = $this->retrieveListings();
-			foreach ($data as $row) {
-				$row->name_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->title);
-				$row->access_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->access);
-				$row->date_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->release_date);
-			}
-			$context['data'] = $data;
-		}
-		return ($context);
 	}
 }

@@ -5,6 +5,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
+use Littled\PageContent\SiteSection\ListingsKeywords;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
 
@@ -41,6 +42,8 @@ class AlbumFilters extends FilterCollection
 	public $ajaxProperties;
 	/** @var GalleryFilters Gallery filters. */
 	public $gallery;
+	/** @var int $contentTypeID Pointer to contentProperties->id->value for convenience */
+	public $contentTypeID;
 
 	public static function DEFAULT_PAGE_LEN() { return(self::DEFAULT_PAGE_LEN); }
 
@@ -65,6 +68,7 @@ class AlbumFilters extends FilterCollection
 		$this->slot = new IntegerContentFilter("slot", "fasl", null, 0, self::COOKIE_NAME);
 
 		$this->contentProperties = new ContentProperties($content_type_id);
+		$this->contentTypeID = &$this->contentProperties->id->value;
 		$this->ajaxProperties = new ContentAjaxProperties();
 		$this->ajaxProperties->section_id->value = $content_type_id;
 		$this->getAjaxProperties();
@@ -308,6 +312,30 @@ SQL;
 			return($this->contentProperties->pluralLabel($count));
 		}
 		return ('');
+	}
+
+	/**
+	 * Returns context to use to render gallery listings.
+	 * @param string $query_string
+	 * @return array $context
+	 * @throws \Exception
+	 */
+	public function prepareListingsContext($query_string)
+	{
+		$context = array(
+			'query_string' => htmlentities($query_string),
+			'keywords' => new ListingsKeywords(($this->contentTypeID)),
+			'data' => array());
+		if ($this->displayListings->value) {
+			$data = $this->retrieveListings();
+			foreach ($data as $row) {
+				$row->name_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->title);
+				$row->access_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->access);
+				$row->date_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->release_date);
+			}
+			$context['data'] = $data;
+		}
+		return ($context);
 	}
 
 	/**
