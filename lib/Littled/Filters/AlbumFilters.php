@@ -266,7 +266,7 @@ class AlbumFilters extends FilterCollection
 			'filters' => $this,
 			'url' => $url,
 			'query_string' => htmlentities($query_string),
-			'keywords' => new ListingsKeywords(($this->contentTypeID)),
+			'keywords' => new ListingsKeywords(null, $this->contentTypeID),
 			'data' => array());
 		if ($this->displayListings->value) {
 			$data = $this->retrieveListings();
