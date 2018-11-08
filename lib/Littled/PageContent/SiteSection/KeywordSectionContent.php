@@ -28,7 +28,7 @@ class KeywordSectionContent extends SectionContent
 		parent::__construct($id, $site_contenttype_id);
 
 		/** TODO Replace with assignment that isn't hard-coded. */
-		$this::$keywordListTemplate = CONTENT_TEMPLATE_DIR."content/keywords/keyword_list.php";
+		$this::$keywordListTemplate = COMMON_TEMPLATE_DIR."content/keywords/keyword_list.php";
 
 		if ($keyword_param != 'kw') {
 			$this->siteSection->id->key = $keyword_param.$this->siteSection->id->key;
