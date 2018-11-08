@@ -66,8 +66,7 @@ class ContentFilters extends FilterCollection
 	 */
 	public function retrieveListings()
 	{
-		$this->formatListingsQuery();
-		$data = $this->fetchRecordsNonExhaustive($this->queryString);
+		$data = $this->fetchRecordsNonExhaustive($this->formatListingsQuery());
 		$this->getSprocPageCount();
 		return ($data);
 	}
