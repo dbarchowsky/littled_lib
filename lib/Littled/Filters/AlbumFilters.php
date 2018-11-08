@@ -118,7 +118,7 @@ class AlbumFilters extends FilterCollection
 			$this->access->escapeSQL($this->mysqli).",".
 			$this->slot->escapeSQL($this->mysqli).",".
 			$this->keyword->escapeSQL($this->mysqli).",".
-			",@total_matches);");
+			"@total_matches);");
 	}
 
 	/**
