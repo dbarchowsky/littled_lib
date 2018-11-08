@@ -14,6 +14,8 @@ class KeywordSectionContent extends SectionContent
 	public $keywordInput;
 	/** @var array Array of Keyword objects. */
 	public $keywords;
+	/** @var string Path to template that renders keyword cells that combine a keyword list with buttons to edit the keywords. */
+	public static $keywordCellTemplate = '';
 	/** @var string Path to keyword list template file. */
 	public static $keywordListTemplate = '';
 
