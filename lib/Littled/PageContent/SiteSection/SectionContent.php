@@ -113,4 +113,15 @@ class SectionContent extends SerializedContent
 		$this->siteSection->read();
 		parent::save();
 	}
+
+	/**
+	 * Tests for a valid content type id. Throws ContentValidationException if the property value isn't current set.
+	 * @throws ContentValidationException
+	 */
+	protected function testForContentType()
+	{
+		if ($this->siteSection->id->value === null || $this->siteSection->id->value < 0) {
+			throw new ContentValidationException("Could not perform operation. A content type was not specified.");
+		}
+	}
 }

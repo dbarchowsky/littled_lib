@@ -68,7 +68,7 @@ class SerializedContent extends SerializedContentUtils
 			return("The requested record could not be found. \n");
 		}
 
-		$query = "DELETE FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$query = "DEL"."ETE FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
 		$this->query($query);
 		return ("The record has been deleted. \n");
 	}
@@ -85,7 +85,7 @@ class SerializedContent extends SerializedContentUtils
 		$fields = $this->formatDatabaseColumnList();
 
 		/* build sql statement */
-		$query = "INSERT INTO `".$this->TABLE_NAME()."` (`".
+		$query = "INS"."ERT INTO `".$this->TABLE_NAME()."` (`".
 			implode('`,`', array_keys($fields)).
 			"`) VALUES (".
 			implode(',', array_values($fields)).
@@ -156,7 +156,7 @@ class SerializedContent extends SerializedContentUtils
 	{
 		$column = $this->getNameColumnIdentifier();
 
-		$query = "SELECT `{$column}` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$query = "SEL"."ECT `{$column}` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException('Column value not found');
@@ -190,7 +190,7 @@ class SerializedContent extends SerializedContentUtils
 			return(null);
 		}
 
-		$query = "SELECT `{$field}` AS `result` FROM `{$table}` WHERE `{$id_field}` = {$id}";
+		$query = "SEL"."ECT `{$field}` AS `result` FROM `{$table}` WHERE `{$id_field}` = {$id}";
 		$data = $this->fetchRecords($query);
 		$ret_value = $data[0]->result;
 		return($ret_value);
@@ -306,8 +306,19 @@ class SerializedContent extends SerializedContentUtils
 			return (false);
 		}
 
-		$query = "SELECT EXISTS(SELECT 1 FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}) AS `record_exists`";
+		$query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}) AS `record_exists`";
 		$data = $this->fetchRecords($query);
 		return ((int)("0".$data[0]->record_exists) === 1);
+	}
+
+	/**
+	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
+	 * @throws ContentValidationException
+	 */
+	protected function testForParentID()
+	{
+		if ($this->id->value === null || $this->id->value < 0) {
+			throw new ContentValidationException("Could not perform operation. A parent record was not provided.");
+		}
 	}
 }

@@ -27,7 +27,7 @@ class KeywordSectionContent extends SectionContent
 	{
 		parent::__construct($id, $site_contenttype_id);
 
-		/** @todo Replace with assignment that isn't hard-coded. */
+		/** TODO Replace with assignment that isn't hard-coded. */
 		$this::$keywordListTemplate = CONTENT_TEMPLATE_DIR."content/keywords/keyword_list.php";
 
 		if ($keyword_param != 'kw') {
@@ -139,12 +139,8 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function deleteKeywords()
 	{
-		if ($this->id->value===null || $this->id->value < 0) {
-			throw new ContentValidationException("Could not perform operation. A parent record was not provided.");
-		}
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value < 0) {
-			throw new ContentValidationException("Could not perform operation. A content type was not provided.");
-		}
+		$this->testForParentID();
+		$this->testForContentType();
 
 		$this->connectToDatabase();
 		$query = "CALL keywordDeleteLinked (".
@@ -275,12 +271,8 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function readKeywords()
 	{
-		if ($this->id->value===null || $this->id->value < 1) {
-			throw new ContentValidationException("Could not perform operation. Record not specified.");
-		}
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value < 1) {
-			throw new ContentValidationException("Could not perform operation. Content type not specified.");
-		}
+		$this->testForParentID();
+		$this->testForContentType();
 
 		$this->connectToDatabase();
 		$query = "CALL keywordSelectLinked(".
@@ -308,7 +300,7 @@ class KeywordSectionContent extends SectionContent
 	{
 		parent::save();
 		$this->saveKeywords();
-		ContentCache::updateKeywords($this->siteSection);
+		ContentCache::updateKeywords($this->id->value, $this->siteSection);
 	}
 
 	/**

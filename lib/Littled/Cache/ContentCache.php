@@ -52,12 +52,12 @@ class ContentCache extends MySQLConnection
 
 	/**
 	 * @param int $parent_id
-	 * @param int $content_type_id
+	 * @param ContentProperties $content_properties
 	 * @return array
 	 */
-	public static function updateKeywords( $parent_id, $content_type_id )
+	public static function updateKeywords( $parent_id, $content_properties )
 	{
 		/* Stub method. The logic of this function to be defined in inherited classes. */
-		return (array($parent_id, $content_type_id));
+		return (array($parent_id, $content_properties->id->value));
 	}
 }
