@@ -255,14 +255,16 @@ class AlbumFilters extends FilterCollection
 
 	/**
 	 * Returns context to use to render gallery listings.
-	 * @param string $query_string
+	 * @param string $url Base URL to use for links back to this page.
+	 * @param string $query_string Query string to use to preserve filter values when linking back to this page.
 	 * @return array $context
 	 * @throws \Exception
 	 */
-	public function prepareListingsContext($query_string)
+	public function prepareListingsContext($url, $query_string)
 	{
 		$context = array(
 			'filters' => $this,
+			'url' => $url,
 			'query_string' => htmlentities($query_string),
 			'keywords' => new ListingsKeywords(($this->contentTypeID)),
 			'data' => array());

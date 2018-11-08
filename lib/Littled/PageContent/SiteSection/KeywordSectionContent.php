@@ -5,6 +5,7 @@ namespace Littled\PageContent\SiteSection;
 use Littled\Cache\ContentCache;
 use Littled\Exception\ContentValidationException;
 use Littled\Keyword\Keyword;
+use Littled\PageContent\PageContent;
 use Littled\Request\StringTextarea;
 
 class KeywordSectionContent extends SectionContent
@@ -200,18 +201,15 @@ class KeywordSectionContent extends SectionContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function formatKeywordListPageContent($context=array())
 	{
 		if ($this->hasData()) {
 			$this->readKeywords();
 		}
-		ob_start();
-		include ($this::$keywordListTemplate);
-		$markup = ob_get_contents();
-		ob_end_clean();
-
-		return ($markup);
+		$context['keywords'] = $this;
+		return (PageContent::loadTemplateContent(static::$keywordListTemplate, $context));
 	}
 
 	/**
