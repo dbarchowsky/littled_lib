@@ -262,6 +262,7 @@ class AlbumFilters extends FilterCollection
 	public function prepareListingsContext($query_string)
 	{
 		$context = array(
+			'filters' => $this,
 			'query_string' => htmlentities($query_string),
 			'keywords' => new ListingsKeywords(($this->contentTypeID)),
 			'data' => array());
