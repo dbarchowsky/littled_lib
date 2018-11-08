@@ -58,10 +58,10 @@ class GalleryPaging extends FilterCollection
 		parent::__construct();
 		$this->contentTypeID = $content_type_id;
 		$this->pageContentTypeID = $page_content_type_id;
-		$this->book_id = new IntegerContentFilter("book", $this::BOOK_PARAM, null, 0, $this::COOKIE_NAME);
-		$this->page_id = new IntegerContentFilter("page", $this::PAGE_PARAM, null, 0, $this::COOKIE_NAME);
-		$this->menu_page = new IntegerContentFilter("menu", $this::MENU_PARAM, null, 0, $this::COOKIE_NAME);
-		$this->ref = new StringContentFilter("referer", "ref", "", 200, $this::COOKIE_NAME);
+		$this->book_id = new IntegerContentFilter("book", $this::BOOK_PARAM, null, null, $this::COOKIE_NAME);
+		$this->page_id = new IntegerContentFilter("page", $this::PAGE_PARAM, null, null, $this::COOKIE_NAME);
+		$this->menu_page = new IntegerContentFilter("menu", $this::MENU_PARAM, null, null, $this::COOKIE_NAME);
+		$this->ref = new StringContentFilter("referer", "ref", '', 200, $this::COOKIE_NAME);
 	}
 
 	/**

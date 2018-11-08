@@ -27,9 +27,9 @@ class SocialGalleryFilters extends GalleryFilters
 	function __construct ( $content_type_id=null, $default_page_len=10 )
 	{
 		parent::__construct($content_type_id, $default_page_len);
-		$this->onWordpress = new BooleanContentFilter("posted on wordpress", "gfwp", null, $this::COOKIE_NAME);
-		$this->onTwitter = new BooleanContentFilter("posted on twitter", "gftw", null, $this::COOKIE_NAME);
-		$this->hasShortURL = new BooleanContentFilter("has short ulr", "gfsu", null, $this::COOKIE_NAME);
+		$this->onWordpress = new BooleanContentFilter("posted on wordpress", "gfwp", null, null, $this::COOKIE_NAME);
+		$this->onTwitter = new BooleanContentFilter("posted on twitter", "gftw", null, null, $this::COOKIE_NAME);
+		$this->hasShortURL = new BooleanContentFilter("has short ulr", "gfsu", null, null, $this::COOKIE_NAME);
 	}
 
 	/**
