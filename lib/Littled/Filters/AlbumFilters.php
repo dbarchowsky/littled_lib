@@ -63,8 +63,8 @@ class AlbumFilters extends FilterCollection
 		$this->name = &$this->title;
 		$this->date = new StringContentFilter("date", "fadt", '', 20, $this::COOKIE_NAME);
 		$this->access = new StringContentFilter("access", "faac", '', 20, $this::COOKIE_NAME);
-		$this->releaseAfter = new StringContentFilter("released after", $this::RELEASED_AFTER_PARAM, '', 20, $this::COOKIE_NAME);
-		$this->releaseBefore = new StringContentFilter("released before", $this::RELEASED_BEFORE_PARAM, '', 20, self::COOKIE_NAME);
+		$this->releaseAfter = new DateContentFilter("released after", $this::RELEASED_AFTER_PARAM, '', 20, $this::COOKIE_NAME);
+		$this->releaseBefore = new DateContentFilter("released before", $this::RELEASED_BEFORE_PARAM, '', 20, self::COOKIE_NAME);
 		$this->slot = new IntegerContentFilter("slot", "fasl", null, null, self::COOKIE_NAME);
 
 		$this->contentProperties = new ContentProperties($content_type_id);

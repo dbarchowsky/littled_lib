@@ -12,6 +12,10 @@ use Littled\Exception\ContentValidationException;
  */
 class DateContentFilter extends StringContentFilter
 {
+	/**
+	 * Collect date filter value from request variables and assign it as the object's filter value.
+	 * @param bool[optional] $read_cookies
+	 */
 	public function collectValue($read_cookies = true)
 	{
 		parent::collectValue($read_cookies);
@@ -35,7 +39,7 @@ class DateContentFilter extends StringContentFilter
 	public function escapeSQL($mysqli, $include_quotes=true)
 	{
 		if ($this->value===null) {
-			return ('null');
+			return ('NULL');
 		}
 		if ($this->value=='') {
 			return ('null');
@@ -46,11 +50,11 @@ class DateContentFilter extends StringContentFilter
 		}
 		catch(\Exception $e)
 		{
-			return ('null');
+			return ('NULL');
 		}
 		$value = $dt->format('Y-m-d');
 		if ($value===false) {
-			return ('null');
+			return ('NULL');
 		}
 		return ((($include_quotes)?("'"):("")).$value.(($include_quotes)?("'"):("")));
 	}
