@@ -14,21 +14,18 @@ class KeywordSectionContent extends SectionContent
 	public $keywordInput;
 	/** @var array Array of Keyword objects. */
 	public $keywords;
-	/** @var string */
-	public static $keywordListTemplate = "";
+	/** @var string Path to keyword list template file. */
+	public static $keywordListTemplate = '';
 
 	/**
 	 * KeywordSectionContent constructor.
 	 * @param int|null[optional] $id ID value representing this object's record in the database. Defaults to NULL.
-	 * @param int|null[optional] $site_section_id ID of this object's content type. Defaults to NULL.
+	 * @param int|null[optional] $content_type_id ID of this object's content type. Defaults to NULL.
 	 * @param string[optional] $keyword_param Name of the variable containing comma-delimited keywords collected from HTML forms.
 	 */
-	function __construct($id = null, $site_contenttype_id = null, $keyword_param='kw')
+	function __construct($id = null, $content_type_id = null, $keyword_param='kw')
 	{
-		parent::__construct($id, $site_contenttype_id);
-
-		/** TODO Replace with assignment that isn't hard-coded. */
-		$this::$keywordListTemplate = COMMON_TEMPLATE_DIR."content/keywords/keyword_list.php";
+		parent::__construct($id, $content_type_id);
 
 		if ($keyword_param != 'kw') {
 			$this->siteSection->id->key = $keyword_param.$this->siteSection->id->key;
@@ -190,7 +187,6 @@ class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Returns markup containing keywords as links to listings filtered by the keyword value.
-	 * @todo Refactor to make use of a PageContent object to parse the template.
 	 * @param array $context[optional] Array containing variables to insert into the template.
 	 * @return string|false Markup to be used to display the keywords. False on error retrieving markup content.
 	 * @throws ContentValidationException
