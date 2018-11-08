@@ -313,7 +313,6 @@ class AlbumFilters extends FilterCollection
 	 */
 	public function retrieveListings()
 	{
-		$this->formatListingsQuery();
 		$data = $this->fetchRecordsNonExhaustive($this->formatListingsQuery());
 		$this->getSprocPageCount();
 		return ($data);
