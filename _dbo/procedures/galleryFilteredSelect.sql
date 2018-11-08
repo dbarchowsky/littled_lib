@@ -15,13 +15,7 @@ CREATE PROCEDURE `galleryFilteredSelect`(
 )
 BEGIN
 
-IF p_page > 0 AND p_page_length > 0 THEN
-  set @offset = ((p_page-1) * p_page_length);
-  set @size = p_page_length;
-ELSE
-  set @offset = 0;
-  set @size = 2147483647;
-END if;
+CALL udfCalcPageLimits(p_page, p_page_length, @offset, @size);
 
 SET @type_filter = p_type_id;
 SET @parent_filter = p_parent_id;

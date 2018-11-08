@@ -99,97 +99,44 @@ class AlbumFilters extends FilterCollection
 	/**
 	 * Returns SQL to retrieve album listings.
 	 * @return string SQL string used to retrieve album listings
-	 * @throws InvalidQueryException
-	 */
-	protected function formatListingsQuery()
-	{
-		list($lower_limit, $upper_limit) = $this->getQueryLimits();
-
-		$query = $this->formatListingsSelectQuery();
-		$query .= <<<SQL
-ORDER BY IFNULL(a.slot,999999) ASC, IFNULL(a.release_date,'1980-01-01') DESC, a.id DESC 
-LIMIT {$lower_limit},{$upper_limit}
-SQL;
-		return ($query);
-	}
-
-	/**
-	 * Returns select portion of SQL statement to retrieve album listings.
-	 * @return string SQL string used to retrieve album listings
-	 */
-	protected function formatListingsSelectQuery( )
-	{
-		$query = <<<SQL
-SELECT a.id 
-	, a.title
-	, a.slug
-	, a.description
-	, a.`date` 
-	, a.slot
-	, (SELECT COUNT(*) FROM image_link pub WHERE (pub.parent_id = a.id) AND (pub.type_id = {$this->gallery->contentProperties->id->value})) private_pages
-	, (SELECT COUNT(*) FROM image_link pub WHERE (pub.parent_id = a.id) AND (pub.type_id = {$this->gallery->contentProperties->id->value}) AND (pub.access LIKE 'public')) public_pages
-	, DATE_FORMAT(a.release_date,'%m/%d/%Y') release_date
-	, a.`access`
-	, a.`layout`
-	, a.tn_id
-    , IFNULL(mini.path, med.path) tn_path
-    , IFNULL(mini.width, med.width) tn_width
-    , IFNULL(mini.height, med.height) tn_height
-	, mini.path mini_path
-	, mini.width mini_width
-	, mini.height mini_height
-	, med.path med_path
-	, med.width med_width
-	, med.height med_height
-	, full.path full_path
-	, full.width full_width
-	, full.height full_height
-FROM `album` a 
-LEFT JOIN 
-(
-	image_link il 
-	INNER JOIN images full ON il.fullres_id = full.id
-	LEFT JOIN images med ON il.med_id = med.id
-	LEFT JOIN images mini ON il.mini_id = mini.id
-) ON (a.tn_id = il.id) 
-{$this->sqlClause} 
-SQL;
-		return ($query);
-	}
-
-	/**
-	 * Create SQL string containing WHERE clause that will filter down the listings.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 */
-	public function formatQueryClause( )
+	protected function formatListingsQuery()
 	{
 		$this->connectToDatabase();
-		$this->sqlClause = "WHERE (a.section_id = {$this->contentProperties->id->value}) ";
-		if ($this->gallery->albumId->value>0) {
-			$this->sqlClause .= "AND (a.id = {$this->gallery->albumId->value}) ";
-		}
-		if ($this->title->value) {
-			$this->sqlClause .= "AND (a.title LIKE '%".$this->title->escapeSQL($this->mysqli, false)."%') ";
-		}
-		if ($this->date->value) {
-			$this->sqlClause .= "AND (a.`date` LIKE '%".$this->date->escapeSQL($this->mysqli, false)."%') ";
-		}
-		if ($this->releaseAfter->value) {
-			$this->sqlClause .= "AND (DATEDIFF(a.`release_date`,".$this->releaseAfter->escapeSQL($this->mysqli).")>=0) ";
-		}
-		if ($this->releaseBefore->value) {
-			$this->sqlClause .= "AND (DATEDIFF(a.`release_date`,".$this->releaseBefore->escapeSQL($this->mysqli).")<=0) ";
-		}
-		if ($this->access->value) {
-			$this->sqlClause .= "AND (a.`access` = ".$this->access->escapeSQL($this->mysqli).") ";
-		}
-		if ($this->slot->value) {
-			$this->sqlClause .= "AND (a.`slot` = ".$this->slot->escapeSQL($this->mysqli).") ";
-		}
-		if ($this->keyword->value) {
-			$this->sqlClause .= "AND (MATCH(a.title,a.description,a.keywords) AGAINST (".$this->keyword->escapeSQL($this->mysqli)." IN BOOLEAN MODE)) ";
-		}
+		return("CALL albumFilteredListingsSelect(".
+			$this->page->escapeSQL($this->mysqli).",".
+			$this->listingsLength->escapeSQL($this->mysqli).",".
+			"NULL,".
+			$this->contentProperties->id->escapeSQL($this->mysqli).",".
+			$this->gallery->contentProperties->id->escapeSQL($this->mysqli).",".
+			$this->title->escapeSQL($this->mysqli).",".
+			$this->date->escapeSQL($this->mysqli).",".
+			$this->releaseAfter->escapeSQL($this->mysqli).",".
+			$this->releaseBefore->escapeSQL($this->mysqli).",".
+			$this->access->escapeSQL($this->mysqli).",".
+			$this->slot->escapeSQL($this->mysqli).",".
+			$this->keyword->escapeSQL($this->mysqli).",".
+			",@total_matches);");
+	}
+
+	/**
+	 * @deprecated Use stored procedure instead.
+	 * Returns select portion of SQL statement to retrieve album listings.
+	 */
+	protected function formatListingsSelectQuery( )
+	{
+		return ('');
+	}
+
+	/**
+	 * @deprecated Use stored procedure instead.
+	 * Create SQL string containing WHERE clause that will filter down the listings.
+	 */
+	public function formatQueryClause( )
+	{
+		return ('');
 	}
 
 	/**
@@ -239,7 +186,9 @@ SQL;
 			return ("");
 		}
 
-		$query = "SELECT details_uri FROM section_operations WHERE section_id = {$this->contentProperties->id->value}";
+		$query = "SELECT `details_uri` ".
+			"FROM `section_operations` ".
+			"WHERE `section_id` = {$this->contentProperties->id->value}";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			return($data[0]->details_uri);
@@ -248,22 +197,12 @@ SQL;
 	}
 
 	/**
+	 * @deprecated Use stored procedure instead.
 	 * Sets values of internal properties of the object to the number of records and pages in the current set of listings.
-	 * @throws InvalidQueryException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getPageCount ()
 	{
-		$this->formatQueryClause();
-
-		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` FROM `album` a ".
-			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
-			$this->sqlClause;
-		$data = $this->fetchRecords($query);
-
-		$this->recordCount = $data[0]->count;
-		$this->calcPageCount();
+		return;
 	}
 
 	/**
@@ -340,7 +279,7 @@ SQL;
 
 	/**
 	 * Retrieves recordset containing album titles matching the current filters.
-	 * @return \mysqli_result Album titles data set.
+	 * @return array Album titles data set.
 	 * @throws InvalidQueryException
 	 * @throws ResourceNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
@@ -350,18 +289,15 @@ SQL;
 	public function searchTitles()
 	{
 		$this->connectToDatabase();
-		$sQuery = "CALL albumTitlesSelect(".
+		$query = "CALL albumTitlesSelect(".
 			$this->page->escapeSQL($this->mysqli).",".
 			$this->listingsLength->escapeSQL($this->mysqli).",".
 			$this->keyword->escapeSQL($this->mysqli).",".
 			$this->contentProperties->id->escapeSQL($this->mysqli).",".
 			"@total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`";
-		if (!$this->mysqli->multi_query($sQuery)) {
-			throw new InvalidQueryException("Error retrieving titles: {$this->mysqli->error}");
-		}
-		$data = $this->mysqli->store_result();
+		$data = $this->fetchRecordsNonExhaustive($query);
 		if (!$data) {
-			throw new ResourceNotFoundException("Error retrieving title: {$this->mysqli->error}");
+			throw new ResourceNotFoundException("Error retrieving album titles.");
 		}
 		/* get record count from sproc results */
 		$this->getSprocPageCount();
@@ -369,12 +305,17 @@ SQL;
 	}
 
 	/**
-	 * Retrieves listings data from database using object's filter values.
-	 * @return array Listings data
-	 * @throws InvalidQueryException
+	 * Retrieves listings using sql in $query argument. Stores the total
+	 * number of matches and updates internal values of total number of pages
+	 * and current page number.
+	 * @return array List of generic objects containing the records returned by the query.
+	 * @throws \Exception Error running query.
 	 */
 	public function retrieveListings()
 	{
-		return($this->fetchRecords($this->formatListingsQuery()));
+		$this->formatListingsQuery();
+		$data = $this->fetchRecordsNonExhaustive($this->formatListingsQuery());
+		$this->getSprocPageCount();
+		return ($data);
 	}
 }
