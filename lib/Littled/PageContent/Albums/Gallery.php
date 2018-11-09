@@ -173,10 +173,7 @@ class Gallery extends MySQLConnection
 	 */
 	protected function fetchGalleryThumbnail()
 	{
-		$query = "SELECT p.`gallery_thumbnail`, c.`parent_id ".
-			"FROM `site_section` c ".
-			"INNER JOIN `site_section` p ON c.`parent_id` = p.`id` ".
-			"WHERE c.`id` = {$this->siteSection->id->value}";
+		$query = "galleryGalleryThumbnailSettingSelect({$this->siteSection->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data[0]) > 0) {
 			return (array($data[0]->gallery_thumbnail, $data[0]->parent_id));
