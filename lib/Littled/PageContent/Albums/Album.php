@@ -63,6 +63,11 @@ class Album extends KeywordSectionContent
 	/** @var boolean $check_access Flag to override the $access property value. */
 	public $check_access;
 
+	public static $albumMetadataTemplate = '';
+	public static $galleryListingsTemplate = '';
+	public static $thumbnailLinkContainerTemplate = '';
+	public static $thumbnailOverlayButtonsTemplate = '';
+
 	public static function TABLE_NAME() { return(self::TABLE_NAME); }
 
 	/**
@@ -78,7 +83,8 @@ class Album extends KeywordSectionContent
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct ( $content_type_id, $images_content_type_id, $id=null) {
+	function __construct ( $content_type_id, $images_content_type_id, $id=null)
+    {
 		parent::__construct($content_type_id, "abkw");
 		$this->id = new IntegerInput("Gallery ID", self::ID_PARAM, false, $id);
 		$this->title = new StringTextField("Title", self::TITLE_PARAM, false, "", 100);
@@ -290,6 +296,11 @@ class Album extends KeywordSectionContent
 		}
 	}
 
+	public static function getAlbumMetadataTemplatePath()
+    {
+        return (static::$albumMetadataTemplate);
+    }
+
 	/**
 	 * Returns the title of the album.
 	 * @return string Title of the album.
@@ -326,6 +337,30 @@ class Album extends KeywordSectionContent
 		$this->readPage($page_id, $read_keywords);
 		$this->markLimits();
 	}
+
+    /**
+     * @return string Gallery listings template path.
+     */
+    public static function getGalleryListingsTemplatePath()
+    {
+        return (static::$galleryListingsTemplate);
+    }
+
+    /**
+     * @return string Album linked-thumbnail selection tool template path.
+     */
+    public static function getThumbnailLinkContainerTemplatePath()
+    {
+        return (static::$thumbnailLinkContainerTemplate);
+    }
+
+    /**
+     * @return string Thumbnail overlay buttons template path.
+     */
+	public static function getThumbnailOverlayButtonsTemplatePath()
+    {
+        return (static::$thumbnailOverlayButtonsTemplate);
+    }
 
 	/**
 	 * Indicates if any form data has been entered for the current instance of the object.
