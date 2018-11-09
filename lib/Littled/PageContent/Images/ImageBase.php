@@ -19,7 +19,7 @@ use Littled\Request\StringTextarea;
 class ImageBase extends SerializedContent
 {
 	/** @var array HTTP request variable names. */
-	public const vars = array(
+	const vars = array(
 		'id' => 'imid',
 		'path' => 'pat',
 		'original_path' => 'pat_orig',
