@@ -206,6 +206,24 @@ class KeywordSectionContent extends SectionContent
 		return (PageContent::loadTemplateContent(static::$keywordListTemplate, $context));
 	}
 
+    /**
+     * Returns path to keywords container template.
+     * @return string Path to keywords container template.
+     */
+	public static function getKeywordsCellTemplatePath()
+    {
+        return (static::$keywordCellTemplate);
+    }
+
+    /**
+     * Returns path to keywords list template
+     * @return string Path to keywords list template.
+     */
+    public static function getKeywordsListTemplatePath()
+    {
+        return (static::$keywordListTemplate);
+    }
+
 	/**
 	 * Returns an array containing just the keyword terms as strings for each keyword linked to the record in the database.
 	 * @param bool[optional] $fetch_from_database If TRUE return keywords from database. If FALSE return keyword terms
