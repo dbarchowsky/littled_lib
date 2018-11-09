@@ -173,7 +173,7 @@ class Gallery extends MySQLConnection
 	 */
 	protected function fetchGalleryThumbnail()
 	{
-		$query = "galleryGalleryThumbnailSettingSelect({$this->siteSection->id->value})";
+		$query = "CALL galleryGalleryThumbnailSettingSelect({$this->siteSection->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data[0]) > 0) {
 			return (array($data[0]->gallery_thumbnail, $data[0]->parent_id));
