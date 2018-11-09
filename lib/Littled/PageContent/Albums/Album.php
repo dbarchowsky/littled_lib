@@ -67,6 +67,7 @@ class Album extends KeywordSectionContent
 	public static $galleryListingsTemplate = '';
 	public static $thumbnailLinkContainerTemplate = '';
 	public static $thumbnailOverlayButtonsTemplate = '';
+	public static $thumbnailUploadTemplate = '';
 
 	public static function TABLE_NAME() { return(self::TABLE_NAME); }
 
@@ -360,6 +361,14 @@ class Album extends KeywordSectionContent
 	public static function getThumbnailOverlayButtonsTemplatePath()
     {
         return (static::$thumbnailOverlayButtonsTemplate);
+    }
+
+    /**
+     * @return string Thumbnail upload container template path.
+     */
+    public static function getThumbnailUploadTemplatePath()
+    {
+        return (static::$thumbnailUploadTemplate);
     }
 
 	/**

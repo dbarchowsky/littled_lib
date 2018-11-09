@@ -146,6 +146,7 @@ class PageContent
 	}
 
 	/**
+     * @deprecated Use .htaccess directive instead.
 	 * Forces a page to use https protocol.
 	 * @param bool[optional] $bypass_on_dev Flag to skip this in dev environment.
 	 */
@@ -167,4 +168,14 @@ class PageContent
 	public function setPageError( $error_msg ) {
 		array_push($this->content->validationErrors, $error_msg);
 	}
+
+    /**
+     * Displays an error message in the browser.
+     * @param string $error Error message to display
+     * @param string[optional] $css_class CSS class to apply to the error message container element.
+     * @param string[optional] $encoding Defaults to 'UTF-8'
+     */
+	public static function showError($error, $css_class="alert alert-error", $encoding="UTF-8") {
+	    print ("<div class='\"{$css_class}\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");
+    }
 }

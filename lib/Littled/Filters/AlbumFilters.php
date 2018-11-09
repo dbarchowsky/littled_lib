@@ -44,8 +44,10 @@ class AlbumFilters extends FilterCollection
 	public $gallery;
 	/** @var int $contentTypeID Pointer to contentProperties->id->value for convenience */
 	public $contentTypeID;
+	public static $frontEndURI = '';
 
 	public static function DEFAULT_PAGE_LEN() { return(self::DEFAULT_PAGE_LEN); }
+	public static function FRONTEND_URI() { return(static::$frontEndURI); }
 
 	/**
 	 * AlbumFilters constructor
