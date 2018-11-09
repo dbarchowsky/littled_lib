@@ -19,7 +19,7 @@ class DateInput extends StringInput
 	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
      * @param int[optional] $index Position of this form input within a series of similar inputs.
 	 */
-	function __construct(string $label, string $param, bool $required = false, $value = null, int $size_limit = 20, ?int $index=null)
+	function __construct(string $label, $param, $required = false, $value = null, $size_limit = 20, $index=null)
 	{
 		parent::__construct($label, $param, $required, $value, $size_limit, $index);
 	}
