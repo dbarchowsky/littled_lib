@@ -24,7 +24,7 @@ use Littled\Request\StringTextField;
 class ImageLink extends KeywordSectionContent
 {
 	/** @var array HTTP request variable names. */
-	public const vars = array(
+	const vars = array(
 		'id' => 'ilid',
 		'parent_id' => 'ilpi',
 		'content_type' => 'ilti',
