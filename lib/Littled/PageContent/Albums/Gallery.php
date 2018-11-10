@@ -18,7 +18,7 @@ use Littled\Request\IntegerInput;
 class Gallery extends MySQLConnection
 {
 	/** @var ContentProperties Section properties. */
-	public $siteSection;
+	public $contentProperties;
 	/** @var integer Parent record id. */
 	public $parent_id;
 	/** @var string Label for inserting into page content. */
@@ -52,14 +52,14 @@ class Gallery extends MySQLConnection
 	function __construct ($content_type_id, $parent_id=null )
 	{
 		parent::__construct();
-		$this->siteSection = new ContentProperties($content_type_id);
+		$this->contentProperties = new ContentProperties($content_type_id);
 		$this->parent_id = $parent_id;
 		$this->label = "Image";
 
 		$this->list = array();
 		$this->tn = new ImageLink("", "", $content_type_id, $this->parent_id);
 		$this->tn_id = &$this->tn->id;
-		$this->type_id = &$this->siteSection->id;
+		$this->type_id = &$this->contentProperties->id;
 		$this->image_count = -1;
 		$this->retrieveSectionProperties();
 		$this->validationErrors = array();
@@ -113,15 +113,15 @@ class Gallery extends MySQLConnection
 	public function collectFromInput ( $section_id=null, $src=null )
 	{
 		if ($section_id > 0) {
-			$this->siteSection->id->value = $section_id;
+			$this->contentProperties->id->value = $section_id;
 		}
 
 		$this->testForContentType();
 		$this->retrieveSectionProperties();
 
 		$this->list = array();
-		$id_param = $this->siteSection->param_prefix->value.ImageLink::vars['id'];
-		$img_id_param = $this->siteSection->param_prefix->value.ImageLink::vars['id'];
+		$id_param = $this->contentProperties->param_prefix->value.ImageLink::vars['id'];
+		$img_id_param = $this->contentProperties->param_prefix->value.ImageLink::vars['id'];
 		$iCount = 0;
 		if ($src===null) {
 			$src = $_POST;
@@ -135,7 +135,7 @@ class Gallery extends MySQLConnection
 		}
 
 		for ($i=0; $i<$iCount; $i++) {
-			$this->list[$i] = new ImageLink($this->siteSection->image_path->value, $this->siteSection->param_prefix->value, $this->siteSection->id->value);
+			$this->list[$i] = new ImageLink($this->contentProperties->image_path->value, $this->contentProperties->param_prefix->value, $this->contentProperties->id->value);
 			$this->list[$i]->collectFromInput();
 		}
 
@@ -173,7 +173,7 @@ class Gallery extends MySQLConnection
 	 */
 	protected function fetchGalleryThumbnail()
 	{
-		$query = "CALL galleryGalleryThumbnailSettingSelect({$this->siteSection->id->value})";
+		$query = "CALL galleryGalleryThumbnailSettingSelect({$this->contentProperties->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data[0]) > 0) {
 			return (array($data[0]->gallery_thumbnail, $data[0]->parent_id));
@@ -223,7 +223,7 @@ class Gallery extends MySQLConnection
 	 */
 	public function formatItemCountString()
 	{
-		return (count($this->list)." ".strtolower($this->siteSection->image_label->value).((count($this->list)!=1)?("s"):("")));
+		return (count($this->list)." ".strtolower($this->contentProperties->image_label->value).((count($this->list)!=1)?("s"):("")));
 	}
 
 	/**
@@ -308,16 +308,16 @@ class Gallery extends MySQLConnection
 
 		$this->retrieveSectionProperties();
 
-		$query = "CALL gallerySelect({$this->parent_id},{$this->siteSection->id->value},".(($public_only)?('1'):('0')).")";
+		$query = "CALL gallerySelect({$this->parent_id},{$this->contentProperties->id->value},".(($public_only)?('1'):('0')).")";
 		$data = $this->fetchRecords($query);
 
 		$this->list = array();
 		foreach($data as $row) {
 			$i = count($this->list);
 			$this->list[$i] = new ImageLink(
-				$this->siteSection->image_path->value,
-				$this->siteSection->param_prefix->value,
-				$this->siteSection->id->value,
+				$this->contentProperties->image_path->value,
+				$this->contentProperties->param_prefix->value,
+				$this->contentProperties->id->value,
 				$this->parent_id,
 				$row->id);
 			$this->fillImageSetFromRecordset($this->list[$i], $row, $read_keywords);
@@ -349,7 +349,7 @@ class Gallery extends MySQLConnection
 			return;
 		}
 
-		$query = "CALL galleryExternalThumbnailSelect({$this->parent_id},{$this->siteSection->id->value})";
+		$query = "CALL galleryExternalThumbnailSelect({$this->parent_id},{$this->contentProperties->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			$this->tn_id->value = $data[0]->thumbnail_id;
@@ -373,7 +373,7 @@ class Gallery extends MySQLConnection
 	public function retrieveSectionProperties()
 	{
 		$this->testForContentType();
-		$this->siteSection->read();
+		$this->contentProperties->read();
 		list($parent_gallery_thumbnail) = $this->fetchGalleryThumbnail();
 
 		if ($parent_gallery_thumbnail) {
@@ -383,14 +383,14 @@ class Gallery extends MySQLConnection
 			 */
 			$this->tn->type_id->value = $this->type_id->value;
 		}
-		elseif ($this->siteSection->parent_id->value>0) {
-			$this->tn->type_id->value = $this->siteSection->parent_id->value;
+		elseif ($this->contentProperties->parent_id->value>0) {
+			$this->tn->type_id->value = $this->contentProperties->parent_id->value;
 		}
 		$this->tn->retrieveSectionProperties();
 
-		if ($this->siteSection->image_label->value!==null &&
-			$this->siteSection->image_label->value!="") {
-			$this->label = $this->siteSection->image_label->value;
+		if ($this->contentProperties->image_label->value!==null &&
+			$this->contentProperties->image_label->value!="") {
+			$this->label = $this->contentProperties->image_label->value;
 		}
 	}
 
@@ -440,7 +440,7 @@ class Gallery extends MySQLConnection
 		$query = "SELECT p.`id`, p.`table` ".
 			"FROM 'site_section' p ".
 			"INNER JOIN `site_section` c ON p.`id` = c.`parent_id` ".
-			"WHERE c.`id` = {$this->siteSection->id->value}";
+			"WHERE c.`id` = {$this->contentProperties->id->value}";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			$parent_content_id = $data[0]->id;
@@ -467,7 +467,7 @@ class Gallery extends MySQLConnection
 	 */
 	protected function testForContentType()
 	{
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value<1) {
+		if ($this->contentProperties->id->value===null || $this->contentProperties->id->value<1) {
 			throw new ConfigurationUndefinedException("Site section not set. ");
 		}
 	}

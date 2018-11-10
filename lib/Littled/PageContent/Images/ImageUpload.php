@@ -103,15 +103,15 @@ class ImageUpload extends ImageLink
 		/* collect content type id value, giving derived class's
 		 * parameter precedence over the generic parameter.
 		 */
-		$this->siteSection->id->collectFromInput($src);
-		if ($this->siteSection->id->value === null && $this->siteSection->id->key != "tid") {
-			$this->siteSection->id->value = Validation::collectIntegerRequestVar("tid", null, $src);
+		$this->contentProperties->id->collectFromInput($src);
+		if ($this->contentProperties->id->value === null && $this->contentProperties->id->key != "tid") {
+			$this->contentProperties->id->value = Validation::collectIntegerRequestVar("tid", null, $src);
 		}
 		$this->new_name->collectFromInput($src);
 		$this->page->collectFromInput($src);
 		$this->randomize->collectFromInput($src);
 
-		if ($this->siteSection->id->value>0) {
+		if ($this->contentProperties->id->value>0) {
 			$this->retrieveSectionProperties();
 		}
 	}
@@ -152,9 +152,9 @@ class ImageUpload extends ImageLink
 	 */
 	public function retrieveLabel()
 	{
-		if ($this->siteSection->id->value>0) {
+		if ($this->contentProperties->id->value>0) {
 
-			$query = "SELECT `label` from `section_operations` WHERE section_id = {$this->siteSection->id->value}";
+			$query = "SELECT `label` from `section_operations` WHERE section_id = {$this->contentProperties->id->value}";
 			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$this->label = $data[0]->label;
@@ -209,11 +209,11 @@ SQL;
 		}
 		if ($this->generic_params==true) {
 			$this->id->key = "id";
-			$this->siteSection->id->key = "tid";
+			$this->contentProperties->id->key = "tid";
 			$this->parent_id->key = "pid";
 		}
 		else {
-			$this->setPrefix($this->siteSection->param_prefix->value);
+			$this->setPrefix($this->contentProperties->param_prefix->value);
 			//$this->id->param = $this->ID_PARAM();
 			//$this->parent_id->param = $this->PARENT_PARAM();
 			//$this->site_section->id->param = $this->TYPE_PARAM();
@@ -256,7 +256,7 @@ SQL;
 	{
 		if (
 			($this->id->value===null) &&
-			($this->siteSection->id->value===null && $this->parent_id->value===null))
+			($this->contentProperties->id->value===null && $this->parent_id->value===null))
 		{
 			throw new ContentValidationException("Either an image or a parent and image type is required.");
 		}

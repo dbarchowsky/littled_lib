@@ -99,7 +99,7 @@ class Album extends KeywordSectionContent
 		$this->access = new StringSelect("Access", "abac", false, "public", 20);
 		$this->release_date = new DateTextField("Release date", "abrd", false, date("n/j/Y"));
 		$this->layout = new StringSelect("Layout", "ablo", false, "", 20);
-		$this->section_id = &$this->siteSection->id;
+		$this->section_id = &$this->contentProperties->id;
 
 		$this->gallery = new Gallery($images_content_type_id, $this->id->value);
 
@@ -237,7 +237,7 @@ class Album extends KeywordSectionContent
 	 */
 	protected function formatDeleteStatusMessage ( )
 	{
-		return ("The &ldquo;{$this->title->value}&rdquo; ".strtolower($this->siteSection->label)." was successfully deleted.");
+		return ("The &ldquo;{$this->title->value}&rdquo; ".strtolower($this->contentProperties->label)." was successfully deleted.");
 	}
 
 	/**
@@ -327,7 +327,7 @@ class Album extends KeywordSectionContent
 	public function getDefaultPage( $read_keywords=false )
 	{
 		$this->testForAlbumID();
-		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->siteSection->id->value})";
+		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->contentProperties->id->value})";
 		$data = $this->fetchRecords($query);
 		$page_id = ((count($data)>0)?($data[0]->id):(null));
 
@@ -390,7 +390,7 @@ class Album extends KeywordSectionContent
 	{
 		return (
 			/* manual setting from database specifying to use a gallery image as the album thumbnail */
-			$this->siteSection->gallery_thumbnail->value == true &&
+			$this->contentProperties->gallery_thumbnail->value == true &&
 
 			/* test that there is one and only one image currently in the gallery */
 			is_array($this->gallery->list) &&
@@ -434,13 +434,13 @@ class Album extends KeywordSectionContent
 	protected function markLimits()
 	{
 		$first_page_id = $last_page_id = null;
-		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->siteSection->id->value})";
+		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->contentProperties->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			$first_page_id = $data[0]->id;
 		}
 
-		$query = "CALL albumLastPageSelect({$this->id->value},{$this->siteSection->id->value})";
+		$query = "CALL albumLastPageSelect({$this->id->value},{$this->contentProperties->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			$last_page_id = $data[0]->id;
@@ -482,18 +482,18 @@ class Album extends KeywordSectionContent
 		}
 
 		/* retrieve this object's content properties */
-		$this->siteSection->read();
+		$this->contentProperties->read();
 
 		/* check if the gallery's content property type has been set */
-		if ($this->gallery->siteSection->id->value<1) {
+		if ($this->gallery->contentProperties->id->value<1) {
 			/* assumes that the gallery's content properties exist
 			 * as a child of this object's content type. Although -- what
 			 * happens when there is some other record attached to this
 			 * content type???
 			 */
-			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = {$this->siteSection->id->value}";
+			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = {$this->contentProperties->id->value}";
 			$data = $this->fetchRecords($query);
-			$this->gallery->siteSection->id->value = ((count($data) > 0)?($data[0]->id):(null));
+			$this->gallery->contentProperties->id->value = ((count($data) > 0)?($data[0]->id):(null));
 		}
 
 		$this->gallery->parent_id = $this->id->value;
@@ -522,9 +522,9 @@ class Album extends KeywordSectionContent
 		$this->gallery->list = array();
 		$this->gallery->list[0] =
 			new ImageLink(
-				$this->gallery->siteSection->image_path->value,
-				$this->gallery->siteSection->param_prefix->value,
-				$this->gallery->siteSection->id->value,
+				$this->gallery->contentProperties->image_path->value,
+				$this->gallery->contentProperties->param_prefix->value,
+				$this->gallery->contentProperties->id->value,
 				$this->id,
 				$page_id);
 		$this->gallery->list[0]->read($read_keywords);
@@ -556,9 +556,9 @@ class Album extends KeywordSectionContent
 		$this->mod_date->isDatabaseField = false;
 		parent::save();
 
-		if ($this->siteSection->table->value=="album" ||
+		if ($this->contentProperties->table->value=="album" ||
 			(
-				$this->siteSection->table->value &&
+				$this->contentProperties->table->value &&
 				$this->columnExists("create_date") &&
 				$this->columnExists("mod_date")
 			)) {
@@ -586,7 +586,7 @@ class Album extends KeywordSectionContent
 
 		$this->updateFulltextKeywords();
 
-		$status .= "The &ldquo;{$this->title->value}&rdquo; ".strtolower($this->siteSection->label)." was successfully saved. \n";
+		$status .= "The &ldquo;{$this->title->value}&rdquo; ".strtolower($this->contentProperties->label)." was successfully saved. \n";
 
 		if (method_exists($this, "updateCacheFile") && $update_cache) {
 			/** TODO set the path to the cache file */
@@ -701,8 +701,8 @@ class Album extends KeywordSectionContent
 		$query = "CALL albumFulltextKeywordsUpdate(".
 			$this->TABLE_NAME().",".
 			"{$this->id->value},".
-			"{$this->siteSection->id->value},".
-			"{$this->gallery->siteSection->id->value})";
+			"{$this->contentProperties->id->value},".
+			"{$this->gallery->contentProperties->id->value})";
 		$this->query($query);
 	}
 

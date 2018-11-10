@@ -25,7 +25,7 @@ class InlineKeywordInput extends KeywordSectionContent
 	{
 		parent::__construct($id, $content_type_id, $keyword_param);
 		$this->id = new IntegerInput("Record ID", Keyword::PARENT_PARAM, true, null);
-		$this->siteSection->id->key = Keyword::TYPE_PARAM;
+		$this->contentProperties->id->key = Keyword::TYPE_PARAM;
 	}
 
 	/**
@@ -47,6 +47,6 @@ class InlineKeywordInput extends KeywordSectionContent
 	public function saveKeywords()
 	{
 		parent::saveKeywords();
-		ContentCache::updateKeywords($this->id->value, $this->siteSection->id->value);
+		ContentCache::updateKeywords($this->id->value, $this->contentProperties->id->value);
 	}
 }

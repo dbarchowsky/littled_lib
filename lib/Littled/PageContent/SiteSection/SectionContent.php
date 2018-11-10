@@ -13,7 +13,7 @@ use Littled\SiteContent\ContentProperties;
 class SectionContent extends SerializedContent
 {
 	/** @var ContentProperties Site section properties. */
-	public $siteSection;
+	public $contentProperties;
 
 	/**
 	 * SectionContent constructor.
@@ -23,9 +23,9 @@ class SectionContent extends SerializedContent
 	public function __construct($id=null, $content_type_id=null)
 	{
 		parent::__construct($id);
-		$this->siteSection = new ContentProperties($content_type_id);
-		$this->siteSection->id->label = "Content type";
-		$this->siteSection->id->required = true;
+		$this->contentProperties = new ContentProperties($content_type_id);
+		$this->contentProperties->id->label = "Content type";
+		$this->contentProperties->id->required = true;
 	}
 
 	/**
@@ -34,7 +34,7 @@ class SectionContent extends SerializedContent
 	 */
 	public function collectFromInput($src=null)
 	{
-		$this->siteSection->bypassCollectFromInput = true;
+		$this->contentProperties->bypassCollectFromInput = true;
 		parent::collectFromInput($src);
 	}
 
@@ -48,7 +48,7 @@ class SectionContent extends SerializedContent
 	public function delete()
 	{
 		parent::delete();
-		return ("Successfully deleted ".strtolower($this->siteSection->name->value)." record.");
+		return ("Successfully deleted ".strtolower($this->contentProperties->name->value)." record.");
 	}
 
 	/**
@@ -57,8 +57,8 @@ class SectionContent extends SerializedContent
 	 */
 	public function getContentTypeID()
 	{
-		if ($this->siteSection->id->value > 0) {
-			return ($this->siteSection->id->value);
+		if ($this->contentProperties->id->value > 0) {
+			return ($this->contentProperties->id->value);
 		}
 		return (parent::getContentTypeID());
 	}
@@ -90,10 +90,10 @@ class SectionContent extends SerializedContent
 	 */
 	public function retrieveSectionProperties()
 	{
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value < 1) {
+		if ($this->contentProperties->id->value===null || $this->contentProperties->id->value < 1) {
 			throw new ContentValidationException("Cannot retrieve section properties. Content site section not specified within ".get_class($this).".");
 		}
-		$this->siteSection->read();
+		$this->contentProperties->read();
 	}
 
 	/**
@@ -107,10 +107,10 @@ class SectionContent extends SerializedContent
 	 */
 	public function save()
 	{
-		if ($this->siteSection->id->value===null || $this->siteSection->id->value < 1) {
+		if ($this->contentProperties->id->value===null || $this->contentProperties->id->value < 1) {
 			throw new ContentValidationException("A content type was not specified.");
 		}
-		$this->siteSection->read();
+		$this->contentProperties->read();
 		parent::save();
 	}
 
@@ -120,7 +120,7 @@ class SectionContent extends SerializedContent
 	 */
 	protected function testForContentType()
 	{
-		if ($this->siteSection->id->value === null || $this->siteSection->id->value < 0) {
+		if ($this->contentProperties->id->value === null || $this->contentProperties->id->value < 0) {
 			throw new ContentValidationException("Could not perform operation. A content type was not specified.");
 		}
 	}

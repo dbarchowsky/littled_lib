@@ -32,7 +32,7 @@ class ResortBase extends MySQLConnection
 	/** @var IntegerInput Position of active record within the overall list of records. */
 	public $positionOffset;
 	/** @var ContentProperties Content properties. */
-	public $siteSection;
+	public $contentProperties;
 	/** @var StringInput Table type. */
 	public $type;
 	/** @var int Content type id. */
@@ -46,8 +46,8 @@ class ResortBase extends MySQLConnection
 	function __construct()
 	{
 		parent::__construct();
-		$this->siteSection = new ContentProperties();
-		$this->siteSection->id->required = true;
+		$this->contentProperties = new ContentProperties();
+		$this->contentProperties->id->required = true;
 		$this->editDOMID = new StringInput("Edit DOM ID", "rid", false, "", 100);
 		$this->positionOffset = new IntegerInput("Position offset", "po", true);
 		$this->positionList = new StringInput("ID array", "id", true, "", 10000);
@@ -68,8 +68,8 @@ class ResortBase extends MySQLConnection
 		if ($src===null) {
 			$src = array_merge($_POST, $_GET);
 		}
-		$this->siteSection->id->collectFromInput($src);
-		if ($this->siteSection->id->value>0) {
+		$this->contentProperties->id->collectFromInput($src);
+		if ($this->contentProperties->id->value>0) {
 			$this->retrieveSectionProperties();
 		}
 
@@ -101,7 +101,7 @@ class ResortBase extends MySQLConnection
 	public function retrieveExistingIDs()
 	{
 		$data = array();
-		switch($this->siteSection->table->value) {
+		switch($this->contentProperties->table->value) {
 			case "ImageLink":
 				/*
 				 * in the case of images you can't just get all the records in the table
@@ -175,14 +175,14 @@ SQL;
 			$status = "";
 			$last = $this->positionOffset->value + count($this->positionList->value);
 			for ($i = $this->positionOffset->value; $i < $last; $i++) {
-				$query = "UPD"."ATE `{$this->siteSection->table->value}` ".
+				$query = "UPD"."ATE `{$this->contentProperties->table->value}` ".
 					"SET slot = {$i} ".
 					"WHERE id = ".$this->IDList[$i];
 				$this->query($query);
 			}
-			$status .= "The new order of the {$this->siteSection->label} records has been saved. \n";
+			$status .= "The new order of the {$this->contentProperties->label} records has been saved. \n";
 
-			$status .= ContentCache::updateCache($this->siteSection, $this->parentID);
+			$status .= ContentCache::updateCache($this->contentProperties, $this->parentID);
 		}
 		catch(\Exception $ex) {
 			throw new OperationAbortedException("Error updating position of record #".((is_array($this->IDList) && count($this->IDList)<$i)?($this->IDList[$i]):("unavailable")).": ".$ex->getMessage());
@@ -217,7 +217,7 @@ SQL;
 	public function validateInput()
 	{
 		try {
-			$this->siteSection->id->validate();
+			$this->contentProperties->id->validate();
 		}
 		catch(ContentValidationException $ex) {
 			array_push($this->validationErrors, $ex->getMessage());

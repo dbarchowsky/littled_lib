@@ -108,10 +108,10 @@ class ImageLink extends KeywordSectionContent
 		$this->med = new Image(null, $image_dir, $param_prefix."md");
 		$this->mini = new Image(null, $image_dir, $param_prefix."mn");
 
-		$this->siteSection->image_path->value = $image_dir;
-		$this->siteSection->sub_dir->value = "full/";
-		$this->siteSection->id->key = $param_prefix.$this::vars['content_type'];
-		$this->type_id = &$this->siteSection->id;
+		$this->contentProperties->image_path->value = $image_dir;
+		$this->contentProperties->sub_dir->value = "full/";
+		$this->contentProperties->id->key = $param_prefix.$this::vars['content_type'];
+		$this->type_id = &$this->contentProperties->id;
 		$this->randomize = new StringInput("Randomize filename", $this::vars['randomize_filename'], false, false);
 		$this->randomize->isDatabaseField = false;
 
@@ -128,7 +128,7 @@ class ImageLink extends KeywordSectionContent
 	{
 		$this->id->value = null;
 		// $this->parent_id->value = null;
-		// $this->siteSection->id->value = null;
+		// $this->contentProperties->id->value = null;
 		$this->title->value = "";
 		$this->description->value = "";
 		$this->slot->value = null;
@@ -171,7 +171,7 @@ class ImageLink extends KeywordSectionContent
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
 			$this->parent_id->collectFromInput(null, $src, $this::vars['parent_id']);
 		}
-		$this->siteSection->id->collectFromInput();
+		$this->contentProperties->id->collectFromInput();
 		if (($this->type_id->key != $this::vars['content_type']) &&
 			($this->type_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
@@ -199,7 +199,7 @@ class ImageLink extends KeywordSectionContent
 		$status .= $this::deleteLinkedImage($this->med, "medium-resolution");
 		$status .= $this::deleteLinkedImage($this->mini, "thumbnail");
 
-		$query = "CALL keywordDeleteLinked({$this->id->value},{$this->siteSection->id->value});";
+		$query = "CALL keywordDeleteLinked({$this->id->value},{$this->contentProperties->id->value});";
 		$this->query($query);
 
 		$query = "CALL imageLinkDelete({$this->id->value});";
@@ -248,7 +248,7 @@ class ImageLink extends KeywordSectionContent
 			 * record independent from the gallery)
 			 */
 			$parent_table = '';
-			$query = "CALL siteSectionParentTableSelect($this->siteSection->id->value);";
+			$query = "CALL siteSectionParentTableSelect($this->contentProperties->id->value);";
 			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$parent_table = $data[0]->table;
@@ -262,7 +262,7 @@ class ImageLink extends KeywordSectionContent
 				 * is the same as the album's and is not a child content type.
 				 * Table properties need to be retrieved accordingly.
 				 */
-				$query = "CALL siteSectionThumbnailTableSelect($this->siteSection->id->value);";
+				$query = "CALL siteSectionThumbnailTableSelect($this->contentProperties->id->value);";
 				$data = $this->fetchRecords($query);
 				if (count($data) > 0) {
 					$parent_table = $data[0]->table;
@@ -287,7 +287,7 @@ class ImageLink extends KeywordSectionContent
 				$query = "SELECT COUNT(1) as `count` ".
 					"FROM `image_link` ".
 					"WHERE `parent_id` = {$this->parent_id->value} ".
-					"AND `type_id` = {$this->siteSection->id->value}";
+					"AND `type_id` = {$this->contentProperties->id->value}";
 				$data = $this->fetchRecords($query);
 				$page_count = $data[0]->count;
 
@@ -301,7 +301,7 @@ class ImageLink extends KeywordSectionContent
 						"'{$parent_table}',".
 						"{$this->parent_id->value},".
 						"{$this->id->value},".
-						"{$this->siteSection->id->value})";
+						"{$this->contentProperties->id->value})";
 					$this->query($query);
 				}
 			}
@@ -321,7 +321,7 @@ class ImageLink extends KeywordSectionContent
 			$this->med->id->escapeSQL($this->mysqli).", ".
 			$this->mini->id->escapeSQL($this->mysqli).", ".
 			$this->parent_id->escapeSQL($this->mysqli).", ".
-			$this->siteSection->id->escapeSQL($this->mysqli).", ".
+			$this->contentProperties->id->escapeSQL($this->mysqli).", ".
 			$this->slot->escapeSQL($this->mysqli).", ".
 			$this->page_number->escapeSQL($this->mysqli).", ".
 			$this->access->escapeSQL($this->mysqli).", ".
@@ -343,7 +343,7 @@ class ImageLink extends KeywordSectionContent
 			"`med_id` = ".$this->med->id->escapeSQL($this->mysqli).", ".
 			"`mini_id` = ".$this->mini->id->escapeSQL($this->mysqli).", ".
 			"`parent_id` = ".$this->parent_id->escapeSQL($this->mysqli).", ".
-			"`type_id` = ".$this->siteSection->id->escapeSQL($this->mysqli).", ".
+			"`type_id` = ".$this->contentProperties->id->escapeSQL($this->mysqli).", ".
 			"`title` = ".$this->title->escapeSQL($this->mysqli).", ".
 			"`description` = ".$this->description->escapeSQL($this->mysqli).", ".
 			"`slot` = ".$this->slot->escapeSQL($this->mysqli).", ".
@@ -375,7 +375,7 @@ class ImageLink extends KeywordSectionContent
 	protected function fillFromRecordset( $data )
 	{
 		$this->parent_id->value = $data->parent_id;
-		$this->siteSection->id->value = $data->type_id;
+		$this->contentProperties->id->value = $data->type_id;
 		$this->type_name = $data->type_name;
 		$this->title->value = $data->title;
 		$this->description->value = $data->description;
@@ -407,7 +407,7 @@ class ImageLink extends KeywordSectionContent
 	 */
 	public function getParentContentTypeID()
 	{
-		return ($this->siteSection->getParentTypeID());
+		return ($this->contentProperties->getParentTypeID());
 	}
 
 	/**
@@ -435,7 +435,7 @@ class ImageLink extends KeywordSectionContent
 		$this->connectToDatabase();
 		$query = "CALL imageLinkSelect(".$this->id->escapeSQL($this->mysqli).
 			",".$this->parent_id->escapeSQL($this->mysqli).
-			",".$this->siteSection->id->escapeSQL($this->mysqli).");";
+			",".$this->contentProperties->id->escapeSQL($this->mysqli).");";
 		$data = $this->fetchRecords($query);
 		$this->fillFromRecordset($data[0]);
 
@@ -459,9 +459,9 @@ class ImageLink extends KeywordSectionContent
 	{
 		parent::retrieveSectionProperties();
 
-		$this->full->image_dir = $this->siteSection->image_path->value;
-		if ($this->siteSection->param_prefix->value) {
-			$this->setPrefix($this->siteSection->param_prefix->value);
+		$this->full->image_dir = $this->contentProperties->image_path->value;
+		if ($this->contentProperties->param_prefix->value) {
+			$this->setPrefix($this->contentProperties->param_prefix->value);
 		}
 	}
 
@@ -508,7 +508,7 @@ class ImageLink extends KeywordSectionContent
 
 		if ($is_new_image && $save_keywords) {
 			/* extract keywords from image */
-			$this->full->extractKeywords($this->keywords, $this->id->value, $this->siteSection->id->value);
+			$this->full->extractKeywords($this->keywords, $this->id->value, $this->contentProperties->id->value);
 			$this->saveKeywords();
 		}
 	}
@@ -541,7 +541,7 @@ class ImageLink extends KeywordSectionContent
 		}
 		$this->title->key = ImageBase::vars['alt'];
 		$this->description->key = ImageBase::vars['caption'];
-		$this->siteSection->id->key = $this::vars['content_type'];
+		$this->contentProperties->id->key = $this::vars['content_type'];
 		$this->full->setPrefix($prefix);
 		$this->med->setPrefix($prefix.'md');
 		$this->mini->setPrefix($prefix.'mn');
@@ -556,7 +556,7 @@ class ImageLink extends KeywordSectionContent
 		$this->full->image_dir = $path;
 		$this->med->image_dir = $path;
 		$this->mini->image_dir = $path;
-		$this->siteSection->image_path->value = $path;
+		$this->contentProperties->image_path->value = $path;
 	}
 
 	/**
@@ -604,9 +604,9 @@ class ImageLink extends KeywordSectionContent
 		 */
 		if (class_exists("ContentCache") && method_exists("ContentCache", "updateKeywords")) {
 			if ($this->parent_id->value>0) {
-				$parent_type_id = $this->siteSection->getParentTypeID();
+				$parent_type_id = $this->contentProperties->getParentTypeID();
 				if ($parent_type_id) {
-					ContentCache::updateKeywords($this->siteSection);
+					ContentCache::updateKeywords($this->contentProperties);
 				}
 			}
 		}
@@ -634,16 +634,16 @@ class ImageLink extends KeywordSectionContent
 		$this->connectToDatabase();
 		$make_thumbnail = ($_FILES[$this->full->path->key]["name"]);
 
-		$target_dims = new ImageDims($this->siteSection->width->value, $this->siteSection->height->value);
-		$this->full->save($target_dims, null, $this->siteSection->sub_dir->value, null, $randomize_filename);
+		$target_dims = new ImageDims($this->contentProperties->width->value, $this->contentProperties->height->value);
+		$this->full->save($target_dims, null, $this->contentProperties->sub_dir->value, null, $randomize_filename);
 
-		if ($make_thumbnail && ($this->siteSection->med_width->value>0 || $this->siteSection->med_height->value>0)) {
-			$medium_dims = new ImageDims($this->siteSection->med_width->value, $this->siteSection->med_height->value);
+		if ($make_thumbnail && ($this->contentProperties->med_width->value>0 || $this->contentProperties->med_height->value>0)) {
+			$medium_dims = new ImageDims($this->contentProperties->med_width->value, $this->contentProperties->med_height->value);
 			$this->med->id->value = $this->full->makeThumbnailCopy(basename($this->full->path->value), $medium_dims, "jpg", "med/", "med_id");
 		}
 
-		if ($make_thumbnail && ($this->siteSection->save_mini->value==true) && ($this->siteSection->mini_width->value>0 || $this->siteSection->mini_height->value>0)) {
-			$mini_dims = new ImageDims($this->siteSection->mini_width->value, $this->siteSection->mini_height->value);
+		if ($make_thumbnail && ($this->contentProperties->save_mini->value==true) && ($this->contentProperties->mini_width->value>0 || $this->contentProperties->mini_height->value>0)) {
+			$mini_dims = new ImageDims($this->contentProperties->mini_width->value, $this->contentProperties->mini_height->value);
 			$this->mini->id->value = $this->full->makeThumbnailCopy(basename($this->full->path->value), $mini_dims, "png", "mini/", "mini_id");
 		}
 	}
@@ -655,7 +655,7 @@ class ImageLink extends KeywordSectionContent
 	public function validateInlineInput()
 	{
 		$this->parent_id->required = true;
-		$this->siteSection->id->required = true;
+		$this->contentProperties->id->required = true;
 		try {
 			$this->parent_id->validate();
 		}
@@ -663,7 +663,7 @@ class ImageLink extends KeywordSectionContent
 			array_push($this->validationErrors, $ex->getMessage());
 		}
 		try {
-			$this->siteSection->id->validate();
+			$this->contentProperties->id->validate();
 		}
 		catch (ContentValidationException $ex) {
 			array_push($this->validationErrors, $ex->getMessage());

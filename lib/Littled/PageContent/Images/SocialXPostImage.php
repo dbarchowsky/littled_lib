@@ -114,7 +114,7 @@ SQL;
 SELECT IFNULL(MAX(`slot`),0)+1 AS `slot`  
 FROM `image_link` 
 WHERE `parent_id` = {$this->parent_id->value} 
-AND `type_id` = {$this->siteSection->id->value}  
+AND `type_id` = {$this->contentProperties->id->value}  
 SQL;
 				$data = $this->fetchRecords($query);
 				$this->slot->value = $data[0]->slot;
@@ -143,7 +143,7 @@ SQL;
 			if ($is_new) {
 				ContentCache::setInitialProperties($this);
 			}
-			ContentCache::updateCache($this->siteSection, $this);
+			ContentCache::updateCache($this->contentProperties, $this);
 		}
 	}
 }
