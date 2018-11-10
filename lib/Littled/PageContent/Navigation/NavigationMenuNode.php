@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 
@@ -37,7 +36,7 @@ class NavigationMenuNode
 	public $url;
 
 	/** @var string Path to template to use to render the node */
-	public static $menuNodeTemplate = "";
+	public static $menuNodeTemplate = '';
 	
 	/**
 	 * Class constructor.
@@ -48,20 +47,9 @@ class NavigationMenuNode
 	 * @param integer $level (Optional) Indentation level of the menu item.
 	 * @param string $dom_id  (Optional) Sets the id attribute of the menu item element.
 	 * @param string $attributes (Optional) Hook to insert any extra attributes into the menu item element.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ResourceNotFoundException
 	 */
 	function __construct ( $label=null, $url=null, $title=null, $target=null, $level=0, $dom_id=null, $attributes=null)
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
-		}
-
-		$this::$menuNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/navmenu-node.php";
-		if (!file_exists($this::$menuNodeTemplate)) {
-			throw new ResourceNotFoundException("Navigation menu template not found at {$this::$menuNodeTemplate}.");
-		}
-
 		$this->label = $label;
 		$this->url = $url;
 		$this->target = $target;
@@ -71,13 +59,22 @@ class NavigationMenuNode
 		$this->attributes = $attributes;
 	}
 
+	/**
+	 * @return string Navigation menu node template path.
+	 */
+	public static function getMenuNodeTemplatePath()
+	{
+		return (static::$menuNodeTemplate);
+	}
+
     /**
      * render
      * Outputs markup for the the individual navigation menu node.
-     */
+	 * @throws ResourceNotFoundException
+	 */
     public function render ( )
     {
-	    PageContent::render($this::$menuNodeTemplate, array(
+	    PageContent::render($this::getMenuNodeTemplatePath(), array(
 		    'node' => &$this
 	    ));
     }

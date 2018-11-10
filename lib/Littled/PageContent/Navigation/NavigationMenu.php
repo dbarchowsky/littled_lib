@@ -90,7 +90,7 @@ class NavigationMenu
 	 */
 	function render ()
 	{
-		PageContent::render($this::$menuTemplate, array(
+		PageContent::render($this::getMenuTemplatePath(), array(
 			'menu' => &$this
 		));
 	}
