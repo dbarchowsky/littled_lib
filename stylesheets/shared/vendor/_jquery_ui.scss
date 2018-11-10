@@ -44,8 +44,12 @@ a.op-button {
 }
 button, a {
 	&.ui-button-icon-only {
-		width: 1rem;
-		height: 1rem;
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+	&.ui-button {
+		margin-right: .2rem;
+		margin-bottom: .2rem;
 	}
 }
 // remove extra button width in IE //
