@@ -256,7 +256,7 @@ class PageUtils
 	public static function realpath($path)
 	{
 		// check if path begins with "/" ie. is absolute
-		// if it isnt concat with script path
+		// if it isn't concat with script path
 		if (strpos($path,"/") !== 0) {
 			$base=dirname($_SERVER['SCRIPT_FILENAME']);
 			$path=$base."/".$path;
@@ -264,22 +264,22 @@ class PageUtils
 
 		// canonicalize
 		$path=explode('/', $path);
-		$newpath=array();
+		$new_path=array();
 		for ($i=0; $i<sizeof($path); $i++) {
 			if ($path[$i]==='' || $path[$i]==='.') {
 				continue;
 			}
 			if ($path[$i]==='..') {
-				array_pop($newpath);
+				array_pop($new_path);
 				continue;
 			}
-			array_push($newpath, $path[$i]);
+			array_push($new_path, $path[$i]);
 		}
-		$finalpath="/".implode('/', $newpath);
+		$final_path='/'.implode('/', $new_path).'/';
 
 		// check then return valid path or filename
-		if (file_exists($finalpath)) {
-			return ($finalpath);
+		if (file_exists($final_path)) {
+			return ($final_path);
 		}
 		else {
 			return (false);
