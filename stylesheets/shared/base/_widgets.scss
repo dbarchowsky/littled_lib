@@ -1,0 +1,22 @@
+@mixin loader ($size) {
+	background-image: url('/images/loader64.gif');
+	background-position: center;
+	background-size: #{$size}px #{$size}px;
+	background-repeat: no-repeat;
+	min-width: #{$size}px;
+	min-height: #{$size}px;
+	overflow: hidden;
+	display:none;
+}
+@mixin overlay-button-group {
+	position: absolute;
+	z-index: 999;
+	width: 72px;
+}
+@mixin overlay-buttons {
+    background-color: #eeeeee;
+    border: 1px solid #999999;
+    margin: 2px;
+    padding: 2px;
+	border-radius: 3px 3px;
+}

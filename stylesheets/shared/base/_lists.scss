@@ -1,0 +1,27 @@
+@mixin horizontal-list {
+	ul {
+		padding: 0;
+		margin: 0;
+		list-style-type: none;
+	}
+	li {
+		display: inline;
+	}
+}
+@mixin horizontal-divided-list( $separator ) {
+	@include horizontal-list;
+	ul {
+		li {
+			&:before { 
+				padding-right: 0.35em;
+				content: $separator;
+			}
+			&:first-child {
+				&:before {
+					content: "";
+					padding-right: 0em;
+				}
+			}
+		}
+	}
+}

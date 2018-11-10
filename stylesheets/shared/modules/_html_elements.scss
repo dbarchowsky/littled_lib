@@ -1,0 +1,41 @@
+*, *:before, *:after {
+	box-sizing: border-box;
+ }
+// remember to define focus styles! 
+:focus {
+	outline: 0;
+}
+acronym {
+	border-bottom: 0;
+}
+form {
+	padding: 0;
+	margin: 0;
+}
+img {
+	border: 0;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+td {
+	padding: 0;
+	margin: 0;
+	vertical-align: top;
+}
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+time {
+	color: $dim-text-color;
+	font-size: 1.2em;
+}

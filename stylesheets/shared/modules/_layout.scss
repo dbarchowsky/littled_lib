@@ -1,0 +1,175 @@
+// Alignment (from WordPress)
+.row-fluid {
+	@include clearfix;
+	width: 100%;
+	&:after, 
+	&:before {
+		display: table;
+		line-height: 0;
+		content: "";
+	}
+	&:after {
+		clear:both;
+	}
+	[class*=span] {
+		display: block;
+		float: left;
+		&:first-child {
+			margin-left: 0;
+		}
+		input, select {
+			max-width: 100%;
+		}
+	}
+}
+[class*="span"] {
+	float: left;
+	position: relative;
+	min-height: 1px;
+	padding-right: $gutter-width;
+	vertical-align: top;
+	&.listops {
+		display: table-cell;
+	}
+	&.alignright {
+		float: none;
+		text-align: right;
+	}
+	&.alignleft {
+		float: none;
+		text-align: left;
+	}
+}
+@for $i from 1 through 11 {
+	.span#{$i} {
+		width: 0% + ((1/12)*$i*100);
+	}
+}
+// base properties for text on page to be hidden and replaced with a background image //
+@mixin image-replacement ($image_url, $image_width, $image_height, $hover_url:"") {
+	border: 0;
+	font: 0/0 a;
+	text-shadow: none;
+	color: transparent;
+	background: url($image_url) no-repeat left top;
+	width: $image_width;
+	height: $image_height;
+	&:hover {
+		@if $hover_url != "" {
+		background-image: url($hover_url);
+		}
+		cursor: pointer;
+	}
+}
+.alignleft {
+	display: inline;
+	float: left;
+	margin-right: 1.625em;
+}
+.alignright {
+	display: inline;
+	float: right;
+	margin-left: 1.625em;
+}
+.aligncenter {
+	clear: both;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+th, td {
+	&.alignleft {
+		float: none;
+		display: table-cell;
+		text-align: left;
+	}
+	&.aligncenter {
+		float: none;
+		display: table-cell;
+		text-align: center;
+	}
+	&.alignright {
+		float: none;
+		display: table-cell;
+		text-align: right;
+	}
+}
+.box {
+	padding: 0.5em;
+	@include solid-border($dim-border-color);
+}
+// random styles
+.clear, 
+.clearfix, 
+.clrfix {
+	clear: both;
+}
+.fullspan {
+	width: 100%;
+}
+// use this for elements that can be revealed with jQuery
+.hidden {
+	display: none;
+}
+// use this for elements that are permanently hidden from view
+.stashed,
+.preload {
+	@include hidden;
+}
+.nowrap {
+	white-space: nowrap;
+}
+.missing-image { 
+	color: $dim-text-color;
+	width: 120px;
+	height: 160px;
+	background-color: $faint-background-color;
+	text-align: center;
+	margin: 0 auto;
+	box-shadow: 2px 2px 2px #ccc;
+	a {
+		&:hover, &:active {
+			text-decoration: none;
+			color: lighten($dim-text-color, 10%);
+		}
+	}
+	&:hover {
+		background-color: mix($faint-background-color, $page-background-color);
+	}
+	div { 
+		height: 160px;
+		line-height: 160px;
+	}
+}
+.tk {
+	font: {
+		weight: bold;
+		style: italic;
+	}
+	color: $alert-text-color;
+	background-color: $alert-background-color;
+	@include solid-border($alert-border-color);
+	padding: 12px;
+	&:before {
+		content: '[TK:'+$space-hex-code;
+	}
+	&:after {
+		content: ']';
+	}
+}
+
+// alerts //
+.alert-success,
+.alert-info {
+	@include alert($info-text-color, $info-background-color, $info-border-color);
+}
+.alert-error {
+	@include alert($alert-text-color, $alert-background-color, $alert-border-color);
+	h3 {
+		margin-bottom: -0.7em;
+		color: $alert-text-color;
+		font: {
+			family: $app-base-font-family;
+		}
+	}
+}

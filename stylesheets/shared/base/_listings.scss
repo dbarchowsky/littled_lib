@@ -1,0 +1,9 @@
+@mixin listings-table {
+	width: 100%;
+	border-collapse: collapse;
+	border-bottom: $listings-border;
+}
+@mixin listings-column-header {
+	border-top: $listings-border;
+	border-bottom: $listings-border;
+}

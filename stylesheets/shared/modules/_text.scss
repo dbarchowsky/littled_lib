@@ -1,0 +1,77 @@
+@mixin utility-font-properties {
+	font: {
+		family: $utility-font-family;
+		size: $utility-font-size;
+	}
+}
+.alert {
+	background-color: $alert-background-color;
+}
+tr.alert {
+	&:hover {
+		td {
+			color: $alert-text-color;
+		}
+	}
+	&:nth-child(even),
+	&:nth-child(odd) {
+		background-color: $alert-background-color;
+		&:hover {
+			background-color: mix($alert-background-color, red, 90%);
+		}
+	}
+}
+.bold {
+	font-weight: bold;
+}
+.centered {
+	text-align: center;
+}
+.comment {
+	color: $dim-text-color;
+	font-style: italic;
+}
+.dimtext {
+	color: $dim-text-color;
+}
+.error {
+	font-weight: bold;
+	color: red;
+}
+.highlight {
+	background: $highlight-background-color; 
+}
+.message {
+	@include alert($info-text-color, $info-background-color, $info-border-color);
+}
+.note {
+	color: $dim-text-color;
+	font-style: italic;
+	font-size: 0.9em;
+}
+.smtext {
+	font-size: 0.9em;
+	a {
+		font-size: 0.9em;
+	}
+}
+.strike {
+	text-decoration: line-through;
+}
+.warning {
+	background-color: $warning-background-color;
+}
+tr.warning {
+	&:hover {
+		td {
+			color: $warning-text-color;
+		}
+	}
+	&:nth-child(even),
+	&:nth-child(odd) {
+		background-color: $warning-background-color;
+		&:hover {
+			background-color: mix($warning-background-color, darkorange, 90%);
+		}
+	}
+}

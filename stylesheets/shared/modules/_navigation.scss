@@ -1,0 +1,25 @@
+.neighbor-links {
+	@include utility-font-properties;
+	clear: both;
+	overflow: auto;
+	width: 100%;
+	padding: 3px 0;
+}
+.nav-link {
+	float: left;
+	white-space: nowrap;
+	min-height: 1px; // prevents the element from collapsing when its contents are hidden //
+}
+.page-number, 
+.list-link {
+	width: 34%;
+	text-align: center;
+}
+.next-link {
+	width: 33%;
+	text-align: right;
+}
+.prev-link {
+	width: 33%;
+	text-align: left;
+}
