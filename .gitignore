@@ -3,5 +3,6 @@ _gsdata_/
 vendor/
 composer.phar
 composer.lock
+node_modules/
 tests/config/
 tests/assets/*-output-template.php

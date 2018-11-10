@@ -1,0 +1,39 @@
+{
+  "name": "littled_lib",
+  "version": "1.0.0",
+  "description": "Shared PHP and JavaScript ORM libraries",
+  "main": "gulpfile.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbarchowsky/littled_lib.git"
+  },
+  "keywords": [
+    "PHP",
+    "framework",
+    "ORM",
+    "JavaScript",
+    "MySQL",
+    "CMS",
+    "Littled",
+    "LittleDamien"
+  ],
+  "author": "Damien Barchowsky",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dbarchowsky/littled_lib/issues"
+  },
+  "homepage": "https://github.com/dbarchowsky/littled_lib#readme",
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-uglify": "^3.0.1"
+  }
+}
