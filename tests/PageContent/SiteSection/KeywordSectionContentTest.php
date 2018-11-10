@@ -90,7 +90,7 @@ class KeywordSectionContentTest extends TestCase
 	public function testConstructorDefaultValues()
 	{
 		$this->assertNull($this->obj->id->value);
-		$this->assertNull($this->obj->siteSection->id->value);
+		$this->assertNull($this->obj->contentProperties->id->value);
 		$this->assertEquals('', $this->obj->keywordInput->value);
 		$this->assertEquals('kwte', $this->obj->keywordInput->key);
 		$this->assertFalse($this->obj->keywordInput->isDatabaseField);
@@ -103,7 +103,7 @@ class KeywordSectionContentTest extends TestCase
 	{
 		$obj = new KeywordSectionContent(83, 629, 'biz');
 		$this->assertEquals(83, $obj->id->value);
-		$this->assertEquals(629, $obj->siteSection->id->value);
+		$this->assertEquals(629, $obj->contentProperties->id->value);
 		$this->assertEquals('bizte', $obj->keywordInput->key);
 	}
 
@@ -138,13 +138,13 @@ class KeywordSectionContentTest extends TestCase
 	{
 		$input = array(
 			$this->obj->id->key => '47',
-			$this->obj->siteSection->id->key => '629'
+			$this->obj->contentProperties->id->key => '629'
 		);
 
 		$this->obj->collectFromInput($input);
 
 		$this->assertEquals(47, $this->obj->id->value);
-		$this->assertEquals(629, $this->obj->siteSection->id->value);
+		$this->assertEquals(629, $this->obj->contentProperties->id->value);
 	}
 
 	public function testCollectKeywordInputWhenEmpty()
@@ -237,7 +237,7 @@ class KeywordSectionContentTest extends TestCase
 		}
 
 		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
-		$this->obj->siteSection->id->value = null;
+		$this->obj->contentProperties->id->value = null;
 		try {
 			$this->obj->deleteKeywords();
 		}
@@ -246,7 +246,7 @@ class KeywordSectionContentTest extends TestCase
 		}
 
 		$this->obj->id->value = null;
-		$this->obj->siteSection->id->value = self::TEST_CONTENT_TYPE_ID;
+		$this->obj->contentProperties->id->value = self::TEST_CONTENT_TYPE_ID;
 		try {
 			$this->obj->deleteKeywords();
 		}
@@ -257,7 +257,7 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertGreaterThan(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
 
 		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
-		$this->obj->siteSection->id->value = self::TEST_CONTENT_TYPE_ID;
+		$this->obj->contentProperties->id->value = self::TEST_CONTENT_TYPE_ID;
 		$this->obj->deleteKeywords();
 		$this->assertEquals(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
 	}
@@ -310,7 +310,7 @@ class KeywordSectionContentTest extends TestCase
 		}
 
 		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ+1);
-		$this->obj->siteSection->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+		$this->obj->contentProperties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
 		$this->assertEquals("", $this->obj->formatKeywordList());
 
 		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
@@ -364,7 +364,7 @@ class KeywordSectionContentTest extends TestCase
 			$this->assertEquals("A content type was not specified.", $ex->getMessage());
 		}
 
-		$this->obj->siteSection->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+		$this->obj->contentProperties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
 		try {
 			$this->obj->save();
 		}
@@ -405,7 +405,7 @@ class KeywordSectionContentTest extends TestCase
 		}
 
 		/* test it silently skips over saving if there are no terms to save */
-		$this->obj->siteSection->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
+		$this->obj->contentProperties->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
 		$this->obj->saveKeywords();
 
 		$this->assertEquals(0, count($this->obj->keywords));
@@ -434,7 +434,7 @@ class KeywordSectionContentTest extends TestCase
 			$this->assertContains("Content type is required.", $this->obj->validationErrors);
 		}
 
-		$this->obj->siteSection->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+		$this->obj->contentProperties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
 		$this->obj->validateInput();
 		$this->assertEquals(0, count($this->obj->validationErrors));
 

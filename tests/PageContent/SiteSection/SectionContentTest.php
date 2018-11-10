@@ -26,14 +26,14 @@ class SectionContentTest extends TestCase
 	public function testConstructorDefaultValues()
 	{
 		$this->assertNull($this->obj->id->value);
-		$this->assertNull($this->obj->siteSection->id->value);
+		$this->assertNull($this->obj->contentProperties->id->value);
 	}
 
 	public function testConstructorWithIDs()
 	{
 		$obj = new SectionContent(45, 88);
 		$this->assertEquals(45, $obj->id->value);
-		$this->assertEquals(88, $obj->siteSection->id->value);
+		$this->assertEquals(88, $obj->contentProperties->id->value);
 	}
 
 	public function testCollectFromInput()
@@ -53,16 +53,16 @@ class SectionContentTest extends TestCase
 
 		$this->assertEquals(82, $this->obj->id->value);
 		/* Site Section data should not be collected & should remain with default values */
-		$this->assertNull($this->obj->siteSection->id->value);
-		$this->assertEquals('', $this->obj->siteSection->name->value);
-		$this->assertNull($this->obj->siteSection->width->value);
-		$this->assertFalse($this->obj->siteSection->save_mini->value);
-		$this->assertFalse($this->obj->siteSection->is_cached->value);
+		$this->assertNull($this->obj->contentProperties->id->value);
+		$this->assertEquals('', $this->obj->contentProperties->name->value);
+		$this->assertNull($this->obj->contentProperties->width->value);
+		$this->assertFalse($this->obj->contentProperties->save_mini->value);
+		$this->assertFalse($this->obj->contentProperties->is_cached->value);
 	}
 
 	public function testGetContentTypeIDUsingInternalValue()
 	{
-		$this->obj->siteSection->id->setInputValue(CONTENT_TEMPLATE_CONTENT_TYPE_ID);
+		$this->obj->contentProperties->id->setInputValue(CONTENT_TEMPLATE_CONTENT_TYPE_ID);
 		$this->assertEquals(CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->getContentTypeID());
 	}
 
@@ -101,12 +101,12 @@ class SectionContentTest extends TestCase
 	 */
 	public function testRetrieveSectionProperties()
 	{
-		$this->obj->siteSection->id->setInputValue(CONTENT_TEMPLATE_CONTENT_TYPE_ID);
+		$this->obj->contentProperties->id->setInputValue(CONTENT_TEMPLATE_CONTENT_TYPE_ID);
 		$this->obj->retrieveSectionProperties();
-		$this->assertEquals("Content Template", $this->obj->siteSection->name->value);
-		$this->assertEquals("/hostmgr/content-properties", $this->obj->siteSection->root_dir->value);
-		$this->assertFalse($this->obj->siteSection->save_mini->value);
-		$this->assertEquals("content_template", $this->obj->siteSection->table->value);
-		$this->assertEquals(27, $this->obj->siteSection->parent_id->value);
+		$this->assertEquals("Content Template", $this->obj->contentProperties->name->value);
+		$this->assertEquals("/hostmgr/content-properties", $this->obj->contentProperties->root_dir->value);
+		$this->assertFalse($this->obj->contentProperties->save_mini->value);
+		$this->assertEquals("content_template", $this->obj->contentProperties->table->value);
+		$this->assertEquals(27, $this->obj->contentProperties->parent_id->value);
 	}
 }
