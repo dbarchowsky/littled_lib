@@ -1,0 +1,157 @@
+.ui-loader { // jQuery mobile nonsense //
+	display: none;
+}
+
+// dialog without titlebar //
+.gallery-dialog {
+	padding: 0;
+	background-color: #000000; 
+	.ui-dialog-titlebar { 
+		display: none; 
+	}
+	.ui-dialog-content { 
+		padding: 0; 
+	}
+}
+// utility buttons //
+.op-button { 
+	outline: 0; 
+	margin: 0 2px 2px 2px; 
+	padding: .65em; 
+	text-decoration: none !important; 
+	cursor: pointer; 
+	position: relative; 
+	text-align: center; 
+	zoom: 1; 
+	.ui-icon { 
+		position: absolute; 
+		top: 50%; 
+		margin-top: -8px; 
+		left: 50%; 
+		margin-left: -8px; 
+	}
+}
+a.op-button { 
+	float: left; 
+}
+.listops { 
+	overflow: hidden;
+	display: inline-block; 
+	.ui-button-text-only {
+		width: 1.45em;
+		height: 1.45em;
+	}
+}
+button, a {
+	&.ui-button-icon-only {
+		width: 1rem;
+		height: 1rem;
+	}
+}
+// remove extra button width in IE //
+button {
+	&.op-button { 
+		width: auto; 
+		overflow: visible; 
+	}
+}
+.op-button-icon-left { 
+	padding-left: 2.1em; 
+	.ui-icon { 
+		right: auto; 
+		left: .2em; 
+		margin-left: 0; 
+	}
+}
+.op-button-icon-right { 
+	padding-right: 2.1em; 
+	.ui-icon { 
+		left: auto; 
+		right: .2em; 
+		margin-left: 0; 
+	}
+}
+// solo icon buttons must have block properties for the text-indent to work //
+.op-button-icon-solo { 
+	display: block; 
+	width:8px; 
+	text-indent: -9999px; 
+}	 
+.op-buttonset { 
+	float: left; 
+	.op-button { 
+		float: left; 
+	}
+}
+.op-buttonset-single,
+.op-buttonset-multi {
+	.op-button { 
+		margin-right: -1px;
+	}
+}
+.op-toolbar { 
+	padding: .5em; 
+	margin: 0;  
+	.op-buttonset { 
+		margin-right:1.5em; 
+		padding-left: 1px; 
+	}
+	.op-button { 
+		font-size: 1em;  
+	}
+}
+%button-radius {
+	border-radius: 2px 2px;
+}
+.ui-widget {
+	font: {
+		family: $app-base-font-family;
+		size: 0.8rem;
+	}
+}
+.listops, 
+.ui-autocomplete {
+	.ui-corner-all {
+		@extend %button-radius;
+	}
+}
+.ui-autocomplete {
+		@extend %button-radius;
+	.ui-menu-item { 
+		text-align:left; 
+	}
+}
+.edit-kw-btn { 
+	position: relative;
+	top: 0px; 
+	margin: 0 4px;
+}
+.ui-datepicker-title { 
+	font-size: 12px; 
+}
+.ui-datepicker {
+	.ui-datepicker-prev, 
+	.ui-datepicker-next { 
+		width: 0.9em; 
+		height: 0.9em; 
+	}
+}
+// ui buttons aliases //
+.ui-icon-cache { background-position: -64px -80px; } // alias for "refresh" //
+.ui-icon-edit { background-position: -192px -112px; } // alias for "gear" // 
+.ui-icon-addchild { background-position: -32px -96px; } // alias for "document" //
+.ui-icon-up-level { background-position: -192px -48px; } // alias for ".ui-icon-arrowthickstop-1-n" //
+.ui-icon-expand-all { background-position: -128px 0; } // alias for ".ui-icon-carat-2-n-s" //
+.ui-icon-details { background-position: -16px -144px; } // alias for "info" //
+.ui-icon-expand { background-position: -64px -192px; } // alias for ".ui-icon-circle-triangle-s" //
+.ui-icon-collapse { background-position: -96px -192px; } // alias for ".ui-icon-circle-triangle-n " //
+.listings-filters {
+	.ui-button-text-only {
+		@extend %filters-button;
+		background: transparent;
+		.ui-button-text {
+			padding: 0;
+		}
+	}
+}
+
