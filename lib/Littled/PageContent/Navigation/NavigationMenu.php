@@ -2,7 +2,6 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\PageContent\PageContent;
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 
 
@@ -20,26 +19,10 @@ class NavigationMenu
 	public $cssClass;
 
 	/** @var string Path to template to use to render the menu in markup. */
-	public static $menuTemplate = "";
+	public static $menuTemplate = '';
 	/** @var string Class name to use to manage the navigation menu nodes. Default is NavigationMenuNode. */
 	public static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
-	/**
-	 * NavigationMenu constructor.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ResourceNotFoundException
-	 */
-	public function __construct()
-	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
-		}
-		$this::$menuTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/navmenu.php";
-		if (!file_exists($this::$menuTemplate)) {
-			throw new ResourceNotFoundException("Navigation menu template not found at {$this::$menuTemplate}.");
-		}
-	}
-	
 	/**
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label Text to display for this item within the navigation menu.
@@ -83,7 +66,15 @@ class NavigationMenu
 			unset($this->last);
 		} 
 	}
-	
+
+	/**
+	 * @return string Navigation menu template path.
+	 */
+	public static function getMenuTemplatePath()
+	{
+		return (static::$menuTemplate);
+	}
+
 	/**
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool True if the menu has nodes, false otherwise
@@ -95,6 +86,7 @@ class NavigationMenu
 
 	/**
 	 * Outputs navigation menu markup.
+	 * @throws ResourceNotFoundException
 	 */
 	function render ()
 	{
