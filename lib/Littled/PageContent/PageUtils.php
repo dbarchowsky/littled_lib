@@ -176,6 +176,7 @@ class PageUtils
 	 * @param string $hostname Host name
 	 * @param string $url URL of the remote content
 	 * @return string Content read from remote source.
+	 * @throws ConfigurationUndefinedException
 	 */
 	public static function getRemoteContent( $hostname, $url )
 	{
@@ -215,29 +216,30 @@ class PageUtils
 	{
 		$keyword = str_replace('*', '', $keyword);
 		$src = "<div>{$src}</div>";
-		$dom = new DomDocument();
+		$dom = new \DomDocument();
 		$dom->recover = true;
 		@$dom->loadHtml($src);
-		$xpath = new DomXpath($dom);
+		$xpath = new \DomXpath($dom);
 		$elements = $xpath->query('//*[contains(.,"'.$keyword.'")]');
+		/** @var \DOMElement $element */
 		foreach ($elements as $element) {
 			foreach ($element->childNodes as $child) {
-				if (!$child instanceof DomText) {
+				if (!$child instanceof \DomText) {
 					continue;
 				}
 				$fragment = $dom->createDocumentFragment();
 				$text = $child->textContent;
 				while (($pos = stripos($text, $keyword)) !== false) {
-					$fragment->appendChild(new DomText(substr($text, 0, $pos)));
+					$fragment->appendChild(new \DomText(substr($text, 0, $pos)));
 					$word = substr($text, $pos, strlen($keyword));
 					$highlight = $dom->createElement('span');
-					$highlight->appendChild(new DomText($word));
+					$highlight->appendChild(new \DomText($word));
 					$highlight->setAttribute('class', 'searchterm');
 					$fragment->appendChild($highlight);
 					$text = substr($text, $pos + strlen($keyword));
 				}
 				if (!empty($text)) {
-					$fragment->appendChild(new DomText($text));
+					$fragment->appendChild(new \DomText($text));
 				}
 				$element->replaceChild($fragment, $child);
 			}
@@ -304,6 +306,16 @@ class PageUtils
 		}
 		$data = ((is_array($data))?("?".implode("&", $data)):(""));
 		return ($data);
+	}
+
+	/**
+	 * Displays an error message in the browser.
+	 * @param string $error Error message to display
+	 * @param string[optional] $css_class CSS class to apply to the error message container element.
+	 * @param string[optional] $encoding Defaults to 'UTF-8'
+	 */
+	public static function showError($error, $css_class="alert alert-error", $encoding="UTF-8") {
+		print ("<div class='\"{$css_class}\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");
 	}
 
 	/**
