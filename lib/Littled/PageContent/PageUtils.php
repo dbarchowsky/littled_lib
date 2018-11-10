@@ -314,7 +314,10 @@ class PageUtils
 	 * @param string[optional] $css_class CSS class to apply to the error message container element.
 	 * @param string[optional] $encoding Defaults to 'UTF-8'
 	 */
-	public static function showError($error, $css_class="alert alert-error", $encoding="UTF-8") {
+	public static function showError($error, $css_class=null, $encoding="UTF-8") {
+		if ($css_class===null) {
+			$css_class = "alert alert-error";
+		}
 		print ("<div class='\"{$css_class}\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");
 	}
 

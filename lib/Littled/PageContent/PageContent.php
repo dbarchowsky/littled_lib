@@ -146,6 +146,23 @@ class PageContent
 	}
 
 	/**
+	 * Inserts data into a template file and renders the result. Catches exceptions and prints error messages directly to the DOM.
+	 * @param string $template_path Path to template to render.
+	 * @param array $context Data to insert into the template.
+	 * @param string[optional] $css_class CSS class to apply to the error message container element.
+	 * @param string[optional] $encoding Defaults to 'UTF-8'
+	 */
+	public static function renderWithErrors( $template_path, $context=null, $css_class=null, $encoding="UTF-8")
+	{
+		try {
+			PageContent::render($template_path, $context);
+		}
+		catch(ResourceNotFoundException $ex) {
+			PageUtils::showError($ex->getMessage(), $css_class, $encoding);
+		}
+	}
+
+	/**
      * @deprecated Use .htaccess directive instead.
 	 * Forces a page to use https protocol.
 	 * @param bool[optional] $bypass_on_dev Flag to skip this in dev environment.
