@@ -15,11 +15,9 @@ class JSONField
 
 
 	/**
-	 * class constructor
-	 *
+	 * JSONField constructor.
 	 * @param string|null[optional] $name JSON field key.
 	 * @param mixed[optional] $value JSON field value.
-	 *
 	 */
 	function __construct ($name='', $value='')
 	{
@@ -27,6 +25,15 @@ class JSONField
 		$this->value = $value;
 	}
 
+	/**
+	 * Escapes HTML characters to avoid JSON parsing errors.
+	 * @param string $src String to be escaped.
+	 * @return string Escaped version of the string.
+	 */
+	public static function escapeHTML( $src )
+	{
+		return (str_replace("&","&amp;",str_replace(">","&gt;",str_replace("<","&lt;",utf8_encode($src)))));
+	}
 
 	/**
 	 * Adds the current key/value pair to the supplied array.
@@ -39,16 +46,5 @@ class JSONField
 			$val = implode(',', $val);
 		}
 		$data[$this->name] = $val;
-	}
-
-
-	/**
-	 * Escapes HTML characters to avoid JSON parsing errors.
-	 * @param string $src String to be escaped.
-	 * @return string Escaped version of the string.
-	 */
-	public static function escapeHTML( $src )
-	{
-		return (str_replace("&","&amp;",str_replace(">","&gt;",str_replace("<","&lt;",utf8_encode($src)))));
 	}
 }

@@ -84,6 +84,7 @@ class Validation
 	/**
 	 * Converts script argument (query string or form data) to array of numeric values.
 	 * @param string $key Key containing potential numeric values.
+	 * @param array[optional] $src Array of variables to use instead of GET or POST data.
 	 * @return mixed Returns an array if values are found for the specified key. Null otherwise.
 	 */
 	public static function collectIntegerArrayRequestVar($key, $src=null)
@@ -161,17 +162,20 @@ class Validation
 	}
 
 	/**
-	 * Searches POST, GET and session data, in that order, for a property
-	 * corresponding to $key.
+	 * Searches POST, GET and session data, in that order, for a property corresponding to $key.
 	 * @param string $key Key of the variable value to collect.
-	 * @param mixed $filter Filter token corresponding to the 3rd parameter of
-	 * PHP's built-in filter_input() routine.
+	 * @param mixed[optional] $filter Filter token corresponding to the 3rd parameter of PHP's built-in filter_input() routine.
+	 * @param int|null[optional] $index Index of the input if it is part of an array.
+	 * @param array|null[optional] $src Optional array of variables to use instead of POST or GET data.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectStringInput( $key, $filter=FILTER_SANITIZE_STRING )
+	public static function collectStringInput( $key, $filter=FILTER_SANITIZE_STRING, $index=null, $src=null )
 	{
-		$value = Validation::collectRequestVar($key, $filter);
+		if ($src===null) {
+			$src = array_merge($_GET, $_POST);
+		}
+		$value = Validation::_parseInput($filter, $key, $index, $src);
 		if (!$value && isset($_SESSION[$key]) && strlen(trim($_SESSION[$key])) > 0) {
 			$value = trim($_SESSION[$key]);
 		}
@@ -259,16 +263,13 @@ class Validation
 		if (!isset($src[$key])) {
 			return (null);
 		}
-		if ($index!==null)
-		{
+		if ($index!==null) {
 			$arr = filter_var($src[$key], FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
-			if (is_array($arr) && count($arr) >= ($index-1))
-			{
+			if (is_array($arr) && count($arr) >= ($index-1)) {
 				$value = $arr[$index];
 			}
 		}
-		else
-		{
+		else {
 			$value = trim(filter_var($src[$key], FILTER_SANITIZE_STRING));
 		}
 

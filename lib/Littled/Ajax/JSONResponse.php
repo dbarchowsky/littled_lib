@@ -12,16 +12,16 @@ class JSONResponse
 {
 	/** @var JSONField Record id. */
 	public $id;
-	/** @var JSONField Page content to be inserted into the DOM. */
-	public $content;
-	/** @var JSONField Element label value. */
-	public $label;
 	/** @var JSONField Name of the element in the DOM to update. */
 	public $containerID;
-	/** @var JSONField Operation results message. */
-	public $status;
+	/** @var JSONField Page content to be inserted into the DOM. */
+	public $content;
 	/** @var JSONField Error message. */
 	public $error;
+	/** @var JSONField Element label value. */
+	public $label;
+	/** @var JSONField Operation results message. */
+	public $status;
 
 	/**
 	 * Class constructor.
@@ -37,34 +37,19 @@ class JSONResponse
 	}
 
 	/**
-	 * Formats JSON string using instance's current property values and sends
-	 * it as a response.
+	 * Inserts data into a template file and stores the resulting content in the object's $content property.
+	 * @param string $template_path Path to content template file.
+	 * @param array|null[optional] $context Array containing data to insert into the template.
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
-	function sendResponse()
+	public function loadContentFromTemplate( $template_path, $context=null )
 	{
-		$arr = array();
-		foreach($this as $key => $tag) {
-			if (is_object($tag) && $tag instanceof JSONField) {
-				$tag->formatJSON($arr);
+		if (is_array($context)) {
+			foreach($context as $key => $val) {
+				${$key} = $val;
 			}
 		}
-		header('Content-type: application/json; charset=utf-8');
-		print json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_HEX_TAG);
-	}
-
-	/**
-	 * Inserts the error string into the object's error property and sends
-	 * the object's current properties as JSON string response.
-	 * @param string $error_msg Error message.
-	 */
-	function returnError($error_msg)
-	{
-		$this->error->value = $error_msg;
-		$this->sendResponse();
-		if (function_exists("cleanup")) {
-			cleanup();
-		}
-		exit;
+		$this->content->value = PageContent::loadTemplateContent($template_path, $context);
 	}
 
 	/**
@@ -140,18 +125,33 @@ class JSONResponse
 	}
 
 	/**
-	 * Inserts data into a template file and stores the resulting content in the object's $content property.
-	 * @param string $template_path Path to content template file.
-	 * @param array|null[optional] $context Array containing data to insert into the template.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * Inserts the error string into the object's error property and sends
+	 * the object's current properties as JSON string response.
+	 * @param string $error_msg Error message.
 	 */
-	public function loadContentFromTemplate( $template_path, $context=null )
+	function returnError($error_msg)
 	{
-		if (is_array($context)) {
-			foreach($context as $key => $val) {
-				${$key} = $val;
+		$this->error->value = $error_msg;
+		$this->sendResponse();
+		if (function_exists("cleanup")) {
+			cleanup();
+		}
+		exit;
+	}
+
+	/**
+	 * Formats JSON string using instance's current property values and sends
+	 * it as a response.
+	 */
+	function sendResponse()
+	{
+		$arr = array();
+		foreach($this as $key => $tag) {
+			if (is_object($tag) && $tag instanceof JSONField) {
+				$tag->formatJSON($arr);
 			}
 		}
-		$this->content->value = PageContent::loadTemplateContent($template_path, $context);
+		header('Content-type: application/json; charset=utf-8');
+		print json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_HEX_TAG);
 	}
 }
