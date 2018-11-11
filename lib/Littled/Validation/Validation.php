@@ -1,6 +1,7 @@
 <?php
 
 namespace Littled\Validation;
+use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 
 /**
@@ -365,6 +366,22 @@ class Validation
 	{
 		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return((is_numeric($value))?($value):(null));
+	}
+
+	/**
+	 * Check for valid CSRF token.
+	 * @return bool TRUE if the CSRF token is valid, FALSE otherwise.
+	 */
+	public static function validateCSRF()
+	{
+		if (!array_key_exists(LittledGlobals::CSRF_SESSION_KEY, $_SESSION)) {
+			return (false);
+		}
+		$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_PARAM, FILTER_SANITIZE_STRING));
+		if ($csrf=='') {
+			return (false);
+		}
+		return ($csrf == $_SESSION[LittledGlobals::CSRF_SESSION_KEY]);
 	}
 
 	/**
