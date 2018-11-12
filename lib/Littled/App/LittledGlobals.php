@@ -6,6 +6,10 @@ class LittledGlobals
 {
 	/** @var string ID request variable name. */
 	const ID_PARAM = 'id';
+	/** @var string Name of request variable used to pass CSRF tokens. */
+	const CSRF_TOKEN_PARAM = 'csrf';
+	/** @var string Name of session variable use dto store CSRF tokens. */
+	const CSRF_SESSION_KEY = 'csrfToken';
 
 	/** @var string Request variable name holding record ids. */
 	const P_ID = 'ID';

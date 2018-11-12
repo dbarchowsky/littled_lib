@@ -1,7 +1,10 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
+use Littled\Ajax\JSONResponse;
 use Littled\Exception\ContentValidationException;
+use Littled\Filters\FilterCollection;
+use Littled\PageContent\PageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\SiteContent\ContentProperties;
 
@@ -14,6 +17,8 @@ class SectionContent extends SerializedContent
 {
 	/** @var ContentProperties Site section properties. */
 	public $contentProperties;
+	/** @var string Path to listings template. */
+	public static $listingsTemplate = '';
 
 	/**
 	 * SectionContent constructor.
@@ -64,6 +69,16 @@ class SectionContent extends SerializedContent
 	}
 
 	/**
+	 * Returns the path to the listings template for this type of content.
+	 * The client app will set the value of the $listingsTemplate property.
+	 * @return string Path to listings template.
+	 */
+	public static function getListingsTemplatePath()
+	{
+		return (static::$listingsTemplate);
+	}
+
+	/**
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
@@ -76,6 +91,20 @@ class SectionContent extends SerializedContent
 	{
 		parent::read();
 		$this->retrieveSectionProperties();
+	}
+
+	/**
+	 * Generates markup to use to refresh listings content after inline edits have been applied to the listings data.
+	 * @param FilterCollection $filters Filters to apply to listings content
+	 * @return string Updated listings markup.
+	 * @throws \Littled\Exception\ResourceNotFoundException
+	 */
+	public function refreshContentAfterEdit( &$filters )
+	{
+		$context = array(
+			'content' => &$this,
+			'filters' => &$filters);
+		return(PageContent::loadTemplateContent($this::getListingsTemplatePath(), $context));
 	}
 
 	/**

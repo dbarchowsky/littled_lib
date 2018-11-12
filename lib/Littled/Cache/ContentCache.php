@@ -3,6 +3,9 @@ namespace Littled\Cache;
 
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Filters\FilterCollection;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\SiteContent\ContentProperties;
 
@@ -28,6 +31,37 @@ class ContentCache extends MySQLConnection
 			default:
 				/* content type not handled */
 				break;
+		}
+	}
+
+	/**
+	 * Retrieve content and filters class names, and create instances of each.
+	 * @param int $content_type_id Content type identifier used to retrieve class types.
+	 * @param SectionContent $content Pointer to content object that will be created.
+	 * @param FilterCollection $filters Pointer to filters object that will be created.
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
+	public static function setContentAndFilters( $content_type_id, &$content, &$filters )
+	{
+		$conn = new MySQLConnection();
+		$query = "siteSectionClassesSelect({$content_type_id})";
+		$data = $conn->fetchRecords($query);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException("Content properties record not found.");
+		}
+		if ($data[0]->content_class) {
+			if (!class_exists($data[0]->content_class)) {
+				throw new ContentValidationException("\"{$data[0]->content_class}\" class not recognized.");
+			}
+			$content = new ($data[0]->content_class)();
+		}
+		if ($data[0]->filters_class) {
+			if (!class_exists($data[0]->filters_class)) {
+				throw new ContentValidationException("\"{$data[0]->filters_class}\" class not recognized.");
+			}
+			$filters = new ($data[0]->filters_class)();
 		}
 	}
 
