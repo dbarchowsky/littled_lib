@@ -1,6 +1,7 @@
 <?php
 namespace Littled\PageContent;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Validation\Validation;
 
@@ -35,19 +36,12 @@ class PageUtils
 	 * that will be used as the url for the redirect, overriding the $sURI argument passed to the script.
 	 * @param string $target_uri URI to redirect to.
 	 * @param string $msg (Optional) message to pass along to the next page.
-	 * @throws ConfigurationUndefinedException
 	 */
 	public static function doRedirect($target_uri='', $msg=null)
 	{
-		if (!defined('P_MESSAGE')) {
-			throw new ConfigurationUndefinedException("P_MESSAGE not defined in app settings.");
-		}
-		if (!defined('P_REFERER')) {
-			throw new ConfigurationUndefinedException("P_REFERER not defined in app settings.");
-		}
-		$_SESSION[P_MESSAGE] = $msg;
+		$_SESSION[LittledGlobals::P_MESSAGE] = $msg;
 
-		$uri = Validation::collectStringInput(P_REFERER, FILTER_SANITIZE_URL);
+		$uri = Validation::collectStringInput(LittledGlobals::P_REFERER, FILTER_SANITIZE_URL);
 		if (!$uri) {
 			$uri = $target_uri;
 		}
