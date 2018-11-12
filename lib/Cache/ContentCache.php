@@ -52,16 +52,18 @@ class ContentCache extends MySQLConnection
 			throw new RecordNotFoundException("Content properties record not found.");
 		}
 		if ($data[0]->content_class) {
-			if (!class_exists($data[0]->content_class)) {
+			$class = $data[0]->content_class;
+			if (!class_exists($class)) {
 				throw new ContentValidationException("\"{$data[0]->content_class}\" class not recognized.");
 			}
-			$content = new ($data[0]->content_class)();
+			$content = new $class();
 		}
 		if ($data[0]->filters_class) {
-			if (!class_exists($data[0]->filters_class)) {
+			$class = $data[0]->filters_class;
+			if (!class_exists($class)) {
 				throw new ContentValidationException("\"{$data[0]->filters_class}\" class not recognized.");
 			}
-			$filters = new ($data[0]->filters_class)();
+			$filters = new $class();
 		}
 	}
 
