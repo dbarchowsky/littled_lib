@@ -2,7 +2,7 @@
   "name": "dbarchowsky/littled",
   "autoload": {
     "psr-4": {
-      "Littled": "lib/"
+      "Littled\\": "lib/"
     }
   },
   "require": {
