@@ -41,8 +41,9 @@ class AjaxPage extends MySQLConnection
 	public function __construct ()
 	{
 		parent::__construct();
-		// set_error_handler(array("json_response_class","php_error"));
-		set_exception_handler(array($this, 'exception_handler'));
+
+		/* Set exception handler to return JSON error message */
+		set_exception_handler(array($this, 'exceptionHandler'));
 
 		$this->json = new JSONResponse();
 		$this->record_id = new IntegerInput("Record id", "id", false);
