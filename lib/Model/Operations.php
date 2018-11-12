@@ -1,10 +1,10 @@
 <?php
 namespace Littled\Model;
 
-require_once ("../Database/MySQLConnection.php");
+require_once("../Database/MySQLConnection.php");
 require_once ("../Forms/IntegerInput.php");
-require_once ("../Exception/InvalidQueryException.php");
-require_once ("../Exception/RecordNotFoundException.php.php");
+require_once("../Exception/InvalidQueryException.php");
+require_once("../Exception/RecordNotFoundException.php.php");
 
 use \Littled\Database\MySQLConnection;
 use Littled\Exception\InvalidQueryException;

@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Model;
 
-require_once ("./Utilities.php");
+require_once("./Utilities.php");
 require_once( "../Forms/RequestInput.php" );
 
 use Littled\Forms\RequestInput;

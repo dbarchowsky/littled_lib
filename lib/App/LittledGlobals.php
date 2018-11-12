@@ -4,6 +4,8 @@ namespace Littled\App;
 
 class LittledGlobals
 {
+	protected static $mysqlKeysPath = '';
+
 	/** @var string ID request variable name. */
 	const ID_PARAM = 'id';
 	/** @var string Name of request variable used to pass CSRF tokens. */
@@ -23,4 +25,14 @@ class LittledGlobals
 	const P_MESSAGE = 'msg';
 	/** @var string Request variable name containing referring URLs. */
 	const P_REFERER = 'ref';
+
+	public static function getMySQLKeysPath()
+	{
+		return (static::$mysqlKeysPath);
+	}
+
+	public static function setMySQLKeysPath($path)
+	{
+		static::$mysqlKeysPath = $path;
+	}
 }

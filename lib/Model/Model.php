@@ -1,9 +1,9 @@
 <?php
 namespace Littled\Model;
 
-require_once ("./Operations.php");
+require_once("./Validation.php");
 
-class Utilities extends Operations
+class Model extends Validation
 {
 	function __construct()
 	{
