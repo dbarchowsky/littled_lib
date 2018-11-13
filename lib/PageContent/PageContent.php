@@ -87,7 +87,12 @@ class PageContent
 	public static function loadTemplateContent( $template_path, $context=null )
 	{
 		if (!file_exists($template_path)) {
-			throw new ResourceNotFoundException("Template \"".basename($template_path)."\" not found.");
+			if ($template_path) {
+				throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
+			}
+			else {
+				throw new ResourceNotFoundException("Template not found.");
+			}
 		}
 		if (is_array($context)) {
 			foreach($context as $key => $val) {
@@ -135,7 +140,12 @@ class PageContent
 	public static function render( $template_path, $context=null )
 	{
 		if (!file_exists($template_path)) {
-			throw new ResourceNotFoundException("Template \"".basename($template_path)."\" not found.");
+			if ($template_path) {
+				throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
+			}
+			else {
+				throw new ResourceNotFoundException("Template not found.");
+			}
 		}
 		if (is_array($context)) {
 			foreach($context as $key => $val) {
