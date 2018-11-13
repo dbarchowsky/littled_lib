@@ -17,7 +17,7 @@ class SectionContent extends SerializedContent
 	/** @var ContentProperties Site section properties. */
 	public $contentProperties;
 	/** @var string Path to listings template. */
-	public static $listingsTemplate = '';
+	protected static $listingsTemplate = '';
 
 	/**
 	 * SectionContent constructor.
@@ -140,6 +140,14 @@ class SectionContent extends SerializedContent
 		}
 		$this->contentProperties->read();
 		parent::save();
+	}
+
+	/**
+	 * @param string $path Path to comics listings template.
+	 */
+	public static function setListingsTemplatePath($path)
+	{
+		static::$listingsTemplate = $path;
 	}
 
 	/**
