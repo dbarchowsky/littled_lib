@@ -689,7 +689,7 @@ if (typeof LITTLED === "undefined") {
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
-			content_operations_uri: '_ajax/utils/script_properties.php'
+			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {
 			page_error_container: '.alert-error:first'

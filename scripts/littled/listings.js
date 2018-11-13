@@ -6,12 +6,12 @@
 	var settings = {
 		displayWarnings: true,
 		inlineOps: {
-			nameURL: '_ajax/utils/edit_name.php',
-			dateURL: '_ajax/utils/edit_date.php',
-			accessURL: '_ajax/utils/edit_access.php',
-			slotURL: '_ajax/utils/edit_slot.php',
-			pageURL: '_ajax/utils/edit_page.php',
-			statusURL: '_ajax/utils/edit_status.php'
+			nameURL: 'utils/edit_name.php',
+			dateURL: 'utils/edit_date.php',
+			accessURL: 'utils/edit_access.php',
+			slotURL: 'utils/edit_slot.php',
+			pageURL: 'utils/edit_page.php',
+			statusURL: 'utils/edit_status.php'
 		},
 		uris: {
 			/* refactor "inlineOps" and use this collection in its place */

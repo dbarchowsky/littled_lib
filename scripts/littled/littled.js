@@ -2,7 +2,7 @@ if (typeof LITTLED == "undefined") {
 
 	LITTLED = {
 
-		script_root: '/hostmgr/_ajax/',
+		script_root: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
 		edit_url: '',
 		delete_url: '',
 		view_url: '',
@@ -684,7 +684,7 @@ if (typeof LITTLED == "undefined") {
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
-			content_operations_uri: '_ajax/utils/script_properties.php'
+			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {
 			page_error_container: '.alert-error:first'
@@ -1696,7 +1696,7 @@ if (typeof LITTLED == "undefined") {
 			button: 'plus',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(LITTLED.script_root+'utils/edit_line_item.php')
 		},
 		edit: {
 			selector: '.line-item',
@@ -1704,7 +1704,7 @@ if (typeof LITTLED == "undefined") {
 			button: '',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(LITTLED.script_root+'utils/edit_line_item.php')
 		},
 		del: {
 			selector: '.delete-line-btn',
@@ -1712,7 +1712,7 @@ if (typeof LITTLED == "undefined") {
 			button: 'trash',
 			callback: null,
 			verbose: true,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/delete_line_item.php')
+			uri: $.littled.addProtocolAndDomain(LITTLED.script_root+'utils/delete_line_item.php')
 		},
 		save: {
 			selector: '.save-line-btn',
@@ -1720,7 +1720,7 @@ if (typeof LITTLED == "undefined") {
 			button: 'circle-check',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(LITTLED.script_root+'utils/edit_line_item.php')
 		},
 		cancel: {
 			selector: '.cancel-line-btn',
@@ -1728,7 +1728,7 @@ if (typeof LITTLED == "undefined") {
 			button: 'circle-close',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(LITTLED.script_root+'utils/edit_line_item.php')
 		},
 		callbacks: {
 			postContentInsert: null
@@ -2280,12 +2280,12 @@ if (typeof LITTLED == "undefined") {
 	var settings = {
 		displayWarnings: true,
 		inlineOps: {
-			nameURL: '_ajax/utils/edit_name.php',
-			dateURL: '_ajax/utils/edit_date.php',
-			accessURL: '_ajax/utils/edit_access.php',
-			slotURL: '_ajax/utils/edit_slot.php',
-			pageURL: '_ajax/utils/edit_page.php',
-			statusURL: '_ajax/utils/edit_status.php'
+			nameURL: LITTLED.script_root+'utils/edit_name.php',
+			dateURL: LITTLED.script_root+'utils/edit_date.php',
+			accessURL: LITTLED.script_root+'utils/edit_access.php',
+			slotURL: LITTLED.script_root+'utils/edit_slot.php',
+			pageURL: LITTLED.script_root+'utils/edit_page.php',
+			statusURL: LITTLED.script_root+'utils/edit_status.php'
 		},
 		uris: {
 			/* refactor "inlineOps" and use this collection in its place */
@@ -2989,7 +2989,7 @@ if (typeof LITTLED == "undefined") {
 	 */
 	var settings = {
 		uris: {
-			keyword_autocomplete: '_ajax/utils/keyword_autocomplete.php',
+			keyword_autocomplete: 'utils/keyword_autocomplete.php',
 			record_details: 'details.php'
 		},
 		keys: {
@@ -3109,7 +3109,7 @@ if (typeof LITTLED == "undefined") {
 	 */
 	var settings = {
 		uris: {
-			resort: '/_ajax/utils.resort.php'
+			resort: LITTLED.script_root+'utils.resort.php'
 		},
 		dom: {
 			listings_container: '.listings',

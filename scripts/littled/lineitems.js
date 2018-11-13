@@ -1,6 +1,8 @@
 (function ($) {
 
-	var settings = {
+    let script_root = '/vendor/dbarchowsky/littled_cms/ajax/scripts/';
+
+	let settings = {
 		parentSelector: '.line-items-container',
 		lineSelector: '.line-item',
 		statusSelector: '.alert-info',
@@ -17,7 +19,7 @@
 			button: 'plus',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(script_root+'utils/edit_line_item.php')
 		},
 		edit: {
 			selector: '.line-item',
@@ -25,7 +27,7 @@
 			button: '',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(script_root+'utils/edit_line_item.php')
 		},
 		del: {
 			selector: '.delete-line-btn',
@@ -33,7 +35,7 @@
 			button: 'trash',
 			callback: null,
 			verbose: true,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/delete_line_item.php')
+			uri: $.littled.addProtocolAndDomain(script_root+'utils/delete_line_item.php')
 		},
 		save: {
 			selector: '.save-line-btn',
@@ -41,7 +43,7 @@
 			button: 'circle-check',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(script_root+'utils/edit_line_item.php')
 		},
 		cancel: {
 			selector: '.cancel-line-btn',
@@ -49,18 +51,18 @@
 			button: 'circle-close',
 			callback: null,
 			verbose: false,
-			uri: $.littled.addProtocolAndDomain('/_ajax/utils/edit_line_item.php')
+			uri: $.littled.addProtocolAndDomain(script_root+'utils/edit_line_item.php')
 		},
 		callbacks: {
 			postContentInsert: null
 		}
 	};
 
-	var methods = {
+	let methods = {
 
 		init: function( options ) {
 
-			var lclSettings = $.extend({}, settings, options || {});
+			let lclSettings = $.extend({}, settings, options || {});
 			if (typeof(lclSettings.add.callback) !== 'function') {
 				lclSettings.add.callback = methods.edit;
 			}
@@ -112,19 +114,18 @@
 		 * - Swaps the form markup for the line item markup currently in the DOM.
 		 * - Or, in the case of adding new line items, inserts the edit form
 		 * element before or after the line item listings.
-		 * @param {eventObject} evt
-		 * @returns {nothing}
+		 * @param {Event} evt
 		 */
 		edit: function( evt ) {
 
 			evt.preventDefault();
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 			
 			/* get pointer to this element for use within ajax callback */
-			var $e = $(this);
+			let $e = $(this);
 			$e.lineitems('resetMessages', lclSettings);
-			var fd = {
+			let fd = {
 				id: $(this).data('id'),
 				pid: $(this).data('pid'),
 				class: $(this).data('type'),
@@ -152,21 +153,20 @@
 
 		/**
 		 * Callback for clicking on the delete button during line item edits.
-		 * @param {eventObject} evt
-		 * @returns {nothing}
+		 * @param {Event} evt
 		 */
 		remove: function(evt) {
 
 			evt.preventDefault();
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 			lclSettings.currentOperation = 'delete';
 
 			/* get pointer to line element */
-			var $e = $(this).closest(lclSettings.lineSelector);
+			let $e = $(this).closest(lclSettings.lineSelector);
 			$e.lineitems('resetMessages', lclSettings);
 
-			var fd = $(this).closest('form').littled('collectFormDataWithCSRF', lclSettings);
+			let fd = $(this).closest('form').littled('collectFormDataWithCSRF', lclSettings);
 			if (fd.hasOwnProperty(lclSettings.commitParam)) {
 			 	delete fd[lclSettings.commitParam];
 			}
@@ -192,21 +192,20 @@
 		
 		/**
 		 * Handler to commit changes during line item edit.
-		 * @param {eventObject} evt
-		 * @returns {nothing}
+		 * @param {Event} evt
 		 */
 		save: function(evt) {
 
 			evt.preventDefault();
-			var lclSettings = $.extend({}, settings, evt.data || {});
+			let lclSettings = $.extend({}, settings, evt.data || {});
 
 			/* pointer to line item element for use in callback */
-			var $e = $(this).closest(lclSettings.lineSelector);
+			let $e = $(this).closest(lclSettings.lineSelector);
 			// console.log($(this).closest('form').serialize());
 			$e.lineitems('resetMessages', lclSettings);
 
 			/* call ajax script to save edits */
-			var xhr = $.post(
+			let xhr = $.post(
 				lclSettings.save.uri,
 				$e.littled('collectFormDataWithCSRF', lclSettings),
 				function(data) {
@@ -224,18 +223,17 @@
 		 * Handler for "delete" operation of the delete confirmation form.
 		 * This routine sends the AJAX request to actually perform the deletion.
 		 * - After the record is deleted, it is removed from the DOM.
-		 * @param {eventObject} evt
-		 * @returns {nothing}
+		 * @param {Event} evt
 		 */
 		commitDelete: function(evt) {
 
 			evt.preventDefault();
-			var lclSettings = $.extend({}, settings, evt.data || {});
+			let lclSettings = $.extend({}, settings, evt.data || {});
 
 			/* pointer to line item element for use in callback */
-			var $e = $(this).closest(lclSettings.lineSelector);
+			let $e = $(this).closest(lclSettings.lineSelector);
 			$e.lineitems('resetMessages', lclSettings);
-			var fd = $e.littled('collectFormDataWithCSRF', lclSettings);
+			let fd = $e.littled('collectFormDataWithCSRF', lclSettings);
 
 			/* call ajax script to save edits */
 			$.ajax({
@@ -270,25 +268,24 @@
 		/**
 		 * Default handler for elements that cancel line item edits. 
 		 * Override this routine with cancel.callback.
-		 * @param {eventObject} evt
-		 * @returns {nothing}
+		 * @param {Event} evt
 		 */
 		cancel: function(evt) {
 
 			evt.preventDefault();
-			var lclSettings = $.extend({}, settings, evt.data || {});
+			let lclSettings = $.extend({}, settings, evt.data || {});
 
 			/* pointer to element for use within callback */
-			var $e = $(this).closest('.line-item');
+			let $e = $(this).closest('.line-item');
 			$e.lineitems('resetMessages', lclSettings);
 
-			var fd = $e.littled('collectFormDataWithCSRF', lclSettings, {cancel: '1'});
+			let fd = $e.littled('collectFormDataWithCSRF', lclSettings, {cancel: '1'});
 			if (fd.hasOwnProperty(lclSettings.commitParam)) {
 				delete fd[lclSettings.commitParam];
 			}
 
 			/* make call to retrieve flattened line item markup */
-			var xhr = $.post(
+			let xhr = $.post(
 				lclSettings.cancel.uri,
 				fd,
 				function(data) {
@@ -315,7 +312,7 @@
 		 */
 		insertLineItemMarkup: function(data) {
 
-			var lclSettings = data.settings || settings;
+			let lclSettings = data.settings || settings;
 
 			if (data.error) {
 				this.lineitems('displayError', data.error);
@@ -323,7 +320,7 @@
 			}
 
 			return this.each(function() {
-				var $new = $($.littled.htmldecode(data.content));
+				let $new = $($.littled.htmldecode(data.content));
 				if ($new.length > 0) {
 
 					/* replace edit form element with new element */
@@ -333,7 +330,7 @@
 					});
 
 					/* parent element */
-					var $p = $new.closest(lclSettings.parentSelector);
+					let $p = $new.closest(lclSettings.parentSelector);
 
 					/* bind flattened presentation handlers */
 					$p.lineitems('bindNewItemHandlers', lclSettings);
@@ -367,12 +364,11 @@
 		 * - Intended as callback for methods within the library that fetch edit 
 		 * form markup from AJAX scripts.
 		 * @param {object} data Collection of JSON data returned from AJAX script.
-		 * @param {object} lclSettings
 		 * @returns {_L1.methods@call;each}
 		 */
 		insertEditFormMarkup: function(data) {
 
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
 
 			/* check for errors */
 			if (data.error) {
@@ -383,7 +379,7 @@
 			return this.each(function() {
 
 				/* insert form markup into DOM */
-				var $new = $($.littled.htmldecode(data.content));
+				let $new = $($.littled.htmldecode(data.content));
 				if ($new.length) {
 					if (data.id) {
 						/* editing existing line item 
@@ -398,7 +394,7 @@
 						/* editing a new line item
 						 * add it to the parent element in the specified location
 						 */
-						var $p = $(this).closest(lclSettings.parentSelector);
+						let $p = $(this).closest(lclSettings.parentSelector);
 						if ($p.length > 0) {
 							if (lclSettings.insertLocation==='before') {
 								if ($('header', $p).length > 0) {
@@ -458,7 +454,7 @@
 		 * @returns {_L1.methods@call;each}
 		 */
 		bindEditFormHandlers: function( options ) {
-			var lclSettings = $.extend({}, settings, options || {});
+			let lclSettings = $.extend({}, settings, options || {});
 			return this.each(function() {
 				$('.datepicker', $(this)).datepicker();
 				$(this).lineitems('bindActionHandler', lclSettings.save);
@@ -470,11 +466,11 @@
 		/**
 		 * Binds handlers within line item edit for after the form element has
 		 * been added to the DOM.
-		 * @param {object} options (Optional) settings to override default library settings.
+		 * @param {?object} options Optional settings to override default library settings.
 		 * @returns {_L1.methods@call;each}
 		 */
 		bindDeleteFormHandlers: function( options ) {
-			var lclSettings = $.extend({}, settings, options || {});
+			let lclSettings = $.extend({}, settings, options || {});
 			return this.each(function() {
 				/* TODO: consolidate save/cancel/delete commit handlers. 
 				 * They are all essentially identical with the exception of the 
@@ -505,10 +501,10 @@
 		},
 		
 		displayError: function( msg, options ) {
-			var lclSettings = $.extend({}, settings, options || {});
+			let lclSettings = $.extend({}, settings, options || {});
 			return this.each(function() {
 				
-				var $p = null;
+				let $p = null;
 				if ($(this).is("button")) {
 					/* display error messages at the top of the group */
 					$p = $(this).closest(lclSettings.parentSelector);
@@ -518,7 +514,7 @@
 					$p = $(this);
 				}
 
-				var $e = $(lclSettings.errorSelector, $p);
+				let $e = $(lclSettings.errorSelector, $p);
 				if ($e.length < 1) {
 					/* TODO: accommodate selectors that are not class names */
 					$(this).prepend("<div class=\"alert "+lclSettings.errorSelector.replace(/^\./, '')+"\"></div>");
@@ -537,10 +533,10 @@
 		
 		displayStatus: function( msg, options ) {
 			
-			var lclSettings = $.extend({}, settings, options || {});
+			let lclSettings = $.extend({}, settings, options || {});
 			return this.each(function() {
 				/* pointer to status element */
-				var $s = $(lclSettings.statusSelector, $(this));
+				let $s = $(lclSettings.statusSelector, $(this));
 				if ($s.length > 0) {
 					/* if there is an old status message being displayed, 
 					 * hide it with an effect, wait until that transition is 
@@ -564,8 +560,8 @@
 		
 		resetMessages: function(lclSettings) {
 			return this.each(function() {
-				var $status = $(lclSettings.statusSelector, $(this)).is(':visible');
-				var $error = $(lclSettings.errorSelector, $(this)).is(':visible');
+				let $status = $(lclSettings.statusSelector, $(this)).is(':visible');
+				let $error = $(lclSettings.errorSelector, $(this)).is(':visible');
 				if ($status.length > 0) {
 					$status.slideToggle('fast');
 				}
