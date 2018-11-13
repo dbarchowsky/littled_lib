@@ -1,13 +1,12 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
-use Littled\Ajax\JSONResponse;
+
 use Littled\Exception\ContentValidationException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\SiteContent\ContentProperties;
-
 
 /**
  * Class SectionContent
