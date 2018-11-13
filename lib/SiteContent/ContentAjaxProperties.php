@@ -15,7 +15,7 @@ class ContentAjaxProperties extends SerializedContent
 	/** @var IntegerInput Record id. */
 	public $id;
 	/** @var IntegerSelect Site section/content type identifier. */
-	public $section_id;
+	public $content_type_id;
 	/** @var StringTextField Content label. */
 	public $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
@@ -50,7 +50,7 @@ class ContentAjaxProperties extends SerializedContent
 	{
 		parent::__construct();
 		$this->id = new IntegerInput("Id", "capId", null, false);
-		$this->section_id = new IntegerSelect("Content type", "capContentType", null, true);
+		$this->content_type_id = new IntegerSelect("Content type", "capContentType", null, true);
 		$this->label = new StringTextField("Label", "capLabel", "", true, 50);
 		$this->id_param = new StringTextField("Id parameter name", "capKeyName", "", true, 50);
 		$this->listings_uri = new StringTextField("Listings URI", "capListURI", "", false, 255);
@@ -71,12 +71,14 @@ class ContentAjaxProperties extends SerializedContent
 	 */
 	public function hasData()
 	{
-		return ($this->id->value>0 || $this->section_id->value>0 || ($this->label->value) || ($this->id_param->value));
+		return ($this->id->value>0 || $this->content_type_id->value>0 || ($this->label->value) || ($this->id_param->value));
 	}
 
 	/**
 	 * Returns plural label for the content type.
-	 * @returns string Plural label for the content type.
+	 * @param int $count Number of items currently associated with the label.
+	 * @param string[optional] $property_name Label to be made plural.
+	 * @return string Plural label for the content type.
 	 */
 	public function pluralLabel($count, $property_name='label')
 	{
@@ -86,13 +88,15 @@ class ContentAjaxProperties extends SerializedContent
 	/**
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function retrieveSectionProperties()
 	{
-		if ($this->section_id->value===null || $this->section_id->value < 1) {
+		if ($this->content_type_id->value===null || $this->content_type_id->value < 1) {
 			return;
 		}
-		$query = "SEL"."ECT * FROM `".$this::TABLE_NAME()."` WHERE `section_id` = {$this->section_id->value}";
+		$query = "SEL"."ECT * FROM `".$this::TABLE_NAME()."` WHERE `section_id` = {$this->content_type_id->value}";
 		$this->hydrateFromQuery($query);
 	}
 }

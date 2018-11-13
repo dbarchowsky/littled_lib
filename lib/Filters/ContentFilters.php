@@ -32,7 +32,7 @@ class ContentFilters extends FilterCollection
 		$this->contentProperties = new ContentProperties($content_type_id);
 		$this->contentTypeID = &$this->contentProperties->id->value;
 		$this->ajaxProperties = new ContentAjaxProperties();
-		$this->ajaxProperties->section_id->value = $this->contentTypeID;
+		$this->ajaxProperties->content_type_id->value = $this->contentTypeID;
 		$this->contentProperties->read();
 		$this->ajaxProperties->retrieveSectionProperties();
 	}

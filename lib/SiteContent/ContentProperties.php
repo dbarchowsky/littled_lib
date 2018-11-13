@@ -5,6 +5,7 @@ namespace Littled\SiteContent;
 
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerTextField;
 use Littled\Request\IntegerSelect;

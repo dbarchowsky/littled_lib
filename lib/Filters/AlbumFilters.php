@@ -72,7 +72,7 @@ class AlbumFilters extends FilterCollection
 		$this->contentProperties = new ContentProperties($content_type_id);
 		$this->contentTypeID = &$this->contentProperties->id->value;
 		$this->ajaxProperties = new ContentAjaxProperties();
-		$this->ajaxProperties->section_id->value = $content_type_id;
+		$this->ajaxProperties->content_type_id->value = $content_type_id;
 		$this->getAjaxProperties();
 		$this->gallery = new GalleryFilters($page_content_type_id, $default_page_len);
 		$this->previousRecordId = $this->nextRecordId = 0;
@@ -169,7 +169,7 @@ class AlbumFilters extends FilterCollection
 	{
 		if ($content_type_id > 0) {
 			$this->contentProperties->id->value = $content_type_id;
-			$this->ajaxProperties->section_id->value = $content_type_id;
+			$this->ajaxProperties->content_type_id->value = $content_type_id;
 		}
 		if ($this->contentProperties->id->value > 0) {
 			$this->contentProperties->read();
