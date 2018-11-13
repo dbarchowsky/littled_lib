@@ -16,7 +16,7 @@ if (typeof LITTLED === "undefined") {
 		 */
 		init: function(a) {
 			if (a !== undefined) {
-				for (var i in a) {
+				for (let i in a) {
 					this[i] = a[i];
 				}
 			}
@@ -27,7 +27,7 @@ if (typeof LITTLED === "undefined") {
 		 * @deprecated Use $.littled('ajaxError') instead.
 		 */
 		ajaxError: function(xhr) {
-			var $d = $('#globalDialog');
+			let $d = $('#globalDialog');
 			if ($d.length > 0 && $d.is(':visible')) {
 				$d.littled('ajaxError', xhr);
 			}
@@ -47,7 +47,7 @@ if (typeof LITTLED === "undefined") {
 
 		doLookup: function() {
 
-			var f = document.getElementById('dialog-edit-form');
+			let f = document.getElementById('dialog-edit-form');
 			if (!f.url.value) {
 				alert('url not set!');
 				return (false);
@@ -74,7 +74,7 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		getParentObject: function(pid) {
-			var $p;
+			let $p;
 			if (pid === undefined) {
 				$p = $('body');
 			} 
@@ -91,8 +91,8 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		oc: function(a) {
-			var o = {};
-			for (var i = 0; i < a.length; i++) {
+			let o = {};
+			for (let i = 0; i < a.length; i++) {
 				o[a[i]] = '';
 			}
 			return (o);
@@ -101,7 +101,7 @@ if (typeof LITTLED === "undefined") {
 
 		ptq: function(q, arExclude) {
 			/* parse the query */
-			var x = q.replace(/;/g, '&').split('&'), i, name, t;
+			let x = q.replace(/;/g, '&').split('&'), i, name, t;
 			/* q changes from string version of query to object */
 			for (q = {}, i = 0; i < x.length; i++) {
 				t = x[i].split('=', 2);
@@ -124,12 +124,12 @@ if (typeof LITTLED === "undefined") {
 		 * @deprecated Use $.littled.getQueryArray() instead.
 		 */
 		getQueryArray: function(arAppend, arExclude) {
-			var e = ['id', 'msg'];
+			let e = ['id', 'msg'];
 			if (arExclude !== undefined && arExclude.length >= 0) {
 				e = e.concat(arExclude);
 			}
-			var q = LITTLED.ptq(document.location.search.substring(1).replace(/\+/g, ' '), e);
-			for (var i in q) {
+			let q = LITTLED.ptq(document.location.search.substring(1).replace(/\+/g, ' '), e);
+			for (let i in q) {
 				if (q[i] === '') {
 					delete q[i];
 				}
@@ -145,9 +145,9 @@ if (typeof LITTLED === "undefined") {
 
 		getParameterByName: function(key) {
 			key = key.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-			var regexS = "[\\?&]" + key + "=([^&#]*)";
-			var regex = new RegExp(regexS);
-			var results = regex.exec(window.location.href);
+			let regexS = "[\\?&]" + key + "=([^&#]*)";
+			let regex = new RegExp(regexS);
+			let results = regex.exec(window.location.href);
 			if (results == null) {
 				return ("");
 			} else {
@@ -157,7 +157,7 @@ if (typeof LITTLED === "undefined") {
 
 
 		isObjectEmpty: function(obj) {
-			for (var prop in obj) {
+			for (let prop in obj) {
 				if (Object.prototype.hasOwnProperty.call(obj, prop)) {
 					return (false);
 				}
@@ -209,7 +209,7 @@ if (typeof LITTLED === "undefined") {
             }
 
             if (data.container_id) {
-                var $e = $('#' + data.container_id);
+                let $e = $('#' + data.container_id);
                 if ($e.length < 1) {
                     $e = $('#listings-container');
                 }
@@ -254,7 +254,7 @@ if (typeof LITTLED === "undefined") {
          */
         displayAjaxResult: function(data) {
             if (data.error) {
-				var $e = null;
+				let $e = null;
                 if (data.container_id !== undefined && data.container_id != '') {
                     $e = $('#' + data.container_id);
                     $e.html('<div class="error">' + data.error.replace(/\n/mg, '<br />') + '</div>');
@@ -306,8 +306,8 @@ if (typeof LITTLED === "undefined") {
 		 */
         commitOp: function() {
 
-            var tid = $(this).data('tid');
-            var op = $(this).data('op');
+            let tid = $(this).data('tid');
+            let op = $(this).data('op');
 
             if (!tid) { 
 				return(LITTLED.displayError('Content type not specified.'));
@@ -322,7 +322,7 @@ if (typeof LITTLED === "undefined") {
                     return(LITTLED.displayError(data1.error, 'dialog-error-container'));
                 }
 
-                var uri = '';
+                let uri = '';
                 switch (op) {
                     case 'edit':
                         uri = data1.edit_uri;
@@ -372,8 +372,8 @@ if (typeof LITTLED === "undefined") {
 		 */	 
 		dialogEdit: function(a1, a2, op) {
 
-			var cb = LITTLED.onLoadFormSuccess;
-			var id, tid, $e;
+			let cb = LITTLED.onLoadFormSuccess;
+			let id, tid, $e;
 			if (typeof(a1) === 'function') {
 				cb = a1;
 				$e = a2;
@@ -397,14 +397,14 @@ if (typeof LITTLED === "undefined") {
                 if (data1.error) {
                     return(LITTLED.displayError(data1.error));
                 }
-                var url = LITTLED.getOperationURI(op, data1);
+                let url = LITTLED.getOperationURI(op, data1);
 				if (!url) {
 					return (LITTLED.displayError('Unsupported operation.'));
 				}
 
                 LITTLED.initDialog();
 
-                var arr = {tid: tid};
+                let arr = {tid: tid};
                 arr[data1.id_param] = id;
                 arr = LITTLED.getQueryArray(arr);
 
@@ -443,7 +443,7 @@ if (typeof LITTLED === "undefined") {
 
             $('#dialog-bg').height($(document).height());
             $('#dialog-bg').width($(document).width());
-            var y = $(document).scrollTop();
+            let y = $(document).scrollTop();
             $('#dialog-bg').offset({top: y, left: 0});
             $('#dialog-bg').show();
 
@@ -530,8 +530,8 @@ if (typeof LITTLED === "undefined") {
 		 * @param {domElement} $e
 		 */
         center: function($e) {
-            var yOffset = $(document).scrollTop() + ($(window).height() / 2) - ($e.height() / 2);
-            var xOffset = ($(window).width() / 2) - ($e.width() / 2);
+            let yOffset = $(document).scrollTop() + ($(window).height() / 2) - ($e.height() / 2);
+            let xOffset = ($(window).width() / 2) - ($e.width() / 2);
             $e.offset({top: yOffset, left: xOffset});
         },
 
@@ -539,7 +539,7 @@ if (typeof LITTLED === "undefined") {
 		 * @deprecated Use $.littled('formatQueryString') instead.
 		 */
         formatQueryString: function() {
-            var q = document.location.search.toString();
+            let q = document.location.search.toString();
             q = q.replace(/^[\?]/, '&');
             q = q.replace(new RegExp('&(id|msg|' + LITTLED.id_param + ')=.*?&'), '&');
             q = q.replace(new RegExp('&(id|msg|' + LITTLED.id_param + ')=.*$'), '');
@@ -565,7 +565,7 @@ if (typeof LITTLED === "undefined") {
 		 */
         displayError: function(err, eid) {
 
-            var $e = ((eid !== undefined && eid) ? ($('#' + eid)) : ($('#error-container')));
+            let $e = ((eid !== undefined && eid) ? ($('#' + eid)) : ($('#error-container')));
             if ($e.length) {
 				$e.littled('displayError', err);
             }
@@ -577,7 +577,7 @@ if (typeof LITTLED === "undefined") {
 		 * @param {string} eid
 		 */
         dismissError: function(eid) {
-            var $e = ((eid !== undefined && eid) ? ($('#' + eid)) : ($('#error-container')));
+            let $e = ((eid !== undefined && eid) ? ($('#' + eid)) : ($('#error-container')));
             if ($e.length && $e.is(':visible')) {
                 $e.slideToggle('slow');
             }
@@ -589,7 +589,7 @@ if (typeof LITTLED === "undefined") {
 		 * @param {domElement} p
 		 */
 		dialogError: function(err, p) {
-			var $e = $('#' + ((p !== undefined && p) ? (p) : ('dialog')) + '-status-container');
+			let $e = $('#' + ((p !== undefined && p) ? (p) : ('dialog')) + '-status-container');
 			if ($e.length < 1) {$e = $('#status-container');}
 			if ($e.attr('id') === 'dialog-status-container' && $('#dialog-container').is(':hidden')) {
 				$e = $('#status-container');
@@ -608,7 +608,7 @@ if (typeof LITTLED === "undefined") {
 					$e.html($e.html() + ' <input class="smtext" type="button" value="close" onclick="LITTLED.cancel()" />');
 				}
 				$e.show();
-				var z = parseInt($e.parent().css('z-index'));
+				let z = parseInt($e.parent().css('z-index'));
 				if (z > 0) {
 					LITTLED.center($e.parent());
 				}
@@ -683,12 +683,13 @@ if (typeof LITTLED === "undefined") {
  */
 (function($) {
 
-	var settings = {
+	let settings = {
 		errorContainer: '.alert-error',
 		statusContainer: '.alert-info',
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
+		    script_path: '/vender/dbarchowsky/littled_cms/ajax/scripts/',
 			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {
@@ -704,7 +705,7 @@ if (typeof LITTLED === "undefined") {
 	 */
 	$.fn.serializeObject = function(src, exclude) {
 
-		var fd = {};
+		let fd = {};
 
 		this.each(function() {
 
@@ -749,7 +750,7 @@ if (typeof LITTLED === "undefined") {
 	};
 
 	$.fn.allData = function() {
-		var intID = jQuery.data(this.get(0));
+		let intID = jQuery.data(this.get(0));
 		return($.cache[intID]);	
 	};
 
@@ -760,12 +761,12 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		getRelativePath: function() {
-			var path = '';
-			var url = window.location.href;
+			let path = '';
+			let url = window.location.href;
 			url = url.replace(/^.*:\/\/.*?\/(.*\/).*$/, '$1');
 			if (url) {
-				var depth = url.split('/').length - 1;
-				for (var i=0; i < depth; i++) {
+				let depth = url.split('/').length - 1;
+				for (let i=0; i < depth; i++) {
 					path += '../';
 				}
 			}
@@ -788,12 +789,12 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		getQueryArray: function(arAppend, arExclude) {
-			var e = ['id', 'msg'];
+			let e = ['id', 'msg'];
 			if (arExclude !== undefined && arExclude.length >= 0) {
 				e = e.concat(arExclude);
 			}
-			var q = LITTLED.ptq(document.location.search.substring(1).replace(/\+/g, ' '), e);
-			for (var i in q) {
+			let q = LITTLED.ptq(document.location.search.substring(1).replace(/\+/g, ' '), e);
+			for (let i in q) {
 				if (q[i] === '') {
 					delete q[i];
 				}
@@ -807,7 +808,7 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		getEventOptions: function(evt, options) {
-			var lclSettings = options || {};
+			let lclSettings = options || {};
 			if (evt.hasOwnProperty('data')) {
 				if (evt.data !== undefined && evt.data.hasOwnProperty('options')) {
 					$.extend(lclSettings, evt.data.options);
@@ -835,7 +836,7 @@ if (typeof LITTLED === "undefined") {
 			/* ajax call to get script properties */
             $.ajax({
                 type: 'post',
-                url: $.littled.getRelativePath()+lclSettings.ajax.content_operations_uri,
+                url: $.littled.getRelativePath()+lclSettings.ajax.script_path+lclSettings.ajax.content_operations_uri,
                 dataType: 'json',
                 data: pd,
                 success: cb
@@ -858,13 +859,13 @@ if (typeof LITTLED === "undefined") {
 		updateCache: function( evt ) {
 
 			evt.preventDefault();
-			var lclSettings = $.extend(true, {}, settings, evt.data || {});
+			let lclSettings = $.extend(true, {}, settings, evt.data || {});
 
 			$(lclSettings.errorContainer+':visible').fadeOut('fast');
 			$(lclSettings.statusContainer+':visible').fadeOut('fast');
 
-			var tid = $(this).data('tid');
-			var id = $(this).data('id');
+			let tid = $(this).data('tid');
+			let id = $(this).data('id');
 			if (!tid) {
 				$(lclSettings.errorContainer).littled('displayError', 'Content type not specified.');
 				return;
@@ -904,13 +905,13 @@ if (typeof LITTLED === "undefined") {
 		}
 	};
 
-	var methods = {
+	let methods = {
 
 		displayAjaxResult: function(data) {
 
 			return this.each(function() {
 				if (data.error) {
-					var $err = $('.error', $(this));
+					let $err = $('.error', $(this));
 					if ($err.length > 0) {
 						$err.html(data.error).show();
 					}
@@ -934,7 +935,7 @@ if (typeof LITTLED === "undefined") {
 			err += '<br /><button class="dismiss-btn smtext">dismiss</button>';
 			this.html(err).show('slow');
 			return this.each(function() {
-				var $e = $(this);
+				let $e = $(this);
 				$('button.dismiss-btn', $(this)).click(function() {
 					$(this).unbind('click');
 					$e.hide('fast');
@@ -971,15 +972,15 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		collectFormDataWithCSRF: function( lclSettings, extras ) {
-			var lclExtras = $.extend({}, {csrf: $(lclSettings.csrfSelector).html()}, extras || {});
+			let lclExtras = $.extend({}, {csrf: $(lclSettings.csrfSelector).html()}, extras || {});
 			return($.extend(lclExtras, $('input, select, textarea', this).serializeObject()));
 		},
 
 		keyNavigation: function(options) {
 			return this.on('keydown', function(e) {
 
-				var keyCode = e.keyCode || e.which;
-				var arrow = {left: 37, up: 38, right: 39, down: 40};
+				let keyCode = e.keyCode || e.which;
+				let arrow = {left: 37, up: 38, right: 39, down: 40};
 				switch (keyCode) {
 					case arrow.left:
 						if (options.backURL) {
@@ -1048,14 +1049,14 @@ if (typeof LITTLED === "undefined") {
 	
 		displayProcessWheel: function(_form_id) {
 			return this.each(function() {
-				var $f = $(this).closest('form');
+				let $f = $(this).closest('form');
 				$('.error', $f).html('').hide('fast');
 				$('.status', $f).html(settings.progress_markup).show();
 			});
 		},
 
 		formatQueryString: function() {
-			var q = document.location.search.toString();
+			let q = document.location.search.toString();
 			q = q.replace(/^[\?]/, '&');
 			q = q.replace(new RegExp('&(id|msg|' + LITTLED.id_param + ')=.*?&'), '&');
 			q = q.replace(new RegExp('&(id|msg|' + LITTLED.id_param + ')=.*$'), '');
@@ -1083,7 +1084,7 @@ if (typeof LITTLED === "undefined") {
 			return this.each(function() {
 				
 				/* get pointer to top-level element */
-				var $p = null;
+				let $p = null;
 				if (parent_selector && ! parent_selector instanceof Array) {
 					$p = $(this).closest(parent_selector);
 					if ($p.length<1) {
@@ -1098,11 +1099,11 @@ if (typeof LITTLED === "undefined") {
 				}
 
 				/* test if target element exists */
-				var $e = $p.first(selector);
+				let $e = $p.first(selector);
 				if ($e.length<1) {
 					
 					/* create target element if it doesn't exist already */
-					var $new = '<div></div>';
+					let $new = '<div></div>';
 					if (selector.indexOf('#')===0) {
 						$new.addClass(selector).substr(1);
 					}
@@ -1115,7 +1116,7 @@ if (typeof LITTLED === "undefined") {
 					
 					/* add target element to the dom */
 					if (class_array instanceof Array) {
-						for(var class_name in class_array) {
+						for(let class_name in class_array) {
 							$new.addClass(class_name);
 						}
 					}

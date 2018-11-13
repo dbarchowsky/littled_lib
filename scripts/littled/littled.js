@@ -684,6 +684,7 @@ if (typeof LITTLED == "undefined") {
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
+		    scripts_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
 			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {
@@ -830,7 +831,7 @@ if (typeof LITTLED == "undefined") {
 			/* ajax call to get script properties */
             $.ajax({
                 type: 'post',
-                url: $.littled.getRelativePath()+lclSettings.ajax.content_operations_uri,
+                url: $.littled.getRelativePath()+lclSettings.ajax.script_path+lclSettings.ajax.content_operations_uri,
                 dataType: 'json',
                 data: pd,
                 success: cb
