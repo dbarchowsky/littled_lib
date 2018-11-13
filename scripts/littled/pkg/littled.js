@@ -689,7 +689,7 @@ if (typeof LITTLED === "undefined") {
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
-		    script_path: '/vender/dbarchowsky/littled_cms/ajax/scripts/',
+		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
 			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {
