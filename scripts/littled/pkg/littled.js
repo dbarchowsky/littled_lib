@@ -1,8 +1,8 @@
-if (typeof LITTLED == "undefined") {
+if (typeof LITTLED === "undefined") {
 
 	LITTLED = {
 
-		script_root: '/hostmgr/_ajax/',
+		script_root: '/vendor/littled_cms/ajax/scripts/',
 		edit_url: '',
 		delete_url: '',
 		view_url: '',
@@ -109,7 +109,7 @@ if (typeof LITTLED == "undefined") {
 				if (arExclude !== undefined && arExclude.length >= 0 && (name in LITTLED.oc(arExclude))) {
 					name = '';
 				}
-				if (name != '') {
+				if (name !== '') {
 					if (!q[name]) {
 						if (t.length > 1) {
 							q[name] = unescape(t[1]);
@@ -130,7 +130,7 @@ if (typeof LITTLED == "undefined") {
 			}
 			var q = LITTLED.ptq(document.location.search.substring(1).replace(/\+/g, ' '), e);
 			for (var i in q) {
-				if (q[i] == '') {
+				if (q[i] === '') {
 					delete q[i];
 				}
 			}
@@ -195,9 +195,11 @@ if (typeof LITTLED == "undefined") {
             LITTLED.onEditSuccess(data);
         },
 
-		/**
-		 * @deprecated Use $.formDialog('onOperationSuccess') instead.
-		 */
+        /**
+         * @deprecated Use $.formDialog('onOperationSuccess') instead.
+         * @param {object} data
+         * @returns {*}
+         */
         onEditSuccess: function(data) {
 
             LITTLED.clearDialogMsg();
@@ -225,8 +227,7 @@ if (typeof LITTLED == "undefined") {
         },
 
 		/**
-		 * @deprecated Use jQuery $.trigger('contentUpdate') instead and target 
-		 * the element to be updated.
+		 * @deprecated Use jQuery $.trigger('contentUpdate') instead and target the element to be updated.
 		 */ 
         setSortables: function() {
             /* hook for pages to define routine for when a sortable list's contents are refreshed */
@@ -234,7 +235,9 @@ if (typeof LITTLED == "undefined") {
 
 		/**
 		 * @deprecated Use the 'postContentUpdateCB' proprety of $.formDialog() instead.
-		 */
+         * @param {object} data
+         * @returns {*}
+         */
         onContentUpdate: function(data) {
             if (data.error) {
                 return(LITTLED.displayError(LITTLED.htmldecode(data.error)));
@@ -246,7 +249,9 @@ if (typeof LITTLED == "undefined") {
 
 		/**
 		 * @deprecated Use $.littled('displayAjaxResult') instead.
-		 */
+         * @param {object} data
+         * @returns {boolean}
+         */
         displayAjaxResult: function(data) {
             if (data.error) {
 				var $e = null;
@@ -330,7 +335,7 @@ if (typeof LITTLED == "undefined") {
                         return (false);
                 }
 
-                if (uri == '') {
+                if (uri === '') {
                     alert('Handler not set.');
                     return (false);
                 }
@@ -369,11 +374,11 @@ if (typeof LITTLED == "undefined") {
 
 			var cb = LITTLED.onLoadFormSuccess;
 			var id, tid, $e;
-			if (typeof(a1) == 'function') {
+			if (typeof(a1) === 'function') {
 				cb = a1;
 				$e = a2;
 				tid = $e.data('tid');
-			} else if (typeof (a1) == "object" || typeof (a1) == "undefined" || typeof (a1) == "null") {
+			} else if (typeof (a1) === "object" || typeof (a1) === "undefined") {
 				$e = $(this);
 				id = $e.data('id');
 				tid = ((a2===undefined)?($e.data('tid')):(a2));
@@ -418,7 +423,7 @@ if (typeof LITTLED == "undefined") {
 
 		/**
 		 * @deprecated Use $.formDialog('dismiss') instead.
-		 * @param {integer} id
+		 * @param {int} id
 		 */
         cancel: function(id) {
             if (typeof LITTLED.Video !== "undefined") {
@@ -474,7 +479,7 @@ if (typeof LITTLED == "undefined") {
 		 * 
         * First makes an AJAX call to get section operations based on the value of tid. 
         * Then executes callback function cb.
-        * @param {integer} tid section id used to retrieve section settings.
+        * @param {int} tid section id used to retrieve section settings.
         * @param {function} cb callback used to execute as "success" handler after the section's properties have been successfully retrieved.
         */
         execSectionOp: function(tid, cb) {
@@ -716,7 +721,7 @@ if (typeof LITTLED == "undefined") {
 					fd[d.name] = d.value;
 				}
 			});
-			if (typeof(exclude) != 'undefined') {
+			if (typeof(exclude) !== 'undefined') {
 				$.each(exclude, function(i, d) {
 					if (d in fd) {
 						delete fd[d];
@@ -814,7 +819,7 @@ if (typeof LITTLED == "undefined") {
         /**
         * First makes an AJAX call to get section operations based on the value of tid. 
         * Then executes callback function cb.
-        * @param {integer} tid Section id used to retrieve section settings.
+        * @param {int} tid Section id used to retrieve section settings.
         * @param {function} cb Callback used to execute as "success" handler 
 		* after the section's properties have been successfully retrieved.
 		* @param {object} options (Optional) collection of settings that will
@@ -822,8 +827,8 @@ if (typeof LITTLED == "undefined") {
         */
         retrieveContentOperations: function(tid, cb, options) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
-			var pd = {};
+			let lclSettings = $.extend(true, {}, settings, options || {});
+			let pd = {};
 			pd['tid'] = tid;
 			pd['csrf'] = $(lclSettings.csrfSelector).html();
 
@@ -922,8 +927,8 @@ if (typeof LITTLED == "undefined") {
 		/**
 		 * Displays error message in element(s).
 		 * @param {string} err Error message to display.
-		 * @returns {_L679.methods@call;each}
-		 */
+         * @returns {*}
+         */
 		displayError: function(err) {
 			err = err.replace(/\n/mg, '<br />').replace(/<br \/>$/, '');
 			err += '<br /><button class="dismiss-btn smtext">dismiss</button>';
@@ -949,7 +954,7 @@ if (typeof LITTLED == "undefined") {
 		 * Displays status message in element(s). "Unhides" the elements if 
 		 * they are hidden.
 		 * @param {string} statusMsg Status message to display.
-		 * @returns {_L679.methods@call;each}
+		 * @returns {*}
 		 */
 		displayStatus: function(statusMsg) {
 			return this.each(function() {
@@ -1071,7 +1076,7 @@ if (typeof LITTLED == "undefined") {
 		 * $(this) will be the top-level element.
 		 * @param {array} class_array List of CSS classes to apply to the new 
 		 * element if it is created.
-		 * @returns {_L679.methods@call;each}
+		 * @returns {*}
 		 */
 		testAndAddElement: function(selector, parent_selector, class_array) {
 			
