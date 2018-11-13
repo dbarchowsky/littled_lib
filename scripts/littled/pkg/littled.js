@@ -2994,9 +2994,9 @@ if (typeof LITTLED === "undefined") {
 	/**
 	 * static properties 
 	 */
-	var settings = {
+	let settings = {
 		uris: {
-			keyword_autocomplete: '_ajax/utils/keyword_autocomplete.php',
+			keyword_autocomplete: 'utils/keyword_autocomplete.php',
 			record_details: 'details.php'
 		},
 		keys: {
@@ -3018,7 +3018,7 @@ if (typeof LITTLED === "undefined") {
 		selectCallback: null
 	};
 
-	var methods = {
+	let methods = {
 
 		/**
 		 * sets up autocomplete for the keyword filter textbox 
@@ -3027,7 +3027,7 @@ if (typeof LITTLED === "undefined") {
 		 */
 		bindAutocomplete: function(options) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 
 			if (typeof(lclSettings.selectCallback) !== 'function') {
 				lclSettings.selectCallback = methods.selectCallback;
@@ -3035,8 +3035,8 @@ if (typeof LITTLED === "undefined") {
 
 			return this.each(function() {
 
-				var name = $(this).prop('name');
-				var fd = {};
+				let name = $(this).prop('name');
+				let fd = {};
 				fd[lclSettings.keys.content_type] = $(this).data(lclSettings.keys.content_type);
 				fd[lclSettings.keys.csrf] = $(lclSettings.dom.csrf_selector).html();
 
@@ -3075,20 +3075,19 @@ if (typeof LITTLED === "undefined") {
 		
 		selectCallback: function(event, ui) {
 
-			var lclSettings = $.extend(true, {}, settings, event.data || {});
+			let lclSettings = $.extend(true, {}, settings, event.data || {});
 
 			/* update the textbox value with the name of the matching item, not its numeric id */ 
 			event.preventDefault();
 			$(this).val(ui.item.term+'*');
 
 			/* redirect to details page for the selected item, preserving the current listings filters */
-			var id = ui.item.value;
-			var fa = $(lclSettings.dom.filters_form).serializeArray();
-			var qa = $.map(fa, function(item) { 
+			let id = ui.item.value;
+			let fa = $(lclSettings.dom.filters_form).serializeArray();
+			let qa = $.map(fa, function(item) {
 				return(item.name+'='+encodeURIComponent(item.value));
 			});
-			var url = lclSettings.uris.record_details+'?'+qa.join('&')+'&id='+id;
-			window.location = url;
+			window.location = lclSettings.uris.record_details+'?'+qa.join('&')+'&id='+id;
 		}
 	};
 	

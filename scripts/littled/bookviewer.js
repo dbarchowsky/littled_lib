@@ -1,11 +1,13 @@
 (function ($) {
 
-	var settings = {
+    let script_path = '/vendor/dbarchowsky/littled_cms/ajax/scripts/';
+
+	let settings = {
 		site_label: '',
 		album_type: '',
 		layout: '',
 		uris: {
-			page_set: '/_ajax/book-viewer/page-set.php'
+			page_set: script_path+'book-viewer/page-set.php'
 		},
 		dom: {
 			album_container: '.album-container',
@@ -42,7 +44,7 @@
 		}
 	};
 
-	var methods = {
+	let methods = {
 		
 		/**
 		 * Binds jQuery handlers for page set, page previews, and book previews 
@@ -52,7 +54,7 @@
 		 */
 		bindBookSetHandlers: function( options ) {
 			
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 
 			return this.each(function() {
 				$(lclSettings.dom.page_set, $(this)).bookviewer('bindPageSetHandlers', options);
@@ -69,7 +71,7 @@
 		 * @returns {undefined}
 		 */
         bindPageSetHandlers: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
 				
 				$(this)
@@ -85,7 +87,7 @@
 		 * @returns {undefined}
 		 */
         bindNavigationHandlers: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
 				$(this)
 				.on('click', lclSettings.dom.prev_page_button, options, methods.changePage)
@@ -94,7 +96,7 @@
         },
 
         bindPagePreviewsHandlers: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this
 				.bookviewer('initScrollbar', options)
 				.on('click', lclSettings.dom.page_thumbnail, options, methods.changePage);
@@ -113,7 +115,7 @@
 						/* ignore any events if they come through the jQuery UI slider widget */
 						return;
 					}
-					var lclSettings = $.extend(true, {}, settings, evt.data || {});
+					let lclSettings = $.extend(true, {}, settings, evt.data || {});
 					$(lclSettings.dom.prev_page_button).trigger('click');
 				})
 				.on('swiperight', options, function(evt) {
@@ -122,7 +124,7 @@
 						/* ignore any events if they come through the jQuery UI slider widget */
 						return;
 					}
-					var lclSettings = $.extend(true, {}, settings, evt.data || {});
+					let lclSettings = $.extend(true, {}, settings, evt.data || {});
 					$(lclSettings.dom.next_page_button).trigger('click');
 				});
 			}
@@ -137,16 +139,16 @@
 		changePage: function( evt ) {
 			
 			evt.preventDefault();
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 			
 			/* album properties are stored in parent element */
-			var $p = $(this).closest(lclSettings.dom.album_container);
+			let $p = $(this).closest(lclSettings.dom.album_container);
 			
 			/* next page set properties, passed in request to ajax script that 
 			 * fetches the page set 
 			 */
-			var fd = {};
+			let fd = {};
 			fd[lclSettings.keys.record_id] = $p.data(lclSettings.keys.record_id);
 			fd[lclSettings.keys.class] = $p.data(lclSettings.keys.type);
 			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
@@ -177,7 +179,7 @@
 		 */
 		updateBookContent: function(data) {
 			
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
 			
             if (data.error) {
 				$(lclSettings.dom.error_container).littled('displayError', data.error);
@@ -218,7 +220,7 @@
 
             /* update page title */
 			document.title = methods.formatDocumentTitle(data);
-            var $pt = $(lclSettings.dom.page_title);
+            let $pt = $(lclSettings.dom.page_title);
             if ($pt.length > 0) {
                 /* don't update page title if it's an image */
                 if ($('img', $pt).length < 1) {
@@ -234,8 +236,8 @@
 		
 		updateOneUpBookContent: function( data ) {
 			
-			var options = data.settings || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = data.settings || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
             if (!data.gallery.list[0].full.path) {
 				$(lclSettings.dom.error_container).littled('displayError', 'Page image unavailable.');
@@ -251,8 +253,8 @@
 		
 		updateTwoUpBookContent: function( data ) {
 
-			var options = data.settings || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = data.settings || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
             if (data.gallery.list[0].full.path) {
                 /* load left page */
@@ -286,8 +288,8 @@
 		 * @returns {String|data.page_title|value.page_title}
 		 */
 		formatDocumentTitle: function( data ) {
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
-			var title = data.page_title;
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let title = data.page_title;
 			if (lclSettings.site_label) {
 				title += ' | ' + lclSettings.album_type + ' | ' + lclSettings.site_label;
 			}
@@ -300,8 +302,8 @@
 		 * @returns {String} Current page set label
 		 */
 		formatPageSetLabel: function( data) {
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
-			var label = '';
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let label = '';
 			if (data.layout===lclSettings.layouts.one_page) {
 				return(data.gallery.list[0].title);
 			}
@@ -327,11 +329,11 @@
 
 		updatePageState: function(current_page, preload_page, options) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
 
 				/* create a page image */
-				var $img = $('<img />')
+				let $img = $('<img />')
 						.prop({
 							src: current_page.full.path,
 							width: current_page.full.width,
@@ -366,7 +368,7 @@
 				 */
 				$('img', $(this)).load(function() {
 					/* preload next page after the current one is finished loading */
-					var preload_selector = lclSettings.dom.preload+(($(this).parent().hasClass(lclSettings.dom.right_page.substr(1)))?('1'):('0'));
+					let preload_selector = lclSettings.dom.preload+(($(this).parent().hasClass(lclSettings.dom.right_page.substr(1)))?('1'):('0'));
 					$(preload_selector).bookviewer('preloadPage', preload_page);
 				});
 
@@ -389,11 +391,11 @@
 		
         updateAdjacentPageState: function(current_page, preload_page, options) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
 
 				$(this).data('p', current_page.id);
-				var dir = $(this).data(lclSettings.keys.operation);
+				let dir = $(this).data(lclSettings.keys.operation);
 				if ($(this).data(lclSettings.keys.operation)==='fwd' && current_page.is_last_page) {
 					/* at the last page of the book */
 					$(this).addClass('page-oob').removeClass('page-unavailable');
@@ -420,13 +422,13 @@
 
 		updatePageNavigation: function(data) {
 
-			var options = data.settings || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = data.settings || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
 			return this.each(function() {
 
-				var $prev_btn = $(lclSettings.dom.prev_page_button, $(this));
-				var $next_btn = $(lclSettings.dom.next_page_button, $(this));
+				let $prev_btn = $(lclSettings.dom.prev_page_button, $(this));
+				let $next_btn = $(lclSettings.dom.next_page_button, $(this));
 
 				if (data.layout===lclSettings.layouts.one_page) {
 					/* sync up the page property value on the back & next 
@@ -456,7 +458,7 @@
 		},
 		
 		setPageSetSize: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			switch(lclSettings.layout) {
 				case lclSettings.layouts.two_page:
 					return (this.bookviewer('set2upPageSetSize', options));
@@ -471,15 +473,15 @@
 		},
 
 		set2upPageSetSize: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
-				var $lp = $(this).find(lclSettings.dom.left_page+' img');
-				var $rp = $(this).find(lclSettings.dom.right_page+' img');
+				let $lp = $(this).find(lclSettings.dom.left_page+' img');
+				let $rp = $(this).find(lclSettings.dom.right_page+' img');
 				if ($rp.length < 1) {
 					return;
 				}
-				var w = $rp.width();
-				var h = $rp.height();
+				let w = $rp.width();
+				let h = $rp.height();
 				if ($lp.length > 0) {
 					if ($lp.width() > w) {
 						w = $lp.width();
@@ -491,7 +493,7 @@
 				$(this).css('width', (w*2)+'px').css('height', h+'px');
 				$(lclSettings.dom.left_page, $(this)).css('width', w+'px').css('height', h+'px');
 				$(lclSettings.dom.right_page, $(this)).css('width', w+'px').css('height', h+'px');
-				var pw = $(this).closest(lclSettings.dom.album_container).width();
+				let pw = $(this).closest(lclSettings.dom.album_container).width();
 				if (pw < (w*2)) {
 					$(this).css('margin-left', '-'+Math.floor(((w*2)-pw)/2)+'px');
 				}
@@ -499,21 +501,21 @@
 		},
 
 		set1upPageSetSize: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
-				var $rp = $(this).find(lclSettings.dom.right_page+' img');
+				let $rp = $(this).find(lclSettings.dom.right_page+' img');
 				if ($rp.length < 1) {
 					return;
 				}
-				var w = $rp.width();
-				var h = $rp.height();
+				let w = $rp.width();
+				let h = $rp.height();
 				if (w > $(this).width()) {
 					$(this).css('width', w+'px');
 				}
 				if (h > $(this).height()) {
 					$(this).css('height', h+'px');
 				}
-				var $a = $(this).closest(lclSettings.dom.album_container);
+				let $a = $(this).closest(lclSettings.dom.album_container);
 				if ($a.length > 0) {
 					if ($a.width() < w) {
 						$(this).css('margin-left', '-'+Math.floor((w-$a.width())/2)+'px');
@@ -539,14 +541,14 @@
 		 */
         toggleHeader: function(delayOffset, options) {
 			
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			
             if (delayOffset === undefined) {
                 delayOffset = 1000;
             }
 			return this.each(function() {
 				
-				var $e = $(this);
+				let $e = $(this);
 				setTimeout(function() {
 					
 					/* hide the header element after a delay */
@@ -590,9 +592,9 @@
 		 * @returns {undefined}
 		 */
 		keyNavigation: function(evt) {
-			var lclSettings = $.extend(true, {}, settings, evt.data || {});
-			var arrows = { left: 37, up: 38, right: 39, down: 40 };
-			var keyCode = evt.keyCode || evt.which;
+			let lclSettings = $.extend(true, {}, settings, evt.data || {});
+			let arrows = { left: 37, up: 38, right: 39, down: 40 };
+			let keyCode = evt.keyCode || evt.which;
 			switch (keyCode) {
 				case arrows.left:
 					$(lclSettings.dom.page_set+' '+lclSettings.dom.prev_page_button)
@@ -614,11 +616,11 @@
          */
         initScrollbar: function(options) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			
 			return this.each(function() {
 
-				var $scrollPane = $(lclSettings.dom.scroll_pane, $(this)),
+				let $scrollPane = $(lclSettings.dom.scroll_pane, $(this)),
 					$scrollContent = $(lclSettings.dom.scroll_content, $(this));
 				if ($scrollPane.length < 0 || $scrollContent.length < 0) {
 					return;
@@ -630,7 +632,7 @@
 				}
 
 				//build slider
-				var $scrollbar = $(lclSettings.dom.scrollbar, $(this)).slider({
+				let $scrollbar = $(lclSettings.dom.scrollbar, $(this)).slider({
 					slide: function(e, ui) {
 						if ($scrollContent.width() > $scrollPane.width()) {
 							$scrollContent.css('margin-left', Math.round(ui.value / 100 * ($scrollPane.width() - $scrollContent.width())) + 'px');
@@ -642,7 +644,7 @@
 				});
 
 				//append icon to handle
-				var handleHelper = $scrollbar.parent().find('.ui-slider-handle')
+				let handleHelper = $scrollbar.parent().find('.ui-slider-handle')
 				.mousedown(function() {
 					$scrollbar.width(handleHelper.width());
 				})
@@ -658,12 +660,12 @@
 				//size scrollbar and handle proportionally to scroll distance
 				function sizeScrollbar() {
 
-					var remainder = $scrollContent.width() - $scrollPane.width();
+					let remainder = $scrollContent.width() - $scrollPane.width();
 					if (remainder < 0) {
 						remainder = 0;
 					}
-					var proportion = remainder / $scrollContent.width();
-					var handleSize = $scrollPane.width() - (proportion * $scrollPane.width());
+					let proportion = remainder / $scrollContent.width();
+					let handleSize = $scrollPane.width() - (proportion * $scrollPane.width());
 					$scrollbar.parent().find('.ui-slider-handle').css({
 						width: handleSize,
 						'margin-left': -handleSize / 2
@@ -673,15 +675,15 @@
 
 				//reset slider value based on scroll content position
 				function resetValue() {
-					var remainder = $scrollPane.width() - $scrollContent.width();
-					var leftVal = $scrollContent.css('margin-left')==='auto' ? 0 : parseInt($scrollContent.css('margin-left'));
-					var percentage = Math.round(leftVal / remainder * 100);
+					let remainder = $scrollPane.width() - $scrollContent.width();
+					let leftVal = $scrollContent.css('margin-left')==='auto' ? 0 : parseInt($scrollContent.css('margin-left'));
+					let percentage = Math.round(leftVal / remainder * 100);
 					$scrollbar.slider("value", percentage);
 				}
 				//if the slider is 100% and window gets larger, reveal content
 				function reflowContent() {
-					var showing = $scrollContent.width() + parseInt($scrollContent.css('margin-left'));
-					var gap = $scrollPane.width() - showing;
+					let showing = $scrollContent.width() + parseInt($scrollContent.css('margin-left'));
+					let gap = $scrollPane.width() - showing;
 					if (gap > 0) {
 						$scrollContent.css('margin-left', parseInt($scrollContent.css('margin-left')) + gap);
 					}
