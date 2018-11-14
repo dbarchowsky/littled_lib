@@ -77,12 +77,12 @@ class SerializedContentUtils extends AppContentBase
 	/**
 	 * Assign values contained in array to object input properties.
 	 * @param string $query SQL SELECT statement to use to hydrate object property values.
+	 * @param array[optional] $params List of parameter values to pass to the query.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	protected function hydrateFromQuery( $query )
+	protected function hydrateFromQuery( $query, $params=null )
 	{
-		$data = $this->fetchRecords($query);
+		$data = $this->fetchRecords($query, $params);
 		if (count($data[0]) < 1) {
 			throw new RecordNotFoundException("Record not found.");
 		}

@@ -140,7 +140,6 @@ class GalleryFilters extends ContentFilters
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
@@ -162,9 +161,8 @@ class GalleryFilters extends ContentFilters
 		if ($this->contentTypeID->id->value===null || $this->contentTypeID< 1) {
 			return('');
 		}
-		$this->connectToDatabase(); /* for the sake of real_escape_string */
-		$query = "CALL getContentDetailsURI(".$this->mysqli->real_escape_string($this->contentTypeID).")";
-		$data = $this->fetchRecords($query);
+		$query = "CALL getContentDetailsURI(?)";
+		$data = $this->mysqli()->fetchRecords($query, array($this->mysqli->real_escape_string($this->contentTypeID)));
 		$this->detailsURI = $data[0]->details_uri;
 		return ($this->detailsURI);
 	}

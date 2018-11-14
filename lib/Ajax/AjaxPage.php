@@ -115,7 +115,6 @@ class AjaxPage extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getTemplatePath( $template_name )
 	{
@@ -125,9 +124,8 @@ class AjaxPage extends MySQLConnection
 		if (!$this->setInternalContentTypeValue()) {
 			throw new ConfigurationUndefinedException("Content properties not available.");
 		}
-		$this->connectToDatabase();
-		$query = "CALL contentTemplateLookup({$this->contentProperties->id->value}, '".$this->escapeSQLValue($template_name)."')";
-		$data = $this->fetchRecords($query);
+		$query = "CALL contentTemplateLookup(?,?)";
+		$data = $this->connectToDatabase()->fetchRecords($query, array($this->contentProperties->id->value, $this->escapeSQLValue($template_name)));
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
 		}
@@ -213,7 +211,6 @@ class AjaxPage extends MySQLConnection
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException

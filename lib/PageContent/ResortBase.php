@@ -5,7 +5,6 @@ namespace Littled\PageContent;
 use Littled\Cache\ContentCache;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
@@ -95,8 +94,9 @@ class ResortBase extends MySQLConnection
 
 	/**
 	 * Get the id's of all the records for resorting.
-	 * @throws InvalidQueryException
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function retrieveExistingIDs()
 	{
@@ -127,13 +127,14 @@ class ResortBase extends MySQLConnection
 	 * Retrieve record ids for image_link records.
 	 * @return array Data set containing ImageLink record ids
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function retrieveImageIDs()
 	{
 		$pos_array = &$this->positionList->value;
-		$query = "SELECT `parent_id`, `type_id` FROM `image_link` WHERE `id` = ".$pos_array[0];
-		$data = $this->fetchRecords($query);
+		$query = "SELECT `parent_id`, `type_id` FROM `image_link` WHERE `id` = ?";
+		$data = $this->mysqli()->fetchRecords($query, array($this->escapeSQLValue($pos_array[0])));
 		if (count($data) > 0) {
 			$this->parentID = $data[0]->parent_id;
 			$this->typeID = $data[0]->type_id;
@@ -147,10 +148,12 @@ class ResortBase extends MySQLConnection
 SELECT il.id 
 FROM image_link il 
 INNER JOIN `images` `full` ON il.fullres_id = `full`.id 
-WHERE il.parent_id = {$this->parentID} AND il.type_id = {$this->typeID} 
+WHERE il.parent_id = ? AND il.type_id = ? 
 ORDER BY IF(il.access='public', 0, 1), IFNULL(il.slot,999999), il.id 
 SQL;
-		return($this->fetchRecords($query));
+		return($this->mysqli()->fetchRecords($query, array(
+			$this->escapeSQLValue($this->parentID),
+			$this->escapeSQLValue($this->typeID))));
 	}
 
 	/**

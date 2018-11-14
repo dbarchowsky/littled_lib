@@ -79,7 +79,6 @@ class Album extends KeywordSectionContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -119,7 +118,6 @@ class Album extends KeywordSectionContent
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function collectAlbumID( $src=null )
 	{
@@ -155,7 +153,6 @@ class Album extends KeywordSectionContent
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
@@ -277,8 +274,9 @@ class Album extends KeywordSectionContent
 	 * - Checks for incompatibilities with exisitng slug values.
 	 * - Ensures that the generated slug value is unique.
 	 * - Stores the slug value in the object's $slug property.
+	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function generateDefaultSlug()
@@ -305,8 +303,9 @@ class Album extends KeywordSectionContent
 	/**
 	 * Returns the title of the album.
 	 * @return string Title of the album.
+	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function getBookTitle() {
@@ -320,7 +319,6 @@ class Album extends KeywordSectionContent
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
@@ -328,7 +326,9 @@ class Album extends KeywordSectionContent
 	{
 		$this->testForAlbumID();
 		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->contentProperties->id->value})";
-		$data = $this->fetchRecords($query);
+		$data = $this->connectToDatabase()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->contentProperties->id->escapeSQL($this->mysqli)));
 		$page_id = ((count($data)>0)?($data[0]->id):(null));
 
 		if ($page_id===null || $page_id < 1) {
@@ -411,16 +411,19 @@ class Album extends KeywordSectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function lookupSlug()
 	{
 		$this->connectToDatabase();
-		$query = "SEL"."ECT `id` FROM `".$this::TABLE_NAME()."` ".
-			"WHERE (`section_id` = {$this->section_id->value}) ".
-			"AND (`slug` = ".$this->slug->escapeSQL($this->mysqli).")";
-		$data = $this->fetchRecords($query);
+		$query = "SEL"."ECT `id` FROM `?` ".
+			"WHERE (`section_id` = ?) ".
+			"AND (`slug` = ?)";
+		$data = $this->connectToDatabase()->fetchRecords($query, array(
+			$this::TABLE_NAME(),
+			$this->section_id->escapeSQL($this->mysqli),
+			$this->slug->escapeSQL($this->mysqli)
+		));
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Slug not found.");
 		}
@@ -429,19 +432,26 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Marks the current pages as being either at the start, end, or middle of the book.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	protected function markLimits()
 	{
 		$first_page_id = $last_page_id = null;
-		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->contentProperties->id->value})";
-		$data = $this->fetchRecords($query);
+		$query = "CALL albumFirstPageSelect(?,?)";
+		$data = $this->connectToDatabase()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->contentProperties->id->escapeSQL($this->mysqli)
+		));
 		if (count($data) > 0) {
 			$first_page_id = $data[0]->id;
 		}
 
-		$query = "CALL albumLastPageSelect({$this->id->value},{$this->contentProperties->id->value})";
-		$data = $this->fetchRecords($query);
+		$query = "CALL albumLastPageSelect(?,?)";
+		$data = $this->connectToDatabase()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->contentProperties->id->escapeSQL($this->mysqli)
+		));
 		if (count($data) > 0) {
 			$last_page_id = $data[0]->id;
 		}
@@ -459,7 +469,6 @@ class Album extends KeywordSectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -467,8 +476,10 @@ class Album extends KeywordSectionContent
 	public function read ($read_images=true, $read_image_keywords=false)
 	{
 		if ($this->check_access==true) {
-			$query = "SEL"."ECT COUNT(1) AS `count` FROM `".$this->TABLE_NAME()."` WHERE id = {$this->id->value} AND `access` NOT IN ('public')";
-			$data = $this->fetchRecords($query);
+			$query = "SEL"."ECT COUNT(1) AS `count` FROM `?` WHERE id = ? AND `access` NOT IN ('public')";
+			$data = $this->connectToDatabase()->fetchRecords($query, array(
+				$this::TABLE_NAME(),
+				$this->id->escapeSQL($this->mysqli)));
 			$is_protected = ($data[0]->count > 0);
 
 			if ($is_protected==-true) {
@@ -491,8 +502,8 @@ class Album extends KeywordSectionContent
 			 * happens when there is some other record attached to this
 			 * content type???
 			 */
-			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = {$this->contentProperties->id->value}";
-			$data = $this->fetchRecords($query);
+			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = ?";
+			$data = $this->connectToDatabase()->fetchRecords($query, array($this->contentProperties->id->escapeSQL($this->mysqli)));
 			$this->gallery->contentProperties->id->value = ((count($data) > 0)?($data[0]->id):(null));
 		}
 
@@ -512,7 +523,6 @@ class Album extends KeywordSectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -654,16 +664,15 @@ class Album extends KeywordSectionContent
 	 * values into the record in the database.
 	 * @param bool $has_slot
 	 * @param bool $has_section_id
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	protected function testForSlotColumns ( &$has_slot, &$has_section_id )
 	{
 		$query = "SHOW COLUMNS ".
-			"FROM `".$this->TABLE_NAME()."` ".
+			"FROM `?` ".
 			"WHERE `field` LIKE 'slot' ".
 			"OR `field` LIKE 'section_id'";
-		$data = $this->fetchRecords($query);
+		$data = $this->fetchRecords($query, array($this::TABLE_NAME()));
 		if (count($data) < 1) {
 			return;
 		}
@@ -708,9 +717,10 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Validate form data collected with fill_from_input() routine.
-	 * @param array[optional] List of object properties that do not require validation.
+	 * @param array[optional] $exclude_properties List of object properties that do not require validation.
+	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function validateInput ( $exclude_properties=array() )
@@ -746,8 +756,9 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Validates the current value of the object's $slug property against existing records in the database.
+	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function validateSlug()
@@ -756,8 +767,8 @@ class Album extends KeywordSectionContent
 			/* get the existing slug. if they are the same then the current
 			 * value of the object's $slug property doesn't need to be checked.
 			 */
-			$query = "SEL"."ECT `slug` FROM `".$this->TABLE_NAME()."` WHERE (`id` = {$this->id->value})";
-			$data = $this->fetchRecords($query);
+			$query = "SEL"."ECT `slug` FROM `?` WHERE (`id` = ?)";
+			$data = $this->mysqli()->fetchRecords($query, array($this::TABLE_NAME(), $this->id->escapeSQL($this->mysqli)));
 			if (count($data) < 1) {
 				throw new ContentValidationException("Slug value could not be retrieved for validation.");
 			}
@@ -777,16 +788,21 @@ class Album extends KeywordSectionContent
 		/**
 		 * Query to search for existing records with slug values that match the object's $slug property value.
 		 */
-		$query = "SEL"."ECT COUNT(1) AS `count` FROM `".$this->TABLE_NAME()."` ";
+		$this->connectToDatabase();
+		$params = array($this::TABLE_NAME());
+		$query = "SEL"."ECT COUNT(1) AS `count` FROM `?` ";
 		if (property_exists($this, "section_id") && $this->section_id->value > 0) {
-			$query .= "WHERE (section_id = {$this->section_id->value}) ";
+			$query .= "WHERE (section_id = ?) ";
+			$params[] = $this->section_id->escapeSQL($this->mysqli);
 		}
 		$query .= ((strpos($query, "WHERE") > 0)?('AND '):('WHERE '));
-		$query .= "(`slug` LIKE '".$this->slug->escapeSQL($this->mysqli)."') ";
+		$query .= "(`slug` LIKE ?) ";
+		$params[] = $this->slug->escapeSQL($this->mysqli);
 		if ($this->id->value > 0) {
-			$query .= "AND (`id` <> {$this->id->value}) ";
+			$query .= "AND (`id` <> ?) ";
+			$params[] = $this->id->escapeSQL($this->mysqli);
 		}
-		$data = $this->fetchRecords($query);
+		$data = $this->fetchRecords($query, $params);
 		if (count($data) > 0) {
 			throw new ContentValidationException("A &ldquo;{$this->slug->value}&rdquo; slug already exists.");
 		}

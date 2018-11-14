@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Filters;
 
+
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -157,7 +158,6 @@ class AlbumFilters extends FilterCollection
 	/**
 	 * Retrieve section properties.
 	 * @param integer $content_type_id Id of site section to retrieve properties for.
-	 * @throws InvalidQueryException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
@@ -180,7 +180,8 @@ class AlbumFilters extends FilterCollection
 	/**
 	 * Retrieves from database the uri of the page used to display details for this content type.
 	 * @return string Uri of details page.
-	 * @throws InvalidQueryException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getDetailsURI()
 	{
@@ -190,8 +191,8 @@ class AlbumFilters extends FilterCollection
 
 		$query = "SELECT `details_uri` ".
 			"FROM `section_operations` ".
-			"WHERE `section_id` = {$this->contentProperties->id->value}";
-		$data = $this->fetchRecords($query);
+			"WHERE `section_id` = ?";
+		$data = $this->connectToDatabase()->fetchRecords($query, array($this->contentProperties->id->escapeSQL($this->mysqli)));
 		if (count($data) > 0) {
 			return($data[0]->details_uri);
 		}

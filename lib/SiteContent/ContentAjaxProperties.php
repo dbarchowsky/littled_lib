@@ -88,7 +88,6 @@ class ContentAjaxProperties extends SerializedContent
 	/**
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function retrieveSectionProperties()
@@ -96,7 +95,7 @@ class ContentAjaxProperties extends SerializedContent
 		if ($this->content_type_id->value===null || $this->content_type_id->value < 1) {
 			return;
 		}
-		$query = "SEL"."ECT * FROM `".$this::TABLE_NAME()."` WHERE `section_id` = {$this->content_type_id->value}";
-		$this->hydrateFromQuery($query);
+		$query = "SEL"."ECT * FROM `?` WHERE `section_id` = ?";
+		$this->hydrateFromQuery($query, array($this::TABLE_NAME(), $this->content_type_id->value));
 	}
 }

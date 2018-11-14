@@ -49,10 +49,17 @@ class Keyword extends SerializedContentUtils
 		$this->count = $count;
 	}
 
+	/**
+	 * Deletes the corresponding keyword record from the database.
+	 * @return string Message describing the results of the operation.
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
 	public function delete()
 	{
 		if (!$this->hasData()) {
-			return;
+			return('');
 		}
 		$this->connectToDatabase();
 		$query = "CALL keywordDelete(".
@@ -68,16 +75,14 @@ class Keyword extends SerializedContentUtils
 	 * @return bool True/false depending on whether the term already exists in the database for its parent.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function exists()
 	{
-		$this->connectToDatabase();
-		$query = "CALL keywordLookup(".
-			$this->term->escapeSQL($this->mysqli).",".
-			$this->type_id->escapeSQL($this->mysqli).",".
-			$this->parent_id->escapeSQL($this->mysqli).")";
-		$data = $this->fetchRecords($query);
+		$query = "CALL keywordLookup(?,?,?)";
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->term->escapeSQL($this->mysqli),
+			$this->type_id->escapeSQL($this->mysqli),
+			$this->parent_id->escapeSQL($this->mysqli)));
 		return ($data[0]->match_count>0);
 	}
 

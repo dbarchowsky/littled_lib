@@ -174,7 +174,6 @@ class FilterCollection extends AppContentBase
 	/**
 	 * Formats SQL clauses to the offset and page size of the recordset.
 	 * @return array First element is the lower limit value and the 2nd element is the upper limit value.
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getQueryLimits()
 	{
@@ -224,17 +223,16 @@ class FilterCollection extends AppContentBase
 
 	/**
 	 * Retrieves total number of records matching the current filter values.
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function getPageCount()
 	{
 		$this->formatQueryClause();
 
-		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` ".
-			"FROM `".$this::TABLE_NAME()."` a ".
+		$query = "SELECT COUNT(DISTINCT a.`id`) AS `count` ".
+			"FROM `?` a ".
 			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
 			$this->sqlClause;
-		$data = $this->fetchRecords($query);
+		$data = $this->fetchRecords($query, array($this::TABLE_NAME()));
 
 		$this->recordCount = $data[0]->count;
 		$this->calcPageCount();

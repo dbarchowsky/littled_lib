@@ -211,7 +211,6 @@ class ImageBase extends SerializedContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -309,11 +308,7 @@ class ImageBase extends SerializedContent
 			if (in_array($property, $exclude_properties)) {
 				continue;
 			}
-			try {
-				$this->$property->validate();
-			} catch (ContentValidationException $ex) {
-				array_push($this->validationErrors, $ex->getMessage());
-			}
+			$this->$property->validate();
 		}
 		if (count($this->validationErrors) > 0) {
 			throw new ContentValidationException("Problems were found with the image properties.");

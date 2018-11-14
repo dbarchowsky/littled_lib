@@ -44,11 +44,10 @@ class MySQLConnection extends AppBase
 	 * @param string $column_name name of the column to check for
 	 * @param string $table_name name of the table to look in
 	 * @return boolean True/false depending on if the column is found.
-	 * @throws InvalidQueryException Error executing query.
 	 */
 	public function columnExists( $column_name, $table_name )
 	{
-		$data = $this->fetchRecords("SHOW COLUMNS FROM `{$table_name}` LIKE '{$column_name}'");
+		$data = $this->fetchRecords("SHOW COLUMNS FROM `?` LIKE '?'", array($table_name, $column_name));
 		$has_rows = (count($data) > 0);
 		return ($has_rows);
 	}
@@ -98,6 +97,7 @@ class MySQLConnection extends AppBase
 	 * @param string[optional] $password Password for connecting to MySQL server.
 	 * @param string[optional] $schema Name of schema.
 	 * @param string[optional] $port Port number of MySQL server if not using default.
+	 * @return MySQLConnection Returns object, allowing function call to be chainable.
 	 * @throws ConnectionException On connection error.
 	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
@@ -115,6 +115,7 @@ class MySQLConnection extends AppBase
 			}
 			$this->mysqli->set_charset('utf8');
 		}
+		return $this;
 	}
 
 	/**
@@ -163,23 +164,24 @@ class MySQLConnection extends AppBase
 	 * Returns records from database query. This routine will eat up all result sets returned by
 	 * the execution of the query. Use fetchRecordsNonExhaustive() to return only the first result.
 	 * @param string $query SQL query to execute
+	 * @param array[optional] $param_list Parameter list to pass to SQL statement.
 	 * @return array Array of generic objects holding the data returned by the query.
-	 * @throws InvalidQueryException
 	 */
-	public function fetchRecords($query)
+	public function fetchRecords($query, $param_list=null)
 	{
-		$this->executeQuery($query);
-		$rs = array();
-		do {
-			$result = $this->mysqli->store_result();
-			if ($result) {
-				while($row = $result->fetch_object()) {
-					array_push($rs, $row);
-				}
-				$result->free();
-			}
-		} while($this->mysqli->more_results() && $this->mysqli->next_result());
-		return ($rs);
+		$stmt = $this->mysqli->prepare($query);
+		if (is_array($param_list)) {
+			$stmt->bind_param(...$param_list);
+		}
+		$stmt->execute();
+		$result = $stmt->get_result();
+		$arr = array();
+		while($row = $result->fetch_object('DynamicQueryClass')) {
+			$arr[] = $row;
+		}
+		var_export($arr);
+		$stmt->close();
+		return($arr);
 	}
 
 	/**
@@ -299,6 +301,19 @@ class MySQLConnection extends AppBase
 				$result->free();
 			}
 		}
+	}
+
+	/**
+	 * Convenience method that can be chained to preface calls to escapeSQLValue(), which requires an
+	 * established mysqli connection. Basically makes the connection if there is none.
+	 * @return MySQLConnection
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 */
+	public function mysqli()
+	{
+		$this->connectToDatabase();
+		return $this;
 	}
 
 	/**

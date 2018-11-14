@@ -55,6 +55,7 @@ class CacheControl
 	/**
 	 * Collects variables and their values passed in the request.
 	 * @throws ContentValidationException
+	 * @throws ResourceNotFoundException
 	 */
 	public function collectInput()
 	{

@@ -232,7 +232,6 @@ class ImageOperations extends ImageFile
 	 */
 	function makeThumbnailCopy($target_name, $target_dims, $target_ext, $sub_dir, $field_name)
 	{
-		$this->connectToDatabase();
 		$image_root = $this->getSiteRoot($this->image_dir);
 
 		if (!file_exists($image_root.$this->path->value)) {
@@ -241,15 +240,15 @@ class ImageOperations extends ImageFile
 
 		$this->resample($image_root.$this->path->value, $target_name, $target_dims, $target_ext, $sub_dir);
 
-		$path = $this->formatImagePath($target_name, $target_ext, $sub_dir);
+		$path = $this->formatUploadFilename($target_name, $target_ext, $sub_dir);
 		$src_dims = new ImageDims();
 		list($src_dims->width, $src_dims->height) = getimagesize($image_root.$path);
 
 		$thumbnail_id = 0;
 		if ($this->id->value > 0) {
-			$query = "SELECT `{$field_name}` FROM `image_link` WHERE `fullres_id` = ".$this->id->escapeSQL($this->mysqli);
-			$data = $this->fetchRecords($query);
-			if (count($data) > 0) {
+			$query = "SEL"."ECT `?` FROM `image_link` WHERE `fullres_id` = ?";
+			$data = $this->mysqli()->fetchRecords($query, array($field_name, $this->id->escapeSQL($this->mysqli)));
+			if ($data) {
 				$thumbnail_id = $data[0]->$field_name;
 			}
 		}

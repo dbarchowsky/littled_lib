@@ -46,7 +46,6 @@ class AlbumViewer extends SocialXPostAlbum
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -135,7 +134,9 @@ class AlbumViewer extends SocialXPostAlbum
 	/**
 	 * Get the id of the first available book on the stack.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getDefaultBook()
 	{
@@ -143,8 +144,8 @@ class AlbumViewer extends SocialXPostAlbum
 SELECT 
 	a.id 
 FROM album a 
-INNER JOIN image_link il ON (a.id = il.parent_id AND il.type_id = {$this->pageContentTypeID}) 
-WHERE (a.section_id = {$this->contentProperties->id->value}) 
+INNER JOIN image_link il ON (a.id = il.parent_id AND il.type_id = ?) 
+WHERE (a.section_id = ?) 
 AND (a.access = 'public') 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.`release_date`, NOW())<=0) 
@@ -153,7 +154,9 @@ HAVING COUNT(1) > 0
 ORDER BY a.slot ASC, a.id ASC 
 LIMIT 1
 SQL;
-		$data = $this->fetchRecords($query);
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->escapeSQLValue($this->pageContentTypeID),
+			$this->escapeSQLValue($this->contentProperties->id->value)));
 
 		if (count($data)<1) {
 			throw new RecordNotFoundException("A default book is not available.");
@@ -166,7 +169,9 @@ SQL;
 	/**
 	 * Gets the first two pages in the sequence to display.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getDefaultPages()
 	{
@@ -182,14 +187,14 @@ SELECT
 	f.height full_height 
 FROM image_link il 
 INNER JOIN images f ON il.fullres_id = f.id 
-WHERE (il.parent_id = {$this->id->value}) 
-AND (il.type_id = {$this->pageContentTypeID}) 
+WHERE (il.parent_id = ?) 
+AND (il.type_id = ?) 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.`release_date`, NOW())<=0) 
 ORDER BY IFNULL(il.page_number,999999) ASC, il.slot ASC, il.id ASC 
 LIMIT 4
 SQL;
-		$this->hydrateFromQuery($query);
+		$this->hydrateFromQuery($query, array($this->id->value, $this->pageContentTypeID));
 		$this->markLimits();
 	}
 
@@ -199,7 +204,7 @@ SQL;
 	 *   - If either the left or right page is unavailable, one page is returned and the adjacent page will have no properties.
 	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getNextPublicPage()
 	{
@@ -217,9 +222,10 @@ SELECT
 	f.height full_height 
 FROM image_link il 
 INNER JOIN images f ON il.fullres_id = f.id 
-WHERE (il.id = {$this->pages[0]->id->value}) 
+WHERE (il.id = ?) 
 SQL;
-		$data = $this->fetchRecords($query);
+		$this->connectToDatabase();
+		$data = $this->mysqli()->fetchRecords($query, array($this->pages[0]->id->escapeSQL($this->mysqli)));
 		if (count($data) > 0) {
 			$this->hydratePageFromQuery($this->pages[0], $data[0]);
 			$this->markLimits();
@@ -232,7 +238,7 @@ SQL;
 	 *   - If either the left or right page is unavailable, one page is returned and the adjacent page will have no properties.
 	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	public function getNextPublicPageset ()
 	{
@@ -354,7 +360,9 @@ SQL;
 	 * Gets the page number and slot of the current left page.
 	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	protected function getPagePosition( )
 	{
@@ -367,11 +375,11 @@ SELECT
 	il.page_number,  
 	il.slot 
 FROM image_link il 
-WHERE id = {$this->pages[0]->id->value}
+WHERE id = ? 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.release_date, NOW())<=0) 
 SQL;
-		$data = $this->fetchRecords($query);
+		$data = $this->mysqli()->fetchRecords($query, array($this->pages[0]->id->escapeSQL($this->mysqli)));
 		if (count($data)<1) {
 			throw new RecordNotFoundException("Page not found.");
 		}
@@ -405,12 +413,12 @@ SQL;
 	/**
 	 * Fills the page members of the class with the current recordset.
 	 * @param string $query SQL SELECT statement to use to hydrate object property values.
+	 * @param array[optional] $params Parameters to pass to the query.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	protected function hydrateFromQuery( $query )
+	protected function hydrateFromQuery( $query, $params=null )
 	{
-		$data = $this->fetchRecords($query);
+		$data = $this->fetchRecords($query, $params);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Pages not found.");
 		}
@@ -526,9 +534,10 @@ SQL;
 	}
 
 	/**
-	 * @param $page
-	 * @param $slot
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @param int $page Page number.
+	 * @param int $slot Position of the page within the sequence of pages.
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	protected function loadNextPageSet( &$page, $slot )
 	{
@@ -539,29 +548,34 @@ SELECT
 	il.slot
 FROM image_link il
 INNER JOIN images f ON il.fullres_id = f.id 
-WHERE (il.parent_id = {$this->id->value}) 
-AND (il.type_id = {$this->pageContentTypeID}) 
+WHERE (il.parent_id = ?) 
+AND (il.type_id = ?) 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.release_date, NOW())<=0) 
 AND 
 (
-	(IFNULL(il.page_number,0) > {$page}) 
+	(IFNULL(il.page_number,0) > ?) 
 	OR
 	(
-		IFNULL(il.page_number,0) = {$page} 
-		AND il.slot > {$slot} 
+		IFNULL(il.page_number,0) = ?  
+		AND il.slot > ? 
 	)
 	OR
 	(
-		IFNULL(il.page_number,0) = {$page} 
-		AND il.slot = {$slot} 
-		AND il.id > {$this->pages[0]->id->value} 
+		IFNULL(il.page_number,0) = ? 
+		AND il.slot = ? 
+		AND il.id > ? 
 	)
 ) 
 ORDER BY IFNULL(il.page_number,999999) ASC, il.slot ASC, il.id ASC 
 LIMIT 1 
 SQL;
-		$data = $this->fetchRecords($query);
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->pageContentTypeID,
+			$page, $page, $slot, $page, $slot,
+			$this->pages[0]->id->escapeSQL($this->mysqli)
+		));
 		if (count($data) < 1) {
 			return;
 		}
@@ -581,7 +595,8 @@ SQL;
 	}
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	protected function loadPreviousOddPageSet( )
 	{
@@ -598,22 +613,26 @@ SELECT
 	il.page_number,
 	il.slot
 FROM image_link il
-WHERE (il.parent_id = {$this->id->value}) 
-AND (il.type_id = {$this->pageContentTypeID}) 
+WHERE (il.parent_id = ?) 
+AND (il.type_id = ?) 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.release_date, NOW())<=0) 
 QUERY;
 		if (empty($this->pages[0]->page_number->value) && empty($prev_page)) {
-			$query .= "AND (il.slot = {$adjacent_slot}) ";
+			$query .= "AND (il.slot = ?) ";
 		}
 		else {
-			$query .= "AND (il.page_number = {$adjacent_page}) ";
+			$query .= "AND (il.page_number = ?) ";
 		}
 		$query .= <<<QUERY
 ORDER BY il.slot DESC, il.id DESC 
 LIMIT 1 
 QUERY;
-		$data = $this->fetchRecords($query);
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->pageContentTypeID,
+			(empty($this->pages[0]->page_number->value) && empty($prev_page)?($adjacent_slot):($adjacent_page))
+		));
 		if (count($data) < 1) {
 			return;
 		}
@@ -629,9 +648,10 @@ QUERY;
 	}
 
 	/**
-	 * @param $page
-	 * @param $slot
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @param int $page Page number.
+	 * @param int $slot Position of the page within the sequence of pages.
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 */
 	protected function loadPreviousPageSet( &$page, $slot )
 	{
@@ -643,29 +663,34 @@ SELECT
 	il.slot
 FROM image_link il
 INNER JOIN images f ON il.fullres_id = f.id 
-WHERE (il.parent_id = {$this->id->value}) 
-AND (il.type_id = {$this->pageContentTypeID}) 
+WHERE (il.parent_id = ?) 
+AND (il.type_id = ?) 
 AND (il.access = 'public') 
 AND (DATEDIFF(il.release_date, NOW())<=0) 
 AND 
 (
-	(IFNULL(il.page_number,0) < {$page}) 
+	(IFNULL(il.page_number,0) < ?) 
 	OR
 	(
-		IFNULL(il.page_number,0) = {$page} 
-		AND il.slot < {$slot} 
+		IFNULL(il.page_number,0) = ? 
+		AND il.slot < ? 
 	)
 	OR
 	(
-		IFNULL(il.page_number,0) = {$page} 
-		AND il.slot = {$slot} 
-		AND il.id < {$this->pages[0]->id->value} 
+		IFNULL(il.page_number,0) = ? 
+		AND il.slot = ? 
+		AND il.id < ? 
 	)
 ) 
 ORDER BY IFNULL(il.page_number,999999) DESC, il.slot DESC, il.id DESC 
 LIMIT 1 
 SQL;
-		$data = $this->fetchRecords($query);
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->pageContentTypeID,
+			$page, $page, $slot, $page, $slot,
+			$this->pages[0]->id->escapeSQL($this->mysqli)
+		));
 		if (count($data) < 1) {
 			return;
 		}
@@ -683,24 +708,6 @@ SQL;
 			$this->pages[0]->page_number->value = $page;
 			$this->pages[0]->slot->value = $slot;
 		}
-	}
-
-	/**
-	 * Populates the core properties of the sketchbook object with data from database.
-	 * @param bool[optional] $read_images Ignored. Here for compatibility with parent class function definition.
-	 * @param bool[optional] $read_image_keywords Ignored. Here for compatibility with parent class function definition.
-	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
-	function read ($read_images=true, $read_image_keywords=false)
-	{
-		/* don't retrieve page images */
-		parent::read(false, false);
 	}
 
 	/**
@@ -731,5 +738,22 @@ SQL;
 		if ($this->hasValidationErrors()) {
 			throw new ContentValidationException("Error validating album viewer data.");
 		}
+	}
+
+	/**
+	 * Populates the core properties of the sketchbook object with data from database.
+	 * @param bool[optional] $read_images Ignored. Here for compatibility with parent class function definition.
+	 * @param bool[optional] $read_image_keywords Ignored. Here for compatibility with parent class function definition.
+	 * @throws ContentValidationException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException* @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws \Littled\Exception\RecordNotFoundException
+	 */
+	function read ($read_images=true, $read_image_keywords=false)
+	{
+		/* don't retrieve page images */
+		parent::read(false, false);
 	}
 }

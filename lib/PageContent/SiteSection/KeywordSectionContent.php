@@ -177,7 +177,6 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function formatKeywordList($fetch_from_database=true)
 	{
@@ -194,7 +193,6 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function formatKeywordListPageContent($context=array())
@@ -232,7 +230,6 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getKeywordTermsArray( $fetch_from_database=true )
 	{
@@ -266,7 +263,6 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -283,7 +279,6 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function readKeywords()
 	{
@@ -291,10 +286,10 @@ class KeywordSectionContent extends SectionContent
 		$this->testForContentType();
 
 		$this->connectToDatabase();
-		$query = "CALL keywordSelectLinked(".
-			$this->id->escapeSQL($this->mysqli).",".
-			$this->contentProperties->id->escapeSQL($this->mysqli).")";
-		$data = $this->fetchRecords($query);
+		$query = "CALL keywordSelectLinked(?,?)";
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->contentProperties->id->escapeSQL($this->mysqli)));
 
 		foreach($data as $row) {
 			$i = count($this->keywords);

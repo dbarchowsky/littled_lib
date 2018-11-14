@@ -183,9 +183,10 @@ class ImageLink extends KeywordSectionContent
 	/**
 	 * Deletes image_link record along with all images records and files attached to the record.
 	 * @return string Status message detailing the results of the operation.
+	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function delete()
@@ -236,6 +237,8 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Tests to see if this image is a thumbnail image for a parent record. Deletes that link if it is found.
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function deleteThumbnailLink()
@@ -248,8 +251,8 @@ class ImageLink extends KeywordSectionContent
 			 * record independent from the gallery)
 			 */
 			$parent_table = '';
-			$query = "CALL siteSectionParentTableSelect($this->contentProperties->id->value);";
-			$data = $this->fetchRecords($query);
+			$query = "CALL siteSectionParentTableSelect(?);";
+			$data = $this->mysqli()->fetchRecords($query, array($this->contentProperties->id->escapeSQL($this->mysqli)));
 			if (count($data) > 0) {
 				$parent_table = $data[0]->table;
 			}
@@ -262,8 +265,8 @@ class ImageLink extends KeywordSectionContent
 				 * is the same as the album's and is not a child content type.
 				 * Table properties need to be retrieved accordingly.
 				 */
-				$query = "CALL siteSectionThumbnailTableSelect($this->contentProperties->id->value);";
-				$data = $this->fetchRecords($query);
+				$query = "CALL siteSectionThumbnailTableSelect(?);";
+				$data = $this->mysqli()->fetchRecords($query, array($this->contentProperties->id->escapeSQL($this->mysqli)));
 				if (count($data) > 0) {
 					$parent_table = $data[0]->table;
 				}
@@ -274,8 +277,8 @@ class ImageLink extends KeywordSectionContent
 			}
 
 			/* make sure parent table has thumbnail column */
-			$query = "SHOW COLUMNS FROM `{$parent_table}` LIKE 'tn_id'";
-			$data = $this->fetchRecords($query);
+			$query = "SHOW COLUMNS FROM `?` LIKE 'tn_id'";
+			$data = $this->fetchRecords($query, array($parent_table));
 			$found_tn_column = count($data) > 0;
 
 			if ($parent_table && $found_tn_column) {
@@ -286,9 +289,11 @@ class ImageLink extends KeywordSectionContent
 				 */
 				$query = "SELECT COUNT(1) as `count` ".
 					"FROM `image_link` ".
-					"WHERE `parent_id` = {$this->parent_id->value} ".
-					"AND `type_id` = {$this->contentProperties->id->value}";
-				$data = $this->fetchRecords($query);
+					"WHERE `parent_id` = ? ".
+					"AND `type_id` = ?";
+				$data = $this->mysqli()->fetchRecords($query, array(
+					$this->parent_id->escapeSQL($this->mysqli),
+					$this->contentProperties->id->escapeSQL($this->mysqli)));
 				$page_count = $data[0]->count;
 
 				if ($page_count==0) {
@@ -359,13 +364,12 @@ class ImageLink extends KeywordSectionContent
 	 * @param int $parent_id ID of the parent record to which the thumbnails are linked.
 	 * @param int[optional] $limit Number of records to return. Defaults to 5.
 	 * @return array Thumbnail data
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public static function fetchPageThumbnails($parent_id, $limit=5 )
 	{
 		$conn = new MySQLConnection();
-		$query = "CALL imageLinkPageThumbnailsSelect({$parent_id},{$limit})";
-		return ($conn->fetchRecords($query));
+		$query = "CALL imageLinkPageThumbnailsSelect(?,?)";
+		return ($conn->fetchRecords($query, array($parent_id, $limit)));
 	}
 
 	/**
@@ -403,7 +407,6 @@ class ImageLink extends KeywordSectionContent
 	 * Returns the content type id of the parent of this ImageLink record.
 	 * @return int|null Parent content type id.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getParentContentTypeID()
 	{
@@ -425,18 +428,17 @@ class ImageLink extends KeywordSectionContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
 	public function read( $read_keywords=true )
 	{
-		$this->connectToDatabase();
-		$query = "CALL imageLinkSelect(".$this->id->escapeSQL($this->mysqli).
-			",".$this->parent_id->escapeSQL($this->mysqli).
-			",".$this->contentProperties->id->escapeSQL($this->mysqli).");";
-		$data = $this->fetchRecords($query);
+		$query = "CALL imageLinkSelect(?,?,?)";
+		$data = $this->mysqli()->fetchRecords($query, array(
+			$this->id->escapeSQL($this->mysqli),
+			$this->parent_id->escapeSQL($this->mysqli).
+			$this->contentProperties->id->escapeSQL($this->mysqli)));
 		$this->fillFromRecordset($data[0]);
 
 		$this->retrieveSectionProperties();
@@ -450,7 +452,6 @@ class ImageLink extends KeywordSectionContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -488,12 +489,15 @@ class ImageLink extends KeywordSectionContent
 			$this->executeUpdateQuery();
 		}
 		else {
-			$this->connectToDatabase();
 			$query = "SELECT `id` FROM `image_link` ".
-				"WHERE `fullres_id` = ".$this->full->id->escapeSQL($this->mysqli)." ".
-				"AND `parent_id` = ".$this->parent_id->escapeSQL($this->mysqli)." ".
-				"AND `type_id` = ".$this->type_id->escapeSQL($this->mysqli);
-			$data = $this->fetchRecords($query);
+				"WHERE `fullres_id` = ? ".
+				"AND `parent_id` = ? ".
+				"AND `type_id` = ?";
+			$data = $this->mysqli()->fetchRecords($query, array(
+				$this->full->id->escapeSQL($this->mysqli),
+				$this->parent_id->escapeSQL($this->mysqli),
+				$this->type_id->escapeSQL($this->mysqli)
+			));
 			if (count($data) > 0) {
 				$this->id->value = $data[0]->id;
 			}
@@ -606,7 +610,7 @@ class ImageLink extends KeywordSectionContent
 			if ($this->parent_id->value>0) {
 				$parent_type_id = $this->contentProperties->getParentTypeID();
 				if ($parent_type_id) {
-					ContentCache::updateKeywords($this->contentProperties);
+					ContentCache::updateKeywords($this->parent_id->value, $this->contentProperties);
 				}
 			}
 		}

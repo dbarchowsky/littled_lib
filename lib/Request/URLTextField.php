@@ -1,9 +1,8 @@
 <?php
 namespace Littled\Request;
 
-use Littled\Exception\ContentValidationException;
-use Littled\PageContent\PageContent;
 
+use Littled\Exception\ContentValidationException;
 
 /**
  * Class URLTextFieldInput
