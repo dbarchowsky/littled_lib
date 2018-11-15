@@ -23,8 +23,12 @@ class ContentFilters extends FilterCollection
 	 * ContentFilters constructor.
 	 * @param int $content_type_id Content type identifier.
 	 * @param string $param_prefix
-	 * @throws ConfigurationUndefinedException Database connections properties not set.
-	 * @throws \Exception Error retrieving content section properties.
+	 * @throws ConfigurationUndefinedException
+	 * @throws NotImplementedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
 	function __construct( $content_type_id, $param_prefix='' )
 	{
