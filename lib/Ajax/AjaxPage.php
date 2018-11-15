@@ -165,15 +165,15 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
 	 * @param string $content_path Path to content template.
-	 * @param SectionContent|null[optional] $input Object containing content values to insert into content templates.
+	 * @param SectionContent|null[optional] $content Object containing content values to insert into content templates.
 	 * @param FilterCollection|null[optional] $filters Filter values to be saved in any forms or to used to display the content.
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
-	public function loadContent( $content_path, &$input=null, &$filters=null )
+	public function loadContent($content_path, &$content=null, &$filters=null )
 	{
 		$context = array();
-		if ($input !== null && $input instanceof SectionContent) {
-			$context['content'] = &$input;
+		if ($content !== null && $content instanceof SectionContent) {
+			$context['content'] = &$content;
 		}
 		else {
 			$context['content'] = &$this->content;
@@ -195,6 +195,18 @@ class AjaxPage extends MySQLConnection
 	public function renderToJSON( $template_path, &$context )
 	{
 		$this->json->loadContentFromTemplate($template_path, $context);
+	}
+
+	/**
+	 * @throws \Littled\Exception\ResourceNotFoundException
+	 */
+	public function retrievePageContent()
+	{
+		/**
+		 * load markup used to refresh listings
+		 */
+		$this->filters->collectFilterValues();
+		$this->json->content->value = $this->content->refreshContentAfterEdit($this->filters);
 	}
 
 	/**
