@@ -49,7 +49,7 @@ class CacheControl
 		$this->sourceURI     = '';
 		$this->rootDir       = '';
 		$this->fullpath      = '';
-		$this->CacheControlType     = null;
+		$this->cacheType     = null;
 	}
 
 	/**
