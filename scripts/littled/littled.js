@@ -940,7 +940,7 @@ if (typeof LITTLED == "undefined") {
 
 		ajaxError: function(xhr) {
 			if (xhr.status==='200') {
-				return this.littled('displayError', $.littled.htmlentities(xhr.responseText));
+				return this.little('displayError', $.littled.htmlentities(xhr.responseText));
 			} else {
 				return this.littled('displayError', '[' + xhr.status + ' ' + xhr.statusText + '] ' + xhr.responseText);
 			}
