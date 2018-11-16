@@ -105,19 +105,21 @@ class SectionContent extends SerializedContent
 	 */
 	public function refreshContentAfterEdit( &$filters )
 	{
-		if (strlen($this::getListingsTemplatePath()) < 1) {
+		$template = $this::getListingsTemplatePath();
+		if (strlen($template) < 1) {
 			$ao = new ContentAjaxProperties();
 			$ao->section_id->value = $this->contentProperties->id->value;
 			$ao->retrieveContentProperties();
-			if (strlen($ao->listings_uri->value) < 1) {
-				throw new ResourceNotFoundException("Listings template not available.");
-			}
+			$template = $ao->listings_uri->value;
+		}
+		if (strlen($template) < 1) {
+			throw new ResourceNotFoundException("Listings template not available.");
 		}
 
 		$context = array(
 			'content' => &$this,
 			'filters' => &$filters);
-		return(PageContent::loadTemplateContent($this::getListingsTemplatePath(), $context));
+		return(PageContent::loadTemplateContent($template, $context));
 	}
 
 	/**
