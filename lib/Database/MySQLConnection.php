@@ -93,6 +93,8 @@ class MySQLConnection extends AppBase
 
 	/**
 	 * Opens MySQLi connection. Stores connection as $mysqli property of the class.
+	 * Can be chained with other MySQLConnection methods.
+	 * @return $this
 	 * @param string[optional] $host Name of MySQL host.
 	 * @param string[optional] $user User name for connecting to MySQL server.
 	 * @param string[optional] $password Password for connecting to MySQL server.
@@ -103,18 +105,16 @@ class MySQLConnection extends AppBase
 	 */
 	public function connectToDatabase($host='', $user='', $password='', $schema='', $port='')
 	{
-		if (!is_object($this->mysqli))
-		{
-			try
-			{
+		if (!is_object($this->mysqli)) {
+			try {
 				$this->connect(MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port));
 			}
-			catch (\mysqli_sql_exception $ex)
-			{
+			catch (\mysqli_sql_exception $ex) {
 				throw new ConnectionException('Connection error: '.$ex->__toString());
 			}
 			$this->mysqli->set_charset('utf8');
 		}
+		return $this;
 	}
 
 	/**
@@ -299,6 +299,19 @@ class MySQLConnection extends AppBase
 				$result->free();
 			}
 		}
+	}
+
+	/**
+	 * Alias for MySQLConnection->connectToDatabase() for convenience.
+	 * Can be chained with other MySQLConnection methods.
+	 * @return $this
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 */
+	public function mysqli()
+	{
+		$this->connectToDatabase();
+		return $this;
 	}
 
 	/**
