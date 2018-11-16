@@ -54,7 +54,7 @@ class GalleryFilters extends ContentFilters
 	 * GalleryFilters constructor
 	 * @param int $content_type_id Content type identifier, corresponds to site_section record.
 	 * @param int[optional] $default_page_len Length of the pages of listings.
-	 * @throws \Exception
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 */
 	function __construct ( $content_type_id=null, $default_page_len=10 )
 	{

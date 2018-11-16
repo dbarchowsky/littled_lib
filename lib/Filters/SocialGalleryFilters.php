@@ -22,7 +22,7 @@ class SocialGalleryFilters extends GalleryFilters
 	 * class constructor
 	 * @param int|null[optional] $content_type_id Content type identifier, corresponds to site_section record.
 	 * @param int[optional] $default_page_len Length of the pages of listings.
-	 * @throws \Exception Error establishing database connection.
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 */
 	function __construct ( $content_type_id=null, $default_page_len=10 )
 	{
