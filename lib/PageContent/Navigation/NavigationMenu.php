@@ -24,16 +24,6 @@ class NavigationMenu
 	public static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
 	/**
-	 * NavigationMenu constructor.
-	 */
-	function __construct()
-	{
-		$this->first = null;
-		$this->last = null;
-		$this->cssClass = '';
-	}
-
-	/**
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label Text to display for this item within the navigation menu.
 	 * @param string $url (Optional) URL where the menu item will link to.

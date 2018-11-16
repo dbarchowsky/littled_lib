@@ -154,8 +154,7 @@ class GalleryFilters extends ContentFilters
 	/**
 	 * Retrieves from database the uri of the page used to display details for this content type.
 	 * @returns string URI of the page used to display detailed image properties.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Exception Error connecting to database, or running query.
 	 */
 	public function getDetailsURI()
 	{
@@ -163,7 +162,7 @@ class GalleryFilters extends ContentFilters
 			return('');
 		}
 		$query = "CALL getContentDetailsURI(?)";
-		$data = $this->mysqli()->fetchRecords($query, array($this->escapeSQLValue($this->contentTypeID)));
+		$data = $this->mysqli()->fetchRecords($query, array($this->mysqli->real_escape_string($this->contentTypeID)));
 		$this->detailsURI = $data[0]->details_uri;
 		return ($this->detailsURI);
 	}

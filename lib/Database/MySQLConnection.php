@@ -103,11 +103,14 @@ class MySQLConnection extends AppBase
 	 */
 	public function connectToDatabase($host='', $user='', $password='', $schema='', $port='')
 	{
-		if (!is_object($this->mysqli)) {
-			try {
+		if (!is_object($this->mysqli))
+		{
+			try
+			{
 				$this->connect(MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port));
 			}
-			catch (\mysqli_sql_exception $ex) {
+			catch (\mysqli_sql_exception $ex)
+			{
 				throw new ConnectionException('Connection error: '.$ex->__toString());
 			}
 			$this->mysqli->set_charset('utf8');

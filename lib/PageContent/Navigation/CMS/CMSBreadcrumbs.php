@@ -31,7 +31,7 @@ class CMSBreadcrumbs extends Breadcrumbs
 		if (!file_exists($this::$breadcrumbsTemplate)) {
 			throw new ResourceNotFoundException("Breadcrumbs template not found at {$this::$breadcrumbsTemplate}.");
 		}
-		$this::$nodeType = 'Littled\PageContent\Navigation\CMS\BreadcrumbsNode';
+		$this::$node_type = 'Littled\PageContent\Navigation\CMS\BreadcrumbsNode';
 	}
 
 }
