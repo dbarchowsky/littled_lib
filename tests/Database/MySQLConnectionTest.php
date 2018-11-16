@@ -1,12 +1,10 @@
 <?php
 namespace Littled\Tests\Database;
 
-require_once(realpath(dirname(__FILE__) . '/../../') . '/_dbo/connections/test_data.php');
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConnectionException;
 use PHPUnit\Framework\TestCase;
-
 
 class MySQLConnectionTest extends TestCase
 {
@@ -80,7 +78,7 @@ class MySQLConnectionTest extends TestCase
 
 		/* test that no database connection doesn't throw Exception */
 		$escaped = $c->escapeSQLValue(200);
-		$this->assertEquals('\'200\'', $escaped);
+		$this->assertEquals('200', $escaped);
 		$this->assertTrue($c->hasConnection());
 
 		/* test null value */
