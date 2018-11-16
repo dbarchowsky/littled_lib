@@ -2,11 +2,10 @@
 namespace Littled\Tests\PageContent\SiteSection;
 
 
-use DeepCopy\Filter\SetNullFilter;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\SiteSection\SectionContent;
-use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\SiteContent\ContentProperties;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
@@ -99,7 +98,7 @@ class SectionContentTest extends TestCase
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	public function testRetrieveSectionProperties()
+	public function testRetrieveContentProperties()
 	{
 		$this->obj->contentProperties->id->setInputValue(CONTENT_TEMPLATE_CONTENT_TYPE_ID);
 		$this->obj->retrieveSectionProperties();

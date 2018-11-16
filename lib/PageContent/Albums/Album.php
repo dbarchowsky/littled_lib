@@ -86,7 +86,7 @@ class Album extends KeywordSectionContent
 	 */
 	function __construct ( $content_type_id, $images_content_type_id, $id=null)
     {
-		parent::__construct($content_type_id, "abkw");
+		parent::__construct($id, $content_type_id, "abkw");
 		$this->id = new IntegerInput("Gallery ID", self::ID_PARAM, false, $id);
 		$this->title = new StringTextField("Title", self::TITLE_PARAM, false, "", 100);
 		$this->slug = new StringTextField("Slug", 'AlbumSlug', true, "", 50);

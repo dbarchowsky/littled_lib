@@ -77,7 +77,7 @@ class ImageLink extends KeywordSectionContent
 	 * ImageLink constructor.
 	 * @param string[optional] $image_dir
 	 * @param string[optional] $param_prefix
-	 * @param int[optional] $section_id
+	 * @param int[optional] $content_type_id
 	 * @param int[optional] $parent_id
 	 * @param int[optional] $id
 	 * @param int[optional] $image_id
@@ -91,9 +91,9 @@ class ImageLink extends KeywordSectionContent
 	 * @param int[optional] $slot
 	 * @param string[optional] $access
 	 */
-	function __construct ($image_dir="", $param_prefix="", $section_id=null, $parent_id=null, $id=null, $image_id=null, $path=null, $width=null, $height=null, $alt_tag="", $url=null, $target=null, $caption="", $slot=null, $access="public")
+	function __construct ($image_dir="", $param_prefix="", $content_type_id=null, $parent_id=null, $id=null, $image_id=null, $path=null, $width=null, $height=null, $alt_tag="", $url=null, $target=null, $caption="", $slot=null, $access="public")
 	{
-		parent::__construct($section_id, $param_prefix);
+		parent::__construct($id, $content_type_id, $param_prefix);
 		$this->id = new IntegerInput("ID", $param_prefix.$this::vars['id'], false, $id);
 		$this->parent_id = new IntegerInput("Image parent", $param_prefix.$this::vars['parent_id'], false, $parent_id);
 		$this->title = new StringTextField("Title", $param_prefix.ImageBase::vars['alt'], false, "", 50);

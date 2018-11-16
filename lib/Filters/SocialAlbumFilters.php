@@ -21,7 +21,13 @@ class SocialAlbumFilters extends AlbumFilters
 	 * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
 	 * @param int $page_content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
 	 * @param int[optional] $default_page_len Length of the pages of listings.
-	 * @throws \Exception
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
 	function __construct($content_type_id, $page_content_type_id, $default_page_len = 10)
 	{

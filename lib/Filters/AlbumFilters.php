@@ -54,7 +54,13 @@ class AlbumFilters extends FilterCollection
 	 * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
 	 * @param int $page_content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
 	 * @param int[optional] $default_page_len Length of the pages of listings.
-	 * @throws \Exception
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	function __construct ( $content_type_id, $page_content_type_id, $default_page_len=10 )
 	{
@@ -72,7 +78,7 @@ class AlbumFilters extends FilterCollection
 		$this->contentProperties = new ContentProperties($content_type_id);
 		$this->contentTypeID = &$this->contentProperties->id->value;
 		$this->ajaxProperties = new ContentAjaxProperties();
-		$this->ajaxProperties->content_type_id->value = $content_type_id;
+		$this->ajaxProperties->section_id->value = $content_type_id;
 		$this->getAjaxProperties();
 		$this->gallery = new GalleryFilters($page_content_type_id, $default_page_len);
 		$this->previousRecordId = $this->nextRecordId = 0;
@@ -169,11 +175,11 @@ class AlbumFilters extends FilterCollection
 	{
 		if ($content_type_id > 0) {
 			$this->contentProperties->id->value = $content_type_id;
-			$this->ajaxProperties->content_type_id->value = $content_type_id;
+			$this->ajaxProperties->section_id->value = $content_type_id;
 		}
 		if ($this->contentProperties->id->value > 0) {
 			$this->contentProperties->read();
-			$this->ajaxProperties->retrieveSectionProperties();
+			$this->ajaxProperties->retrieveContentProperties();
 		}
 	}
 

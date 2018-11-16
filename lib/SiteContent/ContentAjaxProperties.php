@@ -2,6 +2,7 @@
 namespace Littled\SiteContent;
 
 
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
@@ -14,8 +15,12 @@ class ContentAjaxProperties extends SerializedContent
 {
 	/** @var IntegerInput Record id. */
 	public $id;
-	/** @var IntegerSelect Site section/content type identifier. */
-	public $content_type_id;
+	/**
+	 * @var IntegerSelect Site section/content type identifier.
+	 * TODO Rename this property to $content_type_id, which requires changing the name of the corresponding field
+	 * in the database, and changing any SQL queries that reference that field.
+	 */
+	public $section_id;
 	/** @var StringTextField Content label. */
 	public $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
@@ -50,7 +55,7 @@ class ContentAjaxProperties extends SerializedContent
 	{
 		parent::__construct();
 		$this->id = new IntegerInput("Id", "capId", null, false);
-		$this->content_type_id = new IntegerSelect("Content type", "capContentType", null, true);
+		$this->section_id = new IntegerSelect("Content type", "capContentType", null, true);
 		$this->label = new StringTextField("Label", "capLabel", "", true, 50);
 		$this->id_param = new StringTextField("Id parameter name", "capKeyName", "", true, 50);
 		$this->listings_uri = new StringTextField("Listings URI", "capListURI", "", false, 255);
@@ -71,7 +76,7 @@ class ContentAjaxProperties extends SerializedContent
 	 */
 	public function hasData()
 	{
-		return ($this->id->value>0 || $this->content_type_id->value>0 || ($this->label->value) || ($this->id_param->value));
+		return ($this->id->value>0 || $this->section_id->value>0 || ($this->label->value) || ($this->id_param->value));
 	}
 
 	/**
@@ -91,12 +96,38 @@ class ContentAjaxProperties extends SerializedContent
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
-	public function retrieveSectionProperties()
+	public function retrieveContentProperties()
 	{
-		if ($this->content_type_id->value===null || $this->content_type_id->value < 1) {
+		try {
+			$this->testForContentType();
+		}
+		catch(ContentValidationException $ex) {
 			return;
 		}
-		$query = "SEL"."ECT * FROM `".$this::TABLE_NAME()."` WHERE `section_id` = {$this->content_type_id->value}";
+		$query = "SEL"."ECT * FROM `".$this::TABLE_NAME()."` WHERE `section_id` = {$this->section_id->value}";
 		$this->hydrateFromQuery($query);
+	}
+
+	/**
+	 * @deprecated Use ContentAjaxProperties::retrieveContentProperties() instead.
+	 * Hydrates the object based on its current content id value.
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
+	 */
+	public function retrieveSectionProperties()
+	{
+		$this->retrieveContentProperties();
+	}
+
+	/**
+	 * Test for valid content type id value. Throws ContentValidationException if a value is not detected.
+	 * @throws ContentValidationException
+	 */
+	public function testForContentType()
+	{
+		if ($this->section_id->value===null || $this->section_id->value < 1) {
+			throw new ContentValidationException("Content type not set.");
+		}
 	}
 }

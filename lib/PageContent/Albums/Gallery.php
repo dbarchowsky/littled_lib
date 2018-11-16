@@ -175,7 +175,7 @@ class Gallery extends MySQLConnection
 	{
 		$query = "CALL galleryGalleryThumbnailSettingSelect({$this->contentProperties->id->value})";
 		$data = $this->fetchRecords($query);
-		if (count($data[0]) > 0) {
+		if (count($data) > 0) {
 			return (array($data[0]->gallery_thumbnail, $data[0]->parent_id));
 		}
 		return(array(null, null));

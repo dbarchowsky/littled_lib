@@ -217,6 +217,9 @@ class Validation
 			return (true);
 		}
 		if (is_string($value)) {
+			if ($value=='') {
+				return(false);
+			}
 			if ($value[0] == '-') {
 				return ctype_digit(substr($value, 1));
 			}

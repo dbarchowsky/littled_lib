@@ -83,7 +83,7 @@ class SerializedContentUtils extends AppContentBase
 	protected function hydrateFromQuery( $query )
 	{
 		$data = $this->fetchRecords($query);
-		if (count($data[0]) < 1) {
+		if (count($data) < 1) {
 			throw new RecordNotFoundException("Record not found.");
 		}
 		$this->hydrateFromRecordsetRow($data[0]);

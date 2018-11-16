@@ -3,9 +3,11 @@ namespace Littled\PageContent\SiteSection;
 
 
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
 
 /**
@@ -96,10 +98,22 @@ class SectionContent extends SerializedContent
 	 * Generates markup to use to refresh listings content after inline edits have been applied to the listings data.
 	 * @param FilterCollection $filters Filters to apply to listings content
 	 * @return string Updated listings markup.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
 	public function refreshContentAfterEdit( &$filters )
 	{
+		if (strlen($this::getListingsTemplatePath()) < 1) {
+			$ao = new ContentAjaxProperties();
+			$ao->section_id->value = $this->contentProperties->id->value;
+			$ao->retrieveContentProperties();
+			if (strlen($ao->listings_uri->value) < 1) {
+				throw new ResourceNotFoundException("Listings template not available.");
+			}
+		}
+
 		$context = array(
 			'content' => &$this,
 			'filters' => &$filters);

@@ -200,13 +200,14 @@ class AjaxPage extends MySQLConnection
 	}
 
 	/**
+	 * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
+	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function retrievePageContent()
 	{
-		/**
-		 * load markup used to refresh listings
-		 */
 		$this->filters->collectFilterValues();
 		$this->json->content->value = $this->content->refreshContentAfterEdit($this->filters);
 	}
