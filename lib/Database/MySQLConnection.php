@@ -163,7 +163,6 @@ class MySQLConnection extends AppBase
 	 * @param string $query SQL query to execute
 	 * @param array[optional] $param_list Parameter list to pass to SQL statement.
 	 * @return array Array of generic objects holding the data returned by the query.
-	 * @throws InvalidQueryException
 	 */
 	public function fetchRecords($query, $param_list=null)
 	{
@@ -173,9 +172,6 @@ class MySQLConnection extends AppBase
 		}
 		$stmt->execute();
 		$result = $stmt->get_result();
-		if ($result===false) {
-			throw new InvalidQueryException("Error executing query.");
-		}
 		$arr = array();
 		while($row = $result->fetch_object('DynamicQueryClass')) {
 			$arr[] = $row;
