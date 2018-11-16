@@ -44,6 +44,7 @@ class InlineSlotInput extends InlineInput
 	/**
 	 * Retrieves the access value and stores it in the object properties.
 	 * @return void
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */

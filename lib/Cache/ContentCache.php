@@ -41,12 +41,13 @@ class ContentCache extends MySQLConnection
 	 * @param FilterCollection $filters Pointer to filters object that will be created.
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public static function setContentAndFilters( $content_type_id, &$content, &$filters )
 	{
 		$conn = new MySQLConnection();
-		$query = "CALL siteSectionClassesSelect(?)";
-		$data = $conn->fetchRecords($query, array($content_type_id));
+		$query = "CALL siteSectionClassesSelect({$content_type_id})";
+		$data = $conn->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Content properties record not found.");
 		}

@@ -44,6 +44,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @param string[optional] $table_name This parameter is ignored in this class's implementation of the routine.
 	 * @return boolean True/false depending on if the column is found.
 	 * @throws NotImplementedException Inherited classes haven't set table name value.
+	 * @throws InvalidQueryException Error executing query.
 	 */
 	public function columnExists($column_name, $table_name='')
 	{
@@ -53,11 +54,9 @@ class SerializedContent extends SerializedContentUtils
 	/**
 	 * Deletes the record from the database. Uses the value object's id property to look up the record.
 	 * @return string Message indicating result of the deletion.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+	 * @throws ContentValidationException Record id not provided.
+	 * @throws NotImplementedException Table name not set in inherited class.
+	 * @throws InvalidQueryException SQL error raised running deletion query.
 	 */
 	public function delete ( )
 	{
@@ -129,6 +128,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @todo be implemented in inherited classes, then this routine is no longer necessary and can be removed.
 	 * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
 	 * @throws NotImplementedException Inherited classes haven't set table name value.
+	 * @throws InvalidQueryException Error executing query.
 	 */
 	public function getNameColumnIdentifier()
 	{
@@ -148,17 +148,16 @@ class SerializedContent extends SerializedContentUtils
 	 * Attempts to read the title or name from a record in the database and use
 	 * its value to set the title or name property of the class instance. Uses the
 	 * value of the internal TABLE_NAME() property to determine which table to search.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+	 * @throws NotImplementedException Table name not specified in inherited classes.
+	 * @throws RecordNotFoundException Requested data not found.
+	 * @throws InvalidQueryException Error executing SQL queries.
 	 */
 	function getRecordLabel()
 	{
 		$column = $this->getNameColumnIdentifier();
 
-		$query = "SEL"."ECT `?` FROM `?` WHERE `id` = ?";
-		$data = $this->mysqli()->fetchRecords($query, array($column, $this::TABLE_NAME(), $this->id->escapeSQL($this->mysqli)));
+		$query = "SEL"."ECT `{$column}` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException('Column value not found');
 		}
@@ -182,6 +181,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @param int $id ID value of the record.
 	 * @param string[optional] $field Column name containing the value to retrieve. Defaults to "name".
 	 * @param string[optional] $id_field Column name containing the id value to retrieve. Defaults to "id".
+	 * @throws InvalidQueryException SQL error raised running insert query.
 	 * @return string|null Retrieved value.
 	 */
 	public function getTypeName($table, $id, $field="name", $id_field="id" )
@@ -190,8 +190,8 @@ class SerializedContent extends SerializedContentUtils
 			return(null);
 		}
 
-		$query = "SEL"."ECT `?` AS `result` FROM `?` WHERE `?` = ?";
-		$data = $this->fetchRecords($query, array($field, $table, $id_field, $id));
+		$query = "SEL"."ECT `{$field}` AS `result` FROM `{$table}` WHERE `{$id_field}` = {$id}";
+		$data = $this->fetchRecords($query);
 		$ret_value = $data[0]->result;
 		return($ret_value);
 	}
@@ -214,6 +214,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws ConnectionException
 	 * @throws ContentValidationException Record id not set.
 	 * @throws NotImplementedException Table name not set.
+	 * @throws InvalidQueryException Error executing query.
 	 * @throws InvalidTypeException Record id is not an instance of IntegerInput.
 	 * @throws RecordNotFoundException Requested record not available.
 	 */
@@ -247,6 +248,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @param string $property Name of property to use to store list.
 	 * @param string $type Object type to push onto the array.
 	 * @param string $query SQL query to execute to retrieve list.
+	 * @throws InvalidQueryException Error executing query.
 	 * @throws NotImplementedException Currently only stored procedures are supported.
 	 * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
 	 */
@@ -295,8 +297,7 @@ class SerializedContent extends SerializedContentUtils
 	/**
 	 * Confirm that a record with id value matching the current id value of the object currently exists in the database.
 	 * @return bool True/False depending on if a matching record is found.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
 	 */
 	public function recordExists()
@@ -305,8 +306,8 @@ class SerializedContent extends SerializedContentUtils
 			return (false);
 		}
 
-		$query = "SEL"."ECT EXISTS(SELECT 1 FROM `?` WHERE `id` = ?) AS `record_exists`";
-		$data = $this->mysqli()->fetchRecords($query, array($this::TABLE_NAME(), $this->id->escapeSQL($this->mysqli)));
+		$query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}) AS `record_exists`";
+		$data = $this->fetchRecords($query);
 		return ((int)("0".$data[0]->record_exists) === 1);
 	}
 

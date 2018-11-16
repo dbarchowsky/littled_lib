@@ -2,6 +2,9 @@
 namespace Littled\Database;
 
 
+use http\Exception\InvalidArgumentException;
+use Littled\Exception\InvalidQueryException;
+
 /**
  * Class DBUtils
  * @package Littled\Database
@@ -12,6 +15,7 @@ class DBUtils
 	 * Fills $arOptions array with name/value pairs retrieved using the supplied SQL SELECT query.
 	 * @param string $query SQL SELECT query used to retrieve name/value array.
 	 * @param array $options Function will fill this array with name/value pairs to be used in option list.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public static function retrieveOptionsList ($query, &$options )
 	{
@@ -28,12 +32,13 @@ class DBUtils
 	 * @param string $table_name Name of table containing the ENUM column.
 	 * @param string $column Name of the ENUM column.
 	 * @return array Array containing all the possible values as name/value pairs.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public static function getEnumOptions($table_name, $column )
 	{
 		$conn = new MySQLConnection();
-		$query = "SHOW COLUMNS FROM `?` LIKE ?";
-		$data = $conn->fetchRecords($query, array($table_name, "'".$column."'"));
+		$query = "SHOW COLUMNS FROM `{$table_name}` LIKE '{$column}'";
+		$data = $conn->fetchRecords($query);
 		if (count($data) < 1) {
 			return(array());
 		}
@@ -95,8 +100,13 @@ class DBUtils
 	 */
 	public static function displayEnumOptions( $table_name, $column, $selected_options )
 	{
-        $arOptions = DBUtils::getEnumOptions($table_name, $column);
-        DBUtils::displayCachedOptions($arOptions, $selected_options);
+		try {
+			$arOptions = DBUtils::getEnumOptions($table_name, $column);
+			DBUtils::displayCachedOptions($arOptions, $selected_options);
+		}
+		catch(InvalidQueryException $ex) {
+			?><option value="" disabled="disabled" style="background-color:#ff0000;color:#ffffff;font-weight:bold;">Error retrieving options: <?=$ex->getMessage()?></option><?php
+		}
 	}
 
 
@@ -104,6 +114,7 @@ class DBUtils
 	 * Runs supplied SQL SELECT statement to retrieve recordset. Fills supplied array with the first value in each row of the recordset (all other values in the row are ignored).
 	 * @param string $query SQL SELECT query.
 	 * @param array $buffer Array where the results will be stored.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public static function fillArrayFromQuery ($query, &$buffer)
 	{
@@ -120,6 +131,7 @@ class DBUtils
 	 * returns string containing values returned by database query formated as a javascript array
 	 * @param string $query MySQL query to run to retrieve values
 	 * @return string database values formatted as a javascript array
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public static function formatQueryJavascriptArray( $query )
 	{

@@ -26,7 +26,7 @@ class Debug
 	 */
 	public static function generateLogFilename()
 	{
-		$date = new \DateTime();
+		$date = new DateTime();
 		return ($date->format('Y-m-d-H-i-s').".log");
 	}
 

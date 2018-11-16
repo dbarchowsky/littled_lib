@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent;
 
-use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
@@ -61,7 +60,7 @@ class PageContentBase extends MySQLConnection
 		if (!defined('P_ID')) {
 			throw new ConfigurationUndefinedException("P_ID not defined in app settings.");
 		}
-		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::P_ID);
+		$this->content->id->value = Validation::parseIntegerInput(P_ID);
 		if ($this->content->id->value===null) {
 			if ( $this->content->id instanceof RequestInput) {
 				$this->content->id->collectValue();

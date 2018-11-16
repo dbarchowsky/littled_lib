@@ -66,6 +66,7 @@ class InlineInput extends MySQLConnection
 
 	/**
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function getColumnName()
 	{
@@ -82,6 +83,7 @@ class InlineInput extends MySQLConnection
 	 * Retrieves data from database used to fill inline HTML forms.
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function read()
 	{

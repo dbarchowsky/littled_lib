@@ -49,6 +49,7 @@ class PageController extends MySQLConnection
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function collectAlbumProperties( $exclude )
 	{
@@ -128,6 +129,7 @@ class PageController extends MySQLConnection
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function lookupAlbumProperties( $slug='', $section_id=null )
 	{
@@ -143,15 +145,12 @@ class PageController extends MySQLConnection
 
 		$this->connectToDatabase();
 		$escaped_slug = $this->escapeSQLValue($this->album_slug);
-		$query = "SEL"."ECT `id` FROM `?` WHERE (`slug` LIKE '?')";
+		$query = "SEL"."ECT `id` FROM `{$this->table}` WHERE (`slug` LIKE '{$escaped_slug}')";
 		if ($this->columnExists('section_id', $this->table)) {
-			$query .= "AND (section_id = ?)";
-			$data = $this->fetchRecords($query, array($this->table, $escaped_slug, $this->section_id));
-		}
-		else {
-			$data = $this->fetchRecords($query, array($this->table, $escaped_slug));
+			$query .= "AND (section_id = {$this->section_id})";
 		}
 
+		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Error retrieving album properties.");
 		}
@@ -170,6 +169,7 @@ class PageController extends MySQLConnection
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function lookupSectionProperties( $slug='' )
 	{
@@ -181,8 +181,8 @@ class PageController extends MySQLConnection
 		}
 
 		/* test if the slug matches any existing site sections */
-		$query = "SELECT `id`,`table`,`root_dir`,`sub_dir` FROM `site_section` WHERE `slug` LIKE ?";
-		$data = $this->mysqli()->fetchRecords($query, array($this->escapeSQLValue($this->section_slug)));
+		$query = "SELECT `id`,`table`,`root_dir`,`sub_dir` FROM `site_section` WHERE `slug` LIKE ".$this->escapeSQLValue($this->section_slug);
+		$data = $this->fetchRecords($query);
 		if (count($data) < 0) {
 			throw new RecordNotFoundException("Error retrieving content properties.");
 		}
@@ -233,6 +233,7 @@ class PageController extends MySQLConnection
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function testForRedirect( $exclude )

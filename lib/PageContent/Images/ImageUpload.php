@@ -38,6 +38,7 @@ class ImageUpload extends ImageLink
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -76,6 +77,7 @@ class ImageUpload extends ImageLink
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -132,6 +134,7 @@ class ImageUpload extends ImageLink
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -145,15 +148,14 @@ class ImageUpload extends ImageLink
 	/**
 	 * Retrieves label for the edit form from database based on the content type of the image.
 	 * - The label is stored in the object's "label" property.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function retrieveLabel()
 	{
 		if ($this->contentProperties->id->value>0) {
 
-			$query = "SELECT `label` from `section_operations` WHERE section_id = ?";
-			$data = $this->mysqli()->fetchRecords($query, array($this->contentProperties->id->escapeSQL($this->mysqli)));
+			$query = "SELECT `label` from `section_operations` WHERE section_id = {$this->contentProperties->id->value}";
+			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$this->label = $data[0]->label;
 			}
@@ -164,9 +166,9 @@ class ImageUpload extends ImageLink
 SELECT so.`label` 
 FROM `section_operations` so
 INNER JOIN `image_link` il ON so.section_id = il.type_id 
-WHERE il.id = ?
+WHERE il.id = {$this->id->value}
 SQL;
-			$data = $this->mysqli()->fetchRecords($query, array($this->id->escapeSQL($this->mysqli)));
+			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$this->label = $data[0]->label;
 			}
@@ -178,6 +180,7 @@ SQL;
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException

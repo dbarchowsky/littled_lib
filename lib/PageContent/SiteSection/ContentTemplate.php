@@ -47,7 +47,7 @@ class ContentTemplate extends SerializedContent
 		parent::__construct($id);
 
 		$this->id->label = "Template id";
-		$this->id->key = 'templateID';
+		$this->id->param = 'templateID';
 		$this->id->required = false;
 		$this->content_type_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
 		$this->name = new StringTextField("Name", "templateName", true, $name, 45);
@@ -88,7 +88,6 @@ class ContentTemplate extends SerializedContent
 	{
 		$path = $this->path->value;
 		if ($path) {
-			/** TODO remove global variables */
 			switch ($this->location->value)
 			{
 				case 'shared':
@@ -114,6 +113,7 @@ class ContentTemplate extends SerializedContent
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function validateInput($exclude_properties=[])
 	{
@@ -127,8 +127,10 @@ class ContentTemplate extends SerializedContent
 		}
 
 		if ($this->id->value===null && $this->content_type_id->value > 0 && $this->name->value) {
-			$query = "CALL contentTemplateSectionNameSelect(?,?)";
-			$data = $this->mysqli()->fetchRecords($query, array($this->content_type_id->escapeSQL($this->mysqli), $this->name->escapeSQL($this->mysqli)));
+			$this->connectToDatabase();
+			$escaped_name = $this->name->escapeSQL($this->mysqli);
+			$query = "CALL contentTemplateSectionNameSelect({$this->content_type_id->value}, {$escaped_name})";
+			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$error = "A \"{$this->name->value}\" template already exists for the \"{$data[0]->section}\" area of the site.";
 				array_push($this->validationErrors, $error);

@@ -104,8 +104,7 @@ class GalleryPaging extends FilterCollection
 
 	/**
 	 * Sets values of internal properties of the object to the number of records and pages in the current set of listings.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getPageCount()
 	{
@@ -113,16 +112,12 @@ class GalleryPaging extends FilterCollection
 		$query = <<<SQL
 SELECT COUNT(*) AS `count` 
 FROM image_link p 
-INNER JOIN `album` b ON (p.parent_id = b.id AND p.type_id = ?) 
-WHERE (b.id=?) 
+INNER JOIN `album` b ON (p.parent_id = b.id AND p.type_id = {$this::$page_content_type_id}) 
+WHERE (b.id={$this->book_id->value}) 
 AND (b.access='public') AND (p.access='public') 
 AND (p.release_date IS NOT NULL) AND (DATEDIFF(p.release_date,NOW())<=0) 
 SQL;
-		$data = $this->mysqli()->fetchRecords($query, array(
-			$this::$page_content_type_id,
-			$this->book_id->escapeSQL($this->mysqli)
-		));
-		$this->recordCount = $data[0]->count;
+		$this->recordCount = $this->fetchRecords($query)[0]->count;
 	}
 
 	/**
@@ -131,6 +126,7 @@ SQL;
 	 * @param int[optional] $lower_limit Lower limit of the records to return. Defaults to 0.
 	 * @param int[optional] $upper_limit Upper limit of the records to return. Defaults to 99999999999.
 	 * @return array Comic books dataset.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getMenuRecords ( $lower_limit=0, $upper_limit=99999999999 )
 	{
@@ -152,13 +148,13 @@ INNER JOIN
 (
 	image_link il INNER JOIN images tn ON il.fullres_id = tn.id
 ) ON c.tn_id = il.id 
-WHERE (c.section_id = ?) 
+WHERE (c.section_id = {$this->contentTypeID}) 
 AND (c.access = 'public') 
-AND (DATEDIFF(c.release_date, ?)<=0) 
+AND (DATEDIFF(c.release_date, '{$date}')<=0) 
 ORDER BY IFNULL(c.slot,999999), c.release_date DESC, c.id DESC 
-LIMIT ?, ?
+LIMIT {$lower_limit}, {$upper_limit}
 SQL;
-		return($this->fetchRecords($query, array($this->contentTypeID, $date, $lower_limit, $upper_limit)));
+		return($this->fetchRecords($query));
 	}
 
 	/**
@@ -211,10 +207,11 @@ SQL;
 	}
 
 	/**
-	 * Gets a count of gallery items that should be displayed with the album.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function getMenuRecordCount()
 	{
+		$date = date("Y-m-d");
 		$query = <<<SQL
 SELECT COUNT(*) AS `count`  
 FROM `album` c 
@@ -222,11 +219,10 @@ INNER JOIN
 (
 	image_link il INNER JOIN images tn ON il.fullres_id = tn.id
 ) ON c.tn_id = il.id 
-WHERE (c.section_id = ?) 
+WHERE (c.section_id = {$this->contentTypeID}) 
 AND (c.access = 'public') 
-AND (DATEDIFF(c.release_date, ?)<=0) 
+AND (DATEDIFF(c.release_date, '{$date}')<=0) 
 SQL;
-			$data = $this->fetchRecords($query, array($this->contentTypeID, "'".date("Y-m-d")."'"));
-			$this->recordCount = $data[0]->count;
+			$this->recordCount = $this->fetchRecords($query)[0]->count;
 	}
 }

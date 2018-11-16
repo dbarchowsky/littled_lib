@@ -23,23 +23,24 @@ class SocialXPostImage extends ImageUpload
 
 	/**
 	 * @param bool[optional] $generic_params If set to true then the parameter names of the object's id, parent id, and type id parameters will be set to generic names, ie "id", "pid", and "tid". Defaults to true.
-	 * @param int[optional] $content_type_id ID of this collection's site section within the CMS.
+	 * @param int[optional] $section_id ID of this collection's site section within the CMS.
 	 * @param int[optional] $parent_id ID of the image collection's parent content record.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct($generic_params=true, $content_type_id=null, $parent_id=null )
+	function __construct($_generic_params=true, $contenttype_id=null, $parent_id=null )
 	{
-		parent::__construct($content_type_id, $parent_id);
+		parent::__construct($contenttype_id, $parent_id);
 		$this->flickr_id = new StringInput("Flickr ID", "ixfi", false, "", 50);
 		$this->wp_id = new StringInput("WordPress ID", "ixwp", false, null);
 		$this->twitter_id = new StringInput("Twitter ID", "ixti", false, "", 64);
 		$this->short_url = new StringInput("Short URL", "ixsu", false, "", 128);
-		$this->setParameterNames($generic_params);
+		$this->getParameterNames($_generic_params);
 	}
 
 	/**
@@ -62,6 +63,7 @@ class SocialXPostImage extends ImageUpload
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
@@ -75,9 +77,9 @@ SELECT flickr_id
 	, twitter_id
 	, short_url 
 FROM image_link 
-WHERE id = ?
+WHERE id = {$this->id->value}
 SQL;
-		$data = $this->mysqli()->fetchRecords($query, array($this->id->escapeSQL($this->mysqli)));
+		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Image not found.");
 		}
@@ -111,12 +113,10 @@ SQL;
 				$query = <<<SQL
 SELECT IFNULL(MAX(`slot`),0)+1 AS `slot`  
 FROM `image_link` 
-WHERE `parent_id` = ? 
-AND `type_id` = ?  
+WHERE `parent_id` = {$this->parent_id->value} 
+AND `type_id` = {$this->contentProperties->id->value}  
 SQL;
-				$data = $this->mysqli()->fetchRecords($query, array(
-					$this->parent_id->escapeSQL($this->mysqli),
-					$this->contentProperties->id->escapeSQL($this->mysqli)));
+				$data = $this->fetchRecords($query);
 				$this->slot->value = $data[0]->slot;
 			}
 			else {

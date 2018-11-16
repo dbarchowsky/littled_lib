@@ -57,8 +57,7 @@ class BreadcrumbsNode
 
     /**
      * Outputs markup for the the individual navigation menu node.
-	 * @throws ResourceNotFoundException
-	 */
+     */
     public function render ( )
     {
 	    PageContent::render($this::$breadcrumbsNodeTemplate, array(

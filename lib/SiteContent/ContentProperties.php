@@ -123,11 +123,9 @@ class ContentProperties extends SerializedContent
 	/**
 	 * Delete this record from the database. Clears parent id of any child records.
 	 * @return string Message indicating result of the deletion.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws \Littled\Exception\ContentValidationException Record id not provided.
+	 * @throws \Littled\Exception\InvalidQueryException Table name not set in inherited class.
+	 * @throws \Littled\Exception\NotImplementedException SQL error raised running deletion query.
 	 */
 	public function delete()
 	{
@@ -140,14 +138,15 @@ class ContentProperties extends SerializedContent
 	/**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
 	 * @return integer|null Id of parent record.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getParentID()
 	{
 		if ($this->id->value===null || $this->id->value < 1) {
 			return (null);
 		}
-		$query = "CALL siteSectionParentIDSelect(?)";
-		$data = $this->fetchRecords($query, array($this->id->value));
+		$query = "CALL siteSectionParentIDSelect({$this->id->value})";
+		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			return($data[0]->parent_id);
 		}
@@ -158,14 +157,15 @@ class ContentProperties extends SerializedContent
 	 * Retrieves the content type for the parent of the current content type.
 	 * @return int|null Content type id of the parent record.
 	 * @throws RecordNotFoundException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getParentTypeID()
 	{
 		if ($this->id->value===null || $this->id->value < 1) {
 			return (null);
 		}
-		$query = "CALL siteSectionParentTypeID(?);";
-		$data = $this->fetchRecords($query, array($this->id->value));
+		$query = "CALL siteSectionParentTypeID({$this->id->value});";
+		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Parent content type not found.");
 		}
@@ -200,14 +200,15 @@ class ContentProperties extends SerializedContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function read()
 	{
 		parent::read();
-		$query = "CALL siteSectionExtraPropertiesSelect(?)";
-		$data = $this->fetchRecords($query, array($this->id->value));
+		$query = "CALL siteSectionExtraPropertiesSelect({$this->id->value})";
+		$data = $this->fetchRecords($query);
 		$this->initializeExtraProperties();
 		if (count($data) > 0) {
 			$this->id_param = $data[0]->id_param;
@@ -219,11 +220,12 @@ class ContentProperties extends SerializedContent
 
 	/**
 	 * Retrieve content templates linked to this content type.
+	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
 	 */
 	public function readTemplates()
 	{
-		$query = "CALL contentTemplateSelectBySectionID(?)";
-		$data = $this->fetchRecords($query, array($this->id->value));
+		$query = "CALL contentTemplateSelectBySectionID({$this->id->value})";
+		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			return;
 			// throw new RecordNotFoundException("Error retrieving content templates.");

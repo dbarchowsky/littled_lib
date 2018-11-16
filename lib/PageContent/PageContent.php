@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent;
 
-
+use http\Env\Request;
 use Littled\App\LittledGlobals;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;

@@ -44,6 +44,7 @@ class Gallery extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -104,6 +105,7 @@ class Gallery extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -144,8 +146,7 @@ class Gallery extends MySQLConnection
 	 * Deletes all images records attached to the current gallery including the image files on disk and all of the keywords assigned to the images. Also deletes the gallery thumbnail.
 	 * @return string String describing the results of the operation.
 	 * @throws ConfigurationUndefinedException
-	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
@@ -168,11 +169,12 @@ class Gallery extends MySQLConnection
 	/**
 	 * Retrieves the "gallery thumbnail" setting for the gallery, which indicates that a thumbnail image is expected for the gallery.
 	 * @return array Containing the gallery thumbnail setting and the parent id of the gallery.
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function fetchGalleryThumbnail()
 	{
-		$query = "CALL galleryGalleryThumbnailSettingSelect(?)";
-		$data = $this->fetchRecords($query, array($this->contentProperties->id->value));
+		$query = "CALL galleryGalleryThumbnailSettingSelect({$this->contentProperties->id->value})";
+		$data = $this->fetchRecords($query);
 		if (count($data[0]) > 0) {
 			return (array($data[0]->gallery_thumbnail, $data[0]->parent_id));
 		}
@@ -187,6 +189,7 @@ class Gallery extends MySQLConnection
 	 * @throws \Littled\Exception\ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	protected function fillImageSetFromRecordset( $image_link, $row, $read_keywords=false)
 	{
@@ -227,6 +230,7 @@ class Gallery extends MySQLConnection
 	 * Returns the number of images in the gallery even if the gallery array hasn't been filled yet.
 	 * @param string[optional] $access Limits count to a particular access level.
 	 * @return int image count
+	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function getImageCount( $access="" )
 	{
@@ -237,13 +241,11 @@ class Gallery extends MySQLConnection
 			return ($this->image_count);
 		}
 		else {
-			$query = "SELECT COUNT(1) AS `count` FROM `image_link` WHERE parent_id = ? AND type_id = ?";
-			$params = array($this->parent_id, $this->type_id->value);
+			$query = "SELECT COUNT(1) AS `count` FROM `image_link` WHERE parent_id = {$this->parent_id} AND type_id = {$this->type_id->value}";
 			if ($access) {
-				$query .= " AND access = ?";
-				$params[] = "'{$access}'";
+				$query .= " AND access = '{$access}'";
 			}
-			$data = $this->fetchRecords($query, $params);
+			$data = $this->fetchRecords($query);
 			list($this->image_count) = $data[0]->count;
 		}
 		return ($this->image_count);
@@ -295,6 +297,7 @@ class Gallery extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -305,8 +308,8 @@ class Gallery extends MySQLConnection
 
 		$this->retrieveSectionProperties();
 
-		$query = "CALL gallerySelect(?,?,?)";
-		$data = $this->fetchRecords($query, array($this->parent_id, $this->contentProperties->id->value, (($public_only)?('1'):('0'))));
+		$query = "CALL gallerySelect({$this->parent_id},{$this->contentProperties->id->value},".(($public_only)?('1'):('0')).")";
+		$data = $this->fetchRecords($query);
 
 		$this->list = array();
 		foreach($data as $row) {
@@ -330,6 +333,7 @@ class Gallery extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -345,8 +349,8 @@ class Gallery extends MySQLConnection
 			return;
 		}
 
-		$query = "CALL galleryExternalThumbnailSelect(?,?)";
-		$data = $this->fetchRecords($query, array($this->parent_id,$this->contentProperties->id->value));
+		$query = "CALL galleryExternalThumbnailSelect({$this->parent_id},{$this->contentProperties->id->value})";
+		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			$this->tn_id->value = $data[0]->thumbnail_id;
 		}
@@ -361,6 +365,7 @@ class Gallery extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
@@ -435,8 +440,8 @@ class Gallery extends MySQLConnection
 		$query = "SELECT p.`id`, p.`table` ".
 			"FROM 'site_section' p ".
 			"INNER JOIN `site_section` c ON p.`id` = c.`parent_id` ".
-			"WHERE c.`id` = ?";
-		$data = $this->fetchRecords($query, array($this->contentProperties->id->value));
+			"WHERE c.`id` = {$this->contentProperties->id->value}";
+		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			$parent_content_id = $data[0]->id;
 			$parent_table = $data[0]->table;

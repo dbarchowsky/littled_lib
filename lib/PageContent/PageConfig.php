@@ -56,6 +56,8 @@ class PageConfig
 	 * @param string $level Menu node level
 	 * @param string $dom_id Menu node element selector
 	 * @param string $attributes String containing any additional attributes to assign to the node element.
+	 * @throws ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public static function addUtilityLink($label, $url='', $target='', $level='', $dom_id='', $attributes='')
 	{
@@ -213,7 +215,6 @@ class PageConfig
 
 	/**
 	 * Generates and outputs markup that will render the breadcrumbs that have been added to the page.
-	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public static function renderBreadcrumbs()
 	{
@@ -225,7 +226,6 @@ class PageConfig
 
 	/**
 	 * Generates and outputs markup that will render the navigation menu nodes that have been added to the page.
-	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public static function renderUtilityLinks()
 	{

@@ -176,21 +176,22 @@ class Image extends ImageFile
 
 		/* save thumbnail image database record */
 		$tn_id = null;
-		$query = "SEL"."ECT `?` FROM `image_link` WHERE image_id = ?";
-		$data = $this->fetchRecords($query, array($column_name, $this->id->value));
+		$query = "SEL"."ECT `{$column_name}` FROM `image_link` WHERE image_id = {$this->id->value}";
+		$data = $this->fetchRecords($query);
 		if (count($data)> 0) {
 			$tn_id = $data[0]->$column_name;
 		}
 
 		$tn_path = preg_replace("/^(.*\/)/", "$1{$sub_dir}/", $this->path->value);
 		if ($tn_id>0) {
+			$this->connectToDatabase();
 			$query = "UPDATE `images` SET ".
 				"path = '{$tn_path}', ".
 				"width = {$new_w}, ".
 				"height = {$new_h}, ".
 				"alt = ".$this->alt->escapeSQL($this->mysqli)." ".
 				"WHERE id = {$tn_id}";
-			$this->mysqli()->query($query);
+			$this->query($query);
 		}
 		else {
 			$query = "INSERT INTO `images` (path,width,height,alt) VALUES (".
@@ -315,8 +316,8 @@ class Image extends ImageFile
 
 		$thumbnail_id = 0;
 		if ($this->id->value > 0) {
-			$query = "SEL"."ECT `?` FROM `image_link` WHERE `fullres_id` = ?";
-			$data = $this->mysqli()->fetchRecords($query, array($field_name, $this->id->escapeSQL($this->mysqli)));
+			$query = "SEL"."ECT `{$field_name}` FROM `image_link` WHERE `fullres_id` = ".$this->id->escapeSQL($this->mysqli);
+			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$thumbnail_id = $data[0]->$field_name;
 			}
@@ -355,6 +356,7 @@ class Image extends ImageFile
 	 * @throws OperationAbortedException
 	 * @throws ResourceNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	protected function moveUploadToDestination($tmp_path, $target_name, $upload_dir, $target_dims=null, $target_ext='', $sub_dir='')
 	{
@@ -388,6 +390,7 @@ class Image extends ImageFile
 	 * @throws OperationAbortedException
 	 * @throws ResourceNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function placeUploadFile( $sub_dir='', $target_basename='', $randomize=false, $target_dims=null, $target_ext='')
 	{
