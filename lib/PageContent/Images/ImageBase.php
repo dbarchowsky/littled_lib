@@ -309,11 +309,7 @@ class ImageBase extends SerializedContent
 			if (in_array($property, $exclude_properties)) {
 				continue;
 			}
-			try {
-				$this->$property->validate();
-			} catch (ContentValidationException $ex) {
-				array_push($this->validationErrors, $ex->getMessage());
-			}
+			$this->$property->validate();
 		}
 		if (count($this->validationErrors) > 0) {
 			throw new ContentValidationException("Problems were found with the image properties.");

@@ -1,8 +1,8 @@
 <?php
 namespace Littled\PageContent;
 
+use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -53,14 +53,10 @@ class PageContentBase extends MySQLConnection
 	 * First checks if a variable named "id" is present. 2nd, checks for a variable corresponding to the content
 	 * object's id's internal parameter name.
 	 * @return int|null Id value that was found, or null if no valid integer value was found for the content id.
-	 * @throws ConfigurationUndefinedException
 	 */
 	public function collectContentId()
 	{
-		if (!defined('P_ID')) {
-			throw new ConfigurationUndefinedException("P_ID not defined in app settings.");
-		}
-		$this->content->id->value = Validation::parseIntegerInput(P_ID);
+		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM);
 		if ($this->content->id->value===null) {
 			if ( $this->content->id instanceof RequestInput) {
 				$this->content->id->collectValue();
@@ -79,15 +75,12 @@ class PageContentBase extends MySQLConnection
      */
     public function collectEditAction()
     {
-        if (!defined('P_CANCEL') || !defined('P_COMMIT')) {
-            return;
-        }
-        $this->action = filter_input(INPUT_POST, P_CANCEL, FILTER_SANITIZE_STRING);
+        $this->action = filter_input(INPUT_POST, LittledGlobals::P_CANCEL, FILTER_SANITIZE_STRING);
         if ($this->action) {
             $this->action = $this::CANCEL_ACTION;
         }
         else {
-            $this->action = filter_input(INPUT_POST, P_COMMIT, FILTER_SANITIZE_STRING);
+            $this->action = filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING);
             if ($this->action) {
                 $this->action = $this::COMMIT_ACTION;
             }

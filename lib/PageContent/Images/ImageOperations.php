@@ -241,7 +241,7 @@ class ImageOperations extends ImageFile
 
 		$this->resample($image_root.$this->path->value, $target_name, $target_dims, $target_ext, $sub_dir);
 
-		$path = $this->formatImagePath($target_name, $target_ext, $sub_dir);
+		$path = $this->formatUploadFilename($target_name, $target_ext, $sub_dir);
 		$src_dims = new ImageDims();
 		list($src_dims->width, $src_dims->height) = getimagesize($image_root.$path);
 

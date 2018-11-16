@@ -23,6 +23,13 @@ class NavigationMenu
 	/** @var string Class name to use to manage the navigation menu nodes. Default is NavigationMenuNode. */
 	public static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
+	function __construct()
+	{
+		$this->first = null;
+		$this->last = null;
+		$this->cssClass = '';
+	}
+
 	/**
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label Text to display for this item within the navigation menu.

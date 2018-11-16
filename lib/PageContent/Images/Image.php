@@ -356,7 +356,6 @@ class Image extends ImageFile
 	 * @throws OperationAbortedException
 	 * @throws ResourceNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	protected function moveUploadToDestination($tmp_path, $target_name, $upload_dir, $target_dims=null, $target_ext='', $sub_dir='')
 	{
@@ -390,7 +389,6 @@ class Image extends ImageFile
 	 * @throws OperationAbortedException
 	 * @throws ResourceNotFoundException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function placeUploadFile( $sub_dir='', $target_basename='', $randomize=false, $target_dims=null, $target_ext='')
 	{

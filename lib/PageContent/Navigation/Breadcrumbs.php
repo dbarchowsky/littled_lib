@@ -111,6 +111,7 @@ class Breadcrumbs
 
 	/**
 	 * Outputs navigation menu markup.
+	 * @throws ResourceNotFoundException
 	 */
 	function render ()
 	{

@@ -2,7 +2,6 @@
 namespace Littled\Database;
 
 
-use http\Exception\InvalidArgumentException;
 use Littled\Exception\InvalidQueryException;
 
 /**

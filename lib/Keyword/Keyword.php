@@ -49,10 +49,17 @@ class Keyword extends SerializedContentUtils
 		$this->count = $count;
 	}
 
+	/**
+	 * Deletes Keyword record from database.
+	 * @return string
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
 	public function delete()
 	{
 		if (!$this->hasData()) {
-			return;
+			return('');
 		}
 		$this->connectToDatabase();
 		$query = "CALL keywordDelete(".

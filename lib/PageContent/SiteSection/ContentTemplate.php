@@ -47,7 +47,7 @@ class ContentTemplate extends SerializedContent
 		parent::__construct($id);
 
 		$this->id->label = "Template id";
-		$this->id->param = 'templateID';
+		$this->id->key = 'templateID';
 		$this->id->required = false;
 		$this->content_type_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
 		$this->name = new StringTextField("Name", "templateName", true, $name, 45);

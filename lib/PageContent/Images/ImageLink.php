@@ -606,7 +606,7 @@ class ImageLink extends KeywordSectionContent
 			if ($this->parent_id->value>0) {
 				$parent_type_id = $this->contentProperties->getParentTypeID();
 				if ($parent_type_id) {
-					ContentCache::updateKeywords($this->contentProperties);
+					ContentCache::updateKeywords($this->parent_id->value, $this->contentProperties);
 				}
 			}
 		}

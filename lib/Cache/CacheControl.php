@@ -49,12 +49,13 @@ class CacheControl
 		$this->sourceURI     = '';
 		$this->rootDir       = '';
 		$this->fullpath      = '';
-		$this->CacheControlType     = null;
+		$this->cacheType     = null;
 	}
 
 	/**
 	 * Collects variables and their values passed in the request.
 	 * @throws ContentValidationException
+	 * @throws ResourceNotFoundException
 	 */
 	public function collectInput()
 	{

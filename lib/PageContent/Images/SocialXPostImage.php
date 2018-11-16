@@ -40,7 +40,7 @@ class SocialXPostImage extends ImageUpload
 		$this->wp_id = new StringInput("WordPress ID", "ixwp", false, null);
 		$this->twitter_id = new StringInput("Twitter ID", "ixti", false, "", 64);
 		$this->short_url = new StringInput("Short URL", "ixsu", false, "", 128);
-		$this->getParameterNames($_generic_params);
+		$this->setParameterNames($_generic_params);
 	}
 
 	/**
