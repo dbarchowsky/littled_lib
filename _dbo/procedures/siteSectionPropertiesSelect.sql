@@ -5,16 +5,24 @@ CREATE PROCEDURE `siteSectionPropertiesSelect`(
 )
 BEGIN
 
-SET @section_id = p_section_id;
-
-PREPARE STMT FROM
-'SELECT *
-FROM `section_operations`
-WHERE `section_id` = ?';
-
-EXECUTE STMT USING
-@section_id;
-DEALLOCATE PREPARE STMT;
+  SELECT
+         id,
+         section_id,
+         label,
+         id_param,
+         listings_uri,
+         details_uri,
+         edit_uri,
+         upload_uri,
+         delete_uri,
+         cache_uri,
+         sorting_uri,
+         keywords_uri,
+         listings_template,
+         is_sortable,
+         comments
+    FROM section_operations
+    WHERE section_id = p_section_id;
 
 END$$
 DELIMITER ;

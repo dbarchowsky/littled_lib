@@ -110,7 +110,7 @@ class SectionContent extends SerializedContent
 			$ao = new ContentAjaxProperties();
 			$ao->section_id->value = $this->contentProperties->id->value;
 			$ao->retrieveContentProperties();
-			$template = $ao->listings_uri->value;
+			$template = $ao->listings_template->value;
 		}
 		if (strlen($template) < 1) {
 			throw new ResourceNotFoundException("Listings template not available.");
