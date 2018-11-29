@@ -10,6 +10,19 @@ class AppBase
 	}
 
 	/**
+	 * Returns the path to the app's document root.
+	 * @return string Path to document root. Or empty string if the path is unavailable.
+	 */
+	public static function getAppRootDir()
+	{
+		if ($_SERVER['DOCUMENT_ROOT']) {
+			return rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+		}
+		return ('');
+	}
+
+	/**
+	 * @deprecated Use /Littled/Log/Debug::output() instead.
 	 * Print debug message including information about the location of the call to debugmsg() and the type of the object being worked on.
 	 * @param string $error_msg Message to print.
 	 */

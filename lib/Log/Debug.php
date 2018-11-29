@@ -23,6 +23,7 @@ class Debug
 	/**
 	 * Generates log file name based on the current date and time.
 	 * @return string Log filename.
+	 * @throws \Exception
 	 */
 	public static function generateLogFilename()
 	{
@@ -94,6 +95,7 @@ class Debug
 	 * Logs a variable value to a log file.
 	 * @param mixed $var Variable to inspect and log
 	 * @throws ConfigurationUndefinedException
+	 * @throws \Exception
 	 */
 	public static function logVariable( &$var )
 	{
