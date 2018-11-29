@@ -16,7 +16,7 @@ class AppBase
 	public static function getAppRootDir()
 	{
 		if ($_SERVER['DOCUMENT_ROOT']) {
-			return rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+			return rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
 		}
 		return ('');
 	}
