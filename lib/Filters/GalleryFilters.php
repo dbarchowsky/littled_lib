@@ -116,7 +116,7 @@ class GalleryFilters extends ContentFilters
 	 * property.
 	 * @throws \Exception Error establishing database connection.
 	 */
-	function formatListingsQuery()
+	public function formatListingsQuery()
 	{
 		$this->connectToDatabase();
 		$this->queryString = "CALL galleryFilteredSelect (".

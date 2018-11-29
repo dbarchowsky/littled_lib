@@ -33,20 +33,24 @@ class SocialGalleryFilters extends GalleryFilters
 	}
 
 	/**
-	 * Format SQL string containing conditions used to filter down image listings.
-	 * @throws \Exception Error establishing connection to database.
+	 * Formats the query used to retrieve filtered listings. The query string is stored in the object's $queryString
+	 * property.
+	 * @throws \Exception Error establishing database connection.
 	 */
-	function formatListingsQuery()
+	public function formatListingsQuery()
 	{
-		parent::formatListingsQuery();
-
-		/* insert new procedure name into query */
-		$this->queryString = preg_replace('/CALL .*?\(/', "CALL socialGalleryFilteredSelect (", $this->queryString);
-
-		/* break query to insert extra input parameters before the @total_matches output parameter */
-		$this->queryString = preg_replace('/,(?:(?!,).)*@total_matches.*;$/', '', $this->queryString);
-
-		$this->queryString .=
+		$this->connectToDatabase();
+		$this->queryString = 'CALL socialGalleryFilteredSelect('.
+			$this->page->escapeSQL($this->mysqli).
+			','.$this->escapeSQLValue($this->pageCount).
+			','.$this->escapeSQLValue($this->contentTypeID).
+			','.$this->albumId->escapeSQL($this->mysqli).
+			','.$this->title->escapeSQL($this->mysqli).
+			','.$this->releaseAfter->escapeSQL($this->mysqli).
+			','.$this->releaseBefore->escapeSQL($this->mysqli).
+			','.$this->access->escapeSQL($this->mysqli).
+			','.$this->slot->escapeSQL($this->mysqli).
+			','.$this->keyword->escapeSQL($this->mysqli).
 			','.$this->onWordpress->escapeSQL($this->mysqli).
 			','.$this->onTwitter->escapeSQL($this->mysqli).
 			','.$this->hasShortURL->escapeSQL($this->mysqli).
