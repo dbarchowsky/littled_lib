@@ -48,10 +48,10 @@ class SocialAlbumFilters extends AlbumFilters
 	 */
 	protected function formatListingsQuery()
 	{
-		$query = parent::formatListingsQuery();
+		$this->queryString = parent::formatListingsQuery();
 		if ($this->contentProperties->gallery_thumbnail->value===false) {
-			str_replace('albumFilteredListingsSelect', 'albumSocialFilteredListingsSelect', $query);
+			$this->queryString = str_replace('albumFilteredListingsSelect', 'albumSocialFilteredListingsSelect', $this->queryString);
 		}
-		return ($query);
+		return ($this->queryString);
 	}
 }

@@ -112,8 +112,8 @@ class GalleryFilters extends ContentFilters
 	}
 
 	/**
-	 * Formats the query used to retrieve filtered listings. The query string is stored in the object's $queryString
-	 * property.
+	 * Formats the query used to retrieve filtered listings. The query string is stored in the object's $queryString property.
+	 * @return string SQL query for retrieving listings data.
 	 * @throws \Exception Error establishing database connection.
 	 */
 	public function formatListingsQuery()
@@ -131,6 +131,7 @@ class GalleryFilters extends ContentFilters
 			",".$this->slot->escapeSQL($this->mysqli).
 			",".$this->keyword->escapeSQL($this->mysqli).
 			",@total_matches);";
+		return($this->queryString);
 	}
 
 	/**

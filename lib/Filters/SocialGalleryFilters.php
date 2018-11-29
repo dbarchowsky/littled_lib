@@ -33,8 +33,8 @@ class SocialGalleryFilters extends GalleryFilters
 	}
 
 	/**
-	 * Formats the query used to retrieve filtered listings. The query string is stored in the object's $queryString
-	 * property.
+	 * Formats the query used to retrieve filtered listings. The query string is stored in the object's $queryString property.
+	 * @return string SQL query for retrieving listings data.
 	 * @throws \Exception Error establishing database connection.
 	 */
 	public function formatListingsQuery()
@@ -55,5 +55,6 @@ class SocialGalleryFilters extends GalleryFilters
 			','.$this->onTwitter->escapeSQL($this->mysqli).
 			','.$this->hasShortURL->escapeSQL($this->mysqli).
 			',@total_matches);';
+		return ($this->queryString);
 	}
 }

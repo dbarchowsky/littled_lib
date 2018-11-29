@@ -40,7 +40,7 @@ class ContentFilters extends FilterCollection
 	/**
 	 * Placeholder for method intended to be implemented by derived classes.
 	 * Format a query that will be used to retrieve listings recordset.
-	 * @return string
+	 * @return string SQL query
 	 * @throws NotImplementedException
 	 */
 	protected function formatListingsQuery()

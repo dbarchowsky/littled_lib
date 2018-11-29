@@ -113,7 +113,7 @@ class AlbumFilters extends FilterCollection
 	protected function formatListingsQuery()
 	{
 		$this->connectToDatabase();
-		return("CALL albumFilteredListingsSelect(".
+		$this->queryString = "CALL albumFilteredListingsSelect(".
 			$this->page->escapeSQL($this->mysqli).",".
 			$this->listingsLength->escapeSQL($this->mysqli).",".
 			"NULL,".
@@ -126,7 +126,8 @@ class AlbumFilters extends FilterCollection
 			$this->access->escapeSQL($this->mysqli).",".
 			$this->slot->escapeSQL($this->mysqli).",".
 			$this->keyword->escapeSQL($this->mysqli).",".
-			"@total_matches);");
+			"@total_matches);";
+		return ($this->queryString);
 	}
 
 	/**
