@@ -87,18 +87,18 @@ class GalleryFilters extends ContentFilters
 	public function formatListingsQuery()
 	{
 		$this->connectToDatabase();
-		$this->queryString = "CALL galleryFilteredSelect (".
+		$this->queryString = 'CALL galleryFilteredSelect ('.
 			$this->page->escapeSQL($this->mysqli).
-			",".$this->escapeSQLValue($this->pageCount).
-			",".$this->escapeSQLValue($this->contentTypeID).
-			",".$this->albumId->escapeSQL($this->mysqli).
-			",".$this->title->escapeSQL($this->mysqli).
-			",".$this->releaseAfter->escapeSQL($this->mysqli).
-			",".$this->releaseBefore->escapeSQL($this->mysqli).
-			",".$this->access->escapeSQL($this->mysqli).
-			",".$this->slot->escapeSQL($this->mysqli).
-			",".$this->keyword->escapeSQL($this->mysqli).
-			",@total_matches);";
+			','.$this->listingsLength->escapeSQL($this->mysqli).
+			','.$this->escapeSQLValue($this->contentTypeID).
+			','.$this->albumId->escapeSQL($this->mysqli).
+			','.$this->title->escapeSQL($this->mysqli).
+			','.$this->releaseAfter->escapeSQL($this->mysqli).
+			','.$this->releaseBefore->escapeSQL($this->mysqli).
+			','.$this->access->escapeSQL($this->mysqli).
+			','.$this->slot->escapeSQL($this->mysqli).
+			','.$this->keyword->escapeSQL($this->mysqli).
+			',@total_matches);';
 		return($this->queryString);
 	}
 

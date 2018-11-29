@@ -42,7 +42,7 @@ class SocialGalleryFilters extends GalleryFilters
 		$this->connectToDatabase();
 		$this->queryString = 'CALL socialGalleryFilteredSelect('.
 			$this->page->escapeSQL($this->mysqli).
-			','.$this->escapeSQLValue($this->pageCount).
+			','.$this->listingsLength->escapeSQL($this->mysqli).
 			','.$this->escapeSQLValue($this->contentTypeID).
 			','.$this->albumId->escapeSQL($this->mysqli).
 			','.$this->title->escapeSQL($this->mysqli).
