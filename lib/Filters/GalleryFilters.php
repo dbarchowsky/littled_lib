@@ -80,38 +80,6 @@ class GalleryFilters extends ContentFilters
 	}
 
 	/**
-	 * Format SQL string containing conditions used to filter down image listings.
-	 * @throws \Exception Database connection error.
-	 */
-	function formatListingsFilters()
-	{
-		/* get db connection for the sake of real_escape_string() */
-		$this->connectToDatabase();
-		$this->queryString = "WHERE (il.type_id = {$this->contentProperties->id->value}) ";
-		if ($this->albumId->value>0) {
-			$this->queryString .= "AND (il.parent_id = {$this->albumId->value}) ";
-		}
-		if ($this->title->value) {
-			$this->queryString.= "AND (il.title LIKE '%".$this->mysqli->real_escape_string($this->title->value)."%') ";
-		}
-		if ($this->releaseAfter->value) {
-			$this->queryString .= "AND (DATEDIFF(il.`release_date`,'".date("Y-m-d",strtotime($this->releaseAfter->value))."')>=0) ";
-		}
-		if ($this->releaseBefore->value) {
-			$this->queryString .= "AND (DATEDIFF(il.`release_date`,'".date("Y-m-d",strtotime($this->releaseBefore->value))."')<=0) ";
-		}
-		if ($this->access->value) {
-			$this->queryString .= "AND (il.`access` = '".$this->mysqli->real_escape_string($this->access->value)."') ";
-		}
-		if ($this->slot->value) {
-			$this->queryString .= "AND (il.`page_number` = {$this->slot->value}) ";
-		}
-		if ($this->keyword->value) {
-			$this->queryString .= "AND (MATCH(il.title,il.description,il.keywords) AGAINST ('".$this->mysqli->real_escape_string($this->keyword->value)."' IN BOOLEAN MODE)) ";
-		}
-	}
-
-	/**
 	 * Formats the query used to retrieve filtered listings. The query string is stored in the object's $queryString property.
 	 * @return string SQL query for retrieving listings data.
 	 * @throws \Exception Error establishing database connection.
