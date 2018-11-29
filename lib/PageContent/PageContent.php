@@ -86,6 +86,13 @@ class PageContent
 	 */
 	public static function loadTemplateContent( $template_path, $context=null )
 	{
+	    if (substr($template_path, 0, 1) == '/') {
+	        if ($_SERVER['DOCUMENT_ROOT']) {
+	            if (strpos($template_path, $_SERVER['DOCUMENT_ROOT']) !== 0) {
+                    $template_path = rtrim($_SERVER['DOCUMENT_ROOT'], '/').$template_path;
+                }
+            }
+        }
 		if (!file_exists($template_path)) {
 			if ($template_path) {
 				throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
