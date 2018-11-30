@@ -43,6 +43,8 @@ class ContentAjaxProperties extends SerializedContent
 	public $keywords_uri;
 	/** @var StringTextField Path to listings template. */
     public $listings_template;
+	/** @var StringTextField Path to keywords list template. */
+	public $keywords_template;
 	/** @var StringTextarea Comments about the content type. */
 	public $comments;
 	/** @var BooleanCheckbox Flag indicating that the listings are sortable. */
@@ -53,11 +55,15 @@ class ContentAjaxProperties extends SerializedContent
 		return "section_operations";
 	}
 
-	function __construct()
+	/**
+	 * ContentAjaxProperties constructor.
+	 * @param int|null[optional] $content_type_id Initial content type id value.
+	 */
+	function __construct( $content_type_id=null )
 	{
 		parent::__construct();
 		$this->id = new IntegerInput("Id", "capId", false);
-		$this->section_id = new IntegerSelect("Content type", "capContentType", true);
+		$this->section_id = new IntegerSelect("Content type", "capContentType", true, $content_type_id);
 		$this->label = new StringTextField("Label", "capLabel", true, '', 50);
 		$this->id_param = new StringTextField("Id parameter name", "capKeyName", true, '', 50);
 		$this->listings_uri = new StringTextField("Listings URI", "capListURI", false, '', 255);
@@ -69,6 +75,7 @@ class ContentAjaxProperties extends SerializedContent
 		$this->sorting_uri = new StringTextField("Sorting URI", "capSortURI", false, '', 255);
 		$this->keywords_uri = new StringTextField("Keywords URI", "capKeywordsURI", false, '', 255);
         $this->listings_template = new StringTextField("Listings template", "listingsTemplate", false, '', 255);
+		$this->keywords_template = new StringTextField("Keywords template", "keywordsTemplate", false, '', 255);
 		$this->comments = new StringTextarea("Comments", "capComments", false, '', 2000);
 		$this->is_sortable = new BooleanCheckbox("Is sortable", "capIsSortable", false, false);
 	}

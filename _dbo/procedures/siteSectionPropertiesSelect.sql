@@ -19,6 +19,7 @@ BEGIN
          sorting_uri,
          keywords_uri,
          listings_template,
+         keywords_template,
          is_sortable,
          comments
     FROM section_operations

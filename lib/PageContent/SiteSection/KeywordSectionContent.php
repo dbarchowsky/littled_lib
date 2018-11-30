@@ -7,6 +7,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\PageContent;
 use Littled\Request\StringTextarea;
+use Littled\SiteContent\ContentAjaxProperties;
 
 class KeywordSectionContent extends SectionContent
 {
@@ -170,6 +171,18 @@ class KeywordSectionContent extends SectionContent
 	}
 
 	/**
+	 * Retrieves the keyword template path from the database and uses the value to set the class's keyword template path property.
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\RecordNotFoundException
+	 */
+	protected function fetchKeywordListTemplate()
+	{
+		$ao = new ContentAjaxProperties($this->contentProperties->id->value);
+		$ao->retrieveContentProperties();
+		self::setListingsTemplatePath($ao->keywords_template->value);
+	}
+
+	/**
 	 * Formats a comma-delimited string out of the object's keywords.
 	 * @param bool[optional] $fetch_from_database If TRUE return keywords from database. If FALSE return keyword terms
 	 * currently stored in the object properties. Defaults to TRUE.
@@ -195,6 +208,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\RecordNotFoundException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function formatKeywordListPageContent($context=array())
@@ -203,6 +217,9 @@ class KeywordSectionContent extends SectionContent
 			$this->readKeywords();
 		}
 		$context['keywords'] = $this;
+		if (!static::$keywordListTemplate) {
+			$this->fetchKeywordListTemplate();
+		}
 		return (PageContent::loadTemplateContent(static::$keywordListTemplate, $context));
 	}
 
