@@ -823,12 +823,12 @@ if (typeof LITTLED === "undefined") {
         * @param {int} tid Section id used to retrieve section settings.
         * @param {function} cb Callback used to execute as "success" handler 
 		* after the section's properties have been successfully retrieved.
-		* @param {object} options (Optional) collection of settings that will
+		* @param {object} opts (Optional) collection of settings that will
 		* override the library's default settings.
         */
-        retrieveContentOperations: function(tid, cb, options) {
+        retrieveContentOperations: function(tid, cb, opts) {
 
-			let lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, opts || {});
 			let pd = {};
 			pd['tid'] = tid;
 			pd['csrf'] = $(lclSettings.csrfSelector).html();

@@ -1,7 +1,8 @@
 const gulp = require('gulp');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
-const uglify = require('gulp-uglify');
+const terser = require('gulp-terser');
+const pump = require('pump');
 
 const paths = {
     scripts: {
@@ -16,7 +17,6 @@ const paths = {
                     'scripts/littled/inlineEdit.js',
                     'scripts/littled/lineitems.js',
                     'scripts/littled/listings.js',
-                    'scripts/littled/littled.js',
                     'scripts/littled/keyword.js',
                     'scripts/littled//keywordFilter.js',
                     'scripts/littled/resort.js'
@@ -68,15 +68,17 @@ gulp.task('scripts', gulp.parallel('littled-scripts', 'gallery-scripts'), functi
 /**
  *  minify local javascript libraries
  */
-gulp.task('uglify', function() {
-    return gulp.src(paths.uglify.src, {base: '.'})
-        .pipe(uglify())
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(gulp.dest(function(file) {
+gulp.task('uglify', function(cb) {
+    pump([
+        gulp.src(paths.uglify.src, {base: '.'}),
+        terser(),
+        rename({suffix: '.min'}),
+        gulp.dest(function(file) {
             return file.base;
-        }));
+        })
+        ],
+        cb
+    );
 });
 
 gulp.task('watch', function() {

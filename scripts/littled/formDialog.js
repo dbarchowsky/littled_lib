@@ -370,8 +370,8 @@
 		 * @param {object} options (Optional) collection of settings that will
 		 * override the library's default settings.
 		 */
-        retrieveContentOperations: function(tid, cb, options) {
-			$.littled.retrieveContentOperations(tid, cb, options);
+        retrieveContentOperations: function(tid, cb, opts) {
+			$.littled.retrieveContentOperations(tid, cb, opts);
         },
 
 		clearMessages: function() {
