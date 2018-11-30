@@ -821,9 +821,9 @@ if (typeof LITTLED == "undefined") {
 		* @param {object} options (Optional) collection of settings that will
 		* override the library's default settings.
         */
-        retrieveContentOperations: function(tid, cb, options) {
+        retrieveContentOperations: function(tid, cb, opts) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			var lclSettings = $.extend(true, {}, settings, opts || {});
 			var pd = {};
 			pd['tid'] = tid;
 			pd['csrf'] = $(lclSettings.csrfSelector).html();
