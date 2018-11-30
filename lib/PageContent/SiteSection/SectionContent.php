@@ -100,7 +100,6 @@ class SectionContent extends SerializedContent
 	 * @return string Updated listings markup.
 	 * @throws ResourceNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
 	public function refreshContentAfterEdit( &$filters )
