@@ -16,6 +16,7 @@ const paths = {
                     'scripts/littled/inlineEdit.js',
                     'scripts/littled/lineitems.js',
                     'scripts/littled/listings.js',
+                    'scripts/littled/littled.js',
                     'scripts/littled/keyword.js',
                     'scripts/littled//keywordFilter.js',
                     'scripts/littled/resort.js'
