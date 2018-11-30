@@ -44,7 +44,7 @@ class BreadcrumbsNode
 		    throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
 	    }
 
-	    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs-node.php";
+	    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs_node.php";
 	    if (!file_exists($this::$breadcrumbsNodeTemplate)) {
 		    throw new ResourceNotFoundException("Breadcrumbs template not found at {$this::$breadcrumbsNodeTemplate}.");
 	    }
