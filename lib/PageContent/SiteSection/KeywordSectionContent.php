@@ -179,7 +179,7 @@ class KeywordSectionContent extends SectionContent
 	{
 		$ao = new ContentAjaxProperties($this->contentProperties->id->value);
 		$ao->retrieveContentProperties();
-		self::setListingsTemplatePath($ao->keywords_template->value);
+		self::setKeywordsListTemplatePath($ao->keywords_template->value);
 	}
 
 	/**
@@ -217,10 +217,10 @@ class KeywordSectionContent extends SectionContent
 			$this->readKeywords();
 		}
 		$context['keywords'] = $this;
-		if (!static::$keywordListTemplate) {
+		if (!self::getKeywordsListTemplatePath()) {
 			$this->fetchKeywordListTemplate();
 		}
-		return (PageContent::loadTemplateContent(static::$keywordListTemplate, $context));
+		return (PageContent::loadTemplateContent(self::getKeywordsListTemplatePath(), $context));
 	}
 
     /**
@@ -351,6 +351,24 @@ class KeywordSectionContent extends SectionContent
 			$keyword->parent_id->value = $this->id->value;
 			$keyword->save();
 		}
+	}
+
+	/**
+	 * Sets the class's keyword cell template path property.
+	 * @param $path string Path to template file.
+	 */
+	public static function setKeywordsCellTemplatePath( $path )
+	{
+		static::$keywordCellTemplate = $path;
+	}
+
+	/**
+	 * Sets the class's keyword list template path property.
+	 * @param $path string Path to template file.
+	 */
+	public static function setKeywordsListTemplatePath( $path )
+	{
+		static::$keywordListTemplate = $path;
 	}
 
 	/**
