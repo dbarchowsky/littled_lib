@@ -3,15 +3,16 @@
 	/**
 	 * static properties 
 	 */
-	var settings = {
+	let settings = {
 		displayWarnings: true,
 		inlineOps: {
-			nameURL: 'utils/edit_name.php',
-			dateURL: 'utils/edit_date.php',
-			accessURL: 'utils/edit_access.php',
-			slotURL: 'utils/edit_slot.php',
-			pageURL: 'utils/edit_page.php',
-			statusURL: 'utils/edit_status.php'
+		    root: '/vendor/dbarchowsky/littled_cms/ajax/scripts/utils/',
+			nameURL: 'edit_name.php',
+			dateURL: 'edit_date.php',
+			accessURL: 'edit_access.php',
+			slotURL: 'edit_slot.php',
+			pageURL: 'edit_page.php',
+			statusURL: 'edit_status.php'
 		},
 		uris: {
 			/* refactor "inlineOps" and use this collection in its place */
@@ -45,11 +46,11 @@
 		}
 	};
 
-	var methods = {
+	let methods = {
 
         bindListingsHandlers: function (options) {
 
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 
 			return this.each(function() {
 
@@ -105,15 +106,15 @@
         editCell: function( evt ) {
 
 			evt.preventDefault();
-			var lclSettings = $.extend(true, {}, settings, evt.data || {});
+			let lclSettings = $.extend(true, {}, settings, evt.data || {});
 
-            var $p = $(this).parent();
-			var op = $(this).data(lclSettings.keys.operation);
-			var fd = {t: $(this).data('t')};
+            let $p = $(this).parent();
+			let op = $(this).data(lclSettings.keys.operation);
+			let fd = {t: $(this).data('t')};
 			fd[lclSettings.keys.record_id] = $(this).data(lclSettings.keys.record_id),
 			fd[lclSettings.keys.operation] = op;
 			fd[lclSettings.keys.csrf] = $(lclSettings.dom.csrfSelector).html();
-            var url = methods.getInlineURL(op, evt.data||{});
+            let url = methods.getInlineURL(op, evt.data||{});
 
             $.post(
 				url,
@@ -160,12 +161,12 @@
 		
 		testKeyedEntry: function(evt) {
 
-            var id = $(this).data('id');
-            var t = $(this).data('t');
-            var op = $(this).data('op');
-			var $p = $(this).closest('.inline-edit-cell').parent();
+            let id = $(this).data('id');
+            let t = $(this).data('t');
+            let op = $(this).data('op');
+			let $p = $(this).closest('.inline-edit-cell').parent();
 
-            var kp = ((window.event) ? (window.event.keyCode) : (evt.which));
+            let kp = ((window.event) ? (window.event.keyCode) : (evt.which));
             switch (kp) {
 
                 case 13:
@@ -179,7 +180,7 @@
 
                     /* cancel on escape key */
 					evt.preventDefault();
-					var url = methods.getInlineURL(op);
+					let url = methods.getInlineURL(op);
                     $.ajax({
                         type: 'get',
                         url: url,
@@ -204,11 +205,11 @@
 
         saveEdit: function(options) {
 
-			var lclSettings = $.extend({}, settings, options || {});
-            var op = $(this).data('op');
-            var $f = $(this).closest('form');
-			var $p = $(this).closest('.inline-edit-cell').parent();
-            var url = methods.getInlineURL(op, options);
+			let lclSettings = $.extend({}, settings, options || {});
+            let op = $(this).data('op');
+            let $f = $(this).closest('form');
+			let $p = $(this).closest('.inline-edit-cell').parent();
+            let url = methods.getInlineURL(op, options);
 
             $.ajax({
                 type: 'post',
@@ -232,26 +233,26 @@
         },
 		
 		getInlineURL: function(op, options) {
-			var lclSettings = $.extend({}, settings, options || {});
-			var url;
+			let lclSettings = $.extend({}, settings, options || {});
+			let url;
             switch (op) {
                 case 'name':
-                    url = $.littled.getRelativePath() + lclSettings.inlineOps.nameURL;
+                    url = lclSettings.inlineOps.root + lclSettings.inlineOps.nameURL;
                     break;
                 case 'date':
-                    url = $.littled.getRelativePath() + lclSettings.inlineOps.dateURL;
+                    url = lclSettings.inlineOps.root + lclSettings.inlineOps.dateURL;
                     break;
                 case 'access':
-                    url = $.littled.getRelativePath() + lclSettings.inlineOps.accessURL;
+                    url = lclSettings.inlineOps.root + lclSettings.inlineOps.accessURL;
                     break;
                 case 'slot':
-                    url = $.littled.getRelativePath() + lclSettings.inlineOps.slotURL;
+                    url = lclSettings.inlineOps.root + lclSettings.inlineOps.slotURL;
                     break;
                 case 'page':
-                    url = $.littled.getRelativePath() + lclSettings.inlineOps.pageURL;
+                    url = lclSettings.inlineOps.root + lclSettings.inlineOps.pageURL;
                     break;
                 case 'status':
-                    url = $.littled.getRelativePath() + lclSettings.inlineOps.statusURL;
+                    url = lclSettings.inlineOps.root + lclSettings.inlineOps.statusURL;
                     break;
                 default:
                     $(settings.dom.error_container).littled('displayError', 'Invalid operation: ' + op);
@@ -261,10 +262,10 @@
 
 		saveDate: function(evt, dateText, inst) {
 
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
-            var $f = $(this).parents('form:first');
+            let $f = $(this).parents('form:first');
             $.post(
 				$.littled.getRelativePath() + settings.date_url,
                 $f.serializeObject(),
@@ -281,15 +282,15 @@
 
 		updateListingsContent: function(data) {
 
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
 
 			if (data.error) {
 				$(lclSettings.dom.error_container).littled('displayError', data.error);
 				return;
 			}
 
-			var selector = lclSettings.dom.listings_container || data.container_id;
-			var $e = $(selector);
+			let selector = lclSettings.dom.listings_container || data.container_id;
+			let $e = $(selector);
 			if ($e.length > 0 ) {
 				$e
 				.html($.littled.htmldecode(data.content))
@@ -312,8 +313,8 @@
         gotoPage: function( evt ) {
 
 			evt.preventDefault();
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
 			/* clear any status messages */
 			$(lclSettings.dom.status_container).fadeOut('fast');
@@ -321,10 +322,10 @@
 			/* pointer to element within listings that stores the content type
 			 * id and parent id values
 			 */
-			var $l = $(lclSettings.dom.listings_container);
+			let $l = $(lclSettings.dom.listings_container);
 
 			/* retrieve active listings filters */
-			var fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
+			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
 			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
 			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type);
 			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id);
@@ -382,8 +383,8 @@
 		 */
 		gotoDetailsPage: function(evt) {
 			evt.preventDefault();
-			var lclSettings = $.extend(true, {}, settings, evt.data || {});
-			var id = $(this).data(lclSettings.keys.record_id);
+			let lclSettings = $.extend(true, {}, settings, evt.data || {});
+			let id = $(this).data(lclSettings.keys.record_id);
 			if (!id) {
 				$(this).closest(lclSettings.dom.error_container)
 				.littled('displayError', 'A record id was not provided.');
@@ -394,7 +395,7 @@
 				.littled('displayError', 'An URI was not provided.');
 				return;
 			}
-			var url = lclSettings.uris.record_details +
+			let url = lclSettings.uris.record_details +
 				'?'+lclSettings.keys.record_id+'='+id +
 				'&' + $(lclSettings.dom.filters_form).serialize();
 			window.location = url;
@@ -408,8 +409,8 @@
 		 * @returns {undefined}
 		 */
 		updateNavigationValue: function( key, value, options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
-			var new_url, 
+			let lclSettings = $.extend(true, {}, settings, options || {});
+			let new_url,
 				src_url = window.location.href,
 				re = new RegExp("([?|&])" + key + "=.*?(&|$)","i");
 			if (src_url.match(re)) {
@@ -423,8 +424,8 @@
 
 		bindKeyPageNavigation: function (options) {
 			return this.on('keydown', function(evt) {
-				var keyCode = evt.keyCode || evt.which;
-				var arrow = {left: 37, up: 38, right: 39, down: 40 };
+				let keyCode = evt.keyCode || evt.which;
+				let arrow = {left: 37, up: 38, right: 39, down: 40 };
 				switch (keyCode) {
 					case arrow.left:
 						if (options.hasOwnProperty('leftKeyURL') && options.leftKeyURL) {

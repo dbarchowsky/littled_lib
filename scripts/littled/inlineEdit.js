@@ -29,7 +29,7 @@
 
 		/**
 		 * Handler for editing "in stock" values inline.
-		 * @param {eventObject} evt
+		 * @param {Event} evt
 		 * @returns {undefined}
 		 */
 		edit: function( evt ) {
