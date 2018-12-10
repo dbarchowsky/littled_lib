@@ -5,16 +5,16 @@ namespace Littled\Request\Inline;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
-use Littled\Database\MySQLConnection;
 
 
 /**
  * Class InlineInput
  * @package Littled\Request\Inline
  */
-class InlineInput extends MySQLConnection
+class InlineInput extends SerializedContent
 {
 	/** @var IntegerInput Parent record id. */
 	public $parent_id;
@@ -65,6 +65,7 @@ class InlineInput extends MySQLConnection
 	}
 
 	/**
+	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
 	 */
