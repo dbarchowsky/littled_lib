@@ -48,7 +48,10 @@ class SerializedContent extends SerializedContentUtils
 	 */
 	public function columnExists($column_name, $table_name='')
 	{
-		return(parent::columnExists($column_name, $this->TABLE_NAME()));
+		if ('' === $table_name) {
+			$table_name = $this->TABLE_NAME();
+		}
+		return(parent::columnExists($column_name, $table_name));
 	}
 
 	/**
@@ -156,22 +159,18 @@ class SerializedContent extends SerializedContentUtils
 	{
 		$column = $this->getNameColumnIdentifier();
 
-		$query = "SEL"."ECT `{$column}` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$query = "SEL"."ECT `{$column}` AS `column_name` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException('Column value not found');
 		}
 
-		/** @todo Move this logic to the appropriate inherited classes. */
-		switch (1) {
-			case (property_exists($this, "name")):
-				list($this->name->value) = $data[0];
+		$column_options = array('name', 'title');
+		foreach($column_options as $prop) {
+			if (property_exists($this, $prop)) {
+				$this->$prop->value = $data[0]->column_name;
 				break;
-			case (property_exists($this, "title")):
-				list($this->title->value) = $data[0];
-				break;
-			default:
-				break;
+			}
 		}
 	}
 
