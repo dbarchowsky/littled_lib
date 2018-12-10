@@ -35,7 +35,7 @@ class InlineDateInput extends InlineInput
 	protected function formatSelectQuery()
 	{
 		$this->getColumnName();
-		return ("SEL"."ECT date_format(`{$this->columnName}`,'%m/%d/%Y') ".
+		return ("SEL"."ECT DATE_FORMAT(`{$this->columnName}`,'%m/%d/%Y') AS `date` ".
 			"FROM `{$this->table->value}` ".
 			"WHERE id = {$this->parent_id->value}");
 	}
@@ -63,6 +63,6 @@ class InlineDateInput extends InlineInput
 	public function read()
 	{
 		$data = parent::read();
-		$this->date->value = $data[0]->access;
+		$this->date->value = $data[0]->date;
 	}
 }
