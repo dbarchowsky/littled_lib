@@ -88,6 +88,7 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
 	 * @param array|null[optional] $src Optional array of variables to use instead of POST data.
+	 * @return AjaxPage
 	 */
 	public function collectPageAction( $src=null )
 	{
@@ -97,12 +98,13 @@ class AjaxPage extends MySQLConnection
 		}
 		if (Validation::parseBooleanInput(LittledGlobals::P_COMMIT, null, $src)===true) {
 			$this->action = 'commit';
-			return;
+			return($this);
 		}
 		if (Validation::parseBooleanInput(LittledGlobals::P_CANCEL, null, $src)===true) {
 			$this->action = 'cancel';
-			return;
+			return($this);
 		}
+		return ($this);
 	}
 
 	/**
