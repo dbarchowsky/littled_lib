@@ -30,6 +30,7 @@ class InlineDateInput extends InlineInput
 	 * @return string Select SQL query
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	protected function formatSelectQuery()
 	{

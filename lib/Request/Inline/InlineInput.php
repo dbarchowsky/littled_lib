@@ -47,6 +47,21 @@ class InlineInput extends SerializedContent
 	}
 
 	/**
+	 * @param string $column_name
+	 * @param string $table_name
+	 * @return bool
+	 * @throws NotImplementedException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
+	public function columnExists($column_name, $table_name = '')
+	{
+		if ('' === $table_name) {
+			$table_name = $this->table->value;
+		}
+		return parent::columnExists($column_name, $table_name);
+	}
+
+	/**
 	 * Placeholder for method that formats SQL query string to use to retrieve specific field values from the database.
 	 * @throws NotImplementedException
 	 */
