@@ -20,6 +20,11 @@ use Littled\SiteContent\ContentProperties;
  */
 class AjaxPage extends MySQLConnection
 {
+	/** @var string */
+	const COMMIT_ACTION = 'commit';
+	/** @var string */
+	const CANCEL_ACTION = 'cancel';
+
 	/** @var string String indicating the action to be taken on the page. */
 	public $action;
 	/** @var SectionContent Content article. */
@@ -203,7 +208,6 @@ class AjaxPage extends MySQLConnection
 	 * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
 	 * @throws RecordNotFoundException
 	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function retrievePageContent()
