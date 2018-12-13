@@ -17,7 +17,7 @@ class InlineStatusInput extends InlineInput
 	{
 		parent::__construct();
 		$this->status = new BooleanInput("Status", "sid", true, null);
-		array_push($this->validateProperties,'slot');
+		array_push($this->validateProperties,'status');
 	}
 
 	/**
