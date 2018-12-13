@@ -25,7 +25,9 @@ class InlineNameInput extends InlineInput
 
 	public function formatSelectQuery()
 	{
-		return("SEL"."ECT `{$this->columnName}` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
+		return("SEL"."ECT `{$this->columnName}` as `name` ".
+			"FROM `{$this->table->value}` ".
+			"WHERE id = {$this->parent_id->value}");
 	}
 
 	/**
