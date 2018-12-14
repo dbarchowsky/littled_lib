@@ -131,6 +131,18 @@
 		}
 	}
 }
+.gallery-listings-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	.listings-filters {
+		margin: 10px 0;
+	}
+	.page-links-container {
+		margin: 10px 0;
+	}
+}
 .photo-gallery {
 	display: flex;
 	flex-flow: row wrap;
