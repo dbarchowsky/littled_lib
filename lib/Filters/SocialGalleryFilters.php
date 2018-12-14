@@ -54,7 +54,7 @@ class SocialGalleryFilters extends GalleryFilters
 			','.$this->onWordpress->escapeSQL($this->mysqli).
 			','.$this->onTwitter->escapeSQL($this->mysqli).
 			','.$this->hasShortURL->escapeSQL($this->mysqli).
-			',@total_matches);';
+			',@total_matches);SELECT @total_matches AS `total_matches`;';
 		return ($this->queryString);
 	}
 }
