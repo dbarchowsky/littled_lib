@@ -27,7 +27,7 @@ class BreadcrumbsNode
 	public $url;
 
 	/** @var string Path to template to use to render individual breadcrumb nodes. */
-	public static $breadcrumbsNodeTemplate = "";
+	protected static $breadcrumbsNodeTemplate = "";
 	
     /**
      * Class constructor.
@@ -55,6 +55,15 @@ class BreadcrumbsNode
 		$this->domId = $dom_dom_id;
     }
 
+	/**
+	 * Returns the path to the node template path.
+	 * @return string Template path.
+	 */
+    public static function getNodeTemplatePath()
+    {
+    	return static::$breadcrumbsNodeTemplate;
+    }
+
     /**
      * Outputs markup for the the individual navigation menu node.
 	 * @throws ResourceNotFoundException
@@ -64,5 +73,14 @@ class BreadcrumbsNode
 	    PageContent::render($this::$breadcrumbsNodeTemplate, array(
 		    'node' => &$this
 	    ));
-    } 
+    }
+
+	/**
+	 * Sets the path to the breadcrumb nodes template.
+	 * @param string $path Template path.
+	 */
+    public static function setNodeTemplatePath($path)
+    {
+    	static::$breadcrumbsNodeTemplate = $path;
+    }
 }

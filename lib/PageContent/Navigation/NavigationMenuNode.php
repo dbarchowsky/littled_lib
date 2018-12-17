@@ -36,7 +36,7 @@ class NavigationMenuNode
 	public $url;
 
 	/** @var string Path to template to use to render the node */
-	public static $menuNodeTemplate = '';
+	protected static $menuNodeTemplate = '';
 	
 	/**
 	 * Class constructor.
@@ -62,7 +62,7 @@ class NavigationMenuNode
 	/**
 	 * @return string Navigation menu node template path.
 	 */
-	public static function getMenuNodeTemplatePath()
+	public static function getNodeTemplatePath()
 	{
 		return (static::$menuNodeTemplate);
 	}
@@ -74,7 +74,7 @@ class NavigationMenuNode
 	 */
     public function render ( )
     {
-	    PageContent::render($this::getMenuNodeTemplatePath(), array(
+	    PageContent::render($this::getNodeTemplatePath(), array(
 		    'node' => &$this
 	    ));
     }
@@ -86,5 +86,14 @@ class NavigationMenuNode
 	public function setImagePath($path)
 	{
 		$this->imgPath = $path;		
+	}
+
+	/**
+	 * Sets the path to the breadcrumb nodes template.
+	 * @param string $path Template path.
+	 */
+	public static function setNodeTemplatePath($path)
+	{
+		static::$menuNodeTemplate = $path;
 	}
 }
