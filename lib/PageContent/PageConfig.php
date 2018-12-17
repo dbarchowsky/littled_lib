@@ -37,8 +37,6 @@ class PageConfig
 	 * @param string $url Breadcrumb URL
 	 * @param string $dom_id Breadcrumb element selector.
 	 * @param string $css_class CSS class to assign to the breadcrumb node.
-	 * @throws ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public static function addBreadcrumb($label, $url='', $dom_id='', $css_class='')
 	{
