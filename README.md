@@ -23,6 +23,36 @@ Install with composer, e.g.
 }
 ```
 
+### CSS
+
+CSS is added to a project by including the Sass files that are distributed in `littled/stylesheets/shared/` in the local Sass compile. 
+
+E.g. 
+
+Add the path to the shared sass to `gulpfile.js`:
+
+```javascript
+const paths = {
+    styles: {
+        site: {
+            src: 'sass/main.scss',
+            includes: [
+                'app/vendor/dbarchowsky/littled/stylesheets'
+            ],
+[...]
+```
+
+Then include the shared Sass files in local Sass files:
+
+```sass
+@import "shared/base/all";
+@import "shared/modules/all";
+@import "shared/cms/all";
+@import "shared/vendor/jquery_ui";
+```
+
+Compile the local Sass to create a local stylesheet which will contain all the rules from the distribution.
+
 ## Unit Tests
 
 ### Prerequisites
@@ -79,21 +109,37 @@ In **PHPStorm**, load the configuration files in the PHPUnit test configuration:
 ## PHP class structure
 
 ```text
-Littled/Database/MySQLConnection
+Littled\App\AppBase
  |
- +- Littled/PageContent/Serialzied/SerializedContentUtils
+ +- Littled\Database\MySQLConnection
      |
-     +- Littled/Keyword/Keyword
-     |
-     +- Littled/PageContent/Serialized/SerializedContent
+     +- Littled\PageContent\Serialized\SerializedContentUtils
          |
-         +- Littled/PageContent/SiteSection/SiteSection
+         +- Littled\Keyword\Keyword
          |
-         +- Littled/PageContent/SiteSection/SectionContent
+         +- Littled\PageContent\Serialized\SerializedContent
              |
-             +- Littled/PageContent/SiteSection/KeywordSectionContent
-                 |
-                 +- Littled/PageContent/Albums/Album
+             +- Littled\PageContent\Images\ImageBase
+             |   |
+             |   +- Littled\PageContent\Images\ImageFile
+             |       | 
+             |       +- Littled\PageContent\Images\Image
+             |
+             +- Littled\PageContent\SiteSection\SiteSection
+             |
+             +- Littled\PageContent\SiteSection\SectionContent
+                |
+                 +- Littled\PageContent\SiteSection\KeywordSectionContent
                      |
-                     +- Littled/PageContent/Albums/SocialXPostAlbum
+                     +- Littled\PageContent\Albums\Album
+                     |   |
+                     |   +- Littled\PageContent\Albums\SocialXPostAlbum
+                     |
+                     +- Littled\PageContent\Albums\Gallery
+                     |
+                     +- Littled\PageContent\Images\ImageLink
+                         |
+                         +- Littled\PageContent\Images\ImageUpload
+                             |
+                             +- Littled\PageContent\Images\SocialXPostImage
 ```
