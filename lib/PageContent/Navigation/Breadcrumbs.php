@@ -2,7 +2,6 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\PageContent\PageContent;
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 
 
@@ -26,18 +25,12 @@ class Breadcrumbs
 
 	/**
 	 * Class constructor.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ResourceNotFoundException
 	 */
 	public function __construct()
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
-		}
-		$this::$breadcrumbsTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs.php";
-		if (!file_exists($this::$breadcrumbsTemplate)) {
-			throw new ResourceNotFoundException("Breadcrumbs template not found at {$this::$breadcrumbsTemplate}.");
-		}
+		$this->first = null;
+		$this->last = null;
+		$this->cssClass = '';
 	}
 	
 	/**
