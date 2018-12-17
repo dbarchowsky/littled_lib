@@ -96,7 +96,7 @@ class Breadcrumbs
 	/**
 	 * @return string Breadcrumbs template path.
 	 */
-	public function getBreadcrumbsTemplatePath()
+	public static function getBreadcrumbsTemplatePath()
 	{
 		return static::$breadcrumbsTemplate;
 	}
@@ -104,7 +104,7 @@ class Breadcrumbs
 	/**
 	 * @return string Returns the type set for the breadcrumb nodes.
 	 */
-	public function getNodeType()
+	public static function getNodeType()
 	{
 		return static::$nodeType;
 	}
@@ -133,7 +133,7 @@ class Breadcrumbs
 	 * Sets the path to the breadcrumbs template.
 	 * @param string $path Path to breadcrumbs template.
 	 */
-	public function setBreadcrumbsTemplatePath( $path )
+	public static function setBreadcrumbsTemplatePath( $path )
 	{
 		static::$breadcrumbsTemplate = $path;
 	}
@@ -151,7 +151,7 @@ class Breadcrumbs
 	 * Sets the type of the breadcrumb nodes.
 	 * @param string $type Name of the class to use as breadcrumb nodes.
 	 */
-	public function setNodeType($type)
+	public static function setNodeType($type)
 	{
 		static::$nodeType = $type;
 	}

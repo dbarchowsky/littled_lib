@@ -85,7 +85,7 @@ class NavigationMenu
 	/**
 	 * @return string Returns the type set for the navigation menu nodes.
 	 */
-	public function getNodeType()
+	public static function getNodeType()
 	{
 		return static::$nodeType;
 	}
@@ -123,7 +123,7 @@ class NavigationMenu
 	 * Sets the path to the navigation template.
 	 * @param string $path Path to the navigation menu template.
 	 */
-	public function setMenuTemplatePath($path)
+	public static function setMenuTemplatePath($path)
 	{
 		static::$menuTemplate = $path;
 	}
@@ -132,7 +132,7 @@ class NavigationMenu
 	 * Sets the type of the navigation menu nodes.
 	 * @param string $type Name of the class to use as navigation menu nodes.
 	 */
-	public function setNodeType($type)
+	public static function setNodeType($type)
 	{
 		static::$nodeType = $type;
 	}
