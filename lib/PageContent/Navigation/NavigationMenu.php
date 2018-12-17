@@ -19,9 +19,9 @@ class NavigationMenu
 	public $cssClass;
 
 	/** @var string Path to template to use to render the menu in markup. */
-	public static $menuTemplate = '';
+	protected static $menuTemplate = '';
 	/** @var string Class name to use to manage the navigation menu nodes. Default is NavigationMenuNode. */
-	public static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
+	protected static $nodeType = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
 	function __construct()
 	{
@@ -83,6 +83,14 @@ class NavigationMenu
 	}
 
 	/**
+	 * @return string Returns the type set for the navigation menu nodes.
+	 */
+	public function getNodeType()
+	{
+		return static::$nodeType;
+	}
+
+	/**
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool True if the menu has nodes, false otherwise
 	 */
@@ -109,5 +117,23 @@ class NavigationMenu
 	public function setCSSClass($css_class)
 	{
 		$this->cssClass = $css_class;
+	}
+
+	/**
+	 * Sets the path to the navigation template.
+	 * @param string $path Path to the navigation menu template.
+	 */
+	public function setMenuTemplatePath($path)
+	{
+		static::$menuTemplate = $path;
+	}
+
+	/**
+	 * Sets the type of the navigation menu nodes.
+	 * @param string $type Name of the class to use as navigation menu nodes.
+	 */
+	public function setNodeType($type)
+	{
+		static::$nodeType = $type;
 	}
 }

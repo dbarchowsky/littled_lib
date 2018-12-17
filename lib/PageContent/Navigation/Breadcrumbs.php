@@ -19,9 +19,9 @@ class Breadcrumbs
 	public $cssClass;
 
 	/** @var string Path to template used to display the breadcrumbs. */
-	public static $breadcrumbsTemplate = "";
+	protected static $breadcrumbsTemplate = "";
 	/** @var string Class name of the class used to render the breadcrumb nodes. */
-	public static $nodeType = 'Littled\PageContent\Navigation\BreadcrumbsNode';
+	protected static $nodeType = 'Littled\PageContent\Navigation\BreadcrumbsNode';
 
 	/**
 	 * Class constructor.
@@ -94,10 +94,26 @@ class Breadcrumbs
 	}
 
 	/**
+	 * @return string Breadcrumbs template path.
+	 */
+	public function getBreadcrumbsTemplatePath()
+	{
+		return static::$breadcrumbsTemplate;
+	}
+
+	/**
+	 * @return string Returns the type set for the breadcrumb nodes.
+	 */
+	public function getNodeType()
+	{
+		return static::$nodeType;
+	}
+
+	/**
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool true if the menu has nodes, false otherwise
 	 */
-	function hasNodes ()
+	public function hasNodes ()
 	{
 		return (isset($this->first));
 	}
@@ -106,11 +122,20 @@ class Breadcrumbs
 	 * Outputs navigation menu markup.
 	 * @throws ResourceNotFoundException
 	 */
-	function render ()
+	public function render ()
 	{
 		PageContent::render($this::$breadcrumbsTemplate, array(
 			'breadcrumbs' => &$this
 		));
+	}
+
+	/**
+	 * Sets the path to the breadcrumbs template.
+	 * @param string $path Path to breadcrumbs template.
+	 */
+	public function setBreadcrumbsTemplatePath( $path )
+	{
+		static::$breadcrumbsTemplate = $path;
 	}
 
 	/**
@@ -120,5 +145,14 @@ class Breadcrumbs
 	public function setCSSClass($css_class)
 	{
 		$this->cssClass = $css_class;
+	}
+
+	/**
+	 * Sets the type of the breadcrumb nodes.
+	 * @param string $type Name of the class to use as breadcrumb nodes.
+	 */
+	public function setNodeType($type)
+	{
+		static::$nodeType = $type;
 	}
 }
