@@ -124,7 +124,7 @@ class Breadcrumbs
 	 */
 	public function render ()
 	{
-		PageContent::render($this::$breadcrumbsTemplate, array(
+		PageContent::render($this::getBreadcrumbsTemplatePath(), array(
 			'breadcrumbs' => &$this
 		));
 	}
