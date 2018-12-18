@@ -2337,7 +2337,7 @@ if (typeof LITTLED === "undefined") {
 				$(this)
 
 				/* re-bind these handlers if the listings content changes */
-				.off('contentUpdate', methods.listingsUpdateCB)
+				.off('contentUpdate', '', methods.listingsUpdateCB)
 				.on('contentUpdate', lclSettings, methods.listingsUpdateCB)
 
 				/* enable inline edits on dbl-click */
@@ -2461,22 +2461,21 @@ if (typeof LITTLED === "undefined") {
                     /* cancel on escape key */
 					evt.preventDefault();
 					let url = methods.getInlineURL(op);
-                    $.ajax({
-                        type: 'get',
-                        url: url,
-                        data: {id: id, t: t, op: op, cancel: 1},
-                        dataType: 'json',
-                        success: function(data) {
+                    $.post(url,
+                        {id: id, t: t, op: op, cancel: 1},
+                        function(data) {
 							if (data.error) {
 								$(settings.dom.error_container).littled('displayError', data.error);
 								return;
 							}
 							$p.html($.littled.htmldecode(data.content));
                         },
-                        error: function(xhr) {
-							$(settings.dom.error_container).littled('ajaxError', xhr);
-						}
-                    });
+                        'json'
+                    )
+                        .fail(function(xhr) {
+                            $(settings.dom.error_container).littled('ajaxError', xhr);
+                        });
+
                     break;
                 default:
                     /* continue with all other keys */
