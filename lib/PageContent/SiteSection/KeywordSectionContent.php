@@ -185,6 +185,7 @@ class KeywordSectionContent extends SectionContent
 	public function formatKeywordList($fetch_from_database=true)
 	{
 		if ($fetch_from_database && $this->hasData()) {
+			$this->keywords = array();
 			$this->readKeywords();
 		}
 		return(stripslashes(join(', ', array_map('self::termCallback', $this->keywords))));

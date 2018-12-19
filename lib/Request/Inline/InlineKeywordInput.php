@@ -49,16 +49,12 @@ class InlineKeywordInput extends KeywordSectionContent
 
 	/**
 	 * @return string Keyword list markup.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function loadKeywordListMarkup()
 	{
 		return PageContent::loadTemplateContent($this::getKeywordsListTemplatePath(),
-			array('keywords' => $this->formatKeywordList()));
+			array('keywords' => &$this->keywords));
 	}
 
 	/**
