@@ -4,6 +4,7 @@ namespace Littled\Request\Inline;
 
 use Littled\Cache\ContentCache;
 use Littled\Keyword\Keyword;
+use Littled\PageContent\PageContent;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 use Littled\Request\IntegerInput;
 
@@ -13,6 +14,7 @@ use Littled\Request\IntegerInput;
  */
 class InlineKeywordInput extends KeywordSectionContent
 {
+	/** @var IntegerInput ID of the content linked to the keywords. */
 	public $id;
 
 	/**
@@ -29,7 +31,8 @@ class InlineKeywordInput extends KeywordSectionContent
 	}
 
 	/**
-	 * @param null $src
+	 * Fill keyword properties from form data.
+	 * @param array[optional] $src Optional array containing data to use in place of POST data.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
 	 * @throws \Littled\Exception\ContentValidationException
@@ -44,6 +47,27 @@ class InlineKeywordInput extends KeywordSectionContent
 		$this->retrieveSectionProperties();
 	}
 
+	/**
+	 * @return string Keyword list markup.
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws \Littled\Exception\ResourceNotFoundException
+	 */
+	public function loadKeywordListMarkup()
+	{
+		return PageContent::loadTemplateContent($this::getKeywordsListTemplatePath(),
+			array('keywords' => $this->formatKeywordList()));
+	}
+
+	/**
+	 * Commits keyword data to the database
+	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws \Littled\Exception\ConnectionException
+	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws \Littled\Exception\InvalidQueryException
+	 */
 	public function saveKeywords()
 	{
 		parent::saveKeywords();
