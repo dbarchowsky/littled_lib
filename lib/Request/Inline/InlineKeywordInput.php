@@ -54,7 +54,7 @@ class InlineKeywordInput extends KeywordSectionContent
 	public function loadKeywordListMarkup()
 	{
 		return PageContent::loadTemplateContent($this::getKeywordsListTemplatePath(),
-			array('keywords' => &$this->keywords));
+			array('content' => &$this));
 	}
 
 	/**
