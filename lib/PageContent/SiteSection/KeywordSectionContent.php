@@ -92,16 +92,11 @@ class KeywordSectionContent extends SectionContent
 	public function collectKeywordInput($src=null)
 	{
 		$this->clearKeywordData();
-		if (null === $src) {
-			$src = array_merge($_POST, $_GET);
-		}
-		if (array_key_exists($this->keywordInput->key, $src)) {
-			$src = filter_var($src[$this->keywordInput->key], FILTER_SANITIZE_STRING);
-		}
-		else {
+		$this->keywordInput->collectFromInput($src);
+		if (!$this->keywordInput->value) {
 			return;
 		}
-		$keywords = $this->extractKeywordTerms($src);
+		$keywords = $this->extractKeywordTerms($this->keywordInput->value);
 		foreach($keywords as $term) {
 			array_push($this->keywords, new Keyword(trim($term), $this->id->value, $this->contentProperties->id->value));
 		}
