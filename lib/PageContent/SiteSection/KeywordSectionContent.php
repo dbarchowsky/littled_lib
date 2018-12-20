@@ -56,8 +56,16 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function clearKeywordData()
 	{
-		$this->keywords = array();
+		$this->clearKeywordList();
 		$this->keywordInput->value = "";
+	}
+
+	/**
+	 * Removes all keywords from the current keyword list while preserving any form data.
+	 */
+	public function clearKeywordList()
+	{
+		$this->keywords = array();
 	}
 
 	/**
@@ -185,7 +193,6 @@ class KeywordSectionContent extends SectionContent
 	public function formatKeywordList($fetch_from_database=true)
 	{
 		if ($fetch_from_database && $this->hasData()) {
-			$this->keywords = array();
 			$this->readKeywords();
 		}
 		return(stripslashes(join(', ', array_map('self::termCallback', $this->keywords))));
@@ -298,6 +305,7 @@ class KeywordSectionContent extends SectionContent
 		$this->testForParentID();
 		$this->testForContentType();
 
+		$this->clearKeywordList();
 		$this->connectToDatabase();
 		$query = "CALL keywordSelectLinked(".
 			$this->id->escapeSQL($this->mysqli).",".
