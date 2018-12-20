@@ -51,21 +51,45 @@ class ContentCache extends MySQLConnection
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Content properties record not found.");
 		}
-		if ($data[0]->content_class) {
-			$class = $data[0]->content_class;
-			if (!class_exists($class)) {
-				throw new ContentValidationException("\"{$data[0]->content_class}\" class not recognized.");
-			}
-			$content = new $class();
-		}
-		if ($data[0]->filters_class) {
-			$class = $data[0]->filters_class;
-			if (!class_exists($class)) {
-				throw new ContentValidationException("\"{$data[0]->filters_class}\" class not recognized.");
-			}
-			$filters = new $class();
-		}
+		self::setObject($data[0]->content_class,$content);
+		self::setObject($data[0]->filters_class,$filters);
 	}
+
+    /**
+     * Uses a content type id to look up the class name of the filters class linked to that content type. Creates an
+     * instance of the filters class and assigns it to the $filters variable.
+     * @param int $content_type_id Content type id,
+     * @param mixed $filters Pointer to variable that will be the instance of the filters class.
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws \Littled\Exception\InvalidQueryException
+     */
+	public static function setFilters( $content_type_id, &$filters )
+    {
+        $conn = new MySQLConnection();
+        $query = "CALL siteSectionClassesSelect({$content_type_id})";
+        $data = $conn->fetchRecords($query);
+        if (count($data) < 1) {
+            throw new RecordNotFoundException("Content properties record not found.");
+        }
+        self::setObject($data[0]->filters_class, $filters);
+    }
+
+    /**
+     * Creates new instance of $class_name and assigns it to $obj.
+     * @param string $class_name
+     * @param mixed $obj Pointer to variable that will be the instance of the class.
+     * @throws ContentValidationException
+     */
+    protected static function setObject( $class_name, &$obj )
+    {
+        if ($class_name) {
+            if (!class_exists($class_name)) {
+                throw new ContentValidationException("\"{$class_name}\" class not recognized.");
+            }
+            $obj = new $class_name();
+        }
+    }
 
 	/**
 	 * Updates content based on content type.

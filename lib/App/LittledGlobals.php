@@ -17,7 +17,7 @@ class LittledGlobals
 	const ID_PARAM = 'id';
 
 	/** @var string Request variable name holding record ids. */
-	const P_ID = 'ID';
+	const P_ID = 'id';
 	/** @var string Request variable name to cancel operations. */
 	const P_CANCEL = 'cancel';
 	/** @var string Request variable name to commit operations. */
