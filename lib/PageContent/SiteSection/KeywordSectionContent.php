@@ -207,7 +207,7 @@ class KeywordSectionContent extends SectionContent
 		if ($this->hasData()) {
 			$this->readKeywords();
 		}
-		$context['keywords'] = $this;
+		$context['content'] = &$this;
 		if (!self::getKeywordsListTemplatePath()) {
 			$this->fetchKeywordListTemplate();
 		}
