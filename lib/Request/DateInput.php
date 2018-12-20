@@ -31,8 +31,11 @@ class DateInput extends StringInput
 	 */
 	public function validate( $date_format='Y-m-d H:i:00' )
 	{
-		if ($this->required===true && ($this->value===null || strlen($this->value) < 1)) {
+		if (true === $this->required && (null === $this->value || strlen($this->value) < 1)) {
 			throw new ContentValidationException("{$this->label} is required.");
+		}
+		if (false === $this->required && (null === $this->value || strlen($this->value) < 1)) {
+			return;
 		}
 		if (strlen($this->value) > $this->sizeLimit) {
 			throw new ContentValidationException("{$this->label} is limited to {$this->sizeLimit} character".(($this->sizeLimit!=1)?("s"):("")).".");

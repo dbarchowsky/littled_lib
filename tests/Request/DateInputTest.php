@@ -163,4 +163,27 @@ class DateInputTest extends TestCase
 	    $this->obj->value = "fdoclxps";
 	    $this->assertEquals("'fdoclxps'", $this->obj->escapeSQL($mysqli));
     }
+
+    public function testValidateWhenNotRequired()
+    {
+    	$error_msg = '';
+    	$this->obj->required = false;
+    	$this->obj->value = null;
+    	try {
+		    $this->obj->validate();
+	    }
+    	catch(ContentValidationException $ex) {
+    		$error_msg = $ex->getMessage();
+	    }
+	    $this->assertEquals('', $error_msg);
+
+    	$this->obj->value = '';
+	    try {
+		    $this->obj->validate();
+	    }
+	    catch(ContentValidationException $ex) {
+		    $error_msg = $ex->getMessage();
+	    }
+	    $this->assertEquals('', $error_msg);
+    }
 }
