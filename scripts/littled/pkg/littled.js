@@ -3047,7 +3047,7 @@ if (typeof LITTLED === "undefined") {
 						fd[name] = request.term;
 						$.ajax({
 							type: 'post',
-							url: $.littled.getRelativePath() + lclSettings.uris.keyword_autocomplete,
+							url: $.littled.getRelativePath() + lclSettings.ajax.script_path + lclSettings.uris.keyword_autocomplete,
 							data: fd,
 							dataType: 'json'
 						})
