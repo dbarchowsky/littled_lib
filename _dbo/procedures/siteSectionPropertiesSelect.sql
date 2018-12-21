@@ -11,6 +11,7 @@ BEGIN
          label,
          id_param,
          listings_uri,
+         ajax_listings_uri,
          details_uri,
          edit_uri,
          upload_uri,

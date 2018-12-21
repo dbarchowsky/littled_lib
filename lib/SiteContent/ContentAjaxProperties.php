@@ -25,8 +25,10 @@ class ContentAjaxProperties extends SerializedContent
 	public $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
 	public $id_param;
-	/** @var StringTextField URI of AJAX listings utility script. */
+	/** @var StringTextField URI CMS listings URI. */
 	public $listings_uri;
+	/** @var StringTextField URI of AJAX listings utility script. */
+	public $ajax_listings_uri;
 	/** @var StringTextField URI of AJAX record details utility script. */
 	public $details_uri;
 	/** @var StringTextField URI of AJAX record editing utility script. */
@@ -67,6 +69,7 @@ class ContentAjaxProperties extends SerializedContent
 		$this->label = new StringTextField("Label", "capLabel", true, '', 50);
 		$this->id_param = new StringTextField("Id parameter name", "capKeyName", true, '', 50);
 		$this->listings_uri = new StringTextField("Listings URI", "capListURI", false, '', 255);
+		$this->ajax_listings_uri = new StringTextField("AJAX Listings URI", "ajaxListURI", false, '', 255);
 		$this->details_uri = new StringTextField("Details URI", "capDetailsURI", false, '', 255);
 		$this->edit_uri  = new StringTextField("Edit URI", "capEditURI", false, '', 255);
 		$this->upload_uri = new StringTextField("Upload URI", "capUploadURI", false, '', 255);
