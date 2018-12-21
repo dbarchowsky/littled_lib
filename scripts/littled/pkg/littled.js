@@ -2996,6 +2996,9 @@ if (typeof LITTLED === "undefined") {
 	 * static properties 
 	 */
 	let settings = {
+	    ajax: {
+            script_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+        },
 		uris: {
 			keyword_autocomplete: 'utils/keyword_autocomplete.php',
 			record_details: 'details.php'
@@ -3047,7 +3050,7 @@ if (typeof LITTLED === "undefined") {
 						fd[name] = request.term;
 						$.ajax({
 							type: 'post',
-							url: $.littled.getRelativePath() + lclSettings.ajax.script_path + lclSettings.uris.keyword_autocomplete,
+							url: lclSettings.ajax.script_path + lclSettings.uris.keyword_autocomplete,
 							data: fd,
 							dataType: 'json'
 						})
