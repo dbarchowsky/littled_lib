@@ -2615,7 +2615,7 @@ if (typeof LITTLED === "undefined") {
 				if (data.error) {
 					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
 					return;
-				} else if (!data.listings_uri) {
+				} else if (!data.ajax_listings_uri) {
 					$(lclSettings.dom.page_error_container).littled('displayError', "Handler not defined.");
 					return;
 				}
@@ -2624,7 +2624,7 @@ if (typeof LITTLED === "undefined") {
 				 * to retrieve the updated listings content
 				 */
 				$.post(
-					data.listings_uri,
+					data.ajax_listings_uri,
 					fd,
 					function(data2) {
 						

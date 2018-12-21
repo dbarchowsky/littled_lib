@@ -123,7 +123,7 @@
 
                 $.littled.retrieveContentOperations(tid, function(data) {
 
-                    let url = data.listings_uri || $.littled.getRelativePath() + settings.galleryListingsURL;
+                    let url = data.ajax_listings_uri || $.littled.getRelativePath() + settings.galleryListingsURL;
 
                     /* ajax call to get pages */
                     $.post(
@@ -949,8 +949,8 @@
                 }
 
                 let listings_url = $.littled.getRelativePath() + lclSettings.albumListingsURL;
-                if (data.listings_uri) {
-                    listings_url = data.listings_uri;
+                if (data.ajax_listings_uri) {
+                    listings_url = data.ajax_listings_uri;
                 }
 
                 $.ajax({
