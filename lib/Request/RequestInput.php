@@ -205,7 +205,7 @@ class RequestInput
 	 */
 	public function saveInForm()
 	{
-		PageContent::render(static::$template_base_path."hidden-input.php", array(
+		PageContent::render(self::getTemplatePath()."hidden-input.php", array(
 			'key' => $this->key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
