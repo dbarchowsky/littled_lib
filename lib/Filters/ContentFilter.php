@@ -169,10 +169,7 @@ class ContentFilter
 	 */
 	public function saveInForm()
 	{
-		if (!defined('LITTLED_TEMPLATE_DIR')) {
-			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not found in app settings.");
-		}
-		PageContent::render(RequestInput::getTemplatePath()."framework/forms/hidden-input.php", array(
+		PageContent::render(RequestInput::getTemplatePath()."hidden-input.php", array(
 			'key' => $this->key,
 			'index' => '',
 			'value' => $this->value
