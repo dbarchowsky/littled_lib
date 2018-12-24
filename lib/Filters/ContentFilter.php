@@ -164,8 +164,7 @@ class ContentFilter
 
 	/**
 	 * Output markup that will preserve the filter's value in an HTML form.
-	 * @throws ConfigurationUndefinedException Shared template directory constant (LITTLED_TEMPLATE_DIR) is undefined.
-	 * @throws \Exception Error rendering page content.
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function saveInForm()
 	{
