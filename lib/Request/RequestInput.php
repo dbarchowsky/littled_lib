@@ -201,12 +201,16 @@ class RequestInput
 
 	/**
 	 * Prints out markup to save input value in a hidden form input element.
+     * @param string[optional] @key Key to use to override default key value for the variable.
 	 * @throws ResourceNotFoundException Template not found.
 	 */
-	public function saveInForm()
+	public function saveInForm( $key=null )
 	{
+	    if ($key===null) {
+	        $key = $this->key;
+        }
 		PageContent::render(self::getTemplatePath()."hidden-input.php", array(
-			'key' => $this->key,
+			'key' => $key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
 		));
