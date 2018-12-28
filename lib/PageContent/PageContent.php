@@ -138,6 +138,19 @@ class PageContent
 		}
 	}
 
+    /**
+     * Inserts error message into DOM.
+     * @param string $msg Error message to print out.
+     * @param string[optional] $fmt Format to use to print out error message. Overrides the default format.
+     */
+	public static function printError($msg, $fmt='')
+    {
+        if (!$fmt) {
+            $fmt = "<p class='\"alert alert-error\"'>%s</p>";
+        }
+        printf($fmt, $msg);
+    }
+
 	/**
 	 * Inserts data into a template file and renders the result.
 	 * @param string $template_path Path to template to render.
