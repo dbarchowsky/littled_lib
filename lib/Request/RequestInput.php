@@ -178,7 +178,10 @@ class RequestInput
 	 */
 	public function render( $label=null, $css_class=null )
 	{
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented. {$label} {$css_class}");
+	    if (!$label) {
+	        $label = $this->label;
+        }
+		throw new NotImplementedException("\"".__METHOD__."\" not implemented for {$label}. {$css_class}");
 	}
 
 	/**
