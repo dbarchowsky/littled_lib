@@ -181,11 +181,15 @@ class RequestInput
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
+     * @param string[optional] $label Label to display with input element.
 	 * @throws NotImplementedException
 	 */
-	public function renderInput()
+	public function renderInput($label='')
 	{
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+	    if (!$label) {
+	        $label = $this->label;
+        }
+		throw new NotImplementedException("\"".__METHOD__."\" not implemented for {$label}.");
 	}
 
 	/**
