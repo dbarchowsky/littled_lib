@@ -192,6 +192,19 @@ class RequestInput
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented for {$label}.");
 	}
 
+    /**
+     * Wrapper for render() method that prints error message if an exception is thrown rendering the form input element.
+     */
+	public function renderWithErrors()
+    {
+        try {
+            $this->render();
+        }
+        catch(\Exception $ex) {
+            PageContent::printError($ex->getMessage());
+        }
+    }
+
 	/**
 	 * Returns string safe from XSS attacks that can be embedded in HTML.
 	 * @param int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
