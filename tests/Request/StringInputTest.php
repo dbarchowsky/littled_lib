@@ -62,12 +62,12 @@ class StringInputTest extends TestCase
 	public function testSetTemplatePath()
 	{
 		$path = "/path/to/templates/";
-		\Littled\Request\RequestInput::setTemplatePath($path);
-		$this->assertEquals($path, $this->obj::getTemplatePath());
+		\Littled\Request\RequestInput::setTemplateBasePath($path);
+		$this->assertEquals($path, $this->obj::getTemplateBasePath());
 
 		$new_path = "/new/path/to/templates/";
-		$this->obj::setTemplatePath($new_path);
-		$this->assertNotEquals($path, $this->obj::getTemplatePath());
-		$this->assertEquals($new_path, $this->obj::getTemplatePath());
+		$this->obj::setTemplateBasePath($new_path);
+		$this->assertNotEquals($path, $this->obj::getTemplateBasePath());
+		$this->assertEquals($new_path, $this->obj::getTemplateBasePath());
 	}
 }

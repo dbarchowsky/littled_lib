@@ -58,6 +58,10 @@ class RequestInput
 	public $width;
 	/** @var string Path to form input templates. */
 	protected static $template_base_path = '';
+	/** @var string Input template filename. */
+	protected static $template_filename;
+	/** @var string Form input element filename. */
+	protected static $input_template_filename;
 
 	/**
 	 * class constructor
@@ -156,12 +160,48 @@ class RequestInput
 	 * Template path getter.
 	 * @return string Current internal template path value.
 	 */
-	public static function getTemplatePath()
+	public static function getTemplateBasePath()
 	{
 		return (static::$template_base_path);
 	}
 
-	/**
+    /**
+     * Returns the filename of the template used to render just the input element.
+     * @return string Form input template filename.
+     */
+	public static function getInputTemplateFilename()
+    {
+        return (static::$input_template_filename);
+    }
+
+    /**
+     * Returns full path to input element template file.
+     * @return string Path to input element template.
+     */
+    public static function getInputTemplatePath()
+    {
+        return(static::$template_base_path.static::$input_template_filename);
+    }
+
+    /**
+     * Template filename getter.
+     * @return string Current internal template filename.
+     */
+	public static function getTemplateFilename()
+    {
+        return (static::$template_filename);
+    }
+
+    /**
+     * Get full path to form input element template file.
+     * @return string Full path to form input element template file.
+     */
+    public static function getTemplatePath()
+    {
+        return (static::$template_base_path.static::$template_filename);
+    }
+
+    /**
 	 * Tests if the value of the object is not currently set.
 	 * @return bool True/false depending on whether the value is set or not.
 	 */
@@ -228,7 +268,7 @@ class RequestInput
 	    if ($key===null) {
 	        $key = $this->key;
         }
-		PageContent::render(self::getTemplatePath()."hidden-input.php", array(
+		PageContent::render(self::getTemplateBasePath()."hidden-input.php", array(
 			'key' => $key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
@@ -261,10 +301,28 @@ class RequestInput
 	 * Sets the internal template path value.
 	 * @param string $path Path to template directory.
 	 */
-	public static function setTemplatePath( $path )
+	public static function setTemplateBasePath( $path )
 	{
 		static::$template_base_path = $path;
 	}
+
+    /**
+     * Form input element template filename setter.
+     * @param string $filename Template filename.
+     */
+	public static function setInputTemplateFilename( $filename )
+    {
+        static::$input_template_filename = $filename;
+    }
+
+    /**
+     * Template filename setter.
+     * @param string $filename template filename
+     */
+	public static function setTemplateFilename( $filename )
+    {
+        static::$template_filename = $filename;
+    }
 
 	/**
 	 * Utility routine for standardized invalid content error handling.

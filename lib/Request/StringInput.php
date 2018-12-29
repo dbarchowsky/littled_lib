@@ -11,7 +11,12 @@ use Littled\PageContent\PageContent;
  */
 class StringInput extends RequestInput
 {
-	/**
+    /** @var string Form input element template filename */
+    public static $input_template_filename = 'string-text-input.php';
+    /** @var string Form element template filename */
+    public static $template_filename = 'string-text-field.php';
+
+    /**
 	 * Clears the data container value.
 	 */
 	public function clearValue()
@@ -92,16 +97,17 @@ class StringInput extends RequestInput
      * A null value will cause the internal label value to be used. An empty
      * string will cause the label to not be rendered at all.
      * @param string[optional] $css_class CSS class name(s) to apply to the input container.
-     * @throws \Littled\Exception\NotImplementedException
      * @throws \Littled\Exception\ResourceNotFoundException
      */
-    public function render( $label=null,  $css_class='' )
+    public function render( $label=null,  $css_class=null )
     {
-        parent::render($label, $css_class);
-        if ($label===null) {
+        if (!$label) {
             $label=$this->label;
         }
-        PageContent::render(static::$template_base_path."string-text-field.php", array(
+        if (!$css_class) {
+            $css_class = $this->cssClass;
+        }
+        PageContent::render(self::getTemplatePath(), array(
             'input' => &$this,
             'label' => $label,
             'css_class' => $css_class
@@ -118,7 +124,7 @@ class StringInput extends RequestInput
         if (!$label) {
             $label = $this->label;
         }
-        PageContent::render(static::$template_base_path."string-text-input.php", array(
+        PageContent::render(self::getInputTemplateFilename(), array(
             'input' => &$this,
             'label' => $label
         ));

@@ -34,10 +34,10 @@ class RequestInputTest extends TestCase
 	public function testSetTemplatePath()
 	{
 		$path = "/path/to/templates/";
-		$this->obj::setTemplatePath($path);
-		$this->assertEquals($path, $this->obj::getTemplatePath());
+		$this->obj::setTemplateBasePath($path);
+		$this->assertEquals($path, $this->obj::getTemplateBasePath());
 
 		$new_obj = new RequestInput("New label", "new_param");
-		$this->assertEquals($path, $new_obj::getTemplatePath());
+		$this->assertEquals($path, $new_obj::getTemplateBasePath());
 	}
 }

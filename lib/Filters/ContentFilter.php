@@ -168,7 +168,7 @@ class ContentFilter
 	 */
 	public function saveInForm()
 	{
-		PageContent::render(RequestInput::getTemplatePath()."hidden-input.php", array(
+		PageContent::render(RequestInput::getTemplateBasePath()."hidden-input.php", array(
 			'key' => $this->key,
 			'index' => '',
 			'value' => $this->value
