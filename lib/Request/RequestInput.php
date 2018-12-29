@@ -214,14 +214,15 @@ class RequestInput
 	 * Renders the corresponding form field with a label to collect the input data.
      * @param string[optional] $label
      * @param string[optional] $css_class
+     * @param array[optional] $options
 	 * @throws NotImplementedException
 	 */
-	public function render( $label=null, $css_class=null )
+	public function render( $label=null, $css_class=null, $options=[] )
 	{
 	    if (!$label) {
 	        $label = $this->label;
         }
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented for {$label}. {$css_class}");
+		throw new NotImplementedException("\"".__METHOD__."\" not implemented for {$label}. {$css_class} ".join('', $options));
 	}
 
 	/**
@@ -236,11 +237,14 @@ class RequestInput
 
     /**
      * Wrapper for render() method that prints error message if an exception is thrown rendering the form input element.
+     * @param string[optional] $label
+     * @param string[optional] $css_class
+     * @param array[optional] $options
      */
-	public function renderWithErrors()
+	public function renderWithErrors($label=null, $css_class=null, $options=[])
     {
         try {
-            $this->render();
+            $this->render($label, $css_class, $options);
         }
         catch(\Exception $ex) {
             PageContent::printError($ex->getMessage());
