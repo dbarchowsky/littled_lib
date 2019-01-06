@@ -222,7 +222,7 @@ class RequestInput
 	    if (!$label) {
 	        $label = $this->label;
         }
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented for {$label}. {$css_class} ".join('', $options));
+		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented for {$label}. {$css_class} ".join('', $options));
 	}
 
 	/**
@@ -232,7 +232,7 @@ class RequestInput
 	 */
 	public function renderInput()
 	{
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented.");
 	}
 
     /**
