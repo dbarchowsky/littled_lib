@@ -146,7 +146,7 @@ class PageContent
 	public static function printError($msg, $fmt='')
     {
         if (!$fmt) {
-            $fmt = "<p class='\"alert alert-error\"'>%s</p>";
+            $fmt = "<p class=\"alert alert-error\">%s</p>";
         }
         printf($fmt, $msg);
     }
