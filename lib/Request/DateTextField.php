@@ -30,10 +30,11 @@ class DateTextField extends DateInput
      * Renders the form input HTML that is inserted into the DOM and used to collect the object's value from end users.
      * @param string[optional] $label If a value is provided, it will override the object's internal $label property value.
      * @param string[optional] $css_class CSS class name to apply to the form input element.
+     * @param array[optional] $options Options to display.
      * @throws NotImplementedException
      */
-	public function render($label = null, $css_class = '')
+	public function render($label = null, $css_class = '', $options=[])
     {
-        throw new NotImplementedException("render() method is not implemented.");
+        throw new NotImplementedException(__METHOD__." not implemented.");
     }
 }

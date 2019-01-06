@@ -312,7 +312,7 @@ class PageUtils
 		if ($css_class===null) {
 			$css_class = "alert alert-error";
 		}
-		print ("<div class='\"{$css_class}\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");
+		print ("<div class=\"{$css_class}\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");
 	}
 
 	/**
