@@ -35,6 +35,6 @@ class DateTextField extends DateInput
      */
 	public function render($label = null, $css_class = '', $options=[])
     {
-	    throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented.");
+	    throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
     }
 }
