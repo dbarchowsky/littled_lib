@@ -1,9 +1,10 @@
 <?php
 namespace Littled\Request;
 
-use Littled\Exception\ContentValidationException;
-use Littled\Validation\Validation;
 
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\NotImplementedException;
+use Littled\Validation\Validation;
 
 /**
  * Class BooleanInput
@@ -59,13 +60,14 @@ class BooleanInput extends RequestInput
 
 	/**
 	 * Render the form input element(s) in the DOM.
-	 * @param string|null[optional] $label String to use as input label. If this value is not provided, the object's
-	 * $label property value will be used. Defaults to NULL.
-	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+	 * @param string[optional] $label If a value is provided, it will override the object's internal $label property value.
+	 * @param string[optional] $css_class CSS class name to apply to the form input element.
+	 * @param array[optional] $options Options to display.
+	 * @throws NotImplementedException
 	 */
-	public function render( $label=null, $css_class=null )
+	public function render($label = null, $css_class = '', $options=[])
 	{
-		print ("<span class='\"alert alert-warning\">BooleanInput::renderInput() )Not implemented.</span></div>");
+		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}
 
 	/**
