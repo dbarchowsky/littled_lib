@@ -381,6 +381,19 @@ class Album extends KeywordSectionContent
 	}
 
 	/**
+	 * Tests to see if the album is allowed to have gallery thumbnails that are images uploaded
+	 * independently of the images in the gallery.
+	 * @return bool TRUE if unlinked images are allowed.
+	 */
+	public function hasIndependentGalleryThumbnail()
+	{
+		return (
+			false === isset($this->contentProperties) ||
+			true === $this->contentProperties->gallery_thumbnail->value
+		);
+	}
+
+	/**
 	 * Tests the album properties to determine if a link to one of the images
 	 * in the album's gallery should be saved as the thumbnail image for the album.
 	 * @return bool TRUE/FALSE depending on if the album properties
