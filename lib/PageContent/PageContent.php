@@ -142,13 +142,14 @@ class PageContent
      * Inserts error message into DOM.
      * @param string $msg Error message to print out.
      * @param string[optional] $fmt Format to use to print out error message. Overrides the default format.
+     * @param string[optional] $encoding Defaults to 'UTF-8'
      */
-	public static function printError($msg, $fmt='')
+	public static function printError($msg, $fmt='', $encoding="UTF-8")
     {
         if (!$fmt) {
-            $fmt = "<p class=\"alert alert-error\">%s</p>";
+            $fmt = "<div class=\"alert alert-error\">%s</div>";
         }
-        printf($fmt, $msg);
+        printf($fmt, htmlspecialchars($msg, ENT_QUOTES, $encoding));
     }
 
 	/**
