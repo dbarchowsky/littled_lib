@@ -42,6 +42,25 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 		$this->assertFalse(Validation::isInteger(null));
 	}
 
+	public function testIsStringWithContent()
+	{
+		$this->assertFalse(Validation::isStringWithContent(null));
+		$this->assertFalse(Validation::isStringWithContent(false));
+		$this->assertFalse(Validation::isStringWithContent(true));
+		$this->assertFalse(Validation::isStringWithContent(0));
+		$this->assertFalse(Validation::isStringWithContent(1));
+		$this->assertFalse(Validation::isStringWithContent(435));
+		$this->assertFalse(Validation::isStringWithContent(''));
+		$this->assertTrue(Validation::isStringWithContent('a'));
+		$this->assertTrue(Validation::isStringWithContent('foo biz bar bash'));
+		$this->assertTrue(Validation::isStringWithContent('null'));
+		$this->assertTrue(Validation::isStringWithContent('false'));
+		$this->assertTrue(Validation::isStringWithContent('true'));
+		$this->assertTrue(Validation::isStringWithContent('0'));
+		$this->assertTrue(Validation::isStringWithContent('1'));
+		$this->assertTrue(Validation::isStringWithContent('435'));
+	}
+
 	public function testParseInteger()
 	{
 		$this->assertEquals(Validation::parseInteger(1), 1);

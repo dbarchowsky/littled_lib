@@ -231,6 +231,19 @@ class Validation
 	}
 
 	/**
+	 * Tests if a variable is a string of more than 0 characters.
+	 * @param mixed $var Variable to test
+	 * @return bool TRUE if the variable holds a string value of more than 0 characters.
+	 */
+	public static function isStringWithContent( $var )
+	{
+		return (
+			is_string($var) &&
+			strlen($var) > 0
+		);
+	}
+
+	/**
 	 * Tests value and returns TRUE if it evaluates to some string that equates with a "true" flag.
 	 * Returns FALSE only if the value evaluates to some string that equates with a "false" flag.
 	 * Returns NULL if the value doesn't make sense in a TRUE/FALSE context.
