@@ -5,6 +5,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
+use Littled\Validation\Validation;
 
 /**
  * Class RequestInput
@@ -208,6 +209,33 @@ class RequestInput
 	public function isEmpty()
 	{
 		return ($this->value===null || $this->value==='');
+	}
+
+	/**
+	 * Tests if the inherited class has defined an template to use to render the input element group.
+	 * @return bool TRUE if
+	 */
+	public function isInputTemplateDefined()
+	{
+		return (Validation::isStringWithContent($this::getInputTemplateFilename()));
+	}
+
+	/**
+	 * Tests if the inherited class has defined an template to use to render the input element group.
+	 * @return bool TRUE if
+	 */
+	public function isTemplateDefined()
+	{
+		return (Validation::isStringWithContent($this::getTemplateFilename()));
+	}
+
+	/**
+	 * Tests if the inherited class has defined an template to use to render the input element group.
+	 * @return bool TRUE if
+	 */
+	public function isInputTemplateBasePathDefined()
+	{
+		return (Validation::isStringWithContent($this::getTemplateBasePath()));
 	}
 
 	/**
