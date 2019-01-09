@@ -63,6 +63,10 @@ class RequestInput
 	protected static $template_filename;
 	/** @var string Form input element filename. */
 	protected static $input_template_filename;
+	/** @var string Error indicator CSS class. */
+	protected static $error_class = 'formerror';
+	/** @var string Required field indicator string. */
+	protected static $required_field_indicator = ' (*)';
 
 	/**
 	 * class constructor
@@ -158,6 +162,42 @@ class RequestInput
 	}
 
 	/**
+	 * Error css class getter.
+	 * @return string Current error css class value.
+	 */
+	public static function getErrorClass()
+	{
+		return (static::$error_class);
+	}
+
+	/**
+	 * Returns the filename of the template used to render just the input element.
+	 * @return string Form input template filename.
+	 */
+	public static function getInputTemplateFilename()
+	{
+		return (static::$input_template_filename);
+	}
+
+	/**
+	 * Returns full path to input element template file.
+	 * @return string Path to input element template.
+	 */
+	public static function getInputTemplatePath()
+	{
+		return(static::$template_base_path.static::$input_template_filename);
+	}
+
+	/**
+	 * Returns full path to input element template file.
+	 * @return string Path to input element template.
+	 */
+	public static function getRequiredIndicator()
+	{
+		return(static::$required_field_indicator);
+	}
+
+	/**
 	 * Template path getter.
 	 * @return string Current internal template path value.
 	 */
@@ -165,24 +205,6 @@ class RequestInput
 	{
 		return (static::$template_base_path);
 	}
-
-    /**
-     * Returns the filename of the template used to render just the input element.
-     * @return string Form input template filename.
-     */
-	public static function getInputTemplateFilename()
-    {
-        return (static::$input_template_filename);
-    }
-
-    /**
-     * Returns full path to input element template file.
-     * @return string Path to input element template.
-     */
-    public static function getInputTemplatePath()
-    {
-        return(static::$template_base_path.static::$input_template_filename);
-    }
 
     /**
      * Template filename getter.
@@ -308,6 +330,24 @@ class RequestInput
 	}
 
 	/**
+	 * Error css class setter.
+	 * @param string $css_class CSS class name.
+	 */
+	public function setErrorClass( $css_class )
+	{
+		static::$error_class = $css_class;
+	}
+
+	/**
+	 * Form input element template filename setter.
+	 * @param string $filename Template filename.
+	 */
+	public static function setInputTemplateFilename( $filename )
+	{
+		static::$input_template_filename = $filename;
+	}
+
+	/**
 	 * Override this routine in derived classes in case any extra assignments
 	 * need to be made in addition to settings the object's "value" property.
 	 * @param mixed $value Base value to assign.
@@ -330,6 +370,15 @@ class RequestInput
 	}
 
 	/**
+	 * Required field indicator string setter.
+	 * @param string $str Required field indicator string.
+	 */
+	public static function setRequiredIndicator( $str )
+	{
+		static::$required_field_indicator = $str;
+	}
+
+	/**
 	 * Sets the internal template path value.
 	 * @param string $path Path to template directory.
 	 */
@@ -337,15 +386,6 @@ class RequestInput
 	{
 		static::$template_base_path = $path;
 	}
-
-    /**
-     * Form input element template filename setter.
-     * @param string $filename Template filename.
-     */
-	public static function setInputTemplateFilename( $filename )
-    {
-        static::$input_template_filename = $filename;
-    }
 
     /**
      * Template filename setter.

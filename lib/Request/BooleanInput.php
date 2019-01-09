@@ -4,6 +4,7 @@ namespace Littled\Request;
 
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
+use Littled\PageContent\PageContent;
 use Littled\Validation\Validation;
 
 /**
@@ -64,10 +65,30 @@ class BooleanInput extends RequestInput
 	 * @param string[optional] $css_class CSS class name to apply to the form input element.
 	 * @param array[optional] $options Options to display.
 	 * @throws NotImplementedException
+	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
 	public function render($label = null, $css_class = '', $options=[])
 	{
-		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+		if (false === $this->isTemplateDefined()) {
+			throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+		}
+
+		if (!$label) {
+			$label = $this->label;
+		}
+		$error_class = (($this->hasErrors)?($this::getErrorClass()):(''));
+		$css_class = trim(implode(' ', array($this->cssClass, $css_class, $error_class)));
+		$selection_state = ((true === $this->value)?(' checked="checked"'):(''));
+		$required_str = (($this->required)?($this::getRequiredIndicator()):(''));
+
+		PageContent::render($this::getTemplatePath(),
+			array(
+				'input' => &$this,
+				'label' => $label,
+				'css_class' => $css_class,
+				'selection_state' => $selection_state,
+				'required_field_indication' => $required_str
+			));
 	}
 
 	/**
