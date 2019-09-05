@@ -105,6 +105,15 @@ class PageConfig
 	}
 
 	/**
+	 * Returns current breadcrumbs list
+	 * @return Breadcrumbs
+	 */
+	public static function getBreadcrumbs()
+	{
+		return(static::$breadcrumbs);
+	}
+
+	/**
 	 * Gets the current content CSS class value.
 	 * @return string
 	 */
@@ -231,6 +240,15 @@ class PageConfig
 			return;
 		}
 		static::$utilityLinks->render();
+	}
+
+	/**
+	 * Sets current breadcrumb links list.
+	 * @param $breadcrumbs Breadcrumbs
+	 */
+	public static function setBreadcrumbs(&$breadcrumbs)
+	{
+
 	}
 
 	/**
