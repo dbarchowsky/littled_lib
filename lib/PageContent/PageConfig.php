@@ -1,6 +1,7 @@
 <?php
 namespace Littled\PageContent;
 
+use http\Exception\InvalidArgumentException;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Validation\Validation;
 use Littled\PageContent\Navigation\NavigationMenu;
@@ -182,6 +183,15 @@ class PageConfig
 	}
 
 	/**
+	 * Gets the current list of utility links.
+	 * @return NavigationMenu
+	 */
+	public static function getUtilityLinks()
+	{
+		return(static::$utilityLinks);
+	}
+
+	/**
 	 * Initializes the metadata collection. Uses the current metadata collection if it has already been instantiated.
 	 */
 	public static function metadata()
@@ -248,7 +258,10 @@ class PageConfig
 	 */
 	public static function setBreadcrumbs(&$breadcrumbs)
 	{
-
+		if (!is_object($breadcrumbs) || ! $breadcrumbs instanceof Breadcrumbs) {
+			throw new InvalidArgumentException("Invalid breadcrumb links assignment.");
+		}
+		static::$breadcrumbs = $breadcrumbs;
 	}
 
 	/**
@@ -336,6 +349,18 @@ class PageConfig
 	{
 		self::metadata();
 		static::$metadata->site_label = $site_label;
+	}
+
+	/**
+	 * Sets current breadcrumb links list.
+	 * @param $links NavigationMenu
+	 */
+	public static function setUtilityLinks(&$links)
+	{
+		if (!is_object($links) || ! $links instanceof NavigationMenu) {
+			throw new InvalidArgumentException("Invalid breadcrumb links assignment.");
+		}
+		static::$utilityLinks = $links;
 	}
 
 	/**
