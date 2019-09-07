@@ -262,9 +262,9 @@ class RequestInput
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
-     * @param string[optional] $label
-     * @param string[optional] $css_class
-     * @param array[optional] $options
+     * @param string[optional] $label Label to associate with the form input.
+     * @param string[optional] $css_class CSS class to apply to the form input element.
+     * @param array[optional] $options Extra attributes and attribute values to apply to the form input element.
 	 * @throws NotImplementedException
 	 */
 	public function render( $label=null, $css_class=null, $options=[] )

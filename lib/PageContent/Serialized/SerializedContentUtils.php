@@ -38,6 +38,20 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
+     * Add a separator string after a string.
+     * @param string $str Source string.
+     * @param string $separator (Optional) Character or string to append to the source string. Defaults to a comma.
+     * @return string Modified string containing the separator.
+     */
+    public function appendSeparator($str, $separator=',')
+    {
+        if(!is_null($str) && strlen(trim($str)) > 0) {
+            $str = rtrim($str)."{$separator} ";
+        }
+        return ($str);
+    }
+
+    /**
 	 * Returns the form data members of the objects as series of nested associative arrays.
 	 * @param array[optional] $arExclude array of parameter names to exclude from the returned array.
 	 * @return array Associative array containing the object's form data members as name/value pairs.
@@ -309,6 +323,35 @@ class SerializedContentUtils extends AppContentBase
 		}
 	}
 
+    /**
+     * Add a separator string before a string.
+     * @param string $str Source string.
+     * @param string $separator (Optional) Character or string to prepend to the source string. Defaults to a comma.
+     * @return string Modified string containing the separator.
+     */
+    public function prependSeparator($str, $separator=',')
+    {
+        if(!is_null($str) && strlen(trim($str)) > 0) {
+            $str = "{$separator} ".ltrim($str);
+        }
+        return ($str);
+    }
+
+    /**
+     * Stores new error message string on stack of current error messages.
+     * @param $err string|array Array or string containing errors to push onto the current
+     * stack of error messages.
+     */
+	public function addValidationError($err)
+    {
+        if (is_array($err)) {
+            array_merge($this->validationErrors, $err);
+        }
+        else {
+            array_push($this->validationErrors, $err);
+        }
+    }
+
 	/**
 	 * Loads content from a template file. Writes the parsed content to a separate file.
 	 * @param array[optional] $context Array containing name/value pairs representing variable names and values to insert into the source template at $src_path;
@@ -352,7 +395,7 @@ class SerializedContentUtils extends AppContentBase
 					$property->validate();
 				}
 				catch(ContentValidationException $ex) {
-					array_push($this->validationErrors, $ex->getMessage());
+				    $this->addValidationError($ex->getMessage());
 				}
 			}
 			elseif($property instanceof SerializedContentUtils) {
@@ -361,9 +404,9 @@ class SerializedContentUtils extends AppContentBase
 				}
 				catch(ContentValidationException $ex) {
 				    if (strlen($ex->getMessage()) > 0) {
-                        array_push($this->validationErrors, $ex->getMessage());
+                        $this->addValidationError($ex->getMessage());
                     }
-					$this->validationErrors = array_merge($this->validationErrors, $property->validationErrors);
+                    $this->addValidationError($property->validationErrors);
 				}
 			}
 		}

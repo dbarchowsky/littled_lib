@@ -97,9 +97,10 @@ class StringInput extends RequestInput
      * A null value will cause the internal label value to be used. An empty
      * string will cause the label to not be rendered at all.
      * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+     * @param array[optional] $options Extra attributes and attribute values to apply to the form input element.
      * @throws \Littled\Exception\ResourceNotFoundException
      */
-    public function render( $label=null,  $css_class=null )
+    public function render( $label=null,  $css_class=null, $options=[] )
     {
         if (!$label) {
             $label=$this->label;
