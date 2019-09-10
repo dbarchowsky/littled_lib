@@ -161,7 +161,47 @@ class Address extends SerializedContent
         }
     }
 
-    /**
+	/**
+	 * Returns string formatted with current city, state, country, and zip code values.
+	 * @return string Formatted location description.
+	 */
+	public function formatCity()
+	{
+		$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state;
+		$city_parts = array_filter(array(trim(''.$this->city->value),
+			trim(''.$state),
+			trim(''.$this->country->value)));
+		$city = join(', ', $city_parts);
+		$parts = array_filter(array($city, trim(''.$this->zip->value)));
+		return join(' ', $parts);
+	}
+
+	/**
+	 * Formats a more informal version of a contact's name, without a salutation.
+	 * @return string Formatted contact name.
+	 */
+    public function formatContactName()
+    {
+    	$parts = array_filter(array(
+    		trim(''.$this->firstname->value),
+		    trim(''.$this->lastname->value)
+	    ));
+    	return(join(' ', $parts));
+    }
+
+	/**
+	 * Formats full name based on current salutation, first name, and last name values stored in the object.
+	 * @return string Formatted full name.
+	 */
+	public function formatFullName()
+	{
+		$parts = array_filter(array(trim(''.$this->salutation->value),
+			trim(''.$this->firstname->value),
+			trim(''.$this->lastname->value)));
+		return(join(' ', $parts));
+	}
+
+	/**
      * Formats full address formatted for Google API calls using current address values stored in the object.
      * @return string Formatted address.
      */
@@ -229,21 +269,6 @@ class Address extends SerializedContent
         return ($addr);
     }
 
-	/**
-	 * Returns string formatted with current city, state, country, and zip code values.
-	 * @return string Formatted location description.
-	 */
-    public function formatCity()
-    {
-    	$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state;
-    	$city_parts = array_filter(array(trim(''.$this->city->value),
-		    trim(''.$state),
-		    trim(''.$this->country->value)));
-    	$city = join(', ', $city_parts);
-    	$parts = array_filter(array($city, trim(''.$this->zip->value)));
-    	return join(' ', $parts);
-    }
-
     /**
      * Format any available street address information into a single string.
      * @param integer[optional] $limit Limit the size of the string returned to $limit characters.
@@ -259,18 +284,6 @@ class Address extends SerializedContent
             return(substr($addr, 0, $limit));
         }
         return ($addr);
-    }
-
-    /**
-     * Formats full name based on current salutation, first name, and last name values stored in the object.
-     * @return string Formatted full name.
-     */
-    public function formatFullName()
-    {
-    	$parts = array_filter(array(trim(''.$this->salutation->value),
-		    trim(''.$this->firstname->value),
-		    trim(''.$this->lastname->value)));
-    	return(join(' ', $parts));
     }
 
     /**

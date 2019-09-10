@@ -305,6 +305,30 @@ class AddressTest extends TestCase
 	    self::assertEquals('123 N Rose St, Building 2', $this->addr->formatStreet(1500));
     }
 
+    public function testFormatContactName()
+    {
+    	$this->addr->salutation->value = 'Dr.';
+    	$this->addr->firstname->value = 'Damien';
+    	$this->addr->lastname->value = 'Barchowsky';
+    	self::assertEquals('Damien Barchowsky', $this->addr->formatContactName());
+
+	    $this->addr->salutation->value = '';
+	    self::assertEquals('Damien Barchowsky', $this->addr->formatContactName());
+
+	    $this->addr->firstname->value = '';
+	    self::assertEquals('Barchowsky', $this->addr->formatContactName());
+
+	    $this->addr->lastname->value = '';
+	    self::assertEquals('', $this->addr->formatContactName());
+
+	    $this->addr->firstname->value = 'Damien';
+	    self::assertEquals('Damien', $this->addr->formatContactName());
+
+	    $this->addr->firstname->value = null;
+	    $this->addr->lastname->value = null;
+	    self::assertEquals('', $this->addr->formatContactName());
+    }
+
     public function testFullname()
     {
     	self::assertEquals('', $this->addr->formatFullName());
