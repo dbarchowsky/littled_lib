@@ -52,8 +52,9 @@ class FloatInput extends RequestInput
 	 * @param string|null[optional] $label String to use as input label. If this value is not provided, the object's
 	 * $label property value will be used. Defaults to NULL.
 	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+	 * @param array[optional] $options Associative array containing attributes and attribute values to apply to the HTML element.
 	 */
-	public function render( $label=null, $css_class=null )
+	public function render( $label=null, $css_class=null, $options=[] )
 	{
 		print ("<span class='\"alert alert-warning\">".get_class($this)."::renderInput() )Not implemented.</span></div>");
 	}

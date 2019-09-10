@@ -144,6 +144,16 @@ class RequestInput
 	}
 
 	/**
+	 * Returns a consistently formatted label string for use in error messages.
+	 * Default format is first letter capitalized.
+	 * @return string Error label string.
+	 */
+	public function formatErrorLabel()
+	{
+		return (ucfirst(strtolower("".$this->label)));
+	}
+
+	/**
 	 * Default routine for rendering the label of the input.
 	 * @param string $label Text to display as the label for the form input. A null value will cause the internal label value to be used. An empty string will cause the label to not be rendered at all.
 	 * @return string Label markup to insert into form content.
@@ -416,7 +426,7 @@ class RequestInput
 	{
 		if ($this->required) {
 			if ($this->isEmpty()) {
-				$this->throwValidationError(ucfirst($this->label)." is required.");
+				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
 		}
 	}

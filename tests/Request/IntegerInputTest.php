@@ -23,7 +23,7 @@ class IntegerInputTest extends TestCase
 	{
 		$o = new IntegerInput("Test", "test");
 		$mysqli = new \mysqli();
-		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		$this->assertNull($o->value);
 		$this->assertEquals('NULL', $o->escapeSQL($mysqli), "Defaults to 'null'");

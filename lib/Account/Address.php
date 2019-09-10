@@ -10,6 +10,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\PageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\FloatTextField;
 use Littled\Request\IntegerInput;
@@ -41,7 +43,7 @@ class Address extends SerializedContent
      */
 	public static function GOOGLE_MAPS_URI()
     {
-        return ("http://maps.google.com/maps/geo?key=".GMAP_KEY."&output=xml&q=");
+        return ("https://maps.googleapis.com/maps/api/geocode/xml?key=".GMAP_KEY."&address=");
     }
 
 	/** @var IntegerInput Address record id. */
@@ -91,7 +93,7 @@ class Address extends SerializedContent
 
 	/**
 	 * Class constructor.
-	 * @param string $prefix (Optional) prefix to prepend to form elements.
+	 * @param string[optional] $prefix Prefix to prepend to form elements.
 	 */
 	function __construct ( $prefix="" ) 
 	{
@@ -113,8 +115,8 @@ class Address extends SerializedContent
 		$this->eve_phone = new StringTextField("Evening phone number", $prefix."lep", false, "", 20);
 		$this->email = new StringTextField("Email", $prefix."lem", false, "", 200);
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
-		$this->latitude = new StringTextField("Latitude", "stlt", false);
-		$this->longitude = new StringTextField("Longitude", "stlg", false);
+		$this->latitude = new FloatTextField("Latitude", "stlt", false);
+		$this->longitude = new FloatTextField("Longitude", "stlg", false);
 		
 		$this->state = "";
 		$this->state_abbrev = "";
@@ -138,19 +140,20 @@ class Address extends SerializedContent
 
     /**
      * Formats plain string full address based on current address values stored in the object.
-     * @param $style string (Optional) Token indicating the type of formatting to apply to the address.
+     * @param string[optional] $style Token indicating the type of formatting to apply to the address.
      * Options are "oneline"|"html"|"google". Defaults to "oneline".
+     * @param boolean[optional] $include_name Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      * @throws InvalidValueException
      */
-    public function formatAddress($style="oneline")
+    public function formatAddress($style="oneline", $include_name=false)
     {
         switch ($style)
         {
             case "oneline":
                 return($this->formatOneLineAddress());
             case "html":
-                return($this->formatHTMLAddress());
+                return($this->formatHTMLAddress($include_name));
             case "google":
                 return($this->formatGoogleAddress());
             default:
@@ -169,31 +172,19 @@ class Address extends SerializedContent
 
     /**
      * Formats full address html markup based on current address values stored in the object.
-     * @param boolean $include_name (Optional) flag to include the individual's first and last name. Defaults to FALSE.
+     * @param boolean[optional] $include_name Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      */
     public function formatHTMLAddress($include_name=false)
     {
-        $addr = "";
+        $parts = array();
         if ($include_name==true)
         {
-            if ($this->firstname->value || $this->lastname->value)
-            {
-                $addr .= "<div>".$this->fullname()."</div>\n";
-            }
-            if ($this->company->value)
-            {
-                $addr .= "<div>{$this->company->value}</div>\n";
-            }
+        	array_push($parts, $this->formatFullName());
+        	array_push($parts, trim(''.$this->company->value));
         }
-        if ($this->address1->value)
-        {
-            $addr .= "<div>{$this->address1->value}</div>\n";
-        }
-        if ($this->address2->value)
-        {
-            $addr .= "<div>{$this->address2->value}</div>\n";
-        }
+        array_push($parts, trim(''.$this->address1->value));
+        array_push($parts, trim(''.$this->address2->value));
 
         if ($this->state_id->value>0 && !$this->state)
         {
@@ -206,32 +197,12 @@ class Address extends SerializedContent
                 /* continue */
             }
         }
-
-        $locale = "";
-        if ($this->city->value && $this->state_abbrev)
-        {
-            $locale .= $this->city->value.", ".$this->state_abbrev;
+		array_push($parts, $this->formatCity());
+        $parts = array_filter($parts);
+        if (count($parts) > 0) {
+        	return ("<div>".join("</div>\n<div>", $parts)."</div>\n");
         }
-        else
-        {
-            if ($this->city->value)
-            {
-                $locale .= $this->city->value;
-            }
-            if ($this->state)
-            {
-                $locale .= $this->state;
-            }
-        }
-        if ($this->zip->value)
-        {
-            $locale .= " ".$this->zip->value;
-        }
-        if ($locale)
-        {
-            $locale = "<div>{$locale}</div>\n";
-        }
-        return ($addr.$locale);
+		return ('');
     }
 
     /**
@@ -258,29 +229,34 @@ class Address extends SerializedContent
         return ($addr);
     }
 
+	/**
+	 * Returns string formatted with current city, state, country, and zip code values.
+	 * @return string Formatted location description.
+	 */
+    public function formatCity()
+    {
+    	$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state;
+    	$city_parts = array_filter(array(trim(''.$this->city->value),
+		    trim(''.$state),
+		    trim(''.$this->country->value)));
+    	$city = join(', ', $city_parts);
+    	$parts = array_filter(array($city, trim(''.$this->zip->value)));
+    	return join(' ', $parts);
+    }
+
     /**
      * Format any available street address information into a single string.
-     * @param $limit integer|null (optional) Limit the size of the string returned to $limit characters.
+     * @param integer[optional] $limit Limit the size of the string returned to $limit characters.
      * @return string
      */
     public function formatStreet($limit=null)
     {
-        $addr = "";
-        if ($this->address1->value)
-        {
-            $addr = $this->address1->value;
-            if ($this->address2->value)
-            {
-                $addr .= ", ".$this->address2->value;
-            }
-        }
-        elseif ($this->address2->value)
-        {
-            $addr = $this->address2->value;
-        }
+    	$parts = array_filter(array(trim(''.$this->address1->value),
+		    trim(''.$this->address2->value)));
+    	$addr = join(', ', $parts);
         if ($limit>0)
         {
-            $addr = substr($addr, $limit);
+            return(substr($addr, 0, $limit));
         }
         return ($addr);
     }
@@ -289,22 +265,12 @@ class Address extends SerializedContent
      * Formats full name based on current salutation, first name, and last name values stored in the object.
      * @return string Formatted full name.
      */
-    public function fullname()
+    public function formatFullName()
     {
-        $fullname = "";
-        if ($this->salutation->value)
-        {
-            $fullname = $this->salutation->value." ";
-        }
-        if ($this->firstname->value && $this->lastname->value)
-        {
-            $fullname .= $this->firstname->value." ".$this->lastname->value;
-        }
-        else
-        {
-            $fullname .= $this->firstname->value.$this->lastname->value;
-        }
-        return ($fullname);
+    	$parts = array_filter(array(trim(''.$this->salutation->value),
+		    trim(''.$this->firstname->value),
+		    trim(''.$this->lastname->value)));
+    	return(join(' ', $parts));
     }
 
     /**
@@ -412,10 +378,13 @@ class Address extends SerializedContent
 
     /**
      * Saves internal data values as hidden form inputs.
+     * @throws ResourceNotFoundException
      */
     function preserveInForm ()
     {
-        include (ADMIN_TEMPLATE_DIR."forms/data/address_class_data.php");
+    	$template = CMS_COMMON_TEMPLATE_DIR."forms/data/address_class_data.php";
+    	$context = array('input' => $this);
+    	PageContent::render($template, $context);
     }
 
     /**
@@ -448,13 +417,15 @@ class Address extends SerializedContent
 
     /**
      * Retrieves extended state properties (name and abbreviation) from database.
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
      * @throws Exception
      */
     public function readStateProperties ()
     {
         if ($this->state_id->value===null || $this->state_id->value<1)
         {
-            return;
+            throw new InvalidValueException("Invalid state id value.");
         }
         $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = {$this->state_id->value}";
         $rs = $this->fetchRecords($query);
@@ -462,11 +433,15 @@ class Address extends SerializedContent
         {
             list($this->state, $this->state_abbrev) = array_values((array)$rs[0]);
         }
+        else
+        {
+        	throw new RecordNotFoundException("Requested state properties not found.");
+        }
     }
 
 	/**
 	 * Commits current object data to the database.
-	 * @param boolean $do_gmap_lookup (Optional) Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
+	 * @param boolean[optional] $do_gmap_lookup Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
      * @throws Exception
 	 */
 	public function save($do_gmap_lookup=false)
@@ -481,7 +456,7 @@ class Address extends SerializedContent
 
 	/**
 	 * Validates address form data.
-     * @param $exclude_properties array List of properties to exclude from validation.
+     * @param array[optional] $exclude_properties List of properties to exclude from validation.
 	 * @throws Exception Throws exception if any invalid form data is detected. A detailed description of the errors is found through the GetMessage() routine of the Exception object.
 	 */
 	public function validateInput ($exclude_properties=[])

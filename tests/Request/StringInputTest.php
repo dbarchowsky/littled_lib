@@ -18,7 +18,7 @@ class StringInputTest extends TestCase
 	/** @var MySQLConnection Test database connection. */
 	public $conn;
 
-	public function setUp()
+	public function setUp() : void
 	{
 		$this->obj = new StringInput("Test date", 'p_date');
 		$this->conn = new MySQLConnection();

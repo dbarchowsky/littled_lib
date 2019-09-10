@@ -148,13 +148,13 @@ class StringInput extends RequestInput
 	{
 		if ($this->required) {
 			if (!is_string($this->value)) {
-				$this->throwValidationError("{$this->label} is required.");
+				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
 			if (strlen($this->value) < 1) {
-				$this->throwValidationError("{$this->label} is required.");
+				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
 			if (strlen($this->value) > $this->sizeLimit) {
-				$this->throwValidationError("{$this->label} is limited to {$this->sizeLimit} characters.");
+				$this->throwValidationError($this->formatErrorLabel()." is limited to {$this->sizeLimit} characters.");
 			}
 		}
 	}
