@@ -4,6 +4,8 @@ namespace Littled\App;
 
 class LittledGlobals
 {
+	/** @var string App domain name. */
+	protected static $appDomain = '';
 	/** @var string Root URI for CMS pages. */
 	protected static $cmsRootURI = '';
 	/** @var string Path to directory containing mysql authentication (outside of public access). */
@@ -35,6 +37,15 @@ class LittledGlobals
 	const P_REFERER = 'ref';
 
 	/**
+	 * Gets app domain name.
+	 * @return string App domain name.
+	 */
+	public static function getAppDomain()
+	{
+		return (static::$appDomain);
+	}
+
+	/**
 	 * Gets path to current CMS root URI.
 	 * @return string CMS root URI.
 	 */
@@ -62,15 +73,21 @@ class LittledGlobals
 	}
 
 	/**
+	 * Sets the domain name for the app.
+	 * @param string $domain App domain name.
+	 */
+	public static function setAppDomain($domain)
+	{
+		static::$appDomain = (($domain) ? ($domain) : (''));
+	}
+
+	/**
 	 * Sets path to current CMS URI root.
 	 * @param string $uri CMS URI root.
 	 */
 	public static function setCMSRootURI($uri)
 	{
-		if ($uri)
-		{
-			static::$cmsRootURI = rtrim($uri, '/').'/';
-		}
+		static::$cmsRootURI = (($uri) ? (rtrim($uri, '/').'/') : (''));
 	}
 
 	/**
@@ -79,10 +96,7 @@ class LittledGlobals
 	 */
 	public static function setMySQLKeysPath($path)
 	{
-		if ($path)
-		{
-			static::$mysqlKeysPath = rtrim($path, '/').'/';
-		}
+		static::$mysqlKeysPath = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
 
 	/**
@@ -91,9 +105,6 @@ class LittledGlobals
 	 */
 	public static function setTemplatePath($path)
 	{
-		if ($path)
-		{
-			static::$templatePath = rtrim($path, '/').'/';
-		}
+		static::$templatePath = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
 }
