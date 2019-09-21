@@ -13,6 +13,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
@@ -76,7 +77,7 @@ class Address extends SerializedContent
 	public $day_phone;
 	/** @var StringTextField $eve_phone */
 	public $eve_phone;
-	/** @var StringTextField $email */
+	/** @var EmailTextField $email */
 	public $email;
 	/** @var StringTextField $url */
 	public $url;
@@ -113,7 +114,7 @@ class Address extends SerializedContent
 		$this->country = new StringTextField("Country", "{$prefix}adcn", false, "", 100);
 		$this->day_phone = new StringTextField("Daytime phone number", $prefix."ldp", false, "", 20);
 		$this->eve_phone = new StringTextField("Evening phone number", $prefix."lep", false, "", 20);
-		$this->email = new StringTextField("Email", $prefix."lem", false, "", 200);
+		$this->email = new EmailTextField("Email", $prefix."lem", false, "", 200);
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
 		$this->latitude = new FloatTextField("Latitude", "stlt", false);
 		$this->longitude = new FloatTextField("Longitude", "stlg", false);
@@ -494,6 +495,39 @@ class Address extends SerializedContent
 		if ($this->validationErrors)
 		{
 			throw new ContentValidationException("Error validating address.");
+		}
+	}
+
+	/**
+	 * Validates email addresses used with member accounts to make sure that they are valid email addresses, and that they do not already exist in the database.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 */
+	public function validateUniqueEmail()
+	{
+		if ($this->email->value)
+		{
+			$this->connectToDatabase();
+			$query = "SELECT c.email ".
+				"FROM `address` c ".
+				"INNER JOIN site_user l on c.id = l.contact_id ".
+				"WHERE (c.email LIKE ".$this->email->escapeSQL($this->mysqli).") ";
+			if ($this->id->value>0)
+			{
+				$query .= "AND (l.id != {$this->id->value}) ";
+			}
+			$rs = $this->fetchRecords($query);
+			$matches = count($rs);
+
+			if ($matches>0)
+			{
+				$this->email->error = true;
+				$err_msg = "The email address \"{$this->email->value}\" has already been registered.";
+				$this->addValidationError($err_msg);
+				throw new ContentValidationException($err_msg);
+			}
 		}
 	}
 }

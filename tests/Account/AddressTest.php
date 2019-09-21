@@ -19,6 +19,7 @@ class AddressTest extends TestCase
     const TEST_ID_VALUE = 8;
     const TEST_NONEXISTENT_ID_VALUE = 9999999;
     const TEST_ADDR2_SIZE = 100;
+    const TEST_EMAIL = 'dbarchowsky@gmail.com';
     const TEST_URL_SIZE = 255;
     const TEST_LAST_NAME_VALUE = 'Schutz';
     const TEST_STATE_VALUE = 'Oregon';
@@ -639,5 +640,46 @@ class AddressTest extends TestCase
 		$errormsg = join('', $this->addr->validationErrors);
 		self::assertStringContainsString($this->addr->address1->formatErrorLabel().' is required.', $errormsg);
 		self::assertStringNotContainsString($this->addr->zip->formatErrorLabel().' is required.', $errormsg);
+	}
+
+	public function testValidateUniqueEmailDefaultValue()
+	{
+		try
+		{
+			$this->addr->validateUniqueEmail();
+			self::assertEquals('Exception not thrown.', 'Exception not thrown.');
+		}
+		catch(ContentValidationException $ex)
+		{
+			self::assertEquals('', $ex->getMessage());
+		}
+	}
+
+	public function testValidateUniqueExistingEmail()
+	{
+		$this->addr->email->value = self::TEST_EMAIL;
+		try
+		{
+			$this->addr->validateUniqueEmail();
+			self::assertEquals('', 'Exception not thrown.');
+		}
+		catch(ContentValidationException $ex)
+		{
+			self::assertEquals("The email address \"".self::TEST_EMAIL."\" has already been registered.", $ex->getMessage());
+		}
+	}
+
+	public function testValidateUniqueValidEmail()
+	{
+		$this->addr->email->value = 'notindatabase@domain.com';
+		try
+		{
+			$this->addr->validateUniqueEmail();
+			self::assertEquals('Exception not thrown.', 'Exception not thrown.');
+		}
+		catch(ContentValidationException $ex)
+		{
+			self::assertEquals('', $ex->getMessage());
+		}
 	}
 }
