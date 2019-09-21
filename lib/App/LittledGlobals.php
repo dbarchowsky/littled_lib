@@ -63,11 +63,14 @@ class LittledGlobals
 
 	/**
 	 * Sets path to current CMS URI root.
-	 * @param string $path CMS URI root.
+	 * @param string $uri CMS URI root.
 	 */
-	public static function setCMSRootURI($path)
+	public static function setCMSRootURI($uri)
 	{
-		static::$cmsRootURI = $path;
+		if ($uri)
+		{
+			static::$cmsRootURI = rtrim($uri, '/').'/';
+		}
 	}
 
 	/**
@@ -76,7 +79,10 @@ class LittledGlobals
 	 */
 	public static function setMySQLKeysPath($path)
 	{
-		static::$mysqlKeysPath = $path;
+		if ($path)
+		{
+			static::$mysqlKeysPath = rtrim($path, '/').'/';
+		}
 	}
 
 	/**
@@ -85,6 +91,9 @@ class LittledGlobals
 	 */
 	public static function setTemplatePath($path)
 	{
-		static::$templatePath = $path;
+		if ($path)
+		{
+			static::$templatePath = rtrim($path, '/').'/';
+		}
 	}
 }
