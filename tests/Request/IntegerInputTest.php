@@ -7,6 +7,29 @@ use PHPUnit\Framework\TestCase;
 
 class IntegerInputTest extends TestCase
 {
+	protected function expectValidValue(IntegerInput $o)
+	{
+		try {
+			$o->validate();
+			self::assertEquals('Validated input value.', 'Validated input value.');
+			self::assertFalse($o->hasErrors);
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals('', 'Caught content validate exception: '.$ex->getMessage());
+		}
+	}
+
+	protected function expectInvalidValue(IntegerInput $o, string $err_msg)
+	{
+		try {
+			$o->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch(ContentValidationException $ex) {
+			self::assertEquals($err_msg, $ex->getMessage());
+		}
+	}
+
 	public function testConstructor()
 	{
 		$obj = new IntegerInput("Label", "key", false, 0);
@@ -77,68 +100,57 @@ class IntegerInputTest extends TestCase
 
 		/* not required, default value (null) */
 		$o->required = false;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* not required, empty string value */
 		$o->required = false;
 		$o->value = '';
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* not required, valid integer value of 1 */
 		$o->required = false;
 		$o->value = 1;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* not required, valid integer value */
 		$o->required = false;
 		$o->value = 765;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* required, valid integer value of 1 */
 		$o->required = true;
 		$o->value = 1;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
-		/* required, valid integer value of 1 */
+		/* required, valid integer value of 0 */
 		$o->required = true;
 		$o->value = 0;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* required, valid integer value */
 		$o->required = true;
 		$o->value = 5248;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* not required, null value */
 		$o->required = false;
 		$o->value = null;
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '1';
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '0';
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '8356';
-		$this->assertTrue($o->validate());
-		$this->assertFalse($o->hasErrors);
+		$this->expectValidValue($o);
 	}
 
 	/**
@@ -147,8 +159,7 @@ class IntegerInputTest extends TestCase
 	public function testValidateRequiredDefaultValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
+		$this->expectInvalidValue($o, 'Test label is required.');
 	}
 
 	/**
@@ -158,8 +169,7 @@ class IntegerInputTest extends TestCase
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
 		$o->value = '';
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
+		$this->expectInvalidValue($o, 'Test label is required.');
 	}
 
 	/**
@@ -169,8 +179,7 @@ class IntegerInputTest extends TestCase
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
 		$o->value = 'foo';
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
+		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
 	/**
@@ -180,8 +189,7 @@ class IntegerInputTest extends TestCase
 	{
 		$o = new IntegerInput('test label', 'ptest', false);
 		$o->value = 'foo';
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
+		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
 	/**
@@ -191,8 +199,7 @@ class IntegerInputTest extends TestCase
 	{
 		$o = new IntegerInput('test label', 'ptest', false);
 		$o->value = 87.56;
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
+		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
 	/**
@@ -202,8 +209,7 @@ class IntegerInputTest extends TestCase
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
 		$o->value = 94.052;
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
+		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
 	public function testSetInputValue()
