@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Request;
 
+use Littled\Exception\ContentValidationException;
 use Littled\Validation\Validation;
 
 /**
@@ -17,7 +18,7 @@ class IntegerInput extends RequestInput
 	 */
 	public function collectFromInput($filters = null, $src = null, $key=null)
 	{
-		if ($this->bypassCollectFromInput===true) {
+		if ($this->bypassCollectPostData===true) {
 			return;
 		}
 		$this->value = Validation::collectIntegerRequestVar((($key)?($key):($this->key)), null, $src);
@@ -59,14 +60,13 @@ class IntegerInput extends RequestInput
 	}
 
 	/**
-	 * Validates the object's current value stored in its $value property.
-	 * @throws \Littled\Exception\ContentValidationException
+	 * {@inheritDoc}
 	 */
 	public function validate()
 	{
-		parent::validate();
 		if (($this->isEmpty()===false) && (Validation::parseInteger($this->value)===null)) {
 			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
 		}
+		parent::validate();
 	}
 }

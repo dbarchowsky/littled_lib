@@ -6,6 +6,8 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\Validation\Validation;
+use \Exception;
+use \mysqli;
 
 /**
  * Class RequestInput
@@ -29,7 +31,7 @@ class RequestInput
 	 */
 	public $columnName;
 	/** @var bool Flag indicating that the object value should not be assigned from request variable values. */
-	public $bypassCollectFromInput;
+	public $bypassCollectPostData;
 
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
@@ -71,16 +73,16 @@ class RequestInput
 	/**
 	 * class constructor
 	 * @param string $label Input label
-	 * @param string $param value of the name attribute of the input
+	 * @param string $key value of the name attribute of the input
 	 * @param boolean[optional] $required Flag indicating if this form data is required. Defaults to FALSE.
 	 * @param mixed[optional] $value Initial value of the input. Defaults to NULL.
 	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
 	 * @param int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
 	 */
-	function __construct ( $label, $param, $required=false, $value=null, $size_limit=0, $index=null )
+	function __construct ( $label, $key, $required=false, $value=null, $size_limit=0, $index=null )
 	{
 		$this->label              = $label;
-		$this->key                = $param;
+		$this->key                = $key;
 		$this->setInputValue($value);
 		$this->sizeLimit          = $size_limit;
 		$this->required           = $required;
@@ -93,7 +95,7 @@ class RequestInput
 		$this->columnName         = "";
 		$this->displayPlaceholder = false;
 		$this->contentType        = "text";
-		$this->bypassCollectFromInput = false;
+		$this->bypassCollectPostData = false;
 	}
 
 	/**
@@ -108,14 +110,14 @@ class RequestInput
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @throws NotImplementedException
 	 */
-	public function collectFromInput()
+	public function collectPostData()
 	{
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}
 
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param \mysqli $mysqli
+	 * @param mysqli $mysqli
 	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 */
@@ -306,7 +308,7 @@ class RequestInput
         try {
             $this->render($label, $css_class, $options);
         }
-        catch(\Exception $ex) {
+        catch(Exception $ex) {
             PageContent::printError($ex->getMessage());
         }
     }

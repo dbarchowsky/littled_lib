@@ -35,6 +35,11 @@ class StringInputTest extends TestCase
 		$this->assertEquals(4, $obj->index);
 	}
 
+	public function testCollectPostData()
+	{
+
+	}
+
 	public function testConstructorUsingIntegerValue()
 	{
 		$obj = new StringInput("Label", "key", false, 43);

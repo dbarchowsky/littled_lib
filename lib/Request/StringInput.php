@@ -2,7 +2,7 @@
 namespace Littled\Request;
 
 
-use Littled\Exception\ContentValidationException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 
 /**
@@ -17,7 +17,7 @@ class StringInput extends RequestInput
     public static $template_filename = 'string-text-field.php';
 
     /**
-	 * Clears the data container value.
+	 * {@inheritDoc}
 	 */
 	public function clearValue()
 	{
@@ -30,9 +30,9 @@ class StringInput extends RequestInput
 	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @param string|null[optional] $key Key to use in place of the internal $key property value.
 	 */
-	public function collectFromInput ($filters=null, $src=null, $key=null)
+	public function collectPostData ($filters=null, $src=null, $key=null)
 	{
-		if ($this->bypassCollectFromInput===true) {
+		if ($this->bypassCollectPostData===true) {
 			return;
 		}
 
@@ -98,7 +98,7 @@ class StringInput extends RequestInput
      * string will cause the label to not be rendered at all.
      * @param string[optional] $css_class CSS class name(s) to apply to the input container.
      * @param array[optional] $options Extra attributes and attribute values to apply to the form input element.
-     * @throws \Littled\Exception\ResourceNotFoundException
+     * @throws ResourceNotFoundException
      */
     public function render( $label=null,  $css_class=null, $options=[] )
     {
@@ -118,7 +118,7 @@ class StringInput extends RequestInput
     /**
      * Renders the corresponding form field with a label to collect the input data.
      * @param string[optional] $label
-     * @throws \Littled\Exception\ResourceNotFoundException
+     * @throws ResourceNotFoundException
      */
     public function renderInput($label=null)
     {
@@ -141,8 +141,7 @@ class StringInput extends RequestInput
 	}
 
 	/**
-	 * Validates the collected value as a non-empty string within its size limit.
-	 * @throws ContentValidationException
+	 * {@inheritDoc}
 	 */
 	public function validate ( )
 	{

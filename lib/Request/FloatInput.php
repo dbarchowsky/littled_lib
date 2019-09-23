@@ -18,7 +18,7 @@ class FloatInput extends RequestInput
 	 */
 	public function collectFromInput($filters = null, $src = null, $key=null)
 	{
-		if ($this->bypassCollectFromInput===true) {
+		if ($this->bypassCollectPostData===true) {
 			return;
 		}
 		$this->value = Validation::parseNumericInput((($key)?($key):($this->key)), null, $src);
@@ -60,16 +60,13 @@ class FloatInput extends RequestInput
 	}
 
 	/**
-	 * Validates the object's current value stored in its $value property.
-	 * @returns True if no validation errors are found.
-	 * @throws \Littled\Exception\ContentValidationException
+	 * {@inheritDoc}
 	 */
 	public function validate()
 	{
-		parent::validate();
 		if (($this->isEmpty()===false) && (Validation::parseNumeric($this->value)===null)) {
 			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
 		}
-		return (true);
+		parent::validate();
 	}
 }

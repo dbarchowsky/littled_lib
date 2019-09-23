@@ -21,6 +21,12 @@ class RequestInputTest extends TestCase
 		$this->obj = new RequestInput("Test", "test_param");
 	}
 
+	public function testClearValue()
+	{
+		$this->obj->clearValue();
+		self::assertNull($this->obj->value);
+	}
+
 	public function testEscapeSQL()
 	{
 		$this->assertEquals("null", $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
