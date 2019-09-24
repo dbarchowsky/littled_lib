@@ -61,6 +61,8 @@ Compile the local Sass to create a local stylesheet which will contain all the r
 * [Homebrew](https://brew.sh/) - Installs PHP and xdebug.
 * [xdebug](https://xdebug.org/) - PHP debugging library.
 * [PHPUnit](https://phpunit.de/getting-started/phpunit-7.html) - PHP debugging library.
+* [Guzzle](http://docs.guzzlephp.org/en/stable/) - Support for testing HTTP requests.
+* littled_lib test harness server
 
 [This article](https://medium.com/@romaninsh/install-php-7-2-xdebug-on-macos-high-sierra-with-homebrew-july-2018-d7968fe7e8b8) has nice instructions on how to install PHP with xdebug, including installing multiple versions of PHP, e.g. 7.1 alongside 5.6.
 
@@ -105,7 +107,15 @@ In **PHPStorm**, load the configuration files in the PHPUnit test configuration:
   * **Use alternative configuration file**: `checked`
   * Enter the path to the XML file in `/tests/config/` containing the appropriate database connection values.
   * The XML files define constants (e.g. `MYSQL_HOST`, `MYSQL_SCHEMA`, etc.) that are used to establish database connections.
-  
+
+### Testing HTTP Requests
+
+Use Guzzle to make HTTP requests within unit tests, e.g. to test collecting POST data. 
+
+Use the `littled_lib` test harness running locally to make these requests, typically at `http://localhost:8080/`
+
+See [littled_lib test harness documentation](https://github.com/dbarchowsky/littled_lib_test_harness/blob/master/README.md) for details about setting up the test harness server.
+
 ## PHP class structure
 
 ```text
