@@ -1,12 +1,20 @@
 <?php
 namespace Littled\Tests\Request;
 
+use GuzzleHttp\Client;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
 
 class IntegerInputTest extends TestCase
 {
+	/** @var string Path to test harness page that collects integer post data using IntegerInput object. */
+	const TEST_HARNESS_COLLECT_PATH = 'tests/collect/integer';
+	/** @var string Path to test harness page that validates integer post data using IntegerInput object. */
+	const TEST_HARNESS_VALIDATE_PATH = 'tests/validate/integer';
+	/** @var string Name of variable used to pass form data to test harness page. */
+	const TEST_HARNESS_VARIABLE_NAME = 'var';
+
 	protected function expectValidValue(IntegerInput $o)
 	{
 		try {
@@ -30,6 +38,36 @@ class IntegerInputTest extends TestCase
 		}
 	}
 
+	/**
+	 * @param mixed $value Value to pass to the test harness page.
+	 * @return array Test harness response as json object.
+	 */
+	protected function sendCollectTestHarnessRequest($value)
+	{
+		$client = new Client(['base_uri' => TEST_HARNESS_BASE_URI]);
+		$response = $client->post(self::TEST_HARNESS_COLLECT_PATH, [
+			'form_params' => [
+				self::TEST_HARNESS_VARIABLE_NAME => $value
+			]
+		]);
+		return(json_decode($response->getBody()->getContents(), true));
+	}
+
+	/**
+	 * @param mixed $value Value to pass to the test harness page.
+	 * @return array Test harness response as json object.
+	 */
+	protected function sendValidateTestHarnessRequest($value)
+	{
+		$client = new Client(['base_uri' => TEST_HARNESS_BASE_URI]);
+		$response = $client->post(self::TEST_HARNESS_VALIDATE_PATH, [
+			'form_params' => [
+				self::TEST_HARNESS_VARIABLE_NAME => $value
+			]
+		]);
+		return(json_decode($response->getBody()->getContents(), true));
+	}
+
 	public function testConstructor()
 	{
 		$obj = new IntegerInput("Label", "key", false, 0);
@@ -40,6 +78,132 @@ class IntegerInputTest extends TestCase
 	{
 		$obj = new IntegerInput("Label", "key", false, "string value");
 		$this->assertEquals(null, $obj->value);
+	}
+
+	public function testCollectPostDataUsingNull()
+	{
+		$json = $this->sendCollectTestHarnessRequest(null);
+		self::assertEquals("Integer variable was collected: \"\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingValidIntegerValue()
+	{
+		$json = $this->sendCollectTestHarnessRequest(23);
+		self::assertEquals("Integer variable was collected: \"23\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingNegativeIntegerValue()
+	{
+		$json = $this->sendCollectTestHarnessRequest(-62);
+		self::assertEquals("Integer variable was collected: \"-62\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingOne()
+	{
+		$json = $this->sendCollectTestHarnessRequest(1);
+		self::assertEquals("Integer variable was collected: \"1\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingZero()
+	{
+		$json = $this->sendCollectTestHarnessRequest(0);
+		self::assertEquals("Integer variable was collected: \"0\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingTrue()
+	{
+		$json = $this->sendCollectTestHarnessRequest(true);
+		self::assertEquals("Integer variable was collected: \"1\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingFalse()
+	{
+		$json = $this->sendCollectTestHarnessRequest(false);
+		self::assertEquals("Integer variable was collected: \"0\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingString()
+	{
+		$json = $this->sendCollectTestHarnessRequest('foo');
+		self::assertEquals("Integer variable was collected: \"\".", $json['data']['result']);
+	}
+
+	public function testCollectPostDataUsingFloat()
+	{
+		$json = $this->sendCollectTestHarnessRequest('23.75');
+		self::assertEquals("Integer variable was collected: \"\".", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingNull()
+	{
+		$json = $this->sendValidateTestHarnessRequest(null);
+		self::assertEquals(0, $json['data']['status']);
+		self::assertNull($json['data']['collected_value']);
+		self::assertEquals("Test variable is required.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingValidIntegerValue()
+	{
+		$json = $this->sendValidateTestHarnessRequest(23);
+		self::assertEquals(1, $json['data']['status']);
+		self::assertEquals(23, $json['data']['collected_value']);
+		self::assertEquals("Validate integer ok.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingNegativeIntegerValue()
+	{
+		$json = $this->sendValidateTestHarnessRequest(-62);
+		self::assertEquals(1, $json['data']['status']);
+		self::assertEquals(-62, $json['data']['collected_value']);
+		self::assertEquals("Validate integer ok.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingOne()
+	{
+		$json = $this->sendValidateTestHarnessRequest(1);
+		self::assertEquals(1, $json['data']['status']);
+		self::assertEquals(1, $json['data']['collected_value']);
+		self::assertEquals("Validate integer ok.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingZero()
+	{
+		$json = $this->sendValidateTestHarnessRequest(0);
+		self::assertEquals(1, $json['data']['status']);
+		self::assertEquals(0, $json['data']['collected_value']);
+		self::assertEquals("Validate integer ok.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingTrue()
+	{
+		$json = $this->sendValidateTestHarnessRequest(true);
+		self::assertEquals(1, $json['data']['status']);
+		self::assertEquals(1, $json['data']['collected_value']);
+		self::assertEquals("Validate integer ok.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingFalse()
+	{
+		$json = $this->sendValidateTestHarnessRequest(false);
+		self::assertEquals(1, $json['data']['status']);
+		self::assertEquals(0, $json['data']['collected_value']);
+		self::assertEquals("Validate integer ok.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingString()
+	{
+		$json = $this->sendValidateTestHarnessRequest('foo');
+		self::assertEquals(0, $json['data']['status']);
+		self::assertNull($json['data']['collected_value']);
+		self::assertEquals("Test variable is required.", $json['data']['result']);
+	}
+
+	public function testValidatePostDataUsingFloat()
+	{
+		$json = $this->sendValidateTestHarnessRequest('23.75');
+		self::assertEquals(0, $json['data']['status']);
+		self::assertNull($json['data']['collected_value']);
+		self::assertEquals("Test variable is required.", $json['data']['result']);
 	}
 
 	public function testEscapeSQL()
@@ -91,9 +255,6 @@ class IntegerInputTest extends TestCase
 		$this->assertEquals('NULL', $o->escapeSQL($mysqli), "Arbitrary string evaluates to 'null'\"'");
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateValidValues()
 	{
 		$o = new IntegerInput("Test", "test");
@@ -153,18 +314,12 @@ class IntegerInputTest extends TestCase
 		$this->expectValidValue($o);
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateRequiredDefaultValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
 		$this->expectInvalidValue($o, 'Test label is required.');
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateRequiredEmptyStringValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
@@ -172,9 +327,6 @@ class IntegerInputTest extends TestCase
 		$this->expectInvalidValue($o, 'Test label is required.');
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateRequiredStringValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
@@ -182,9 +334,6 @@ class IntegerInputTest extends TestCase
 		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateNotRequiredStringValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', false);
@@ -192,9 +341,6 @@ class IntegerInputTest extends TestCase
 		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateNotRequiredFloatValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', false);
@@ -202,9 +348,6 @@ class IntegerInputTest extends TestCase
 		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 */
 	public function testValidateRequiredFloatValue()
 	{
 		$o = new IntegerInput('test label', 'ptest', true);
