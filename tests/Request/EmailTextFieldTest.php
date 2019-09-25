@@ -14,6 +14,9 @@ use Littled\Database\MySQLConnection;
  */
 class EmailTextFieldTest extends TestCase
 {
+	const MISSING_EMAIL_VALIDATION_MSG = 'Test email is required.';
+	const INVALID_EMAIL_VALIDATION_MSG = 'Test email is not in a recognized email format.';
+
 	/** @var EmailTextField Test EmailTextField object. */
 	public $obj;
 	/** @var MySQLConnection Test database connection. */
@@ -57,77 +60,168 @@ class EmailTextFieldTest extends TestCase
 		$this->obj->validate();
 	}
 
-	public function testValidateEmptyString()
+	public function testValidateEmptyStringRequired()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::MISSING_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
-	public function testValidateBlankString()
+	public function testValidateEmptyStringNotRequired()
+	{
+		$this->obj->required = false;
+		$this->obj->value = "";
+		try {
+			$this->obj->validate();
+			self::assertEquals('Validation ok.', 'Validation ok.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals('', 'Content validation exception thrown.');
+		}
+	}
+
+	public function testValidateBlankStringRequired()
 	{
 		$this->obj->required = true;
 		$this->obj->value = " ";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::MISSING_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
 	public function testValidateIntegerValue()
 	{
 		$this->obj->required = true;
 		$this->obj->value = 43;
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::MISSING_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
-	public function testValidateMissingDomain()
+	public function testValidateMissingDomainRequired()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "dbarchowsky";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
-	public function testValidateMissingTLDAndPeriod()
+	public function testValidateMissingDomainNotRequired()
+	{
+		$this->obj->required = false;
+		$this->obj->value = "dbarchowsky";
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
+	}
+
+	public function testValidateMissingTLDAndPeriodRequired()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "dbarchowsky@gmail";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
+	}
+
+	public function testValidateMissingTLDAndPeriodNotRequired()
+	{
+		$this->obj->required = false;
+		$this->obj->value = "dbarchowsky@gmail";
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
 	public function testValidateMissingAtSign()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "gmail.com";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
 	public function testValidateMissingName()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "@gmail.com";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
 	public function testValidateMissingTLD()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "dbarchowksy@gmail.";
-		self::expectException(ContentValidationException::class);
-		$this->obj->validate();
+		try {
+			$this->obj->validate();
+			self::assertEquals('', 'Content validation exception not thrown.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals(self::INVALID_EMAIL_VALIDATION_MSG, $ex->getMessage());
+		}
 	}
 
 	public function testValidateValidEmails()
 	{
 		$this->obj->required = true;
 		$this->obj->value = "dbarchowsky@gmail.com";
-		self::assertNull($this->obj->validate());
+		try {
+			$this->obj->validate();
+			self::assertEquals('Validation ok.', 'Validation ok.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals('', 'Content validation exception found.');
+		}
 
 		$this->obj->value = "dbar.chowsky@gmail.com";
-		self::assertNull($this->obj->validate());
+		try {
+			$this->obj->validate();
+			self::assertEquals('Validation ok.', 'Validation ok.');
+		}
+		catch (ContentValidationException $ex) {
+			self::assertEquals('', 'Content validation exception found.');
+		}
 	}
 }

@@ -149,7 +149,7 @@ class StringInput extends RequestInput
 			if (!is_string($this->value)) {
 				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
-			if (strlen($this->value) < 1) {
+			if (strlen(trim($this->value)) < 1) {
 				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
 			if (strlen($this->value) > $this->sizeLimit) {

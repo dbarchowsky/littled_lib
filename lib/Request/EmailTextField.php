@@ -11,27 +11,24 @@ use Littled\Validation\Validation;
 class EmailTextField extends StringTextField
 {
 	/**
-	 * EmailTextField constructor.
-	 * @param $label
-	 * @param $param
-	 * @param bool[optional] $required
-	 * @param null[optional] $value
-	 * @param int[optional] $size_limit
-	 * @param null[optional] $index
+	 * {@inheritDoc}
 	 */
 	public function __construct($label, $param, $required = false, $value = null, $size_limit = 255, $index = null)
 	{
 		parent::__construct($label, $param, $required, $value, $size_limit, $index);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function validate()
 	{
 		parent::validate();
-		if ($this->required)
+		if (strlen(trim($this->value)) > 0)
 		{
 			if (Validation::validateEmailAddress($this->value)===false)
 			{
-				$this->throwValidationError($this->formatErrorLabel()." is not in a recognizable email format.");
+				$this->throwValidationError($this->formatErrorLabel()." is not in a recognized email format.");
 			}
 		}
 	}
