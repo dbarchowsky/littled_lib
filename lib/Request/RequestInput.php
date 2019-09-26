@@ -242,7 +242,7 @@ class RequestInput
 	 */
 	public function isEmpty()
 	{
-		return ($this->value===null || $this->value==='');
+		return ($this->value===null || trim($this->value)==='');
 	}
 
 	/**

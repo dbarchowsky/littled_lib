@@ -56,6 +56,38 @@ class RequestInputTest extends TestCase
 		self::assertEquals('Mixed case', $this->obj->formatErrorLabel());
 	}
 
+	public function testIsEmpty()
+	{
+		self::assertTrue($this->obj->isEmpty());
+
+		$this->obj->value = '';
+		self::assertTrue($this->obj->isEmpty());
+
+		$this->obj->value = ' ';
+		self::assertTrue($this->obj->isEmpty());
+
+		$this->obj->value = 1;
+		self::assertFalse($this->obj->isEmpty());
+
+		$this->obj->value = 0;
+		self::assertFalse($this->obj->isEmpty());
+
+		$this->obj->value = 16;
+		self::assertFalse($this->obj->isEmpty());
+
+		$this->obj->value = 16.23;
+		self::assertFalse($this->obj->isEmpty());
+
+		$this->obj->value = -8;
+		self::assertFalse($this->obj->isEmpty());
+
+		$this->obj->value = false;
+		self::assertFalse($this->obj->isEmpty());
+
+		$this->obj->value = true;
+		self::assertFalse($this->obj->isEmpty());
+	}
+
 	public function testSetTemplatePath()
 	{
 		$path = "/path/to/templates/";
