@@ -7,14 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class BooleanInputTest extends TestCase
 {
-	public function testCollectValue()
-	{
-		/* POST variables set in <php> tag within phpunit.xml config file */
-		$key = "test";
-		$post_value = filter_var($_POST[$key],FILTER_SANITIZE_STRING);
-		$this->assertEquals('foo', $post_value);
-	}
-
 	/**
 	 *
 	 */
@@ -22,7 +14,7 @@ class BooleanInputTest extends TestCase
 	{
 		$o = new BooleanInput("Test", "test");
 		$mysqli = new \mysqli();
-		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		$this->assertNull($o->value);
 		$this->assertEquals("null", $o->escapeSQL($mysqli), "Defaults to 'null'");
@@ -59,6 +51,17 @@ class BooleanInputTest extends TestCase
 
 		$o->value = 'foobar';
 		$this->assertEquals("null", $o->escapeSQL($mysqli), "Arbitrary string evaluates to 'null'\"'");
+	}
+
+	public function testIsEmpty()
+	{
+		$o = new BooleanInput('Test', 'test');
+
+		$o->value = true;
+		self::assertTrue($o->isEmpty());
+
+		$o->value = false;
+		self::assertTrue($o->isEmpty());
 	}
 
 	/**
@@ -150,7 +153,7 @@ class BooleanInputTest extends TestCase
 		$this->assertTrue($o->hasErrors);
 	}
 
-	public function testsetInputValue()
+	public function testSetInputValue()
 	{
 		$o = new BooleanInput("Test object", "bol_test");
 		$this->assertNull($o->value);

@@ -18,7 +18,7 @@ class StringInputTest extends TestCase
 	/** @var MySQLConnection Test database connection. */
 	public $conn;
 
-	public function setUp()
+	public function setUp() : void
 	{
 		$this->obj = new StringInput("Test date", 'p_date');
 		$this->conn = new MySQLConnection();
@@ -33,6 +33,11 @@ class StringInputTest extends TestCase
 		$this->assertEquals("test value", $obj->value);
 		$this->assertEquals(200, $obj->sizeLimit);
 		$this->assertEquals(4, $obj->index);
+	}
+
+	public function testCollectPostData()
+	{
+
 	}
 
 	public function testConstructorUsingIntegerValue()

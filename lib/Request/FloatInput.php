@@ -18,7 +18,7 @@ class FloatInput extends RequestInput
 	 */
 	public function collectFromInput($filters = null, $src = null, $key=null)
 	{
-		if ($this->bypassCollectFromInput===true) {
+		if ($this->bypassCollectPostData===true) {
 			return;
 		}
 		$this->value = Validation::parseNumericInput((($key)?($key):($this->key)), null, $src);
@@ -52,23 +52,21 @@ class FloatInput extends RequestInput
 	 * @param string|null[optional] $label String to use as input label. If this value is not provided, the object's
 	 * $label property value will be used. Defaults to NULL.
 	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+	 * @param array[optional] $options Associative array containing attributes and attribute values to apply to the HTML element.
 	 */
-	public function render( $label=null, $css_class=null )
+	public function render( $label=null, $css_class=null, $options=[] )
 	{
 		print ("<span class='\"alert alert-warning\">".get_class($this)."::renderInput() )Not implemented.</span></div>");
 	}
 
 	/**
-	 * Validates the object's current value stored in its $value property.
-	 * @returns True if no validation errors are found.
-	 * @throws \Littled\Exception\ContentValidationException
+	 * {@inheritDoc}
 	 */
 	public function validate()
 	{
-		parent::validate();
 		if (($this->isEmpty()===false) && (Validation::parseNumeric($this->value)===null)) {
 			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
 		}
-		return (true);
+		parent::validate();
 	}
 }

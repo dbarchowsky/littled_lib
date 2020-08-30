@@ -34,15 +34,6 @@ class BooleanInput extends RequestInput
 	}
 
 	/**
-	 * Assigns a value to the object, with checks to make sure that the stored value is a boolean.
-	 * @param boolean $value Value to assign.
-	 */
-	public function setInputValue ($value)
-	{
-		$this->value = Validation::parseBoolean($value);
-	}
-
-	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param \mysqli $mysqli
 	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
@@ -57,6 +48,15 @@ class BooleanInput extends RequestInput
 			return ('1');
 		}
 		return ('null');
+	}
+
+	/**
+	 * Override parent to always return true. Can't tell by object value whether its value was explicitly set or not.
+	 * @return bool Always TRUE.
+	 */
+	public function isEmpty()
+	{
+		return true;
 	}
 
 	/**
@@ -88,6 +88,15 @@ class BooleanInput extends RequestInput
 				'selection_state' => $selection_state,
 				'required_field_indication' => $required_str
 			));
+	}
+
+	/**
+	 * Assigns a value to the object, with checks to make sure that the stored value is a boolean.
+	 * @param boolean $value Value to assign.
+	 */
+	public function setInputValue ($value)
+	{
+		$this->value = Validation::parseBoolean($value);
 	}
 
 	/**

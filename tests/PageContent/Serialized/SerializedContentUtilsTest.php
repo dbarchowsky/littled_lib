@@ -4,10 +4,9 @@ namespace Littled\Tests\PageContent;
 require_once(realpath(dirname(__FILE__)) . "/../../../keys/littledamien/keys.php");
 
 use Littled\Database\MySQLConnection;
-use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\Filters\BooleanContentFilter;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\Serialized\SerializedContentUtils;
 use Littled\Request\BooleanInput;
@@ -30,7 +29,7 @@ class SerializedContentUtilsChild extends SerializedContent
 	public $prop2;
 	protected static $cache_template = "/path/to/templates/child-cache-template.php";
 
-	public const SECTION_ID = 10; /* sketchbook page */
+	const SECTION_ID = 10; /* sketchbook page */
 
 	/**
 	 * SerializedContentUtilsChild constructor.
@@ -59,10 +58,26 @@ class SerializedContentUtilsChild extends SerializedContent
 	}
 }
 
+class SerializedContentChild extends SerializedContent
+{
+	public $bool_field;
+	public $str_field;
+	/** @var SerializedContentUtilsChild */
+	public $child;
+
+	public function __construct($id = null)
+	{
+		parent::__construct($id);
+		$this->str_field = new StringInput('String Field', 'str_param', true,'test value');
+		$this->bool_field = new BooleanInput('Boolean Field', 'bool_param', true, true);
+		$this->child = null;
+	}
+}
+
 
 class SerializedContentUtilsTest extends TestCase
 {
-	/** @var SerializedContent Test object. */
+	/** @var SerializedContentUtilsChild Test object. */
 	public $obj;
 	/** @var MySQLConnection Database connection. */
 	public $conn;
@@ -73,7 +88,7 @@ class SerializedContentUtilsTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException Table name is not set in inherited classes.
-	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
+	 * @throws InvalidQueryException Error executing query.
 	 */
 	public static function setUpBeforeClass(): void
 	{
@@ -91,7 +106,7 @@ class SerializedContentUtilsTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException Table name is not set in inherited classes.
-	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
+	 * @throws InvalidQueryException Error executing query.
 	 */
 	public static function tearDownAfterClass(): void
 	{
@@ -160,54 +175,54 @@ class SerializedContentUtilsTest extends TestCase
 
 	public function testClearValues()
 	{
+		$obj = new SerializedContentChild();
+
 		/* default values */
-		$this->obj->clearValues();
-		$this->assertEquals(null, $this->obj->id->value);
+		$obj->clearValues();
+		$this->assertEquals(null, $obj->id->value);
 
 		/* clear id property value */
-		$this->obj->id->value = 66;
-		$this->obj->clearValues();
-		$this->assertEquals(null, $this->obj->id->value);
+		$obj->id->value = 66;
+		$obj->clearValues();
+		$this->assertEquals(null, $obj->id->value);
 
 		/* clear string property value */
-		$this->obj->id->value = 78;
-		$this->obj->str_field = new StringInput('String Field', 'str_param', true,'test value');
-		$this->assertEquals(78, $this->obj->id->value);
-		$this->assertEquals('test value', $this->obj->str_field->value);
+		$obj->id->value = 78;
+		$this->assertEquals(78, $obj->id->value);
+		$this->assertEquals('', $obj->str_field->value);
 
-		$this->obj->clearValues();
-		$this->assertEquals(null, $this->obj->id->value);
-		$this->assertEquals('', $this->obj->str_field->value);
+		$obj->clearValues();
+		$this->assertEquals(null, $obj->id->value);
+		$this->assertEquals('', $obj->str_field->value);
 
 		/* clear boolean property value */
-		$this->obj->bool_field = new BooleanInput('Boolean Field', 'bool_param', true, true);
-		$this->obj->str_field->value = 'foo';
-		$this->assertTrue($this->obj->bool_field->value);
-		$this->assertEquals('foo', $this->obj->str_field->value);
+		$obj->str_field->value = 'foo';
+		$this->assertNull($obj->bool_field->value);
+		$this->assertEquals('foo', $obj->str_field->value);
 
-		$this->obj->clearValues();
-		$this->assertEquals(null, $this->obj->id->value);
-		$this->assertEquals(null, $this->obj->bool_field->value);
-		$this->assertEquals('', $this->obj->str_field->value);
+		$obj->clearValues();
+		self::assertNull($obj->id->value);
+		self::assertEquals(null, $obj->bool_field->value);
+		self::assertEquals('', $obj->str_field->value);
 
 		/* clear child object properties recursively */
 		$c = new SerializedContentUtilsChild();
 		$c->id->value = 98;
 		$c->vc_col2->value = 'biz';
-		$this->obj->child = $c;
-		$this->obj->id->value = 103;
-		$this->assertEquals(103, $this->obj->id->value);
-		$this->assertEquals(98, $this->obj->child->id->value);
-		$this->assertEquals('biz', $this->obj->child->vc_col2->value);
+		$obj->child = $c;
+		$obj->id->value = 103;
+		$this->assertEquals(103, $obj->id->value);
+		$this->assertEquals(98, $obj->child->id->value);
+		$this->assertEquals('biz', $obj->child->vc_col2->value);
 
-		$this->obj->clearValues();
-		$this->assertNull($this->obj->id->value);
-		$this->assertNull($this->obj->child->id->value);
-		$this->assertEquals('', $this->obj->child->vc_col2->value);
+		$obj->clearValues();
+		$this->assertNull($obj->id->value);
+		$this->assertNull($obj->child->id->value);
+		$this->assertEquals('', $obj->child->vc_col2->value);
 	}
 
     /**
-     * @throws \Littled\Exception\InvalidTypeException
+     * @throws InvalidTypeException
      */
 	public function testCopy()
     {

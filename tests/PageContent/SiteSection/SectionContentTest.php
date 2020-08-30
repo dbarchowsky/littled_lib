@@ -15,7 +15,7 @@ class SectionContentTest extends TestCase
 	/** @var MySQLConnection Test database connection. */
 	public $conn;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
 		$this->obj = new SectionContent();
