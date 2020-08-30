@@ -45,13 +45,8 @@ class SerializedContentUtils extends AppContentBase
      */
     public function appendSeparator($str, $separator=',')
     {
-<<<<<<< HEAD
-        if(!is_null($str) && strlen($str) > 0) {
-            $str .= "{$separator} ";
-=======
         if(!is_null($str) && strlen(trim($str)) > 0) {
             $str = rtrim($str)."{$separator} ";
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
         }
         return ($str);
     }
@@ -336,13 +331,8 @@ class SerializedContentUtils extends AppContentBase
      */
     public function prependSeparator($str, $separator=',')
     {
-<<<<<<< HEAD
-        if(!is_null($str) && strlen($str) > 0) {
-            $str = "{$separator} {$str}";
-=======
         if(!is_null($str) && strlen(trim($str)) > 0) {
             $str = "{$separator} ".ltrim($str);
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
         }
         return ($str);
     }
