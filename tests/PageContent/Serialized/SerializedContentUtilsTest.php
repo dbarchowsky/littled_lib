@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\PageContent;
 
+require_once(realpath(dirname(__FILE__)) . "/../../../keys/littledamien/keys.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
@@ -74,7 +75,7 @@ class SerializedContentUtilsTest extends TestCase
 	 * @throws NotImplementedException Table name is not set in inherited classes.
 	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
 	 */
-	public static function setUpBeforeClass()
+	public static function setUpBeforeClass(): void
 	{
 		$c = new MySQLConnection();
 
@@ -92,18 +93,28 @@ class SerializedContentUtilsTest extends TestCase
 	 * @throws NotImplementedException Table name is not set in inherited classes.
 	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
 	 */
-	public static function tearDownAfterClass()
+	public static function tearDownAfterClass(): void
 	{
 		$c = new MySQLConnection();
 		$query = "DR"."OP TABLE `".SerializedContentUtilsChild::TABLE_NAME()."`";
 		$c->query($query);
 	}
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->obj = new SerializedContent();
 		$this->conn = new MySQLConnection();
 	}
+
+	public function testAppendDelimiter()
+    {
+        $obj = new SerializedContent();
+        self::assertEquals("abc, ", $obj->appendSeparator('abc'));
+        self::assertEquals('abc: ', $obj->appendSeparator('abc', ':'));
+        self::assertEquals('abcnnn ', $obj->appendSeparator('abc', 'nnn'));
+        self::assertEquals('', $obj->appendSeparator(''));
+        self::assertEquals('foo ', $obj->appendSeparator('foo', ''));
+    }
 
 	public function testArrayEncode()
 	{
@@ -305,10 +316,10 @@ class SerializedContentUtilsTest extends TestCase
 		$obj->bool_col->setInputValue(true);
 
 		$json_str = $obj->jsonEncode();
-		$this->assertContains("\"vc_col1\":\"foo\"", $json_str);
-		$this->assertContains("\"vc_col2\":\"bar\"", $json_str);
-		$this->assertContains("\"int_col\":784", $json_str);
-		$this->assertContains("\"bool_col\":true", $json_str);
+		$this->assertStringContainsString("\"vc_col1\":\"foo\"", $json_str);
+		$this->assertStringContainsString("\"vc_col2\":\"bar\"", $json_str);
+		$this->assertStringContainsString("\"int_col\":784", $json_str);
+		$this->assertStringContainsString("\"bool_col\":true", $json_str);
 	}
 
 	public function testJsonEncodeDefaultValues()
@@ -316,10 +327,10 @@ class SerializedContentUtilsTest extends TestCase
 		$obj = new SerializedContentUtilsChild();
 
 		$json_str = $obj->jsonEncode();
-		$this->assertContains("\"vc_col1\":\"\"", $json_str);
-		$this->assertContains("\"vc_col2\":\"\"", $json_str);
-		$this->assertContains("\"int_col\":null", $json_str);
-		$this->assertContains("\"bool_col\":null", $json_str);
+		$this->assertStringContainsString("\"vc_col1\":\"\"", $json_str);
+		$this->assertStringContainsString("\"vc_col2\":\"\"", $json_str);
+		$this->assertStringContainsString("\"int_col\":null", $json_str);
+		$this->assertStringContainsString("\"bool_col\":null", $json_str);
 	}
 
 	public function testJsonEncodeNonObjectProperty()
@@ -327,7 +338,7 @@ class SerializedContentUtilsTest extends TestCase
 		$obj = new SerializedContentUtilsChild();
 
 		$json_str = $obj->jsonEncode();
-		$this->assertNotContains("\"prop1\"", $json_str);
+		$this->assertStringNotContainsString("\"prop1\"", $json_str);
 	}
 
 	public function testJsonEncodeExcludeKeys()
@@ -336,10 +347,10 @@ class SerializedContentUtilsTest extends TestCase
 		$exclude_keys = ['vc_col2', 'bool_col'];
 
 		$json_str = $obj->jsonEncode($exclude_keys);
-		$this->assertContains("\"vc_col1\"", $json_str);
-		$this->assertNotContains("\"vc_col2\"", $json_str);
-		$this->assertContains("\"int_col\"", $json_str);
-		$this->assertNotContains("\"bool_col\"", $json_str);
+		$this->assertStringContainsString("\"vc_col1\"", $json_str);
+		$this->assertStringNotContainsString("\"vc_col2\"", $json_str);
+		$this->assertStringContainsString("\"int_col\"", $json_str);
+		$this->assertStringNotContainsString("\"bool_col\"", $json_str);
 	}
 
 	public function testPluralLabel()
@@ -376,7 +387,17 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertNull($obj->pluralLabel(2, 'vc_col1'));
 	}
 
-	public function testCacheTemplatePath()
+    public function testPrependDelimiter()
+    {
+        $obj = new SerializedContent();
+        self::assertEquals(", abc", $obj->prependSeparator('abc'));
+        self::assertEquals(': abc', $obj->prependSeparator('abc', ':'));
+        self::assertEquals('nnn abc', $obj->prependSeparator('abc', 'nnn'));
+        self::assertEquals('', $obj->prependSeparator(''));
+        self::assertEquals(' foo', $obj->prependSeparator('foo', ''));
+    }
+
+    public function testCacheTemplatePath()
 	{
 		$this->assertEquals("/path/to/templates/child-cache-template.php", SerializedContentUtilsChild::getCacheTemplatePath());
 		$this->assertEquals("", SerializedContentUtils::getCacheTemplatePath());
@@ -393,9 +414,9 @@ class SerializedContentUtilsTest extends TestCase
 		$context = array("page_title" => "My Test Title", "test_var" => "test value");
 		$this->obj->updateCacheFile($context, $src_template_path, $dst_path.self::TEST_OUTPUT_TEMPLATE);
 		$result = file_get_contents($dst_path.self::TEST_OUTPUT_TEMPLATE);
-		$this->assertContains("<h1>My Test Title</h1>", $result);
-		$this->assertContains("sample content", $result);
-		$this->assertContains("inserted: test value", $result);
-		$this->assertContains("final test", $result);
+		$this->assertStringContainsString("<h1>My Test Title</h1>", $result);
+		$this->assertStringContainsString("sample content", $result);
+		$this->assertStringContainsString("inserted: test value", $result);
+		$this->assertStringContainsString("final test", $result);
 	}
 }

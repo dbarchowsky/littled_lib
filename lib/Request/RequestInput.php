@@ -264,15 +264,14 @@ class RequestInput
 	 * Renders the corresponding form field with a label to collect the input data.
      * @param string[optional] $label
      * @param string[optional] $css_class
-     * @param array[optional] $options
 	 * @throws NotImplementedException
 	 */
-	public function render( $label=null, $css_class=null, $options=[] )
+	public function render( $label=null, $css_class=null )
 	{
 	    if (!$label) {
 	        $label = $this->label;
         }
-		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented for {$label}. {$css_class} ".join('', $options));
+		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented for {$label}. {$css_class} ");
 	}
 
 	/**

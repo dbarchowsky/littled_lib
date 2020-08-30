@@ -99,7 +99,7 @@ class StringInput extends RequestInput
      * @param string[optional] $css_class CSS class name(s) to apply to the input container.
      * @throws \Littled\Exception\ResourceNotFoundException
      */
-    public function render( $label=null,  $css_class=null )
+    public function render( $label=null, $css_class=null )
     {
         if (!$label) {
             $label=$this->label;

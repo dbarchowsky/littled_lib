@@ -63,11 +63,10 @@ class BooleanInput extends RequestInput
 	 * Render the form input element(s) in the DOM.
 	 * @param string[optional] $label If a value is provided, it will override the object's internal $label property value.
 	 * @param string[optional] $css_class CSS class name to apply to the form input element.
-	 * @param array[optional] $options Options to display.
 	 * @throws NotImplementedException
 	 * @throws \Littled\Exception\ResourceNotFoundException
 	 */
-	public function render($label = null, $css_class = '', $options=[])
+	public function render($label = null, $css_class = '')
 	{
 		if (false === $this->isTemplateDefined()) {
 			throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
