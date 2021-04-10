@@ -18,7 +18,7 @@
 .breadcrumbs {
 	font: {
 		family: $utility-font-family;
-		size: 0.9em;
+		size: $breadcrumb-font-size;
 	}
 	float: left;
 	@include horizontal-divided-list('\00BB\0020'); // right-angle quote + space
