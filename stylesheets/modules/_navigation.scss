@@ -9,6 +9,7 @@
 	float: left;
 	white-space: nowrap;
 	min-height: 1px; // prevents the element from collapsing when its contents are hidden //
+	font-size: $breadcrumbs-font-size;
 }
 .page-number, 
 .list-link {
