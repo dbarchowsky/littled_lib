@@ -12,7 +12,7 @@
 	border: 1px solid darken($filters-base-color, 20%);
 	margin-left: 8px;
 	text-shadow: lighten($filters-base-color, 5%) 1px 1px 0;
-	border-radius: 3px 3px;
+	border-radius: 3px;
 	box-shadow: darken($filters-base-color, 20%) 0 -3px 5px -1px inset;
 	&:hover {
 		color: darken($filters-base-color, 55%);
