@@ -2,12 +2,18 @@
 	overflow: hidden;
 	font-family: $header-font-family;
 	background-color: $header-background-color;
-	padding: 12px 12px 2px;
+	padding: 12px 12px 4px;
 	border-bottom: $header-border;
 	margin-bottom: 16px;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
 	.links-container {
 		margin-top: 1rem;
 		overflow: hidden;
+	}
+	h1 {
+		margin: 12px 0 -4px 0;
 	}
 }
 .site-title {
@@ -28,7 +34,7 @@
 }
 .header-nav {
 	@extend .breadcrumbs;
-	float: right;
+	margin-left: auto;
 }
 .utility-links {
 	font: {
