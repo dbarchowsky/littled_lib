@@ -10,14 +10,10 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
-<<<<<<< HEAD
-use Littled\PageContent\Serialized\SerializedContent;
-=======
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\EmailTextField;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 use Littled\Request\FloatTextField;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
@@ -48,11 +44,7 @@ class Address extends SerializedContent
      */
 	public static function GOOGLE_MAPS_URI()
     {
-<<<<<<< HEAD
-        return ("http://maps.google.com/maps/geo?key=".GMAP_KEY."&output=xml&q=");
-=======
         return ("https://maps.googleapis.com/maps/api/geocode/xml?key=".GMAP_KEY."&address=");
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     }
 
 	/** @var IntegerInput Address record id. */
@@ -85,11 +77,7 @@ class Address extends SerializedContent
 	public $day_phone;
 	/** @var StringTextField $eve_phone */
 	public $eve_phone;
-<<<<<<< HEAD
-	/** @var StringTextField $email */
-=======
 	/** @var EmailTextField $email */
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 	public $email;
 	/** @var StringTextField $url */
 	public $url;
@@ -106,11 +94,7 @@ class Address extends SerializedContent
 
 	/**
 	 * Class constructor.
-<<<<<<< HEAD
-	 * @param string $prefix (Optional) prefix to prepend to form elements.
-=======
 	 * @param string[optional] $prefix Prefix to prepend to form elements.
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 	 */
 	function __construct ( $prefix="" ) 
 	{
@@ -130,18 +114,10 @@ class Address extends SerializedContent
 		$this->country = new StringTextField("Country", "{$prefix}adcn", false, "", 100);
 		$this->day_phone = new StringTextField("Daytime phone number", $prefix."ldp", false, "", 20);
 		$this->eve_phone = new StringTextField("Evening phone number", $prefix."lep", false, "", 20);
-<<<<<<< HEAD
-		$this->email = new StringTextField("Email", $prefix."lem", false, "", 200);
-		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
-		$this->latitude = new StringTextField("Latitude", "stlt", false);
-		$this->longitude = new StringTextField("Longitude", "stlg", false);
-=======
 		$this->email = new EmailTextField("Email", $prefix."lem", false, "", 200);
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
 		$this->latitude = new FloatTextField("Latitude", "stlt", false);
 		$this->longitude = new FloatTextField("Longitude", "stlg", false);
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
-		
 		$this->state = "";
 		$this->state_abbrev = "";
 		$this->fullname = "";
@@ -164,14 +140,6 @@ class Address extends SerializedContent
 
     /**
      * Formats plain string full address based on current address values stored in the object.
-<<<<<<< HEAD
-     * @param $style string (Optional) Token indicating the type of formatting to apply to the address.
-     * Options are "oneline"|"html"|"google". Defaults to "oneline".
-     * @return string Formatted address.
-     * @throws InvalidValueException
-     */
-    public function formatAddress($style="oneline")
-=======
      * @param string[optional] $style Token indicating the type of formatting to apply to the address.
      * Options are "oneline"|"html"|"google". Defaults to "oneline".
      * @param boolean[optional] $include_name Flag to include the individual's first and last name. Defaults to FALSE.
@@ -179,18 +147,13 @@ class Address extends SerializedContent
      * @throws InvalidValueException
      */
     public function formatAddress($style="oneline", $include_name=false)
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     {
         switch ($style)
         {
             case "oneline":
                 return($this->formatOneLineAddress());
             case "html":
-<<<<<<< HEAD
-                return($this->formatHTMLAddress());
-=======
                 return($this->formatHTMLAddress($include_name));
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
             case "google":
                 return($this->formatGoogleAddress());
             default:
@@ -198,10 +161,7 @@ class Address extends SerializedContent
         }
     }
 
-<<<<<<< HEAD
     /**
-=======
-	/**
 	 * Returns string formatted with current city, state, country, and zip code values.
 	 * @return string Formatted location description.
 	 */
@@ -242,7 +202,6 @@ class Address extends SerializedContent
 	}
 
 	/**
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
      * Formats full address formatted for Google API calls using current address values stored in the object.
      * @return string Formatted address.
      */
@@ -253,37 +212,11 @@ class Address extends SerializedContent
 
     /**
      * Formats full address html markup based on current address values stored in the object.
-<<<<<<< HEAD
-     * @param boolean $include_name (Optional) flag to include the individual's first and last name. Defaults to FALSE.
-=======
      * @param boolean[optional] $include_name Flag to include the individual's first and last name. Defaults to FALSE.
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
      * @return string Formatted address.
      */
     public function formatHTMLAddress($include_name=false)
     {
-<<<<<<< HEAD
-        $addr = "";
-        if ($include_name==true)
-        {
-            if ($this->firstname->value || $this->lastname->value)
-            {
-                $addr .= "<div>".$this->fullname()."</div>\n";
-            }
-            if ($this->company->value)
-            {
-                $addr .= "<div>{$this->company->value}</div>\n";
-            }
-        }
-        if ($this->address1->value)
-        {
-            $addr .= "<div>{$this->address1->value}</div>\n";
-        }
-        if ($this->address2->value)
-        {
-            $addr .= "<div>{$this->address2->value}</div>\n";
-        }
-=======
         $parts = array();
         if ($include_name==true)
         {
@@ -292,7 +225,6 @@ class Address extends SerializedContent
         }
         array_push($parts, trim(''.$this->address1->value));
         array_push($parts, trim(''.$this->address2->value));
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 
         if ($this->state_id->value>0 && !$this->state)
         {
@@ -305,41 +237,12 @@ class Address extends SerializedContent
                 /* continue */
             }
         }
-<<<<<<< HEAD
-
-        $locale = "";
-        if ($this->city->value && $this->state_abbrev)
-        {
-            $locale .= $this->city->value.", ".$this->state_abbrev;
-        }
-        else
-        {
-            if ($this->city->value)
-            {
-                $locale .= $this->city->value;
-            }
-            if ($this->state)
-            {
-                $locale .= $this->state;
-            }
-        }
-        if ($this->zip->value)
-        {
-            $locale .= " ".$this->zip->value;
-        }
-        if ($locale)
-        {
-            $locale = "<div>{$locale}</div>\n";
-        }
-        return ($addr.$locale);
-=======
 		array_push($parts, $this->formatCity());
         $parts = array_filter($parts);
         if (count($parts) > 0) {
         	return ("<div>".join("</div>\n<div>", $parts)."</div>\n");
         }
 		return ('');
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     }
 
     /**
@@ -350,11 +253,7 @@ class Address extends SerializedContent
     {
         $addr = $this->appendSeparator($this->address1->value).
             $this->appendSeparator($this->address2->value).
-<<<<<<< HEAD
-            $this->prependSeparator($this->city->value);
-=======
             $this->city->value;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
         if ($this->state_abbrev || $this->state) {
             if ($this->state_abbrev) {
                 $addr .= $this->prependSeparator($this->state_abbrev);
@@ -364,84 +263,30 @@ class Address extends SerializedContent
         }
         else
         {
-<<<<<<< HEAD
-            $addr .= $this->prependSeparator($this->country->value);
-        }
-        $addr .= $this->prependSeparator($this->zip->value, '');
-=======
             $addr = preg_replace('/, $/', '', $addr).$this->prependSeparator($this->country->value);
         }
         $addr = preg_replace('/, $/', '', $addr).$this->prependSeparator($this->zip->value, '');
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
         return ($addr);
     }
 
     /**
      * Format any available street address information into a single string.
-<<<<<<< HEAD
-     * @param $limit integer|null (optional) Limit the size of the string returned to $limit characters.
-=======
-     * @param integer[optional] $limit Limit the size of the string returned to $limit characters.
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+     * @param integer|null $limit (Optional) Limit the size of the string returned to $limit characters.
      * @return string
      */
     public function formatStreet($limit=null)
     {
-<<<<<<< HEAD
-        $addr = "";
-        if ($this->address1->value)
-        {
-            $addr = $this->address1->value;
-            if ($this->address2->value)
-            {
-                $addr .= ", ".$this->address2->value;
-            }
-        }
-        elseif ($this->address2->value)
-        {
-            $addr = $this->address2->value;
-        }
-        if ($limit>0)
-        {
-            $addr = substr($addr, $limit);
-=======
     	$parts = array_filter(array(trim(''.$this->address1->value),
 		    trim(''.$this->address2->value)));
     	$addr = join(', ', $parts);
         if ($limit>0)
         {
             return(substr($addr, 0, $limit));
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
         }
         return ($addr);
     }
 
     /**
-<<<<<<< HEAD
-     * Formats full name based on current salutation, first name, and last name values stored in the object.
-     * @return string Formatted full name.
-     */
-    public function fullname()
-    {
-        $fullname = "";
-        if ($this->salutation->value)
-        {
-            $fullname = $this->salutation->value." ";
-        }
-        if ($this->firstname->value && $this->lastname->value)
-        {
-            $fullname .= $this->firstname->value." ".$this->lastname->value;
-        }
-        else
-        {
-            $fullname .= $this->firstname->value.$this->lastname->value;
-        }
-        return ($fullname);
-    }
-
-    /**
-=======
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
      * Indicates if any form data has been entered for the current instance of the object.
      * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
      * have been uploaded. Most likely should be overridden in derived classes.
@@ -546,12 +391,6 @@ class Address extends SerializedContent
 
     /**
      * Saves internal data values as hidden form inputs.
-<<<<<<< HEAD
-     */
-    function preserveInForm ()
-    {
-        include (ADMIN_TEMPLATE_DIR."forms/data/address_class_data.php");
-=======
      * @throws ResourceNotFoundException
      */
     function preserveInForm ()
@@ -559,7 +398,6 @@ class Address extends SerializedContent
     	$template = CMS_COMMON_TEMPLATE_DIR."forms/data/address_class_data.php";
     	$context = array('input' => $this);
     	PageContent::render($template, $context);
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     }
 
     /**
@@ -592,22 +430,15 @@ class Address extends SerializedContent
 
     /**
      * Retrieves extended state properties (name and abbreviation) from database.
-<<<<<<< HEAD
-=======
      * @throws InvalidValueException
      * @throws RecordNotFoundException
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
      * @throws Exception
      */
     public function readStateProperties ()
     {
         if ($this->state_id->value===null || $this->state_id->value<1)
         {
-<<<<<<< HEAD
-            return;
-=======
             throw new InvalidValueException("Invalid state id value.");
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
         }
         $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = {$this->state_id->value}";
         $rs = $this->fetchRecords($query);
@@ -615,22 +446,15 @@ class Address extends SerializedContent
         {
             list($this->state, $this->state_abbrev) = array_values((array)$rs[0]);
         }
-<<<<<<< HEAD
-=======
         else
         {
         	throw new RecordNotFoundException("Requested state properties not found.");
         }
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     }
 
 	/**
 	 * Commits current object data to the database.
-<<<<<<< HEAD
-	 * @param boolean $do_gmap_lookup (Optional) Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
-=======
 	 * @param boolean[optional] $do_gmap_lookup Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
      * @throws Exception
 	 */
 	public function save($do_gmap_lookup=false)
@@ -645,11 +469,7 @@ class Address extends SerializedContent
 
 	/**
 	 * Validates address form data.
-<<<<<<< HEAD
-     * @param $exclude_properties array List of properties to exclude from validation.
-=======
      * @param array[optional] $exclude_properties List of properties to exclude from validation.
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 	 * @throws Exception Throws exception if any invalid form data is detected. A detailed description of the errors is found through the GetMessage() routine of the Exception object.
 	 */
 	public function validateInput ($exclude_properties=[])
@@ -676,8 +496,6 @@ class Address extends SerializedContent
 			throw new ContentValidationException("Error validating address.");
 		}
 	}
-<<<<<<< HEAD
-=======
 
 	/**
 	 * Validates email addresses used with member accounts to make sure that they are valid email addresses, and that they do not already exist in the database.
@@ -711,5 +529,4 @@ class Address extends SerializedContent
 			}
 		}
 	}
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 }

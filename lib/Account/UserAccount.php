@@ -1,45 +1,33 @@
 <?php
 namespace Littled\Account;
 
-
-<<<<<<< HEAD
-=======
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\ResourceNotFoundException;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
 use Littled\Request\StringPasswordField;
-<<<<<<< HEAD
-=======
-use \Exception;
-use \mail_class;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+use Littled\Social\Mailer;
+use Exception;
 
 /**
  * Class UserAccount
  * @package Littled\Account
  */
-<<<<<<< HEAD
-class AjaxPage extends SerializedContent
-{
-    /** @var IntegerInput Account record id. */
-=======
 class UserAccount extends SerializedContent
 {
 	/** @var int Disabled value. */
 	const DISABLED = 0;
 	/** @var int Basic credentials token value. */
-	const BASIC_AUTHENTICATION = 1;
+	public const BASIC_AUTHENTICATION = 1;
 	/** @var int Admin credentials token value. */
-	const ADMIN_AUTHENTICATION = 2;
+	public const ADMIN_AUTHENTICATION = 2;
 	/** @var string Name of variable holding record id value. */
 	const ID_PARAM = "suid";
 	/** @var string Name of variable holding user name value for authentication purposes. */
@@ -62,7 +50,6 @@ class UserAccount extends SerializedContent
 
 
 	/** @var IntegerInput Account record id. */
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     public $id;
     /** @var StringTextField User name/login. */
     public $uname;
@@ -74,7 +61,7 @@ class UserAccount extends SerializedContent
     public $password;
     /** @var StringPasswordField Password confirmation for registration and account updates. */
     public $password_confirm;
-    /** @var Address Address information for the user account: name, street address, phone, etc. */
+    /** @var $contact_info Address information for the user account: name, street address, phone, etc. */
     public $contact_info;
     /** @var IntegerSelect Access level of this user account. */
     public $access;
@@ -84,14 +71,8 @@ class UserAccount extends SerializedContent
     public $postal_opt_in;
     /** @var IntegerInput Pointer to the record id of the contact information record linked to this user account. */
     public $contact_id;
-<<<<<<< HEAD
     /** @var boolean Flag to allow overrides of login situations. */
     public $bypass_login;
-    /** @var boolean Flag indicating if the user is currently logged in on the site. */
-    public $logged_in;
-    /** @var string Shortcut to the first and last name associated with the account. */
-    public $fullname;
-=======
     /** @var string Shortcut to the first and last name associated with the account. */
     public $fullname;
 	/** @var string Name of sender for password reset emails. */
@@ -99,7 +80,7 @@ class UserAccount extends SerializedContent
 
 	/**
 	 * UserAccount constructor.
-	 * @param integer[optional] $id Record id value.
+	 * @param integer|null $id (Optional) record id value.
 	 */
     public function __construct($id = null)
     {
@@ -141,7 +122,7 @@ class UserAccount extends SerializedContent
 
 	/**
 	 * Overrides parent routine to copy email value into user name field.
-	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param array|null $src (Optional) collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
 	public function collectFromInput($src=null)
 	{
@@ -251,7 +232,8 @@ class UserAccount extends SerializedContent
 
 	/**
 	 * Sends notification email to contact within company to alert them that the registration has been submitted.
-	 * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws Exception
 	 */
 	public function sendRegistrationNotificationEmail()
 	{
@@ -274,7 +256,7 @@ class UserAccount extends SerializedContent
 		$body = str_replace("[[activate_url]]", $cms_uri, $body);
 
 		/* send out notification email */
-		$mail = new mail_class(
+		$mail = new Mailer(
 			$this->sender_name,
 			self::getContactEmail(),
 			self::getContactEmail(),
@@ -283,13 +265,14 @@ class UserAccount extends SerializedContent
 			$subject,
 			$body);
 		$mail->send();
+		unset($mail);
 	}
 
-	/**
-	 * Setter for account activation uri.
-	 * @param string $uri Account activation uri.
-	 */
-	public static function setAccountActivationURI($uri)
+    /**
+     * Setter for account activation uri.
+     * @param string $uri Account activation uri.
+     */
+	public static function setAccountActivationURI(string $uri)
 	{
 		static::$accountActivationURI = $uri;
 	}
@@ -298,7 +281,7 @@ class UserAccount extends SerializedContent
 	 * Sets the contact email address for all instances of UserAccount class.
 	 * @param string $email New contact email address.
 	 */
-	public function setContactEmail($email)
+	public function setContactEmail(string $email)
 	{
 		static::$contactEmail = $email;
 	}
@@ -308,7 +291,7 @@ class UserAccount extends SerializedContent
 	 * @param string $path Registration notice email template path.
 	 * @throws ResourceNotFoundException
 	 */
-	public static function setRegistrationNoticeEmailTemplate($path)
+	public static function setRegistrationNoticeEmailTemplate(string $path)
 	{
 		if (!file_exists($path))
 		{
@@ -321,7 +304,7 @@ class UserAccount extends SerializedContent
 	 * Sender name setter.
 	 * @param string $name Name of password reset email sender.
 	 */
-	public function setSenderName( $name )
+	public function setSenderName( string $name )
 	{
 		$this->sender_name = $name;
 	}
@@ -391,5 +374,4 @@ class UserAccount extends SerializedContent
 			throw new ContentValidationException("User name already exists.");
 		}
 	}
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 }
