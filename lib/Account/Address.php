@@ -94,7 +94,7 @@ class Address extends SerializedContent
 
 	/**
 	 * Class constructor.
-	 * @param string[optional] $prefix Prefix to prepend to form elements.
+	 * @param string $prefix (Optional) prefix to prepend to form elements.
 	 */
 	function __construct ( $prefix="" ) 
 	{
@@ -161,7 +161,7 @@ class Address extends SerializedContent
         }
     }
 
-    /**
+	/**
 	 * Returns string formatted with current city, state, country, and zip code values.
 	 * @return string Formatted location description.
 	 */
@@ -271,7 +271,7 @@ class Address extends SerializedContent
 
     /**
      * Format any available street address information into a single string.
-     * @param integer|null $limit (Optional) Limit the size of the string returned to $limit characters.
+     * @param int|null $limit (Optional) Limit the size of the string returned to $limit characters.
      * @return string
      */
     public function formatStreet($limit=null)

@@ -14,7 +14,7 @@ use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
 use Littled\Request\StringPasswordField;
 use Littled\Social\Mailer;
-use Exception;
+use \Exception;
 
 /**
  * Class UserAccount
@@ -71,8 +71,6 @@ class UserAccount extends SerializedContent
     public $postal_opt_in;
     /** @var IntegerInput Pointer to the record id of the contact information record linked to this user account. */
     public $contact_id;
-    /** @var boolean Flag to allow overrides of login situations. */
-    public $bypass_login;
     /** @var string Shortcut to the first and last name associated with the account. */
     public $fullname;
 	/** @var string Name of sender for password reset emails. */
@@ -80,7 +78,7 @@ class UserAccount extends SerializedContent
 
 	/**
 	 * UserAccount constructor.
-	 * @param integer|null $id (Optional) record id value.
+	 * @param int|null $id (Optional) Record id value.
 	 */
     public function __construct($id = null)
     {
