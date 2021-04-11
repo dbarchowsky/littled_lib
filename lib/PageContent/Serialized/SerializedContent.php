@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Serialized;
 
 
+use http\Env\Request;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -9,6 +10,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Request\RequestInput;
 use Littled\Request\IntegerInput;
 
 class SerializedContent extends SerializedContentUtils
@@ -37,6 +39,20 @@ class SerializedContent extends SerializedContentUtils
 		$this->id = new IntegerInput('id', 'id', false, $id);
 		$this->bypassCollectFromInput = false;
 	}
+
+    /**
+     * Clears all form input values
+     */
+    public function clear()
+    {
+        foreach ($this as $p)
+        {
+            if ($p instanceof RequestInput)
+            {
+                $p->clearValue();
+            }
+        }
+    }
 
 	/**
 	 * Check if a column exists in a given database table in the content item's database table.

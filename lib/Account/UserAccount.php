@@ -1,37 +1,25 @@
 <?php
 namespace Littled\Account;
 
-
-<<<<<<< HEAD
-=======
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\ResourceNotFoundException;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
 use Littled\Request\StringPasswordField;
-<<<<<<< HEAD
-=======
+use Littled\Social\Mailer;
 use \Exception;
-use \mail_class;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 
 /**
  * Class UserAccount
  * @package Littled\Account
  */
-<<<<<<< HEAD
-class AjaxPage extends SerializedContent
-{
-    /** @var IntegerInput Account record id. */
-=======
 class UserAccount extends SerializedContent
 {
 	/** @var int Disabled value. */
@@ -62,7 +50,6 @@ class UserAccount extends SerializedContent
 
 
 	/** @var IntegerInput Account record id. */
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     public $id;
     /** @var StringTextField User name/login. */
     public $uname;
@@ -84,14 +71,6 @@ class UserAccount extends SerializedContent
     public $postal_opt_in;
     /** @var IntegerInput Pointer to the record id of the contact information record linked to this user account. */
     public $contact_id;
-<<<<<<< HEAD
-    /** @var boolean Flag to allow overrides of login situations. */
-    public $bypass_login;
-    /** @var boolean Flag indicating if the user is currently logged in on the site. */
-    public $logged_in;
-    /** @var string Shortcut to the first and last name associated with the account. */
-    public $fullname;
-=======
     /** @var string Shortcut to the first and last name associated with the account. */
     public $fullname;
 	/** @var string Name of sender for password reset emails. */
@@ -99,7 +78,7 @@ class UserAccount extends SerializedContent
 
 	/**
 	 * UserAccount constructor.
-	 * @param integer[optional] $id Record id value.
+	 * @param int|null $id (Optional) Record id value.
 	 */
     public function __construct($id = null)
     {
@@ -274,7 +253,7 @@ class UserAccount extends SerializedContent
 		$body = str_replace("[[activate_url]]", $cms_uri, $body);
 
 		/* send out notification email */
-		$mail = new mail_class(
+		$mail = new Mailer(
 			$this->sender_name,
 			self::getContactEmail(),
 			self::getContactEmail(),
