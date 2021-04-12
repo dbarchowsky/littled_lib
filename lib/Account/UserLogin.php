@@ -2,6 +2,7 @@
 namespace Littled\Account;
 
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\PageContent\PageUtils;
@@ -73,10 +74,30 @@ class UserLogin extends UserAccount
     }
 
     /**
+     * Checks to see if the user is currently signed in. If not, redirects to a login page.
+     * @param int $access_level (Optional) Token representing the level of access required to view the current page.
+     * @param string $msg (Optional) Message to be displayed with the login form.
+     */
+    public function requireLogin($access_level=100, $msg="" )
+    {
+        $this->validateOnSession($access_level);
+        if (!$this->logged_in)
+        {
+            /* NB INPUT_SERVER is unreliable with filter_input() */
+            $_SESSION[LittledGlobals::P_REFERER] = $_SERVER['PHP_SELF'].PageUtils::serializePageData();
+            if ($msg) {
+                $_SESSION[LittledGlobals::P_MESSAGE] = $msg;
+            }
+            header("Location: ".LOGIN_URI."\n\n");
+            exit;
+        }
+    }
+
+    /**
      * @param int $access_level Token representing access necessary to validate.
      * @throws ContentValidationException
      */
-     function tryLogin(int $access_level)
+     function tryLogin($access_level)
      {
          if (!$this->uname->value || !$this->password->value || $this->access->value>$access_level)
          {
@@ -88,10 +109,10 @@ class UserLogin extends UserAccount
      }
 
     /**
-     * @param int $access_level Token representing the access level the login is requesting.
+     * @param integer $access_level Token representing the access level the login is requesting.
      * @throws ContentValidationException
      */
-     public function validateLogin(int $access_level)
+     public function validateLogin($access_level)
      {
          $query = "SELECT l.id, c.firstname, c.lastname, c.email, l.access ".
              "FROM `site_user` l ".
