@@ -3,6 +3,7 @@ namespace Littled\PageContent;
 
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -109,7 +110,7 @@ class PageContentBase extends MySQLConnection
 		foreach($page_vars as $input) {
 			/** @var $input RequestInput */
 			if ( $input instanceof RequestInput) {
-				$input->collectFromInput();
+				$input->collectPostData();
 			}
 			else {
 				/* @todo remove this after common_lib is removed from all projects */
@@ -131,7 +132,7 @@ class PageContentBase extends MySQLConnection
      * Sets the error message to display on a page.
      * @param string $error_msg string
      */
-    public function setPageError( $error_msg )
+    public function setPageError( string $error_msg )
     {
         $this->content->errorString = $error_msg;
     }
@@ -155,10 +156,14 @@ class PageContentBase extends MySQLConnection
      * Inserts data into a template file and renders the result.
      * @param string|null $p_template_path Path to template to render.
      * @param array|null $context Data to insert into the template.
+     * @throws ConfigurationUndefinedException
      */
 	public function render( $p_template_path=null, $context=null )
 	{
 		if ($p_template_path===null || $p_template_path==='') {
+		    if ($this->templatePath===null || strlen(trim($this->templatePath)<1)) {
+		        throw new ConfigurationUndefinedException("Template not set.");
+		    }
 			$p_template_path = $this->templatePath;
 		}
 		if (!is_array($context)) {
