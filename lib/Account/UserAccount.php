@@ -25,9 +25,9 @@ class UserAccount extends SerializedContent
 	/** @var int Disabled value. */
 	const DISABLED = 0;
 	/** @var int Basic credentials token value. */
-	public const BASIC_AUTHENTICATION = 1;
+	const BASIC_AUTHENTICATION = 1;
 	/** @var int Admin credentials token value. */
-	public const ADMIN_AUTHENTICATION = 2;
+	const ADMIN_AUTHENTICATION = 2;
 	/** @var string Name of variable holding record id value. */
 	const ID_PARAM = "suid";
 	/** @var string Name of variable holding user name value for authentication purposes. */
