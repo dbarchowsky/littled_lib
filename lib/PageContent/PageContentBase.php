@@ -161,7 +161,7 @@ class PageContentBase extends MySQLConnection
 	public function render( $p_template_path=null, $context=null )
 	{
 		if ($p_template_path===null || $p_template_path==='') {
-		    if ($this->templatePath===null || strlen(trim($this->templatePath)<1)) {
+		    if ($this->templatePath===null || strlen(trim($this->templatePath)) < 1) {
 		        throw new ConfigurationUndefinedException("Template not set.");
 		    }
 			$p_template_path = $this->templatePath;
