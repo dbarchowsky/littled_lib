@@ -5,6 +5,7 @@ use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -157,6 +158,7 @@ class PageContentBase extends MySQLConnection
      * @param string|null $p_template_path Path to template to render.
      * @param array|null $context Data to insert into the template.
      * @throws ConfigurationUndefinedException
+     * @throws ResourceNotFoundException
      */
 	public function render( $p_template_path=null, $context=null )
 	{
@@ -166,6 +168,9 @@ class PageContentBase extends MySQLConnection
 		    }
 			$p_template_path = $this->templatePath;
 		}
+		if (!file_exists($p_template_path)) {
+		    throw new ResourceNotFoundException("Template not found.");
+        }
 		if (!is_array($context)) {
 			$context = array(
 				'content' => &$this->content,
