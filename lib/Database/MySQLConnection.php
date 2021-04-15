@@ -5,6 +5,10 @@ use Littled\App\AppBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidQueryException;
+use Exception;
+use mysqli;
+use mysqli_driver;
+use mysqli_sql_exception;
 
 
 /**
@@ -15,7 +19,7 @@ class MySQLConnection extends AppBase
 {
 	const DEFAULT_MYSQL_PORT = '3306';
 
-	/** @var \mysqli MySQLi connection to server. */
+	/** @var mysqli MySQLi connection to server. */
 	protected $mysqli;
 
 	/**
@@ -23,7 +27,8 @@ class MySQLConnection extends AppBase
 	 */
 	function __construct()
 	{
-		$driver = new \mysqli_driver();
+		parent::__construct();
+		$driver = new mysqli_driver();
 		$driver->report_mode = MYSQLI_REPORT_STRICT;
 	}
 
@@ -46,9 +51,9 @@ class MySQLConnection extends AppBase
 	 * @return boolean True/false depending on if the column is found.
 	 * @throws InvalidQueryException Error executing query.
 	 */
-	public function columnExists( $column_name, $table_name )
+	public function columnExists( string $column_name, string $table_name ): bool
 	{
-		$data = $this->fetchRecords("SHOW COLUMNS FROM `{$table_name}` LIKE '{$column_name}'");
+		$data = $this->fetchRecords("SHOW COLUMNS FROM `$table_name` LIKE '$column_name'");
 		$has_rows = (count($data) > 0);
 		return ($has_rows);
 	}
@@ -57,7 +62,7 @@ class MySQLConnection extends AppBase
 	 * Returns the latest connection error reported by mysqli.
 	 * @return string Internal mysqli connection error string, or null if there are no errors.
 	 */
-	public function connectionError()
+	public function connectionError(): string
 	{
 		return ($this->mysqli->connect_error);
 	}
@@ -79,15 +84,15 @@ class MySQLConnection extends AppBase
 	{
 		if (preg_match('/^\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}$/', $c->host))
 		{
-			$this->mysqli = new \mysqli($c->host, $c->user, $c->password, $c->schema, $c->port);
+			$this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port);
 		}
 		else
 		{
 			if ($c->port)
 			{
-				$c->host .= ":{$c->port}";
+				$c->host .= ":$c->port";
 			}
-			$this->mysqli = new \mysqli($c->host, $c->user, $c->password, $c->schema);
+			$this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema);
 		}
 	}
 
@@ -95,21 +100,21 @@ class MySQLConnection extends AppBase
 	 * Opens MySQLi connection. Stores connection as $mysqli property of the class.
 	 * Can be chained with other MySQLConnection methods.
 	 * @return $this
-	 * @param string[optional] $host Name of MySQL host.
-	 * @param string[optional] $user User name for connecting to MySQL server.
-	 * @param string[optional] $password Password for connecting to MySQL server.
-	 * @param string[optional] $schema Name of schema.
-	 * @param string[optional] $port Port number of MySQL server if not using default.
+	 * @param string $host Name of MySQL host.
+	 * @param string $user User name for connecting to MySQL server.
+	 * @param string $password Password for connecting to MySQL server.
+	 * @param string $schema Name of schema.
+	 * @param string $port Port number of MySQL server if not using default.
 	 * @throws ConnectionException On connection error.
 	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
-	public function connectToDatabase($host='', $user='', $password='', $schema='', $port='')
+	public function connectToDatabase($host='', $user='', $password='', $schema='', $port=''): MySQLConnection
 	{
 		if (!is_object($this->mysqli)) {
 			try {
 				$this->connect(MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port));
 			}
-			catch (\mysqli_sql_exception $ex) {
+			catch (mysqli_sql_exception $ex) {
 				throw new ConnectionException('Connection error: '.$ex->__toString());
 			}
 			$this->mysqli->set_charset('utf8');
@@ -147,11 +152,11 @@ class MySQLConnection extends AppBase
 	 * connection if one exists. Makes a connection to the database if one is not already open.
 	 * @param string $query SQL statement to execute.
 	 * @throws InvalidQueryException
-	 * @throws \Exception Error connecting to database
+	 * @throws Exception Error connecting to database
 	 */
-	protected function executeQuery($query)
+	protected function executeQuery(string $query)
 	{
-		if (!$this->mysqli instanceof \mysqli) {
+		if (!$this->mysqli instanceof mysqli) {
 			$this->connectToDatabase();
 		}
 		if (!$this->mysqli->multi_query($query)) {
@@ -166,7 +171,7 @@ class MySQLConnection extends AppBase
 	 * @return array Array of generic objects holding the data returned by the query.
 	 * @throws InvalidQueryException
 	 */
-	public function fetchRecords($query)
+	public function fetchRecords(string $query): array
 	{
 		$this->executeQuery($query);
 		$rs = array();
@@ -192,7 +197,7 @@ class MySQLConnection extends AppBase
 	 * @return array Data returned from query as an array.
 	 * @throws InvalidQueryException Error executing query.
 	 */
-	public function fetchRecordsNonExhaustive($query)
+	public function fetchRecordsNonExhaustive(string $query): array
 	{
 		$this->executeQuery($query);
 
@@ -218,13 +223,13 @@ class MySQLConnection extends AppBase
 	 * @return mixed
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getAppSetting($setting, $required=true)
+	public static function getAppSetting(string $setting, $required=true)
 	{
 		if (!defined($setting)) {
 			if ($required===false) {
-				return (null);
+				return null;
 			}
-			throw new ConfigurationUndefinedException("{$setting} not found in app settings.");
+			throw new ConfigurationUndefinedException("$setting not found in app settings.");
 		}
 		return (constant($setting));
 	}
@@ -232,48 +237,48 @@ class MySQLConnection extends AppBase
 	/**
 	 * Returns a generic object with database settings. If no settings are passed in
 	 * it will use default app settings.
-	 * @param string[optional] $host Database host. Empty string to use app settings.
-	 * @param string[optional] $user Database user. Empty string to use app settings.
-	 * @param string[optional] $password Database password. Empty string to use app settings.
-	 * @param string[optional] $schema Database schema. Empty string to use app settings.
-	 * @param string[optional] $port Database port. Empty string to use app settings.
+	 * @param string $host Database host. Empty string to use app settings.
+	 * @param string $user Database user. Empty string to use app settings.
+	 * @param string $password Database password. Empty string to use app settings.
+	 * @param string $schema Database schema. Empty string to use app settings.
+	 * @param string $port Database port. Empty string to use app settings.
 	 * @return object Generic object with database settings as its properties.
 	 * @throws ConfigurationUndefinedException
 	 */
-	protected static function getConnectionSettings($host='', $user='', $password='', $schema='', $port='')
+	protected static function getConnectionSettings($host='', $user='', $password='', $schema='', $port=''): object
 	{
 		return ((object)array(
-			'host' => (($host)?($host):(self::getAppSetting('MYSQL_HOST'))),
-			'user' => (($user)?($user):(self::getAppSetting('MYSQL_USER'))),
-			'password' => (($password)?($password):(self::getAppSetting('MYSQL_PASS'))),
-			'schema' => (($schema)?($schema):(self::getAppSetting('MYSQL_SCHEMA'))),
-			'port' => (($port)?($port):(self::getAppSetting('MYSQL_PORT', false)))
+			'host' => $host ?? self::getAppSetting('MYSQL_HOST'),
+			'user' => $user ?? self::getAppSetting('MYSQL_USER'),
+			'password' => $password ?? self::getAppSetting('MYSQL_PASS'),
+			'schema' => $schema ?? self::getAppSetting('MYSQL_SCHEMA'),
+			'port' => $port ?? self::getAppSetting('MYSQL_PORT', false)
 		));
 	}
 
 	/**
 	 * Returns a MySQLi object using either default connection settings, or settings passed in.
-	 * @param string[optional] $host
-	 * @param string[optional] $user
-	 * @param string[optional] $password
-	 * @param string[optional] $schema
-	 * @param string[optional] $port
-	 * @return \mysqli
+	 * @param string $host (Optional) database connection host
+	 * @param string $user (Optional) database connection user name
+	 * @param string $password (Optional) database connection password
+	 * @param string $schema (Optional) database name
+	 * @param string $port (Optional) database connection port
+	 * @return mysqli
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getMysqli($host='', $user='', $password='', $schema='', $port='')
+	public static function getMysqli($host='', $user='', $password='', $schema='', $port=''): mysqli
 	{
 		$c = MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port);
-		return(new \mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
+		return(new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
 	}
 
 	/**
 	 * Tests if the object currently has a viable database connection.
 	 * @return bool Flag indicating if there is a viable database connection or not.
 	 */
-	public function hasConnection()
+	public function hasConnection(): bool
 	{
-		if ($this->mysqli instanceof \mysqli === false) {
+		if ($this->mysqli instanceof mysqli === false) {
 			return (false);
 		}
 		return ($this->mysqli->connect_error === null);
@@ -283,9 +288,9 @@ class MySQLConnection extends AppBase
 	 * Executes SQL statement
 	 * @param string $query SQL statement to execute.
 	 * @throws InvalidQueryException
-	 * @throws \Exception Error connecting to database
+	 * @throws Exception Error connecting to database
 	 */
-	public function query($query)
+	public function query(string $query)
 	{
 		$this->executeQuery($query);
 
@@ -293,7 +298,7 @@ class MySQLConnection extends AppBase
 		while ($this->mysqli->more_results()) {
 			$this->mysqli->next_result();
 			if ($result = $this->mysqli->store_result()) {
-				while ($row = $result->fetch_row()) {
+				while ($result->fetch_row()) {
 					continue;
 				}
 				$result->free();
@@ -308,7 +313,7 @@ class MySQLConnection extends AppBase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 */
-	public function mysqli()
+	public function mysqli(): MySQLConnection
 	{
 		$this->connectToDatabase();
 		return $this;
@@ -318,7 +323,7 @@ class MySQLConnection extends AppBase
 	 * Retrieves the last insert id created in the database.
 	 * @return int Last insert id value.
 	 */
-	public function retrieveInsertID()
+	public function retrieveInsertID(): int
 	{
 		return ($this->mysqli->insert_id);
 	}

@@ -20,8 +20,8 @@ use Littled\Request\IntegerSelect;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Littled\Validation\Validation;
-use \DOMDocument;
-use \Exception;
+use DOMDocument;
+use Exception;
 
 /**
  * Class Address
@@ -33,7 +33,7 @@ class Address extends SerializedContent
 	const LOCATION_PARAM = "adlo";
 
 	const TABLE_NAME = "address";
-	public static function TABLE_NAME ()
+	public static function TABLE_NAME (): string
     {
 	    return (self::TABLE_NAME);
 	}
@@ -42,7 +42,7 @@ class Address extends SerializedContent
      * Inserts google maps key into URL to use to access google maps.
      * @return string google maps uri
      */
-	public static function GOOGLE_MAPS_URI()
+	public static function GOOGLE_MAPS_URI(): string
     {
         return ("https://maps.googleapis.com/maps/api/geocode/xml?key=".GMAP_KEY."&address=");
     }

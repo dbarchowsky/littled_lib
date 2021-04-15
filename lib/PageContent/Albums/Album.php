@@ -161,7 +161,7 @@ class Album extends KeywordSectionContent
 	 */
 	public function collectFromInput ( $src=null )
 	{
-		$this->section_id->bypassCollectFromInput = true;
+		$this->section_id->bypassCollectPostData = true;
 		parent::collectFromInput($src);
 		$this->gallery->collectFromInput($src);
 		if ($this->title->value && $this->slug->value=="") {

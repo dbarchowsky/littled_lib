@@ -3,15 +3,19 @@
 namespace Littled\Tests\Account;
 
 
+use GuzzleHttp\Client;
 use Littled\Account\UserAccount;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
+use Littled\Request\RequestInput;
 use PHPUnit\Framework\TestCase;
 
 class UserAccountTest extends TestCase
 {
 	/** @var string User name value that already exists in the site_user table. */
 	const TEST_EXISTING_USER_NAME = 'video8';
+	/** @var string Path to collect user account test harness page. */
+	const TEST_HARNESS_COLLECT_PATH = 'tests/collect/account';
 
 	/** @var UserAccount Test object. */
 	public $obj;
@@ -21,6 +25,21 @@ class UserAccountTest extends TestCase
 		parent::setUp();
 		$this->obj = new UserAccount();
 	}
+
+	/**
+	 * @param UserAccount $account UserAccount object containing data to send to collection test harness page.
+	 * @return array Test harness response as json object.
+	 */
+	protected function sendCollectTestHarnessRequest($account)
+	{
+		$data = $account->arrayEncode();
+		$client = new Client(['base_uri' => TEST_HARNESS_BASE_URI]);
+		$response = $client->post(self::TEST_HARNESS_COLLECT_PATH, [
+			'form_params' => $data
+		]);
+		return(json_decode($response->getBody()->getContents(), true));
+	}
+
 
 	public function testConstruct()
 	{
@@ -55,6 +74,13 @@ class UserAccountTest extends TestCase
 		$obj = new UserAccount();
 		self::assertEquals('https://foobar.com/biz/bash', $this->obj->getAccountActivationURI());
 		self::assertEquals('https://foobar.com/biz/bash', $obj->getAccountActivationURI());
+	}
+
+	public function testCollectFromInput()
+	{
+		$result = $this->sendCollectTestHarnessRequest($this->obj);
+		$data = $result['data'];
+		self::assertNull($data[$this->obj->id->key]);
 	}
 
 	public function testContactEmail()
