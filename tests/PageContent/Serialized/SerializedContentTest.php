@@ -3,11 +3,13 @@ namespace Littled\Tests\PageContent;
 
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Filters\BooleanContentFilter;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
@@ -163,9 +165,9 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException Table name is not set in inherited classes.
-	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
+	 * @throws InvalidQueryException Error executing query.
 	 */
-	public static function setUpBeforeClass()
+	public static function setUpBeforeClass() : void
 	{
 		$c = new MySQLConnection();
 
@@ -226,7 +228,7 @@ class SerializedContentTest extends TestCase
 	 * @throws NotImplementedException Table name is not set in inherited classes.
 	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
 	 */
-	public static function tearDownAfterClass()
+	public static function tearDownAfterClass(): void
 	{
 		$c = new MySQLConnection();
 		$query = "DROP PROCEDURE IF EXISTS `testListSelect`;";
@@ -241,7 +243,7 @@ class SerializedContentTest extends TestCase
 		$c->query($query);
 	}
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->obj = new SerializedContent();
 		$this->conn = new MySQLConnection();
@@ -265,9 +267,9 @@ class SerializedContentTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function testGetTypeName()
 	{
@@ -285,46 +287,13 @@ class SerializedContentTest extends TestCase
 		$this->assertEquals($obj->title->value, $result);
 	}
 
-	public function testHasData()
-    {
-    	$o = new SerializedContentChild();
-    	$this->assertFalse($o->hasData());
-
-    	$o->vc_col1->value = 'foo';
-	    $this->assertTrue($o->hasData());
-
-	    $o->vc_col1->value = '';
-	    $this->assertFalse($o->hasData());
-
-	    $o->vc_col2->value = 'biz';
-	    $this->assertTrue($o->hasData());
-
-	    $o->vc_col1->value = null;
-	    $o->vc_col2->value = null;
-	    $this->assertFalse($o->hasData());
-
-	    $o->int_col->value = 999;
-	    $this->assertTrue($o->hasData());
-
-	    $o->vc_col1->value = '';
-	    $o->vc_col2->value = '';
-	    $this->assertTrue($o->hasData());
-
-	    $o->int_col->value = null;
-	    $o->bool_col->value = false;
-	    $this->assertTrue($o->hasData());
-
-	    $o->bool_col->value = null;
-	    $this->assertFalse($o->hasData());
-    }
-
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function testRecordExists()
 	{
@@ -352,11 +321,11 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException No record exists that matches the id value.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException No record exists that matches the id value.
 	 */
 	public function testSave()
 	{
@@ -384,11 +353,11 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException No record exists that matches the id value.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException No record exists that matches the id value.
 	 */
 	public function testSaveDefaultValues()
 	{
@@ -421,11 +390,11 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException No record exists that matches the id value.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException No record exists that matches the id value.
 	 */
     public function testSaveNullValues()
     {
@@ -457,10 +426,10 @@ class SerializedContentTest extends TestCase
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException No record exists that matches the id value.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException No record exists that matches the id value.
 	 */
     public function testUpdate()
     {
@@ -500,10 +469,10 @@ class SerializedContentTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
 	 */
     public function testRead()
     {
@@ -529,10 +498,10 @@ class SerializedContentTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
 	 */
     public function testReadNonExistentRecord()
     {
@@ -545,10 +514,10 @@ class SerializedContentTest extends TestCase
 	/**
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
 	 */
 	public function testReadNullID()
 	{
@@ -565,9 +534,9 @@ class SerializedContentTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function testReadInvalidObject()
 	{
@@ -583,8 +552,8 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
 	 */
     public function testReadList()
     {
@@ -605,12 +574,13 @@ class SerializedContentTest extends TestCase
     }
 
 	/**
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
 	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
 	public function testReadNullValues()
 	{
@@ -641,12 +611,12 @@ class SerializedContentTest extends TestCase
 	}
 
 	/**
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
 	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException No record exists that matches the id value.
+	 * @throws RecordNotFoundException
 	 */
     public function testUpdateNonExistentRecord ()
     {
@@ -663,7 +633,7 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
     public function testGetNameColumnIdentifier()
     {
@@ -679,12 +649,12 @@ class SerializedContentTest extends TestCase
     }
 
 	/**
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
 	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
     public function testDelete()
     {

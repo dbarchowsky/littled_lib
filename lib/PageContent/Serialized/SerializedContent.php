@@ -11,7 +11,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 
-class SerializedContent extends SerializedContentUtils
+class SerializedContent extends SerializedContentValidation
 {
 	/** @var IntegerInput Record id. */
 	public $id;
@@ -22,7 +22,7 @@ class SerializedContent extends SerializedContentUtils
 	 * Interface to retrieve table name associated with inherited classes.
 	 * @throws NotImplementedException
 	 */
-	public static function TABLE_NAME()
+	public static function TABLE_NAME(): string
 	{
 		throw new NotImplementedException('TABLE_NAME() not implemented in inherited class.');
 	}
@@ -46,7 +46,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws NotImplementedException Inherited classes haven't set table name value.
 	 * @throws InvalidQueryException Error executing query.
 	 */
-	public function columnExists($column_name, $table_name='')
+	public function columnExists(string $column_name, string $table_name=''): bool
 	{
 		if ('' === $table_name) {
 			$table_name = $this->TABLE_NAME();
@@ -61,7 +61,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws NotImplementedException Table name not set in inherited class.
 	 * @throws InvalidQueryException SQL error raised running deletion query.
 	 */
-	public function delete ( )
+	public function delete ( ): string
 	{
 		if ($this->id->value===null || $this->id->value<1) {
 			throw new ContentValidationException("Id not provided.");
@@ -116,7 +116,7 @@ class SerializedContent extends SerializedContentUtils
 			throw new RecordNotFoundException("Requested record not available for update.");
 		}
 
-		$fields_cb = function($key, $value) { return("`{$key}`={$value}"); };
+		$fields_cb = function($key, $value) { return("`$key`=$value"); };
 
 		/* build and execute sql statement */
 		$query = "UPDATE `".$this->TABLE_NAME()."` SET ".
@@ -133,15 +133,13 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws NotImplementedException Inherited classes haven't set table name value.
 	 * @throws InvalidQueryException Error executing query.
 	 */
-	public function getNameColumnIdentifier()
+	public function getNameColumnIdentifier(): string
 	{
 		switch(1) {
 			case ($this->columnExists('name')):
 				return ('name');
-				break;
 			case ($this->columnExists('title')):
 				return('title');
-				break;
 			default:
 				return('');
 		}
@@ -159,7 +157,7 @@ class SerializedContent extends SerializedContentUtils
 	{
 		$column = $this->getNameColumnIdentifier();
 
-		$query = "SEL"."ECT `{$column}` AS `column_name` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
+		$query = "SEL"."ECT `$column` AS `column_name` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException('Column value not found');
@@ -183,26 +181,16 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws InvalidQueryException SQL error raised running insert query.
 	 * @return string|null Retrieved value.
 	 */
-	public function getTypeName($table, $id, $field="name", $id_field="id" )
+	public function getTypeName(string $table, int $id, $field="name", $id_field="id" ): ?string
 	{
 		if ($id===null || $id<1) {
-			return(null);
+			return null;
 		}
 
-		$query = "SEL"."ECT `{$field}` AS `result` FROM `{$table}` WHERE `{$id_field}` = {$id}";
+		$query = "SEL"."ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = $id";
 		$data = $this->fetchRecords($query);
 		$ret_value = $data[0]->result;
 		return($ret_value);
-	}
-
-	/**
-	 * Indicates if any form data has been entered for the current instance of the object.
-	 * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
-	 * have been uploaded. Most likely should be overridden in derived classes.
-	 */
-	public function hasData( )
-	{
-		return ($this->id->value!==null);
 	}
 
 	/**
@@ -251,7 +239,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws NotImplementedException Currently only stored procedures are supported.
 	 * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
 	 */
-	public function readList( $property, $type, $query )
+	public function readList( string $property, string $type, string $query )
 	{
 		if (stripos($query, "call")===0) {
 			$data = $this->fetchRecords($query);
@@ -299,7 +287,7 @@ class SerializedContent extends SerializedContentUtils
 	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
 	 */
-	public function recordExists()
+	public function recordExists(): bool
 	{
 		if ($this->id->value===null || $this->id->value==='' || $this->id->value < 1) {
 			return (false);

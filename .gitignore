@@ -1,4 +1,5 @@
 .idea/
+.phpunit.result.cache
 _gsdata_/
 /vendor/
 composer.phar

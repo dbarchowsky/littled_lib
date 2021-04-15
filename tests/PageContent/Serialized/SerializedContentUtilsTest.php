@@ -276,39 +276,6 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertNull($dst->int_col->value);
 	}
 
-    public function testHasData()
-    {
-    	$o = new SerializedContentUtilsChild();
-    	$this->assertFalse($o->hasData());
-
-    	$o->vc_col1->value = 'foo';
-	    $this->assertTrue($o->hasData());
-
-	    $o->vc_col1->value = '';
-	    $this->assertFalse($o->hasData());
-
-	    $o->vc_col2->value = 'biz';
-	    $this->assertTrue($o->hasData());
-
-	    $o->vc_col1->value = null;
-	    $o->vc_col2->value = null;
-	    $this->assertFalse($o->hasData());
-
-	    $o->int_col->value = 999;
-	    $this->assertTrue($o->hasData());
-
-	    $o->vc_col1->value = '';
-	    $o->vc_col2->value = '';
-	    $this->assertTrue($o->hasData());
-
-	    $o->int_col->value = null;
-	    $o->bool_col->value = false;
-	    $this->assertTrue($o->hasData());
-
-	    $o->bool_col->value = null;
-	    $this->assertFalse($o->hasData());
-    }
-
     public function testGetContentTypeID()
     {
     	$obj = new SerializedContentUtilsChild();
