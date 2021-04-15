@@ -36,6 +36,25 @@ class LoginAuthenticator extends UserLogin
 	}
 
 	/**
+	 * Verifies login credentials using interal values of the login object.
+	 * @param int $access_level (Optional) Token representing the level of access required to view the current page.
+	 * @throws ContentValidationException
+	 * @throws Exception
+	 */
+	public function authenticate($access_level=100)
+	{
+		if (!$this->uname->value || !$this->password->value || $this->access->value>$access_level)
+		{
+			$this->logged_in = false;
+			throw new ContentValidationException("Invalid login.");
+		}
+
+		$this->uname->collectPostData();
+		$this->password->collectPostData();
+		$this->validateOnDatabase($access_level);
+	}
+
+	/**
 	 * Collects form data from login form.
 	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
@@ -124,25 +143,6 @@ class LoginAuthenticator extends UserLogin
 	public function setLoginURI( string $uri )
 	{
 		static::$login_uri = $uri;
-	}
-
-	/**
-	 * Verifies login credentials using interal values of the login object.
-	 * @param int $access_level (Optional) Token representing the level of access required to view the current page.
-	 * @throws ContentValidationException
-	 * @throws Exception
-	 */
-	public function tryLogin($access_level=100)
-	{
-		if (!$this->uname->value || !$this->password->value || $this->access->value>$access_level)
-		{
-			$this->logged_in = false;
-			throw new ContentValidationException("Invalid login.");
-		}
-
-		$this->uname->collectPostData();
-		$this->password->collectPostData();
-		$this->validateOnDatabase($access_level);
 	}
 
 	/**
