@@ -68,19 +68,10 @@ class MySQLConnection extends AppBase
 	}
 
 	/**
-	 * Form the array like this:
-	 * <code>
-	 * $c = array(
-	 *     'host' => '',      // host address
-	 *     'user' => '',      // user name
-	 *     'password' => '',  // password
-	 *     'schema' => '',    // schema
-	 *     'port' => null     // port number as an int, if using non-default port number
-	 * );
-	 * </code>
-	 * @param array[string]string $c Array of connection properties: {host, user}
+	 * Make database connection
+	 * @param DBConnectionSettings $c Database connection properties
 	 */
-	protected function connect($c)
+	protected function connect(DBConnectionSettings $c)
 	{
 		if (preg_match('/^\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}$/', $c->host))
 		{
@@ -112,7 +103,8 @@ class MySQLConnection extends AppBase
 	{
 		if (!is_object($this->mysqli)) {
 			try {
-				$this->connect(MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port));
+			    $c = MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port);
+				$this->connect($c->toArray());
 			}
 			catch (mysqli_sql_exception $ex) {
 				throw new ConnectionException('Connection error: '.$ex->__toString());
@@ -242,18 +234,18 @@ class MySQLConnection extends AppBase
 	 * @param string $password Database password. Empty string to use app settings.
 	 * @param string $schema Database schema. Empty string to use app settings.
 	 * @param string $port Database port. Empty string to use app settings.
-	 * @return object Generic object with database settings as its properties.
+	 * @return DBConnectionSettings Initialized object containing database properties
 	 * @throws ConfigurationUndefinedException
 	 */
 	protected static function getConnectionSettings($host='', $user='', $password='', $schema='', $port=''): object
 	{
-		return ((object)array(
-			'host' => $host ?: self::getAppSetting('MYSQL_HOST'),
-			'user' => $user ?: self::getAppSetting('MYSQL_USER'),
-			'password' => $password ?: self::getAppSetting('MYSQL_PASS'),
-			'schema' => $schema ?: self::getAppSetting('MYSQL_SCHEMA'),
-			'port' => $port ?: self::getAppSetting('MYSQL_PORT', false)
-		));
+		return new DBConnectionSettings(
+			$host ?: self::getAppSetting('MYSQL_HOST'),
+			$user ?: self::getAppSetting('MYSQL_USER'),
+			$password ?: self::getAppSetting('MYSQL_PASS'),
+			$schema ?: self::getAppSetting('MYSQL_SCHEMA'),
+			$port ?: self::getAppSetting('MYSQL_PORT', false)
+		);
 	}
 
 	/**
