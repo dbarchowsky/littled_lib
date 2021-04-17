@@ -8,6 +8,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidCredentialsException;
 use Littled\PageContent\PageUtils;
 use Exception;
+use Littled\Request\StringInput;
 
 
 /**
@@ -20,12 +21,15 @@ class LoginAuthenticator extends UserLogin
     /** @var string Value to insert in login form */
     const LOGIN_ACTION = 'login';
 
-	/** @var boolean Flag to allow overrides of login situations. */
+    /** @var string URI of page containing login authentication form. */
+    protected static $login_uri;
+
+    /** @var boolean Flag to allow overrides of login situations. */
 	public $bypass_login;
 	/** @var boolean Flag indicating if the user is currently logged in on the site. */
 	public $logged_in;
-	/** @var string URI of page containing login authentication form. */
-	protected static $login_uri;
+	/** @var StringInput URI to redirect to after successful login. */
+	public $redirect_uri;
 
 	/**
 	 * LoginAuthenticator constructor.
@@ -36,6 +40,7 @@ class LoginAuthenticator extends UserLogin
 		parent::__construct($id);
 		$this->bypass_login = false;
 		$this->logged_in = false;
+		$this->redirect_uri = new StringInput('redirect uri', LittledGlobals::P_REFERER, false, '', 500);
 	}
 
 	/**
@@ -50,8 +55,7 @@ class LoginAuthenticator extends UserLogin
 		}
 
 		try {
-            $this->uname->collectPostData();
-            $this->password->collectPostData();
+            $this->collectFromInput();
             $this->validateOnDatabase($access_level);
         }
         catch (InvalidCredentialsException
@@ -70,6 +74,7 @@ class LoginAuthenticator extends UserLogin
 	{
 		$this->uname->collectPostData();
 		$this->password->collectPostData();
+        $this->redirect_uri->collectPostData();
 	}
 
 	/**
