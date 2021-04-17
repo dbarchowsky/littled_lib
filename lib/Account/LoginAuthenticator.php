@@ -17,6 +17,9 @@ use Exception;
  */
 class LoginAuthenticator extends UserLogin
 {
+    /** @var string Value to insert in login form */
+    const LOGIN_ACTION = 'login';
+
 	/** @var boolean Flag to allow overrides of login situations. */
 	public $bypass_login;
 	/** @var boolean Flag indicating if the user is currently logged in on the site. */
