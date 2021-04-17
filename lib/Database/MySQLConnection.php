@@ -248,11 +248,11 @@ class MySQLConnection extends AppBase
 	protected static function getConnectionSettings($host='', $user='', $password='', $schema='', $port=''): object
 	{
 		return ((object)array(
-			'host' => $host ?? self::getAppSetting('MYSQL_HOST'),
-			'user' => $user ?? self::getAppSetting('MYSQL_USER'),
-			'password' => $password ?? self::getAppSetting('MYSQL_PASS'),
-			'schema' => $schema ?? self::getAppSetting('MYSQL_SCHEMA'),
-			'port' => $port ?? self::getAppSetting('MYSQL_PORT', false)
+			'host' => $host ?: self::getAppSetting('MYSQL_HOST'),
+			'user' => $user ?: self::getAppSetting('MYSQL_USER'),
+			'password' => $password ?: self::getAppSetting('MYSQL_PASS'),
+			'schema' => $schema ?: self::getAppSetting('MYSQL_SCHEMA'),
+			'port' => $port ?: self::getAppSetting('MYSQL_PORT', false)
 		));
 	}
 
