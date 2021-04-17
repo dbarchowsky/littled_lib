@@ -41,9 +41,6 @@ class LoginAuthenticator extends UserLogin
 	/**
 	 * Verifies login credentials using interal values of the login object.
 	 * @param int $access_level (Optional) Token representing the level of access required to view the current page.
-	 * @throws InvalidCredentialsException
-     * @throws ConfigurationUndefinedException
-	 * @throws Exception
 	 */
 	public function authenticate($access_level=100)
 	{
@@ -52,9 +49,17 @@ class LoginAuthenticator extends UserLogin
 			$this->logged_in = false;
 		}
 
-		$this->uname->collectPostData();
-		$this->password->collectPostData();
-		$this->validateOnDatabase($access_level);
+		try {
+            $this->uname->collectPostData();
+            $this->password->collectPostData();
+            $this->validateOnDatabase($access_level);
+        }
+        catch (InvalidCredentialsException
+            | ConfigurationUndefinedException
+            | Exception $ex)
+        {
+            $this->addValidationError($ex->getMessage());
+        }
 	}
 
 	/**
