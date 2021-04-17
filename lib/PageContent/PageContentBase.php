@@ -202,11 +202,18 @@ class PageContentBase extends MySQLConnection
 
 	/**
 	 * Inserts data into a template file and renders the result. Alias for class's render() method.
-	 * @param string|null[optional] $template_path Path to template to render.
-	 * @param array|null[optional] $context Data to insert into the template.
+	 * @param ?string $template_path Path to template to render.
+	 * @param ?array $context Data to insert into the template.
+     * @throws ConfigurationUndefinedException
+     * @throws ResourceNotFoundException
 	 */
-	public function sendResponse( $template_path=null, $context=null )
+	public function sendResponse( ?string $template_path=null, ?array $context=null )
 	{
 		$this->render($template_path, $context);
 	}
+
+    /**
+     * Sets page properties.
+     */
+    public function setPageProperties(): void { }
 }
