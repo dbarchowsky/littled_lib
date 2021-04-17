@@ -56,9 +56,9 @@ class LoginAuthenticator extends UserLogin
 
 	/**
 	 * Collects form data from login form.
-	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectFromInput( $src=null )
+	public function collectFromInput( ?array $src=null ): void
 	{
 		$this->uname->collectPostData();
 		$this->password->collectPostData();
