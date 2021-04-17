@@ -3,7 +3,14 @@ namespace Littled\PageContent\SiteSection;
 
 
 use Littled\Cache\ContentCache;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\PageContent;
 use Littled\Request\StringTextarea;
@@ -46,7 +53,7 @@ class KeywordSectionContent extends SectionContent
 	 * Pushes a new keyword term onto the current list of Keyword objects stored in the object's $keyword property.
 	 * @param string $term Keyword term to push onto the stack.
 	 */
-	public function addKeyword( $term )
+	public function addKeyword( string $term ): void
 	{
 		array_push($this->keywords, new Keyword($term, $this->id->value, $this->contentProperties->id->value));
 	}
@@ -54,7 +61,7 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Clears and resets internal keyword values.
 	 */
-	public function clearKeywordData()
+	public function clearKeywordData(): void
 	{
 		$this->clearKeywordList();
 		$this->keywordInput->value = "";
@@ -63,17 +70,17 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Removes all keywords from the current keyword list while preserving any form data.
 	 */
-	public function clearKeywordList()
+	public function clearKeywordList(): void
 	{
 		$this->keywords = array();
 	}
 
 	/**
 	 * Fills object property values using data collected from request variables.
-	 * @param array|null[optional] $src Optional array container of request variables. If specified, it will override
+	 * @param ?array $src Optional array container of request variables. If specified, it will override
 	 * inspecting the $_POST and $_GET collections for keyword values.
 	 */
-	public function collectFromInput($src = null)
+	public function collectFromInput(?array $src = null): void
 	{
 		parent::collectFromInput($src);
 		$this->contentProperties->id->collectFromInput(null, $src);
@@ -83,10 +90,10 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Sets object values that need to be set after submitting data from an inline form, typically a widget within a
 	 * page that uses AJAX to edit keyword values.
-	 * @param array|null[optional] $src Optional array container of request variables. If specified, it will override
+	 * @param ?array $src Optional array container of request variables. If specified, it will override
 	 * inspecting the $_POST and $_GET collections for keyword values.
 	 */
-	public function collectFromInlineInput($src=null)
+	public function collectFromInlineInput(?array $src=null): void
 	{
 		$this->id->collectFromInput(null, $src);
 	}
@@ -94,13 +101,13 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Collects keyword terms from http request and stores them as separate Keyword objects in the object's
 	 * $keywords property.
-	 * @param array|null[optional] $src Optional array container of request variables. If specified, it will override
+	 * @param ?array $src Optional array container of request variables. If specified, it will override
 	 * inspecting the $_POST and $_GET collections for keyword values.
 	 */
-	public function collectKeywordInput($src=null)
+	public function collectKeywordInput(?array $src=null): void
 	{
 		$this->clearKeywordData();
-		$this->keywordInput->collectFromInput($src);
+		$this->keywordInput->collectPostData($src);
 		if (!$this->keywordInput->value) {
 			return;
 		}
@@ -115,12 +122,12 @@ class KeywordSectionContent extends SectionContent
 	 * to that main record.
 	 * @return string String containing a description of the results of the deletion.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws NotImplementedException
 	 */
-	public function delete()
+	public function delete(): string
 	{
 		$status = parent::delete();
 		$status .= $this->deleteKeywords();
@@ -131,11 +138,11 @@ class KeywordSectionContent extends SectionContent
 	 * Deletes any keyword records linked to the main content record represented by the object.
 	 * @return string String containing a description of the results of the deletion.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
-	public function deleteKeywords()
+	public function deleteKeywords(): string
 	{
 		$this->testForParentID();
 		$this->testForContentType();
@@ -153,8 +160,8 @@ class KeywordSectionContent extends SectionContent
 	 * @param string $src Comma-delimited series of keyword terms.
 	 * @return array Keyword terms separated out into an array.
 	 */
-	protected function extractKeywordTerms($src) {
-
+	protected function extractKeywordTerms(string $src): array
+    {
 		if (is_array($src)) {
 			$terms = array_values($src);
 		}
@@ -170,10 +177,10 @@ class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Retrieves the keyword template path from the database and uses the value to set the class's keyword template path property.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException
 	 */
-	protected function fetchKeywordListTemplate()
+	protected function fetchKeywordListTemplate(): void
 	{
 		$ao = new ContentAjaxProperties($this->contentProperties->id->value);
 		$ao->retrieveContentProperties();
@@ -186,11 +193,11 @@ class KeywordSectionContent extends SectionContent
 	 * currently stored in the object properties. Defaults to TRUE.
 	 * @return string Comma-delimited string containing all of the current keywords associated with this record.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
-	public function formatKeywordList($fetch_from_database=true)
+	public function formatKeywordList($fetch_from_database=true): string
 	{
 		if ($fetch_from_database && $this->hasData()) {
 			$this->readKeywords();
@@ -200,16 +207,16 @@ class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Returns markup containing keywords as links to listings filtered by the keyword value.
-	 * @param array $context[optional] Array containing variables to insert into the template.
+	 * @param array $context (Optional) Array containing variables to insert into the template.
 	 * @return string|false Markup to be used to display the keywords. False on error retrieving markup content.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
-	public function formatKeywordListPageContent($context=array())
+	public function formatKeywordListPageContent($context=array()): string
 	{
 		if ($this->hasData()) {
 			$this->readKeywords();
@@ -225,7 +232,7 @@ class KeywordSectionContent extends SectionContent
      * Returns path to keywords container template.
      * @return string Path to keywords container template.
      */
-	public static function getKeywordsCellTemplatePath()
+	public static function getKeywordsCellTemplatePath(): string
     {
         return (static::$keywordCellTemplate);
     }
@@ -234,7 +241,7 @@ class KeywordSectionContent extends SectionContent
      * Returns path to keywords list template
      * @return string Path to keywords list template.
      */
-    public static function getKeywordsListTemplatePath()
+    public static function getKeywordsListTemplatePath(): string
     {
         return (static::$keywordListTemplate);
     }
@@ -245,11 +252,11 @@ class KeywordSectionContent extends SectionContent
 	 * currently stored in the object properties. Defaults to TRUE.
 	 * @return array List of keyword terms currently linked to the record in the database.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
-	public function getKeywordTermsArray( $fetch_from_database=true )
+	public function getKeywordTermsArray( $fetch_from_database=true ): array
 	{
 		if ($fetch_from_database && $this->hasData()) {
 			$this->readKeywords();
@@ -261,13 +268,13 @@ class KeywordSectionContent extends SectionContent
 	 * Returns flag indicating whether keywords have been loaded into the object.
 	 * @return bool Returns TRUE if keywords have been loaded into the object. FALSE otherwise.
 	 */
-	public function hasKeywordData()
+	public function hasKeywordData(): bool
 	{
 		if (strlen($this->keywordInput->value) > 0) {
 			return (true);
 		}
 		if (is_array($this->keywords)) {
-			foreach($this->keywords as &$keyword) {
+			foreach($this->keywords as $keyword) {
 				if (strlen($keyword->term->value) > 0) {
 					return (true);
 				}
@@ -279,12 +286,12 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Retrieve record data.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
 	{
@@ -296,9 +303,9 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Retrieves keywords linked to the current record.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function readKeywords()
 	{
@@ -321,12 +328,12 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Commits object property data to record in the database.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function save()
 	{
@@ -338,14 +345,14 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Saves all keywords linked to the main record object.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function saveKeywords()
 	{
 		$this->deleteKeywords();
-		foreach($this->keywords as &$keyword) {
+		foreach($this->keywords as $keyword) {
 			/** @var Keyword $keyword */
 			$keyword->parent_id->value = $this->id->value;
 			$keyword->save();
@@ -354,18 +361,18 @@ class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Sets the class's keyword cell template path property.
-	 * @param $path string Path to template file.
+	 * @param string $path Path to template file.
 	 */
-	public static function setKeywordsCellTemplatePath( $path )
+	public static function setKeywordsCellTemplatePath( string $path ): void
 	{
 		static::$keywordCellTemplate = $path;
 	}
 
 	/**
 	 * Sets the class's keyword list template path property.
-	 * @param $path string Path to template file.
+	 * @param string $path Path to template file.
 	 */
-	public static function setKeywordsListTemplatePath( $path )
+	public static function setKeywordsListTemplatePath( string $path ): void
 	{
 		static::$keywordListTemplate = $path;
 	}
@@ -375,7 +382,7 @@ class KeywordSectionContent extends SectionContent
 	 * @param Keyword $keyword Keyword object containing a keyword term.
 	 * @return string Keyword term.
 	 */
-	protected static function termCallback($keyword)
+	protected static function termCallback( Keyword $keyword ): string
 	{
 		return($keyword->term->value);
 	}
@@ -383,7 +390,7 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Validates the internal property values of the object for data that is not valid.
 	 * Updates the $validation_errors property of the object with messages describing the invalid values.
-	 * @param array[optional] $exclude_properties Collection of variable names to ignore in the request data.
+	 * @param ?array $exclude_properties (Optional) Collection of variable names to ignore in the request data.
 	 * @throws ContentValidationException Errors found in the form data.
 	 */
 	public function validateInput($exclude_properties = [])
@@ -394,7 +401,7 @@ class KeywordSectionContent extends SectionContent
 			parent::validateInput($exclude_properties);
 		}
 		catch (ContentValidationException $ex) {
-			; /* continue validating collected request data */
+			/* continue validating collected request data */
 		}
 		try {
 		    /* validate the content type id to ensure this record has a content type value */
@@ -403,8 +410,8 @@ class KeywordSectionContent extends SectionContent
         catch(ContentValidationException $ex) {
             array_push($this->validationErrors, $ex->getMessage());
         }
-        /** @var \Littled\Keyword\Keyword $keyword */
-        foreach($this->keywords as &$keyword) {
+        /** @var Keyword $keyword */
+        foreach($this->keywords as $keyword) {
             try {
                 $keyword->validateInput();
             }

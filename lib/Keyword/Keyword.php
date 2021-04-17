@@ -2,7 +2,10 @@
 namespace Littled\Keyword;
 
 
-use Littled\PageContent\Serialized\SerializedContentUtils;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
+use Littled\PageContent\Serialized\SerializedContentValidation;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringTextarea;
 
@@ -11,7 +14,7 @@ use Littled\Request\StringTextarea;
  * Handles keyword values associated with site content.
  * @package Littled\Keyword
  */
-class Keyword extends SerializedContentUtils
+class Keyword extends SerializedContentValidation
 {
 	/** @var string Parent input variable name. */
 	const PARENT_PARAM = 'kwpi';
@@ -40,7 +43,7 @@ class Keyword extends SerializedContentUtils
 	 * @param int $type_id Keyword type id.
 	 * @param int[optional] $count Keyword count. Defaults to 0.
 	 */
-	function __construct( $keyword, $parent_id, $type_id, $count=0 )
+	function __construct( string $keyword, int $parent_id, int $type_id, $count=0 )
 	{
 		parent::__construct();
 		$this->term = new StringTextarea("Keyword", Keyword::KEYWORD_PARAM, true, $keyword, 1000, null);
@@ -52,11 +55,11 @@ class Keyword extends SerializedContentUtils
 	/**
 	 * Deletes Keyword record from database.
 	 * @return string
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
-	public function delete()
+	public function delete(): string
 	{
 		if (!$this->hasData()) {
 			return('');
@@ -73,11 +76,11 @@ class Keyword extends SerializedContentUtils
 	/**
 	 * Checks if the search term already exists in the database.
 	 * @return bool True/false depending on whether the term already exists in the database for its parent.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
-	public function exists()
+	public function exists(): bool
 	{
 		$this->connectToDatabase();
 		$query = "CALL keywordLookup(".
@@ -92,7 +95,7 @@ class Keyword extends SerializedContentUtils
 	 * Checks if a valid keyword term is currently stored in the object.
 	 * @return bool True/false depending on whether the object contains a search term.
 	 */
-	public function hasData()
+	public function hasData(): bool
 	{
 		return (strlen($this->term->value) > 0 &&
 			$this->type_id->value > 0 &&
@@ -101,11 +104,11 @@ class Keyword extends SerializedContentUtils
 
 	/**
 	 * Saves keywords to the database.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
 	 */
-	public function save()
+	public function save(): void
 	{
 		if ($this->hasData()===false) {
 			return;
