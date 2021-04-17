@@ -41,7 +41,8 @@ class LoginAuthenticator extends UserLogin
 	/**
 	 * Verifies login credentials using interal values of the login object.
 	 * @param int $access_level (Optional) Token representing the level of access required to view the current page.
-	 * @throws ContentValidationException
+	 * @throws InvalidCredentialsException
+     * @throws ConfigurationUndefinedException
 	 * @throws Exception
 	 */
 	public function authenticate($access_level=100)
@@ -183,6 +184,8 @@ class LoginAuthenticator extends UserLogin
 	 * Logs the user in if a valid database record is found.
 	 * @param int[optional] $accessLevel Token representing the level of access required to view the current page.
 	 * @throws Exception
+     * @throws InvalidCredentialsException
+     * @throws ConfigurationUndefinedException
 	 */
 	public function validateOnDatabase( $accessLevel=100 )
 	{
