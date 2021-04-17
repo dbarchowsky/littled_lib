@@ -68,7 +68,8 @@ class LoginAuthenticator extends UserLogin
 
 	/**
 	 * Collects form data from login form.
-	 * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET,
+     * Session vars.
 	 */
 	public function collectFromInput( ?array $src=null ): void
 	{
@@ -76,6 +77,20 @@ class LoginAuthenticator extends UserLogin
 		$this->password->collectPostData();
         $this->redirect_uri->collectPostData();
 	}
+
+    /**
+     * Collects initial redirect uri value passed to the login page from the previous page. This is the URL to use to
+     * redirect back to the source page after a successful login.
+     */
+	public function collectRedirectURI()
+    {
+        /* first test for value in query string */
+        $this->redirect_uri->value = trim(filter_input(INPUT_GET, $this->redirect_uri->key, FILTER_SANITIZE_URL));
+        /* then test for value in session data */
+        if (!$this->redirect_uri->value) {
+            $this->redirect_uri->value = isset($_SESSION[$this->redirect_uri->key]) && trim($_SESSION[$this->redirect_uri->key]) ? $_SESSION[$this->redirect_uri->key] : '';
+        }
+    }
 
 	/**
 	 * Login page URI getter.
