@@ -29,6 +29,9 @@ use Exception;
  */
 class Address extends SerializedContent
 {
+    /** @var string Google maps api key */
+    protected static $gmap_api_key;
+
 	const ID_PARAM = "adid";
 	const LOCATION_PARAM = "adlo";
 
@@ -44,7 +47,7 @@ class Address extends SerializedContent
      */
 	public static function GOOGLE_MAPS_URI(): string
     {
-        return ("https://maps.googleapis.com/maps/api/geocode/xml?key=".GMAP_KEY."&address=");
+        return ("https://maps.googleapis.com/maps/api/geocode/xml?key=".static::$gmap_api_key."&address=");
     }
 
 	/** @var IntegerInput Address record id. */
@@ -125,10 +128,10 @@ class Address extends SerializedContent
 
     /**
      * Checks database to see if any identical addresses already exist.
-     * @return boolean True/false indicating that an existing record was or was not found.
+     * @return bool True/false indicating that an existing record was or was not found.
      * @throws Exception
      */
-    public function checkForDuplicate ()
+    public function checkForDuplicate (): bool
     {
         $query = "SELECT id FROM `address` ".
             "WHERE (IFNULL(location, '') = ".$this->location->escapeSQL($this->mysqli).") ".
@@ -140,13 +143,13 @@ class Address extends SerializedContent
 
     /**
      * Formats plain string full address based on current address values stored in the object.
-     * @param string[optional] $style Token indicating the type of formatting to apply to the address.
+     * @param string $style (Optional) Token indicating the type of formatting to apply to the address.
      * Options are "oneline"|"html"|"google". Defaults to "oneline".
-     * @param boolean[optional] $include_name Flag to include the individual's first and last name. Defaults to FALSE.
+     * @param bool $include_name (Optional) Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      * @throws InvalidValueException
      */
-    public function formatAddress($style="oneline", $include_name=false)
+    public function formatAddress($style="oneline", $include_name=false): string
     {
         switch ($style)
         {
@@ -157,7 +160,7 @@ class Address extends SerializedContent
             case "google":
                 return($this->formatGoogleAddress());
             default:
-                throw new InvalidValueException("Unhandled address format: \"{$style}\".");
+                throw new InvalidValueException("Unhandled address format: \"$style\".");
         }
     }
 
@@ -165,7 +168,7 @@ class Address extends SerializedContent
 	 * Returns string formatted with current city, state, country, and zip code values.
 	 * @return string Formatted location description.
 	 */
-	public function formatCity()
+	public function formatCity(): string
 	{
 		$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state;
 		$city_parts = array_filter(array(trim(''.$this->city->value),
@@ -180,7 +183,7 @@ class Address extends SerializedContent
 	 * Formats a more informal version of a contact's name, without a salutation.
 	 * @return string Formatted contact name.
 	 */
-    public function formatContactName()
+    public function formatContactName(): string
     {
     	$parts = array_filter(array(
     		trim(''.$this->firstname->value),
@@ -193,7 +196,7 @@ class Address extends SerializedContent
 	 * Formats full name based on current salutation, first name, and last name values stored in the object.
 	 * @return string Formatted full name.
 	 */
-	public function formatFullName()
+	public function formatFullName(): string
 	{
 		$parts = array_filter(array(trim(''.$this->salutation->value),
 			trim(''.$this->firstname->value),
@@ -205,17 +208,17 @@ class Address extends SerializedContent
      * Formats full address formatted for Google API calls using current address values stored in the object.
      * @return string Formatted address.
      */
-    public function formatGoogleAddress()
+    public function formatGoogleAddress(): string
     {
         return (urlencode($this->formatOneLineAddress()));
     }
 
     /**
      * Formats full address html markup based on current address values stored in the object.
-     * @param boolean[optional] $include_name Flag to include the individual's first and last name. Defaults to FALSE.
+     * @param bool $include_name (Optional) Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      */
-    public function formatHTMLAddress($include_name=false)
+    public function formatHTMLAddress($include_name=false): string
     {
         $parts = array();
         if ($include_name==true)
@@ -249,7 +252,7 @@ class Address extends SerializedContent
      * Formats address into a single line.
      * @return string Formatted address.
      */
-    public function formatOneLineAddress()
+    public function formatOneLineAddress(): string
     {
         $addr = $this->appendSeparator($this->address1->value).
             $this->appendSeparator($this->address2->value).
@@ -274,7 +277,7 @@ class Address extends SerializedContent
      * @param int|null $limit (Optional) Limit the size of the string returned to $limit characters.
      * @return string
      */
-    public function formatStreet($limit=null)
+    public function formatStreet($limit=null): string
     {
     	$parts = array_filter(array(trim(''.$this->address1->value),
 		    trim(''.$this->address2->value)));
@@ -287,11 +290,20 @@ class Address extends SerializedContent
     }
 
     /**
+     * Returns current Google Maps API key value.
+     * @return string Current Google Maps API key value
+     */
+    public function getGMapAPIKey(): string
+    {
+        return static::$gmap_api_key;
+    }
+
+    /**
      * Indicates if any form data has been entered for the current instance of the object.
-     * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
+     * @return bool Returns true if editing an existing record, a title has been entered, or if any gallery images
      * have been uploaded. Most likely should be overridden in derived classes.
      */
-    public function hasData ()
+    public function hasData (): bool
     {
         return ($this->id->value!==null ||
             $this->firstname->value ||
@@ -332,9 +344,10 @@ class Address extends SerializedContent
 
     /**
      * Retrieves longitude and latitude using street address. Updates the internal longitude and latitude properties.
+     * @returns bool TRUE if longitude and latitude values were found. FALSE otherwise.
      * @throws Exception
      */
-    public function lookupMapPositionByAddress ( )
+    public function lookupMapPositionByAddress ( ): bool
     {
         $this->longitude->value = "0";
         $this->latitude->value = "0";
@@ -381,7 +394,7 @@ class Address extends SerializedContent
      */
     public function lookupMapPositionByZip ( )
     {
-        $query = "SELECT latitude, longitude FROM `zips` WHERE zipcode = ".$this->zip->escapeSQL($this->mysqli);
+        $query = "SEL"."ECT latitude, longitude FROM `zips` WHERE zipcode = ".$this->zip->escapeSQL($this->mysqli);
         $rs = $this->fetchRecords($query);
         if (count($rs) > 0)
         {
@@ -395,7 +408,7 @@ class Address extends SerializedContent
      */
     function preserveInForm ()
     {
-    	$template = CMS_COMMON_TEMPLATE_DIR."forms/data/address_class_data.php";
+    	$template = static::$common_cms_template_path."forms/data/address_class_data.php";
     	$context = array('input' => $this);
     	PageContent::render($template, $context);
     }
@@ -466,6 +479,15 @@ class Address extends SerializedContent
         }
         parent::save();
 	}
+
+    /**
+     * Sets Google Maps API key property value.
+     * @param string $key Google Maps API key value.
+     */
+	public function setGMapAPIKey(string $key)
+    {
+        static::$gmap_api_key = $key;
+    }
 
 	/**
 	 * Validates address form data.

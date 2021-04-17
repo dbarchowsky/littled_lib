@@ -22,6 +22,9 @@ use Exception;
  */
 class SerializedContentUtils extends AppContentBase
 {
+    /** @var string Path to CMS template dir */
+    protected static $common_cms_template_path;
+
 	/** @var array Container for validation error messages. */
 	public $validationErrors;
 	/** @var string Error message returned when invalid form data is encountered. */
@@ -101,9 +104,9 @@ class SerializedContentUtils extends AppContentBase
 
 	/**
 	 * Set property values using input variable values, e.g. GET, POST, cookies
-	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectFromInput($src=null)
+	public function collectFromInput(?array $src=null): void
 	{
 		foreach($this as $item) {
 			if (is_object($item) && method_exists($item, 'collectFromInput')) {
@@ -193,6 +196,20 @@ class SerializedContentUtils extends AppContentBase
 	{
 		return (static::$cache_template);
 	}
+
+    /**
+     * Returns current common cms template path value.
+     * @return string Current common cms template path value.
+     * @throws ConfigurationUndefinedException
+     */
+	public function getCommonCMSTemplatePath(): string
+    {
+        if (static::$common_cms_template_path===null || strlen(static::$common_cms_template_path) < 1)
+        {
+            throw new ConfigurationUndefinedException("Path to shared content templates not set.");
+        }
+        return static::$common_cms_template_path;
+    }
 
 	/**
 	 * Checks of SECTION_ID has been defined as a constant of the class and returns its value if it has.
@@ -338,6 +355,15 @@ class SerializedContentUtils extends AppContentBase
             $str = "$separator ".ltrim($str);
         }
         return ($str);
+    }
+
+    /**
+     * Sets value of shared cms templates path.
+     * @param string $path Path to shared cms templates.
+     */
+    function setCommonCMSTemplatePath( string $path )
+    {
+        static::$common_cms_template_path = $path;
     }
 
 	/**

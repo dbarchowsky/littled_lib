@@ -65,7 +65,7 @@ class UserLogin extends UserAccount
 	 * Overrides parent routine to copy email value into user name field.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectFromInput(?array $src=null)
+	public function collectFromInput(?array $src=null): void
 	{
 		parent::collectFromInput();
 		$this->username->value = $this->contact_info->email->value;
