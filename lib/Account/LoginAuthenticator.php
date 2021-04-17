@@ -49,7 +49,6 @@ class LoginAuthenticator extends UserLogin
 		if (!$this->uname->value || !$this->password->value || $this->access->value>$access_level)
 		{
 			$this->logged_in = false;
-			throw new ContentValidationException("Invalid login.");
 		}
 
 		$this->uname->collectPostData();
