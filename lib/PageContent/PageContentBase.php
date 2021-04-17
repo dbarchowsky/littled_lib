@@ -26,11 +26,11 @@ class PageContentBase extends MySQLConnection
     /** @var string Token representing the current action to take on the page. */
     public $action;
 	/** @var string URL to use for redirects. */
-	public $redirectURL;
+	public $redirect_url;
 	/** @var string Path to template file. */
-	public $templatePath;
+	public $template_path;
 	/** @var string Query string to attach to page links. */
-	protected $queryString;
+	protected $query_string;
 
 	const CANCEL_ACTION = "cancel";
 	const COMMIT_ACTION = "commit";
@@ -44,10 +44,10 @@ class PageContentBase extends MySQLConnection
 	    $this->content = null;
 	    $this->filters = null;
 	    $this->qs = '';
-	    $this->templatePath = '';
+	    $this->template_path = '';
 	    $this->action = '';
-	    $this->redirectURL = '';
-	    $this->queryString = '';
+	    $this->redirect_url = '';
+	    $this->query_string = '';
     }
 
 	/**
@@ -163,10 +163,10 @@ class PageContentBase extends MySQLConnection
 	public function render( $p_template_path=null, $context=null )
 	{
 		if ($p_template_path===null || $p_template_path==='') {
-		    if ($this->templatePath===null || strlen(trim($this->templatePath)) < 1) {
+		    if ($this->template_path===null || strlen(trim($this->template_path)) < 1) {
 		        throw new ConfigurationUndefinedException("Template not set.");
 		    }
-			$p_template_path = $this->templatePath;
+			$p_template_path = $this->template_path;
 		}
 		if (!file_exists($p_template_path)) {
 		    throw new ResourceNotFoundException("Template not found.");
