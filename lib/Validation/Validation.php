@@ -190,17 +190,14 @@ class Validation
 	 */
 	public static function getPageAction()
 	{
-		if (!defined('P_COMMIT') || !defined('P_CANCEL')) {
-			return ('');
-		}
-		$action = trim(filter_input(INPUT_POST, P_COMMIT, FILTER_SANITIZE_STRING));
+		$action = trim(filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING));
 		if (strlen($action) > 0) {
-			$action = P_COMMIT;
+			$action = LittledGlobals::P_COMMIT;
 		}
 		else {
-			$action = trim(filter_input(INPUT_POST, P_CANCEL, FILTER_SANITIZE_STRING));
+			$action = trim(filter_input(INPUT_POST, LittledGlobals::P_CANCEL, FILTER_SANITIZE_STRING));
 			if (strlen($action) > 0) {
-				$action = P_CANCEL;
+				$action = LittledGlobals::P_CANCEL;
 			}
 		}
 		return ($action);
