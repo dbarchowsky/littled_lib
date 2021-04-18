@@ -34,6 +34,13 @@ class FilterCollectionProperties extends AppContentBase
     /**
      * @throws NotImplementedException
      */
+    protected static function DEFAULT_LISTINGS_LABEL(): int
+    {
+        throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
+    }
+    /**
+     * @throws NotImplementedException
+     */
     protected static function DEFAULT_LISTINGS_LENGTH(): int
     {
         throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
@@ -72,6 +79,8 @@ class FilterCollectionProperties extends AppContentBase
     protected static $cookie_key;
     /** @var int Default number of line items to display in listings */
     protected static $default_listings_length;
+    /** @var string Item label to insert into listings content. */
+    protected static $listings_label;
     /** @var string String to add to parameter names to make them specific to the current type of listings. */
     protected static $key_prefix;
     /** @var string Name of table storing listings content. */
@@ -103,6 +112,19 @@ class FilterCollectionProperties extends AppContentBase
             static::$cookie_key = self::DEFAULT_COOKIE_KEY();
         }
         return static::$cookie_key;
+    }
+
+    /**
+     * Abstract method for default listings length getter. Child classes will set an initial value for the property in
+     * their implementations of the method.
+     * @throws NotImplementedException
+     */
+    public function getListingsLabel(): string
+    {
+        if (!isset(static::$listings_label)) {
+            static::$listings_label = self::DEFAULT_LISTINGS_LABEL();
+        }
+        return static::$listings_label;
     }
 
     /**
@@ -152,6 +174,15 @@ class FilterCollectionProperties extends AppContentBase
     public function setCookieKey(string $key): void
     {
         static::$cookie_key = $key;
+    }
+
+    /**
+     * Setter for listings label property
+     * @param string $label
+     */
+    public function setListingsLabel(string $label): void
+    {
+        static::$listings_label = $label;
     }
 
     /**
