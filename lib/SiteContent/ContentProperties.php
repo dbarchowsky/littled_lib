@@ -3,6 +3,13 @@
 namespace Littled\SiteContent;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentTemplate;
@@ -23,8 +30,7 @@ class ContentProperties extends SerializedContent
 	/** @var int Id value representing site section data in the database. */
 	const SECTION_ID = 27;
 	/** @var string Name of the table holding site section data. */
-	const TABLE_NAME = 'site_section';
-	public static function TABLE_NAME() { return ContentProperties::TABLE_NAME; }
+	const DEFAULT_TABLE_NAME = 'site_section';
 
 	/** @var StringTextField Name of the content. */
 	public $name;
@@ -70,6 +76,8 @@ class ContentProperties extends SerializedContent
 	public $label;
 	/** @var array Array of templates used to render the section's content. */
 	public $templates;
+	/** @var string Name of table in database containing content property values. */
+	protected static $table_name;
 	
 	/**
 	 * SiteSection constructor.
@@ -123,11 +131,11 @@ class ContentProperties extends SerializedContent
 	/**
 	 * Delete this record from the database. Clears parent id of any child records.
 	 * @return string Message indicating result of the deletion.
-	 * @throws \Littled\Exception\ContentValidationException Record id not provided.
-	 * @throws \Littled\Exception\InvalidQueryException Table name not set in inherited class.
-	 * @throws \Littled\Exception\NotImplementedException SQL error raised running deletion query.
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
 	 */
-	public function delete()
+	public function delete(): string
 	{
 		/* Update parent id for any child records. */
 		$query = "UPDATE `site_section` SET `parent_id` = NULL WHERE `parent_id` = {$this->id->value}";
@@ -137,32 +145,32 @@ class ContentProperties extends SerializedContent
 
 	/**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
-	 * @return integer|null Id of parent record.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @return ?int Id of parent record.
+	 * @throws InvalidQueryException
 	 */
-	public function getParentID()
+	public function getParentID(): ?int
 	{
 		if ($this->id->value===null || $this->id->value < 1) {
-			return (null);
+			return null;
 		}
 		$query = "CALL siteSectionParentIDSelect({$this->id->value})";
 		$data = $this->fetchRecords($query);
 		if (count($data) > 0) {
 			return($data[0]->parent_id);
 		}
-		return (null);
+		return null;
 	}
 
 	/**
 	 * Retrieves the content type for the parent of the current content type.
-	 * @return int|null Content type id of the parent record.
+	 * @return ?int Content type id of the parent record.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
-	public function getParentTypeID()
+	public function getParentTypeID(): ?int
 	{
 		if ($this->id->value===null || $this->id->value < 1) {
-			return (null);
+			return null;
 		}
 		$query = "CALL siteSectionParentTypeID({$this->id->value});";
 		$data = $this->fetchRecords($query);
@@ -172,23 +180,37 @@ class ContentProperties extends SerializedContent
 		return($data[0]->content_type_id);
 	}
 
-	/**
-	 * Indicates if any form data has been entered for the current instance of the object.
-	 * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
-	 * have been uploaded. Most likely should be overridden in derived classes.
-	 */
-	public function hasData()
-	{
-		return ($this->id->value > 0 || $this->name->value);
-	}
+    /**
+     * Table name getter.
+     * @return string
+     */
+	public function getTableName(): string
+    {
+        if (!isset(static::$table_name)) {
+            static::$table_name = self::DEFAULT_TABLE_NAME;
+        }
+        return static::$table_name;
+    }
 
-	/**
+    /**
+     * Indicates if any form data has been entered for the current instance of the object.
+     * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
+     * have been uploaded. Most likely should be overridden in derived classes.
+     */
+    public function hasData(): bool
+    {
+        return ($this->id->value > 0 || $this->name->value);
+    }
+
+    /**
 	 * Returns a single or plural version of the content type identifier, depending on the number of records.
 	 * @param int $count Number of records being worked on.
-	 * @param string[optional] $property_name Object property holding the identifier for this content. Uses the "name" property unless overridden.
+	 * @param string $property_name (Optional) Object property holding the identifier for this content. Uses the "name" property unless overridden.
 	 * @return string String formatted to match the number of records. Either singular or plural.
-	 */
-	public function pluralLabel($count, $property_name='name')
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidValueException
+     */
+	public function pluralLabel(int $count, $property_name='name'): string
 	{
 		return parent::pluralLabel($count, $property_name);
 	}
@@ -197,14 +219,14 @@ class ContentProperties extends SerializedContent
 	 * Retrieves site section data from the database using the value of the object's id property.
 	 * Assigns values to the object's properties using data the site section table in the database.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
 	 */
-	public function read()
+	public function read(): void
 	{
 		parent::read();
 		$query = "CALL siteSectionExtraPropertiesSelect({$this->id->value})";
@@ -220,9 +242,9 @@ class ContentProperties extends SerializedContent
 
 	/**
 	 * Retrieve content templates linked to this content type.
-	 * @throws \Littled\Exception\InvalidQueryException Error executing query.
+	 * @throws InvalidQueryException Error executing query.
 	 */
-	public function readTemplates()
+	public function readTemplates(): void
 	{
 		$query = "CALL contentTemplateSelectBySectionID({$this->id->value})";
 		$data = $this->fetchRecords($query);

@@ -81,7 +81,7 @@ class AlbumFilters extends FilterCollection
 		$this->ajaxProperties->section_id->value = $content_type_id;
 		$this->getAjaxProperties();
 		$this->gallery = new GalleryFilters($page_content_type_id, $default_page_len);
-		$this->previousRecordId = $this->nextRecordId = 0;
+		$this->previous_record_id = $this->next_record_id = 0;
 	}
 
 	/**
@@ -95,8 +95,8 @@ class AlbumFilters extends FilterCollection
 		if (!isset($this->page->value)) {
 			$this->page->value = 1;
 		}
-		if (!isset($this->listingsLength->value)) {
-			$this->listingsLength->value = $this->DEFAULT_PAGE_LEN();
+		if (!isset($this->listings_length->value)) {
+			$this->listings_length->value = $this->DEFAULT_PAGE_LEN();
 		}
 		if ($this->next->value=="") {
 			$this->next->value = "view";
@@ -113,9 +113,9 @@ class AlbumFilters extends FilterCollection
 	protected function formatListingsQuery()
 	{
 		$this->connectToDatabase();
-		$this->queryString = "CALL albumFilteredListingsSelect(".
+		$this->query_string = "CALL albumFilteredListingsSelect(".
 			$this->page->escapeSQL($this->mysqli).",".
-			$this->listingsLength->escapeSQL($this->mysqli).",".
+			$this->listings_length->escapeSQL($this->mysqli).",".
 			"NULL,".
 			$this->contentProperties->id->escapeSQL($this->mysqli).",".
 			$this->gallery->contentProperties->id->escapeSQL($this->mysqli).",".
@@ -127,7 +127,7 @@ class AlbumFilters extends FilterCollection
 			$this->slot->escapeSQL($this->mysqli).",".
 			$this->keyword->escapeSQL($this->mysqli).",".
 			"@total_matches);SELECT @total_matches AS `total_matches`;";
-		return ($this->queryString);
+		return ($this->query_string);
 	}
 
 	/**
@@ -157,8 +157,8 @@ class AlbumFilters extends FilterCollection
 	{
 		parent::formatQueryString($exclude);
 		$gqs = $this->gallery->formatQueryString($exclude);
-		$this->queryString .= preg_replace("/^\?/", "&", $gqs);
-		return ($this->queryString);
+		$this->query_string .= preg_replace("/^\?/", "&", $gqs);
+		return ($this->query_string);
 	}
 
 	/**
@@ -251,7 +251,7 @@ class AlbumFilters extends FilterCollection
 	public function pluralLabel( $count=null )
 	{
 		if ($count===null) {
-			$count = $this->recordCount;
+			$count = $this->record_count;
 		}
 		if ($this->ajaxProperties->label->value) {
 			return($this->ajaxProperties->pluralLabel($count));
@@ -277,7 +277,7 @@ class AlbumFilters extends FilterCollection
 			'query_string' => htmlentities($query_string),
 			'keywords' => new ListingsKeywords(null, $this->contentTypeID),
 			'data' => array());
-		if ($this->displayListings->value) {
+		if ($this->display_listings->value) {
 			$data = $this->retrieveListings();
 			foreach ($data as $row) {
 				$row->name_widget_data = (object)array("id" => $row->id, "table" => $this->contentProperties->table->value, "value" => $row->title);
@@ -303,7 +303,7 @@ class AlbumFilters extends FilterCollection
 		$this->connectToDatabase();
 		$query = "CALL albumTitlesSelect(".
 			$this->page->escapeSQL($this->mysqli).",".
-			$this->listingsLength->escapeSQL($this->mysqli).",".
+			$this->listings_length->escapeSQL($this->mysqli).",".
 			$this->keyword->escapeSQL($this->mysqli).",".
 			$this->contentProperties->id->escapeSQL($this->mysqli).",".
 			"@total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`";

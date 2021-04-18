@@ -40,9 +40,9 @@ class SocialGalleryFilters extends GalleryFilters
 	public function formatListingsQuery()
 	{
 		$this->connectToDatabase();
-		$this->queryString = 'CALL socialGalleryFilteredSelect('.
+		$this->query_string = 'CALL socialGalleryFilteredSelect('.
 			$this->page->escapeSQL($this->mysqli).
-			','.$this->listingsLength->escapeSQL($this->mysqli).
+			','.$this->listings_length->escapeSQL($this->mysqli).
 			','.$this->escapeSQLValue($this->contentTypeID).
 			','.$this->albumId->escapeSQL($this->mysqli).
 			','.$this->title->escapeSQL($this->mysqli).
@@ -55,6 +55,6 @@ class SocialGalleryFilters extends GalleryFilters
 			','.$this->onTwitter->escapeSQL($this->mysqli).
 			','.$this->hasShortURL->escapeSQL($this->mysqli).
 			',@total_matches);SELECT @total_matches AS `total_matches`;';
-		return ($this->queryString);
+		return ($this->query_string);
 	}
 }

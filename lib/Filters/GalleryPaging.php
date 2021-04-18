@@ -87,15 +87,15 @@ class GalleryPaging extends FilterCollection
 		$this->connectToDatabase();
 		if ($this->page_id->value>0) {
 			/* get a requested page. make sure it's of the correct type */
-			$this->sqlClause .=
+			$this->sql_clause .=
 				"AND (p.id = {$this->page_id->value}) ".
 				"AND (p.type_id = {$this::$page_content_type_id}) ";
 		}
 		else {
 			/* no page specified - get the first page */
-			$this->sqlClause.= "ORDER BY IFNULL(p.page_number,999999) ASC, IFNULL(p.slot,999999) ASC LIMIT 1";
+			$this->sql_clause.= "ORDER BY IFNULL(p.page_number,999999) ASC, IFNULL(p.slot,999999) ASC LIMIT 1";
 		}
-		$this->sqlClause =
+		$this->sql_clause =
 			"WHERE (b.id = {$this->book_id->value}) ".
 			"AND (b.section_id = {$this::$content_type_id}) ".
 			"AND (b.access='public') AND (p.access='public') ".
@@ -117,7 +117,7 @@ WHERE (b.id={$this->book_id->value})
 AND (b.access='public') AND (p.access='public') 
 AND (p.release_date IS NOT NULL) AND (DATEDIFF(p.release_date,NOW())<=0) 
 SQL;
-		$this->recordCount = $this->fetchRecords($query)[0]->count;
+		$this->record_count = $this->fetchRecords($query)[0]->count;
 	}
 
 	/**
@@ -170,8 +170,8 @@ SQL;
 		if (!isset($this->page->value)) {
 			$this->page->value = 1;
 		}
-		if (!isset($this->listingsLength->value)) {
-			$this->listingsLength->value = $this::$frontend_page_length;
+		if (!isset($this->listings_length->value)) {
+			$this->listings_length->value = $this::$frontend_page_length;
 		}
 		if ($this->next->value=="") {
 			$this->next->value = "view";
@@ -223,6 +223,6 @@ WHERE (c.section_id = {$this->contentTypeID})
 AND (c.access = 'public') 
 AND (DATEDIFF(c.release_date, '{$date}')<=0) 
 SQL;
-			$this->recordCount = $this->fetchRecords($query)[0]->count;
+			$this->record_count = $this->fetchRecords($query)[0]->count;
 	}
 }

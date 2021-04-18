@@ -66,7 +66,7 @@ class ContentFiltersTest extends TestCase
 		$f = new ValidContentFilters();
 		$data = $f->retrieveListings();
 		$this->assertGreaterThan(0, count($data), "Listings records returned.");
-		$this->assertEquals(11, $f->recordCount, "Record count.");
+		$this->assertEquals(11, $f->record_count, "Record count.");
 		$this->assertEquals('USA', $data[6]->region, "Expected cell value.");
 	}
 }

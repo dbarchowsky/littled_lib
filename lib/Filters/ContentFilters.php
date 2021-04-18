@@ -23,13 +23,12 @@ class ContentFilters extends FilterCollection
 	/**
 	 * ContentFilters constructor.
 	 * @param int $content_type_id Content type identifier.
-	 * @param string $param_prefix
 	 * @throws ConfigurationUndefinedException Database connections properties not set.
 	 * @throws Exception Error retrieving content section properties.
 	 */
-	function __construct( $content_type_id, $param_prefix='' )
+	function __construct( int $content_type_id )
 	{
-		parent::__construct( $param_prefix );
+		parent::__construct();
 		$this->contentProperties = new ContentProperties($content_type_id);
 		$this->contentTypeID = &$this->contentProperties->id->value;
 		$this->ajaxProperties = new ContentAjaxProperties();

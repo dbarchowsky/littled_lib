@@ -87,9 +87,9 @@ class GalleryFilters extends ContentFilters
 	public function formatListingsQuery()
 	{
 		$this->connectToDatabase();
-		$this->queryString = 'CALL galleryFilteredSelect ('.
+		$this->query_string = 'CALL galleryFilteredSelect ('.
 			$this->page->escapeSQL($this->mysqli).
-			','.$this->listingsLength->escapeSQL($this->mysqli).
+			','.$this->listings_length->escapeSQL($this->mysqli).
 			','.$this->escapeSQLValue($this->contentTypeID).
 			','.$this->albumId->escapeSQL($this->mysqli).
 			','.$this->title->escapeSQL($this->mysqli).
@@ -99,7 +99,7 @@ class GalleryFilters extends ContentFilters
 			','.$this->slot->escapeSQL($this->mysqli).
 			','.$this->keyword->escapeSQL($this->mysqli).
 			',@total_matches);';
-		return($this->queryString);
+		return($this->query_string);
 	}
 
 	/**
@@ -146,7 +146,7 @@ class GalleryFilters extends ContentFilters
 	public function pluralLabel( $count=null )
 	{
 		if ($count===null) {
-			$count = $this->recordCount;
+			$count = $this->record_count;
 		}
 		if ($this->contentProperties->label) {
 			return($this->contentProperties->pluralLabel($count));
