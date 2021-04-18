@@ -5,6 +5,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
+use Exception;
 
 /**
  * Class ContentFilters
@@ -24,7 +25,7 @@ class ContentFilters extends FilterCollection
 	 * @param int $content_type_id Content type identifier.
 	 * @param string $param_prefix
 	 * @throws ConfigurationUndefinedException Database connections properties not set.
-	 * @throws \Exception Error retrieving content section properties.
+	 * @throws Exception Error retrieving content section properties.
 	 */
 	function __construct( $content_type_id, $param_prefix='' )
 	{
@@ -43,7 +44,7 @@ class ContentFilters extends FilterCollection
 	 * @return string SQL query
 	 * @throws NotImplementedException
 	 */
-	protected function formatListingsQuery()
+	protected function formatListingsQuery(): string
 	{
 		throw new NotImplementedException(__METHOD__." not implemented.");
 	}
@@ -52,7 +53,7 @@ class ContentFilters extends FilterCollection
 	 * Returns object's content type id value
 	 * @return int
 	 */
-	public function getContentTypeId()
+	public function getContentTypeId(): int
 	{
 		return ($this->contentTypeID);
 	}
@@ -62,9 +63,9 @@ class ContentFilters extends FilterCollection
 	 * number of matches and updates internal values of total number of pages
 	 * and current page number.
 	 * @return array List of generic objects containing the records returned by the query.
-	 * @throws \Exception Error running query.
+	 * @throws Exception Error running query.
 	 */
-	public function retrieveListings()
+	public function retrieveListings(): array
 	{
 		$data = $this->fetchRecordsNonExhaustive($this->formatListingsQuery());
 		$this->getSprocPageCount();

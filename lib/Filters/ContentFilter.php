@@ -2,9 +2,11 @@
 namespace Littled\Filters;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
+use mysqli;
 
 
 /**
@@ -28,11 +30,11 @@ class ContentFilter
 	 * ContentFilter constructor.
 	 * @param string $label Label to display on filter form inputs.
 	 * @param string $key Variable name used to pass along filter values.
-	 * @param mixed[optional] $value Filter value.
-	 * @param int[optional] $size Size limit of the filter value.
-	 * @param string[optional] $cookieKey Key of the cookie element holding the filter value.
+	 * @param ?mixed $value Filter value.
+	 * @param ?int $size Size limit of the filter value.
+	 * @param ?string $cookieKey Key of the cookie element holding the filter value.
 	 */
-	function __construct($label, $key, $value='', $size=0, $cookieKey='')
+	function __construct(string $label, string $key, $value='', $size=0, $cookieKey='')
 	{
 		$this->label = $label;
 		$this->key = $key;
@@ -65,13 +67,10 @@ class ContentFilter
 	/**
 	 * collects filter value from request variables (GET or POST).
 	 */
-	protected function collectRequestValue()
+	protected function collectRequestValue(): void
 	{
 		$value = Validation::collectRequestVar($this->key);
-		if ($value) {
-			$this->value = $value;
-			return;
-		}
+		$this->value = $value ?: $this->value;
 	}
 
 	/**
@@ -106,14 +105,14 @@ class ContentFilter
 
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param \mysqli $mysqli Database connection.
-	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
+	 * @param mysqli $mysqli Database connection.
+	 * @param bool $include_quotes (Optional) If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 * @throws ConfigurationUndefinedException
 	 */
-	public function escapeSQL($mysqli, $include_quotes=true)
+	public function escapeSQL(mysqli $mysqli, $include_quotes=true): string
 	{
-		if (!$mysqli instanceof \mysqli) {
+		if (!$mysqli instanceof mysqli) {
 			throw new ConfigurationUndefinedException("Escape query object not available.");
 		}
 		if ($this->value===null) {
@@ -133,10 +132,10 @@ class ContentFilter
 	 * current "param" and "value" property values of the object.
 	 * @return string Name/value pair formatted for insertion into a query string.
 	 */
-	function formatQueryString( )
+	function formatQueryString( ): string
 	{
 		if (strlen($this->value)>0) {
-			return("{$this->key}=".urlencode($this->value));
+			return("$this->key=".urlencode($this->value));
 		}
 		return ('');
 	}
@@ -164,7 +163,7 @@ class ContentFilter
 
 	/**
 	 * Output markup that will preserve the filter's value in an HTML form.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
 	public function saveInForm()
 	{
