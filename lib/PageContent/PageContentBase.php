@@ -8,11 +8,11 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
+use LittledCommon\FormData\input_class;
 
 /**
  * Class PageContentBase
  * Intended as a base utility class for managing and rendering content for different types of pages.
- * @todo have it inherit from base database connection class
  * @package Littled\Content
  */
 class PageContentBase extends MySQLConnection
@@ -54,16 +54,16 @@ class PageContentBase extends MySQLConnection
 	 * Sets the id property value of the object's content from request variable values, e.g. GET, POST, etc.
 	 * First checks if a variable named "id" is present. 2nd, checks for a variable corresponding to the content
 	 * object's id's internal parameter name.
-	 * @return int|null Id value that was found, or null if no valid integer value was found for the content id.
+	 * @return ?int Record id value that was found, or null if no valid integer value was found for the content id.
 	 */
-	public function collectContentId()
+	public function collectContentId(): ?int
 	{
 		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM);
 		if ($this->content->id->value===null) {
 			if ( $this->content->id instanceof RequestInput) {
 				$this->content->id->collectValue();
 			}
-			else {
+			elseif ($this->content->id instanceof input_class){
 				/* @todo remove this call after older version of IntegerInput class is fully removed from all apps */
 				$this->content->id->fill_from_input();
 			}
@@ -105,23 +105,22 @@ class PageContentBase extends MySQLConnection
 	 * to store in query string.
 	 * @throws NotImplementedException Parameter names not defined.
 	 */
-	protected function preservePageVariables($page_vars )
+	protected function preservePageVariables(array $page_vars)
 	{
 		$qs_vars = array();
 		foreach($page_vars as $input) {
-			/** @var $input RequestInput */
 			if ( $input instanceof RequestInput) {
 				$input->collectPostData();
 			}
-			else {
+			elseif ($input instanceof input_class) {
 				/* @todo remove this after common_lib is removed from all projects */
 				$input->fill_from_input();
 			}
 			if ($input->value===true) {
-				array_push($qs_vars, "{$input->key}=1");
+				array_push($qs_vars, "$input->key=1");
 			}
 			elseif(strlen($input->value) > 0) {
-				array_push($qs_vars, "{$input->key}=" . urlencode($input->value));
+				array_push($qs_vars, "$input->key=" . urlencode($input->value));
 			}
 		}
 		if (count($qs_vars) > 0) {
@@ -140,9 +139,9 @@ class PageContentBase extends MySQLConnection
 
 	/**
 	 * Forces a page to use https protocol.
-	 * @param boolean $bypass_on_dev Flag to skip this in dev environment.
+	 * @param bool $bypass_on_dev Flag to skip this in dev environment.
 	 */
-	public static function requireSSL( $bypass_on_dev=true )
+	public static function requireSSL( bool $bypass_on_dev=true )
 	{
 		if ($bypass_on_dev===true && defined('IS_DEV') && IS_DEV===true) {
 			return;
@@ -155,12 +154,12 @@ class PageContentBase extends MySQLConnection
 
     /**
      * Inserts data into a template file and renders the result.
-     * @param string|null $p_template_path Path to template to render.
-     * @param array|null $context Data to insert into the template.
+     * @param ?string $p_template_path Path to template to render.
+     * @param ?array $context Data to insert into the template.
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-	public function render( $p_template_path=null, $context=null )
+	public function render( ?string $p_template_path=null, ?array $context=null )
 	{
 		if ($p_template_path===null || $p_template_path==='') {
 		    if ($this->template_path===null || strlen(trim($this->template_path)) < 1) {
