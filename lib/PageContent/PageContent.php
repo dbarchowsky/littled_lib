@@ -80,12 +80,12 @@ class PageContent
 	/**
 	 * Inserts data into a template file and stores the resulting content in the object's $content property.
 	 * @param string $template_path Path to content template file.
-	 * @param array $context Array containing data to insert into the template.
+	 * @param array|null $context Array containing data to insert into the template.
 	 * @return string Markup with content inserted into it.
 	 * @throws ResourceNotFoundException If the requested template file cannot be located.
 	 */
-	public static function loadTemplateContent( $template_path, $context=null )
-	{
+	public static function loadTemplateContent(string $template_path, array $context=null ): string
+    {
 	    if (substr($template_path, 0, 1) == '/') {
 	        if ($_SERVER['DOCUMENT_ROOT']) {
 	            if (strpos($template_path, $_SERVER['DOCUMENT_ROOT']) !== 0) {
@@ -118,19 +118,19 @@ class PageContent
 	 * Sets $qs property value to preserve initial GET variable values.
 	 * @param array $page_vars Array of input_class objects used to collect page variable values
 	 * to store in query string.
-	 * @throws NotImplementedException
-	 */
-	protected function preservePageVariables( $page_vars )
+     * @throws NotImplementedException
+     */
+	protected function preservePageVariables(array $page_vars )
 	{
 		$qs_vars = array();
 		foreach($page_vars as $input) {
 			/** @var RequestInput $input */
-			$input->collectFromInput();
+			$input->collectPostData();
 			if ($input->value===true) {
-				array_push($qs_vars, "{$input->key}=1");
+				array_push($qs_vars, "$input->key=1");
 			}
 			elseif(strlen($input->value) > 0) {
-				array_push($qs_vars, "{$input->key}=".urlencode($input->value));
+				array_push($qs_vars, "$input->key=".urlencode($input->value));
 			}
 		}
 		if (count($qs_vars) > 0) {
@@ -144,7 +144,7 @@ class PageContent
      * @param string[optional] $fmt Format to use to print out error message. Overrides the default format.
      * @param string[optional] $encoding Defaults to 'UTF-8'
      */
-	public static function printError($msg, $fmt='', $encoding="UTF-8")
+	public static function printError(string $msg, $fmt='', $encoding="UTF-8")
     {
         if (!$fmt) {
             $fmt = "<div class=\"alert alert-error\">%s</div>";
@@ -155,10 +155,10 @@ class PageContent
 	/**
 	 * Inserts data into a template file and renders the result.
 	 * @param string $template_path Path to template to render.
-	 * @param array $context Data to insert into the template.
+	 * @param ?array $context Data to insert into the template.
 	 * @throws ResourceNotFoundException If the requested template file cannot be located.
 	 */
-	public static function render( $template_path, $context=null )
+	public static function render( string $template_path, ?array $context=null )
 	{
 		if (!file_exists($template_path)) {
 			if ($template_path) {
@@ -179,11 +179,11 @@ class PageContent
 	/**
 	 * Inserts data into a template file and renders the result. Catches exceptions and prints error messages directly to the DOM.
 	 * @param string $template_path Path to template to render.
-	 * @param array $context Data to insert into the template.
+	 * @param array|null $context Data to insert into the template.
 	 * @param string[optional] $css_class CSS class to apply to the error message container element.
 	 * @param string[optional] $encoding Defaults to 'UTF-8'
 	 */
-	public static function renderWithErrors( $template_path, $context=null, $css_class=null, $encoding="UTF-8")
+	public static function renderWithErrors(string $template_path, array $context=null, $css_class=null, $encoding="UTF-8")
 	{
 		try {
 			PageContent::render($template_path, $context);
@@ -213,7 +213,7 @@ class PageContent
 	 * Sets the error message to display on a page.
 	 * @param string $error_msg string
 	 */
-	public function setPageError( $error_msg ) {
+	public function setPageError(string $error_msg ) {
 		array_push($this->content->validationErrors, $error_msg);
 	}
 }
