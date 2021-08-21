@@ -8,6 +8,13 @@
   "require": {
   },
   "require-dev": {
-    "phpunit/phpunit": "^8"
-  }
+    "phpunit/phpunit": "^8",
+    "dbarchowsky/common_lib": "dev-master"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/dbarchowsky/common_lib.git"
+    }
+  ]
 }
