@@ -1,6 +1,6 @@
 <?php
 namespace Littled\Tests\Request;
-require_once (realpath(dirname(__FILE__).DIRECTORY_SEPARATOR."..")."/Base/DatabaseTestCase.php");
+require_once(realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . "..") . "/Base/DatabaseTestCase.php");
 
 use Littled\Request\RequestInput;
 use PHPUnit\Framework\TestCase;
