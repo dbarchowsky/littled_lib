@@ -4,6 +4,7 @@ namespace Littled\PageContent;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Validation\Validation;
+use Littled\PageContent\Metadata\PageMetadata;
 use Littled\PageContent\Navigation\NavigationMenu;
 use Littled\PageContent\Navigation\Breadcrumbs;
 use Exception;

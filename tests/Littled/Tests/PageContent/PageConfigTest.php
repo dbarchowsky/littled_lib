@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace Tests\PageContent;
 
 use Littled\PageContent\PageConfig;
 

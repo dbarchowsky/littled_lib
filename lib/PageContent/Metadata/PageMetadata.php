@@ -1,8 +1,7 @@
 <?php
-namespace Littled\PageContent;
+namespace Littled\PageContent\Metadata;
 
-
-use Littled\PageContent\Metadata\MetadataElement;
+use Littled\Exception\InvalidValueException;
 
 /**
  * Class PageMetadata
@@ -34,6 +33,12 @@ class PageMetadata
         $this->meta_title = new MetadataElement('name', 'title');
     }
 
+    /**
+     * @param string $type
+     * @param string $name
+     * @param string $value
+     * @throws InvalidValueException
+     */
     public function addPageMetadata(string $type, string $name, string $value)
     {
         array_push($this->extras, new MetadataElement($type, $name, $value));
@@ -41,17 +46,17 @@ class PageMetadata
 
     public function getDescription(): string
     {
-        return ($this->description->value);
+        return ($this->description->getContent());
     }
 
-    public function getKeywords(): string
+    public function getKeywords(): array
     {
-        return (explode(',', $this->keywords->value));
+        return (explode(',', $this->keywords->getContent()));
     }
 
     public function getMetaTitle(): string
     {
-            return ($this->meta_title->value);
+            return ($this->meta_title->content);
     }
 
     public function getPageMetadata(): array
@@ -61,16 +66,16 @@ class PageMetadata
 
     public function setDescription(string $description)
     {
-        $this->description->value = $description;
+        $this->description->setContent($description);
     }
 
     public function setKeywords(array $keywords)
     {
-        $this->keywords->value = implode(',', $keywords);
+        $this->keywords->setContent(implode(',', $keywords));
     }
 
     public function setMetaTitle(string $title)
     {
-        $this->meta_title->value = $title;
+        $this->meta_title->content = $title;
     }
 }

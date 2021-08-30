@@ -11,7 +11,7 @@ class MetadataElement
     /** @var string */
     public $name;
     /** @var string */
-    public $value;
+    public $content;
     /** @var array */
     protected const valid_types = array('name', 'http-equiv', 'charset', 'itemprop');
 
@@ -25,7 +25,23 @@ class MetadataElement
     {
         $this->setType($type);
         $this->name = $name;
-        $this->value = $value;
+        $this->content = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**
@@ -37,12 +53,28 @@ class MetadataElement
     }
 
     /**
+     * @param string $content
+     */
+    public function setContent(string $content)
+    {
+        $this->content = $content;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
+    {
+        $this->name = $name;
+    }
+
+    /**
      * @param string $type
      * @throws InvalidValueException
      */
     public function setType(string $type)
     {
-        if (!array_key_exists($type, MetadataElement::valid_types)) {
+        if (!in_array($type, MetadataElement::valid_types)) {
             throw new InvalidValueException("\"$type\" is not a valid metadata element type.");
         }
         $this->type = $type;
