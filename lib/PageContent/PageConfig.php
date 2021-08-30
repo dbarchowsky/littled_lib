@@ -1,12 +1,12 @@
 <?php
 namespace Littled\PageContent;
 
-use http\Exception\InvalidArgumentException;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Validation\Validation;
 use Littled\PageContent\Navigation\NavigationMenu;
 use Littled\PageContent\Navigation\Breadcrumbs;
-
+use Exception;
 
 /**
  * Class PageConfig
@@ -39,13 +39,24 @@ class PageConfig
 	 * @param string $dom_id Breadcrumb element selector.
 	 * @param string $css_class CSS class to assign to the breadcrumb node.
 	 */
-	public static function addBreadcrumb($label, $url='', $dom_id='', $css_class='')
+	public static function addBreadcrumb(string $label, string $url='', string $dom_id='', string $css_class='')
 	{
 		if (!is_object(static::$breadcrumbs)) {
 			static::$breadcrumbs = new Breadcrumbs();
 		}
 		static::$breadcrumbs->addNode($label, $url, $dom_id, $css_class);
 	}
+
+    /**
+     * @param string $type
+     * @param string $name
+     * @param string $value
+     */
+    public static function addPageMetadata(string $type, string $name, string $value)
+    {
+        self::metadata();
+        static::$metadata->addPageMetadata($type, $name, $value);
+    }
 
 	/**
 	 * Adds a navigation menu node.
@@ -56,7 +67,13 @@ class PageConfig
 	 * @param string $dom_id Menu node element selector
 	 * @param string $attributes String containing any additional attributes to assign to the node element.
 	 */
-	public static function addUtilityLink($label, $url='', $target='', $level='', $dom_id='', $attributes='')
+	public static function addUtilityLink(
+        string $label,
+        string $url='',
+        string $target='',
+        string $level='',
+        string $dom_id='',
+        string $attributes='')
 	{
 		if (!is_object(static::$utilityLinks)) {
 			static::$utilityLinks = new NavigationMenu();
@@ -109,7 +126,7 @@ class PageConfig
 	 * Returns current breadcrumbs list
 	 * @return Breadcrumbs
 	 */
-	public static function getBreadcrumbs()
+	public static function getBreadcrumbs(): Breadcrumbs
 	{
 		return(static::$breadcrumbs);
 	}
@@ -118,7 +135,7 @@ class PageConfig
 	 * Gets the current content CSS class value.
 	 * @return string
 	 */
-	public static function getContentCSSClass()
+	public static function getContentCSSClass(): string
 	{
 		return(static::$contentCSSClass);
 	}
@@ -127,37 +144,46 @@ class PageConfig
 	 * Gets the current description value.
 	 * @return string
 	 */
-	public static function getDescription()
+	public static function getDescription(): string
 	{
 		self::metadata();
-		return(static::$metadata->description);
+		return(static::$metadata->getDescription());
 	}
 
 	/**
 	 * Returns keywords to be inserted into the page headers for SEO.
 	 * @return array List of keywords to be inserted into the page headers for SEO.
 	 */
-	public static function getKeywords()
+	public static function getKeywords(): array
 	{
 		self::metadata();
-		return(static::$metadata->keywords);
+		return(static::$metadata->getKeywords());
 	}
 
 	/**
 	 * Gets the current metadata title value.
 	 * @return string
 	 */
-	public static function getMetaTitle()
+	public static function getMetaTitle(): string
 	{
 		self::metadata();
-		return(static::$metadata->meta_title);
+		return(static::$metadata->getMetaTitle());
 	}
+
+    /**
+     * @return array
+     */
+    public static function getPageMetadata(): array
+    {
+        self::metadata();
+        return static::$metadata->getPageMetadata();
+    }
 
 	/**
 	 * Get the current page status
 	 * @return string
 	 */
-	public static function getPageStatus()
+	public static function getPageStatus(): string
 	{
 		return(static::$status);
 	}
@@ -166,7 +192,7 @@ class PageConfig
 	 * Get the current page title value
 	 * @return string
 	 */
-	public static function getPageTitle()
+	public static function getPageTitle(): string
 	{
 		self::metadata();
 		return(static::$metadata->title);
@@ -176,7 +202,7 @@ class PageConfig
 	 * Gets the current site label value
 	 * @return string
 	 */
-	public static function getSiteLabel()
+	public static function getSiteLabel(): string
 	{
 		self::metadata();
 		return(static::$metadata->site_label);
@@ -186,7 +212,7 @@ class PageConfig
 	 * Gets the current list of utility links.
 	 * @return NavigationMenu
 	 */
-	public static function getUtilityLinks()
+	public static function getUtilityLinks(): NavigationMenu
 	{
 		return(static::$utilityLinks);
 	}
@@ -205,7 +231,7 @@ class PageConfig
 	 * Pushes the URL of a resource that will be preloaded on the page.
 	 * @param string $src
 	 */
-	public static function registerPreload($src)
+	public static function registerPreload(string $src)
 	{
 		array_push(static::$preloads, $src);
 	}
@@ -214,7 +240,7 @@ class PageConfig
 	 * Pushes the URL of a script, typically a JavaScript file, to load with the page.
 	 * @param string $src
 	 */
-	public static function registerScript($src)
+	public static function registerScript(string $src)
 	{
 		array_push(static::$scripts, $src);
 	}
@@ -223,14 +249,14 @@ class PageConfig
 	 * Pushes the URL of a stylesheet to load with the page.
 	 * @param string $src
 	 */
-	public static function registerStylesheet($src)
+	public static function registerStylesheet(string $src)
 	{
 		array_push(static::$stylesheets, $src);
 	}
 
 	/**
 	 * Generates and outputs markup that will render the breadcrumbs that have been added to the page.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
 	public static function renderBreadcrumbs()
 	{
@@ -242,7 +268,7 @@ class PageConfig
 
 	/**
 	 * Generates and outputs markup that will render the navigation menu nodes that have been added to the page.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
 	public static function renderUtilityLinks()
 	{
@@ -256,11 +282,8 @@ class PageConfig
 	 * Sets current breadcrumb links list.
 	 * @param $breadcrumbs Breadcrumbs
 	 */
-	public static function setBreadcrumbs(&$breadcrumbs)
+	public static function setBreadcrumbs(Breadcrumbs $breadcrumbs)
 	{
-		if (!is_object($breadcrumbs) || ! $breadcrumbs instanceof Breadcrumbs) {
-			throw new InvalidArgumentException("Invalid breadcrumb links assignment.");
-		}
 		static::$breadcrumbs = $breadcrumbs;
 	}
 
@@ -268,7 +291,7 @@ class PageConfig
 	 * Sets the CSS class of the breadcrumbs parent element.
 	 * @param string $css_class
 	 */
-	public static function setBreadcrumbsCssClass($css_class)
+	public static function setBreadcrumbsCssClass(string $css_class)
 	{
 		if (static::$breadcrumbs===null) {
 			return;
@@ -280,7 +303,7 @@ class PageConfig
 	 * Sets a css class to assign to the page content element.
 	 * @param string $css_class
 	 */
-	public static function setContentCSSClass($css_class)
+	public static function setContentCSSClass(string $css_class)
 	{
 		static::$contentCSSClass = $css_class;
 	}
@@ -289,17 +312,17 @@ class PageConfig
 	 * Sets the metadata page description value.
 	 * @param string $description
 	 */
-	public static function setDescription($description )
+	public static function setDescription(string $description)
 	{
 		self::metadata();
-		static::$metadata->description = $description;
+		static::$metadata->setDescription($description);
 	}
 
 	/**
 	 * Sets element attributes for the last node of the navigation menu.
 	 * @param string $attributes
 	 */
-	public static function setLinkAttributes($attributes)
+	public static function setLinkAttributes(string $attributes)
 	{
 		if (!is_object(static::$utilityLinks)) {
 			return;
@@ -310,32 +333,32 @@ class PageConfig
 	/**
 	 * Sets the list of keywords to be inserted into the page headers for SEO.
 	 * @param array $keywords List of keywords to be inserted into the page headers for SEO.
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function setKeywords($keywords )
+	public static function setKeywords(array $keywords)
 	{
 		if (!is_array($keywords)) {
-			throw new \Exception("[".__METHOD__."] \$keywords parameter expects array.");
+			throw new Exception("[".__METHOD__."] \$keywords parameter expects array.");
 		}
 		self::metadata();
-		static::$metadata->keywords = $keywords;
+		static::$metadata->setKeywords($keywords);
 	}
 
 	/**
 	 * Sets the page metadata title.
 	 * @param string $meta_title
 	 */
-	public static function setMetaTitle($meta_title)
+	public static function setMetaTitle(string $meta_title)
 	{
 		self::metadata();
-		static::$metadata->meta_title = $meta_title;
+		static::$metadata->setMetaTitle($meta_title);
 	}
 
 	/**
 	 * Sets the page title value.
 	 * @param string $title
 	 */
-	public static function setPageTitle($title)
+	public static function setPageTitle(string $title)
 	{
 		self::metadata();
 		static::$metadata->title = $title;
@@ -345,7 +368,7 @@ class PageConfig
 	 * Sets the site label value, e.g. the string that will represent the site in the title bar of the browser.
 	 * @param string $site_label
 	 */
-	public static function setSiteLabel($site_label)
+	public static function setSiteLabel(string $site_label)
 	{
 		self::metadata();
 		static::$metadata->site_label = $site_label;
@@ -353,13 +376,10 @@ class PageConfig
 
 	/**
 	 * Sets current breadcrumb links list.
-	 * @param $links NavigationMenu
+	 * @param NavigationMenu $links
 	 */
-	public static function setUtilityLinks(&$links)
+	public static function setUtilityLinks(NavigationMenu $links)
 	{
-		if (!is_object($links) || ! $links instanceof NavigationMenu) {
-			throw new InvalidArgumentException("Invalid breadcrumb links assignment.");
-		}
 		static::$utilityLinks = $links;
 	}
 
@@ -367,7 +387,7 @@ class PageConfig
 	 * Sets the CSS class for the navigation menu parent element.
 	 * @param string $css_class
 	 */
-	public static function setUtilityLinksCssClass($css_class)
+	public static function setUtilityLinksCssClass(string $css_class)
 	{
 		if (static::$utilityLinks===null) {
 			return;
@@ -379,7 +399,7 @@ class PageConfig
 	 * Pushes the URL of a script, typically a JavaScript file, to load with the page.
 	 * @param string $src
 	 */
-	public static function unregisterScript($src)
+	public static function unregisterScript(string $src)
 	{
 		for($i=0; $i < count(static::$scripts); $i++) {
 			if (static::$scripts[$i] == $src) {
@@ -393,7 +413,7 @@ class PageConfig
 	 * Pushes the URL of a stylesheet to load with the page.
 	 * @param string $src
 	 */
-	public static function unregisterStylesheet($src)
+	public static function unregisterStylesheet(string $src)
 	{
 		for($i=0; $i < count(static::$stylesheets); $i++) {
 			if (static::$stylesheets[$i] == $src) {
