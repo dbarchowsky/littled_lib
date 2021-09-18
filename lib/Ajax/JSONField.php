@@ -39,11 +39,20 @@ class JSONField
 	 * Adds the current key/value pair to the supplied array.
 	 * @param array $data Array containing full set of JSON key/value pairs to be passed back to the requestee.
 	 */
-	public function formatJSON( &$data )
+	public function formatJSON( array &$data )
 	{
+        $func = function($i) {
+          if ($i instanceof JSONResponseBase) {
+              return ((object)$i->formatJson());
+          }
+          else {
+              return ($i);
+          }
+        };
+
 		$val = $this->value;
 		if (is_array($val)) {
-			$val = implode(',', $val);
+			$val = array_map($func, $val);
 		}
 		$data[$this->name] = $val;
 	}
