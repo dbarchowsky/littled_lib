@@ -4,10 +4,22 @@ namespace Littled\Ajax;
 
 class JSONResponseBase
 {
+    /** @var string */
+    public $key;
     /** @var JSONField Operation results message. */
     public $status;
     /** @var JSONField Error message. */
     public $error;
+
+    /**
+     * @param string $key
+     */
+    function __construct(string $key='')
+    {
+        $this->key = $key;
+        $this->status = new JSONField('status');
+        $this->error = new JSONField('error');
+    }
 
     /**
      * Handler for PHP exceptions. Will attempt to interpret the error and send it as a response to the calling script.
@@ -108,7 +120,12 @@ class JSONResponseBase
                 $tag->formatJSON($arr);
             }
             elseif ($tag instanceof JSONResponseBase) {
-                $arr = array_merge($arr, $this->formatJson());
+                if ($this->key) {
+                    $arr[$this->key] = $this->formatJson();
+                }
+                else {
+                    $arr = array_merge($arr, $this->formatJson());
+                }
             }
         }
         return ($arr);

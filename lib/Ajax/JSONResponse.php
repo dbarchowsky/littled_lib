@@ -21,15 +21,15 @@ class JSONResponse extends JSONResponseBase
 
 	/**
 	 * Class constructor.
+     * @param string $key
 	 */
-	function __construct ( )
+	function __construct (string $key='')
 	{
+        parent::__construct($key);
 		$this->id = new JSONField('id');
 		$this->content = new JSONField('content');
 		$this->label = new JSONField('label');
 		$this->containerID = new JSONField('container_id');
-		$this->status = new JSONField('status');
-		$this->error = new JSONField('error');
 	}
 
     /**
