@@ -121,7 +121,7 @@ class JSONResponseBase
             }
             elseif ($tag instanceof JSONResponseBase) {
                 if ($this->key) {
-                    $arr[$this->key] = $this->formatJson();
+                    $arr[$this->key] = $tag->formatJson();
                 }
                 else {
                     $arr = array_merge($arr, $this->formatJson());
