@@ -397,7 +397,7 @@ class Validation
 			if (!property_exists($data, LittledGlobals::CSRF_TOKEN_PARAM)) {
 				return (false);
 			}
-			$csrf = trim(filter_var($data[LittledGlobals::CSRF_TOKEN_PARAM], FILTER_SANITIZE_STRING));
+			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_PARAM}, FILTER_SANITIZE_STRING));
 		}
 		else {
 			$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_PARAM, FILTER_SANITIZE_STRING));
