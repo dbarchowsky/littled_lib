@@ -1,6 +1,7 @@
 <?php
 
 namespace Littled\Validation;
+use DateTime;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 
@@ -371,11 +372,11 @@ class Validation
 	 * - Validates the value & returns an integer value only if the intput
 	 * value is numeric.
 	 * @param string $key Name of the input parameter holding the value of interest.
-	 * @param integer $index (Optional) index within input array of the value of interest.
-     * @param string $src
-	 * @return mixed Float or integer value.
+	 * @param ?int $index (Optional) index within input array of the value of interest.
+     * @param ?string $src
+	 * @return ?int
 	 */
-	public static function parseNumericInput( $key, $index=null, $src=null )
+	public static function parseNumericInput( string $key, ?int $index=null, ?string $src=null ): ?int
 	{
 		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return((is_numeric($value))?($value):(null));
@@ -383,14 +384,24 @@ class Validation
 
 	/**
 	 * Check for valid CSRF token.
+	 * @param ?object $data Optional object that will contain the CSRF token. POST data is used by default if this
+	 * parameter is not supplied.
 	 * @return bool TRUE if the CSRF token is valid, FALSE otherwise.
 	 */
-	public static function validateCSRF()
+	public static function validateCSRF( ?object $data=null ): bool
 	{
 		if (!array_key_exists(LittledGlobals::CSRF_SESSION_KEY, $_SESSION)) {
 			return (false);
 		}
-		$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_PARAM, FILTER_SANITIZE_STRING));
+		if ($data) {
+			if (!property_exists(LittledGlobals::CSRF_TOKEN_PARAM, $data)) {
+				return (false);
+			}
+			$csrf = trim(filter_var($data[LittledGlobals::CSRF_TOKEN_PARAM], FILTER_SANITIZE_STRING));
+		}
+		else {
+			$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_PARAM, FILTER_SANITIZE_STRING));
+		}
 		if ($csrf=='') {
 			return (false);
 		}
@@ -401,10 +412,10 @@ class Validation
 	 * Tests date string to see if it is in a recognized format.
 	 * @param string $date Date string to test.
 	 * @param array|null $formats Data formats to test.
-	 * @return \DateTime
+	 * @return DateTime
 	 * @throws ContentValidationException
 	 */
-	public static function validateDateString($date, $formats=null)
+	public static function validateDateString(string $date, ?array $formats=null): DateTime
 	{
 		if ($formats==null) {
 			$formats = array(
@@ -425,7 +436,7 @@ class Validation
 
 		foreach($formats as $format) {
 			$d = Validation::_testDateFormat($date, $format);
-			if ($d instanceof \DateTime) {
+			if ($d instanceof DateTime) {
 				return ($d);
 			}
 		}
@@ -434,11 +445,11 @@ class Validation
 
 	/**
 	 * Validates email address.
-	 * @param string $sEmail Email address to validate
-	 * @return boolean true/false indicating valid or invalid email address.
+	 * @param string $email Email address to validate
+	 * @return bool True if the email is in a valid format
 	 */
-	public static function validateEmailAddress( $sEmail )
+	public static function validateEmailAddress(string $email): bool
 	{
-		return (preg_match("/\S+\@\S+\.\S+/", $sEmail) && (!preg_match("/,\/\\;/", $sEmail)));
+		return (preg_match("/\S+@\S+\.\S+/", $email) && (!preg_match("/,\/;/", $email)));
 	}
 }
