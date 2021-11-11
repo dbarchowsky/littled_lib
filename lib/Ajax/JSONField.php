@@ -61,7 +61,7 @@ class JSONField
 			$val = array_map($func, $val);
 		}
 		if ($this->format==JSONField::FORMAT_CURRENCY && is_numeric($val)) {
-			$val = ''.number_format($val);
+			$val = ''.number_format($val, 2);
 		}
 		$data[$this->name] = $val;
 	}
