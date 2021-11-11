@@ -39,13 +39,21 @@ class JSONResponseBase
         return ($arr);
     }
 
+	/**
+	 * Sends json data as response to client.
+	 * @param array $arr json data to send as response to client
+	 */
+	public static function sendJsonResponse(array $arr)
+	{
+		header('Content-type: application/json; charset=utf-8');
+		print json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_HEX_TAG);
+	}
+
     /**
      * Formats JSON string using instance's current property values and sends it as a response.
      */
     public function sendResponse()
     {
-        $arr = $this->formatJson();
-        header('Content-type: application/json; charset=utf-8');
-        print json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_HEX_TAG);
+		self::sendJsonResponse($this->formatJson());
     }
 }
