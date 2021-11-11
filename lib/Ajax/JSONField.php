@@ -8,6 +8,8 @@ namespace Littled\Ajax;
  */
 class JSONField
 {
+	const FORMAT_CURRENCY = 'CURRENCY';
+
 	/** @var string Field name. */
 	public $name;
 	/** @var mixed|string Field value. */
@@ -58,7 +60,7 @@ class JSONField
 		if (is_array($val)) {
 			$val = array_map($func, $val);
 		}
-		if ($this->format=='CURRENCY' && is_numeric($val)) {
+		if ($this->format==JSONField::FORMAT_CURRENCY && is_numeric($val)) {
 			$val = ''.number_format($val);
 		}
 		$data[$this->name] = $val;
