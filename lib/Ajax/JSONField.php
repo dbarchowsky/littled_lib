@@ -9,20 +9,24 @@ namespace Littled\Ajax;
 class JSONField
 {
 	/** @var string Field name. */
-	var $name;
+	public $name;
 	/** @var mixed|string Field value. */
-	var $value;
-
+	public $value;
+	/** @var string $format */
+	public $format;
 
 	/**
 	 * JSONField constructor.
-	 * @param string|null[optional] $name JSON field key.
-	 * @param mixed[optional] $value JSON field value.
+	 * @param mixed $name JSON field key.
+	 * @param mixed $value JSON field value.
+	 * @param mixed $format Enum indicating format to use when converting object to JSON data.
+	 * Acceptable values are 'CURRENCY'. Leave blank for no formatting.
 	 */
-	function __construct ($name='', $value='')
+	function __construct ($name='', $value='', $format='')
 	{
 		$this->name = $name;
 		$this->value = $value;
+		$this->format = $format;
 	}
 
 	/**
@@ -30,7 +34,7 @@ class JSONField
 	 * @param string $src String to be escaped.
 	 * @return string Escaped version of the string.
 	 */
-	public static function escapeHTML( $src )
+	public static function escapeHTML( string $src ):string
 	{
 		return (str_replace("&","&amp;",str_replace(">","&gt;",str_replace("<","&lt;",utf8_encode($src)))));
 	}
@@ -53,6 +57,9 @@ class JSONField
 		$val = $this->value;
 		if (is_array($val)) {
 			$val = array_map($func, $val);
+		}
+		if ($this->format=='CURRENCY' && is_numeric($val)) {
+			$val = ''.number_format($val);
 		}
 		$data[$this->name] = $val;
 	}
