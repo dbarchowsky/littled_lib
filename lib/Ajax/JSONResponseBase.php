@@ -1,6 +1,7 @@
 <?php
-
 namespace Littled\Ajax;
+
+use stdClass;
 
 class JSONResponseBase
 {
@@ -18,9 +19,9 @@ class JSONResponseBase
     /**
      * Converts keys and values of the object into an object that will be used to generate a JSON object
      * to be transmitted to another page as an AJAX response.
-     * @return array
+     * @return stdClass
      */
-    public function formatJson(): array
+    public function formatJson(): stdClass
     {
         $arr = array();
         foreach($this as $tag) {
@@ -41,9 +42,9 @@ class JSONResponseBase
 
 	/**
 	 * Sends json data as response to client.
-	 * @param array $arr json data to send as response to client
+	 * @param stdClass $arr json data to send as response to client
 	 */
-	public static function sendJsonResponse(array $arr)
+	public static function sendJsonResponse(stdClass $arr)
 	{
 		header('Content-type: application/json; charset=utf-8');
 		print json_encode($arr, JSON_UNESCAPED_UNICODE|JSON_HEX_TAG);
