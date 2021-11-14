@@ -186,7 +186,7 @@ class PageConfig
 	 */
 	public static function getPageStatus(): string
 	{
-		return(static::$status);
+		return((is_null(static::$status))?(''):(static::$status));
 	}
 
 	/**
