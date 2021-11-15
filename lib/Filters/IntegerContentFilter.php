@@ -24,7 +24,7 @@ class IntegerContentFilter extends ContentFilter
 	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
 	 * @return string Escaped value.
 	 */
-	public function escapeSQL($mysqli, $include_quotes=false)
+	public function escapeSQL($mysqli, $include_quotes=false):string
 	{
 		if ($this->value===null) {
 			return ('NULL');
