@@ -171,7 +171,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for key used to preserve filter values in cookie data.
      * @param string $key
      */
-    public function setCookieKey(string $key): void
+    public function setCookieKey(string $key)
     {
         static::$cookie_key = $key;
     }
@@ -180,7 +180,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for listings label property
      * @param string $label
      */
-    public function setListingsLabel(string $label): void
+    public function setListingsLabel(string $label)
     {
         static::$listings_label = $label;
     }
@@ -189,7 +189,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for default listings length property value.
      * @param int $length
      */
-    public function setDefaultListingsLength(int $length): void
+    public function setDefaultListingsLength(int $length)
     {
         static::$default_listings_length = $length;
     }
@@ -198,7 +198,7 @@ class FilterCollectionProperties extends AppContentBase
      * Key prefix setter.
      * @param $prefix
      */
-    public function setKeyPrefix($prefix): void
+    public function setKeyPrefix($prefix)
     {
         static::$key_prefix = $prefix;
     }
@@ -207,7 +207,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for name of table containing listing content.
      * @param string $table
      */
-    public function setTableName(string $table): void
+    public function setTableName(string $table)
     {
         static::$table_name = $table;
     }

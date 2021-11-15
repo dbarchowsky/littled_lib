@@ -52,7 +52,7 @@ class FilterCollection extends FilterCollectionProperties
 	 * - If the input value is set to "filter", set the object's property value
 	 * to TRUE.
 	 */
-	protected function collectDisplayListingsSetting(): void
+	protected function collectDisplayListingsSetting()
 	{
 		/* don't get "display listings" value from cookies */
 		$this->display_listings->collectValue(false);
@@ -69,7 +69,7 @@ class FilterCollection extends FilterCollectionProperties
 	 * @param bool $save_filters (optional) If set to TRUE, save all filter values in session variables.
      * @throws NotImplementedException
 	 */
-	public function collectFilterValues($save_filters=true): void
+	public function collectFilterValues($save_filters=true)
 	{
 		$excluded_properties = array("displayListings");
 
@@ -208,7 +208,7 @@ class FilterCollection extends FilterCollectionProperties
 	 * Store total number of matching results for later use when rendering listings.
 	 * @throws Exception
 	 */
-	protected function getSprocPageCount(): void
+	protected function getSprocPageCount()
 	{
 		if ($this->mysqli->more_results()) {
 			while ($this->mysqli->more_results()) {
@@ -260,7 +260,7 @@ class FilterCollection extends FilterCollectionProperties
 	 * @param array $exclude List of parameter names that should not be included in the hidden form inputs.
      * @throws ResourceNotFoundException
 	 */
-	public function preserveInForm ($exclude=null): void
+	public function preserveInForm ($exclude=null)
 	{
 		if ($exclude==null) {
 			$exclude = array();

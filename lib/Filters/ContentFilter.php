@@ -67,7 +67,7 @@ class ContentFilter
 	/**
 	 * collects filter value from request variables (GET or POST).
 	 */
-	protected function collectRequestValue(): void
+	protected function collectRequestValue()
 	{
 		$value = Validation::collectRequestVar($this->key);
 		$this->value = $value ?: $this->value;
