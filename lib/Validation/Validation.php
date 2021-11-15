@@ -373,10 +373,11 @@ class Validation
 	 * value is numeric.
 	 * @param string $key Name of the input parameter holding the value of interest.
 	 * @param ?int $index (Optional) index within input array of the value of interest.
-     * @param ?string $src
+     * @param ?array $src (Optional) collection from which the value will be extracted. Post and Get data will be used
+	 * if this parameter is not supplied.
 	 * @return ?int
 	 */
-	public static function parseNumericInput( string $key, ?int $index=null, ?string $src=null ): ?int
+	public static function parseNumericInput( string $key, ?int $index=null, ?array $src=null ): ?int
 	{
 		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return((is_numeric($value))?($value):(null));

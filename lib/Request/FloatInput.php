@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Request;
 
-
+use mysqli;
 use Littled\Validation\Validation;
 
 /**
@@ -12,25 +12,34 @@ class FloatInput extends RequestInput
 {
 	/**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
-	 * @param int|null[optional] $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
-	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
-	 * @param string|null[optional] $key Key to use in place of the internal $key property value.
+	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param ?string $key Key to use in place of the internal $key property value.
 	 */
-	public function collectFromInput($filters = null, $src = null, $key=null)
+	public function collectFromInput(?array $src = null, ?string $key=null)
 	{
 		if ($this->bypassCollectPostData===true) {
 			return;
 		}
-		$this->value = Validation::parseNumericInput((($key)?($key):($this->key)), null, $src);
+		$this->value = Validation::parseNumericInput((($key)?:($this->key)), null, $src);
+	}
+
+	/**
+	 * Assigns property value from corresponding value in JSON data passed along with a client request.
+	 * @param object $data
+	 */
+	public function collectJsonRequestData(object $data)
+	{
+		parent::collectJsonRequestData($data);
+		$this->value = Validation::parseNumeric($this->value);
 	}
 
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param \mysqli $mysqli
+	 * @param mysqli $mysqli
 	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
 	 * @return string Escaped value.
 	 */
-	public function escapeSQL($mysqli, $include_quotes=false)
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): string
 	{
 		$value = Validation::parseNumeric($this->value);
 		if ($value===null) {

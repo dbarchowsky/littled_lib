@@ -89,6 +89,20 @@ class PageContentBase extends MySQLConnection
         }
     }
 
+	/**
+	 * Assigns JSON request data values to object properties.
+	 * @param object $data
+	 */
+	public function collectJsonRequestData(object $data)
+	{
+		foreach($this as $item) {
+			if (is_object($item) && method_exists($item, 'collectJsonRequestData')) {
+				/** @var RequestInput $item */
+				$item->collectJsonRequestData($data);
+			}
+		}
+	}
+
     /**
      * Uses current filter values to generate a query string that
      * will preserver the current page state. The query string value is

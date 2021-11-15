@@ -6,8 +6,8 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\Validation\Validation;
-use \Exception;
-use \mysqli;
+use Exception;
+use mysqli;
 
 /**
  * Class RequestInput
@@ -41,7 +41,7 @@ class RequestInput
 	public $displayPlaceholder;
 	/** @var boolean Flag indicating that an error was detected with the value supplied for this form data. */
 	public $hasErrors;
-	/** @var string If an error was detected with the value of a form data, an description of the error will be stored in this property. */
+	/** @var string If an error was detected with the value of a form data, a description of the error will be stored in this property. */
 	public $error;
 	/** @var int When supplying an array of values for a single key, the  value can be used to sort them. */
 	public $index;
@@ -77,9 +77,15 @@ class RequestInput
 	 * @param boolean[optional] $required Flag indicating if this form data is required. Defaults to FALSE.
 	 * @param mixed[optional] $value Initial value of the input. Defaults to NULL.
 	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
-	 * @param int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
+	 * @param ?int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
 	 */
-	function __construct ( $label, $key, $required=false, $value=null, $size_limit=0, $index=null )
+	function __construct (
+		string $label,
+		string $key,
+		bool $required=false,
+		$value=null,
+		int $size_limit=0,
+		?int $index=null )
 	{
 		$this->label              = $label;
 		$this->key                = $key;
@@ -107,6 +113,20 @@ class RequestInput
 	}
 
 	/**
+	 * Assigns property value from corresponding value in JSON data passed along with a client request.
+	 * @param object $data
+	 */
+	public function collectJsonRequestData(object $data)
+	{
+		if ($this->isBypassingRequestData()) {
+			return;
+		}
+		if (property_exists($data, $this->key)) {
+			$this->value = filter_var($data->{$this->key}, FILTER_SANITIZE_STRING);
+		}
+	}
+
+	/**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @throws NotImplementedException
 	 */
@@ -121,7 +141,7 @@ class RequestInput
 	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 */
-	public function escapeSQL($mysqli, $include_quotes=true)
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
 		if ($this->value===null) {
 			return ("null");
@@ -133,9 +153,8 @@ class RequestInput
 	 * Sets the $value property of the object from the value of the session value corresponding to the object's
 	 * $param property.
 	 * @param string $cookie_name Name of the cookie collection containing the value to be retrieved.
-	 * @return void
 	 */
-	public function fillFromSession($cookie_name)
+	public function fillFromSession(string $cookie_name)
 	{
 		if (isset($_SESSION[$this->key])) {
 			$this->value = $_SESSION[$this->key];
@@ -150,7 +169,7 @@ class RequestInput
 	 * Default format is first letter capitalized.
 	 * @return string Error label string.
 	 */
-	public function formatErrorLabel()
+	public function formatErrorLabel(): string
 	{
 		return (ucfirst(strtolower("".$this->label)));
 	}
@@ -161,7 +180,7 @@ class RequestInput
 	 * @return string Label markup to insert into form content.
 	 * @throws ResourceNotFoundException Template not found.
 	 */
-	public function formatLabelMarkup( $label )
+	public function formatLabelMarkup( $label ): string
 	{
 		if ($label===null) { $label=$this->label;}
 		if (strlen($label) > 0 && $this->displayPlaceholder===false) {
@@ -177,7 +196,7 @@ class RequestInput
 	 * Error css class getter.
 	 * @return string Current error css class value.
 	 */
-	public static function getErrorClass()
+	public static function getErrorClass(): string
 	{
 		return (static::$error_class);
 	}
@@ -186,7 +205,7 @@ class RequestInput
 	 * Returns the filename of the template used to render just the input element.
 	 * @return string Form input template filename.
 	 */
-	public static function getInputTemplateFilename()
+	public static function getInputTemplateFilename(): string
 	{
 		return (static::$input_template_filename);
 	}
@@ -195,16 +214,16 @@ class RequestInput
 	 * Returns full path to input element template file.
 	 * @return string Path to input element template.
 	 */
-	public static function getInputTemplatePath()
+	public static function getInputTemplatePath(): string
 	{
 		return(static::$template_base_path.static::$input_template_filename);
 	}
 
 	/**
-	 * Returns full path to input element template file.
-	 * @return string Path to input element template.
+	 * Returns string to insert into front-end templates that will indicate that field is required to submit form data.
+	 * @return string Content to insert into template.
 	 */
-	public static function getRequiredIndicator()
+	public static function getRequiredIndicator(): string
 	{
 		return(static::$required_field_indicator);
 	}
@@ -213,7 +232,7 @@ class RequestInput
 	 * Template path getter.
 	 * @return string Current internal template path value.
 	 */
-	public static function getTemplateBasePath()
+	public static function getTemplateBasePath(): string
 	{
 		return (static::$template_base_path);
 	}
@@ -222,7 +241,7 @@ class RequestInput
      * Template filename getter.
      * @return string Current internal template filename.
      */
-	public static function getTemplateFilename()
+	public static function getTemplateFilename(): string
     {
         return (static::$template_filename);
     }
@@ -231,67 +250,84 @@ class RequestInput
      * Get full path to form input element template file.
      * @return string Full path to form input element template file.
      */
-    public static function getTemplatePath()
+    public static function getTemplatePath(): string
     {
         return (static::$template_base_path.static::$template_filename);
     }
 
-    /**
+	/**
+	 * Sets flag that will cause this variable to be ignored when processing request data sent to the page.
+	 */
+	public function ignoreRequestData()
+	{
+		$this->bypassCollectPostData = true;
+	}
+
+	/**
+	 * Returns flag indicating if this object is set to not collect request data from the client.
+	 * @return bool
+	 */
+	public function isBypassingRequestData(): bool
+	{
+		return ($this->bypassCollectPostData===true);
+	}
+
+	/**
 	 * Tests if the value of the object is not currently set.
 	 * @return bool True/false depending on whether the value is set or not.
 	 */
-	public function isEmpty()
+	public function isEmpty(): bool
 	{
 		return ($this->value===null || trim($this->value)==='');
 	}
 
 	/**
-	 * Tests if the inherited class has defined an template to use to render the input element group.
+	 * Tests if the inherited class has defined a template to use to render the input element group.
 	 * @return bool TRUE if
 	 */
-	public function isInputTemplateDefined()
+	public function isInputTemplateDefined(): bool
 	{
 		return (Validation::isStringWithContent($this::getInputTemplateFilename()));
 	}
 
 	/**
-	 * Tests if the inherited class has defined an template to use to render the input element group.
+	 * Tests if the inherited class has defined a template to use to render the input element group.
 	 * @return bool TRUE if
 	 */
-	public function isTemplateDefined()
+	public function isTemplateDefined(): bool
 	{
 		return (Validation::isStringWithContent($this::getTemplateFilename()));
 	}
 
 	/**
-	 * Tests if the inherited class has defined an template to use to render the input element group.
+	 * Tests if the inherited class has defined a template to use to render the input element group.
 	 * @return bool TRUE if
 	 */
-	public function isInputTemplateBasePathDefined()
+	public function isInputTemplateBasePathDefined(): bool
 	{
 		return (Validation::isStringWithContent($this::getTemplateBasePath()));
 	}
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
-     * @param string[optional] $label
-     * @param string[optional] $css_class
+     * @param ?string $label
+     * @param ?string $css_class
 	 * @throws NotImplementedException
 	 */
-	public function render( $label=null, $css_class=null )
+	public function render( ?string $label=null, ?string $css_class=null )
 	{
 	    if (!$label) {
 	        $label = $this->label;
         }
-		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented for {$label}. {$css_class} ");
+		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented for $label. $css_class ");
 	}
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
-     * @param string[optional] $label Label to display with input element.
+     * @param ?string $label Label to display with input element.
 	 * @throws NotImplementedException
 	 */
-	public function renderInput()
+	public function renderInput(?string $label=null)
 	{
 		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented.");
 	}
@@ -314,21 +350,21 @@ class RequestInput
 
 	/**
 	 * Returns string safe from XSS attacks that can be embedded in HTML.
-	 * @param int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
+	 * @param ?int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
 	 * Same values as 3rd argument to PHP's filter_var() routine.
 	 * @return string XSS-safe string.
 	 */
-	public function safeValue( $options=null )
+	public function safeValue( ?int $options=null ): string
 	{
 		return (filter_var($this->value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
 	}
 
 	/**
 	 * Prints out markup to save input value in a hidden form input element.
-     * @param string[optional] @key Key to use to override default key value for the variable.
+     * @param ?string $key Key to use to override default key value for the variable.
 	 * @throws ResourceNotFoundException Template not found.
 	 */
-	public function saveInForm( $key=null )
+	public function saveInForm( ?string $key=null )
 	{
 	    if ($key===null) {
 	        $key = $this->key;
@@ -336,7 +372,7 @@ class RequestInput
 		PageContent::render(self::getTemplateBasePath()."hidden-input.php", array(
 			'key' => $key,
 			'value' => $this->value,
-			'index' => ((is_numeric($this->index))?("[{$this->index}]"):(""))
+			'index' => ((is_numeric($this->index))?("[$this->index]"):(""))
 		));
 	}
 
@@ -344,7 +380,7 @@ class RequestInput
 	 * Error css class setter.
 	 * @param string $css_class CSS class name.
 	 */
-	public function setErrorClass( $css_class )
+	public function setErrorClass( string $css_class )
 	{
 		static::$error_class = $css_class;
 	}
@@ -353,7 +389,7 @@ class RequestInput
 	 * Form input element template filename setter.
 	 * @param string $filename Template filename.
 	 */
-	public static function setInputTemplateFilename( $filename )
+	public static function setInputTemplateFilename( string $filename )
 	{
 		static::$input_template_filename = $filename;
 	}
@@ -373,7 +409,7 @@ class RequestInput
 	 * @param string $property Property name.
 	 * @param mixed $value Value to assign to the object property.
 	 */
-	public function setProperty( $property, $value )
+	public function setProperty( string $property, $value )
 	{
 		if (property_exists($this, $property)) {
 			$this->$property = $value;
@@ -384,7 +420,7 @@ class RequestInput
 	 * Required field indicator string setter.
 	 * @param string $str Required field indicator string.
 	 */
-	public static function setRequiredIndicator( $str )
+	public static function setRequiredIndicator( string $str )
 	{
 		static::$required_field_indicator = $str;
 	}
@@ -393,7 +429,7 @@ class RequestInput
 	 * Sets the internal template path value.
 	 * @param string $path Path to template directory.
 	 */
-	public static function setTemplateBasePath( $path )
+	public static function setTemplateBasePath( string $path )
 	{
 		static::$template_base_path = $path;
 	}
@@ -402,7 +438,7 @@ class RequestInput
      * Template filename setter.
      * @param string $filename template filename
      */
-	public static function setTemplateFilename( $filename )
+	public static function setTemplateFilename( string $filename )
     {
         static::$template_filename = $filename;
     }
@@ -412,7 +448,7 @@ class RequestInput
 	 * @param string $err Error message
 	 * @throws ContentValidationException
 	 */
-	protected function throwValidationError( $err )
+	protected function throwValidationError( string $err )
 	{
 		$this->hasErrors = true;
 		$this->error .= $err;
