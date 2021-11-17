@@ -202,7 +202,7 @@ class SerializedContentUtils extends AppContentBase
      * @return string Current common cms template path value.
      * @throws ConfigurationUndefinedException
      */
-	public function getCommonCMSTemplatePath(): string
+	public static function getCommonCMSTemplatePath(): string
     {
         if (static::$common_cms_template_path===null || strlen(static::$common_cms_template_path) < 1)
         {
@@ -361,7 +361,7 @@ class SerializedContentUtils extends AppContentBase
      * Sets value of shared cms templates path.
      * @param string $path Path to shared cms templates.
      */
-    function setCommonCMSTemplatePath( string $path )
+    public static function setCommonCMSTemplatePath( string $path )
     {
         static::$common_cms_template_path = $path;
     }
