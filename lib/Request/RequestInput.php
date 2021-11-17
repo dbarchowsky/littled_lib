@@ -319,7 +319,7 @@ class RequestInput
 	    if (!$label) {
 	        $label = $this->label;
         }
-		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented for $label. $css_class ");
+		throw new NotImplementedException(__METHOD__."() not implemented for $label. $css_class ");
 	}
 
 	/**
@@ -329,7 +329,7 @@ class RequestInput
 	 */
 	public function renderInput(?string $label=null)
 	{
-		throw new NotImplementedException("<pre>".__METHOD__."</pre> not implemented.");
+		throw new NotImplementedException(__METHOD__."() not implemented.");
 	}
 
     /**
