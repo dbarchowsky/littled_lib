@@ -4,6 +4,7 @@ namespace Littled\Tests\Request;
 
 use PHPUnit\Framework\TestCase;
 use Littled\Database\MySQLConnection;
+use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 
 
@@ -35,11 +36,6 @@ class StringInputTest extends TestCase
 		$this->assertEquals(4, $obj->index);
 	}
 
-	public function testCollectPostData()
-	{
-
-	}
-
 	public function testConstructorUsingIntegerValue()
 	{
 		$obj = new StringInput("Label", "key", false, 43);
@@ -67,12 +63,29 @@ class StringInputTest extends TestCase
 	public function testSetTemplatePath()
 	{
 		$path = "/path/to/templates/";
-		\Littled\Request\RequestInput::setTemplateBasePath($path);
+		RequestInput::setTemplateBasePath($path);
 		$this->assertEquals($path, $this->obj::getTemplateBasePath());
 
 		$new_path = "/new/path/to/templates/";
 		$this->obj::setTemplateBasePath($new_path);
 		$this->assertNotEquals($path, $this->obj::getTemplateBasePath());
 		$this->assertEquals($new_path, $this->obj::getTemplateBasePath());
+	}
+
+	public function testTemplateFilename()
+	{
+		$new_filename = 'new-string-template.php';
+		$default = $this->obj::getTemplateFilename();
+
+		// make sure the new value is different from the default
+		$this->assertNotEquals($new_filename, $default);
+
+		// test the object property after it has been set to a new value
+		StringInput::setTemplateFilename('new-string-template.php');
+		$this->assertNotEquals($default, $this->obj::getTemplateFilename());
+		$this->assertEquals(StringInput::getTemplateFilename(), $this->obj::getTemplateFilename());
+
+		// parent class's template value should remain unchanged
+		$this->assertNotEquals(RequestInput::getTemplateFilename(), $this->obj::getTemplateFilename());
 	}
 }

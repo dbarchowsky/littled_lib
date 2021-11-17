@@ -12,9 +12,9 @@ use Littled\PageContent\PageContent;
 class StringInput extends RequestInput
 {
     /** @var string Form input element template filename */
-    protected static $input_template_filename = 'string-text-input.php';
+    protected static $input_template_filename = 'string-hidden-input.php';
     /** @var string Form element template filename */
-    protected static $template_filename = 'string-text-field.php';
+    protected static $template_filename = 'string-hidden-field.php';
 
     /**
 	 * {@inheritDoc}
@@ -26,11 +26,11 @@ class StringInput extends RequestInput
 
 	/**
 	 * Collects the value of this form input and stores it in the object.
-	 * @param int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
-	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
-	 * @param string|null[optional] $key Key to use in place of the internal $key property value.
+	 * @param ?int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
+	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param ?string $key Key to use in place of the internal $key property value.
 	 */
-	public function collectPostData ($filters=null, $src=null, $key=null)
+	public function collectPostData (?int $filters=null, ?array $src=null, ?string $key=null)
 	{
 		if ($this->bypassCollectPostData===true) {
 			return;
@@ -74,9 +74,6 @@ class StringInput extends RequestInput
 				if (array_key_exists($key, $src)) {
 					$arr = filter_var($src[$key], FILTER_REQUIRE_ARRAY, $filters);
 				}
-				if (is_array($arr) && array_key_exists($this->index, $arr)) {
-					$this->value = $arr[$this->index];
-				}
 			}
 			else {
 				/* POST and GET */
@@ -84,9 +81,9 @@ class StringInput extends RequestInput
 				if (!is_array($arr)) {
 					$arr = filter_input(INPUT_GET, $key, FILTER_REQUIRE_ARRAY, $filters);
 				}
-				if (is_array($arr) && array_key_exists($this->index, $arr)) {
-					$this->value = $arr[$this->index];
-				}
+			}
+			if (is_array($arr) && array_key_exists($this->index, $arr)) {
+				$this->value = $arr[$this->index];
 			}
 		}
 	}
@@ -136,7 +133,7 @@ class StringInput extends RequestInput
 	 */
 	public function setInputValue($value)
 	{
-		$this->value = "{$value}";
+		$this->value = "$value";
 	}
 
 	/**
@@ -152,7 +149,7 @@ class StringInput extends RequestInput
 				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
 			if (strlen($this->value) > $this->sizeLimit) {
-				$this->throwValidationError($this->formatErrorLabel()." is limited to {$this->sizeLimit} characters.");
+				$this->throwValidationError($this->formatErrorLabel()." is limited to $this->sizeLimit characters.");
 			}
 		}
 	}

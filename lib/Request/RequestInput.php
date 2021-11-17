@@ -62,11 +62,11 @@ class RequestInput
 	/** @var string Path to form input templates. */
 	protected static $template_base_path = '';
 	/** @var string Input template filename. */
-	protected static $template_filename;
+	protected static $template_filename = '';
 	/** @var string Form input element filename. */
-	protected static $input_template_filename;
+	protected static $input_template_filename = '';
 	/** @var string Error indicator CSS class. */
-	protected static $error_class = 'formerror';
+	protected static $error_class = 'form-error';
 	/** @var string Required field indicator string. */
 	protected static $required_field_indicator = ' (*)';
 
