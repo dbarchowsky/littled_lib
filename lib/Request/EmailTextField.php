@@ -10,8 +10,6 @@ use Littled\Validation\Validation;
  */
 class EmailTextField extends StringTextField
 {
-	/** @var string Path to form input templates. */
-	protected static $template_base_path = '';
 	/** @var string Form input element template filename */
 	protected static $input_template_filename = 'email-input.php';
 	/** @var string Form element template filename */
