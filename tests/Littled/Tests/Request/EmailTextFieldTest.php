@@ -4,6 +4,7 @@ namespace Littled\Tests\Request;
 
 use Littled\Exception\ContentValidationException;
 use Littled\Request\EmailTextField;
+use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
 use Littled\Database\MySQLConnection;
 
@@ -39,10 +40,23 @@ class EmailTextFieldTest extends TestCase
 		$this->assertEquals(4, $obj->index);
 	}
 
+	public function testSetTemplateFilename()
+	{
+		$email_template_path = '/path/to/email-template.php';
+		$text_template_path = '/path/to/text-template.php';
+
+		EmailTextField::setTemplateFilename($email_template_path);
+		$this->assertEquals($email_template_path, EmailTextField::getTemplateFilename());
+
+		StringTextField::setTemplateFilename($text_template_path);
+		$this->assertEquals($email_template_path, EmailTextField::getTemplateFilename());
+		$this->assertEquals($text_template_path, StringTextField::getTemplateFilename());
+	}
+
 	public function testValidateNotRequired()
 	{
 		$this->obj->required = false;
-		self::assertNull($this->obj->validate());
+		$this->assertNull($this->obj->validate());
 	}
 
 	public function testValidateDefaultValue()

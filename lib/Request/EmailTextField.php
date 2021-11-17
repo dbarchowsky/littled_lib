@@ -10,12 +10,24 @@ use Littled\Validation\Validation;
  */
 class EmailTextField extends StringTextField
 {
+	/** @var string Path to form input templates. */
+	protected static $template_base_path = '';
+	/** @var string Form input element template filename */
+	protected static $input_template_filename = 'email-input.php';
+	/** @var string Form element template filename */
+	protected static $template_filename = 'email-field.php';
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public function __construct($label, $param, $required = false, $value = null, $size_limit = 255, $index = null)
 	{
 		parent::__construct($label, $param, $required, $value, $size_limit, $index);
+	}
+
+	public static function getTemplateFilename(): string
+	{
+		return static::$template_filename;
 	}
 
 	/**
