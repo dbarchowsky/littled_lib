@@ -3,6 +3,7 @@ namespace Littled\PageContent;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\Metadata\Preload;
 use Littled\Validation\Validation;
 use Littled\PageContent\Metadata\PageMetadata;
 use Littled\PageContent\Navigation\NavigationMenu;
@@ -230,11 +231,11 @@ class PageConfig
 
 	/**
 	 * Pushes the URL of a resource that will be preloaded on the page.
-	 * @param string $src
+	 * @param Preload $preload
 	 */
-	public static function registerPreload(string $src)
+	public static function registerPreload(Preload $preload)
 	{
-		array_push(static::$preloads, $src);
+		array_push(static::$preloads, $preload);
 	}
 
 	/**
