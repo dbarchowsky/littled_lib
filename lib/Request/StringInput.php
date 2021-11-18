@@ -94,7 +94,6 @@ class StringInput extends RequestInput
      * A null value will cause the internal label value to be used. An empty
      * string will cause the label to not be rendered at all.
      * @param string[optional] $css_class CSS class name(s) to apply to the input container.
-     * @throws ResourceNotFoundException
      */
     public function render( $label=null, $css_class=null )
     {
@@ -104,7 +103,7 @@ class StringInput extends RequestInput
         if (!$css_class) {
             $css_class = $this->cssClass;
         }
-        PageContent::render(self::getTemplatePath(), array(
+        PageContent::renderWithErrors(self::getTemplatePath(), array(
             'input' => &$this,
             'label' => $label,
             'css_class' => $css_class
@@ -114,14 +113,13 @@ class StringInput extends RequestInput
     /**
      * Renders the corresponding form field with a label to collect the input data.
      * @param string[optional] $label
-     * @throws ResourceNotFoundException
      */
     public function renderInput($label=null)
     {
         if (!$label) {
             $label = $this->label;
         }
-        PageContent::render(self::getInputTemplateFilename(), array(
+        PageContent::renderWithErrors(self::getInputTemplateFilename(), array(
             'input' => &$this,
             'label' => $label
         ));

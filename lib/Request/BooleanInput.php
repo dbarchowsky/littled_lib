@@ -69,13 +69,11 @@ class BooleanInput extends RequestInput
 	 * Render the form input element(s) in the DOM.
 	 * @param string[optional] $label If a value is provided, it will override the object's internal $label property value.
 	 * @param string[optional] $css_class CSS class name to apply to the form input element.
-	 * @throws NotImplementedException
-	 * @throws ResourceNotFoundException
 	 */
 	public function render($label = null, $css_class = '')
 	{
 		if (false === $this->isTemplateDefined()) {
-			throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+			PageContent::printError("\"".__METHOD__."\" not implemented.");
 		}
 
 		if (!$label) {
@@ -86,7 +84,7 @@ class BooleanInput extends RequestInput
 		$selection_state = ((true === $this->value)?(' checked="checked"'):(''));
 		$required_str = (($this->required)?($this::getRequiredIndicator()):(''));
 
-		PageContent::render($this::getTemplatePath(),
+		PageContent::renderWithErrors($this::getTemplatePath(),
 			array(
 				'input' => &$this,
 				'label' => $label,
