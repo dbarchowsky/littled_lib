@@ -169,8 +169,8 @@ class PageContent
 			}
 		}
 		if (is_array($context)) {
-			foreach($context as $key => $val) {
-				${$key} = $val;
+			foreach($context as $context_key => $context_value) {
+				${$context_key} = $context_value;
 			}
 		}
 		include ($template_path);

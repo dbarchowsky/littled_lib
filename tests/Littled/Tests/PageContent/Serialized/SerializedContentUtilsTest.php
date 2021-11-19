@@ -1,14 +1,17 @@
 <?php
-namespace Littled\Tests\PageContent;
-
-require_once(realpath(dirname(__FILE__)) . "/../../../keys/littledamien/keys.php");
+namespace Littled\Tests\PageContent\Serialized;
+require_once(realpath(dirname(__FILE__)) . "/../../../../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\Serialized\SerializedContentUtils;
+use Littled\Request\RequestInput;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
@@ -43,12 +46,12 @@ class SerializedContentUtilsChild extends SerializedContent
 		$this->bool_col = new BooleanInput('Test bool value', 'p_bool');
 	}
 
-	public static function TABLE_NAME()
+	public static function TABLE_NAME(): string
 	{
 		return ('serialized_content_utils_unit_tests');
 	}
 
-	public function hasData()
+	public function hasData(): bool
 	{
 		if ($this->vc_col2->value !== null && strlen($this->vc_col2->value) > 0) { return(true); }
 		if ($this->vc_col1->value !== null && strlen($this->vc_col1->value) > 0) { return(true); }
@@ -82,7 +85,6 @@ class SerializedContentUtilsTest extends TestCase
 	/** @var MySQLConnection Database connection. */
 	public $conn;
 
-	public const TEST_ASSETS_PATH = "../../assets/";
 	public const TEST_SOURCE_TEMPLATE = "serialized-content-source-template.php";
 	public const TEST_OUTPUT_TEMPLATE = "serialized-content-output-template.php";
 
@@ -289,7 +291,7 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertNull($this->obj->getContentTypeID());
 	}
 
-	public function testJsonEnode()
+	public function testJsonEncode()
 	{
 		$obj = new SerializedContentUtilsChild();
 		$obj->vc_col1->setInputValue("foo");
@@ -335,10 +337,17 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertStringNotContainsString("\"bool_col\"", $json_str);
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 * @throws InvalidValueException
+	 */
 	public function testPluralLabel()
 	{
 		$obj = new SerializedContentUtilsChild();
-		$this->assertEquals('', $obj->pluralLabel(1, 'vc_col1'));
+
+		// test null property value
+		$this->expectException(InvalidValueException::class);
+		$obj->pluralLabel(1, 'vc_col1');
 
 		$obj->vc_col1->setInputValue('thing');
 		$this->assertEquals('thing', $obj->pluralLabel(1, 'vc_col1'));
@@ -351,12 +360,17 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertEquals('thingies', $obj->pluralLabel(0, 'vc_col1'));
 	}
 
+	/**
+	 * @throws InvalidValueException
+	 * @throws ConfigurationUndefinedException
+	 */
 	public function testPluralLabelInvalidArguments()
 	{
 		$obj = new SerializedContentUtilsChild();
 
 		/* non-existent property */
-		$this->assertNull($obj->pluralLabel(2, 'not_a_property'));
+		$this->expectException(ConfigurationUndefinedException::class);
+		$obj->pluralLabel(2, 'not_a_property');
 
 		/* non-string property */
 		$this->assertNull($obj->pluralLabel(2, 'int_col'));
@@ -379,6 +393,39 @@ class SerializedContentUtilsTest extends TestCase
         self::assertEquals(' foo', $obj->prependSeparator('foo', ''));
     }
 
+	public function testPreserveInForm()
+	{
+		RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR."forms/input-elements/");
+
+		// test object with no added RequestInput properties
+		$obj = new SerializedContent();
+		$expected1 =
+			"<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" />\n";
+		$this->expectOutputString($expected1);
+		$obj->preserveInForm();
+
+		// test object with added RequestInput properties
+		// N.B. expectOutputString() evaluates against ALL strings that have been printed to STDOUT
+		$o2 = new SerializedContentUtilsChild();
+		$expected2 = $expected1.
+			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->vc_col2->key}\" value=\"{$o2->vc_col2->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->bool_col->key}\" value=\"{$o2->bool_col->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
+		$this->expectOutputString($expected2);
+		$o2->preserveInForm();
+
+		// test object with excluded properties
+		$expected3 = $expected2.
+			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
+		$this->expectOutputString($expected3);
+		$o2->preserveInForm(array('p_vc2', 'p_bool'));
+
+	}
+
     public function testCacheTemplatePath()
 	{
 		$this->assertEquals("/path/to/templates/child-cache-template.php", SerializedContentUtilsChild::getCacheTemplatePath());
@@ -386,13 +433,12 @@ class SerializedContentUtilsTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
 	public function testUpdateCacheFileWithoutContext()
 	{
-		$dir = dirname(__FILE__);
-		$src_template_path = realpath($dir."/".self::TEST_ASSETS_PATH.self::TEST_SOURCE_TEMPLATE);
-		$dst_path = realpath($dir."/".self::TEST_ASSETS_PATH)."/";
+		$src_template_path = TEST_ASSETS_PATH . self::TEST_SOURCE_TEMPLATE;
+		$dst_path = TEST_ASSETS_PATH;
 		$context = array("page_title" => "My Test Title", "test_var" => "test value");
 		$this->obj->updateCacheFile($context, $src_template_path, $dst_path.self::TEST_OUTPUT_TEMPLATE);
 		$result = file_get_contents($dst_path.self::TEST_OUTPUT_TEMPLATE);

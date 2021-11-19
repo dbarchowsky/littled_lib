@@ -351,11 +351,24 @@ class SerializedContentUtils extends AppContentBase
      */
     public function prependSeparator(string $str, string $separator=','): string
     {
-        if(!is_null($str) && strlen(trim($str)) > 0) {
+        if(strlen(trim($str)) > 0) {
             $str = "$separator ".ltrim($str);
         }
         return ($str);
     }
+
+	/**
+	 * Save RequestInput property values in form markup.
+	 * @param array $excluded_keys Optional list of keys that will be excluded from the form markup.
+	 */
+	public function preserveInForm(array $excluded_keys=[])
+	{
+		foreach($this as $item) {
+			if ($item instanceof RequestInput && !in_array($item->key, $excluded_keys)) {
+				$item->saveInForm();
+			}
+		}
+	}
 
     /**
      * Sets value of shared cms templates path.

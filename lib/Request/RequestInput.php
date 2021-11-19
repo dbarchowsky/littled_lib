@@ -62,7 +62,7 @@ class RequestInput
 	/** @var string Path to form input templates. */
 	protected static $template_base_path = '';
 	/** @var string Input template filename. */
-	protected static $template_filename = '';
+	protected static $template_filename = 'hidden-input.php';
 	/** @var string Form input element filename. */
 	protected static $input_template_filename = '';
 	/** @var string Error indicator CSS class. */
@@ -368,7 +368,7 @@ class RequestInput
 	    if ($key===null) {
 	        $key = $this->key;
         }
-		PageContent::renderWithErrors(self::getTemplateBasePath()."hidden-input.php", array(
+		PageContent::renderWithErrors(self::getTemplatePath(), array(
 			'key' => $key,
 			'value' => $this->value,
 			'index' => ((is_numeric($this->index))?("[$this->index]"):(""))

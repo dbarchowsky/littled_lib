@@ -3,8 +3,6 @@ namespace Littled\Request;
 
 
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\Validation\Validation;
 

@@ -11,11 +11,6 @@ use Littled\PageContent\PageContent;
  */
 class StringInput extends RequestInput
 {
-    /** @var string Form input element template filename */
-    protected static $input_template_filename = 'string-hidden-input.php';
-    /** @var string Form element template filename */
-    protected static $template_filename = 'string-hidden-field.php';
-
     /**
 	 * {@inheritDoc}
 	 */
