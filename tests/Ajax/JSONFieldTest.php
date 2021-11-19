@@ -1,6 +1,6 @@
 <?php
 namespace Littled\Tests\Ajax;
-require_once ('./Samples/JSONResponseSample.php');
+require_once('./Samples/JSONResponseSample.php');
 
 use Littled\Ajax\JSONField;
 use Littled\Tests\Ajax\Samples\JSONResponseSample;

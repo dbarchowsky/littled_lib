@@ -86,6 +86,6 @@ class StringInputTest extends TestCase
 		$this->assertEquals(StringInput::getTemplateFilename(), $this->obj::getTemplateFilename());
 
 		// parent class's template value should remain unchanged
-		$this->assertNotEquals(RequestInput::getTemplateFilename(), $this->obj::getTemplateFilename());
+		$this->assertEquals(RequestInput::getTemplateFilename(), $this->obj::getTemplateFilename());
 	}
 }

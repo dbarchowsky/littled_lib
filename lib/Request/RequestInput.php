@@ -278,7 +278,7 @@ class RequestInput
 	 */
 	public function isEmpty(): bool
 	{
-		return ($this->value===null || trim($this->value)==='');
+		return ($this->value===null || ($this->value !== false && trim($this->value)===''));
 	}
 
 	/**
