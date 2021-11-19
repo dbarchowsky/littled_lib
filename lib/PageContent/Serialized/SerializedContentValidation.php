@@ -10,7 +10,7 @@ class SerializedContentValidation extends SerializedContentUtils
 {
 	/**
 	 * Stores new error message string on stack of current error messages.
-	 * @param $err string|array Array or string containing errors to push onto the current
+	 * @param string|array $err Array or string containing errors to push onto the current
 	 * stack of error messages.
 	 */
 	public function addValidationError($err)
@@ -59,10 +59,10 @@ class SerializedContentValidation extends SerializedContentUtils
 	/**
 	 * Validates the internal property values of the object for data that is not valid.
 	 * Updates the $validation_errors property of the object with messages describing the invalid values.
-	 * @param array[optional] $exclude_properties Names of class properties to exclude from validation.
+	 * @param array $exclude_properties Names of class properties to exclude from validation.
 	 * @throws ContentValidationException Invalid content found.
 	 */
-	public function validateInput($exclude_properties=[])
+	public function validateInput(array $exclude_properties=[])
 	{
 		$this->validationErrors = [];
 		foreach($this as $key => $property)

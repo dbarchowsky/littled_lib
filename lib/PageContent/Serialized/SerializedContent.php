@@ -2,7 +2,6 @@
 namespace Littled\PageContent\Serialized;
 
 
-use http\Env\Request;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -199,7 +198,7 @@ class SerializedContent extends SerializedContentValidation
 	 */
 	public function getTypeName(string $table, int $id, $field="name", $id_field="id" ): ?string
 	{
-		if ($id===null || $id<1) {
+		if ($id<1) {
 			return null;
 		}
 
