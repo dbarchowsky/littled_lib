@@ -24,6 +24,16 @@ class SerializedContentValidation extends SerializedContentUtils
 	}
 
 	/**
+	 * Returns all validation errors as a single string
+	 * @param string $delimiter (optional) string to insert between the individual error messages.
+	 * @return string
+	 */
+	public function getErrorsString(string $delimiter=" \n"): string
+	{
+		return implode($delimiter, $this->validationErrors);
+	}
+
+	/**
 	 * Indicates if any form data has been entered for the current instance of the object.
 	 * @return bool Returns true if editing an existing record, a title has been entered, or if any gallery images
 	 * have been uploaded. Most likely should be overridden in derived classes.

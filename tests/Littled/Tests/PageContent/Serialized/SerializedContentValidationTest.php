@@ -49,6 +49,27 @@ class SerializedContentValidationTest extends TestCase
 		self::assertEquals(1, count($this->obj->validationErrors));
 	}
 
+	public function testGetErrorsString()
+	{
+		$test_error_1 = 'error one';
+		$test_error_2 = 'error two';
+		$test_delimiter = ':';
+
+		// test the default value with no errors
+		$this->assertEquals('', $this->obj->getErrorsString());
+
+		// test with a single error on the stack
+		$this->obj->addValidationError($test_error_1);
+		$this->assertEquals($test_error_1, $this->obj->getErrorsString());
+
+		// test with multiple errors on stack
+		$this->obj->addValidationError($test_error_2);
+		$this->assertEquals("$test_error_1 \n$test_error_2", $this->obj->getErrorsString());
+
+		// test with non-default delimiter
+		$this->assertEquals("$test_error_1$test_delimiter$test_error_2", $this->obj->getErrorsString($test_delimiter));
+	}
+
     public function testHasData()
     {
     	self::assertFalse($this->obj->hasData());
