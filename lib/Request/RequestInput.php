@@ -218,7 +218,16 @@ class RequestInput
 		return(static::$template_base_path.static::$input_template_filename);
 	}
 
-	/**
+    /**
+     * Gets the input's key value
+     * @return string
+     */
+    public function getKey( ): string
+    {
+        return $this->key;
+    }
+
+    /**
 	 * Returns string to insert into front-end templates that will indicate that field is required to submit form data.
 	 * @return string Content to insert into template.
 	 */
@@ -417,6 +426,15 @@ class RequestInput
 	{
 		$this->value = $value;
 	}
+
+    /**
+     * Sets the input's key value
+     * @param string $key
+     */
+    public function setKey( string $key )
+    {
+        $this->key = $key;
+    }
 
 	/**
 	 * Sets the value of an arbitrary property of the class.
