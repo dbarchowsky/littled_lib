@@ -106,7 +106,7 @@ class SerializedContentUtils extends AppContentBase
 	 * Set property values using input variable values, e.g. GET, POST, cookies
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectFromInput(?array $src=null): void
+	public function collectFromInput(?array $src=null)
 	{
 		foreach($this as $item) {
 			if (is_object($item) && method_exists($item, 'collectFromInput')) {
