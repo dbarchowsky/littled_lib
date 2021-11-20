@@ -107,7 +107,7 @@ class KeywordSectionContent extends SectionContent
 	public function collectKeywordInput(?array $src=null): void
 	{
 		$this->clearKeywordData();
-		$this->keywordInput->collectPostData($src);
+		$this->keywordInput->collectRequestData($src);
 		if (!$this->keywordInput->value) {
 			return;
 		}

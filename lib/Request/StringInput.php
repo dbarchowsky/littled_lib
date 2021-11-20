@@ -1,8 +1,6 @@
 <?php
 namespace Littled\Request;
 
-
-use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 
 /**
@@ -25,7 +23,7 @@ class StringInput extends RequestInput
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @param ?string $key Key to use in place of the internal $key property value.
 	 */
-	public function collectPostData (?int $filters=null, ?array $src=null, ?string $key=null)
+	public function collectRequestData (?int $filters=null, ?array $src=null, ?string $key=null)
 	{
 		if ($this->bypassCollectPostData===true) {
 			return;

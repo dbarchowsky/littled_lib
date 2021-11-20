@@ -124,7 +124,7 @@ class PageContentBase extends MySQLConnection
 		$qs_vars = array();
 		foreach($page_vars as $input) {
 			if ( $input instanceof RequestInput) {
-				$input->collectPostData();
+				$input->collectRequestData();
 			}
 			elseif ($input instanceof input_class) {
 				/* @todo remove this after common_lib is removed from all projects */

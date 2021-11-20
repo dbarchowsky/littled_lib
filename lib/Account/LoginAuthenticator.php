@@ -73,9 +73,9 @@ class LoginAuthenticator extends UserLogin
 	 */
 	public function collectFromInput( ?array $src=null ): void
 	{
-		$this->uname->collectPostData();
-		$this->password->collectPostData();
-        $this->redirect_uri->collectPostData();
+		$this->uname->collectRequestData();
+		$this->password->collectRequestData();
+        $this->redirect_uri->collectRequestData();
 	}
 
     /**

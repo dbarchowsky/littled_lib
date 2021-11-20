@@ -130,7 +130,7 @@ class RequestInput
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @throws NotImplementedException
 	 */
-	public function collectPostData()
+	public function collectRequestData()
 	{
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}
@@ -180,9 +180,8 @@ class RequestInput
 	 * @return string Label markup to insert into form content.
 	 * @throws ResourceNotFoundException Template not found.
 	 */
-	public function formatLabelMarkup( $label ): string
+	public function formatLabelMarkup( string $label ): string
 	{
-		if ($label===null) { $label=$this->label;}
 		if (strlen($label) > 0 && $this->displayPlaceholder===false) {
 			return (PageContent::loadTemplateContent(static::$template_base_path."form-input-label.php", array(
 				'label' => $label,
@@ -338,7 +337,7 @@ class RequestInput
      * @param string[optional] $css_class
      * @param array[optional] $options
      */
-	public function renderWithErrors($label=null, $css_class=null, $options=[])
+	public function renderWithErrors($label=null, $css_class=null)
     {
         try {
             $this->render($label, $css_class);

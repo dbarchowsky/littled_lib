@@ -125,7 +125,7 @@ class PageContent
 		$qs_vars = array();
 		foreach($page_vars as $input) {
 			/** @var RequestInput $input */
-			$input->collectPostData();
+			$input->collectRequestData();
 			if ($input->value===true) {
 				array_push($qs_vars, "$input->key=1");
 			}
