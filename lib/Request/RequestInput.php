@@ -374,6 +374,22 @@ class RequestInput
 		));
 	}
 
+    /**
+     * Sets flag to indicate that this input value is not required.
+     */
+    public function setAsNotRequired()
+    {
+        $this->required = false;
+    }
+
+    /**
+     * Sets flag to indicate that this input value is required.
+     */
+    public function setAsRequired()
+    {
+        $this->required = true;
+    }
+
 	/**
 	 * Error css class setter.
 	 * @param string $css_class CSS class name.
