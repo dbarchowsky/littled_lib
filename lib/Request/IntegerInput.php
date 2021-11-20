@@ -10,7 +10,10 @@ use Littled\Validation\Validation;
  */
 class IntegerInput extends RequestInput
 {
-	/**
+    /** @var int */
+    const DEFAULT_DATA_SIZE = 8;
+
+    /**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @param ?string $key Key to use in place of the internal $key property value.

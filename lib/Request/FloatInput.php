@@ -10,6 +10,9 @@ use Littled\Validation\Validation;
  */
 class FloatInput extends RequestInput
 {
+    /** @var int */
+    const DEFAULT_DATA_SIZE = 16;
+
 	/**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
