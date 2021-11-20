@@ -24,10 +24,14 @@ class AppBase
 
     /**
      * Assigns JSON request data values to object properties.
-     * @param object $data
+     * @param ?object $data
      */
-    public function collectJsonRequestData(object $data)
+    public function collectJsonRequestData(?object $data=null)
     {
+        if (is_null($data)) {
+            $json = file_get_contents('php://input');
+            $data = json_decode($json);
+        }
         foreach($this as $item) {
             if (is_object($item) && method_exists($item, 'collectJsonRequestData')) {
                 /** @var RequestInput $item */
