@@ -1,6 +1,8 @@
 <?php
 namespace Littled\App;
 
+use Littled\Request\RequestInput;
+
 class AppBase
 {
 	function __construct()
@@ -20,7 +22,21 @@ class AppBase
 		return ('');
 	}
 
-	/**
+    /**
+     * Assigns JSON request data values to object properties.
+     * @param object $data
+     */
+    public function collectJsonRequestData(object $data)
+    {
+        foreach($this as $item) {
+            if (is_object($item) && method_exists($item, 'collectJsonRequestData')) {
+                /** @var RequestInput $item */
+                $item->collectJsonRequestData($data);
+            }
+        }
+    }
+
+    /**
 	 * Generate CSRF token and store it in a session variable.
 	 * A token is not generated if one already exists for the session.
 	 */
