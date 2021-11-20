@@ -130,7 +130,7 @@ class Album extends KeywordSectionContent
 		}
 
 		/* id parameter specific to the derived class */
-		$this->id->collectFromInput($src);
+		$this->id->collectRequestData($src);
 		if ($this->id->value > 0) {
 			return;
 		}
@@ -159,10 +159,10 @@ class Album extends KeywordSectionContent
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
-	public function collectFromInput ( $src=null )
+	public function collectRequestData ($src=null )
 	{
 		$this->section_id->bypassCollectPostData = true;
-		parent::collectFromInput($src);
+		parent::collectRequestData($src);
 		$this->gallery->collectFromInput($src);
 		if ($this->title->value && $this->slug->value=="") {
 			$this->slug->value = $this->generateDefaultSlug();
@@ -181,7 +181,7 @@ class Album extends KeywordSectionContent
 	{
 		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM, null, $src);
 		if ($this->id->value===null) {
-			$this->id->collectFromInput($src);
+			$this->id->collectRequestData($src);
 		}
 		$this->section_id->value = $this->getContentTypeID();
 		$this->title->collectFromInput($src);

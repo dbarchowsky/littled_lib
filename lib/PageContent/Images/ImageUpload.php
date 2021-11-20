@@ -63,9 +63,9 @@ class ImageUpload extends ImageLink
 	 * Collects and parses form data, and assigns internal variables using the form data.
 	 * @param array|null[optional] $src
 	 */
-	public function collectFromInput( $src=null )
+	public function collectRequestData($src=null )
 	{
-		parent::collectFromInput($src);
+		parent::collectRequestData($src);
 		$this->new_name->collectFromInput($src);
 		$this->page->collectFromInput($src);
 		$this->upload_type->collectFromInput($src);
@@ -87,7 +87,7 @@ class ImageUpload extends ImageLink
 		/* first attempt to collect "id" value using the derived class's
 		 * input parameter, if that isn't available, use a generic parameter.
 		 */
-		$this->id->collectFromInput($src);
+		$this->id->collectRequestData($src);
 		if ($this->id->value === null && $this->id->key != "id") {
 			$this->id->value = Validation::collectIntegerRequestVar("id", null, $src);
 		}
@@ -95,7 +95,7 @@ class ImageUpload extends ImageLink
 		/* collect parent record's id value, giving derived class's
 		 * parameter precedence over the generic parameter.
 		 */
-		$this->parent_id->collectFromInput($src);
+		$this->parent_id->collectRequestData($src);
 		if ($this->parent_id->value === null && $this->parent_id->key != "pid") {
 			$this->parent_id->value = Validation::collectIntegerRequestVar("pid", null, $src);
 		}
@@ -103,7 +103,7 @@ class ImageUpload extends ImageLink
 		/* collect content type id value, giving derived class's
 		 * parameter precedence over the generic parameter.
 		 */
-		$this->contentProperties->id->collectFromInput($src);
+		$this->contentProperties->id->collectRequestData($src);
 		if ($this->contentProperties->id->value === null && $this->contentProperties->id->key != "tid") {
 			$this->contentProperties->id->value = Validation::collectIntegerRequestVar("tid", null, $src);
 		}

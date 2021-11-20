@@ -35,7 +35,7 @@ class PasswordReset extends UserAccount
 	/**
 	 * {@inheritDoc}
 	 */
-	public function collectFromInput ($src=null)
+	public function collectRequestData ($src=null)
 	{
 		$this->contact_info->email->collectRequestData();
 	}

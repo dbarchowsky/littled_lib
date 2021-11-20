@@ -68,13 +68,13 @@ class ResortBase extends MySQLConnection
 		if ($src===null) {
 			$src = array_merge($_POST, $_GET);
 		}
-		$this->contentProperties->id->collectFromInput($src);
+		$this->contentProperties->id->collectRequestData($src);
 		if ($this->contentProperties->id->value>0) {
 			$this->retrieveSectionProperties();
 		}
 
 		$this->editDOMID->collectFromInput($src);
-		$this->positionOffset->collectFromInput($src);
+		$this->positionOffset->collectRequestData($src);
 		$position_str = '';
 		if (array_key_exists($this->positionList->key, $src)) {
 			$position_str = trim(filter_var($src[$this->positionList->key], FILTER_SANITIZE_STRING));

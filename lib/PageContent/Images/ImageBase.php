@@ -112,9 +112,9 @@ class ImageBase extends SerializedContent
      * Fill object property values from http request variables.
      * @param array|null $src Variables to use to fill the object properties instead of POST or GET collections.
      */
-    public function collectFromInput( $src=null )
+    public function collectRequestData($src=null )
     {
-        $this->id->collectFromInput($src);
+        $this->id->collectRequestData($src);
         if (isset($_FILES[$this->path->key])) {
             if (is_numeric($this->path->index)) {
                 $this->path->value = $_FILES[$this->path->key]["name"][(int)$this->path->index];
@@ -132,8 +132,8 @@ class ImageBase extends SerializedContent
                         $src = &$_REQUEST;
                     }
                     $this->path->value = trim($src[$this->path->key."_orig"]);
-                    $this->width->collectFromInput($src);
-                    $this->height->collectFromInput($src);
+                    $this->width->collectRequestData($src);
+                    $this->height->collectRequestData($src);
                 }
             }
         }

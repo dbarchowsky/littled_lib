@@ -141,7 +141,7 @@ class KeywordSectionContentTest extends TestCase
 			$this->obj->contentProperties->id->key => '629'
 		);
 
-		$this->obj->collectFromInput($input);
+		$this->obj->collectRequestData($input);
 
 		$this->assertEquals(47, $this->obj->id->value);
 		$this->assertEquals(629, $this->obj->contentProperties->id->value);

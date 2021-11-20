@@ -136,10 +136,10 @@ class Gallery extends MySQLConnection
 
 		for ($i=0; $i<$iCount; $i++) {
 			$this->list[$i] = new ImageLink($this->contentProperties->image_path->value, $this->contentProperties->param_prefix->value, $this->contentProperties->id->value);
-			$this->list[$i]->collectFromInput();
+			$this->list[$i]->collectRequestData();
 		}
 
-		$this->tn->collectFromInput();
+		$this->tn->collectRequestData();
 	}
 
 	/**

@@ -38,10 +38,10 @@ class SectionContent extends SerializedContent
 	 * Fills the object's property values from input variable values, e.g. GET, POST, etc.
 	 * @param array[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectFromInput($src=null)
+	public function collectRequestData($src=null)
 	{
 		$this->contentProperties->bypassCollectFromInput = true;
-		parent::collectFromInput($src);
+		parent::collectRequestData($src);
 	}
 
 	/**

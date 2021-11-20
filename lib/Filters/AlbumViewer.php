@@ -106,13 +106,13 @@ class AlbumViewer extends SocialXPostAlbum
 	 *   - the direction of navigation
 	 * @param array|null[optional] $src Array of variables to use instead of POST data.
 	 */
-	public function collectFromInput( $src=null )
+	public function collectRequestData($src=null )
 	{
-		$this->id->collectFromInput($src);
+		$this->id->collectRequestData($src);
 		if ($this->id->value===null) {
 			$this->id->value = Validation::collectIntegerRequestVar($this::BOOK_PARAM, null, $src);
 		}
-		$this->pages[0]->id->collectFromInput($src);
+		$this->pages[0]->id->collectRequestData($src);
 		$this->direction->collectFromInput($src);
 	}
 

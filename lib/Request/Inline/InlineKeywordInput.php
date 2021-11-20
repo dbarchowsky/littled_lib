@@ -1,8 +1,15 @@
 <?php
 namespace Littled\Request\Inline;
 
-
 use Littled\Cache\ContentCache;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
@@ -32,26 +39,26 @@ class InlineKeywordInput extends KeywordSectionContent
 
 	/**
 	 * Fill keyword properties from form data.
-	 * @param array[optional] $src Optional array containing data to use in place of POST data.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @param ?array $src Optional array containing data to use in place of POST data.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
-	public function collectFromInput($src = null)
+	public function collectRequestData(?array $src = null)
 	{
-		parent::collectFromInput($src);
+		parent::collectRequestData($src);
 		$this->retrieveSectionProperties();
 	}
 
 	/**
 	 * @return string Keyword list markup.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
-	public function loadKeywordListMarkup()
+	public function loadKeywordListMarkup(): string
 	{
 		return PageContent::loadTemplateContent($this::getKeywordsListTemplatePath(),
 			array('content' => &$this));
@@ -59,10 +66,10 @@ class InlineKeywordInput extends KeywordSectionContent
 
 	/**
 	 * Commits keyword data to the database
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
 	 */
 	public function saveKeywords()
 	{

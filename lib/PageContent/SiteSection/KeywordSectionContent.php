@@ -80,10 +80,10 @@ class KeywordSectionContent extends SectionContent
 	 * @param ?array $src Optional array container of request variables. If specified, it will override
 	 * inspecting the $_POST and $_GET collections for keyword values.
 	 */
-	public function collectFromInput(?array $src = null): void
+	public function collectRequestData(?array $src = null)
 	{
-		parent::collectFromInput($src);
-		$this->contentProperties->id->collectFromInput(null, $src);
+		parent::collectRequestData($src);
+		$this->contentProperties->id->collectRequestData(null, $src);
 		$this->collectKeywordInput();
 	}
 
@@ -95,7 +95,7 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function collectFromInlineInput(?array $src=null): void
 	{
-		$this->id->collectFromInput(null, $src);
+		$this->id->collectRequestData(null, $src);
 	}
 
 	/**

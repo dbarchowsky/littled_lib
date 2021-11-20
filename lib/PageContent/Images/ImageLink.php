@@ -144,16 +144,16 @@ class ImageLink extends KeywordSectionContent
 	 * Assign values to object's properties based on form data.
 	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectFromInput( $src=null )
+	public function collectRequestData($src=null )
 	{
 		$this->collectInlineInput($src);
 		$this->title->collectFromInput(null, $src);
 		$this->description->collectFromInput(null, $src);
-		$this->full->collectFromInput($src);
-		$this->med->collectFromInput($src);
-		$this->mini->collectFromInput($src);
-		$this->slot->collectFromInput(null, $src);
-		$this->page_number->collectFromInput(null, $src);
+		$this->full->collectRequestData($src);
+		$this->med->collectRequestData($src);
+		$this->mini->collectRequestData($src);
+		$this->slot->collectRequestData(null, $src);
+		$this->page_number->collectRequestData(null, $src);
 		$this->access->collectFromInput(null, $src);
 		$this->release_date->collectFromInput(null, $src);
 	}
@@ -164,18 +164,18 @@ class ImageLink extends KeywordSectionContent
 	 */
 	public function collectInlineInput( $src=null )
 	{
-		$this->id->collectFromInput(null, $src);
-		$this->parent_id->collectFromInput(null, $src);
+		$this->id->collectRequestData(null, $src);
+		$this->parent_id->collectRequestData(null, $src);
 		if (($this->parent_id->key != $this::vars['parent_id']) &&
 			($this->parent_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
-			$this->parent_id->collectFromInput(null, $src, $this::vars['parent_id']);
+			$this->parent_id->collectRequestData(null, $src, $this::vars['parent_id']);
 		}
-		$this->contentProperties->id->collectFromInput();
+		$this->contentProperties->id->collectRequestData();
 		if (($this->type_id->key != $this::vars['content_type']) &&
 			($this->type_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
-			$this->type_id->collectFromInput(null, $src, $this::vars['content_type']);
+			$this->type_id->collectRequestData(null, $src, $this::vars['content_type']);
 		}
 		$this->randomize->collectFromInput(null, $src);
 	}

@@ -48,7 +48,7 @@ class SectionContentTest extends TestCase
 			'ssmn' => '1',
 			'ssgt' => 'false'
 			);
-		$this->obj->collectFromInput($src);
+		$this->obj->collectRequestData($src);
 
 		$this->assertEquals(82, $this->obj->id->value);
 		/* Site Section data should not be collected & should remain with default values */

@@ -55,7 +55,7 @@ class LoginAuthenticator extends UserLogin
 		}
 
 		try {
-            $this->collectFromInput();
+            $this->collectRequestData();
             $this->validateOnDatabase($access_level);
         }
         catch (InvalidCredentialsException
@@ -71,7 +71,7 @@ class LoginAuthenticator extends UserLogin
 	 * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET,
      * Session vars.
 	 */
-	public function collectFromInput( ?array $src=null ): void
+	public function collectRequestData(?array $src=null ): void
 	{
 		$this->uname->collectRequestData();
 		$this->password->collectRequestData();

@@ -79,7 +79,7 @@ class AjaxPage extends MySQLConnection
 	 */
 	public function collectContentID( $src=null )
 	{
-		$this->content->id->collectFromInput($src);
+		$this->content->id->collectRequestData($src);
 		if ($this->content->id->value===null && $this->content->id->key != LittledGlobals::ID_PARAM) {
 			$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM, null, $src);
 		}
