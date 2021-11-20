@@ -31,6 +31,7 @@ class Address extends SerializedContent
 {
     /** @var string Google maps api key */
     protected static $gmap_api_key;
+    protected static $address_data_template = 'forms/data/address_class_data.php';
 
 	const ID_PARAM = "adid";
 	const LOCATION_PARAM = "adlo";
@@ -42,7 +43,7 @@ class Address extends SerializedContent
 	}
 
     /**
-     * Inserts google maps key into URL to use to access google maps.
+     * Inserts Google Maps key into URL to use to access Google Maps.
      * @return string google maps uri
      */
 	public static function GOOGLE_MAPS_URI(): string
@@ -149,7 +150,7 @@ class Address extends SerializedContent
      * @return string Formatted address.
      * @throws InvalidValueException
      */
-    public function formatAddress($style="oneline", $include_name=false): string
+    public function formatAddress(string $style="oneline", bool $include_name=false): string
     {
         switch ($style)
         {
@@ -218,7 +219,7 @@ class Address extends SerializedContent
      * @param bool $include_name (Optional) Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      */
-    public function formatHTMLAddress($include_name=false): string
+    public function formatHTMLAddress(bool $include_name=false): string
     {
         $parts = array();
         if ($include_name==true)
@@ -277,7 +278,7 @@ class Address extends SerializedContent
      * @param int|null $limit (Optional) Limit the size of the string returned to $limit characters.
      * @return string
      */
-    public function formatStreet($limit=null): string
+    public function formatStreet(?int $limit=null): string
     {
     	$parts = array_filter(array(trim(''.$this->address1->value),
 		    trim(''.$this->address2->value)));
@@ -287,6 +288,15 @@ class Address extends SerializedContent
             return(substr($addr, 0, $limit));
         }
         return ($addr);
+    }
+
+    /**
+     * Address data template file name getter
+     * @return string
+     */
+    public static function getAddressDataTemplate(): string
+    {
+        return static::$address_data_template;
     }
 
     /**
@@ -406,11 +416,11 @@ class Address extends SerializedContent
      * Saves internal data values as hidden form inputs.
      * @throws ResourceNotFoundException
      */
-    function preserveInForm ()
+    function preserveInForm (array $excluded_keys=[])
     {
-    	$template = static::$common_cms_template_path."forms/data/address_class_data.php";
+    	$template_path = static::$common_cms_template_path.$this::getAddressDataTemplate();
     	$context = array('input' => $this);
-    	PageContent::render($template, $context);
+    	PageContent::render($template_path, $context);
     }
 
     /**
@@ -487,6 +497,15 @@ class Address extends SerializedContent
 	public function setGMapAPIKey(string $key)
     {
         static::$gmap_api_key = $key;
+    }
+
+    /**
+     * Address data template file name setter
+     * @param string $filename
+     */
+    public static function setAddressDataTemplate(string $filename)
+    {
+        static::$address_data_template = $filename;
     }
 
 	/**
