@@ -52,7 +52,7 @@ class SerializedContentUtils extends AppContentBase
      */
     public function appendSeparator(string $str, string $separator=','): string
     {
-        if(!is_null($str) && strlen(trim($str)) > 0) {
+        if(strlen(trim($str)) > 0) {
             $str = rtrim($str)."$separator ";
         }
         return ($str);
@@ -63,7 +63,7 @@ class SerializedContentUtils extends AppContentBase
 	 * @param array|null $exclude_keys (Optional) array of parameter names to exclude from the returned array.
 	 * @return array Associative array containing the object's form data members as name/value pairs.
 	 */
-	public function arrayEncode ($exclude_keys=null ): array
+	public function arrayEncode (?array $exclude_keys=null ): array
 	{
 		$ar = array();
 		foreach ($this as $key => $item) {
@@ -131,7 +131,7 @@ class SerializedContentUtils extends AppContentBase
 			throw new InvalidTypeException("Invalid object for copy.");
 		}
 		foreach (get_object_vars($src) as $key => $value) {
-			if ((is_object($value)) && ($value instanceof RequestInput)) {
+			if ($value instanceof RequestInput) {
 				$this->$key->value = $value->value;
 			}
 			elseif((is_object($this->$key)) && method_exists($this->$key, 'copy')) {
@@ -169,7 +169,7 @@ class SerializedContentUtils extends AppContentBase
 	 * @throws ConnectionException
 	 * @throws ConfigurationUndefinedException
 	 */
-	protected function formatDatabaseColumnList($used_keys=[]): array
+	protected function formatDatabaseColumnList(array $used_keys=[]): array
 	{
 		$fields = array();
 		foreach ($this as $key => $item) {
@@ -263,12 +263,12 @@ class SerializedContentUtils extends AppContentBase
 	 * various operations such as updating or retrieving data from the database,
 	 * or retrieving data from forms.
 	 * @param string $key Name of the class property.
-	 * @param object $item Value of the class property.
+	 * @param mixed $item Value of the class property.
 	 * @param array $used_keys Array containing a list of the objects that
 	 * have already been listed as input properties.
 	 * @return boolean True if the object is an input class and should be used to update the database. False otherwise.
 	 */
-	protected function isInput(string $key, object $item, array &$used_keys): bool
+	protected function isInput(string $key, $item, array &$used_keys): bool
 	{
 		$is_input = (($item instanceof RequestInput) &&
 			($key != "id") &&
