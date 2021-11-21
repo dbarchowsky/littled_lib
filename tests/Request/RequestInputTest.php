@@ -30,6 +30,7 @@ class RequestInputTest extends TestCase
 			!defined('MYSQL_PORT')) {
 			throw new Exception("Database connection properties not found.");
 		}
+        RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
 		$this->mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 		$this->obj = new RequestInput("Test", "test_param");
 	}
@@ -69,6 +70,20 @@ class RequestInputTest extends TestCase
 		self::assertEquals('Mixed case', $this->obj->formatErrorLabel());
 	}
 
+    public function testFormatIndexMarkup()
+    {
+        $this->assertEquals('', $this->obj->formatIndexMarkup());
+
+        $this->obj->index = 0;
+        $this->assertEquals("[0]", $this->obj->formatIndexMarkup());
+
+        $this->obj->index = 4;
+        $this->assertEquals("[4]", $this->obj->formatIndexMarkup());
+
+        $this->obj->index = 'str';
+        $this->assertEquals("['str']", $this->obj->formatIndexMarkup());
+    }
+
 	public function testIsEmpty()
 	{
 		self::assertTrue($this->obj->isEmpty());
@@ -100,6 +115,35 @@ class RequestInputTest extends TestCase
 		$this->obj->value = true;
 		self::assertFalse($this->obj->isEmpty());
 	}
+
+    public function testSaveInForm()
+    {
+        RequestInput::setTemplateFilename('forms/input-elements/hidden-input.php');
+
+        // test basic template output
+        $expected = "<input type=\"hidden\" name=\"{$this->obj->key}\" value=\"{$this->obj->value}\" />\n";
+        $this->expectOutputString($expected);
+        $this->obj->saveInForm();
+
+        // test output with index value set to 0
+        // N.B. output is cumulative
+        $this->obj->index = 0;
+        $expected = $expected."<input type=\"hidden\" name=\"{$this->obj->key}[{$this->obj->index}]\" value=\"{$this->obj->value}\" />\n";
+        $this->expectOutputString($expected);
+        $this->obj->saveInForm();
+
+        // test output with index value set to non-zero
+        $this->obj->index = 4;
+        $expected = $expected."<input type=\"hidden\" name=\"{$this->obj->key}[{$this->obj->index}]\" value=\"{$this->obj->value}\" />\n";
+        $this->expectOutputString($expected);
+        $this->obj->saveInForm();
+
+        // test output with index value set to string
+        $this->obj->index = 'hello';
+        $expected = $expected."<input type=\"hidden\" name=\"{$this->obj->key}['{$this->obj->index}']\" value=\"{$this->obj->value}\" />\n";
+        $this->expectOutputString($expected);
+        $this->obj->saveInForm();
+    }
 
 	public function testSetTemplatePath()
 	{

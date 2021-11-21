@@ -174,6 +174,21 @@ class RequestInput
 		return (ucfirst(strtolower("".$this->label)));
 	}
 
+    /**
+     * Formats a string that can be inserted into markup to utilize the $index property value.
+     * @return string
+     */
+    public function formatIndexMarkup(): string
+    {
+        if (is_numeric($this->index)) {
+            return "[$this->index]";
+        }
+        if (strlen("".$this->index)>0) {
+            return "['$this->index']";
+        }
+        return '';
+    }
+
 	/**
 	 * Default routine for rendering the label of the input.
 	 * @param string $label Text to display as the label for the form input. A null value will cause the internal label value to be used. An empty string will cause the label to not be rendered at all.
@@ -377,9 +392,8 @@ class RequestInput
 	        $key = $this->key;
         }
 		PageContent::renderWithErrors(self::getTemplatePath(), array(
-			'key' => $key,
-			'value' => $this->value,
-			'index' => ((is_numeric($this->index))?("[$this->index]"):(""))
+            'key' => $key,
+			'input' => $this
 		));
 	}
 
