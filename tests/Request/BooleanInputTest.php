@@ -1,19 +1,36 @@
 <?php
 namespace Littled\Tests\Request;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
+use mysqli;
+use Exception;
+use Littled\Request\RequestInput;
 use Littled\Request\BooleanInput;
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
 
 class BooleanInputTest extends TestCase
 {
-	/**
-	 *
+    function setUp(): void
+    {
+        parent::setUp();
+        RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
+    }
+
+    /**
+	 * @throws Exception
 	 */
 	public function testEscapeSQL()
 	{
 		$o = new BooleanInput("Test", "test");
-		$mysqli = new \mysqli();
+		$mysqli = new mysqli();
+        if (!defined('MYSQL_HOST') ||
+            !defined('MYSQL_USER') ||
+            !defined('MYSQL_PASS') ||
+            !defined('MYSQL_SCHEMA') ||
+            !defined('MYSQL_PORT')) {
+            throw new Exception("Database connection properties not found.");
+        }
 		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		$this->assertNull($o->value);
@@ -53,6 +70,29 @@ class BooleanInputTest extends TestCase
 		$this->assertEquals("null", $o->escapeSQL($mysqli), "Arbitrary string evaluates to 'null'\"'");
 	}
 
+    public function testFormatValueMarkup()
+    {
+        $o = new BooleanInput('Boolean Label', 'booleanTest');
+        $this->assertEquals('', $o->formatValueMarkup());
+
+        $o->value = 1;
+        $this->assertEquals('1', $o->formatValueMarkup());
+        $o->value = true;
+        $this->assertEquals('1', $o->formatValueMarkup());
+        $o->value = 'on';
+        $this->assertEquals('1', $o->formatValueMarkup());
+
+        $o->value = 0;
+        $this->assertEquals('0', $o->formatValueMarkup());
+        $o->value = false;
+        $this->assertEquals('0', $o->formatValueMarkup());
+        $o->value = 'off';
+        $this->assertEquals('0', $o->formatValueMarkup());
+
+        $o->value = null;
+        $this->assertEquals('', $o->formatValueMarkup());
+    }
+
 	public function testIsEmpty()
 	{
 		$o = new BooleanInput('Test', 'test');
@@ -63,6 +103,25 @@ class BooleanInputTest extends TestCase
 		$o->value = false;
 		self::assertTrue($o->isEmpty());
 	}
+
+    public function testSaveInForm()
+    {
+        RequestInput::setTemplateFilename('forms/input-elements/hidden-input.php');
+        $o = new BooleanInput("Boolean Test", "booleanTest");
+        $expected = "<input type=\"hidden\" name=\"$o->key\" value=\"\" />\n";
+        $this->expectOutputString($expected);
+        $o->saveInForm();
+
+        $o->value = true;
+        $expected = $expected."<input type=\"hidden\" name=\"$o->key\" value=\"1\" />\n";
+        $this->expectOutputString($expected);
+        $o->saveInForm();
+
+        $o->value = false;
+        $expected = $expected."<input type=\"hidden\" name=\"$o->key\" value=\"0\" />\n";
+        $this->expectOutputString($expected);
+        $o->saveInForm();
+    }
 
 	/**
 	 * @throws ContentValidationException

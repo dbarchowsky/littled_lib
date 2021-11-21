@@ -46,16 +46,25 @@ class BooleanInput extends RequestInput
 	 */
 	public function escapeSQL($mysqli, $include_quotes=false): string
 	{
-		if ($this->value===false || $this->value==='false' || $this->value==='0' || $this->value===0) {
-			return ('0');
-		}
-		if ($this->value===true || $this->value==='true' || $this->value==='1' || $this->value===1) {
-			return ('1');
-		}
-		return ('null');
+        $value = $this->formatValueMarkup();
+        return ((''===$value)?('null'):($value));
 	}
 
-	/**
+    /**
+     * {@inheritDoc}
+     */
+    public function formatValueMarkup(): string
+    {
+        if ($this->value===false || $this->value==='false' || $this->value==='0' || $this->value===0 || $this->value==='off') {
+            return ('0');
+        }
+        if ($this->value===true || $this->value==='true' || $this->value==='1' || $this->value===1 || $this->value==='on') {
+            return ('1');
+        }
+        return ('');
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	public function isEmpty(): bool

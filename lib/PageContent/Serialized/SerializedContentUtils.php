@@ -365,7 +365,8 @@ class SerializedContentUtils extends AppContentBase
 	{
 		foreach($this as $item) {
 			if ($item instanceof RequestInput && !in_array($item->key, $excluded_keys)) {
-				$item->saveInForm();
+                // make sure to use template path for base object, which is a hidden input element
+				$item->saveInForm(RequestInput::getTemplatePath());
 			}
 		}
 	}

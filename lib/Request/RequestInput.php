@@ -206,6 +206,15 @@ class RequestInput
 		return ('');
 	}
 
+    /**
+     * Formats the value of the object in a way where it can be inserted into markup.
+     * @return string
+     */
+    public function formatValueMarkup(): string
+    {
+        return ("".$this->value);
+    }
+
 	/**
 	 * Error css class getter.
 	 * @return string Current error css class value.
@@ -384,14 +393,18 @@ class RequestInput
 
 	/**
 	 * Prints out markup to save input value in a hidden form input element.
-     * @param ?string $key Key to use to override default key value for the variable.
+     * @param string $template Path to template to use to override current template path stored in the object.
+     * @param string $key Key to use to override default key value for the variable.
 	 */
-	public function saveInForm( ?string $key=null )
+	public function saveInForm( string $template='', string $key='' )
 	{
-	    if ($key===null) {
+	    if (!$key) {
 	        $key = $this->key;
         }
-		PageContent::renderWithErrors(self::getTemplatePath(), array(
+        if(!$template) {
+            $template = self::getTemplatePath();
+        }
+		PageContent::renderWithErrors($template, array(
             'key' => $key,
 			'input' => $this
 		));
