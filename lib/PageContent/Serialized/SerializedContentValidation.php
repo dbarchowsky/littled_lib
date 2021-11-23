@@ -42,15 +42,12 @@ class SerializedContentValidation extends SerializedContentUtils
 	{
 		foreach($this as $property)
 		{
-			if ($property instanceof RequestInput && $property->required===true)
-			{
-				if ($property->isEmpty()===false)
-				{
+			if ($property instanceof RequestInput && $property->required===true) {
+				if ($property->isEmpty()===false) {
 					return true;
 				}
 			}
-			elseif($property instanceof SerializedContentValidation && $property->hasData())
-			{
+			elseif($property instanceof SerializedContentValidation && $property->hasData()) {
 				return true;
 			}
 		}
@@ -75,41 +72,32 @@ class SerializedContentValidation extends SerializedContentUtils
 	public function validateInput(array $exclude_properties=[])
 	{
 		$this->validationErrors = [];
-		foreach($this as $key => $property)
-		{
-			if (in_array($key, $exclude_properties))
-			{
+		foreach($this as $key => $property) {
+			if (in_array($key, $exclude_properties)) {
 				continue;
 			}
 			if ($property instanceof RequestInput)
 			{
-				try
-				{
+				try {
 					$property->validate();
 				}
-				catch(ContentValidationException $ex)
-				{
+				catch(ContentValidationException $ex) {
 					$this->addValidationError($ex->getMessage());
 				}
 			}
-			elseif($property instanceof SerializedContentValidation)
-			{
-				try
-				{
+			elseif($property instanceof SerializedContentValidation) {
+				try {
 					$property->validateInput();
 				}
-				catch(ContentValidationException $ex)
-				{
-					if (strlen($ex->getMessage()) > 0)
-					{
+				catch(ContentValidationException $ex) {
+					if (strlen($ex->getMessage()) > 0) {
 						$this->addValidationError($ex->getMessage());
 					}
 					$this->addValidationError($property->validationErrors);
 				}
 			}
 		}
-		if (count($this->validationErrors) > 0)
-		{
+		if (count($this->validationErrors) > 0) {
 			throw new ContentValidationException("Some required information is missing.");
 		}
 	}
