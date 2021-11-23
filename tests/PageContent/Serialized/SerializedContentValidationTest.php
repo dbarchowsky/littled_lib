@@ -24,6 +24,25 @@ class SerializedContentValidationTest extends TestCase
 		self::assertCount(1, $this->obj->validationErrors);
 	}
 
+	public function testClearValidationErrors()
+	{
+		// confirm object state calling clearValidationErrors() on object without any errors pushed onto it
+		$this->obj->clearValidationErrors();
+		$this->assertFalse($this->obj->hasValidationErrors());
+		$this->assertCount(0, $this->obj->validationErrors);
+
+		// confirm with existing errors on stack
+		$this->obj->addValidationError('This is the first error.');
+		$this->obj->addValidationError('This is the second error.');
+		$this->assertTrue($this->obj->hasValidationErrors());
+		$this->assertCount(2, $this->obj->validationErrors);
+
+		// confirm object state after clearValidationErrors()
+		$this->obj->clearValidationErrors();
+		$this->assertFalse($this->obj->hasValidationErrors());
+		$this->assertCount(0, $this->obj->validationErrors);
+	}
+
 	public function testGetErrorsString()
 	{
 		$test_error_1 = 'error one';

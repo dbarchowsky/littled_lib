@@ -24,6 +24,14 @@ class SerializedContentValidation extends SerializedContentUtils
 	}
 
 	/**
+	 * Removes all validation errors from the object.
+	 */
+	public function clearValidationErrors()
+	{
+		$this->validationErrors = array();
+	}
+
+	/**
 	 * Returns all validation errors as a single string
 	 * @param string $delimiter (optional) string to insert between the individual error messages.
 	 * @return string
