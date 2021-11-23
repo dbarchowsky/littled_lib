@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace Littled\Tests\Request\Constraint;
+namespace Littled\Tests\Constraint;
 
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\Constraint\Constraint;
 
-final class GotValidationException extends Constraint
+final class GotContentValidationException extends Constraint
 {
 
 	/**

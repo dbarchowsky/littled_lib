@@ -3,27 +3,11 @@ namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Exception\ContentValidationException;
-use Littled\Tests\Request\Constraint\GotValidationException;
 use Littled\Request\PhoneNumberTextField;
-use PHPUnit\Framework\TestCase;
+use Littled\Tests\TestExtensions\ContentValidationTestCase;
 
-class PhoneNumberTextFieldTest extends TestCase
+class PhoneNumberTextFieldTest extends ContentValidationTestCase
 {
-	public static function assertValidationException($condition, string $message=''): void
-	{
-		static::assertThat($condition, static::gotValidationException(), $message);
-	}
-
-	public static function gotValidationException(): GotValidationException
-	{
-		return new GotValidationException;
-	}
-
-	protected function formatValidationErrorMessage($label): string
-	{
-		return (ucfirst(strtolower($label))." is not in a recognized format.");
-	}
-
 	/**
 	 * @throws ContentValidationException
 	 */
@@ -37,11 +21,11 @@ class PhoneNumberTextFieldTest extends TestCase
 
 		// bad number (4-digits)
 		$ptf->value = "3452";
-		$this->assertValidationException($ptf);
+		$this->assertContentValidationException($ptf);
 
 		// bad format (7 digits)
 		$ptf->value = "5653452";
-		$this->assertValidationException($ptf);
+		$this->assertContentValidationException($ptf);
 
 		// good phone number (10 digits, no space)
 		$ptf->value = "3105653452";
@@ -49,7 +33,7 @@ class PhoneNumberTextFieldTest extends TestCase
 
 		// bad phone number (contains alphanumeric)
 		$ptf->value = "3105b53452";
-		$this->assertValidationException($ptf);
+		$this->assertContentValidationException($ptf);
 
 		// good phone number (10 digits with dashes)
 		$ptf->value = "310-565-3452";
@@ -57,7 +41,7 @@ class PhoneNumberTextFieldTest extends TestCase
 
 		// bad phone number (10 digits with misplaced dashes)
 		$ptf->value = "310-5653-452";
-		$this->assertValidationException($ptf);
+		$this->assertContentValidationException($ptf);
 
 		// good phone number (10 digits with parentheses)
 		$ptf->value = "(310) 565-3452";
@@ -73,6 +57,6 @@ class PhoneNumberTextFieldTest extends TestCase
 
 		// bad phone number (10 digits with other characters)
 		$ptf->value = "310_565_3452";
-		$this->assertValidationException($ptf);
+		$this->assertContentValidationException($ptf);
 	}
 }
