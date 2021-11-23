@@ -19,7 +19,6 @@ use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
-use Littled\Validation\Validation;
 use DOMDocument;
 use Exception;
 
@@ -37,8 +36,7 @@ class Address extends SerializedContent
 	const LOCATION_PARAM = "adlo";
 
 	const TABLE_NAME = "address";
-	public static function TABLE_NAME (): string
-    {
+	public static function TABLE_NAME (): string {
 	    return (self::TABLE_NAME);
 	}
 
@@ -436,8 +434,7 @@ class Address extends SerializedContent
 	 */
 	public function read () 
 	{
-		if ($this->id->value===null || $this->id->value < 1)
-		{
+		if ($this->id->value===null || $this->id->value < 1) {
 		    return;
 		}
         parent::read();
@@ -459,18 +456,15 @@ class Address extends SerializedContent
      */
     public function readStateProperties ()
     {
-        if ($this->state_id->value===null || $this->state_id->value<1)
-        {
+        if ($this->state_id->value===null || $this->state_id->value<1) {
             throw new InvalidValueException("Invalid state id value.");
         }
         $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = {$this->state_id->value}";
         $rs = $this->fetchRecords($query);
-        if (count($rs) > 0)
-        {
+        if (count($rs) > 0) {
             list($this->state, $this->state_abbrev) = array_values((array)$rs[0]);
         }
-        else
-        {
+        else {
         	throw new RecordNotFoundException("Requested state properties not found.");
         }
     }
@@ -482,8 +476,7 @@ class Address extends SerializedContent
 	 */
 	public function save($do_gmap_lookup=false)
 	{
-        if ($do_gmap_lookup===true)
-        {
+        if ($do_gmap_lookup===true) {
             /* translate street address into longitude and latitude */
             $this->lookupMapPosition();
         }
@@ -515,19 +508,17 @@ class Address extends SerializedContent
 	 */
 	public function validateInput ($exclude_properties=[])
 	{
-		try
-        {
+		try {
 		    parent::validateInput();
 		}
-		catch(Exception $ex)
-        {
+		catch(Exception $ex) {
 		    /* continue */
 		}
 
-		if ($this->validationErrors)
-		{
+		if ($this->validationErrors) {
 			throw new ContentValidationException("Error validating address.");
 		}
+        return null;
 	}
 
 	/**

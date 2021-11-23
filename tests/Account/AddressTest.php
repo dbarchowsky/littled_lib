@@ -258,15 +258,6 @@ class AddressTest extends TestCase
         self::assertEquals('City%2C+ST+99999', $this->address->formatGoogleAddress());
     }
 
-    public function testInitialValues()
-    {
-        $address = new Address();
-        $this->assertInstanceOf('Littled\Request\IntegerInput', $address->id);
-        $this->assertInstanceOf('Littled\Request\StringTextField', $address->province);
-        $this->assertEquals(AddressTest::TEST_ADDRESS2_SIZE, $address->address2->sizeLimit);
-        $this->assertEquals(AddressTest::TEST_URL_SIZE, $address->url->sizeLimit);
-    }
-
     public function testFormatHTMLAddressEmptyValues()
     {
     	$this->assertEquals('', $this->address->formatHTMLAddress(true));
@@ -473,6 +464,15 @@ class AddressTest extends TestCase
 	    $this->address->city->value = '';
 	    $this->address->state_id->value = 22;
 	    $this->assertTrue($this->address->hasData());
+    }
+
+    public function testInitialValues()
+    {
+        $address = new Address();
+        $this->assertInstanceOf('Littled\Request\IntegerInput', $address->id);
+        $this->assertInstanceOf('Littled\Request\StringTextField', $address->province);
+        $this->assertEquals(AddressTest::TEST_ADDRESS2_SIZE, $address->address2->sizeLimit);
+        $this->assertEquals(AddressTest::TEST_URL_SIZE, $address->url->sizeLimit);
     }
 
     /**
@@ -760,22 +760,87 @@ class AddressTest extends TestCase
 		$this->assertStringNotContainsString($this->address->zip->formatErrorLabel().' is required.', $error_msg);
 	}
 
-    /*
-	public function testValidateUniqueEmailDefaultValue()
+    /**
+     * @throws Exception
+     */
+    function testValidateEmailFormat()
+    {
+        $this->address->firstname->setAsNotRequired();
+        $this->address->lastname->setAsNotRequired();
+        $this->address->address1->setAsNotRequired();
+        $this->address->city->setAsNotRequired();
+        $this->address->state_id->setAsNotRequired();
+        $this->address->zip->setAsNotRequired();
+
+        // confirm no validation errors in this state
+        $this->assertNull($this->address->validateInput());
+
+        $this->address->email->setAsRequired();
+
+        // confirm validation error with no email value
+        $this->expectException(Exception::class);
+        $this->address->validateInput();
+
+        // test valid email address
+        $this->address->email->value = 'dbarchowsky@gmail.com';
+        $this->assertNull($this->address->validateInput());
+
+        // test invalid email addresses
+        $this->address->email->value = 'dbarchowsky';
+        $this->expectException(Exception::class);
+        $this->address->validateInput();
+
+        $this->address->email->value = 'dbarchowsky@gmail';
+        $this->expectException(Exception::class);
+        $this->address->validateInput();
+
+        $this->address->email->value = 'gmail.com';
+        $this->expectException(Exception::class);
+        $this->address->validateInput();
+
+        // confirm error is thrown when email is not required but its format is invalid
+        $this->address->email->setAsNotRequired();
+        $this->address->email->value = "missing-domain";
+        $this->expectException(Exception::class);
+        $this->address->validateInput();
+
+        // email not required; format of address is valid
+        $this->address->email->value = 'dbarchowsky@gmail.com';
+        $this->assertNull($this->address->validateInput());
+    }
+
+    /**
+     * @throws ContentValidationException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     */
+    public function disalbed_testValidateUniqueEmailDefaultValue()
 	{
         $this->address->validateUniqueEmail();
     }
 
-	public function testValidateUniqueExistingEmail()
+    /**
+     * @throws ContentValidationException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     */
+    public function disabled_testValidateUniqueExistingEmail()
     {
     	$this->address->email->value = $this::TEST_EMAIL;
         $this->address->validateUniqueEmail();
     }
 
-	public function testValidateUniqueValidEmail()
+    /**
+     * @throws ContentValidationException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     */
+    public function disabled_testValidateUniqueValidEmail()
 	{
 		$this->address->email->value = 'notindatabase@domain.com';
         $this->address->validateUniqueEmail();
     }
-    */
 }
