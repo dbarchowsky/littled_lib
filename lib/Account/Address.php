@@ -524,14 +524,6 @@ class Address extends SerializedContent
 		    /* continue */
 		}
 
-		if ($this->email->value)
-		{
-			if (!Validation::validateEmailAddress($this->email->value))
-			{
-				$this->addValidationError("Email address is not in a recognized format.");
-			}
-		}		
-
 		if ($this->validationErrors)
 		{
 			throw new ContentValidationException("Error validating address.");
