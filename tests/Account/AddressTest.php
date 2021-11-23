@@ -12,6 +12,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Request\RequestInput;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -39,6 +40,8 @@ class AddressTest extends TestCase
     {
 	    parent::setUp();
 	    $this->address = new Address();
+        RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
+        Address::setCommonCMSTemplatePath(SHARED_CMS_TEMPLATE_DIR);
     }
 
 	/**
@@ -514,16 +517,20 @@ class AddressTest extends TestCase
 	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->state_id->key}\" value=\"{$this->address->state_id->value}\"/", $markup);
     }
 
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
     public function testRead()
     {
         $this->address->id->value = AddressTest::TEST_ID_VALUE;
-        try {
-            $this->address->read();
-        }
-        catch (Exception $e)
-        {
-            print ("Exception: $e");
-        }
+        $this->address->read();
+
         $this->assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $this->address->lastname->value);
         $this->assertEquals(AddressTest::TEST_STATE_VALUE, $this->address->state);
         $this->assertEquals(AddressTest::TEST_STATE_ABBREV_VALUE, $this->address->state_abbrev);
