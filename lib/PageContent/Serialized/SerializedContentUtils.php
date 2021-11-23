@@ -109,10 +109,14 @@ class SerializedContentUtils extends AppContentBase
 	public function collectRequestData(?array $src=null)
 	{
 		foreach($this as $item) {
-			if (is_object($item) && method_exists($item, 'collectFromInput')) {
-				if (!property_exists($item, 'bypassCollectFromInput') || $item->bypassCollectFromInput===false) {
-					$item->collectFromInput(null, $src);
-				}
+			if ( is_object($item) &&
+				(!property_exists($item, 'bypassCollectFromInput') || $item->bypassCollectFromInput===false)) {
+					if (method_exists($item, 'collectRequestData')) {
+						$item->collectRequestData(null, $src);
+					}
+					elseif (method_exists($item, 'collectFormInput')) {
+						$item->collectFormInput(null, $src);
+					}
 			}
 		}
 	}
