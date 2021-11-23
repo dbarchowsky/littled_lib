@@ -17,6 +17,7 @@ use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
+use Littled\Request\PhoneNumberTextField;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use DOMDocument;
@@ -75,9 +76,9 @@ class Address extends SerializedContent
 	public $zip;
 	/** @var StringTextField $country */
 	public $country;
-	/** @var StringTextField $day_phone */
+	/** @var PhoneNumberTextField $day_phone */
 	public $day_phone;
-	/** @var StringTextField $eve_phone */
+	/** @var PhoneNumberTextField $eve_phone */
 	public $eve_phone;
 	/** @var EmailTextField $email */
 	public $email;
@@ -114,8 +115,8 @@ class Address extends SerializedContent
 		$this->province = new StringTextField("Province", "{$prefix}adpv", false, "", 50);
 		$this->zip = new StringTextField("Zip Code", "{$prefix}adzc", true, "", 20);
 		$this->country = new StringTextField("Country", "{$prefix}adcn", false, "", 100);
-		$this->day_phone = new StringTextField("Daytime phone number", $prefix."ldp", false, "", 20);
-		$this->eve_phone = new StringTextField("Evening phone number", $prefix."lep", false, "", 20);
+		$this->day_phone = new PhoneNumberTextField("Daytime phone number", $prefix."ldp", false, "", 20);
+		$this->eve_phone = new PhoneNumberTextField("Evening phone number", $prefix."lep", false, "", 20);
 		$this->email = new EmailTextField("Email", $prefix."lem", false, "", 200);
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
 		$this->latitude = new FloatTextField("Latitude", "stlt", false);

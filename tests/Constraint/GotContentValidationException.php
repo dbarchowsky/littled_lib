@@ -4,6 +4,7 @@ namespace Littled\Tests\Constraint;
 
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\Constraint\Constraint;
+use Exception;
 
 final class GotContentValidationException extends Constraint
 {
@@ -16,10 +17,23 @@ final class GotContentValidationException extends Constraint
 		return 'got validation exception';
 	}
 
+	/**
+	 * @param mixed $other
+	 * @return bool
+	 * @throws Exception
+	 */
 	protected function matches($other): bool
 	{
 		try {
-			$other->validate();
+			if (method_exists($other, 'validate')) {
+				$other->validate();
+			}
+			elseif (method_exists($other, 'validateInput')) {
+				$other->validateInput();
+			}
+			else {
+				throw new Exception("Validation method not available.");
+			}
 		}
 		catch(ContentValidationException $e) {
 			return true;

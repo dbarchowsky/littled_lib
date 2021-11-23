@@ -13,7 +13,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
-use PHPUnit\Framework\TestCase;
+use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
 /**
@@ -21,7 +21,7 @@ use Exception;
  * Unit tests for Littled\Account\Address
  * @package Littled\Tests\Account
  */
-class AddressTest extends TestCase
+class AddressTest extends ContentValidationTestCase
 {
     const TEST_ID_VALUE = 8;
     const TEST_NONEXISTENT_ID_VALUE = 9999999;
@@ -760,6 +760,47 @@ class AddressTest extends TestCase
 		$this->assertStringNotContainsString($this->address->zip->formatErrorLabel().' is required.', $error_msg);
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	function testValidatePhoneNumbers()
+	{
+		$this->address->email->setAsNotRequired();
+		$this->address->firstname->setAsNotRequired();
+		$this->address->lastname->setAsNotRequired();
+		$this->address->address1->setAsNotRequired();
+		$this->address->city->setAsNotRequired();
+		$this->address->state_id->setAsNotRequired();
+		$this->address->zip->setAsNotRequired();
+
+		$this->address->day_phone->setAsNotRequired();
+		$this->address->day_phone->value = "";
+
+		// test no validation error thrown on default data
+		$this->assertNull($this->address->validateInput());
+
+		// test bad format for non-required phone field
+		$this->address->day_phone->value = "abc123";
+		$this->assertContentValidationException($this->address);
+
+		// test good format for non-required phone field
+		$this->address->day_phone->value = "763 987 6754";
+		$this->assertNull($this->address->validateInput());
+
+		// test missing required field
+		$this->address->day_phone->setAsRequired();;
+		$this->address->day_phone->value = "";
+		$this->assertContentValidationException($this->address);
+
+		// test bad format for required phone field
+		$this->address->day_phone->value = "678 8765 323";
+		$this->assertContentValidationException($this->address);
+
+		// test good format for required phone field
+		$this->address->day_phone->value = "763.987.6754";
+		$this->assertNull($this->address->validateInput());
+	}
+
     /**
      * @throws Exception
      */
@@ -815,7 +856,7 @@ class AddressTest extends TestCase
      * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
      */
-    public function disalbed_testValidateUniqueEmailDefaultValue()
+    public function disabled_testValidateUniqueEmailDefaultValue()
 	{
         $this->address->validateUniqueEmail();
     }
