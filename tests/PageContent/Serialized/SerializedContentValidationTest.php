@@ -1,36 +1,11 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace Littled\Tests\PageContent\Serialized;
+require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Exception\ContentValidationException;
-use Littled\PageContent\Serialized\SerializedContentValidation;
-use Littled\Request\BooleanInput;
-use Littled\Request\IntegerInput;
-use Littled\Request\StringInput;
+use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentValidationChild;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class SerializedContentUtilsChild
- * @package Littled\Tests\PageContent
- */
-class SerializedContentValidationChild extends SerializedContentValidation
-{
-	public $vc_col1;
-	public $vc_col2;
-	public $int_col;
-	public $bool_col;
-
-	/**
-	 * SerializedContentUtilsChild constructor.
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-		$this->vc_col1 = new StringInput('Test varchar value 1', 'p_vc1', true, '', 50);
-		$this->vc_col2 = new StringInput('Test varchar value 1', 'p_vc2', false, '', 255);
-		$this->int_col = new IntegerInput('Test int value', 'p_int');
-		$this->bool_col = new BooleanInput('Test bool value', 'p_bool');
-	}
-}
 
 class SerializedContentValidationTest extends TestCase
 {
@@ -44,9 +19,9 @@ class SerializedContentValidationTest extends TestCase
 
 	public function testAddValidationError()
 	{
-		self::assertEquals(0, count($this->obj->validationErrors));
+		self::assertCount(0, $this->obj->validationErrors);
 		$this->obj->addValidationError('Test error message.');
-		self::assertEquals(1, count($this->obj->validationErrors));
+		self::assertCount(1, $this->obj->validationErrors);
 	}
 
 	public function testGetErrorsString()
@@ -96,7 +71,7 @@ class SerializedContentValidationTest extends TestCase
 		$this->obj->addValidationError('2nd test validation error');
 		self::assertTrue($this->obj->hasValidationErrors());
 
-		self::assertEquals(2, count($this->obj->validationErrors));
+		self::assertCount(2, $this->obj->validationErrors);
 	}
 
 	public function testValidateInput()
@@ -106,7 +81,7 @@ class SerializedContentValidationTest extends TestCase
 		}
 		catch(ContentValidationException $ex) {
 			self::assertEquals('Some required information is missing.', $ex->getMessage());
-			self::assertEquals(1, count($this->obj->validationErrors));
+			self::assertCount(1, $this->obj->validationErrors);
 			self::assertEquals('Test varchar value 1 is required.', $this->obj->validationErrors[0]);
 		}
 	}
