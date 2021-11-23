@@ -1,18 +1,17 @@
 <?php
 namespace Littled\Tests\Account;
-
-<<<<<<< HEAD
-require_once(realpath(dirname(__FILE__)) . "/../../keys/littledamien/keys.php");
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Account\Address;
-use Littled\Exception\RecordNotFoundException;
-=======
-use Littled\Account\Address;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Validation\Validation;
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+use Littled\Exception\ResourceNotFoundException;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -25,722 +24,751 @@ class AddressTest extends TestCase
 {
     const TEST_ID_VALUE = 8;
     const TEST_NONEXISTENT_ID_VALUE = 9999999;
-    const TEST_ADDR2_SIZE = 100;
-<<<<<<< HEAD
-=======
+    const TEST_ADDRESS2_SIZE = 100;
     const TEST_EMAIL = 'dbarchowsky@gmail.com';
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
     const TEST_URL_SIZE = 255;
-    const TEST_LAST_NAME_VALUE = 'Schutz';
+    const TEST_LAST_NAME_VALUE = 'Schultz';
     const TEST_STATE_VALUE = 'Oregon';
     const TEST_STATE_ABBREV_VALUE = 'OR';
-<<<<<<< HEAD
-=======
     const TEST_STATE_ID = 9; /* California */
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
 
-    /** @var $addr Address */
-    public $addr;
+    /** @var Address $address */
+    public $address;
 
-<<<<<<< HEAD
-    /**
-=======
     public function setUp(): void
     {
 	    parent::setUp();
-	    $this->addr = new Address();
+	    $this->address = new Address();
     }
 
 	/**
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
      * @throws RecordNotFoundException
-     * @throws \Littled\Exception\ConfigurationUndefinedException
-     * @throws \Littled\Exception\ConnectionException
-     * @throws \Littled\Exception\ContentValidationException
-     * @throws \Littled\Exception\InvalidQueryException
-     * @throws \Littled\Exception\InvalidTypeException
-     * @throws \Littled\Exception\NotImplementedException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
      * @throws Exception
      */
     public function fetchTestRecord()
     {
-<<<<<<< HEAD
-        $this->addr = new Address();
-=======
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
-        $this->addr->id->value = AddressTest::TEST_ID_VALUE;
-        $this->addr->read();
+        $this->address = new Address();
+        $this->address->id->value = AddressTest::TEST_ID_VALUE;
+        $this->address->read();
     }
 
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
     public function testCheckForDuplicate()
     {
         $this->fetchTestRecord();
 
-        self::assertTrue($this->addr->checkForDuplicate());
+        self::assertTrue($this->address->checkForDuplicate());
 
-        $saved_value = $this->addr->location->value;
-        $this->addr->location->value .= "x";
-        self::assertFalse($this->addr->checkForDuplicate());
+        $saved_value = $this->address->location->value;
+        $this->address->location->value .= "x";
+        self::assertFalse($this->address->checkForDuplicate());
 
-        $this->addr->location->value = $saved_value;
-        $saved_value = $this->addr->address1->value;
-        $this->addr->address1->value = " ".$this->addr->address1->value;
-        self::assertFalse($this->addr->checkForDuplicate());
+        $this->address->location->value = $saved_value;
+        $saved_value = $this->address->address1->value;
+        $this->address->address1->value = " ".$this->address->address1->value;
+        self::assertFalse($this->address->checkForDuplicate());
 
-        $this->addr->address1->value = $saved_value;
-        $saved_value = $this->addr->zip->value;
-        $this->addr->zip->value = substr($this->addr->zip->value, 0, -1);
-        self::assertFalse($this->addr->checkForDuplicate());
+        $this->address->address1->value = $saved_value;
+        $this->address->zip->value = substr($this->address->zip->value, 0, -1);
+        self::assertFalse($this->address->checkForDuplicate());
     }
 
-<<<<<<< HEAD
-=======
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidValueException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     */
     public function testFormatAddress()
     {
     	$this->fetchTestRecord();
-    	self::assertEquals($this->addr->formatOneLineAddress(), $this->addr->formatAddress());
-	    self::assertEquals($this->addr->formatOneLineAddress(), $this->addr->formatAddress('oneline'));
-	    self::assertEquals($this->addr->formatGoogleAddress(), $this->addr->formatAddress('google'));
-	    self::assertEquals($this->addr->formatHTMLAddress(), $this->addr->formatAddress('html'));
-	    self::assertEquals($this->addr->formatHTMLAddress(true), $this->addr->formatAddress('html', true));
+    	self::assertEquals($this->address->formatOneLineAddress(), $this->address->formatAddress());
+	    self::assertEquals($this->address->formatOneLineAddress(), $this->address->formatAddress());
+	    self::assertEquals($this->address->formatGoogleAddress(), $this->address->formatAddress('google'));
+	    self::assertEquals($this->address->formatHTMLAddress(), $this->address->formatAddress('html'));
+	    self::assertEquals($this->address->formatHTMLAddress(true), $this->address->formatAddress('html', true));
     }
 
     public function testFormatCity()
     {
-	    $this->addr->city->value = "Baltimore";
-	    self::assertEquals("{$this->addr->city->value}", $this->addr->formatCity());
+	    $this->address->city->value = "Baltimore";
+	    self::assertEquals("{$this->address->city->value}", $this->address->formatCity());
 
-	    $this->addr->state = "Maryland";
-	    self::assertEquals("{$this->addr->city->value}, {$this->addr->state}", $this->addr->formatCity());
+	    $this->address->state = "Maryland";
+	    self::assertEquals("{$this->address->city->value}, {$this->address->state}", $this->address->formatCity());
 
-	    $this->addr->country->value = "USA";
-	    $expected = "{$this->addr->city->value}, {$this->addr->state}, {$this->addr->country->value}";
-	    self::assertEquals($expected, $this->addr->formatCity());
+	    $this->address->country->value = "USA";
+	    $expected = "{$this->address->city->value}, {$this->address->state}, {$this->address->country->value}";
+	    self::assertEquals($expected, $this->address->formatCity());
 
-	    $this->addr->state_abbrev = "MD";
-	    $expected = "{$this->addr->city->value}, {$this->addr->state_abbrev}, {$this->addr->country->value}";
-	    self::assertEquals($expected, $this->addr->formatCity());
+	    $this->address->state_abbrev = "MD";
+	    $expected = "{$this->address->city->value}, {$this->address->state_abbrev}, {$this->address->country->value}";
+	    self::assertEquals($expected, $this->address->formatCity());
 
-	    $this->addr->city->value = "Paris";
-	    $this->addr->state = "";
-	    $this->addr->state_abbrev = "";
-	    $this->addr->country->value = "FRANCE";
-	    $expected = "{$this->addr->city->value}, {$this->addr->country->value}";
-	    self::assertEquals($expected, $this->addr->formatCity());
+	    $this->address->city->value = "Paris";
+	    $this->address->state = "";
+	    $this->address->state_abbrev = "";
+	    $this->address->country->value = "FRANCE";
+	    $expected = "{$this->address->city->value}, {$this->address->country->value}";
+	    self::assertEquals($expected, $this->address->formatCity());
 
-	    $this->addr->zip->value = "DQF123";
-	    $expected = "{$this->addr->city->value}, {$this->addr->country->value} {$this->addr->zip->value}";
-	    self::assertEquals($expected, $this->addr->formatCity());
+	    $this->address->zip->value = "DQF123";
+	    $expected = "{$this->address->city->value}, {$this->address->country->value} {$this->address->zip->value}";
+	    self::assertEquals($expected, $this->address->formatCity());
 
-		$this->addr->zip->value = '';
-		$this->addr->city->value = '';
-	    self::assertEquals($this->addr->country->value, $this->addr->formatCity());
+		$this->address->zip->value = '';
+		$this->address->city->value = '';
+	    self::assertEquals($this->address->country->value, $this->address->formatCity());
 
-	    $this->addr->state = 'Oklahoma';
-	    $this->addr->country->value = '';
-	    self::assertEquals($this->addr->state, $this->addr->formatCity());
+	    $this->address->state = 'Oklahoma';
+	    $this->address->country->value = '';
+	    self::assertEquals($this->address->state, $this->address->formatCity());
 
-	    $this->addr->state_abbrev = 'OK';
-	    self::assertEquals($this->addr->state_abbrev, $this->addr->formatCity());
+	    $this->address->state_abbrev = 'OK';
+	    self::assertEquals($this->address->state_abbrev, $this->address->formatCity());
     }
 
     public function testFormatCityWithEmptyValues()
     {
-	    self::assertEquals('', $this->addr->formatCity());
+	    self::assertEquals('', $this->address->formatCity());
 
-    	$this->addr->city->value = null;
-	    $this->addr->state = null;
-	    $this->addr->country->value = null;
-	    $this->addr->zip->value = null;
-	    self::assertEquals('', $this->addr->formatCity());
+    	$this->address->city->value = null;
+	    $this->address->state = null;
+	    $this->address->country->value = null;
+	    $this->address->zip->value = null;
+	    self::assertEquals('', $this->address->formatCity());
 
-	    $this->addr->city->value = '';
-	    $this->addr->state = '';
-	    $this->addr->country->value = '';
-	    $this->addr->zip->value = '';
-	    self::assertEquals('', $this->addr->formatCity());
+	    $this->address->city->value = '';
+	    $this->address->state = '';
+	    $this->address->country->value = '';
+	    $this->address->zip->value = '';
+	    self::assertEquals('', $this->address->formatCity());
 
-	    $this->addr->city->value = ' ';
-	    $this->addr->state = ' ';
-	    $this->addr->country->value = ' ';
-	    $this->addr->zip->value = ' ';
-	    self::assertEquals('', $this->addr->formatCity());
+	    $this->address->city->value = ' ';
+	    $this->address->state = ' ';
+	    $this->address->country->value = ' ';
+	    $this->address->zip->value = ' ';
+	    self::assertEquals('', $this->address->formatCity());
     }
 
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+    /**
+     * @throws ConnectionException
+     * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     */
     public function testFormatOneLineAddress()
     {
         $this->fetchTestRecord();
-        self::assertEquals('10956 SE Main Street, Milwaukie, OR 97222', $this->addr->formatOneLineAddress());
+        self::assertEquals('10956 SE Main Street, Milwaukee, OR 97222', $this->address->formatOneLineAddress());
 
-        $this->addr->state_abbrev = '';
-        self::assertEquals('10956 SE Main Street, Milwaukie, Oregon 97222', $this->addr->formatOneLineAddress());
+        $this->address->state_abbrev = '';
+        self::assertEquals('10956 SE Main Street, Milwaukee, Oregon 97222', $this->address->formatOneLineAddress());
 
-        $this->addr->state = '';
-        self::assertEquals('10956 SE Main Street, Milwaukie 97222', $this->addr->formatOneLineAddress());
+        $this->address->state = '';
+        self::assertEquals('10956 SE Main Street, Milwaukee 97222', $this->address->formatOneLineAddress());
 
-        $this->addr->zip->value = '';
-        self::assertEquals('10956 SE Main Street, Milwaukie', $this->addr->formatOneLineAddress());
+        $this->address->zip->value = '';
+        self::assertEquals('10956 SE Main Street, Milwaukee', $this->address->formatOneLineAddress());
 
-        $this->addr->city->value = '';
-        $this->addr->zip->value = '99999';
-        self::assertEquals('10956 SE Main Street 99999', $this->addr->formatOneLineAddress());
+        $this->address->city->value = '';
+        $this->address->zip->value = '99999';
+        self::assertEquals('10956 SE Main Street 99999', $this->address->formatOneLineAddress());
 
-        $this->addr->state = null;
-        $this->addr->city->value = null;
-        self::assertEquals('10956 SE Main Street 99999', $this->addr->formatOneLineAddress());
+        $this->address->state = null;
+        $this->address->city->value = null;
+        self::assertEquals('10956 SE Main Street 99999', $this->address->formatOneLineAddress());
 
-        $this->addr->address1->value = '';
-        $this->addr->city->value = 'City';
-        $this->addr->state_abbrev = 'ST';
-        self::assertEquals('City, ST 99999', $this->addr->formatOneLineAddress());
+        $this->address->address1->value = '';
+        $this->address->city->value = 'City';
+        $this->address->state_abbrev = 'ST';
+        self::assertEquals('City, ST 99999', $this->address->formatOneLineAddress());
 
-        $this->addr->address1->value = '123 Some Lane';
-        $this->addr->city->value = 'London';
-        $this->addr->state = '';
-        $this->addr->state_abbrev = '';
-        $this->addr->country->value = 'UK';
-<<<<<<< HEAD
-        self::assertEquals('123 Some Lane, London, UK', $this->addr->formatOneLineAddress());
+        $this->address->address1->value = '123 Some Lane';
+        $this->address->city->value = 'London';
+        $this->address->state = '';
+        $this->address->state_abbrev = '';
+        $this->address->country->value = 'UK';
+        self::assertEquals('123 Some Lane, London, UK 99999', $this->address->formatOneLineAddress());
 
-        $this->addr->city->value = '';
-=======
-        self::assertEquals('123 Some Lane, London, UK 99999', $this->addr->formatOneLineAddress());
-
-        $this->addr->city->value = '';
-        $this->addr->zip->value = '';
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
-        self::assertEquals('123 Some Lane, UK', $this->addr->formatOneLineAddress());
+        $this->address->city->value = '';
+        $this->address->zip->value = '';
+        self::assertEquals('123 Some Lane, UK', $this->address->formatOneLineAddress());
     }
 
+    /**
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
+     */
     public function testFormatGoogleAddress()
     {
         $this->fetchTestRecord();
-        self::assertEquals('10956+SE+Main+Street%2C+Milwaukie%2C+OR+97222', $this->addr->formatGoogleAddress());
+        self::assertEquals('10956+SE+Main+Street%2C+Milwaukee%2C+OR+97222', $this->address->formatGoogleAddress());
 
-        $this->addr->state_abbrev = '';
-        self::assertEquals('10956+SE+Main+Street%2C+Milwaukie%2C+Oregon+97222', $this->addr->formatGoogleAddress());
+        $this->address->state_abbrev = '';
+        self::assertEquals('10956+SE+Main+Street%2C+Milwaukee%2C+Oregon+97222', $this->address->formatGoogleAddress());
 
-        $this->addr->state = '';
-        self::assertEquals('10956+SE+Main+Street%2C+Milwaukie+97222', $this->addr->formatGoogleAddress());
+        $this->address->state = '';
+        self::assertEquals('10956+SE+Main+Street%2C+Milwaukee+97222', $this->address->formatGoogleAddress());
 
-        $this->addr->zip->value = '';
-        self::assertEquals('10956+SE+Main+Street%2C+Milwaukie', $this->addr->formatGoogleAddress());
+        $this->address->zip->value = '';
+        self::assertEquals('10956+SE+Main+Street%2C+Milwaukee', $this->address->formatGoogleAddress());
 
-        $this->addr->city->value = '';
-        $this->addr->zip->value = '99999';
-        self::assertEquals('10956+SE+Main+Street+99999', $this->addr->formatGoogleAddress());
+        $this->address->city->value = '';
+        $this->address->zip->value = '99999';
+        self::assertEquals('10956+SE+Main+Street+99999', $this->address->formatGoogleAddress());
 
-        $this->addr->state = null;
-        $this->addr->city->value = null;
-        self::assertEquals('10956+SE+Main+Street+99999', $this->addr->formatGoogleAddress());
+        $this->address->state = null;
+        $this->address->city->value = null;
+        self::assertEquals('10956+SE+Main+Street+99999', $this->address->formatGoogleAddress());
 
-        $this->addr->address1->value = '';
-        $this->addr->city->value = 'City';
-        $this->addr->state_abbrev = 'ST';
-        self::assertEquals('City%2C+ST+99999', $this->addr->formatGoogleAddress());
+        $this->address->address1->value = '';
+        $this->address->city->value = 'City';
+        $this->address->state_abbrev = 'ST';
+        self::assertEquals('City%2C+ST+99999', $this->address->formatGoogleAddress());
     }
 
-<<<<<<< HEAD
     public function testInitialValues()
     {
-        $addr = new Address();
-        self::assertInstanceOf('Littled\Request\IntegerInput', $addr->id);
-        self::assertInstanceOf('Littled\Request\StringTextField', $addr->province);
-        self::assertEquals(AddressTest::TEST_ADDR2_SIZE, $addr->address2->sizeLimit);
-        self::assertEquals(AddressTest::TEST_URL_SIZE, $addr->url->sizeLimit);
-=======
-    public function testFormatHTMLAddressEmptyValues()
-    {
-    	self::assertEquals('', $this->addr->formatHTMLAddress(true));
-
-    	$this->addr->firstname->value = null;
-	    $this->addr->company->value = null;
-	    $this->addr->address1->value = null;
-	    $this->addr->city->value = null;
-	    self::assertEquals('', $this->addr->formatHTMLAddress(true));
-
-	    $this->addr->firstname->value = '';
-	    $this->addr->company->value = '';
-	    $this->addr->address1->value = '';
-	    $this->addr->city->value = '';
-	    self::assertEquals('', $this->addr->formatHTMLAddress(true));
-
-	    $this->addr->firstname->value = ' ';
-	    $this->addr->company->value = ' ';
-	    $this->addr->address1->value = ' ';
-	    $this->addr->city->value = ' ';
-	    self::assertEquals('', $this->addr->formatHTMLAddress(true));
+        $address = new Address();
+        $this->assertInstanceOf('Littled\Request\IntegerInput', $address->id);
+        $this->assertInstanceOf('Littled\Request\StringTextField', $address->province);
+        $this->assertEquals(AddressTest::TEST_ADDRESS2_SIZE, $address->address2->sizeLimit);
+        $this->assertEquals(AddressTest::TEST_URL_SIZE, $address->url->sizeLimit);
     }
 
+    public function testFormatHTMLAddressEmptyValues()
+    {
+    	$this->assertEquals('', $this->address->formatHTMLAddress(true));
+
+    	$this->address->firstname->value = null;
+	    $this->address->company->value = null;
+	    $this->address->address1->value = null;
+	    $this->address->city->value = null;
+	    $this->assertEquals('', $this->address->formatHTMLAddress(true));
+
+	    $this->address->firstname->value = '';
+	    $this->address->company->value = '';
+	    $this->address->address1->value = '';
+	    $this->address->city->value = '';
+	    $this->assertEquals('', $this->address->formatHTMLAddress(true));
+
+	    $this->address->firstname->value = ' ';
+	    $this->address->company->value = ' ';
+	    $this->address->address1->value = ' ';
+	    $this->address->city->value = ' ';
+	    $this->assertEquals('', $this->address->formatHTMLAddress(true));
+    }
+
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     */
     public function testFormatHTMLAddressIncludeName()
     {
 	    $this->fetchTestRecord();
 
-	    $expected = "<div>{$this->addr->firstname->value} {$this->addr->lastname->value}</div>\n".
-		    "<div>{$this->addr->address1->value}</div>\n".
-		    "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+		    "<div>{$this->address->address1->value}</div>\n".
+		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->addr->address2->value = "Building 2";
-	    $expected = "<div>{$this->addr->firstname->value} {$this->addr->lastname->value}</div>\n".
-		    "<div>{$this->addr->address1->value}</div>\n".
-		    "<div>{$this->addr->address2->value}</div>\n".
-		    "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $this->address->address2->value = "Building 2";
+	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+		    "<div>{$this->address->address1->value}</div>\n".
+		    "<div>{$this->address->address2->value}</div>\n".
+		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->addr->company->value = "Puckanerry Inc";
-	    $expected = "<div>{$this->addr->firstname->value} {$this->addr->lastname->value}</div>\n".
-		    "<div>{$this->addr->company->value}</div>\n".
-		    "<div>{$this->addr->address1->value}</div>\n".
-		    "<div>{$this->addr->address2->value}</div>\n".
-		    "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $this->address->company->value = "Puckanerry Inc";
+	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+		    "<div>{$this->address->company->value}</div>\n".
+		    "<div>{$this->address->address1->value}</div>\n".
+		    "<div>{$this->address->address2->value}</div>\n".
+		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->addr->address1->value = "";
-	    $this->addr->address2->value = "";
-	    $expected = "<div>{$this->addr->firstname->value} {$this->addr->lastname->value}</div>\n".
-		    "<div>{$this->addr->company->value}</div>\n".
-		    "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $this->address->address1->value = "";
+	    $this->address->address2->value = "";
+	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+		    "<div>{$this->address->company->value}</div>\n".
+		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->addr->firstname->value = "";
-	    $this->addr->lastname->value = "";
-	    $expected = "<div>{$this->addr->company->value}</div>\n".
-		    "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $this->address->firstname->value = "";
+	    $this->address->lastname->value = "";
+	    $expected = "<div>{$this->address->company->value}</div>\n".
+		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->addr->company->value = "";
-	    $expected = "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $this->address->company->value = "";
+	    $expected = "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->addr->address1->value = "122 N Rose St";
-	    $expected = "<div>{$this->addr->address1->value}</div>\n".
-		    "<div>{$this->addr->city->value}, {$this->addr->state_abbrev} {$this->addr->zip->value}</div>\n";
-	    self::assertEquals($expected, $this->addr->formatHTMLAddress(true));
+	    $this->address->address1->value = "122 N Rose St";
+	    $expected = "<div>{$this->address->address1->value}</div>\n".
+		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
+	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
     }
 
     public function testFormatStreet()
     {
-    	self::assertEquals('', $this->addr->formatStreet());
+    	$this->assertEquals('', $this->address->formatStreet());
 
-    	$this->addr->address1->value = ' ';
-	    self::assertEquals('', $this->addr->formatStreet());
+    	$this->address->address1->value = ' ';
+	    $this->assertEquals('', $this->address->formatStreet());
 
-	    $this->addr->address1->value = '123 N Rose St';
-	    self::assertEquals('123 N Rose St', $this->addr->formatStreet());
+	    $this->address->address1->value = '123 N Rose St';
+	    $this->assertEquals('123 N Rose St', $this->address->formatStreet());
 
-	    $this->addr->address2->value = 'Building 2';
-	    self::assertEquals('123 N Rose St, Building 2', $this->addr->formatStreet());
+	    $this->address->address2->value = 'Building 2';
+	    $this->assertEquals('123 N Rose St, Building 2', $this->address->formatStreet());
 
-	    $this->addr->address1->value = " {$this->addr->address1->value} ";
-	    $this->addr->address2->value = " {$this->addr->address2->value} ";
-	    self::assertEquals('123 N Rose St, Building 2', $this->addr->formatStreet());
+	    $this->address->address1->value = " {$this->address->address1->value} ";
+	    $this->address->address2->value = " {$this->address->address2->value} ";
+	    $this->assertEquals('123 N Rose St, Building 2', $this->address->formatStreet());
 
 	    /* test limiting character count */
-	    self::assertEquals('123 N Rose St, ', $this->addr->formatStreet(15));
+	    $this->assertEquals('123 N Rose St, ', $this->address->formatStreet(15));
 
 	    /* test character limit greater than string length */
-	    self::assertEquals('123 N Rose St, Building 2', $this->addr->formatStreet(1500));
+	    $this->assertEquals('123 N Rose St, Building 2', $this->address->formatStreet(1500));
     }
 
     public function testFormatContactName()
     {
-    	$this->addr->salutation->value = 'Dr.';
-    	$this->addr->firstname->value = 'Damien';
-    	$this->addr->lastname->value = 'Barchowsky';
-    	self::assertEquals('Damien Barchowsky', $this->addr->formatContactName());
+    	$this->address->salutation->value = 'Dr.';
+    	$this->address->firstname->value = 'Damien';
+    	$this->address->lastname->value = 'Barchowsky';
+    	$this->assertEquals('Damien Barchowsky', $this->address->formatContactName());
 
-	    $this->addr->salutation->value = '';
-	    self::assertEquals('Damien Barchowsky', $this->addr->formatContactName());
+	    $this->address->salutation->value = '';
+	    $this->assertEquals('Damien Barchowsky', $this->address->formatContactName());
 
-	    $this->addr->firstname->value = '';
-	    self::assertEquals('Barchowsky', $this->addr->formatContactName());
+	    $this->address->firstname->value = '';
+	    $this->assertEquals('Barchowsky', $this->address->formatContactName());
 
-	    $this->addr->lastname->value = '';
-	    self::assertEquals('', $this->addr->formatContactName());
+	    $this->address->lastname->value = '';
+	    $this->assertEquals('', $this->address->formatContactName());
 
-	    $this->addr->firstname->value = 'Damien';
-	    self::assertEquals('Damien', $this->addr->formatContactName());
+	    $this->address->firstname->value = 'Damien';
+	    $this->assertEquals('Damien', $this->address->formatContactName());
 
-	    $this->addr->firstname->value = null;
-	    $this->addr->lastname->value = null;
-	    self::assertEquals('', $this->addr->formatContactName());
+	    $this->address->firstname->value = null;
+	    $this->address->lastname->value = null;
+	    $this->assertEquals('', $this->address->formatContactName());
     }
 
     public function testFullname()
     {
-    	self::assertEquals('', $this->addr->formatFullName());
+    	$this->assertEquals('', $this->address->formatFullName());
 
-    	$this->addr->firstname->value = 'Foo';
-	    self::assertEquals('Foo', $this->addr->formatFullName());
+    	$this->address->firstname->value = 'Foo';
+	    $this->assertEquals('Foo', $this->address->formatFullName());
 
-	    $this->addr->lastname->value = 'Bar';
-	    self::assertEquals('Foo Bar', $this->addr->formatFullName());
+	    $this->address->lastname->value = 'Bar';
+	    $this->assertEquals('Foo Bar', $this->address->formatFullName());
 
-	    $this->addr->salutation->value = 'Dr';
-	    self::assertEquals('Dr Foo Bar', $this->addr->formatFullName());
+	    $this->address->salutation->value = 'Dr';
+	    $this->assertEquals('Dr Foo Bar', $this->address->formatFullName());
 
-	    $this->addr->firstname->value = " {$this->addr->firstname->value} ";
-	    $this->addr->lastname->value = " {$this->addr->lastname->value} ";
-	    $this->addr->salutation->value = " {$this->addr->salutation->value} ";
-	    self::assertEquals('Dr Foo Bar', $this->addr->formatFullName());
+	    $this->address->firstname->value = " {$this->address->firstname->value} ";
+	    $this->address->lastname->value = " {$this->address->lastname->value} ";
+	    $this->address->salutation->value = " {$this->address->salutation->value} ";
+	    $this->assertEquals('Dr Foo Bar', $this->address->formatFullName());
 
-	    $this->addr->firstname->value = '';
-	    self::assertEquals('Dr Bar', $this->addr->formatFullName());
+	    $this->address->firstname->value = '';
+	    $this->assertEquals('Dr Bar', $this->address->formatFullName());
 
-	    $this->addr->lastname->value = '';
-	    self::assertEquals('Dr', $this->addr->formatFullName());
+	    $this->address->lastname->value = '';
+	    $this->assertEquals('Dr', $this->address->formatFullName());
     }
 
     public function testGoogleMapsURI()
     {
-    	self::assertRegExp('/\?key=.*\&address/', Address::GOOGLE_MAPS_URI());
+    	$this->assertMatchesRegularExpression('/\?key=.*\&address/', Address::GOOGLE_MAPS_URI());
     }
 
     public function testHasData()
     {
-    	self::assertFalse($this->addr->hasData());
+    	$this->assertFalse($this->address->hasData());
 
-	    $this->addr->id->value = null;
-	    $this->addr->firstname->value = '';
-	    $this->addr->lastname->value = '';
-	    $this->addr->email->value = '';
-	    $this->addr->location->value = '';
-	    $this->addr->address1->value = '';
-	    $this->addr->city->value = '';
-	    $this->addr->state_id->value = null;
-	    self::assertFalse($this->addr->hasData());
+	    $this->address->id->value = null;
+	    $this->address->firstname->value = '';
+	    $this->address->lastname->value = '';
+	    $this->address->email->value = '';
+	    $this->address->location->value = '';
+	    $this->address->address1->value = '';
+	    $this->address->city->value = '';
+	    $this->address->state_id->value = null;
+	    $this->assertFalse($this->address->hasData());
 
-	    $this->addr->firstname->value = null;
-	    $this->addr->lastname->value = null;
-	    $this->addr->email->value = null;
-	    $this->addr->location->value = null;
-	    $this->addr->address1->value = null;
-	    $this->addr->city->value = null;
-	    self::assertFalse($this->addr->hasData());
+	    $this->address->firstname->value = null;
+	    $this->address->lastname->value = null;
+	    $this->address->email->value = null;
+	    $this->address->location->value = null;
+	    $this->address->address1->value = null;
+	    $this->address->city->value = null;
+	    $this->assertFalse($this->address->hasData());
 
-	    $this->addr->id->value = 1;
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->id->value = 1;
+	    $this->assertTrue($this->address->hasData());
 
-	    $this->addr->id->value = null;
-	    $this->addr->firstname->value = 'foo';
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->id->value = null;
+	    $this->address->firstname->value = 'foo';
+	    $this->assertTrue($this->address->hasData());
 
-	    $this->addr->firstname->value = '';
-	    $this->addr->lastname->value = 'bar';
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->firstname->value = '';
+	    $this->address->lastname->value = 'bar';
+	    $this->assertTrue($this->address->hasData());
 
-	    $this->addr->lastname->value = '';
-	    $this->addr->email->value = 'dbarchowsky@gmail.com';
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->lastname->value = '';
+	    $this->address->email->value = 'dbarchowsky@gmail.com';
+	    $this->assertTrue($this->address->hasData());
 
-	    $this->addr->email->value = '';
-	    $this->addr->location->value = 'biz';
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->email->value = '';
+	    $this->address->location->value = 'biz';
+	    $this->assertTrue($this->address->hasData());
 
-	    $this->addr->location->value = '';
-	    $this->addr->city->value = 'Paris';
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->location->value = '';
+	    $this->address->city->value = 'Paris';
+	    $this->assertTrue($this->address->hasData());
 
-	    $this->addr->city->value = '';
-	    $this->addr->state_id->value = 22;
-	    self::assertTrue($this->addr->hasData());
+	    $this->address->city->value = '';
+	    $this->address->state_id->value = 22;
+	    $this->assertTrue($this->address->hasData());
     }
 
-    public function testInitialValues()
-    {
-        self::assertInstanceOf('Littled\Request\IntegerInput', $this->addr->id);
-        self::assertInstanceOf('Littled\Request\StringTextField', $this->addr->province);
-        self::assertEquals(AddressTest::TEST_ADDR2_SIZE, $this->addr->address2->sizeLimit);
-        self::assertEquals(AddressTest::TEST_URL_SIZE, $this->addr->url->sizeLimit);
-    }
-
-	/**
-	 * @todo Test against database that contains a 'zips' table.
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 */
+    /**
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
+     * @throws Exception
+     * @todo Test against database that contains a 'zips' table.
+     */
     public function disabled_testLookupMapPosition()
     {
     	$this->fetchTestRecord();
-    	$this->addr->lookupMapPosition();
-    	self::assertNotEquals('', $this->addr->latitude->value);
-	    self::assertNotEquals('', $this->addr->longitude->value);
+    	$this->address->lookupMapPosition();
+    	$this->assertNotEquals('', $this->address->latitude->value);
+	    $this->assertNotEquals('', $this->address->longitude->value);
     }
 
+    /**
+     * @throws ConnectionException
+     * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ResourceNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     */
     public function testPreserveInForm()
     {
     	$this->fetchTestRecord();
     	ob_start();
-    	$this->addr->preserveInForm();
+    	$this->address->preserveInForm();
     	$markup = ob_get_clean();
-    	self::assertRegExp("/^\W*<input .*name=\"{$this->addr->id->key}\" value=\"{$this->addr->id->value}\"/", $markup);
-	    self::assertRegExp("/<input .*name=\"{$this->addr->lastname->key}\" value=\"{$this->addr->lastname->value}\"/", $markup);
-	    self::assertRegExp("/<input .*name=\"{$this->addr->address1->key}\" value=\"{$this->addr->address1->value}\"/", $markup);
-	    self::assertRegExp("/<input .*name=\"{$this->addr->city->key}\" value=\"{$this->addr->city->value}\"/", $markup);
-	    self::assertRegExp("/<input .*name=\"{$this->addr->state_id->key}\" value=\"{$this->addr->state_id->value}\"/", $markup);
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+    	$this->assertMatchesRegularExpression("/^\W*<input ."."*name=\"{$this->address->id->key}\" value=\"{$this->address->id->value}\"/", $markup);
+	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->lastname->key}\" value=\"{$this->address->lastname->value}\"/", $markup);
+	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->address1->key}\" value=\"{$this->address->address1->value}\"/", $markup);
+	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->city->key}\" value=\"{$this->address->city->value}\"/", $markup);
+	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->state_id->key}\" value=\"{$this->address->state_id->value}\"/", $markup);
     }
 
     public function testRead()
     {
-<<<<<<< HEAD
-        $addr = new Address();
-        $addr->id->value = AddressTest::TEST_ID_VALUE;
+        $this->address->id->value = AddressTest::TEST_ID_VALUE;
         try {
-            $addr->read();
-=======
-        $this->addr->id->value = AddressTest::TEST_ID_VALUE;
-        try {
-            $this->addr->read();
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+            $this->address->read();
         }
         catch (Exception $e)
         {
-            print ("Exception: {$e}");
+            print ("Exception: $e");
         }
-<<<<<<< HEAD
-        self::assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $addr->lastname->value);
-        self::assertEquals(AddressTest::TEST_STATE_VALUE, $addr->state);
-        self::assertEquals(AddressTest::TEST_STATE_ABBREV_VALUE, $addr->state_abbrev);
-=======
-        self::assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $this->addr->lastname->value);
-        self::assertEquals(AddressTest::TEST_STATE_VALUE, $this->addr->state);
-        self::assertEquals(AddressTest::TEST_STATE_ABBREV_VALUE, $this->addr->state_abbrev);
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+        $this->assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $this->address->lastname->value);
+        $this->assertEquals(AddressTest::TEST_STATE_VALUE, $this->address->state);
+        $this->assertEquals(AddressTest::TEST_STATE_ABBREV_VALUE, $this->address->state_abbrev);
     }
 
+    /**
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     */
     public function testReadNonexistentRecord()
     {
-<<<<<<< HEAD
-        $addr = new Address();
-        $addr->id->value = AddressTest::TEST_NONEXISTENT_ID_VALUE;
-        self::expectException(RecordNotFoundException::class);
-        $addr->read();
-    }
-=======
-        $this->addr->id->value = AddressTest::TEST_NONEXISTENT_ID_VALUE;
-        self::expectException(RecordNotFoundException::class);
-        $this->addr->read();
+        $this->address->id->value = AddressTest::TEST_NONEXISTENT_ID_VALUE;
+        $this->expectException(RecordNotFoundException::class);
+        $this->address->read();
     }
 
+    /**
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
+     */
     public function testReadStateProperties()
     {
-    	self::assertEquals('', $this->addr->state);
-	    self::assertEquals('', $this->addr->state_abbrev);
+    	$this->assertEquals('', $this->address->state);
+	    $this->assertEquals('', $this->address->state_abbrev);
 
-	    $this->addr->state_id->value = self::TEST_STATE_ID;
-	    $this->addr->readStateProperties();
-	    self::assertEquals('California', $this->addr->state);
-	    self::assertEquals('CA', $this->addr->state_abbrev);
+	    $this->address->state_id->value = $this::TEST_STATE_ID;
+	    $this->address->readStateProperties();
+	    $this->assertEquals('California', $this->address->state);
+	    $this->assertEquals('CA', $this->address->state_abbrev);
 
 	    /* Test non-existent state */
-	    $this->addr->state_id->value = 99999;
+	    $this->address->state_id->value = 99999;
 	    $this->expectException(RecordNotFoundException::class);
-	    $this->addr->readStateProperties();
+	    $this->address->readStateProperties();
 
 	    /* Test null state id */
-	    $this->addr->state_id->value = null;
+	    $this->address->state_id->value = null;
 	    $this->expectException(InvalidValueException::class);
-	    $this->addr->readStateProperties();
+	    $this->address->readStateProperties();
     }
 
     public function testSaveErrors()
     {
-    	self::expectException(Exception::class);
-    	$this->addr->save();
+    	$this->expectException(Exception::class);
+    	$this->address->save();
 
     	try {
-    		$this->addr->save();
+    		$this->address->save();
 	    }
-	    catch(\Exception $e) {
-    		self::assertEquals('Error', $e->getMessage());
+	    catch(Exception $e) {
+    		$this->assertEquals('Error', $e->getMessage());
 	    }
     }
 
-	public function testSaveExistingRecord()
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     * @throws Exception
+     */
+    public function testSaveExistingRecord()
 	{
-		$this->addr->id->value = self::TEST_ID_VALUE;
-		$this->addr->read();
-		$lastname = $this->addr->lastname->value;
-		$company = $this->addr->company->value;
-		$state_id = $this->addr->state_id->value;
-		$zip = $this->addr->zip->value;
+		$this->address->id->value = $this::TEST_ID_VALUE;
+		$this->address->read();
+		$lastname = $this->address->lastname->value;
+		$company = $this->address->company->value;
+		$state_id = $this->address->state_id->value;
+		$zip = $this->address->zip->value;
 
-		$this->addr->lastname->value = 'New Lastname';
-		$this->addr->company->value = 'New Company';
-		$this->addr->state_id->value = 25;
-		$this->addr->zip->value = '89898';
-		$this->addr->save();
+		$this->address->lastname->value = 'New Lastname';
+		$this->address->company->value = 'New Company';
+		$this->address->state_id->value = 25;
+		$this->address->zip->value = '89898';
+		$this->address->save();
 
-		$addr = new Address();
-		$addr->id->value = self::TEST_ID_VALUE;
-		$addr->read();
-		self::assertEquals('New Lastname', $addr->lastname->value);
-		self::assertEquals('New Company', $addr->company->value);
-		self::assertEquals(25, $addr->state_id->value);
-		self::assertEquals('89898', $addr->zip->value);
+		$address = new Address();
+		$address->id->value = $this::TEST_ID_VALUE;
+		$address->read();
+		$this->assertEquals('New Lastname', $address->lastname->value);
+		$this->assertEquals('New Company', $address->company->value);
+		$this->assertEquals(25, $address->state_id->value);
+		$this->assertEquals('89898', $address->zip->value);
 
 		/* revert database record to original values */
-		$this->addr->lastname->value = $lastname;
-		$this->addr->company->value = $company;
-		$this->addr->state_id->value = $state_id;
-		$this->addr->zip->value = $zip;
-		$this->addr->save();
+		$this->address->lastname->value = $lastname;
+		$this->address->company->value = $company;
+		$this->address->state_id->value = $state_id;
+		$this->address->zip->value = $zip;
+		$this->address->save();
 	}
 
-	public function testSaveNewRecord()
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
+    public function testSaveNewRecord()
     {
-    	$this->addr->firstname->value = 'Damien';
-    	$this->addr->lastname->value = 'Barchowsky';
-    	$this->addr->address1->value = '122 N Rose St';
-    	$this->addr->city->value = 'Burbank';
-    	$this->addr->state_id->value = self::TEST_STATE_ID;
-    	$this->addr->zip->value = '91505';
-    	$this->addr->save();
+    	$this->address->firstname->value = 'Damien';
+    	$this->address->lastname->value = 'Barchowsky';
+    	$this->address->address1->value = '122 N Rose St';
+    	$this->address->city->value = 'Burbank';
+    	$this->address->state_id->value = $this::TEST_STATE_ID;
+    	$this->address->zip->value = '91505';
+    	$this->address->save();
 
-    	self::assertNotNull($this->addr->id->value);
+    	$this->assertNotNull($this->address->id->value);
 
-    	$new_addr = new Address();
-    	$new_addr->id->value = $this->addr->id->value;
-    	$new_addr->read();
+    	$new_address = new Address();
+    	$new_address->id->value = $this->address->id->value;
+    	$new_address->read();
 
-    	self::assertEquals($new_addr->firstname->value, $this->addr->firstname->value);
-	    self::assertEquals($new_addr->lastname->value, $this->addr->lastname->value);
-	    self::assertEquals($new_addr->company->value, $this->addr->company->value);
-	    self::assertEquals($new_addr->address1->value, $this->addr->address1->value);
-	    self::assertEquals($new_addr->address2->value, $this->addr->address2->value);
-	    self::assertEquals($new_addr->city->value, $this->addr->city->value);
-	    self::assertEquals($new_addr->state_id->value, $this->addr->state_id->value);
-	    self::assertEquals($new_addr->zip->value, $this->addr->zip->value);
+    	$this->assertEquals($new_address->firstname->value, $this->address->firstname->value);
+	    $this->assertEquals($new_address->lastname->value, $this->address->lastname->value);
+	    $this->assertEquals($new_address->company->value, $this->address->company->value);
+	    $this->assertEquals($new_address->address1->value, $this->address->address1->value);
+	    $this->assertEquals($new_address->address2->value, $this->address->address2->value);
+	    $this->assertEquals($new_address->city->value, $this->address->city->value);
+	    $this->assertEquals($new_address->state_id->value, $this->address->state_id->value);
+	    $this->assertEquals($new_address->zip->value, $this->address->zip->value);
     }
 
+    /**
+     * @throws NotImplementedException
+     */
     public function testTableName()
     {
-    	self::assertEquals('address', Address::TABLE_NAME());
-	    self::assertEquals('address', $this->addr::TABLE_NAME());
+    	$this->assertEquals('address', Address::TABLE_NAME());
+	    $this->assertEquals('address', $this->address::TABLE_NAME());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testValidateInputException()
     {
-    	self::expectException(ContentValidationException::class);
-    	$this->addr->validateInput();
+    	$this->expectException(ContentValidationException::class);
+    	$this->address->validateInput();
     }
 
 	public function testValidateInput()
 	{
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringContainsString($this->addr->firstname->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->lastname->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->address1->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->city->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->state_id->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->zip->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringContainsString($this->address->firstname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->lastname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->address1->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->city->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->state_id->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->zip->formatErrorLabel().' is required.', $error_msg);
 
-		$this->addr->firstname->value = 'Damien';
+		$this->address->firstname->value = 'Damien';
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringNotContainsString($this->addr->firstname->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->lastname->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringNotContainsString($this->address->firstname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->lastname->formatErrorLabel().' is required.', $error_msg);
 
-		$this->addr->lastname->value = 'Barchowsky';
+		$this->address->lastname->value = 'Barchowsky';
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringNotContainsString($this->addr->lastname->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->address1->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringNotContainsString($this->address->lastname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->address1->formatErrorLabel().' is required.', $error_msg);
 
-		$this->addr->address1->value = '122 N Rose St';
+		$this->address->address1->value = '122 N Rose St';
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringNotContainsString($this->addr->address1->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->city->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringNotContainsString($this->address->address1->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->city->formatErrorLabel().' is required.', $error_msg);
 
-		$this->addr->city->value = 'Burbank';
+		$this->address->city->value = 'Burbank';
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringNotContainsString($this->addr->city->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->state_id->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringNotContainsString($this->address->city->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->state_id->formatErrorLabel().' is required.', $error_msg);
 
-		$this->addr->state_id->value = self::TEST_STATE_ID;
+		$this->address->state_id->value = $this::TEST_STATE_ID;
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringNotContainsString($this->addr->state_id->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringContainsString($this->addr->zip->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringNotContainsString($this->address->state_id->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->zip->formatErrorLabel().' is required.', $error_msg);
 
-		$this->addr->zip->value = '91505';
+		$this->address->zip->value = '91505';
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		self::assertEquals(0, count($this->addr->validationErrors));
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $this->assertCount(0, $this->address->validationErrors);
 
-		$this->addr->address1->value = '';
+		$this->address->address1->value = '';
 		try {
-			$this->addr->validateInput();
-		} catch(ContentValidationException $e) { /* continue */ }
-		$errormsg = join('', $this->addr->validationErrors);
-		self::assertStringContainsString($this->addr->address1->formatErrorLabel().' is required.', $errormsg);
-		self::assertStringNotContainsString($this->addr->zip->formatErrorLabel().' is required.', $errormsg);
+			$this->address->validateInput();
+		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
+        }
+        $error_msg = join('', $this->address->validationErrors);
+		$this->assertStringContainsString($this->address->address1->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringNotContainsString($this->address->zip->formatErrorLabel().' is required.', $error_msg);
 	}
 
+    /*
 	public function testValidateUniqueEmailDefaultValue()
 	{
-		try
-		{
-			$this->addr->validateUniqueEmail();
-			self::assertEquals('Exception not thrown.', 'Exception not thrown.');
-		}
-		catch(ContentValidationException $ex)
-		{
-			self::assertEquals('', $ex->getMessage());
-		}
-	}
+        $this->address->validateUniqueEmail();
+    }
 
 	public function testValidateUniqueExistingEmail()
-	{
-		$this->addr->email->value = self::TEST_EMAIL;
-		try
-		{
-			$this->addr->validateUniqueEmail();
-			self::assertEquals('', 'Exception not thrown.');
-		}
-		catch(ContentValidationException $ex)
-		{
-			self::assertEquals("The email address \"".self::TEST_EMAIL."\" has already been registered.", $ex->getMessage());
-		}
-	}
+    {
+    	$this->address->email->value = $this::TEST_EMAIL;
+        $this->address->validateUniqueEmail();
+    }
 
 	public function testValidateUniqueValidEmail()
 	{
-		$this->addr->email->value = 'notindatabase@domain.com';
-		try
-		{
-			$this->addr->validateUniqueEmail();
-			self::assertEquals('Exception not thrown.', 'Exception not thrown.');
-		}
-		catch(ContentValidationException $ex)
-		{
-			self::assertEquals('', $ex->getMessage());
-		}
-	}
->>>>>>> 3602a466b49424d5d6c2cb940771652ebd0784fe
+		$this->address->email->value = 'notindatabase@domain.com';
+        $this->address->validateUniqueEmail();
+    }
+    */
 }
