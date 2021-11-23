@@ -510,7 +510,7 @@ class RequestInput
 	protected function throwValidationError( string $err )
 	{
 		$this->hasErrors = true;
-		$this->error .= $err;
+		$this->error = $err;
 		throw new ContentValidationException($this->error);
 	}
 
