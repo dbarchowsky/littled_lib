@@ -36,6 +36,11 @@ class Address extends SerializedContent
 	const ID_PARAM = "adid";
 	const LOCATION_PARAM = "adlo";
 
+	// possible values for formatting address data into strings
+	const FORMAT_ADDRESS_ONE_LINE   = 'one_line';
+	const FORMAT_ADDRESS_HTML       = 'html';
+	const FORMAT_ADDRESS_GOOGLE     = 'google';
+
 	const TABLE_NAME = "address";
 	public static function TABLE_NAME (): string {
 	    return (self::TABLE_NAME);
@@ -149,15 +154,15 @@ class Address extends SerializedContent
      * @return string Formatted address.
      * @throws InvalidValueException
      */
-    public function formatAddress(string $style="oneline", bool $include_name=false): string
+    public function formatAddress(string $style=Address::FORMAT_ADDRESS_ONE_LINE, bool $include_name=false): string
     {
         switch ($style)
         {
-            case "oneline":
+	        case Address::FORMAT_ADDRESS_ONE_LINE:
                 return($this->formatOneLineAddress());
-            case "html":
+	        case Address::FORMAT_ADDRESS_HTML:
                 return($this->formatHTMLAddress($include_name));
-            case "google":
+	        case Address::FORMAT_ADDRESS_GOOGLE:
                 return($this->formatGoogleAddress());
             default:
                 throw new InvalidValueException("Unhandled address format: \"$style\".");
@@ -254,22 +259,22 @@ class Address extends SerializedContent
      */
     public function formatOneLineAddress(): string
     {
-        $addr = $this->appendSeparator($this->address1->value).
-            $this->appendSeparator($this->address2->value).
+        $address = $this->appendSeparator(''.$this->address1->value).
+            $this->appendSeparator(''.$this->address2->value).
             $this->city->value;
         if ($this->state_abbrev || $this->state) {
             if ($this->state_abbrev) {
-                $addr .= $this->prependSeparator($this->state_abbrev);
+                $address .= $this->prependSeparator($this->state_abbrev);
             } elseif ($this->state) {
-                $addr .= $this->prependSeparator($this->state);
+                $address .= $this->prependSeparator($this->state);
             }
         }
         else
         {
-            $addr = preg_replace('/, $/', '', $addr).$this->prependSeparator($this->country->value);
+            $address = preg_replace('/, $/', '', $address).$this->prependSeparator($this->country->value);
         }
-        $addr = preg_replace('/, $/', '', $addr).$this->prependSeparator($this->zip->value, '');
-        return ($addr);
+        $address = preg_replace('/, $/', '', $address).$this->prependSeparator($this->zip->value, '');
+        return ($address);
     }
 
     /**
