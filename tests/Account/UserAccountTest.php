@@ -53,12 +53,12 @@ class UserAccountTest extends TestCase
 		self::assertEquals(UserAccount::BASIC_AUTHENTICATION, $obj->access->value);
 		self::assertFalse($obj->email_opt_in->value);
 		self::assertFalse($obj->postal_opt_in->value);
-		self::assertEquals('', $obj->contact_info->firstname->value);
+		self::assertEquals('', $obj->contact_info->first_name->value);
 		self::assertEquals('', $obj->contact_info->email->value);
 
 		self::assertTrue($obj->password->isDatabaseField);
 		self::assertFalse($obj->password_confirm->isDatabaseField);
-		self::assertFalse($obj->contact_info->firstname->required);
+		self::assertFalse($obj->contact_info->first_name->required);
 		self::assertTrue($obj->contact_info->email->required);
 		self::assertFalse($obj->contact_info->address1->required);
 	}

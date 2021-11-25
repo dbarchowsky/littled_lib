@@ -68,8 +68,8 @@ class UserAccount extends SerializedContent
 	    $this->postal_opt_in = new BooleanCheckbox("Snail Mail Opt-In", "suso", false, false);
 
 	    $this->contact_id = &$this->contact_info->id;
-	    $this->contact_info->firstname->required = false;
-	    $this->contact_info->lastname->required = false;
+	    $this->contact_info->first_name->required = false;
+	    $this->contact_info->last_name->required = false;
 	    $this->contact_info->company->required = false;
 	    $this->contact_info->email->required = true;
 	    $this->contact_info->address1->required = false;
@@ -99,13 +99,13 @@ class UserAccount extends SerializedContent
 		{
 			$this->id->value=$_SESSION[$this->id->key];
 		}
-		if (isset($_SESSION[$this->contact_info->firstname->key]))
+		if (isset($_SESSION[$this->contact_info->first_name->key]))
 		{
-			$this->contact_info->firstname->value=$_SESSION[$this->contact_info->firstname->key];
+			$this->contact_info->first_name->value=$_SESSION[$this->contact_info->first_name->key];
 		}
-		if (isset($_SESSION[$this->contact_info->lastname->key]))
+		if (isset($_SESSION[$this->contact_info->last_name->key]))
 		{
-			$this->contact_info->lastname->value=$_SESSION[$this->contact_info->lastname->key];
+			$this->contact_info->last_name->value=$_SESSION[$this->contact_info->last_name->key];
 		}
 		if (isset($_SESSION[$this->contact_info->email->key]))
 		{
@@ -269,8 +269,8 @@ class UserAccount extends SerializedContent
 		} catch (ContentValidationException $ex) {
 			/* continue */
 		}
-		if (!$this->contact_info->firstname->value &&
-			!$this->contact_info->lastname->value &&
+		if (!$this->contact_info->first_name->value &&
+			!$this->contact_info->last_name->value &&
 			!$this->contact_info->company->value) {
 			$this->addValidationError("Either first name and last name or company must be entered.");
 		}

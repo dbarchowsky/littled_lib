@@ -262,19 +262,19 @@ class AddressTest extends ContentValidationTestCase
     {
     	$this->assertEquals('', $this->address->formatHTMLAddress(true));
 
-    	$this->address->firstname->value = null;
+    	$this->address->first_name->value = null;
 	    $this->address->company->value = null;
 	    $this->address->address1->value = null;
 	    $this->address->city->value = null;
 	    $this->assertEquals('', $this->address->formatHTMLAddress(true));
 
-	    $this->address->firstname->value = '';
+	    $this->address->first_name->value = '';
 	    $this->address->company->value = '';
 	    $this->address->address1->value = '';
 	    $this->address->city->value = '';
 	    $this->assertEquals('', $this->address->formatHTMLAddress(true));
 
-	    $this->address->firstname->value = ' ';
+	    $this->address->first_name->value = ' ';
 	    $this->address->company->value = ' ';
 	    $this->address->address1->value = ' ';
 	    $this->address->city->value = ' ';
@@ -294,20 +294,20 @@ class AddressTest extends ContentValidationTestCase
     {
 	    $this->fetchTestRecord();
 
-	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+	    $expected = "<div>{$this->address->first_name->value} {$this->address->last_name->value}</div>\n".
 		    "<div>{$this->address->address1->value}</div>\n".
 		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
 	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
 	    $this->address->address2->value = "Building 2";
-	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+	    $expected = "<div>{$this->address->first_name->value} {$this->address->last_name->value}</div>\n".
 		    "<div>{$this->address->address1->value}</div>\n".
 		    "<div>{$this->address->address2->value}</div>\n".
 		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
 	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
 	    $this->address->company->value = "Puckanerry Inc";
-	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+	    $expected = "<div>{$this->address->first_name->value} {$this->address->last_name->value}</div>\n".
 		    "<div>{$this->address->company->value}</div>\n".
 		    "<div>{$this->address->address1->value}</div>\n".
 		    "<div>{$this->address->address2->value}</div>\n".
@@ -316,13 +316,13 @@ class AddressTest extends ContentValidationTestCase
 
 	    $this->address->address1->value = "";
 	    $this->address->address2->value = "";
-	    $expected = "<div>{$this->address->firstname->value} {$this->address->lastname->value}</div>\n".
+	    $expected = "<div>{$this->address->first_name->value} {$this->address->last_name->value}</div>\n".
 		    "<div>{$this->address->company->value}</div>\n".
 		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
 	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
 
-	    $this->address->firstname->value = "";
-	    $this->address->lastname->value = "";
+	    $this->address->first_name->value = "";
+	    $this->address->last_name->value = "";
 	    $expected = "<div>{$this->address->company->value}</div>\n".
 		    "<div>{$this->address->city->value}, {$this->address->state_abbrev} {$this->address->zip->value}</div>\n";
 	    $this->assertEquals($expected, $this->address->formatHTMLAddress(true));
@@ -365,24 +365,24 @@ class AddressTest extends ContentValidationTestCase
     public function testFormatContactName()
     {
     	$this->address->salutation->value = 'Dr.';
-    	$this->address->firstname->value = 'Damien';
-    	$this->address->lastname->value = 'Barchowsky';
+    	$this->address->first_name->value = 'Damien';
+    	$this->address->last_name->value = 'Barchowsky';
     	$this->assertEquals('Damien Barchowsky', $this->address->formatContactName());
 
 	    $this->address->salutation->value = '';
 	    $this->assertEquals('Damien Barchowsky', $this->address->formatContactName());
 
-	    $this->address->firstname->value = '';
+	    $this->address->first_name->value = '';
 	    $this->assertEquals('Barchowsky', $this->address->formatContactName());
 
-	    $this->address->lastname->value = '';
+	    $this->address->last_name->value = '';
 	    $this->assertEquals('', $this->address->formatContactName());
 
-	    $this->address->firstname->value = 'Damien';
+	    $this->address->first_name->value = 'Damien';
 	    $this->assertEquals('Damien', $this->address->formatContactName());
 
-	    $this->address->firstname->value = null;
-	    $this->address->lastname->value = null;
+	    $this->address->first_name->value = null;
+	    $this->address->last_name->value = null;
 	    $this->assertEquals('', $this->address->formatContactName());
     }
 
@@ -390,24 +390,24 @@ class AddressTest extends ContentValidationTestCase
     {
     	$this->assertEquals('', $this->address->formatFullName());
 
-    	$this->address->firstname->value = 'Foo';
+    	$this->address->first_name->value = 'Foo';
 	    $this->assertEquals('Foo', $this->address->formatFullName());
 
-	    $this->address->lastname->value = 'Bar';
+	    $this->address->last_name->value = 'Bar';
 	    $this->assertEquals('Foo Bar', $this->address->formatFullName());
 
 	    $this->address->salutation->value = 'Dr';
 	    $this->assertEquals('Dr Foo Bar', $this->address->formatFullName());
 
-	    $this->address->firstname->value = " {$this->address->firstname->value} ";
-	    $this->address->lastname->value = " {$this->address->lastname->value} ";
+	    $this->address->first_name->value = " {$this->address->first_name->value} ";
+	    $this->address->last_name->value = " {$this->address->last_name->value} ";
 	    $this->address->salutation->value = " {$this->address->salutation->value} ";
 	    $this->assertEquals('Dr Foo Bar', $this->address->formatFullName());
 
-	    $this->address->firstname->value = '';
+	    $this->address->first_name->value = '';
 	    $this->assertEquals('Dr Bar', $this->address->formatFullName());
 
-	    $this->address->lastname->value = '';
+	    $this->address->last_name->value = '';
 	    $this->assertEquals('Dr', $this->address->formatFullName());
     }
 
@@ -421,8 +421,8 @@ class AddressTest extends ContentValidationTestCase
     	$this->assertFalse($this->address->hasData());
 
 	    $this->address->id->value = null;
-	    $this->address->firstname->value = '';
-	    $this->address->lastname->value = '';
+	    $this->address->first_name->value = '';
+	    $this->address->last_name->value = '';
 	    $this->address->email->value = '';
 	    $this->address->location->value = '';
 	    $this->address->address1->value = '';
@@ -430,8 +430,8 @@ class AddressTest extends ContentValidationTestCase
 	    $this->address->state_id->value = null;
 	    $this->assertFalse($this->address->hasData());
 
-	    $this->address->firstname->value = null;
-	    $this->address->lastname->value = null;
+	    $this->address->first_name->value = null;
+	    $this->address->last_name->value = null;
 	    $this->address->email->value = null;
 	    $this->address->location->value = null;
 	    $this->address->address1->value = null;
@@ -442,14 +442,14 @@ class AddressTest extends ContentValidationTestCase
 	    $this->assertTrue($this->address->hasData());
 
 	    $this->address->id->value = null;
-	    $this->address->firstname->value = 'foo';
+	    $this->address->first_name->value = 'foo';
 	    $this->assertTrue($this->address->hasData());
 
-	    $this->address->firstname->value = '';
-	    $this->address->lastname->value = 'bar';
+	    $this->address->first_name->value = '';
+	    $this->address->last_name->value = 'bar';
 	    $this->assertTrue($this->address->hasData());
 
-	    $this->address->lastname->value = '';
+	    $this->address->last_name->value = '';
 	    $this->address->email->value = 'dbarchowsky@gmail.com';
 	    $this->assertTrue($this->address->hasData());
 
@@ -511,7 +511,7 @@ class AddressTest extends ContentValidationTestCase
     	$this->address->preserveInForm();
     	$markup = ob_get_clean();
     	$this->assertMatchesRegularExpression("/^\W*<input ."."*name=\"{$this->address->id->key}\" value=\"{$this->address->id->value}\"/", $markup);
-	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->lastname->key}\" value=\"{$this->address->lastname->value}\"/", $markup);
+	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->last_name->key}\" value=\"{$this->address->last_name->value}\"/", $markup);
 	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->address1->key}\" value=\"{$this->address->address1->value}\"/", $markup);
 	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->city->key}\" value=\"{$this->address->city->value}\"/", $markup);
 	    $this->assertMatchesRegularExpression("/<input ."."*name=\"{$this->address->state_id->key}\" value=\"{$this->address->state_id->value}\"/", $markup);
@@ -531,7 +531,7 @@ class AddressTest extends ContentValidationTestCase
         $this->address->id->value = AddressTest::TEST_ID_VALUE;
         $this->address->read();
 
-        $this->assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $this->address->lastname->value);
+        $this->assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $this->address->last_name->value);
         $this->assertEquals(AddressTest::TEST_STATE_VALUE, $this->address->state);
         $this->assertEquals(AddressTest::TEST_STATE_ABBREV_VALUE, $this->address->state_abbrev);
     }
@@ -603,12 +603,12 @@ class AddressTest extends ContentValidationTestCase
 	{
 		$this->address->id->value = $this::TEST_ID_VALUE;
 		$this->address->read();
-		$lastname = $this->address->lastname->value;
+		$lastname = $this->address->last_name->value;
 		$company = $this->address->company->value;
 		$state_id = $this->address->state_id->value;
 		$zip = $this->address->zip->value;
 
-		$this->address->lastname->value = 'New Lastname';
+		$this->address->last_name->value = 'New Lastname';
 		$this->address->company->value = 'New Company';
 		$this->address->state_id->value = 25;
 		$this->address->zip->value = '89898';
@@ -617,13 +617,13 @@ class AddressTest extends ContentValidationTestCase
 		$address = new Address();
 		$address->id->value = $this::TEST_ID_VALUE;
 		$address->read();
-		$this->assertEquals('New Lastname', $address->lastname->value);
+		$this->assertEquals('New Lastname', $address->last_name->value);
 		$this->assertEquals('New Company', $address->company->value);
 		$this->assertEquals(25, $address->state_id->value);
 		$this->assertEquals('89898', $address->zip->value);
 
 		/* revert database record to original values */
-		$this->address->lastname->value = $lastname;
+		$this->address->last_name->value = $lastname;
 		$this->address->company->value = $company;
 		$this->address->state_id->value = $state_id;
 		$this->address->zip->value = $zip;
@@ -642,8 +642,8 @@ class AddressTest extends ContentValidationTestCase
      */
     public function testSaveNewRecord()
     {
-    	$this->address->firstname->value = 'Damien';
-    	$this->address->lastname->value = 'Barchowsky';
+    	$this->address->first_name->value = 'Damien';
+    	$this->address->last_name->value = 'Barchowsky';
     	$this->address->address1->value = '122 N Rose St';
     	$this->address->city->value = 'Burbank';
     	$this->address->state_id->value = $this::TEST_STATE_ID;
@@ -656,8 +656,8 @@ class AddressTest extends ContentValidationTestCase
     	$new_address->id->value = $this->address->id->value;
     	$new_address->read();
 
-    	$this->assertEquals($new_address->firstname->value, $this->address->firstname->value);
-	    $this->assertEquals($new_address->lastname->value, $this->address->lastname->value);
+    	$this->assertEquals($new_address->first_name->value, $this->address->first_name->value);
+	    $this->assertEquals($new_address->last_name->value, $this->address->last_name->value);
 	    $this->assertEquals($new_address->company->value, $this->address->company->value);
 	    $this->assertEquals($new_address->address1->value, $this->address->address1->value);
 	    $this->assertEquals($new_address->address2->value, $this->address->address2->value);
@@ -691,29 +691,29 @@ class AddressTest extends ContentValidationTestCase
 		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
         }
         $error_msg = join('', $this->address->validationErrors);
-		$this->assertStringContainsString($this->address->firstname->formatErrorLabel().' is required.', $error_msg);
-		$this->assertStringContainsString($this->address->lastname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->first_name->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->last_name->formatErrorLabel().' is required.', $error_msg);
 		$this->assertStringContainsString($this->address->address1->formatErrorLabel().' is required.', $error_msg);
 		$this->assertStringContainsString($this->address->city->formatErrorLabel().' is required.', $error_msg);
 		$this->assertStringContainsString($this->address->state_id->formatErrorLabel().' is required.', $error_msg);
 		$this->assertStringContainsString($this->address->zip->formatErrorLabel().' is required.', $error_msg);
 
-		$this->address->firstname->value = 'Damien';
+		$this->address->first_name->value = 'Damien';
 		try {
 			$this->address->validateInput();
 		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
         }
         $error_msg = join('', $this->address->validationErrors);
-		$this->assertStringNotContainsString($this->address->firstname->formatErrorLabel().' is required.', $error_msg);
-		$this->assertStringContainsString($this->address->lastname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringNotContainsString($this->address->first_name->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringContainsString($this->address->last_name->formatErrorLabel().' is required.', $error_msg);
 
-		$this->address->lastname->value = 'Barchowsky';
+		$this->address->last_name->value = 'Barchowsky';
 		try {
 			$this->address->validateInput();
 		} catch(ContentValidationException $e) { /* continue */ } catch (Exception $e) {
         }
         $error_msg = join('', $this->address->validationErrors);
-		$this->assertStringNotContainsString($this->address->lastname->formatErrorLabel().' is required.', $error_msg);
+		$this->assertStringNotContainsString($this->address->last_name->formatErrorLabel().' is required.', $error_msg);
 		$this->assertStringContainsString($this->address->address1->formatErrorLabel().' is required.', $error_msg);
 
 		$this->address->address1->value = '122 N Rose St';
@@ -766,8 +766,8 @@ class AddressTest extends ContentValidationTestCase
 	function testValidatePhoneNumbers()
 	{
 		$this->address->email->setAsNotRequired();
-		$this->address->firstname->setAsNotRequired();
-		$this->address->lastname->setAsNotRequired();
+		$this->address->first_name->setAsNotRequired();
+		$this->address->last_name->setAsNotRequired();
 		$this->address->address1->setAsNotRequired();
 		$this->address->city->setAsNotRequired();
 		$this->address->state_id->setAsNotRequired();
@@ -806,8 +806,8 @@ class AddressTest extends ContentValidationTestCase
      */
     function testValidateEmailFormat()
     {
-        $this->address->firstname->setAsNotRequired();
-        $this->address->lastname->setAsNotRequired();
+        $this->address->first_name->setAsNotRequired();
+        $this->address->last_name->setAsNotRequired();
         $this->address->address1->setAsNotRequired();
         $this->address->city->setAsNotRequired();
         $this->address->state_id->setAsNotRequired();

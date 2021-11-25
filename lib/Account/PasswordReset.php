@@ -112,8 +112,8 @@ class PasswordReset extends UserAccount
 		fclose($f);
 
 		/* update email template with login data */
-		if ($this->contact_info->firstname->value) {
-			$body = str_replace("[[greeting]]", "Dear {$this->contact_info->firstname->value},", $body);
+		if ($this->contact_info->first_name->value) {
+			$body = str_replace("[[greeting]]", "Dear {$this->contact_info->first_name->value},", $body);
 		} else {
 			$body = str_replace("[[greeting]]", "Hellow,", $body);
 		}
@@ -198,8 +198,8 @@ class PasswordReset extends UserAccount
 		{
 			$this->id->value = $rs[0]->id;
 			$this->uname->value = $rs[0]->login;
-			$this->contact_info->firstname->value = $rs[0]->firstname;
-			$this->contact_info->lastname->value = $rs[0]->lastname;
+			$this->contact_info->first_name->value = $rs[0]->firstname;
+			$this->contact_info->last_name->value = $rs[0]->lastname;
 			$this->contact_info->fullname = $rs[0]->firstname." ".$rs[0]->lastname;
 		}
 		else

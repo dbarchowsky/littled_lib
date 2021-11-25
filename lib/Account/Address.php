@@ -59,10 +59,10 @@ class Address extends SerializedContent
 	public $id;
 	/** @var StringSelect $salutation */
 	public $salutation;
-	/** @var StringTextField $firstname */
-	public $firstname;
-	/** @var StringTextField $lastname */
-	public $lastname;
+	/** @var StringTextField $first_name */
+	public $first_name;
+	/** @var StringTextField $last_name */
+	public $last_name;
 	/** @var StringTextField $location */
 	public $location;
 	/** @var StringTextField $company */
@@ -109,8 +109,8 @@ class Address extends SerializedContent
 		parent::__construct();
 		$this->id = new IntegerInput("Address ID", $prefix.self::ID_PARAM, false, null);
 		$this->salutation = new StringSelect("Salutation", "{$prefix}adsl", false, "", 10);
-		$this->firstname = new StringTextField("First Name", "{$prefix}adfn", true, "", 50);
-		$this->lastname = new StringTextField("Last Name", "{$prefix}adln", true, "", 50);
+		$this->first_name = new StringTextField("First Name", "{$prefix}adfn", true, "", 50);
+		$this->last_name = new StringTextField("Last Name", "{$prefix}adln", true, "", 50);
 		$this->location = new StringTextField("Location name", $prefix.self::LOCATION_PARAM, false, "", 200);
 		$this->company = new StringTextField("Company", $prefix."lco", false, "", 100);
 		$this->address1 = new StringTextField("Street", "{$prefix}ads1", true, "", 100);
@@ -191,8 +191,8 @@ class Address extends SerializedContent
     public function formatContactName(): string
     {
     	$parts = array_filter(array(
-    		trim(''.$this->firstname->value),
-		    trim(''.$this->lastname->value)
+    		trim(''.$this->first_name->value),
+		    trim(''.$this->last_name->value)
 	    ));
     	return(join(' ', $parts));
     }
@@ -204,8 +204,8 @@ class Address extends SerializedContent
 	public function formatFullName(): string
 	{
 		$parts = array_filter(array(trim(''.$this->salutation->value),
-			trim(''.$this->firstname->value),
-			trim(''.$this->lastname->value)));
+			trim(''.$this->first_name->value),
+			trim(''.$this->last_name->value)));
 		return(join(' ', $parts));
 	}
 
@@ -320,8 +320,8 @@ class Address extends SerializedContent
     public function hasData (): bool
     {
         return ($this->id->value!==null ||
-            $this->firstname->value ||
-            $this->lastname->value ||
+            $this->first_name->value ||
+            $this->last_name->value ||
             $this->email->value ||
             $this->location->value ||
             $this->address1->value ||
@@ -445,11 +445,11 @@ class Address extends SerializedContent
 		}
         parent::read();
 
-        $this->fullname = $this->firstname->value;
-        if ($this->firstname->value && $this->lastname->value) {
+        $this->fullname = $this->first_name->value;
+        if ($this->first_name->value && $this->last_name->value) {
             $this->fullname .= " ";
         }
-        $this->fullname .= $this->lastname->value;
+        $this->fullname .= $this->last_name->value;
 
         $this->readStateProperties();
     }

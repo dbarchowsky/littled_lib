@@ -112,8 +112,8 @@ class LoginAuthenticator extends UserLogin
 		$_SESSION[$this->password->key] = $this->password->value;
 		$_SESSION[$this->access->key] = $this->access->value;
 		$_SESSION[$this->contact_info->email->key] = $this->contact_info->email->value;
-		$_SESSION[$this->contact_info->firstname->key] = $this->contact_info->firstname->value;
-		$_SESSION[$this->contact_info->lastname->key] = $this->contact_info->lastname->value;
+		$_SESSION[$this->contact_info->first_name->key] = $this->contact_info->first_name->value;
+		$_SESSION[$this->contact_info->last_name->key] = $this->contact_info->last_name->value;
 		$this->logged_in = true;
 	}
 
@@ -132,8 +132,8 @@ class LoginAuthenticator extends UserLogin
 		unset($_SESSION[$this->password->key]);
 		unset($_SESSION[$this->access->key]);
 		unset($_SESSION[$this->contact_info->email->key]);
-		unset($_SESSION[$this->contact_info->firstname->key]);
-		unset($_SESSION[$this->contact_info->lastname->key]);
+		unset($_SESSION[$this->contact_info->first_name->key]);
+		unset($_SESSION[$this->contact_info->last_name->key]);
 		$this->clearValues();
 		$this->logged_in = false;
 	}
@@ -240,8 +240,8 @@ class LoginAuthenticator extends UserLogin
 
 		/* store account properties that are saved in session variables */
 		$this->id->value = $rs[0]->id;
-		$this->contact_info->firstname->value = $rs[0]->firstname;
-		$this->contact_info->lastname->value = $rs[0]->lastname;
+		$this->contact_info->first_name->value = $rs[0]->firstname;
+		$this->contact_info->last_name->value = $rs[0]->lastname;
 		$this->contact_info->email->value = $rs[0]->email;
 		$this->access->value = $rs[0]->access;
 
