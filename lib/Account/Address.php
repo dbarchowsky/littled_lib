@@ -57,45 +57,47 @@ class Address extends SerializedContent
 
 	/** @var IntegerInput Address record id. */
 	public $id;
-	/** @var StringSelect $salutation */
+	/** @var StringSelect */
 	public $salutation;
-	/** @var StringTextField $first_name */
+	/** @var StringTextField */
 	public $first_name;
-	/** @var StringTextField $last_name */
+	/** @var StringTextField */
 	public $last_name;
-	/** @var StringTextField $location */
+	/** @var StringTextField */
 	public $location;
-	/** @var StringTextField $company */
+	/** @var StringTextField */
 	public $company;
-	/** @var StringTextField $address1 */
+	/** @var StringTextField */
 	public $address1;
-	/** @var StringTextField $address2 */
+	/** @var StringTextField */
 	public $address2;
-	/** @var StringTextField $city */
+	/** @var StringTextField */
 	public $city;
-	/** @var IntegerSelect $state_id */
+	/** @var IntegerSelect */
 	public $state_id;
-	/** @var StringTextField $state */
+	/** @var StringTextField */
 	public $state;
-	/** @var StringTextField $zip */
+	/** @var StringTextField */
 	public $zip;
-	/** @var StringTextField $country */
+	/** @var StringTextField */
 	public $country;
-	/** @var PhoneNumberTextField $day_phone */
-	public $day_phone;
-	/** @var PhoneNumberTextField $eve_phone */
-	public $eve_phone;
-	/** @var EmailTextField $email */
+	/** @var PhoneNumberTextField */
+	public $home_phone;
+	/** @var PhoneNumberTextField */
+	public $work_phone;
+    /** @var PhoneNumberTextField */
+    public $mobile_phone;
+	/** @var EmailTextField */
 	public $email;
-	/** @var StringTextField $url */
+	/** @var StringTextField */
 	public $url;
-	/** @var FloatTextField $latitude */
+	/** @var FloatTextField */
 	public $latitude;
-	/** @var FloatTextField $longitude */
+	/** @var FloatTextField */
 	public $longitude;
-	/** @var string $state_abbrev Abbreviated state name. */
+	/** @var string Abbreviated state name. */
 	public $state_abbrev;
-	/** @var string $fullname Combined first and last name. */
+	/** @var string Combined first and last name. */
 	public $fullname;
 
 	/**
@@ -118,8 +120,9 @@ class Address extends SerializedContent
 		$this->state = new StringTextField("Province", "{$prefix}adpv", false, "", 50);
 		$this->zip = new StringTextField("Zip Code", "{$prefix}adzc", true, "", 20);
 		$this->country = new StringTextField("Country", "{$prefix}adcn", false, "", 100);
-		$this->day_phone = new PhoneNumberTextField("Daytime phone number", $prefix."ldp", false, "", 20);
-		$this->eve_phone = new PhoneNumberTextField("Evening phone number", $prefix."lep", false, "", 20);
+		$this->home_phone = new PhoneNumberTextField("Daytime phone number", $prefix."ldp", false, "", 20);
+		$this->work_phone = new PhoneNumberTextField("Evening phone number", $prefix."lep", false, "", 20);
+        $this->mobile_phone = new PhoneNumberTextField("Evening phone number", $prefix."lep", false, "", 20);
 		$this->email = new EmailTextField("Email", $prefix."lem", false, "", 200);
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
 		$this->latitude = new FloatTextField("Latitude", "stlt", false);

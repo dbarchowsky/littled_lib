@@ -773,31 +773,31 @@ class AddressTest extends ContentValidationTestCase
 		$this->address->state_id->setAsNotRequired();
 		$this->address->zip->setAsNotRequired();
 
-		$this->address->day_phone->setAsNotRequired();
-		$this->address->day_phone->value = "";
+		$this->address->home_phone->setAsNotRequired();
+		$this->address->home_phone->value = "";
 
 		// test no validation error thrown on default data
 		$this->assertNull($this->address->validateInput());
 
 		// test bad format for non-required phone field
-		$this->address->day_phone->value = "abc123";
+		$this->address->home_phone->value = "abc123";
 		$this->assertContentValidationException($this->address);
 
 		// test good format for non-required phone field
-		$this->address->day_phone->value = "763 987 6754";
+		$this->address->home_phone->value = "763 987 6754";
 		$this->assertNull($this->address->validateInput());
 
 		// test missing required field
-		$this->address->day_phone->setAsRequired();;
-		$this->address->day_phone->value = "";
+		$this->address->home_phone->setAsRequired();;
+		$this->address->home_phone->value = "";
 		$this->assertContentValidationException($this->address);
 
 		// test bad format for required phone field
-		$this->address->day_phone->value = "678 8765 323";
+		$this->address->home_phone->value = "678 8765 323";
 		$this->assertContentValidationException($this->address);
 
 		// test good format for required phone field
-		$this->address->day_phone->value = "763.987.6754";
+		$this->address->home_phone->value = "763.987.6754";
 		$this->assertNull($this->address->validateInput());
 	}
 
