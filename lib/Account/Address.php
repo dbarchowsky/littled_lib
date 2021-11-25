@@ -75,8 +75,8 @@ class Address extends SerializedContent
 	public $city;
 	/** @var IntegerSelect $state_id */
 	public $state_id;
-	/** @var StringTextField $province */
-	public $province;
+	/** @var StringTextField $state */
+	public $state;
 	/** @var StringTextField $zip */
 	public $zip;
 	/** @var StringTextField $country */
@@ -93,8 +93,6 @@ class Address extends SerializedContent
 	public $latitude;
 	/** @var FloatTextField $longitude */
 	public $longitude;
-	/** @var string $state Full state name. */
-	public $state;
 	/** @var string $state_abbrev Abbreviated state name. */
 	public $state_abbrev;
 	/** @var string $fullname Combined first and last name. */
@@ -117,7 +115,7 @@ class Address extends SerializedContent
 		$this->address2 = new StringTextField("Street", "{$prefix}ads2", false, "", 100);
 		$this->city = new StringTextField("City", "{$prefix}adct", true, "", 50);
 		$this->state_id = new IntegerSelect("State", "{$prefix}adst", true);
-		$this->province = new StringTextField("Province", "{$prefix}adpv", false, "", 50);
+		$this->state = new StringTextField("Province", "{$prefix}adpv", false, "", 50);
 		$this->zip = new StringTextField("Zip Code", "{$prefix}adzc", true, "", 20);
 		$this->country = new StringTextField("Country", "{$prefix}adcn", false, "", 100);
 		$this->day_phone = new PhoneNumberTextField("Daytime phone number", $prefix."ldp", false, "", 20);
@@ -126,7 +124,6 @@ class Address extends SerializedContent
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
 		$this->latitude = new FloatTextField("Latitude", "stlt", false);
 		$this->longitude = new FloatTextField("Longitude", "stlg", false);
-		$this->state = "";
 		$this->state_abbrev = "";
 		$this->fullname = "";
 	}
