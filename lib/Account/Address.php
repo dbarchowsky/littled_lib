@@ -175,12 +175,12 @@ class Address extends SerializedContent
 	 */
 	public function formatCity(): string
 	{
-		$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state;
-		$city_parts = array_filter(array(trim(''.$this->city->value),
+		$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state->safeValue();
+		$city_parts = array_filter(array(trim(''.$this->city->safeValue()),
 			trim(''.$state),
-			trim(''.$this->country->value)));
+			trim(''.$this->country->safeValue())));
 		$city = join(', ', $city_parts);
-		$parts = array_filter(array($city, trim(''.$this->zip->value)));
+		$parts = array_filter(array($city, trim(''.$this->zip->safeValue())));
 		return join(' ', $parts);
 	}
 
@@ -259,14 +259,15 @@ class Address extends SerializedContent
      */
     public function formatOneLineAddress(): string
     {
-        $address = $this->appendSeparator(''.$this->address1->value).
-            $this->appendSeparator(''.$this->address2->value).
-            $this->city->value;
-        if ($this->state_abbrev || $this->state) {
+        $address = $this->appendSeparator(''.$this->address1->safeValue()).
+            $this->appendSeparator(''.$this->address2->safeValue()).
+            $this->city->safeValue();
+        if ($this->state_abbrev || $this->state->safeValue()) {
             if ($this->state_abbrev) {
                 $address .= $this->prependSeparator($this->state_abbrev);
-            } elseif ($this->state) {
-                $address .= $this->prependSeparator($this->state);
+            }
+			elseif ($this->state->safeValue()) {
+                $address .= $this->prependSeparator($this->state->safeValue());
             }
         }
         else
@@ -370,7 +371,7 @@ class Address extends SerializedContent
         {
             $this->readStateProperties();
         }
-        $addr = $this->city->value.", ".$this->state;
+        $addr = $this->city->value.", ".$this->state->value;
         if ($this->address1->value)
         {
             $addr = $this->address1->value.", ".$addr;
@@ -468,7 +469,7 @@ class Address extends SerializedContent
         $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = {$this->state_id->value}";
         $rs = $this->fetchRecords($query);
         if (count($rs) > 0) {
-            list($this->state, $this->state_abbrev) = array_values((array)$rs[0]);
+            list($this->state->value, $this->state_abbrev) = array_values((array)$rs[0]);
         }
         else {
         	throw new RecordNotFoundException("Requested state properties not found.");
