@@ -116,11 +116,11 @@ class AddressTest extends ContentValidationTestCase
 	    $this->address->city->value = "Baltimore";
 	    self::assertEquals("{$this->address->city->value}", $this->address->formatCity());
 
-	    $this->address->state = "Maryland";
-	    self::assertEquals("{$this->address->city->value}, {$this->address->state}", $this->address->formatCity());
+	    $this->address->state->setInputValue("Maryland");
+	    self::assertEquals("{$this->address->city->value}, {$this->address->state->value}", $this->address->formatCity());
 
-	    $this->address->country->value = "USA";
-	    $expected = "{$this->address->city->value}, {$this->address->state}, {$this->address->country->value}";
+	    $this->address->country->setInputValue("USA");
+	    $expected = "{$this->address->city->value}, {$this->address->state->value}, {$this->address->country->value}";
 	    self::assertEquals($expected, $this->address->formatCity());
 
 	    $this->address->state_abbrev = "MD";
@@ -128,7 +128,7 @@ class AddressTest extends ContentValidationTestCase
 	    self::assertEquals($expected, $this->address->formatCity());
 
 	    $this->address->city->value = "Paris";
-	    $this->address->state = "";
+	    $this->address->state->setInputValue("");
 	    $this->address->state_abbrev = "";
 	    $this->address->country->value = "FRANCE";
 	    $expected = "{$this->address->city->value}, {$this->address->country->value}";
@@ -142,9 +142,9 @@ class AddressTest extends ContentValidationTestCase
 		$this->address->city->value = '';
 	    self::assertEquals($this->address->country->value, $this->address->formatCity());
 
-	    $this->address->state = 'Oklahoma';
+	    $this->address->state->setInputValue('Oklahoma');
 	    $this->address->country->value = '';
-	    self::assertEquals($this->address->state, $this->address->formatCity());
+	    self::assertEquals($this->address->state->value, $this->address->formatCity());
 
 	    $this->address->state_abbrev = 'OK';
 	    self::assertEquals($this->address->state_abbrev, $this->address->formatCity());
@@ -155,19 +155,19 @@ class AddressTest extends ContentValidationTestCase
 	    self::assertEquals('', $this->address->formatCity());
 
     	$this->address->city->value = null;
-	    $this->address->state = null;
+	    $this->address->state->value = null;
 	    $this->address->country->value = null;
 	    $this->address->zip->value = null;
 	    self::assertEquals('', $this->address->formatCity());
 
 	    $this->address->city->value = '';
-	    $this->address->state = '';
+	    $this->address->state->value = '';
 	    $this->address->country->value = '';
 	    $this->address->zip->value = '';
 	    self::assertEquals('', $this->address->formatCity());
 
 	    $this->address->city->value = ' ';
-	    $this->address->state = ' ';
+	    $this->address->state->value = ' ';
 	    $this->address->country->value = ' ';
 	    $this->address->zip->value = ' ';
 	    self::assertEquals('', $this->address->formatCity());
@@ -190,7 +190,7 @@ class AddressTest extends ContentValidationTestCase
         $this->address->state_abbrev = '';
         self::assertEquals('10956 SE Main Street, Milwaukee, Oregon 97222', $this->address->formatOneLineAddress());
 
-        $this->address->state = '';
+        $this->address->state->value = '';
         self::assertEquals('10956 SE Main Street, Milwaukee 97222', $this->address->formatOneLineAddress());
 
         $this->address->zip->value = '';
@@ -200,7 +200,7 @@ class AddressTest extends ContentValidationTestCase
         $this->address->zip->value = '99999';
         self::assertEquals('10956 SE Main Street 99999', $this->address->formatOneLineAddress());
 
-        $this->address->state = null;
+        $this->address->state->value = null;
         $this->address->city->value = null;
         self::assertEquals('10956 SE Main Street 99999', $this->address->formatOneLineAddress());
 
@@ -211,7 +211,7 @@ class AddressTest extends ContentValidationTestCase
 
         $this->address->address1->value = '123 Some Lane';
         $this->address->city->value = 'London';
-        $this->address->state = '';
+        $this->address->state->value = '';
         $this->address->state_abbrev = '';
         $this->address->country->value = 'UK';
         self::assertEquals('123 Some Lane, London, UK 99999', $this->address->formatOneLineAddress());
@@ -238,7 +238,7 @@ class AddressTest extends ContentValidationTestCase
         $this->address->state_abbrev = '';
         self::assertEquals('10956+SE+Main+Street%2C+Milwaukee%2C+Oregon+97222', $this->address->formatGoogleAddress());
 
-        $this->address->state = '';
+        $this->address->state->value = '';
         self::assertEquals('10956+SE+Main+Street%2C+Milwaukee+97222', $this->address->formatGoogleAddress());
 
         $this->address->zip->value = '';
@@ -248,7 +248,7 @@ class AddressTest extends ContentValidationTestCase
         $this->address->zip->value = '99999';
         self::assertEquals('10956+SE+Main+Street+99999', $this->address->formatGoogleAddress());
 
-        $this->address->state = null;
+        $this->address->state->value = null;
         $this->address->city->value = null;
         self::assertEquals('10956+SE+Main+Street+99999', $this->address->formatGoogleAddress());
 
@@ -532,7 +532,7 @@ class AddressTest extends ContentValidationTestCase
         $this->address->read();
 
         $this->assertEquals(AddressTest::TEST_LAST_NAME_VALUE, $this->address->last_name->value);
-        $this->assertEquals(AddressTest::TEST_STATE_VALUE, $this->address->state);
+        $this->assertEquals(AddressTest::TEST_STATE_VALUE, $this->address->state->value);
         $this->assertEquals(AddressTest::TEST_STATE_ABBREV_VALUE, $this->address->state_abbrev);
     }
 
@@ -557,12 +557,12 @@ class AddressTest extends ContentValidationTestCase
      */
     public function testReadStateProperties()
     {
-    	$this->assertEquals('', $this->address->state);
+    	$this->assertEquals('', $this->address->state->value);
 	    $this->assertEquals('', $this->address->state_abbrev);
 
 	    $this->address->state_id->value = $this::TEST_STATE_ID;
 	    $this->address->readStateProperties();
-	    $this->assertEquals('California', $this->address->state);
+	    $this->assertEquals('California', $this->address->state->safeValue());
 	    $this->assertEquals('CA', $this->address->state_abbrev);
 
 	    /* Test non-existent state */
@@ -788,7 +788,7 @@ class AddressTest extends ContentValidationTestCase
 		$this->assertNull($this->address->validateInput());
 
 		// test missing required field
-		$this->address->home_phone->setAsRequired();;
+		$this->address->home_phone->setAsRequired();
 		$this->address->home_phone->value = "";
 		$this->assertContentValidationException($this->address);
 
