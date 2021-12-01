@@ -11,10 +11,19 @@ use Littled\Exception\ContentValidationException;
 
 class BooleanInputTest extends ContentValidationTestCase
 {
+    /** @var BooleanInput */
+    public $o;
+
     function setUp(): void
     {
         parent::setUp();
         RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
+    }
+
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+        $this->o = new BooleanInput('Test Input Label', 'testKey');
     }
 
     /**
@@ -123,7 +132,23 @@ class BooleanInputTest extends ContentValidationTestCase
         $o->saveInForm();
     }
 
-	/**
+    /**
+     * @throws ContentValidationException
+     */
+    public function testSetValue()
+    {
+        // test that the unprocessed value will throw a validation error due to the fact that it is in string format
+        $this->o->value = '0';
+        $this->assertContentValidationException($this->o);
+        $this->o->clearValidationErrors();
+
+        // setInputValue() should convert the string into a boolean value
+        $this->o->setInputValue($this->o->value);
+        $this->o->validate();
+        $this->assertFalse($this->o->hasErrors);
+    }
+
+    /**
 	 * @throws ContentValidationException
 	 */
 	public function testValidate()

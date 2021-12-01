@@ -502,6 +502,15 @@ class RequestInput
         static::$template_filename = $filename;
     }
 
+    /**
+     * Clears any error properties of the object.
+     */
+    public function clearValidationErrors()
+    {
+        $this->hasErrors = false;
+        $this->error = '';
+    }
+
 	/**
 	 * Utility routine for standardized invalid content error handling.
 	 * @param string $err Error message

@@ -35,6 +35,17 @@ class RequestInputTest extends TestCase
 		$this->obj = new RequestInput("Test", "test_param");
 	}
 
+    public function testClearValidationErrors()
+    {
+        $this->obj->hasErrors = true;
+        $this->obj->error = 'Some error message.';
+        $this->assertTrue($this->obj->hasErrors);
+
+        $this->obj->clearValidationErrors();
+        $this->assertFalse($this->obj->hasErrors);
+        $this->assertEquals('', $this->obj->error);
+    }
+
 	public function testClearValue()
 	{
 		$this->obj->clearValue();
