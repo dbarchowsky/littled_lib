@@ -51,7 +51,18 @@ class IntegerInput extends RequestInput
 		return ($mysqli->real_escape_string($value));
 	}
 
-	/**
+    /**
+     * {@inheritDoc}
+     */
+    public function safeValue(?int $options = null): string
+    {
+        if (!is_numeric($this->value)) {
+            return ('');
+        }
+        return parent::safeValue($options);
+    }
+
+    /**
 	 * @param int $value Value to assign as the value of the object.
 	 */
 	public function setInputValue($value)
