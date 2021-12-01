@@ -2,14 +2,14 @@
 namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
+use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use mysqli;
 use Exception;
 use Littled\Request\RequestInput;
 use Littled\Request\BooleanInput;
 use Littled\Exception\ContentValidationException;
-use PHPUnit\Framework\TestCase;
 
-class BooleanInputTest extends TestCase
+class BooleanInputTest extends ContentValidationTestCase
 {
     function setUp(): void
     {
@@ -149,6 +149,24 @@ class BooleanInputTest extends TestCase
 		$o->value = null;
 		$o->validate();
 		$this->assertFalse($o->hasErrors);
+
+        // strings are not valid values
+        $o->required = false;
+        $o->value = 'some string value';
+        $this->assertContentValidationException($o);
+        $o->hasErrors = false;
+
+        // any string, even if it contains 0, 1, "false", 1, or "true", is not a valid value
+        $o->required = false;
+        $o->value = '0';
+        $this->assertContentValidationException($o);
+        $o->hasErrors = false;
+
+        // any string, even if it contains 0, 1, "false", 1, or "true", is not a valid value
+        $o->required = false;
+        $o->value = 'true';
+        $this->assertContentValidationException($o);
+        $o->hasErrors = false;
 
 		$o->required = true;
 		$o->value = true;

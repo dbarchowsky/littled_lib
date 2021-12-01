@@ -246,20 +246,20 @@ class Validation
 	 * Returns FALSE only if the value evaluates to some string that equates with a "false" flag.
 	 * Returns NULL if the value doesn't make sense in a TRUE/FALSE context.
 	 * @param mixed $value Value to test.
-	 * @return TRUE, FALSE, or NULL
+	 * @return ?bool TRUE, FALSE, or NULL
 	 */
-	public static function parseBoolean( $value )
+	public static function parseBoolean( $value ): ?bool
 	{
 		if (is_bool($value)) {
 			return ($value);
 		}
 		if ($value === 1 || $value === "1" || $value === "true" || $value === "on") {
-			return (true);
+			return true;
 		}
 		if ($value === 0 || $value == "0" || $value === "false" || $value === "off") {
-			return (false);
+			return false;
 		}
-		return (null);
+		return null;
 	}
 
 	/**

@@ -38,7 +38,7 @@ class RequestInputTest extends TestCase
 	public function testClearValue()
 	{
 		$this->obj->clearValue();
-		self::assertNull($this->obj->value);
+		$this->assertNull($this->obj->value);
 	}
 
 	public function testEscapeSQL()
@@ -55,19 +55,19 @@ class RequestInputTest extends TestCase
 	public function testFormatErrorLabel()
 	{
 		$this->obj->label = null;
-		self::assertEquals('', $this->obj->formatErrorLabel());
+		$this->assertEquals('', $this->obj->formatErrorLabel());
 
 		$this->obj->label = '';
-		self::assertEquals('', $this->obj->formatErrorLabel());
+		$this->assertEquals('', $this->obj->formatErrorLabel());
 
 		$this->obj->label = 'all lower case';
-		self::assertEquals('All lower case', $this->obj->formatErrorLabel());
+		$this->assertEquals('All lower case', $this->obj->formatErrorLabel());
 
 		$this->obj->label = 'ALL UPPER CASE';
-		self::assertEquals('All upper case', $this->obj->formatErrorLabel());
+		$this->assertEquals('All upper case', $this->obj->formatErrorLabel());
 
 		$this->obj->label = 'Mixed Case';
-		self::assertEquals('Mixed case', $this->obj->formatErrorLabel());
+		$this->assertEquals('Mixed case', $this->obj->formatErrorLabel());
 	}
 
     public function testFormatIndexMarkup()
@@ -86,34 +86,34 @@ class RequestInputTest extends TestCase
 
 	public function testIsEmpty()
 	{
-		self::assertTrue($this->obj->isEmpty());
+		$this->assertTrue($this->obj->isEmpty());
 
 		$this->obj->value = '';
-		self::assertTrue($this->obj->isEmpty());
+		$this->assertTrue($this->obj->isEmpty());
 
 		$this->obj->value = ' ';
-		self::assertTrue($this->obj->isEmpty());
+		$this->assertTrue($this->obj->isEmpty());
 
 		$this->obj->value = 1;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 
 		$this->obj->value = 0;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 
 		$this->obj->value = 16;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 
 		$this->obj->value = 16.23;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 
 		$this->obj->value = -8;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 
 		$this->obj->value = false;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 
 		$this->obj->value = true;
-		self::assertFalse($this->obj->isEmpty());
+		$this->assertFalse($this->obj->isEmpty());
 	}
 
     public function testSaveInForm()
