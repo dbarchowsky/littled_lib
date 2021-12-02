@@ -72,7 +72,7 @@ class AppBase
 	 */
 	public static function redirectToErrorPage(string $error_msg, string $url, string $key)
 	{
-		header("Location: $url?$key='".urlencode($error_msg));
+		header("Location: $url?$key=".urlencode($error_msg));
 	}
 
 	/**
