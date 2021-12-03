@@ -1,8 +1,8 @@
 <?php
 namespace Littled\Database;
 
-
 use Littled\Exception\InvalidQueryException;
+use Exception;
 
 /**
  * Class DBUtils
@@ -11,12 +11,21 @@ use Littled\Exception\InvalidQueryException;
 class DBUtils
 {
 	/**
+	 * @param int|null $timestamp
+	 * @return string
+	 */
+    public static function formatSqlDate(?int $timestamp=null): string
+    {
+        return (date('Y-m-d H:i:s', $timestamp));
+    }
+
+	/**
 	 * Fills $arOptions array with name/value pairs retrieved using the supplied SQL SELECT query.
 	 * @param string $query SQL SELECT query used to retrieve name/value array.
 	 * @param array $options Function will fill this array with name/value pairs to be used in option list.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
-	public static function retrieveOptionsList ($query, &$options )
+	public static function retrieveOptionsList (string $query, array &$options )
 	{
 		$conn = new MySQLConnection();
 
@@ -31,12 +40,12 @@ class DBUtils
 	 * @param string $table_name Name of table containing the ENUM column.
 	 * @param string $column Name of the ENUM column.
 	 * @return array Array containing all the possible values as name/value pairs.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
-	public static function getEnumOptions($table_name, $column )
+	public static function getEnumOptions(string $table_name, string $column ): array
 	{
 		$conn = new MySQLConnection();
-		$query = "SHOW COLUMNS FROM `{$table_name}` LIKE '{$column}'";
+		$query = "SHOW COLUMNS FROM `$table_name` LIKE '$column'";
 		$data = $conn->fetchRecords($query);
 		if (count($data) < 1) {
 			return(array());
@@ -57,7 +66,7 @@ class DBUtils
 	 * @param string $query SQL SELECT statement
 	 * @param array $selected_options Array containing the values of any selected options.
 	 */
-	public static function displayQueryOptions( $query, $selected_options )
+	public static function displayQueryOptions(string $query, array $selected_options )
 	{
 		try
 		{
@@ -66,12 +75,12 @@ class DBUtils
 			/** TODO referencing the row elements by index might not work below. */
 			foreach($data as $row): ?>
 				<option value="<?=$row[0] ?>"<?=((in_array($row[0], $selected_options))?(" selected=\"selected\""):("")) ?>><?=$row[1] ?></option>
-			<?php endforeach;
+<?php endforeach;
 		}
-		catch(\Exception $ex) {
-			?>
+		catch(Exception $ex) {
+?>
 			<option value="" disabled="disabled" style="background-color:#ff0000;color:#ffffff;font-weight:bold;">Error retrieving options: <?=$ex->getMessage()?></option>
-			<?php
+<?php
 		}
 	}
 
@@ -81,7 +90,7 @@ class DBUtils
 	 * @param array $options Array containing name/value pairs.
 	 * @param array $selected_options Array containing the values of any selected options.
 	 */
-	public static function displayCachedOptions( $options, $selected_options )
+	public static function displayCachedOptions(array $options, array $selected_options )
 	{
 		?>
 		<?php foreach($options as $key => $val): ?>
@@ -92,12 +101,12 @@ class DBUtils
 
 
 	/**
-	 * Prints out all of the possible values from an ENUM column in the database as a series of HTML option tags.
+	 * Prints out all the possible values from an ENUM column in the database as a series of HTML option tags.
 	 * @param string $table_name Name of the table containing the ENUM column.
 	 * @param string $column Name of the ENUM column.
 	 * @param array $selected_options Array containing the values of any selected options.
 	 */
-	public static function displayEnumOptions( $table_name, $column, $selected_options )
+	public static function displayEnumOptions(string $table_name, string $column, array $selected_options )
 	{
 		try {
 			$arOptions = DBUtils::getEnumOptions($table_name, $column);
@@ -113,9 +122,9 @@ class DBUtils
 	 * Runs supplied SQL SELECT statement to retrieve recordset. Fills supplied array with the first value in each row of the recordset (all other values in the row are ignored).
 	 * @param string $query SQL SELECT query.
 	 * @param array $buffer Array where the results will be stored.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
-	public static function fillArrayFromQuery ($query, &$buffer)
+	public static function fillArrayFromQuery (string $query, array &$buffer)
 	{
 		$conn = new MySQLConnection();
 		$data = $conn->fetchRecords($query);
@@ -127,12 +136,12 @@ class DBUtils
 
 
 	/**
-	 * returns string containing values returned by database query formated as a javascript array
+	 * returns string containing values returned by database query formatted as a javascript array
 	 * @param string $query MySQL query to run to retrieve values
 	 * @return string database values formatted as a javascript array
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
-	public static function formatQueryJavascriptArray( $query )
+	public static function formatQueryJavascriptArray(string $query ): string
 	{
 		$conn = new MySQLConnection();
 		$tmp = array();
