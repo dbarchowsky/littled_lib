@@ -19,7 +19,7 @@ class MySQLConnection extends AppBase
 {
 	const DEFAULT_MYSQL_PORT = '3306';
 
-	/** @var mysqli MySQLi connection to server. */
+	/** @var mysqli Connection to database server. */
 	protected $mysqli;
 
 	/**
@@ -58,7 +58,7 @@ class MySQLConnection extends AppBase
 		return ($has_rows);
 	}
 
-	/**
+    /**
 	 * Returns the latest connection error reported by mysqli.
 	 * @return string Internal mysqli connection error string, or null if there are no errors.
 	 */
@@ -92,14 +92,14 @@ class MySQLConnection extends AppBase
 	 * Can be chained with other MySQLConnection methods.
 	 * @return $this
 	 * @param string $host Name of MySQL host.
-	 * @param string $user User name for connecting to MySQL server.
+	 * @param string $user Username for connecting to MySQL server.
 	 * @param string $password Password for connecting to MySQL server.
 	 * @param string $schema Name of schema.
 	 * @param string $port Port number of MySQL server if not using default.
 	 * @throws ConnectionException On connection error.
 	 * @throws ConfigurationUndefinedException Database connection properties not set.
 	 */
-	public function connectToDatabase($host='', $user='', $password='', $schema='', $port=''): MySQLConnection
+	public function connectToDatabase(string $host='', string $user='', string $password='', string $schema='', string $port=''): MySQLConnection
 	{
 		if (!is_object($this->mysqli)) {
 			try {
@@ -236,7 +236,7 @@ class MySQLConnection extends AppBase
 	 * @return DBConnectionSettings Initialized object containing database properties
 	 * @throws ConfigurationUndefinedException
 	 */
-	protected static function getConnectionSettings($host='', $user='', $password='', $schema='', $port=''): object
+	protected static function getConnectionSettings(string $host='', string $user='', string $password='', string $schema='', string $port=''): object
 	{
 		return new DBConnectionSettings(
 			$host ?: self::getAppSetting('MYSQL_HOST'),
@@ -257,7 +257,7 @@ class MySQLConnection extends AppBase
 	 * @return mysqli
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getMysqli($host='', $user='', $password='', $schema='', $port=''): mysqli
+	public static function getMysqli(string $host='', string $user='', string $password='', string $schema='', string $port=''): mysqli
 	{
 		$c = MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port);
 		return(new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
@@ -290,7 +290,7 @@ class MySQLConnection extends AppBase
 			$this->mysqli->next_result();
 			if ($result = $this->mysqli->store_result()) {
 				while ($result->fetch_row()) {
-					continue;
+                    continue;
 				}
 				$result->free();
 			}

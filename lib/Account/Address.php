@@ -86,9 +86,13 @@ class Address extends SerializedContent
 	/** @var PhoneNumberTextField */
 	public $work_phone;
     /** @var PhoneNumberTextField */
+    public $fax;
+    /** @var PhoneNumberTextField */
     public $mobile_phone;
 	/** @var EmailTextField */
 	public $email;
+    /** @var StringTextField */
+    public $title;
 	/** @var StringTextField */
 	public $url;
 	/** @var FloatTextField */
@@ -123,7 +127,9 @@ class Address extends SerializedContent
 		$this->home_phone = new PhoneNumberTextField("Daytime phone number", $prefix."ldp", false, "", 20);
 		$this->work_phone = new PhoneNumberTextField("Evening phone number", $prefix."lep", false, "", 20);
         $this->mobile_phone = new PhoneNumberTextField("Evening phone number", $prefix."lep", false, "", 20);
-		$this->email = new EmailTextField("Email", $prefix."lem", false, "", 200);
+        $this->fax = new PhoneNumberTextField("Fax number", $prefix."fax", false, "", 20);
+        $this->email = new EmailTextField("Email", $prefix."lem", false, "", 200);
+        $this->title = new EmailTextField("Title", $prefix."ttl", false, "", 50);
 		$this->url = new StringTextField("URL", $prefix."lur", false, "", 255);
 		$this->latitude = new FloatTextField("Latitude", "stlt", false);
 		$this->longitude = new FloatTextField("Longitude", "stlg", false);
@@ -226,22 +232,18 @@ class Address extends SerializedContent
     public function formatHTMLAddress(bool $include_name=false): string
     {
         $parts = array();
-        if ($include_name==true)
-        {
+        if ($include_name==true) {
         	array_push($parts, $this->formatFullName());
         	array_push($parts, trim(''.$this->company->value));
         }
         array_push($parts, trim(''.$this->address1->value));
         array_push($parts, trim(''.$this->address2->value));
 
-        if ($this->state_id->value>0 && !$this->state)
-        {
-            try
-            {
+        if ($this->state_id->value>0 && !$this->state) {
+            try {
                 $this->readStateProperties();
             }
-            catch (Exception $ex)
-            {
+            catch (Exception $ex) {
                 /* continue */
             }
         }
@@ -270,8 +272,7 @@ class Address extends SerializedContent
                 $address .= $this->prependSeparator($this->state->safeValue());
             }
         }
-        else
-        {
+        else {
             $address = preg_replace('/, $/', '', $address).$this->prependSeparator($this->country->value);
         }
         $address = preg_replace('/, $/', '', $address).$this->prependSeparator($this->zip->value, '');
@@ -287,12 +288,46 @@ class Address extends SerializedContent
     {
     	$parts = array_filter(array(trim(''.$this->address1->value),
 		    trim(''.$this->address2->value)));
-    	$addr = join(', ', $parts);
-        if ($limit>0)
-        {
-            return(substr($addr, 0, $limit));
+    	$address = join(', ', $parts);
+        if ($limit>0) {
+            return(substr($address, 0, $limit));
         }
-        return ($addr);
+        return ($address);
+    }
+
+    /**
+     * Returns a query to use to store the current object property values in the database.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     */
+    public function generateUpdateQuery(): string
+    {
+        $this->connectToDatabase();
+        return ("SET @address_id = ".(($this->id->value===null)?("null"):($this->id->escapeSQL($this->mysqli))).";".
+            "CALL addressUpdate(".
+            "@address_id".
+            ",".$this->salutation->escapeSQL($this->mysqli).
+            ",".$this->first_name->escapeSQL($this->mysqli).
+            ",".$this->last_name->escapeSQL($this->mysqli).
+            ",".$this->address1->escapeSQL($this->mysqli).
+            ",".$this->address2->escapeSQL($this->mysqli).
+            ",".$this->city->escapeSQL($this->mysqli).
+            ",".$this->state_id->escapeSQL($this->mysqli).
+            ",".$this->state->escapeSQL($this->mysqli).
+            ",".$this->zip->escapeSQL($this->mysqli).
+            ",".$this->country->escapeSQL($this->mysqli).
+            ",".$this->home_phone->escapeSQL($this->mysqli).
+            ",".$this->work_phone->escapeSQL($this->mysqli).
+            ",".$this->fax->escapeSQL($this->mysqli).
+            ",".$this->email->escapeSQL($this->mysqli).
+            ",".$this->company->escapeSQL($this->mysqli).
+            ",".$this->title->escapeSQL($this->mysqli).
+            ",".$this->location->escapeSQL($this->mysqli).
+            ",".$this->url->escapeSQL($this->mysqli).
+            ",".$this->latitude->escapeSQL($this->mysqli).
+            ",".$this->longitude->escapeSQL($this->mysqli).
+            ");SELECT @address_id AS _p_address_id;");
     }
 
     /**
@@ -367,35 +402,28 @@ class Address extends SerializedContent
         $this->longitude->value = "0";
         $this->latitude->value = "0";
 
-        if (!$this->state)
-        {
+        if (!$this->state) {
             $this->readStateProperties();
         }
-        $addr = $this->city->value.", ".$this->state->value;
-        if ($this->address1->value)
-        {
-            $addr = $this->address1->value.", ".$addr;
+        $address = $this->city->value.", ".$this->state->value;
+        if ($this->address1->value) {
+            $address = $this->address1->value.", ".$address;
         }
 
         $xml = new DOMDocument();
-        if ($xml->load(self::GOOGLE_MAPS_URI().urlencode($addr)))
-        {
+        if ($xml->load(self::GOOGLE_MAPS_URI().urlencode($address))) {
             $nl = $xml->getElementsByTagName("coordinates");
-            if ($nl->length>=0 && is_object($nl->item(0)))
-            {
+            if ($nl->length>=0 && is_object($nl->item(0))) {
                 $n = $nl->item(0)->firstChild;
-                if ($n)
-                {
+                if ($n) {
                     list($this->longitude->value, $this->latitude->value) = explode(',', $n->nodeValue);
                 }
-                else
-                {
+                else {
                     unset($xml);
                     return(false);
                 }
             }
-            else
-            {
+            else {
                 unset($xml);
                 return (false);
             }
@@ -411,8 +439,7 @@ class Address extends SerializedContent
     {
         $query = "SEL"."ECT latitude, longitude FROM `zips` WHERE zipcode = ".$this->zip->escapeSQL($this->mysqli);
         $rs = $this->fetchRecords($query);
-        if (count($rs) > 0)
-        {
+        if (count($rs) > 0) {
             list($this->longitude->value, $this->latitude->value) = $rs[0];
         }
     }
@@ -487,7 +514,8 @@ class Address extends SerializedContent
             /* translate street address into longitude and latitude */
             $this->lookupMapPosition();
         }
-        parent::save();
+        $query = $this->generateUpdateQuery();
+        $this->query($query);
 	}
 
     /**
@@ -537,22 +565,19 @@ class Address extends SerializedContent
 	 */
 	public function validateUniqueEmail()
 	{
-		if ($this->email->value)
-		{
+		if ($this->email->value) {
 			$this->connectToDatabase();
 			$query = "SELECT c.email ".
 				"FROM `address` c ".
 				"INNER JOIN site_user l on c.id = l.contact_id ".
 				"WHERE (c.email LIKE ".$this->email->escapeSQL($this->mysqli).") ";
-			if ($this->id->value>0)
-			{
+			if ($this->id->value>0) {
 				$query .= "AND (l.id != {$this->id->value}) ";
 			}
 			$rs = $this->fetchRecords($query);
 			$matches = count($rs);
 
-			if ($matches>0)
-			{
+			if ($matches>0) {
 				$this->email->error = true;
 				$err_msg = "The email address \"{$this->email->value}\" has already been registered.";
 				$this->addValidationError($err_msg);

@@ -15,7 +15,6 @@ use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Exception;
 
-
 /**
  * Class SerializedContentUtils
  * @package Littled\PageContent\Serialized

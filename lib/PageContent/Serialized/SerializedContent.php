@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -11,6 +10,8 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\RequestInput;
 use Littled\Request\IntegerInput;
+use Exception;
+use mysqli_result;
 
 class SerializedContent extends SerializedContentValidation
 {
@@ -69,7 +70,33 @@ class SerializedContent extends SerializedContentValidation
 		return(parent::columnExists($column_name, $table_name));
 	}
 
-	/**
+    /**
+     * Execute query that will commit object properties to the database.
+     * @param string $query
+     * @param string $content_type (Optional) label to use to describe the content that was being saved in the case of
+     * database errors.
+     * @throws Exception
+     */
+    protected function commitSaveQuery(string $query, string $content_type)
+    {
+        if (!$this->mysqli->multi_query($query)) {
+            /* N.B. MySQL errors thrown from SQL statements embedded in the
+             * multi query won't necessarily because mysqli->multi_query() to
+             * return false. E.g. errors in the stored proc b/c it isn't the
+             * first SQL statement executed.
+             */
+            throw new Exception((($content_type)?("Error saving $content_type: "):('')).$this->mysqli->error);
+        }
+        do {
+            $result = $this->mysqli->store_result();
+            if ($result) {
+                $this->updateIdAfterCommit($result);
+                $result->close();
+            }
+        } while ($this->mysqli->next_result());
+    }
+
+    /**
 	 * Deletes the record from the database. Uses the value object's id property to look up the record.
 	 * @return string Message indicating result of the deletion.
 	 * @throws ContentValidationException Record id not provided.
@@ -323,4 +350,19 @@ class SerializedContent extends SerializedContentValidation
 			throw new ContentValidationException("Could not perform operation. A parent record was not provided.");
 		}
 	}
+
+    /**
+     * Update the internal id property value after committing object property
+     * values to the database.
+     * @param mysqli_result $result
+     */
+    protected function updateIdAfterCommit(mysqli_result $result)
+    {
+        if ($this->id->value===null) {
+            $row = $result->fetch_assoc();
+            if (is_array($row) && array_key_exists('_p_record_id', $row)) {
+                $this->id->value = $row['_p_record_id'];
+            }
+        }
+    }
 }
