@@ -642,6 +642,10 @@ class AddressTest extends ContentValidationTestCase
      */
     public function testSaveNewRecord()
     {
+		$query = "SELECT MAX(`id`) AS `max_id` FROM `address`;";
+		$result = $this->address->fetchRecords($query);
+		$max_id = $result[0]->max_id;
+
     	$this->address->first_name->value = 'Damien';
     	$this->address->last_name->value = 'Barchowsky';
     	$this->address->address1->value = '122 N Rose St';
@@ -650,7 +654,7 @@ class AddressTest extends ContentValidationTestCase
     	$this->address->zip->value = '91505';
     	$this->address->save();
 
-    	$this->assertNotNull($this->address->id->value);
+    	$this->assertEquals(($max_id+1), $this->address->id->value);
 
     	$new_address = new Address();
     	$new_address->id->value = $this->address->id->value;

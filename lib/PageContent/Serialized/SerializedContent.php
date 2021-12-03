@@ -81,19 +81,21 @@ class SerializedContent extends SerializedContentValidation
     {
         if (!$this->mysqli->multi_query($query)) {
             /* N.B. MySQL errors thrown from SQL statements embedded in the
-             * multi query won't necessarily because mysqli->multi_query() to
+             * multi query won't necessarily cause mysqli->multi_query() to
              * return false. E.g. errors in the stored proc b/c it isn't the
              * first SQL statement executed.
              */
             throw new Exception((($content_type)?("Error saving $content_type: "):('')).$this->mysqli->error);
         }
         do {
-            $result = $this->mysqli->store_result();
-            if ($result) {
+            if ($result = $this->mysqli->store_result()) {
                 $this->updateIdAfterCommit($result);
                 $result->close();
             }
         } while ($this->mysqli->next_result());
+	    if ($this->mysqli->error) {
+		    throw new Exception((($content_type)?("Error saving $content_type: "):('')).$this->mysqli->error);
+	    }
     }
 
     /**

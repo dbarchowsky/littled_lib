@@ -327,7 +327,7 @@ class Address extends SerializedContent
             ",".$this->url->escapeSQL($this->mysqli).
             ",".$this->latitude->escapeSQL($this->mysqli).
             ",".$this->longitude->escapeSQL($this->mysqli).
-            ");SELECT @address_id AS _p_address_id;");
+            ");SELECT @address_id AS _p_record_id;");
     }
 
     /**
@@ -505,17 +505,22 @@ class Address extends SerializedContent
 
 	/**
 	 * Commits current object data to the database.
-	 * @param boolean[optional] $do_gmap_lookup Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
+	 * @param bool $do_gmap_lookup (Optional) Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
+	 * @param string $content_label (Optional) label describing the content type used to format error messages.
      * @throws Exception
 	 */
-	public function save($do_gmap_lookup=false)
+	public function save(bool $do_gmap_lookup=false, string $content_label="address")
 	{
+		if (!$this->hasData()) {
+			throw new Exception(ucfirst($content_label)." has nothing to save.");
+		}
+
         if ($do_gmap_lookup===true) {
             /* translate street address into longitude and latitude */
             $this->lookupMapPosition();
         }
         $query = $this->generateUpdateQuery();
-        $this->query($query);
+        $this->commitSaveQuery($query, $content_label);
 	}
 
     /**
