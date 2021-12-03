@@ -18,5 +18,8 @@ class DBUtilsTest extends TestCase
 
 		$date = strtotime('May 13, 2013 2:16 am');
 		$this->assertEquals('2013-05-13 02:16:00', DBUtils::formatSqlDate($date));
+
+		$str_date = '06/04/2008 2:05 pm';
+		$this->assertEquals('2008-06-04 14:05:00', DBUtils::formatSqlDate($str_date));
 	}
 }

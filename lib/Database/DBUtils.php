@@ -11,11 +11,14 @@ use Exception;
 class DBUtils
 {
 	/**
-	 * @param int|null $timestamp
+	 * @param $timestamp
 	 * @return string
 	 */
-    public static function formatSqlDate(?int $timestamp=null): string
+    public static function formatSqlDate($timestamp=null): string
     {
+        if ($timestamp && !is_numeric($timestamp)) {
+            $timestamp = strtotime($timestamp);
+        }
         return (date('Y-m-d H:i:s', $timestamp));
     }
 
