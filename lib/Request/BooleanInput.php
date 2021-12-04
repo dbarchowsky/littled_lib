@@ -47,7 +47,7 @@ class BooleanInput extends RequestInput
 	public function escapeSQL($mysqli, $include_quotes=false): string
 	{
         $value = $this->formatValueMarkup();
-        return ((''===$value)?('null'):($value));
+        return ((''===$value)?('NULL'):($value));
 	}
 
     /**

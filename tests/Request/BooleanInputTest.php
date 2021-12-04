@@ -43,7 +43,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		$this->assertNull($o->value);
-		$this->assertEquals("null", $o->escapeSQL($mysqli), "Defaults to 'null'");
+		$this->assertEquals("NULL", $o->escapeSQL($mysqli), "Defaults to 'null'");
 
 		$o->value = true;
 		$this->assertEquals("1", $o->escapeSQL($mysqli), "True value translates to '1'");
@@ -70,13 +70,13 @@ class BooleanInputTest extends ContentValidationTestCase
 		$this->assertEquals("0", $o->escapeSQL($mysqli), "Integer value 0 evaluates to '1'\"'");
 
 		$o->value = 45;
-		$this->assertEquals("null", $o->escapeSQL($mysqli), "Integer value other than 0 or 1 evaluates to 'null'\"'");
+		$this->assertEquals("NULL", $o->escapeSQL($mysqli), "Integer value other than 0 or 1 evaluates to 'null'\"'");
 
 		$o->value = 1.005;
-		$this->assertEquals("null", $o->escapeSQL($mysqli), "Float value evaluates to 'null'\"'");
+		$this->assertEquals("NULL", $o->escapeSQL($mysqli), "Float value evaluates to 'null'\"'");
 
 		$o->value = 'foobar';
-		$this->assertEquals("null", $o->escapeSQL($mysqli), "Arbitrary string evaluates to 'null'\"'");
+		$this->assertEquals("NULL", $o->escapeSQL($mysqli), "Arbitrary string evaluates to 'null'\"'");
 	}
 
     public function testFormatValueMarkup()
