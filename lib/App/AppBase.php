@@ -2,12 +2,13 @@
 namespace Littled\App;
 
 use Littled\Request\RequestInput;
+use Exception;
 
 class AppBase
 {
 	function __construct()
 	{
-
+        /* nothing here for now. put logic in child classes. */
 	}
 
 	/**
@@ -51,6 +52,18 @@ class AppBase
 		}
 		// $_SESSION[CSRF_AJAX_PARAM] = '12345abcde';
 	}
+
+    /**
+     * Generates unique strings to use as identifier tokens.
+     * @param int $length Number of characters in the token.
+     * @return string
+     * @throws Exception
+     */
+    public static function generateUniqueToken(int $length): string
+    {
+        $bytes = random_bytes(ceil($length/2));
+        return (substr(bin2hex($bytes), 0, $length));
+    }
 
 	/**
 	 * Returns the CSRF token for this session.
