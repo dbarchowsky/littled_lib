@@ -99,7 +99,9 @@ class DBUtils
 	}
 
     /**
-     * @param $timestamp
+     * Formats a date in a format that can be stored in a MySQl database.
+     * @param $timestamp (Optional) Time to be formatted in MySQL format. Time can be either an integer timestamp or
+     * a string date value. If no date is provided, the current time will be returned.
      * @return string
      */
     public static function formatSqlDate($timestamp=null): string
