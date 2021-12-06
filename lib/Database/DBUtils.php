@@ -109,6 +109,9 @@ class DBUtils
         if ($timestamp && !is_numeric($timestamp)) {
             $timestamp = strtotime($timestamp);
         }
+        if ($timestamp===null) {
+            $timestamp = time();
+        }
         return (date('Y-m-d H:i:s', $timestamp));
     }
 
