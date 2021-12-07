@@ -484,14 +484,13 @@ class Address extends SerializedContent
 
     /**
      * Retrieves extended state properties (name and abbreviation) from database.
-     * @throws InvalidValueException
      * @throws RecordNotFoundException
      * @throws Exception
      */
     public function readStateProperties ()
     {
         if ($this->state_id->value===null || $this->state_id->value<1) {
-            throw new InvalidValueException("Invalid state id value.");
+            return;
         }
         $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = {$this->state_id->value}";
         $rs = $this->fetchRecords($query);
