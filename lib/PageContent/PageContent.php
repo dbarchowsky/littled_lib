@@ -33,6 +33,7 @@ class PageContent
 
 	/**
 	 * PageContent constructor
+	 * @return PageContent
 	 */
 	function __construct($template_path='')
 	{
@@ -42,6 +43,7 @@ class PageContent
 		$this->templatePath = '';
 		$this->action = '';
 		$this->redirectURL = $template_path;
+		return $this;
 	}
 
 	/**
