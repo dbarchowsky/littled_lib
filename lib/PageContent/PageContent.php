@@ -3,6 +3,7 @@ namespace Littled\PageContent;
 
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
@@ -33,14 +34,14 @@ class PageContent
 	/**
 	 * PageContent constructor
 	 */
-	function __construct()
+	function __construct($template_path='')
 	{
 		$this->content = null;
 		$this->filters = null;
 		$this->qs = '';
 		$this->templatePath = '';
 		$this->action = '';
-		$this->redirectURL = '';
+		$this->redirectURL = $template_path;
 	}
 
 	/**
@@ -127,10 +128,10 @@ class PageContent
 			/** @var RequestInput $input */
 			$input->collectRequestData();
 			if ($input->value===true) {
-				array_push($qs_vars, "$input->key=1");
+				$qs_vars[] = "$input->key=1";
 			}
 			elseif(strlen($input->value) > 0) {
-				array_push($qs_vars, "$input->key=".urlencode($input->value));
+				$qs_vars[] = "$input->key=".urlencode($input->value);
 			}
 		}
 		if (count($qs_vars) > 0) {
@@ -177,6 +178,21 @@ class PageContent
 	}
 
 	/**
+	 * Render the page content using template file.
+	 * @param array|null $context
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ResourceNotFoundException
+	 */
+	public function renderContent(?array $context=null)
+	{
+		if ($this->templatePath==='') {
+			throw new ConfigurationUndefinedException("Page template not configured.");
+		}
+		self::render($this->templatePath, $context);
+	}
+
+	/**
 	 * Inserts data into a template file and renders the result. Catches exceptions and prints error messages directly to the DOM.
 	 * @param string $template_path Path to template to render.
 	 * @param array|null $context Data to insert into the template.
@@ -214,6 +230,6 @@ class PageContent
 	 * @param string $error_msg string
 	 */
 	public function setPageError(string $error_msg ) {
-		array_push($this->content->validationErrors, $error_msg);
+		$this->content->validationErrors[] = $error_msg;
 	}
 }
