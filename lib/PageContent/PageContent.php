@@ -76,8 +76,18 @@ class PageContent
 	 * will preserver the current page state. The query string value is
 	 * stored as the value of the object's $qs property.
 	 */
-	public function formatPageStateQueryString() {
+	public function formatPageStateQueryString()
+	{
 		$this->qs = $this->filters->formatQueryString();
+	}
+
+	/**
+	 * Template path property value getter.
+	 * @return string
+	 */
+	public function getTemplatePath(): string
+	{
+		return $this->templatePath;
 	}
 
 	/**
@@ -233,5 +243,15 @@ class PageContent
 	 */
 	public function setPageError(string $error_msg ) {
 		$this->content->validationErrors[] = $error_msg;
+	}
+
+	/**
+	 * Template path property setter.
+	 * @param string $path
+	 * @return void
+	 */
+	public function setTemplatePath(string $path)
+	{
+		$this->templatePath = $path;
 	}
 }

@@ -11,6 +11,9 @@ class PageConfigTest extends TestCase
 	public function testContentCSSClass()
 	{
 		$css_class = 'test-class';
+
+		$this->assertEquals('', PageConfig::getContentCSSClass(), 'Default content css class');
+
 		PageConfig::setContentCSSClass($css_class);
 		$this->assertEquals($css_class, PageConfig::getContentCSSClass(), 'Content CSS class assignment');
 	}
