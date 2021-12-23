@@ -3,7 +3,7 @@
 namespace Littled\PageContent;
 
 
-class EditPageContentBase extends PageContentBase
+class EditPageContent extends PageContent
 {
 	/** @var string URL to use to redirect to another page after completing an edit */
 	public $url;

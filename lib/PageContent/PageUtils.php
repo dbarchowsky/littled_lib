@@ -304,12 +304,14 @@ class PageUtils
 
 	/**
 	 * Displays an error message in the browser.
+     * @deprecated Use ContentUtils::printError() instead.
 	 * @param string $error Error message to display
-	 * @param string[optional] $css_class CSS class to apply to the error message container element.
-	 * @param string[optional] $encoding Defaults to 'UTF-8'
+	 * @param string $css_class (Optional) CSS class to apply to the error message container element.
+	 * @param string $encoding (Optional) Defaults to 'UTF-8'
 	 */
-	public static function showError($error, $css_class=null, $encoding="UTF-8") {
-		if ($css_class===null) {
+	public static function showError(string $error, string $css_class='', string $encoding='UTF-8')
+    {
+		if ($css_class==='') {
 			$css_class = "alert alert-error";
 		}
 		print ("<div class=\"{$css_class}\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");

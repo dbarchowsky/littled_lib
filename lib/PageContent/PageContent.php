@@ -1,237 +1,197 @@
 <?php
 namespace Littled\PageContent;
 
-
 use Littled\App\LittledGlobals;
+use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Filters\FilterCollection;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\RequestInput;
+use Littled\Validation\Validation;
+use LittledCommon\FormData\input_class;
 
 /**
- * Class PageContent
- * Static utility routines for rendering page content.
- * @package Littled\PageContent
+ * Class PageContentBase
+ * Intended as a base utility class for managing and rendering content for different types of pages.
+ * @package Littled\Content
  */
-class PageContent
+class PageContent extends MySQLConnection
 {
-	/** @var SerializedContent Page content. */
-	public $content;
-	/** @var FilterCollection Content filters. */
-	public $filters;
-	/** @var string Query string containing variables defining page state. */
-	public $qs;
-	/** @var string Token representing the current action to take on the page. */
-	public $action;
+    /** @var object Page content. */
+    public $content;
+    /** @var object Content filters. */
+    public $filters;
+    /** @var string Query string containing variables defining page state. */
+    public $qs;
+    /** @var string Token representing the current action to take on the page. */
+    public $action;
 	/** @var string URL to use for redirects. */
-	public $redirectURL;
+	public $redirect_url;
 	/** @var string Path to template file. */
-	public $templatePath;
+	public $template_path;
+	/** @var string Query string to attach to page links. */
+	protected $query_string;
 
-
-	/**
-	 * PageContent constructor
-	 * @return PageContent
-	 */
-	function __construct($template_path='')
-	{
-		$this->content = null;
-		$this->filters = null;
-		$this->qs = '';
-		$this->templatePath = '';
-		$this->action = '';
-		$this->redirectURL = $template_path;
-		return $this;
-	}
-
-	/**
-	 * @param array|null[optional] $src Array of variables to use in place of POST data.
-	 * Sets the value of the object's $action property based on action variables in POST data.
-	 */
-	public function collectEditAction( $src=null )
-	{
-		if ($src===null) {
-			$src = $_POST;
-		}
-		if(array_key_exists(LittledGlobals::P_CANCEL, $src)) {
-			$this->action = filter_var($src[LittledGlobals::P_CANCEL], FILTER_SANITIZE_STRING);
-		}
-		if ($this->action) {
-			$this->action = "cancel";
-		}
-		else {
-			if(array_key_exists(LittledGlobals::P_COMMIT, $src)) {
-				$this->action = filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING);
-			}
-			if ($this->action) {
-				$this->action = "commit";
-			}
-		}
-	}
-
-	/**
-	 * Uses current filter values to generate a query string that
-	 * will preserver the current page state. The query string value is
-	 * stored as the value of the object's $qs property.
-	 */
-	public function formatPageStateQueryString() {
-		$this->qs = $this->filters->formatQueryString();
-	}
-
-	/**
-	 * Inserts data into a template file and stores the resulting content in the object's $content property.
-	 * @param string $template_path Path to content template file.
-	 * @param array|null $context Array containing data to insert into the template.
-	 * @return string Markup with content inserted into it.
-	 * @throws ResourceNotFoundException If the requested template file cannot be located.
-	 */
-	public static function loadTemplateContent(string $template_path, array $context=null ): string
-    {
-	    if (substr($template_path, 0, 1) == '/') {
-	        if ($_SERVER['DOCUMENT_ROOT']) {
-	            if (strpos($template_path, $_SERVER['DOCUMENT_ROOT']) !== 0) {
-                    $template_path = rtrim($_SERVER['DOCUMENT_ROOT'], '/').$template_path;
-                }
-            }
-        }
-		if (!file_exists($template_path)) {
-			if ($template_path) {
-				throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
-			}
-			else {
-				throw new ResourceNotFoundException("Template not found.");
-			}
-		}
-		if (is_array($context)) {
-			foreach($context as $key => $val) {
-				${$key} = $val;
-			}
-		}
-		ob_start();
-		include($template_path);
-		$markup = ob_get_contents();
-		ob_end_clean();
-
-		return ($markup);
-	}
-
-	/**
-	 * Sets $qs property value to preserve initial GET variable values.
-	 * @param array $page_vars Array of input_class objects used to collect page variable values
-	 * to store in query string.
-     * @throws NotImplementedException
-     */
-	protected function preservePageVariables(array $page_vars )
-	{
-		$qs_vars = array();
-		foreach($page_vars as $input) {
-			/** @var RequestInput $input */
-			$input->collectRequestData();
-			if ($input->value===true) {
-				$qs_vars[] = "$input->key=1";
-			}
-			elseif(strlen($input->value) > 0) {
-				$qs_vars[] = "$input->key=".urlencode($input->value);
-			}
-		}
-		if (count($qs_vars) > 0) {
-			$this->qs = '?'.implode('&', $qs_vars);
-		}
-	}
+	const CANCEL_ACTION = "cancel";
+	const COMMIT_ACTION = "commit";
 
     /**
-     * Inserts error message into DOM.
-     * @param string $msg Error message to print out.
-     * @param string[optional] $fmt Format to use to print out error message. Overrides the default format.
-     * @param string[optional] $encoding Defaults to 'UTF-8'
+     * class constructor
+     * @return PageContent
      */
-	public static function printError(string $msg, $fmt='', $encoding="UTF-8")
+    function __construct()
     {
-        if (!$fmt) {
-            $fmt = "<div class=\"alert alert-error\">%s</div>";
-        }
-        printf($fmt, htmlspecialchars($msg, ENT_QUOTES, $encoding));
+        parent::__construct();
+        $this->content = null;
+        $this->filters = null;
+        $this->qs = '';
+        $this->template_path = '';
+        $this->action = '';
+        $this->redirect_url = '';
+        $this->query_string = '';
+        return $this;
     }
 
 	/**
-	 * Inserts data into a template file and renders the result.
-	 * @param string $template_path Path to template to render.
+	 * Sets the id property value of the object's content from request variable values, e.g. GET, POST, etc.
+	 * First checks if a variable named "id" is present. 2nd, checks for a variable corresponding to the content
+	 * object's id's internal parameter name.
+     * @todo Consider moving this method to dedicated cms page content class
+	 * @return ?int Record id value that was found, or null if no valid integer value was found for the content id.
+	 */
+	public function collectContentId(): ?int
+	{
+		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM);
+		if ($this->content->id->value===null) {
+			if ( $this->content->id instanceof RequestInput) {
+				$this->content->id->collectValue();
+			}
+			elseif ($this->content->id instanceof input_class){
+				/* @todo remove this call after older version of IntegerInput class is fully removed from all apps */
+				$this->content->id->fill_from_input();
+			}
+		}
+		return ($this->content->id->value);
+	}
+
+    /**
+     * @todo Consider moving this method to dedicated cms page content class
+     * @param array|null[optional] $src Array of variables to use in place of POST data.
+     * Sets the value of the object's $action property based on action variables in POST data.
+     */
+    public function collectEditAction( $src=null )
+    {
+        if ($src===null) {
+            $src = $_POST;
+        }
+        if(array_key_exists(LittledGlobals::P_CANCEL, $src)) {
+            $this->action = filter_var($src[LittledGlobals::P_CANCEL], FILTER_SANITIZE_STRING);
+        }
+        if ($this->action) {
+            $this->action = "cancel";
+        }
+        else {
+            if(array_key_exists(LittledGlobals::P_COMMIT, $src)) {
+                $this->action = filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING);
+            }
+            if ($this->action) {
+                $this->action = "commit";
+            }
+        }
+    }
+
+    /**
+     * Uses current filter values to generate a query string that
+     * will preserver the current page state. The query string value is
+     * stored as the value of the object's $qs property.
+     * @todo Consider moving this method to dedicated cms page content class
+     */
+    public function formatPageStateQueryString()
+    {
+        $this->qs = $this->filters->format_query_string();
+    }
+
+    /**
+     * Sets $qs property value to preserve initial GET variable values.
+     * @param RequestInput[] $page_vars Array of input_class objects used to collect page variable values
+     * to store in query string.
+     * @throws NotImplementedException
+     */
+    protected function preservePageVariables(array $page_vars)
+    {
+        $qs_vars = array();
+        foreach($page_vars as $input) {
+            $input->collectRequestData();
+            if ($input->value===true) {
+                $qs_vars[] = "$input->key=1";
+            }
+            elseif(strlen($input->value) > 0) {
+                $qs_vars[] = "$input->key=".urlencode($input->value);
+            }
+        }
+        if (count($qs_vars) > 0) {
+            $this->qs = '?'.implode('&', $qs_vars);
+        }
+    }
+
+    /**
+     * Sets the error message to display on a page.
+     * @param string $error_msg string
+     */
+    public function setPageError(string $error_msg ) {
+        $this->content->validationErrors[] = $error_msg;
+    }
+
+    /**
+     * Render the page content using template file.
+     * @param array|null $context
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ResourceNotFoundException
+     */
+    public function render(?array $context=null)
+    {
+        if ($this->template_path==='') {
+            throw new ConfigurationUndefinedException("Page template not configured.");
+        }
+        ContentUtils::renderTemplate($this->template_path, $context);
+    }
+
+	/**
+	 * Prevents any variable values that were previously cached from being passed along to subsequent pages.
+	 */
+	public function resetPageVariables()
+	{
+		$this->qs = '';
+	}
+
+	/**
+	 * Inserts data into a template file and renders the result. Alias for class's render() method.
+	 * @param ?string $template_path Path to template to render.
 	 * @param ?array $context Data to insert into the template.
-	 * @throws ResourceNotFoundException If the requested template file cannot be located.
+     * @throws ConfigurationUndefinedException
+     * @throws ResourceNotFoundException
 	 */
-	public static function render( string $template_path, ?array $context=null )
+	public function sendResponse( ?string $template_path=null, ?array $context=null )
 	{
-		if (!file_exists($template_path)) {
-			if ($template_path) {
-				throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
-			}
-			else {
-				throw new ResourceNotFoundException("Template not found.");
-			}
-		}
-		if (is_array($context)) {
-			foreach($context as $context_key => $context_value) {
-				${$context_key} = $context_value;
-			}
-		}
-		include ($template_path);
+        if ($template_path) {
+            $this->setTemplatePath($template_path);
+        }
+		$this->render($context);
 	}
 
-	/**
-	 * Render the page content using template file.
-	 * @param array|null $context
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws ResourceNotFoundException
-	 */
-	public function renderContent(?array $context=null)
-	{
-		if ($this->templatePath==='') {
-			throw new ConfigurationUndefinedException("Page template not configured.");
-		}
-		self::render($this->templatePath, $context);
-	}
+    /**
+     * Sets page properties.
+     */
+    public function setPageState(): void { }
 
-	/**
-	 * Inserts data into a template file and renders the result. Catches exceptions and prints error messages directly to the DOM.
-	 * @param string $template_path Path to template to render.
-	 * @param array|null $context Data to insert into the template.
-	 * @param string[optional] $css_class CSS class to apply to the error message container element.
-	 * @param string[optional] $encoding Defaults to 'UTF-8'
-	 */
-	public static function renderWithErrors(string $template_path, array $context=null, $css_class=null, $encoding="UTF-8")
-	{
-		try {
-			PageContent::render($template_path, $context);
-		}
-		catch(ResourceNotFoundException $ex) {
-			PageUtils::showError($ex->getMessage(), $css_class, $encoding);
-		}
-	}
-
-	/**
-     * @deprecated Use .htaccess directive instead.
-	 * Forces a page to use https protocol.
-	 * @param bool[optional] $bypass_on_dev Flag to skip this in dev environment.
-	 */
-	public static function require_ssl( $bypass_on_dev=true )
-	{
-		if ($bypass_on_dev===true && defined('IS_DEV') && IS_DEV===true) {
-			return;
-		}
-		if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on') {
-			header("Location: https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-			exit();
-		}
-	}
-
-	/**
-	 * Sets the error message to display on a page.
-	 * @param string $error_msg string
-	 */
-	public function setPageError(string $error_msg ) {
-		$this->content->validationErrors[] = $error_msg;
-	}
+    /**
+     * Template path setter.
+     * @param $path
+     * @return void
+     */
+    public function setTemplatePath($path)
+    {
+        $this->template_path = $path;
+    }
 }

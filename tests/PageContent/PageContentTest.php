@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\PageContent;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use PHPUnit\Framework\TestCase;
@@ -8,38 +9,60 @@ use PHPUnit\Framework\TestCase;
 
 class PageContentTest extends TestCase
 {
-    /**
-     * @throws ResourceNotFoundException
-     */
-    public function testLoadTemplateContentWithoutContext()
+    /** @var PageContent */
+    public $obj;
+    /** @var string */
+    protected const STATIC_TEMPLATE_PATH = '../assets/templates/page-content-test-static.php';
+    /** @var string */
+    protected const DYNAMIC_TEMPLATE_PATH = '../assets/templates/page-content-test-variable.php';
+
+    protected function setUp(): void
     {
-        $markup = PageContent::loadTemplateContent('../assets/page-content-test-static.php');
-        $this->assertStringContainsString('This is test template content.', $markup);
+        parent::setUp();
+        $this->obj = new PageContent();
+    }
+
+    public function testSetTemplatePath()
+    {
+        $test_template_path = '/path/to/template.php';
+        $this->assertEquals('', $this->obj->template_path);
+
+        $this->obj->setTemplatePath($test_template_path);
+        $this->assertEquals($test_template_path, $this->obj->template_path);
     }
 
     /**
+     * @return void
+     * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-    public function testLoadTemplateContentWithContext()
+    public function testMissingTemplate()
     {
-        $context = array(
-          'test_var' => 'Custom test value.'
-        );
-        $markup = PageContent::loadTemplateContent('../assets/page-content-test-variable.php', $context);
-        $this->assertStringContainsString('variable content: Custom test value.', $markup);
+        $this->obj->setTemplatePath('/path/to/non-existent/template.php');
+        $this->expectException(ResourceNotFoundException::class);
+        $this->obj->render();
     }
 
     /**
+     * @return void
+     * @throws ResourceNotFoundException
+     * @throws ConfigurationUndefinedException
+     */
+    public function testRender()
+    {
+        $this->obj->setTemplatePath(PageContentTest::DYNAMIC_TEMPLATE_PATH);
+        $this->expectOutputRegex('/This is test template content\./');
+        $this->obj->render();
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-    public function testLoadTemplateContentUsingDocumentRoot()
+    public function testUnsetTemplatePath()
     {
-        $template_path = "/assets/page-content-test-static.php";
-        $markup = PageContent::loadTemplateContent($template_path);
-        $this->assertStringContainsString('This is test template content.', $markup);
-
-        $template_path = $_SERVER['DOCUMENT_ROOT'].'assets/page-content-test-static.php';
-        $markup = PageContent::loadTemplateContent($template_path);
-        $this->assertStringContainsString('This is test template content.', $markup);
+        $this->expectException(ConfigurationUndefinedException::class);
+        $this->obj->render();
     }
 }
