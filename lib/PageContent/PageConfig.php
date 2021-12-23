@@ -18,7 +18,7 @@ use Exception;
 class PageConfig 
 {
 	/** @var string CSS class to apply to the page content. */
-	public static $contentCSSClass;
+	public static $contentCSSClass = '';
 	/** @var array List of css includes. */
 	public static $stylesheets = array();
 	/** @var array List of script includes. */
