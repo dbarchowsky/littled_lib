@@ -183,7 +183,7 @@ class PageContent extends MySQLConnection
     /**
      * Sets page properties.
      */
-    public function setPageState(): void { }
+    public function setPageState() { }
 
     /**
      * Template path setter.
