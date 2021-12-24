@@ -4,6 +4,7 @@ namespace Littled\Tests\PageContent;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
+use Littled\Tests\PageContent\TestObject\PageContentChild;
 use PHPUnit\Framework\TestCase;
 
 
@@ -53,6 +54,24 @@ class PageContentTest extends TestCase
         $this->obj->setTemplatePath(PageContentTest::DYNAMIC_TEMPLATE_PATH);
         $this->expectOutputRegex('/This is test template content\./');
         $this->obj->render();
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ResourceNotFoundException
+     */
+    public function testSendResponse()
+    {
+        $inject_test = 'This is my injected text.';
+        $pattern = '/This is test template content\.(.|\n)*'.str_replace('.', '\.', $inject_test).'/';
+
+        $o = new PageContentChild();
+        $o->injected_text = $inject_test;
+        $o->setTemplatePath(PageContentTest::DYNAMIC_TEMPLATE_PATH);
+
+        $this->expectOutputRegex($pattern);
+        $o->sendResponse();
     }
 
     /**

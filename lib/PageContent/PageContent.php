@@ -112,6 +112,16 @@ class PageContent extends MySQLConnection
     }
 
     /**
+     * Returns array containing the variables and their values to be injected into
+     * the template when rendering page content.
+     * @return array
+     */
+    public function getTemplateContext(): array
+    {
+        return array();
+    }
+
+    /**
      * Sets $qs property value to preserve initial GET variable values.
      * @param RequestInput[] $page_vars Array of input_class objects used to collect page variable values
      * to store in query string.
@@ -132,14 +142,6 @@ class PageContent extends MySQLConnection
         if (count($qs_vars) > 0) {
             $this->qs = '?'.implode('&', $qs_vars);
         }
-    }
-
-    /**
-     * Sets the error message to display on a page.
-     * @param string $error_msg string
-     */
-    public function setPageError(string $error_msg ) {
-        $this->content->validationErrors[] = $error_msg;
     }
 
     /**
@@ -165,20 +167,29 @@ class PageContent extends MySQLConnection
 		$this->qs = '';
 	}
 
-	/**
-	 * Inserts data into a template file and renders the result. Alias for class's render() method.
-	 * @param ?string $template_path Path to template to render.
-	 * @param ?array $context Data to insert into the template.
+    /**
+     * Inserts data into a template file and renders the result. Alias for class's render() method.
+     * @param ?string $template_path Path to template to render.
+     * @param ?array $context Data to insert into the template.
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
-	 */
-	public function sendResponse( ?string $template_path=null, ?array $context=null )
-	{
+     */
+    public function sendResponse( ?string $template_path=null, ?array $context=null )
+    {
         if ($template_path) {
             $this->setTemplatePath($template_path);
         }
-		$this->render($context);
-	}
+        $context = $context ?: $this->getTemplateContext();
+        $this->render($context);
+    }
+
+    /**
+     * Sets the error message to display on a page.
+     * @param string $error_msg string
+     */
+    public function setPageError(string $error_msg ) {
+        $this->content->validationErrors[] = $error_msg;
+    }
 
     /**
      * Sets page properties.
