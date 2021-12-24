@@ -2,7 +2,8 @@
 namespace Littled\Filters;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\PageContent\PageContent;
+use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 
 
@@ -23,7 +24,7 @@ class IntegerArrayContentFilter extends IntegerContentFilter
 	/**
 	 * Output markup that will preserve the filter's value in an HTML form.
 	 * @throws ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
 	public function saveInForm()
 	{
@@ -34,7 +35,7 @@ class IntegerArrayContentFilter extends IntegerContentFilter
 			throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not found in app settings.");
 		}
 		foreach($this->value as $value) {
-			PageContent::render(LITTLED_TEMPLATE_DIR . "framework/forms/hidden-input.php", array(
+			ContentUtils::renderTemplate(LITTLED_TEMPLATE_DIR . "framework/forms/hidden-input.php", array(
 				'key' => $this->key,
 				'index' => '[]',
 				'value' => $value

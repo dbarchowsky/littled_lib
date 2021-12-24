@@ -413,7 +413,7 @@ class AddressTest extends ContentValidationTestCase
 
     public function testGoogleMapsURI()
     {
-    	$this->assertMatchesRegularExpression('/\?key=.*\&address/', Address::GOOGLE_MAPS_URI());
+    	$this->assertMatchesRegularExpression('/\?key=.*&address/', Address::GOOGLE_MAPS_URI());
     }
 
     public function testHasData()
@@ -552,7 +552,6 @@ class AddressTest extends ContentValidationTestCase
     }
 
     /**
-     * @throws InvalidValueException
      * @throws RecordNotFoundException
      */
     public function testReadStateProperties()

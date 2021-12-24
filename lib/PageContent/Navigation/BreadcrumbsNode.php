@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 
@@ -70,7 +70,7 @@ class BreadcrumbsNode
 	 */
     public function render ( )
     {
-	    PageContent::render($this::$breadcrumbsNodeTemplate, array(
+	    ContentUtils::renderTemplate($this::$breadcrumbsNodeTemplate, array(
 		    'node' => &$this
 	    ));
     }

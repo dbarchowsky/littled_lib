@@ -2,7 +2,7 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 
 
 /**
@@ -48,7 +48,7 @@ class NavigationMenuNode
 	 * @param string $dom_id  (Optional) Sets the id attribute of the menu item element.
 	 * @param string $attributes (Optional) Hook to insert any extra attributes into the menu item element.
 	 */
-	function __construct ( $label=null, $url=null, $title=null, $target=null, $level=0, $dom_id=null, $attributes=null)
+	function __construct ( string $label='', string $url='', string $title='', string $target='', int $level=0, string $dom_id='', string $attributes='')
 	{
 		$this->label = $label;
 		$this->url = $url;
@@ -62,19 +62,19 @@ class NavigationMenuNode
 	/**
 	 * @return string Navigation menu node template path.
 	 */
-	public static function getNodeTemplatePath()
+	public static function getNodeTemplatePath(): string
 	{
 		return (static::$menuNodeTemplate);
 	}
 
     /**
      * render
-     * Outputs markup for the the individual navigation menu node.
+     * Outputs markup for the individual navigation menu node.
 	 * @throws ResourceNotFoundException
 	 */
     public function render ( )
     {
-	    PageContent::render($this::getNodeTemplatePath(), array(
+	    ContentUtils::renderTemplate($this::getNodeTemplatePath(), array(
 		    'node' => &$this
 	    ));
     }
@@ -83,7 +83,7 @@ class NavigationMenuNode
 	 * Sets the path to an image file to use as the content of the menu node.
 	 * @param string $path Path to image.
 	 */
-	public function setImagePath($path)
+	public function setImagePath(string $path)
 	{
 		$this->imgPath = $path;		
 	}
@@ -92,7 +92,7 @@ class NavigationMenuNode
 	 * Sets the path to the breadcrumb nodes template.
 	 * @param string $path Template path.
 	 */
-	public static function setNodeTemplatePath($path)
+	public static function setNodeTemplatePath(string $path)
 	{
 		static::$menuNodeTemplate = $path;
 	}

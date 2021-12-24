@@ -1,9 +1,8 @@
 <?php
 namespace Littled\Filters;
 
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 use mysqli;
@@ -34,7 +33,7 @@ class ContentFilter
 	 * @param ?int $size Size limit of the filter value.
 	 * @param ?string $cookieKey Key of the cookie element holding the filter value.
 	 */
-	function __construct(string $label, string $key, $value='', $size=0, $cookieKey='')
+	function __construct(string $label, string $key, string $value='', int $size=0, string $cookieKey='')
 	{
 		$this->label = $label;
 		$this->key = $key;
@@ -75,10 +74,10 @@ class ContentFilter
 
 	/**
 	 * Collects the filter value from request variables, session variables, or cookie variables, in that order.
-	 * @param bool $read_cookies Flag indicating that the cookie collection should included in the search for a
+	 * @param bool $read_cookies Flag indicating that the cookie collection should be included in the search for a
 	 * filter value.
 	 */
-	public function collectValue($read_cookies=true)
+	public function collectValue(bool $read_cookies=true)
 	{
 		$this->collectRequestValue();
 		if ($this->value) {
@@ -95,7 +94,6 @@ class ContentFilter
 				$ar = explode('|', $_COOKIE[$this->cookieKey]);
 				if (array_key_exists($this->key, $ar)) {
 					$this->value = $ar[$this->key];
-					return;
 				}
 			} elseif (isset($_COOKIE[$this->key])) {
 				$this->value = $_COOKIE[$this->key];
@@ -108,13 +106,9 @@ class ContentFilter
 	 * @param mysqli $mysqli Database connection.
 	 * @param bool $include_quotes (Optional) If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
-	 * @throws ConfigurationUndefinedException
 	 */
-	public function escapeSQL(mysqli $mysqli, $include_quotes=true): string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
-		if (!$mysqli instanceof mysqli) {
-			throw new ConfigurationUndefinedException("Escape query object not available.");
-		}
 		if ($this->value===null) {
 			return ("null");
 		}
@@ -167,7 +161,7 @@ class ContentFilter
 	 */
 	public function saveInForm()
 	{
-		PageContent::render(RequestInput::getTemplateBasePath()."hidden-input.php", array(
+		ContentUtils::renderTemplate(RequestInput::getTemplateBasePath()."hidden-input.php", array(
 			'key' => $this->key,
 			'index' => '',
 			'value' => $this->value

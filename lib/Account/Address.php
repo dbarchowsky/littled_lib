@@ -11,7 +11,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
@@ -182,11 +182,11 @@ class Address extends SerializedContent
 	public function formatCity(): string
 	{
 		$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state->safeValue();
-		$city_parts = array_filter(array(trim(''.$this->city->safeValue()),
-			trim(''.$state),
-			trim(''.$this->country->safeValue())));
+		$city_parts = array_filter(array(trim($this->city->safeValue()),
+			trim($state),
+			trim($this->country->safeValue())));
 		$city = join(', ', $city_parts);
-		$parts = array_filter(array($city, trim(''.$this->zip->safeValue())));
+		$parts = array_filter(array($city, trim($this->zip->safeValue())));
 		return join(' ', $parts);
 	}
 
@@ -233,11 +233,11 @@ class Address extends SerializedContent
     {
         $parts = array();
         if ($include_name==true) {
-        	array_push($parts, $this->formatFullName());
-        	array_push($parts, trim(''.$this->company->value));
+        	$parts[] = $this->formatFullName();
+        	$parts[] = trim('' . $this->company->value);
         }
-        array_push($parts, trim(''.$this->address1->value));
-        array_push($parts, trim(''.$this->address2->value));
+        $parts[] = trim(''.$this->address1->value);
+        $parts[] = trim(''.$this->address2->value);
 
         if ($this->state_id->value>0 && !$this->state) {
             try {
@@ -247,7 +247,7 @@ class Address extends SerializedContent
                 /* continue */
             }
         }
-		array_push($parts, $this->formatCity());
+		$parts[] = $this->formatCity();
         $parts = array_filter($parts);
         if (count($parts) > 0) {
         	return ("<div>".join("</div>\n<div>", $parts)."</div>\n");
@@ -261,8 +261,8 @@ class Address extends SerializedContent
      */
     public function formatOneLineAddress(): string
     {
-        $address = $this->appendSeparator(''.$this->address1->safeValue()).
-            $this->appendSeparator(''.$this->address2->safeValue()).
+        $address = $this->appendSeparator($this->address1->safeValue()).
+            $this->appendSeparator($this->address2->safeValue()).
             $this->city->safeValue();
         if ($this->state_abbrev || $this->state->safeValue()) {
             if ($this->state_abbrev) {
@@ -452,7 +452,7 @@ class Address extends SerializedContent
     {
     	$template_path = static::$common_cms_template_path.$this::getAddressDataTemplate();
     	$context = array('input' => $this);
-    	PageContent::render($template_path, $context);
+    	ContentUtils::renderTemplate($template_path, $context);
     }
 
     /**

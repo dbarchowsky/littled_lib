@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Exception\ResourceNotFoundException;
 
 
@@ -15,7 +15,7 @@ class NavigationMenu
 	public $first;
 	/** @var NavigationMenuNode Pointer to last node in the menu. */
 	public $last;
-	/** @var string CSS class to apply to the breadcrumbs menu parent element */
+	/** @var string CSS class to apply to the navigation menu parent element */
 	public $cssClass;
 
 	/** @var string Path to template to use to render the menu in markup. */
@@ -34,25 +34,25 @@ class NavigationMenu
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label Text to display for this item within the navigation menu.
 	 * @param string $url (Optional) URL where the menu item will link to.
+     * @param string $title (Optional) Title attribute value to apply to menu node element.
 	 * @param string $target (Optional) Target window for the link. Defaults to the same window.
 	 * @param integer $level (Optional) Indentation level of the menu item.
 	 * @param string $dom_id  (Optional) Sets the id attribute of the menu item element.
 	 * @param string $attributes (Optional) Hook to insert any extra attributes into the menu item element.
 	 */
-	function addNode ( $label, $url=null, $target=null, $level=0, $dom_id=null, $attributes=null)
+	function addNode ( string $label, string $url='', string $title='', string $target='', int $level=0, string $dom_id='', string $attributes='')
 	{
 		$node_type = $this::$nodeType;
 		/** @var $node NavigationMenuNode */
-		$node = new $node_type($label, $url, $target, $level, $dom_id, $attributes);
+		$node = new $node_type($label, $url, $title, $target, $level, $dom_id, $attributes);
 		if (isset($this->first)) {
 			$this->last->nextNode = $node;
 			$node->prevNode = $this->last;
-			$this->last = $node;
-		} 
+		}
 		else {
 			$this->first = $node;
-			$this->last = $node;
 		}
+        $this->last = $node;
 	}
 	
 	/**
@@ -77,7 +77,7 @@ class NavigationMenu
 	/**
 	 * @return string Navigation menu template path.
 	 */
-	public static function getMenuTemplatePath()
+	public static function getMenuTemplatePath(): string
 	{
 		return (static::$menuTemplate);
 	}
@@ -85,7 +85,7 @@ class NavigationMenu
 	/**
 	 * @return string Returns the type set for the navigation menu nodes.
 	 */
-	public static function getNodeType()
+	public static function getNodeType(): string
 	{
 		return static::$nodeType;
 	}
@@ -94,7 +94,7 @@ class NavigationMenu
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool True if the menu has nodes, false otherwise
 	 */
-	function hasNodes ()
+	function hasNodes (): bool
 	{
 		return (isset($this->first));
 	}
@@ -105,7 +105,7 @@ class NavigationMenu
 	 */
 	function render ()
 	{
-		PageContent::render($this::getMenuTemplatePath(), array(
+		ContentUtils::renderTemplate($this::getMenuTemplatePath(), array(
 			'menu' => &$this
 		));
 	}
@@ -114,7 +114,7 @@ class NavigationMenu
 	 * Sets the CSS class of the breadcrumbs parent element.
 	 * @param string $css_class
 	 */
-	public function setCSSClass($css_class)
+	public function setCSSClass(string $css_class)
 	{
 		$this->cssClass = $css_class;
 	}
@@ -123,7 +123,7 @@ class NavigationMenu
 	 * Sets the path to the navigation template.
 	 * @param string $path Path to the navigation menu template.
 	 */
-	public static function setMenuTemplatePath($path)
+	public static function setMenuTemplatePath(string $path)
 	{
 		static::$menuTemplate = $path;
 	}
@@ -132,7 +132,7 @@ class NavigationMenu
 	 * Sets the type of the navigation menu nodes.
 	 * @param string $type Name of the class to use as navigation menu nodes.
 	 */
-	public static function setNodeType($type)
+	public static function setNodeType(string $type)
 	{
 		static::$nodeType = $type;
 	}

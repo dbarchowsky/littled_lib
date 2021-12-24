@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Exception\ResourceNotFoundException;
 
 
@@ -15,7 +15,7 @@ class Breadcrumbs
 	public $first;
 	/** @var BreadcrumbsNode Pointer to last node in the list of breadcrumbs. */
 	public $last;
-	/** @var string CSS class to apply to the breadcrumbs menu parent element */
+	/** @var string CSS class to apply to the breadcrumb menu parent element */
 	public $cssClass;
 
 	/** @var string Path to template used to display the breadcrumbs. */
@@ -40,7 +40,7 @@ class Breadcrumbs
 	 * @param string $dom_id (Optional) value for the breadcrumb node's id attribute.
 	 * @param string $css_class (Optional) value for the breadcrumb node's class attribute.
 	 */
-	function addNode ($label, $url=null, $dom_id="", $css_class="")
+	function addNode (string $label, string $url='', string $dom_id='', string $css_class='')
 	{
 		/** @var $node BreadcrumbsNode */
 		$node_type = $this::$nodeType;
@@ -48,12 +48,11 @@ class Breadcrumbs
 		if (isset($this->first)) {
 			$this->last->nextNode = $node;
 			$node->prevNode = $this->last;
-			$this->last = $node;
-		} 
+		}
 		else {
 			$this->first = $node;
-			$this->last = $node;
 		}
+        $this->last = $node;
 	}
 	
 	/**
@@ -96,7 +95,7 @@ class Breadcrumbs
 	/**
 	 * @return string Breadcrumbs template path.
 	 */
-	public static function getBreadcrumbsTemplatePath()
+	public static function getBreadcrumbsTemplatePath(): string
 	{
 		return static::$breadcrumbsTemplate;
 	}
@@ -104,7 +103,7 @@ class Breadcrumbs
 	/**
 	 * @return string Returns the type set for the breadcrumb nodes.
 	 */
-	public static function getNodeType()
+	public static function getNodeType(): string
 	{
 		return static::$nodeType;
 	}
@@ -113,7 +112,7 @@ class Breadcrumbs
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool true if the menu has nodes, false otherwise
 	 */
-	public function hasNodes ()
+	public function hasNodes (): bool
 	{
 		return (isset($this->first));
 	}
@@ -124,16 +123,16 @@ class Breadcrumbs
 	 */
 	public function render ()
 	{
-		PageContent::render($this::getBreadcrumbsTemplatePath(), array(
+		ContentUtils::renderTemplate($this::getBreadcrumbsTemplatePath(), array(
 			'breadcrumbs' => &$this
 		));
 	}
 
 	/**
-	 * Sets the path to the breadcrumbs template.
+	 * Sets the path to the breadcrumb template.
 	 * @param string $path Path to breadcrumbs template.
 	 */
-	public static function setBreadcrumbsTemplatePath( $path )
+	public static function setBreadcrumbsTemplatePath( string $path )
 	{
 		static::$breadcrumbsTemplate = $path;
 	}
@@ -142,7 +141,7 @@ class Breadcrumbs
 	 * Sets the CSS class of the breadcrumbs parent element.
 	 * @param string $css_class
 	 */
-	public function setCSSClass($css_class)
+	public function setCSSClass(string $css_class)
 	{
 		$this->cssClass = $css_class;
 	}
@@ -151,7 +150,7 @@ class Breadcrumbs
 	 * Sets the type of the breadcrumb nodes.
 	 * @param string $type Name of the class to use as breadcrumb nodes.
 	 */
-	public static function setNodeType($type)
+	public static function setNodeType(string $type)
 	{
 		static::$nodeType = $type;
 	}
