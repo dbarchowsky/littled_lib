@@ -10,7 +10,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Exception;
@@ -402,7 +402,7 @@ class SerializedContentUtils extends AppContentBase
 		if ($output_cache_file===null) {
 			$output_cache_file = static::$output_cache_file;
 		}
-		$cache_content = PageContent::loadTemplateContent($cache_template, $context);
+		$cache_content = ContentUtils::loadTemplateContent($cache_template, $context);
 		$f = fopen($output_cache_file, "w");
 		fputs($f, $cache_content);
 		fclose($f);

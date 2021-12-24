@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Request;
 
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 
 /**
  * Class StringInput
@@ -96,7 +96,7 @@ class StringInput extends RequestInput
         if (!$css_class) {
             $css_class = $this->cssClass;
         }
-        PageContent::renderWithErrors(self::getTemplatePath(), array(
+        ContentUtils::renderTemplateWithErrors(self::getTemplatePath(), array(
             'input' => &$this,
             'label' => $label,
             'css_class' => $css_class
@@ -112,7 +112,7 @@ class StringInput extends RequestInput
         if (!$label) {
             $label = $this->label;
         }
-        PageContent::renderWithErrors(self::getInputTemplateFilename(), array(
+        ContentUtils::renderTemplateWithErrors(self::getInputTemplateFilename(), array(
             'input' => &$this,
             'label' => $label
         ));

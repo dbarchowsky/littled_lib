@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Request\Inline;
 
-use Littled\Cache\ContentCache;
+// use Littled\Cache\ContentCache;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -11,7 +11,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 use Littled\Request\IntegerInput;
 
@@ -60,7 +60,7 @@ class InlineKeywordInput extends KeywordSectionContent
 	 */
 	public function loadKeywordListMarkup(): string
 	{
-		return PageContent::loadTemplateContent($this::getKeywordsListTemplatePath(),
+		return ContentUtils::loadTemplateContent($this::getKeywordsListTemplatePath(),
 			array('content' => &$this));
 	}
 
@@ -74,6 +74,6 @@ class InlineKeywordInput extends KeywordSectionContent
 	public function saveKeywords()
 	{
 		parent::saveKeywords();
-		ContentCache::updateKeywords($this->id->value, $this->contentProperties->id->value);
+		// ContentCache::updateKeywords($this->id->value, $this->contentProperties->id->value);
 	}
 }

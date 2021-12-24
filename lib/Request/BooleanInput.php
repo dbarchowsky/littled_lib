@@ -1,9 +1,8 @@
 <?php
 namespace Littled\Request;
 
-
 use Littled\Exception\ContentValidationException;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 
 /**
@@ -80,7 +79,7 @@ class BooleanInput extends RequestInput
 	public function render($label = null, $css_class = '')
 	{
 		if (false === $this->isTemplateDefined()) {
-			PageContent::printError("\"".__METHOD__."\" not implemented.");
+			ContentUtils::printError("\"".__METHOD__."\" not implemented.");
 		}
 
 		if (!$label) {
@@ -91,7 +90,7 @@ class BooleanInput extends RequestInput
 		$selection_state = ((true === $this->value)?(' checked="checked"'):(''));
 		$required_str = (($this->required)?($this::getRequiredIndicator()):(''));
 
-		PageContent::renderWithErrors($this::getTemplatePath(),
+		ContentUtils::renderTemplateWithErrors($this::getTemplatePath(),
 			array(
 				'input' => &$this,
 				'label' => $label,

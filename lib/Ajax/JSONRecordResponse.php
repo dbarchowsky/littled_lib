@@ -2,7 +2,7 @@
 namespace Littled\Ajax;
 
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 
 /**
  * Class JSONResponse
@@ -45,6 +45,6 @@ class JSONRecordResponse extends JSONResponse
                 ${$key} = $val;
             }
         }
-        $this->content->value = PageContent::loadTemplateContent($template_path, $context);
+        $this->content->value = ContentUtils::loadTemplateContent($template_path, $context);
     }
 }

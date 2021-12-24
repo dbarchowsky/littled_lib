@@ -4,7 +4,7 @@ namespace Littled\Request;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 use Exception;
 use mysqli;
@@ -171,7 +171,7 @@ class RequestInput
 	 */
 	public function formatErrorLabel(): string
 	{
-		return (ucfirst(strtolower("".$this->label)));
+		return (ucfirst(strtolower($this->label)));
 	}
 
     /**
@@ -198,7 +198,7 @@ class RequestInput
 	public function formatLabelMarkup( string $label ): string
 	{
 		if (strlen($label) > 0 && $this->displayPlaceholder===false) {
-			return (PageContent::loadTemplateContent(static::$template_base_path."form-input-label.php", array(
+			return (ContentUtils::loadTemplateContent(static::$template_base_path."form-input-label.php", array(
 				'label' => $label,
 				'input' => &$this
 			)));
@@ -376,7 +376,7 @@ class RequestInput
             $this->render($label, $css_class);
         }
         catch(Exception $ex) {
-            PageContent::printError($ex->getMessage());
+            ContentUtils::printError($ex->getMessage());
         }
     }
 
@@ -404,7 +404,7 @@ class RequestInput
         if(!$template) {
             $template = RequestInput::getTemplatePath();
         }
-		PageContent::renderWithErrors($template, array(
+		ContentUtils::renderTemplateWithErrors($template, array(
             'key' => $key,
 			'input' => $this
 		));

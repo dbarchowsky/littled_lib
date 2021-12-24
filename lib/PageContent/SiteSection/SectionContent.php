@@ -2,10 +2,16 @@
 namespace Littled\PageContent\SiteSection;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
@@ -23,10 +29,10 @@ class SectionContent extends SerializedContent
 
 	/**
 	 * SectionContent constructor.
-	 * @param int|null[optional] $id Id of record to retrieve.
-	 * @param int|null[optional] $content_type_id Id of site section where this piece of content belongs.
+	 * @param ?int $id Record id to retrieve.
+	 * @param ?int $content_type_id Record id of site section where this piece of content belongs.
 	 */
-	public function __construct($id=null, $content_type_id=null)
+	public function __construct(int $id=null, int $content_type_id=null)
 	{
 		parent::__construct($id);
 		$this->contentProperties = new ContentProperties($content_type_id);
@@ -48,10 +54,10 @@ class SectionContent extends SerializedContent
 	 * Deletes the Site Section record matching the object's internal ID value.
 	 * @return string
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
 	 */
-	public function delete()
+	public function delete(): string
 	{
 		parent::delete();
 		return ("Successfully deleted ".strtolower($this->contentProperties->name->value)." record.");
@@ -61,7 +67,7 @@ class SectionContent extends SerializedContent
 	 * Fetches the id of the site section that this record belongs to.
 	 * @return int|null ID of the site section that this record belongs to.
 	 */
-	public function getContentTypeID()
+	public function getContentTypeID(): ?int
 	{
 		if ($this->contentProperties->id->value > 0) {
 			return ($this->contentProperties->id->value);
@@ -74,19 +80,19 @@ class SectionContent extends SerializedContent
 	 * The client app will set the value of the $listingsTemplate property.
 	 * @return string Path to listings template.
 	 */
-	public static function getListingsTemplatePath()
+	public static function getListingsTemplatePath(): string
 	{
 		return (static::$listingsTemplate);
 	}
 
 	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
 	{
@@ -99,10 +105,10 @@ class SectionContent extends SerializedContent
 	 * @param FilterCollection $filters Filters to apply to listings content
 	 * @return string Updated listings markup.
 	 * @throws ResourceNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws RecordNotFoundException
 	 */
-	public function refreshContentAfterEdit( &$filters )
+	public function refreshContentAfterEdit( FilterCollection &$filters ): string
 	{
 		$template = $this::getListingsTemplatePath();
 		if (strlen($template) < 1) {
@@ -118,18 +124,18 @@ class SectionContent extends SerializedContent
 		$context = array(
 			'content' => &$this,
 			'filters' => &$filters);
-		return(PageContent::loadTemplateContent($template, $context));
+		return(ContentUtils::loadTemplateContent($template, $context));
 	}
 
 	/**
 	 * Retrieves site section properties and stores that data in object properties.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function retrieveSectionProperties()
 	{
@@ -141,12 +147,12 @@ class SectionContent extends SerializedContent
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function save()
 	{
@@ -160,7 +166,7 @@ class SectionContent extends SerializedContent
 	/**
 	 * @param string $path Path to comics listings template.
 	 */
-	public static function setListingsTemplatePath($path)
+	public static function setListingsTemplatePath(string $path)
 	{
 		static::$listingsTemplate = $path;
 	}

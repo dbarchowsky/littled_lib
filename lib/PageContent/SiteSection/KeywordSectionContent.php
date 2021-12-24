@@ -2,7 +2,7 @@
 namespace Littled\PageContent\SiteSection;
 
 
-use Littled\Cache\ContentCache;
+// use Littled\Cache\ContentCache;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -12,7 +12,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
-use Littled\PageContent\PageContent;
+use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
 use Littled\SiteContent\ContentAjaxProperties;
 
@@ -55,7 +55,7 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function addKeyword( string $term ): void
 	{
-		array_push($this->keywords, new Keyword($term, $this->id->value, $this->contentProperties->id->value));
+		$this->keywords[] = new Keyword($term, $this->id->value, $this->contentProperties->id->value);
 	}
 
 	/**
@@ -83,7 +83,7 @@ class KeywordSectionContent extends SectionContent
 	public function collectRequestData(?array $src = null)
 	{
 		parent::collectRequestData($src);
-		$this->contentProperties->id->collectRequestData(null, $src);
+		$this->contentProperties->id->collectRequestData($src);
 		$this->collectKeywordInput();
 	}
 
@@ -95,7 +95,7 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function collectFromInlineInput(?array $src=null): void
 	{
-		$this->id->collectRequestData(null, $src);
+		$this->id->collectRequestData($src);
 	}
 
 	/**
@@ -107,13 +107,13 @@ class KeywordSectionContent extends SectionContent
 	public function collectKeywordInput(?array $src=null): void
 	{
 		$this->clearKeywordData();
-		$this->keywordInput->collectRequestData($src);
+		$this->keywordInput->collectRequestData(null, $src);
 		if (!$this->keywordInput->value) {
 			return;
 		}
 		$keywords = $this->extractKeywordTerms($this->keywordInput->value);
 		foreach($keywords as $term) {
-			array_push($this->keywords, new Keyword(trim($term), $this->id->value, $this->contentProperties->id->value));
+			$this->keywords[] = new Keyword(trim($term), $this->id->value, $this->contentProperties->id->value);
 		}
 	}
 
@@ -157,10 +157,10 @@ class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Extract keyword terms from a comma-delimited string containing multiple terms.
-	 * @param string $src Comma-delimited series of keyword terms.
+	 * @param string|array $src Comma-delimited series of keyword terms.
 	 * @return array Keyword terms separated out into an array.
 	 */
-	protected function extractKeywordTerms(string $src): array
+	protected function extractKeywordTerms($src): array
     {
 		if (is_array($src)) {
 			$terms = array_values($src);
@@ -190,8 +190,8 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Formats a comma-delimited string out of the object's keywords.
 	 * @param bool[optional] $fetch_from_database If TRUE return keywords from database. If FALSE return keyword terms
-	 * currently stored in the object properties. Defaults to TRUE.
-	 * @return string Comma-delimited string containing all of the current keywords associated with this record.
+	 * stored in the object properties. Defaults to TRUE.
+	 * @return string Comma-delimited string containing all the current keywords associated with this record.
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
@@ -216,7 +216,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws RecordNotFoundException
 	 * @throws ResourceNotFoundException
 	 */
-	public function formatKeywordListPageContent($context=array()): string
+	public function formatKeywordListPageContent(array $context=array()): string
 	{
 		if ($this->hasData()) {
 			$this->readKeywords();
@@ -225,7 +225,7 @@ class KeywordSectionContent extends SectionContent
 		if (!self::getKeywordsListTemplatePath()) {
 			$this->fetchKeywordListTemplate();
 		}
-		return (PageContent::loadTemplateContent(self::getKeywordsListTemplatePath(), $context));
+		return (ContentUtils::loadTemplateContent(self::getKeywordsListTemplatePath(), $context));
 	}
 
     /**
@@ -249,7 +249,7 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Returns an array containing just the keyword terms as strings for each keyword linked to the record in the database.
 	 * @param bool[optional] $fetch_from_database If TRUE return keywords from database. If FALSE return keyword terms
-	 * currently stored in the object properties. Defaults to TRUE.
+	 * stored in the object properties. Defaults to TRUE.
 	 * @return array List of keyword terms currently linked to the record in the database.
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
@@ -339,7 +339,7 @@ class KeywordSectionContent extends SectionContent
 	{
 		parent::save();
 		$this->saveKeywords();
-		ContentCache::updateKeywords($this->id->value, $this->contentProperties);
+		// ContentCache::updateKeywords($this->id->value, $this->contentProperties);
 	}
 
 	/**
@@ -397,7 +397,7 @@ class KeywordSectionContent extends SectionContent
 	{
 		try {
 		    /* bypass validation of site section properties */
-		    array_push($exclude_properties, 'contentProperties');
+		    $exclude_properties[] = 'contentProperties';
 			parent::validateInput($exclude_properties);
 		}
 		catch (ContentValidationException $ex) {
@@ -408,7 +408,7 @@ class KeywordSectionContent extends SectionContent
 		    $this->contentProperties->id->validate();
         }
         catch(ContentValidationException $ex) {
-            array_push($this->validationErrors, $ex->getMessage());
+            $this->validationErrors[] = $ex->getMessage();
         }
         /** @var Keyword $keyword */
         foreach($this->keywords as $keyword) {
