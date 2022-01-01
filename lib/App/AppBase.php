@@ -4,23 +4,22 @@ namespace Littled\App;
 use Littled\Request\RequestInput;
 use Exception;
 
+/**
+ * Base class of a web app containing global utility functions for the app.
+ */
 class AppBase
 {
+    /** @var string */
+    protected static $error_key = 'err';
+    /** @var string */
+    protected static $error_page_url = '/error.php';
+
+    /**
+     * Class constructor
+     */
 	function __construct()
 	{
         /* nothing here for now. put logic in child classes. */
-	}
-
-	/**
-	 * Returns the path to the app's document root.
-	 * @return string Path to document root. Or empty string if the path is unavailable.
-	 */
-	public static function getAppRootDir() : string
-	{
-		if ($_SERVER['DOCUMENT_ROOT']) {
-			return rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
-		}
-		return ('');
 	}
 
     /**
@@ -65,7 +64,19 @@ class AppBase
         return (substr(bin2hex($bytes), 0, $length));
     }
 
-	/**
+    /**
+     * Returns the path to the app's document root.
+     * @return string Path to document root. Or empty string if the path is unavailable.
+     */
+    public static function getAppRootDir() : string
+    {
+        if ($_SERVER['DOCUMENT_ROOT']) {
+            return rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
+        }
+        return ('');
+    }
+
+    /**
 	 * Returns the CSRF token for this session.
 	 * @return string|null
 	 */
@@ -77,16 +88,56 @@ class AppBase
 		return $_SESSION[LittledGlobals::CSRF_SESSION_KEY];
 	}
 
-	/**
+    /**
+     * Error key getter.
+     * @return string
+     */
+    public static function getErrorKey(): string
+    {
+        return static::$error_key;
+    }
+
+    /**
+     * Error page url getter.
+     * @return string
+     */
+    public static function getErrorPageURL(): string
+    {
+        return static::$error_page_url;
+    }
+
+    /**
 	 * Redirect to the site's error page with error to display on the page.
-	 * @param string $error_msg
-	 * @param string $url
-	 * @param string $key
+	 * @param string $error_msg Error message to inject into the error page template.
+	 * @param string $url (Optional) URL of the global site error page.
+	 * @param string $key (Optional) key used to store and retrieve error message.
 	 */
-	public static function redirectToErrorPage(string $error_msg, string $url, string $key)
+	public static function redirectToErrorPage(string $error_msg, string $url='', string $key='')
 	{
+        $url = $url ?: AppBase::getErrorPageURL();
+        $key = $key ?: AppBase::getErrorKey();
 		header("Location: $url?$key=".urlencode($error_msg));
 	}
+
+    /**
+     * Error key setter.
+     * @param string $key
+     * @return void
+     */
+    public static function setErrorKey(string $key)
+    {
+        static::$error_key = $key;
+    }
+
+    /**
+     * Error page url setter.
+     * @param string $url
+     * @return void
+     */
+    public static function setErrorPageURL(string $url)
+    {
+        static::$error_page_url = $url;
+    }
 
 	/**
 	 * @deprecated Use /Littled/Log/Debug::output() instead.

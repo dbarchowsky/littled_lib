@@ -25,4 +25,22 @@ class AppBaseTest extends \PHPUnit\Framework\TestCase
         $id_4 = AppBase::generateUniqueToken(30);
         $this->assertNotEquals($id_1, $id_4);
     }
+
+    public function testSetErrorKey()
+    {
+        $default_key = 'err';
+        $new_key = 'new_test';
+        $this->assertEquals($default_key, AppBase::getErrorKey());
+        AppBase::setErrorKey($new_key);
+        $this->assertEquals($new_key, AppBase::getErrorKey());
+    }
+
+    public function testSetErrorPageURL()
+    {
+        $default_url = '/error.php';
+        $new_url = '/new-error.php';
+        $this->assertEquals($default_url, AppBase::getErrorPageURL());
+        AppBase::setErrorPageURL($new_url);
+        $this->assertEquals($new_url, AppBase::getErrorPageURL());
+    }
 }
