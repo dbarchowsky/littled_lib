@@ -2,8 +2,8 @@
 namespace Littled\Tests\PageContent;
 
 use Littled\PageContent\Metadata\MetadataElement;
-use Littled\PageContent\Navigation\NavigationMenuNode;
 use Littled\PageContent\PageConfig;
+use Littled\PageContent\Metadata\Preload;
 use PHPUnit\Framework\TestCase;
 
 
@@ -32,6 +32,18 @@ class PageConfigTest extends TestCase
         $this->assertEquals($link2['label'], $node->label);
     }
 
+    public function testClearPreloads()
+    {
+        PageConfig::registerPreload(new Preload('link', 'preload', 'https://url.com'));
+        PageConfig::registerPreload(new Preload('link', 'preload', 'https://url.com'));
+        $preloads = PageConfig::getPreloads();
+        $this->assertCount(2, $preloads);
+
+        PageConfig::clearPreloads();
+        $preloads = PageConfig::getPreloads();
+        $this->assertCount(0, $preloads);
+    }
+
 	public function testContentCSSClass()
 	{
 		$css_class = 'test-class';
@@ -41,6 +53,17 @@ class PageConfigTest extends TestCase
 		PageConfig::setContentCSSClass($css_class);
 		$this->assertEquals($css_class, PageConfig::getContentCSSClass(), 'Content CSS class assignment');
 	}
+
+    public function testGetPreloads()
+    {
+        // test default state
+        $preloads = PageConfig::getPreloads();
+        $this->assertCount(0, $preloads);
+
+        PageConfig::registerPreload(new Preload('link', 'preload', 'https://url.com'));
+        $preloads = PageConfig::getPreloads();
+        $this->assertCount(1, $preloads);
+    }
 
 	public function testUnregisterStylesheets()
 	{

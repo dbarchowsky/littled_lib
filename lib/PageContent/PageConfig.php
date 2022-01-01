@@ -95,7 +95,15 @@ class PageConfig
 		}
 	}
 
-	/**
+    /**
+     * Clears all previously registered stylesheets.
+     */
+    public static function clearPreloads( )
+    {
+        static::$preloads = array();
+    }
+
+    /**
 	 * Clears all previously registered stylesheets.
 	 */
 	public static function clearStylesheets( )
@@ -202,6 +210,15 @@ class PageConfig
 		return(static::$metadata->title);
 	}
 
+    /**
+     * Preloads getter.
+     * @return array
+     */
+    public static function getPreloads(): array
+    {
+        return static::$preloads;
+    }
+
 	/**
 	 * Gets the current site label value
 	 * @return string
@@ -237,7 +254,7 @@ class PageConfig
 	 */
 	public static function registerPreload(Preload $preload)
 	{
-		array_push(static::$preloads, $preload);
+		static::$preloads[] = $preload;
 	}
 
 	/**
@@ -246,7 +263,7 @@ class PageConfig
 	 */
 	public static function registerScript(string $src)
 	{
-		array_push(static::$scripts, $src);
+		static::$scripts[] = $src;
 	}
 
 	/**
@@ -255,7 +272,7 @@ class PageConfig
 	 */
 	public static function registerStylesheet(string $src)
 	{
-		array_push(static::$stylesheets, $src);
+		static::$stylesheets[] = $src;
 	}
 
 	/**
@@ -341,9 +358,6 @@ class PageConfig
 	 */
 	public static function setKeywords(array $keywords)
 	{
-		if (!is_array($keywords)) {
-			throw new Exception("[".__METHOD__."] \$keywords parameter expects array.");
-		}
 		self::metadata();
 		static::$metadata->setKeywords($keywords);
 	}
