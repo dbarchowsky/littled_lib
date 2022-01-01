@@ -22,6 +22,16 @@ class NavigationMenuTest extends TestCase
         $this->obj = new NavigationMenu();
     }
 
+    function testGetNodeCount()
+    {
+        $this->assertEquals(0, $this->obj->getNodeCount());
+        $this->obj->addNode('l1', 'url');
+        $this->assertEquals(1, $this->obj->getNodeCount());
+        $this->obj->addNode('l2', 'url');
+        $this->obj->addNode('l3', 'url');
+        $this->assertEquals(3, $this->obj->getNodeCount());
+    }
+
     function testSetMenuTemplatePath()
     {
         // test default value

@@ -2,12 +2,36 @@
 namespace Littled\Tests\PageContent;
 
 use Littled\PageContent\Metadata\MetadataElement;
+use Littled\PageContent\Navigation\NavigationMenuNode;
 use Littled\PageContent\PageConfig;
 use PHPUnit\Framework\TestCase;
 
 
 class PageConfigTest extends TestCase
 {
+    public function testAddUtilityLink()
+    {
+        $link1 = array('label' => 'label-one', 'url' => '/url-one');
+        $link2 = array('label' => 'label-two', 'url' => '/url-two');
+        PageConfig::addUtilityLink($link1['label'], $link1['url']);
+
+        $menu = PageConfig::getUtilityLinks();
+        $this->assertEquals(1, $menu->getNodeCount());
+
+        $node = PageConfig::getUtilityLinks()->first;
+        $this->assertEquals($link1['url'], $node->url);
+        $this->assertEquals($link1['label'], $node->label);
+
+        PageConfig::addUtilityLink($link2['label'], $link2['url']);
+
+        $menu = PageConfig::getUtilityLinks();
+        $this->assertEquals(2, $menu->getNodeCount());
+
+        $node = PageConfig::getUtilityLinks()->first->nextNode;
+        $this->assertEquals($link2['url'], $node->url);
+        $this->assertEquals($link2['label'], $node->label);
+    }
+
 	public function testContentCSSClass()
 	{
 		$css_class = 'test-class';

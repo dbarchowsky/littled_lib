@@ -63,24 +63,26 @@ class PageConfig
 	/**
 	 * Adds a navigation menu node.
 	 * @param string $label Menu node link
-	 * @param string $url Menu node target URL
-	 * @param string $target Target window identifier for the node URL
-	 * @param string $level Menu node level
-	 * @param string $dom_id Menu node element selector
-	 * @param string $attributes String containing any additional attributes to assign to the node element.
+	 * @param string $url (Optional) Menu node target URL
+     * @param string $title (Optional) title for the utility link
+	 * @param string $target (Optional) Target window identifier for the node URL
+	 * @param int $level (Optional) Menu node level
+	 * @param string $dom_id (Optional) Menu node element selector
+	 * @param string $attributes (Optional) String containing any additional attributes to assign to the node element.
 	 */
 	public static function addUtilityLink(
         string $label,
         string $url='',
+        string $title='',
         string $target='',
-        string $level='',
+        int $level=0,
         string $dom_id='',
         string $attributes='')
 	{
 		if (!is_object(static::$utilityLinks)) {
 			static::$utilityLinks = new NavigationMenu();
 		}
-		static::$utilityLinks->addNode($label, $url, $target, $level, $dom_id, $attributes);
+		static::$utilityLinks->addNode($label, $url, $title, $target, $level, $dom_id, $attributes);
 	}
 
 	/**

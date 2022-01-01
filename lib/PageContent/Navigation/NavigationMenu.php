@@ -58,7 +58,7 @@ class NavigationMenu
 	/**
 	 * removes the last node from the chain
 	 */
-	function dropLast ( )
+	public function dropLast ( )
 	{
 		if (!isset($this->last)) {
 			return;
@@ -82,6 +82,23 @@ class NavigationMenu
 		return (static::$menuTemplate);
 	}
 
+    /**
+     * Returns the current menu node count.
+     * @return int
+     */
+    public function getNodeCount(): int
+    {
+        $n = 0;
+        $node = $this->first;
+        if (isset($node)) {
+            while(isset($node)) {
+                $n++;
+                $node = $node->nextNode;
+            }
+        }
+        return $n;
+    }
+
 	/**
 	 * @return string Returns the type set for the navigation menu nodes.
 	 */
@@ -94,7 +111,7 @@ class NavigationMenu
 	 * Returns true/false depending on whether the menu current contains any nodes.
 	 * @return bool True if the menu has nodes, false otherwise
 	 */
-	function hasNodes (): bool
+	public function hasNodes (): bool
 	{
 		return (isset($this->first));
 	}
