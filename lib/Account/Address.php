@@ -31,7 +31,10 @@ class Address extends SerializedContent
 {
     /** @var string Google maps api key */
     protected static $gmap_api_key;
+    /** @var string */
     protected static $address_data_template = 'forms/data/address_class_data.php';
+    /** @var string */
+    protected static $street_address_data_template = 'forms/data/street_address_form_data.php';
 
 	const ID_PARAM = "adid";
 	const LOCATION_PARAM = "adlo";
@@ -340,6 +343,15 @@ class Address extends SerializedContent
     }
 
     /**
+     * Street address data template file name getter
+     * @return string
+     */
+    public static function getStreetAddressDataTemplate(): string
+    {
+        return static::$street_address_data_template;
+    }
+
+    /**
      * Returns current Google Maps API key value.
      * @return string Current Google Maps API key value
      */
@@ -456,6 +468,18 @@ class Address extends SerializedContent
     }
 
     /**
+     * Inject property values into html form as hidden inputs.
+     * @return void
+     * @throws ResourceNotFoundException
+     */
+    function preservePhysicalAddressInForm()
+    {
+        $template_path = static::$common_cms_template_path.$this::getStreetAddressDataTemplate();
+        $context = array('input' => $this);
+        ContentUtils::renderTemplate($template_path, $context);
+    }
+
+    /**
 	 * Retrieves address data from database.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -532,6 +556,15 @@ class Address extends SerializedContent
     }
 
     /**
+     * Street address data template file name setter
+     * @param string $filename
+     */
+    public static function setstreetAddressDataTemplate(string $filename)
+    {
+        static::$street_address_data_template = $filename;
+    }
+
+    /**
      * Address data template file name setter
      * @param string $filename
      */
@@ -540,7 +573,7 @@ class Address extends SerializedContent
         static::$address_data_template = $filename;
     }
 
-	/**
+    /**
 	 * Validates address form data.
      * @param array[optional] $exclude_properties List of properties to exclude from validation.
 	 * @throws Exception Throws exception if any invalid form data is detected. A detailed description of the errors is found through the GetMessage() routine of the Exception object.

@@ -518,6 +518,19 @@ class AddressTest extends ContentValidationTestCase
     }
 
     /**
+     * @return void
+     * @throws ResourceNotFoundException
+     */
+    public function testPreservePhysicalAddressInForm()
+    {
+        ob_start();
+        $this->address->preservePhysicalAddressInForm();
+        $markup = ob_get_clean();
+        $this->assertDoesNotMatchRegularExpression("/{$this->address->first_name->key}/", $markup);
+        $this->assertMatchesRegularExpression("/{$this->address->city->key}/", $markup);
+    }
+
+    /**
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
