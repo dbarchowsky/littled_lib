@@ -17,20 +17,22 @@ use LittledCommon\FormData\input_class;
  */
 class PageContent extends MySQLConnection
 {
+    /** @var string Token representing the current action to take on the page. */
+    public $action;
     /** @var object Page content. */
     public $content;
     /** @var object Content filters. */
     public $filters;
+    /** @var string @var */
+    public $label;
+    /** @var string Query string to attach to page links. */
+    protected $query_string;
     /** @var string Query string containing variables defining page state. */
     public $qs;
-    /** @var string Token representing the current action to take on the page. */
-    public $action;
 	/** @var string URL to use for redirects. */
 	public $redirect_url;
 	/** @var string Path to template file. */
 	public $template_path;
-	/** @var string Query string to attach to page links. */
-	protected $query_string;
 
 	const CANCEL_ACTION = "cancel";
 	const COMMIT_ACTION = "commit";
