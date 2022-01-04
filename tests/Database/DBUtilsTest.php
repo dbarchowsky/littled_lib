@@ -9,6 +9,28 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 class DBUtilsTest extends TestCase
 {
+
+    function testDisplayQueryOptions()
+    {
+        // Test using table from database
+        $query = 'SELECT id, name FROM `contact_status` ORDER BY id';
+        $selected = array(null);
+        $this->expectOutputRegex('/<option value="2">attempted contact<\/option>/');
+        DBUtils::displayQueryOptions($query, $selected);
+        ob_clean();
+
+        // Set one of the options as "selected"
+        $selected = array(4);
+        $this->expectOutputRegex('/<option value="4" selected="selected">received rejection<\/option>/');
+        DBUtils::displayQueryOptions($query, $selected);
+        ob_clean();
+
+        // query result set columns do not match what's expected in routine
+        $query = 'SELECT id, name AS `value` FROM `contact_status` ORDER BY id';
+        $this->expectOutputRegex('/<option value="" disabled="disabled" class="alert alert-error">Error retrieving options: Missing required.*<\/option>/');
+        DBUtils::displayQueryOptions($query, $selected);
+    }
+
 	function testFormatSqlDate()
 	{
 		$now = time();

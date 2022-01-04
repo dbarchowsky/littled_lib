@@ -46,22 +46,29 @@ class DBUtils
      * Uses supplied SQL SELECT statement to retrieve name/value pairs from database. These name/value pairs are then written out at HTML option tags.
      * @param string $query SQL SELECT statement
      * @param array $selected_options Array containing the values of any selected options.
+     * @param string $css_error_class (Optional) css class to apply to option element in case of an error. Defaults to "alert alert-error".
      */
-    public static function displayQueryOptions(string $query, array $selected_options )
+    public static function displayQueryOptions(string $query, array $selected_options, string $css_error_class='alert alert-error')
     {
         try
         {
             $conn = new MySQLConnection();
             $data = $conn->fetchRecords($query);
-            /** TODO referencing the row elements by index might not work below. */
-            foreach($data as $row): ?>
-                <option value="<?=$row[0] ?>"<?=((in_array($row[0], $selected_options))?(" selected=\"selected\""):("")) ?>><?=$row[1] ?></option>
-            <?php endforeach;
+            if (count($data) > 0) {
+                if (!property_exists($data[0], 'id') || !property_exists($data[0], 'name')) {
+                    throw new InvalidQueryException("Missing required fields in query: \"id\" and/or \"name\".");
+                }
+            }
+            foreach($data as $row):
+?>
+                <option value="<?=$row->id ?>"<?=((in_array($row->id, $selected_options))?(" selected=\"selected\""):("")) ?>><?=$row->name ?></option>
+<?php
+            endforeach;
         }
         catch(Exception $ex) {
-            ?>
-            <option value="" disabled="disabled" style="background-color:#ff0000;color:#ffffff;font-weight:bold;">Error retrieving options: <?=$ex->getMessage()?></option>
-            <?php
+?>
+            <option value="" disabled="disabled" class="<?=$css_error_class?>">Error retrieving options: <?=$ex->getMessage()?></option>
+<?php
         }
     }
 

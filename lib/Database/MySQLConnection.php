@@ -170,7 +170,7 @@ class MySQLConnection extends AppBase
 			$result = $this->mysqli->store_result();
 			if ($result) {
 				while($row = $result->fetch_object()) {
-					array_push($rs, $row);
+					$rs[] = $row;
 				}
 				$result->free();
 			}
