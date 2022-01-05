@@ -2,7 +2,10 @@
 namespace Littled\SiteContent;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
@@ -41,7 +44,7 @@ class ContentAjaxProperties extends SerializedContent
 	public $cache_uri;
 	/** @var StringTextField URI of AJAX listings sorting utility script. */
 	public $sorting_uri;
-	/** @var StringTextField URI of AJAX record keywords management utility script. */
+	/** @var StringTextField URI of AJAX record keyword management utility script. */
 	public $keywords_uri;
 	/** @var StringTextField Path to listings template. */
     public $listings_template;
@@ -52,7 +55,7 @@ class ContentAjaxProperties extends SerializedContent
 	/** @var BooleanCheckbox Flag indicating that the listings are sortable. */
 	public $is_sortable;
 
-	public static function TABLE_NAME()
+	public static function TABLE_NAME(): string
 	{
 		return "section_operations";
 	}
@@ -61,7 +64,7 @@ class ContentAjaxProperties extends SerializedContent
 	 * ContentAjaxProperties constructor.
 	 * @param int|null[optional] $content_type_id Initial content type id value.
 	 */
-	function __construct( $content_type_id=null )
+	function __construct( ?int $content_type_id=null )
 	{
 		parent::__construct();
 		$this->id = new IntegerInput("Id", "capId", false);
@@ -73,7 +76,7 @@ class ContentAjaxProperties extends SerializedContent
 		$this->details_uri = new StringTextField("Details URI", "capDetailsURI", false, '', 255);
 		$this->edit_uri  = new StringTextField("Edit URI", "capEditURI", false, '', 255);
 		$this->upload_uri = new StringTextField("Upload URI", "capUploadURI", false, '', 255);
-		$this->delete_uri = new StringTextField("Detlete URI", "capDeleteURI", false, '', 255);
+		$this->delete_uri = new StringTextField("Delete URI", "capDeleteURI", false, '', 255);
 		$this->cache_uri = new StringTextField("Cache URI", "capCacheURI", false, '', 255);
 		$this->sorting_uri = new StringTextField("Sorting URI", "capSortURI", false, '', 255);
 		$this->keywords_uri = new StringTextField("Keywords URI", "capKeywordsURI", false, '', 255);
@@ -85,20 +88,19 @@ class ContentAjaxProperties extends SerializedContent
 
 	/**
 	 * Returns true/false depending on whether any data is detected in the object.
-	 * @return bool TRUE if the object is holding useable data, false otherwise.
+	 * @return bool TRUE if the object is holding usable data, false otherwise.
 	 */
-	public function hasData()
+	public function hasData(): bool
 	{
 		return ($this->id->value>0 || $this->section_id->value>0 || ($this->label->value) || ($this->id_param->value));
 	}
 
 	/**
-	 * Returns plural label for the content type.
-	 * @param int $count Number of items currently associated with the label.
-	 * @param string[optional] $property_name Label to be made plural.
-	 * @return string Plural label for the content type.
-	 */
-	public function pluralLabel($count, $property_name='label')
+	 * {@inheritDoc}
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidValueException
+     */
+	public function pluralLabel(int $count, string $property_name='label'): string
 	{
 		return(parent::pluralLabel($count, $property_name));
 	}
@@ -106,7 +108,7 @@ class ContentAjaxProperties extends SerializedContent
 	/**
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
 	public function retrieveContentProperties()
 	{
@@ -124,7 +126,7 @@ class ContentAjaxProperties extends SerializedContent
 	 * @deprecated Use ContentAjaxProperties::retrieveContentProperties() instead.
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
 	public function retrieveSectionProperties()
 	{

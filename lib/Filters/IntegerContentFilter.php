@@ -10,7 +10,20 @@ use Littled\Validation\Validation;
  */
 class IntegerContentFilter extends ContentFilter
 {
-	/**
+    /**
+     * {@inheritDoc}
+     * @param string $label
+     * @param string $key
+     * @param ?int $value
+     * @param ?int $size
+     * @param string $cookieKey
+     */
+    public function __construct(string $label, string $key, ?int $value = null, ?int $size = 0, string $cookieKey = '')
+    {
+        parent::__construct($label, $key, $value, $size, $cookieKey);
+    }
+
+    /**
 	 * Collects the filter value from request variables, session variables, or cookie variables, in that order.
 	 */
 	protected function collectRequestValue()

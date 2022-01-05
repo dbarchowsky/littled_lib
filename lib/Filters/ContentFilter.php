@@ -30,10 +30,10 @@ class ContentFilter
 	 * @param string $label Label to display on filter form inputs.
 	 * @param string $key Variable name used to pass along filter values.
 	 * @param ?mixed $value Filter value.
-	 * @param ?int $size Size limit of the filter value.
-	 * @param ?string $cookieKey Key of the cookie element holding the filter value.
+	 * @param ?mixed $size Size limit of the filter value.
+	 * @param ?mixed $cookieKey Key of the cookie element holding the filter value.
 	 */
-	function __construct(string $label, string $key, string $value='', int $size=0, string $cookieKey='')
+	function __construct(string $label, string $key, $value=null, $size=0, $cookieKey='')
 	{
 		$this->label = $label;
 		$this->key = $key;

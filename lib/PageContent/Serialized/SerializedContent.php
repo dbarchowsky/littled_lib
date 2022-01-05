@@ -259,9 +259,10 @@ class SerializedContent extends SerializedContentValidation
 		}
 
 		$fields = $this->formatDatabaseColumnList();
+        $table = ((method_exists($this, 'getTableName'))?($this->getTableName()):($this::TABLE_NAME()));
 		$query = "SELECT `".
 			implode('`,`', array_keys($fields))."` ".
-			"FROM `".$this->TABLE_NAME()."` ".
+			"FROM `$table` ".
 			"WHERE id = {$this->id->value}";
 		try {
 			$this->hydrateFromQuery($query);

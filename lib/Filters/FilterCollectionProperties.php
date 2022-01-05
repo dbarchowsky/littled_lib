@@ -109,7 +109,7 @@ class FilterCollectionProperties extends AppContentBase
     public function getCookieKey(): string
     {
         if (!isset(static::$cookie_key)) {
-            static::$cookie_key = self::DEFAULT_COOKIE_KEY();
+            static::$cookie_key = $this::DEFAULT_COOKIE_KEY();
         }
         return static::$cookie_key;
     }
@@ -149,9 +149,20 @@ class FilterCollectionProperties extends AppContentBase
     public function getKeyPrefix(): string
     {
         if (!isset(static::$key_prefix)) {
-            static::$key_prefix = self::DEFAULT_KEY_PREFIX();
+            static::$key_prefix = $this::DEFAULT_KEY_PREFIX();
         }
         return static::$key_prefix;
+    }
+
+    /**
+     * Returns a localized name for a query string variable that will hold the value of one of the filters.
+     * @param string $base_key Base name of the variable to be added to a localized prefix.
+     * @return string
+     * @throws NotImplementedException
+     */
+    public function getLocalKey(string $base_key): string
+    {
+        return ($this->getKeyPrefix().$base_key);
     }
 
     /**

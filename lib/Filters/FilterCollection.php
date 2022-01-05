@@ -4,6 +4,7 @@ namespace Littled\Filters;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\ContentUtils;
 use Littled\PageContent\PageUtils;
 use Littled\Validation\Validation;
 use Exception;
@@ -47,7 +48,7 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
 	/**
-	 * Specialized routine for collectin the "display listings" setting.
+	 * Specialized routine for collection the "display listings" setting.
 	 * - Don't check cookies for this filter's value.
 	 * - If the input value is set to "filter", set the object's property value
 	 * to TRUE.
@@ -69,7 +70,7 @@ class FilterCollection extends FilterCollectionProperties
 	 * @param bool $save_filters (optional) If set to TRUE, save all filter values in session variables.
      * @throws NotImplementedException
 	 */
-	public function collectFilterValues($save_filters=true)
+	public function collectFilterValues(bool $save_filters=true)
 	{
 		$excluded_properties = array("displayListings");
 
@@ -148,17 +149,6 @@ class FilterCollection extends FilterCollectionProperties
     }
 
     /**
-     * Returns a localized name for a query string variable that will hold the value of one of the filters.
-     * @param string $base_key Base name of the variable to be added to a lcoalized prefix.
-     * @return string
-     * @throws NotImplementedException
-     */
-    public function getLocalKey(string $base_key): string
-    {
-        return ($this->getKeyPrefix().$base_key);
-    }
-
-    /**
 	 * Formats SQL clauses to the offset and page size of the recordset.
 	 * @return array First element is the lower limit value and the 2nd element is the upper limit value.
 	 * @throws InvalidQueryException
@@ -216,7 +206,7 @@ class FilterCollection extends FilterCollectionProperties
 				$this->mysqli->next_result();
 				if ($result = $this->mysqli->store_result()) {
 					$this->record_count = $result->fetch_object()->total_matches;
-					$this->calcPageCount();
+					$this->page_count = $this->calcPageCount();
 					break;
 				}
 			}
@@ -257,15 +247,12 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Print out current filters as hidden inputs to be included in a form in order to preserve the filters after form submission.
-	 * @param array $exclude List of parameter names that should not be included in the hidden form inputs.
+	 * @param ?array $exclude List of parameter names that should not be included in the hidden form inputs.
      * @throws ResourceNotFoundException
 	 */
-	public function preserveInForm ($exclude=null)
+	public function preserveInForm (?array $exclude=null)
 	{
-		if ($exclude==null) {
-			$exclude = array();
-		}
-		$exclude = $exclude + array('recordCount', 'pageCount');
+		$exclude = ($exclude ?? array()) + array('recordCount', 'pageCount');
 		foreach($this as $filter) {
 			/** @var ContentFilter $filter */
 			if ($filter instanceof ContentFilter) {
@@ -287,7 +274,7 @@ class FilterCollection extends FilterCollectionProperties
 			$data = $this->fetchRecords($this->formatListingsQuery());
 		}
 		catch(Exception $ex) {
-			print("<div class=\"alert alert-error\">Error retrieving listings: ".$ex->getMessage());
+            ContentUtils::printError($ex->getMessage());
 		}
 		return ($data);
 	}
