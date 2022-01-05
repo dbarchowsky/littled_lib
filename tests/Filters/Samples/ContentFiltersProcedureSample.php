@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Tests\Filters\Samples;
 
-class ContentFilterCollectionSprocSample extends ContentFilterCollectionSample
+class ContentFiltersProcedureSample extends ContentFiltersSample
 {
     public function __construct(int $content_type_id)
     {

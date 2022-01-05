@@ -1,11 +1,11 @@
 <?php
 namespace Littled\Tests\Filters\Samples;
 
-use Littled\Filters\ContentFilterCollection;
+use Littled\Filters\ContentFilters;
 use mysqli_result;
 use Exception;
 
-class ContentFilterCollectionSample extends ContentFilterCollection
+class ContentFiltersSample extends ContentFilters
 {
     /** @var int */
     public const CONTENT_ID = 1; /* articles */

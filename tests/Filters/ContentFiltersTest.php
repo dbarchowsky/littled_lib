@@ -1,72 +1,106 @@
 <?php
 namespace Littled\Tests\Filters;
+require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
-require_once (realpath(dirname(__FILE__).'/../../').'/_dbo/bootstrap.php');
-
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\Filters\ContentFilters;
+use Littled\Tests\Filters\Samples\ContentFiltersProcedureSample;
+use Littled\Tests\Filters\Samples\ContentFiltersSample;
 use PHPUnit\Framework\TestCase;
-
-define('VALID_CONTENT_TYPE_ID', 2);
-define('INVALID_CONTENT_TYPE_ID', 145);
-
-class InvalidContentFilters extends ContentFilters
-{
-	public static function CONTENT_TYPE_ID() { return (INVALID_CONTENT_TYPE_ID); }
-}
-
-class ValidContentFilters extends ContentFilters
-{
-	public static function CONTENT_TYPE_ID() { return(VALID_CONTENT_TYPE_ID); }
-	
-	protected function formatListingsQuery()
-	{
-		$query = "CALL shippingRatesListings(1, 10, '', @total_matches);SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`;";
-		return ($query);
-	}
-}
+use Exception;
 
 class ContentFiltersTest extends TestCase
 {
-	public function testContentTypeId()
-	{
-		$ex_msg = "";
-		try {
-			$c = new ContentFilters();
-		}
-		catch(NotImplementedException $ex) {
-			$ex_msg = $ex->getMessage();
-		}
-		$this->assertEquals("Littled\Filters\ContentFilters::CONTENT_TYPE_ID not implemented.", $ex_msg, "Invoking constructor in base ContentFilters class without defining CONTENT_TYPE_ID().");
+    function testConstruct()
+    {
+        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $this->assertEquals('article', $cf->content_properties->label);
+    }
 
-		$ex_msg = "";
-		try {
-			$d = new ValidContentFilters();
-		}
-		catch(NotImplementedException $ex) {
-			$ex_msg = $ex->getMessage();
-		}
-		$this->assertEquals("", $ex_msg, "Invoking constructor in derived class after implementing CONTENT_TYPE_ID().");
-		$this->assertInstanceOf('Littled\Filters\ContentFilters', $d, "Child object created.");
-		$this->assertEquals(VALID_CONTENT_TYPE_ID, $d->getContentTypeId());
+    function testDefaultListingsLength()
+    {
+        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $this->assertGreaterThan(0, $cf->listings_length->value);
+    }
 
-		$ex_msg = '';
-		try {
-			$i = new InvalidContentFilters();
-		}
-		catch(RecordNotFoundException $ex) {
-			$ex_msg = $ex->getMessage();
-		}
-		$this->assertEquals("The requested record was not found.", $ex_msg, "Setting content type id to non-existent record.");
-	}
-	
-	public function testRetrieveListings()
-	{
-		$f = new ValidContentFilters();
-		$data = $f->retrieveListings();
-		$this->assertGreaterThan(0, count($data), "Listings records returned.");
-		$this->assertEquals(11, $f->record_count, "Record count.");
-		$this->assertEquals('USA', $data[6]->region, "Expected cell value.");
-	}
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function testRetrieveListings()
+    {
+        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $result = $cf->retrieveListings();
+        $this->assertGreaterThan(2, $result->num_rows);
+        $last_id = 0;
+        $i = 0;
+        foreach($result as $row) {
+            if ($i> 2) {
+                break;
+            }
+            $this->assertIsNumeric($row['id']);
+            $this->assertIsString($row['title']);
+            $this->assertNotEquals($last_id, $row['id']);
+            $last_id = $row['id'];
+            $i++;
+        }
+        $this->assertNull($cf->record_count);
+        $result->free();
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function testRetrieveListingsUsingProcedure()
+    {
+        $cf = new ContentFiltersProcedureSample(ContentFiltersSample::CONTENT_ID);
+        $result = $cf->retrieveListings();
+        $this->assertEquals($cf->listings_length, $result->num_rows);
+        $this->assertIsNumeric($cf->record_count);
+        $this->assertGreaterThan($cf->listings_length, $cf->record_count);
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function testExecuteListingsQuery()
+    {
+        $query = "CALL articleListingsSelect(1, 4, '%recipe%', NULL, NULL, NULL, NULL, NULL, @total_matches);".
+            "SELECT @total_matches AS `total_matches`;";
+
+        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $result = $cf->retrieveListingsUsingProcedureTest($query);
+        $this->assertGreaterThan(0, $result->num_rows);
+        $this->assertGreaterThan(0, $cf->record_count);
+        $this->assertGreaterThan(0, $cf->page_count);
+
+        $row = $result->fetch_assoc();
+        $this->assertMatchesRegularExpression('/^[a-zA-Z].*/', $row['title']);
+
+        $this->assertGreaterThan(0, $result->num_rows);
+        while($row = $result->fetch_object()) {
+            $this->assertIsNumeric($row->id);
+            $this->assertIsString($row->title);
+        }
+        $result->free();
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function testExecuteListingsQueryAsAssociativeArray()
+    {
+        $query = "CALL articleListingsSelect(1, 3, NULL, NULL, NULL, NULL, NULL, NULL, @total_matches);".
+            "SELECT @total_matches AS `total_matches`;";
+
+        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $result = $cf->retrieveListingsUsingProcedureTest($query);
+        $this->assertGreaterThan(0, $result->num_rows);
+        foreach($result as $row) {
+            $this->assertIsNumeric($row['id']);
+            $this->assertIsString($row['title']);
+        }
+        $result->free();
+    }
 }

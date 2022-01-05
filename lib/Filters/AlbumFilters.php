@@ -118,7 +118,7 @@ class AlbumFilters extends FilterCollection
 			$this->listings_length->escapeSQL($this->mysqli).",".
 			"NULL,".
 			$this->contentProperties->id->escapeSQL($this->mysqli).",".
-			$this->gallery->contentProperties->id->escapeSQL($this->mysqli).",".
+			$this->gallery->content_properties->id->escapeSQL($this->mysqli).",".
 			$this->title->escapeSQL($this->mysqli).",".
 			$this->date->escapeSQL($this->mysqli).",".
 			$this->releaseAfter->escapeSQL($this->mysqli).",".

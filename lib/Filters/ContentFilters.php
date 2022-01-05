@@ -6,7 +6,6 @@ use Littled\Exception\NotImplementedException;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
 use Exception;
-use mysqli_result;
 
 /**
  * Class ContentFilters
@@ -15,11 +14,11 @@ use mysqli_result;
 class ContentFilters extends FilterCollection
 {
 	/** @var ContentProperties Content properties */
-	public $contentProperties;
+	public $content_properties;
 	/** @var ContentAjaxProperties Ajax properties */
-	public $ajaxProperties;
-	/** @var int $contentTypeID Pointer to contentProperties->id->value for convenience */
-	public $contentTypeID;
+	public $ajax_properties;
+	/** @var int $content_type_id Pointer to contentProperties->id->value for convenience */
+	public $content_type_id;
 
 	/**
 	 * ContentFilters constructor.
@@ -30,12 +29,12 @@ class ContentFilters extends FilterCollection
 	function __construct( int $content_type_id )
 	{
 		parent::__construct();
-		$this->contentProperties = new ContentProperties($content_type_id);
-		$this->contentTypeID = &$this->contentProperties->id->value;
-		$this->ajaxProperties = new ContentAjaxProperties();
-		$this->ajaxProperties->section_id->value = $this->contentTypeID;
-		$this->contentProperties->read();
-		$this->ajaxProperties->retrieveContentProperties();
+		$this->content_properties = new ContentProperties($content_type_id);
+		$this->content_type_id = &$this->content_properties->id->value;
+		$this->ajax_properties = new ContentAjaxProperties();
+		$this->ajax_properties->section_id->value = $this->content_type_id;
+		$this->content_properties->read();
+		$this->ajax_properties->retrieveContentProperties();
 	}
 
 	/**
@@ -53,8 +52,8 @@ class ContentFilters extends FilterCollection
 	 * Returns object's content type id value
 	 * @return int
 	 */
-	public function getContentTypeId(): int
+	public function getContentTypeid(): int
 	{
-		return ($this->contentTypeID);
+		return ($this->content_type_id);
 	}
 }

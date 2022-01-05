@@ -90,7 +90,7 @@ class GalleryFilters extends ContentFilters
 		$this->query_string = 'CALL galleryFilteredSelect ('.
 			$this->page->escapeSQL($this->mysqli).
 			','.$this->listings_length->escapeSQL($this->mysqli).
-			','.$this->escapeSQLValue($this->contentTypeID).
+			','.$this->escapeSQLValue($this->content_type_id).
 			','.$this->albumId->escapeSQL($this->mysqli).
 			','.$this->title->escapeSQL($this->mysqli).
 			','.$this->releaseAfter->escapeSQL($this->mysqli).
@@ -116,9 +116,9 @@ class GalleryFilters extends ContentFilters
 	public function getContentProperties ($content_type_id=null)
 	{
 		if ($content_type_id>0) {
-			$this->contentProperties->id->value = $content_type_id;
+			$this->content_properties->id->value = $content_type_id;
 		}
-		$this->contentProperties->read();
+		$this->content_properties->read();
 	}
 
 	/**
@@ -128,11 +128,11 @@ class GalleryFilters extends ContentFilters
 	 */
 	public function getDetailsURI()
 	{
-		if ($this->contentTypeID->id->value===null || $this->contentTypeID< 1) {
+		if ($this->content_type_id->id->value===null || $this->content_type_id< 1) {
 			return('');
 		}
 		$this->connectToDatabase(); /* for the sake of real_escape_string */
-		$query = "CALL getContentDetailsURI(".$this->mysqli->real_escape_string($this->contentTypeID).")";
+		$query = "CALL getContentDetailsURI(".$this->mysqli->real_escape_string($this->content_type_id).")";
 		$data = $this->fetchRecords($query);
 		$this->detailsURI = $data[0]->details_uri;
 		return ($this->detailsURI);
@@ -148,11 +148,11 @@ class GalleryFilters extends ContentFilters
 		if ($count===null) {
 			$count = $this->record_count;
 		}
-		if ($this->contentProperties->label) {
-			return($this->contentProperties->pluralLabel($count));
+		if ($this->content_properties->label) {
+			return($this->content_properties->pluralLabel($count));
 		}
-		if ($this->contentProperties->label) {
-			return($this->contentProperties->pluralLabel($count));
+		if ($this->content_properties->label) {
+			return($this->content_properties->pluralLabel($count));
 		}
 		return ('');
 	}
