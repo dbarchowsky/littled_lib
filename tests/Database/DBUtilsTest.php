@@ -1,11 +1,9 @@
 <?php
-
 namespace Littled\Tests\Database;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\DBUtils;
 use PHPUnit\Framework\TestCase;
-
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 class DBUtilsTest extends TestCase
 {

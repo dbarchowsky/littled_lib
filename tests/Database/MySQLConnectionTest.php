@@ -1,15 +1,17 @@
 <?php
 namespace Littled\Tests\Database;
-
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
-use Littled\Exception\ConnectionException;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\InvalidQueryException;
 use PHPUnit\Framework\TestCase;
+use Exception;
 
 class MySQLConnectionTest extends TestCase
 {
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
 	 */
 	public function testConnection()
 	{
@@ -17,18 +19,19 @@ class MySQLConnectionTest extends TestCase
 		try {
 			$c->getMysqli();
 		}
-		catch(\Littled\Exception\ConfigurationUndefinedException $ex) {
+		catch(ConfigurationUndefinedException $ex) {
 			$this->assertEquals('MYSQL_HOST not found in app settings.', $ex->getMessage());
 		}
-		$query = "SELECT * FROM `test_data` ORDER BY id ASC";
+		$query = "SELECT * FROM `article` ORDER BY id";
 		$rs = $c->fetchRecords($query);
-		$this->assertEquals(count($rs), 4,"Number of records returned by fetchRecords()");
+		$this->assertGreaterThan(0, count($rs), "Number of records returned by fetchRecords()");
 		$row = $rs[0];
-		$this->assertEquals('MAY14', $row->code, "Test field from first row.");
+		$this->assertIsNumeric($row->id);
+        $this->assertIsString($row->title);
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function testDefaultConnection()
 	{
@@ -38,39 +41,7 @@ class MySQLConnectionTest extends TestCase
 	}
 
 	/**
-	 * @throws \Exception
-	 */
-	public function testInvalidPortByHostName()
-	{
-		$c = new MySQLConnection();
-		$this->expectException(ConnectionException::class);
-		$c->connectToDatabase(TEST_HOST_BY_NAME, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, TEST_INVALID_PORT);
-		$this->assertFalse($c->hasConnection());
-	}
-
-	/**
-	 * @throws ConnectionException
-	 */
-	public function testInvalidPortByIP()
-	{
-		$c = new MySQLConnection();
-		$this->expectException(ConnectionException::class);
-		$c->connectToDatabase(TEST_HOST_BY_IP, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, TEST_INVALID_PORT);
-		$this->assertFalse($c->hasConnection());
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	public function testNonDefaultPort()
-	{
-		$c = new MySQLConnection();
-		$c->connectToDatabase(TNDP_HOST, TNDP_USER, TNDP_PASSWORD, TNDP_SCHEMA, TNDP_PORT);
-		$this->assertTrue($c->hasConnection());
-	}
-
-	/**
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function testEscapeSQLValue()
 	{
@@ -105,4 +76,17 @@ class MySQLConnectionTest extends TestCase
 		$escaped = $c->escapeSQLValue(false);
 		$this->assertEquals('0', $escaped);
 	}
+
+    /**
+     * @return void
+     * @throws InvalidQueryException
+     */
+    function testFetchRecords()
+    {
+        $query = "CALL siteSectionExtraPropertiesSelect(2)";
+        $c = new MySQLConnection();
+        $data = $c->fetchRecords($query);
+        $this->assertIsArray($data);
+        $this->assertCount(1, $data);
+    }
 }
