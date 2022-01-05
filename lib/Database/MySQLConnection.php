@@ -150,7 +150,9 @@ class MySQLConnection extends AppBase
 		if (!$this->mysqli instanceof mysqli) {
 			$this->connectToDatabase();
 		}
-		if ($this->mysqli->multi_query($query)===false && $this->mysqli->error!=="") {
+        $result = $this->mysqli->multi_query($query);
+        $error = $this->mysqli->error;
+		if ($result===false && $error!=="") {
 			throw new InvalidQueryException($this->mysqli->error);
 		}
 	}
