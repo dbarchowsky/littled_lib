@@ -38,7 +38,7 @@ class ContentFilterCollection extends FilterCollection
      * @return mysqli_result
      * @throws Exception
      */
-    protected function executeListingsQuery( string $query ): mysqli_result
+    public function executeListingsQuery( string $query ): mysqli_result
     {
         $this->connectToDatabase();
 

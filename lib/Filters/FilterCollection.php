@@ -265,17 +265,22 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Retrieves listings data from database using object's filter values.
-	 * @return array Listings data
+	 * @return mysqli_result Listings data
+     * @throws Exception
 	 */
-	public function retrieveListings(): array
+	public function retrieveListings(): mysqli_result
 	{
-		$data = array();
+        $result = null;
+        $this->connectToDatabase();
 		try {
-			$data = $this->fetchRecords($this->formatListingsQuery());
+			$result = $this->mysqli->query($this->formatListingsQuery());
 		}
 		catch(Exception $ex) {
             ContentUtils::printError($ex->getMessage());
 		}
-		return ($data);
+        if (!$result) {
+            throw new Exception("Error retrieving listings: ".$this->mysqli->error);
+        }
+        return $result;
 	}
 }

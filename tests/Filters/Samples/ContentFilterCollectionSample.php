@@ -39,14 +39,4 @@ class ContentFilterCollectionSample extends ContentFilterCollection
             "ORDER BY `date` DESC ".
             "LIMIT ".$this->listings_length->value;
     }
-
-    /**
-     * @param string $query
-     * @return mysqli_result
-     * @throws Exception
-     */
-    public function testListingsQuery(string $query): mysqli_result
-    {
-        return parent::executeListingsQuery($query);
-    }
 }
