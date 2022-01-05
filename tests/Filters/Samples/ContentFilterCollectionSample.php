@@ -9,6 +9,7 @@ class ContentFilterCollectionSample extends ContentFilterCollection
 {
     /** @var int */
     public const CONTENT_ID = 1; /* articles */
+    protected static function DEFAULT_LISTINGS_LENGTH(): int { return 4; }
     protected static function DEFAULT_KEY_PREFIX(): string
     {
         return 'test';

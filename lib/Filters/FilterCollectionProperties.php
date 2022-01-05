@@ -94,7 +94,7 @@ class FilterCollectionProperties extends AppContentBase
     {
         parent::__construct();
         $this->page = new IntegerContentFilter("Page", $this->getLocalKey($this::PAGE_PARAM), null, null, $this::getCookieKey());
-        $this->listings_length = new IntegerContentFilter("Page length", $this->getLocalKey($this::LISTINGS_LENGTH_PARAM), null, null, $this::getCookieKey());
+        $this->listings_length = new IntegerContentFilter("Page length", $this->getLocalKey($this::LISTINGS_LENGTH_PARAM), $this::DEFAULT_LISTINGS_LENGTH(), null, $this::getCookieKey());
         $this->next = new StringContentFilter("Next", $this->getLocalKey($this::NEXT_OPERATION_PARAM), '', 16, $this::getCookieKey());
         $this->display_listings = new BooleanContentFilter("Display listings", $this->getLocalKey($this::FILTER_PARAM), false, null, $this::getCookieKey());
         $this->referer_uri = '';

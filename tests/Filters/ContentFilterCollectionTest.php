@@ -15,6 +15,12 @@ class ContentFilterCollectionTest extends TestCase
         $this->assertEquals('article', $cf->section_operations->label->value);
     }
 
+    function testDefaultListingsLength()
+    {
+        $cf = new ContentFilterCollectionSample(ContentFilterCollectionSample::CONTENT_ID);
+        $this->assertGreaterThan(0, $cf->listings_length->value);
+    }
+
     /**
      * @return void
      * @throws Exception
