@@ -148,6 +148,16 @@ class DBUtils
     }
 
     /**
+     * Tests if a query string contains a procedure call.
+     * @param string $query
+     * @return bool
+     */
+    public static function isProcedure(string $query): bool
+    {
+        return(strpos(strtolower(substr($query, 0, 5)), 'call ')===0);
+    }
+
+    /**
      * Fills $arOptions array with name/value pairs retrieved using the supplied SQL SELECT query.
      * @param string $query SQL SELECT query used to retrieve name/value array.
      * @param array $options Function will fill this array with name/value pairs to be used in option list.

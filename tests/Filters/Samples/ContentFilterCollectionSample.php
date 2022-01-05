@@ -2,8 +2,8 @@
 namespace Littled\Tests\Filters\Samples;
 
 use Littled\Filters\ContentFilterCollection;
-use Exception;
 use mysqli_result;
+use Exception;
 
 class ContentFilterCollectionSample extends ContentFilterCollection
 {
@@ -38,5 +38,15 @@ class ContentFilterCollectionSample extends ContentFilterCollection
             "FROM `".$this::TABLE_NAME()."` ".
             "ORDER BY `date` DESC ".
             "LIMIT ".$this->listings_length->value;
+    }
+
+    /**
+     * @param string $query
+     * @return mysqli_result
+     * @throws Exception
+     */
+    public function retrieveListingsUsingProcedureTest(string $query): mysqli_result
+    {
+        return $this->retrieveListingsUsingProcedure($query);
     }
 }

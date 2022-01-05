@@ -9,7 +9,6 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 class DBUtilsTest extends TestCase
 {
-
     function testDisplayQueryOptions()
     {
         // Test using table from database
@@ -44,4 +43,12 @@ class DBUtilsTest extends TestCase
 		$str_date = '06/04/2008 2:05 pm';
 		$this->assertEquals('2008-06-04 14:05:00', DBUtils::formatSqlDate($str_date));
 	}
+
+    function testIsProcedure()
+    {
+        $this->assertFalse(DBUtils::isProcedure('SELECT * FROM `article`'));
+        $this->assertFalse(DBUtils::isProcedure('DELETE FROM `article` WHERE id = 44'));
+        $this->assertFalse(DBUtils::isProcedure("INSERT INTO `article` (title, text) VALUES ('hello', 'hello hello')"));
+        $this->assertTrue(DBUtils::isProcedure("CALL articleListingsSelect(1, 50, '%search%', @total_results)"));
+    }
 }

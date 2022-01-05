@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Filters;
 
+use Littled\Database\DBUtils;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
@@ -272,8 +273,12 @@ class FilterCollection extends FilterCollectionProperties
 	{
         $result = null;
         $this->connectToDatabase();
+        $query = $this->formatListingsQuery();
+        if (DBUtils::isProcedure($query)) {
+            return $this->retrieveListingsUsingProcedure($query);
+        }
 		try {
-			$result = $this->mysqli->query($this->formatListingsQuery());
+			$result = $this->mysqli->query($query);
 		}
 		catch(Exception $ex) {
             ContentUtils::printError($ex->getMessage());
@@ -283,4 +288,28 @@ class FilterCollection extends FilterCollectionProperties
         }
         return $result;
 	}
+
+    /**
+     * Retrieves listings using sql in $query argument. Stores the total
+     * number of matches and updates internal values of total number of pages
+     * and current page number.
+     * @param string $query SQL query to execute.
+     * @return mysqli_result
+     * @throws Exception
+     */
+    protected function retrieveListingsUsingProcedure( string $query ): mysqli_result
+    {
+        $this->connectToDatabase();
+
+        if (!$this->mysqli->multi_query($query)) {
+            throw new Exception("[".__METHOD__."] Error retrieving listings: {$this->mysqli->error}");
+        }
+        $result = $this->mysqli->store_result();
+        if (!$result) {
+            throw new Exception("[".__METHOD__."] Error retrieving listings: {$this->mysqli->error}");
+        }
+        /* get record count from procedure results */
+        $this->getSprocPageCount();
+        return $result;
+    }
 }

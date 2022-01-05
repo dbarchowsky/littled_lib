@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\Filters;
 use Littled\Tests\Filters\Samples\ContentFilterCollectionSample;
+use Littled\Tests\Filters\Samples\ContentFilterCollectionSprocSample;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -35,7 +36,21 @@ class ContentFilterCollectionTest extends TestCase
             $last_id = $row['id'];
             $i++;
         }
+        $this->assertNull($cf->record_count);
         $result->free();
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function testRetrieveListingsUsingProcedure()
+    {
+        $cf = new ContentFilterCollectionSprocSample(ContentFilterCollectionSample::CONTENT_ID);
+        $result = $cf->retrieveListings();
+        $this->assertEquals($cf->listings_length, $result->num_rows);
+        $this->assertIsNumeric($cf->record_count);
+        $this->assertGreaterThan($cf->listings_length, $cf->record_count);
     }
 
     /**
@@ -48,7 +63,7 @@ class ContentFilterCollectionTest extends TestCase
             "SELECT @total_matches AS `total_matches`;";
 
         $cf = new ContentFilterCollectionSample(ContentFilterCollectionSample::CONTENT_ID);
-        $result = $cf->executeListingsQuery($query);
+        $result = $cf->retrieveListingsUsingProcedureTest($query);
         $this->assertGreaterThan(0, $result->num_rows);
         $this->assertGreaterThan(0, $cf->record_count);
         $this->assertGreaterThan(0, $cf->page_count);
@@ -74,7 +89,7 @@ class ContentFilterCollectionTest extends TestCase
             "SELECT @total_matches AS `total_matches`;";
 
         $cf = new ContentFilterCollectionSample(ContentFilterCollectionSample::CONTENT_ID);
-        $result = $cf->executeListingsQuery($query);
+        $result = $cf->retrieveListingsUsingProcedureTest($query);
         $this->assertGreaterThan(0, $result->num_rows);
         foreach($result as $row) {
             $this->assertIsNumeric($row['id']);

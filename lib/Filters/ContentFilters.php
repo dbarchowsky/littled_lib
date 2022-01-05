@@ -6,6 +6,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\SiteContent\ContentAjaxProperties;
 use Littled\SiteContent\ContentProperties;
 use Exception;
+use mysqli_result;
 
 /**
  * Class ContentFilters
@@ -55,19 +56,5 @@ class ContentFilters extends FilterCollection
 	public function getContentTypeId(): int
 	{
 		return ($this->contentTypeID);
-	}
-
-	/**
-	 * Retrieves listings using sql in $query argument. Stores the total
-	 * number of matches and updates internal values of total number of pages
-	 * and current page number.
-	 * @return array List of generic objects containing the records returned by the query.
-	 * @throws Exception Error running query.
-	 */
-	public function retrieveListings(): array
-	{
-		$data = $this->fetchRecordsNonExhaustive($this->formatListingsQuery());
-		$this->getSprocPageCount();
-		return ($data);
 	}
 }

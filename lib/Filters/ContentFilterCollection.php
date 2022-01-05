@@ -29,28 +29,4 @@ class ContentFilterCollection extends FilterCollection
         $this->site_section->read();
         $this->section_operations->retrieveContentProperties();
     }
-
-    /**
-     * Retrieves listings using sql in $query argument. Stores the total
-     * number of matches and updates internal values of total number of pages
-     * and current page number.
-     * @param string $query SQL query to execute.
-     * @return mysqli_result
-     * @throws Exception
-     */
-    public function executeListingsQuery( string $query ): mysqli_result
-    {
-        $this->connectToDatabase();
-
-        if (!$this->mysqli->multi_query($query)) {
-            throw new Exception("[".__METHOD__."] Error retrieving listings: {$this->mysqli->error}");
-        }
-        $result = $this->mysqli->store_result();
-        if (!$result) {
-            throw new Exception("[".__METHOD__."] Error retrieving listings: {$this->mysqli->error}");
-        }
-        /* get record count from procedure results */
-        $this->getSprocPageCount();
-        return $result;
-    }
 }
