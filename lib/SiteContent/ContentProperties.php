@@ -2,7 +2,6 @@
 
 namespace Littled\SiteContent;
 
-
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -18,6 +17,7 @@ use Littled\Request\IntegerTextField;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
+use Exception;
 
 /**
  * Class ContentProperties
@@ -27,7 +27,7 @@ class ContentProperties extends SerializedContent
 {
 	/** @var string Variable name that holds the site section id value. */
 	const ID_PARAM = 'ssid';
-	/** @var int Id value representing site section data in the database. */
+	/** @var int Record id value representing site section data in the database. */
 	const SECTION_ID = 27;
 	/** @var string Name of the table holding site section data. */
 	const DEFAULT_TABLE_NAME = 'site_section';
@@ -44,17 +44,17 @@ class ContentProperties extends SerializedContent
 	public $image_label;
 	/** @var IntegerTextField Target width of full-resolution images. */
 	public $width;
-	/** @var IntegerTextField Target height of full-resoluation images. */
+	/** @var IntegerTextField Target height of full-resolution images. */
 	public $height;
 	/** @var IntegerTextField Target width of medium-sized thumbnail images. */
 	public $med_width;
 	/** @var IntegerTextField Target height of medium-sized thumbnail images. */
 	public $med_height;
-	/** @var BooleanCheckbox Flag indicating that miniature thumbnail verions of images are to be generated when uploading and editing images. */
+	/** @var BooleanCheckbox Flag indicating that miniature thumbnail versions of images are to be generated when uploading and editing images. */
 	public $save_mini;
-	/** @var IntegerTextField Target width of smallest images. */
+	/** @var IntegerTextField Target width of the smallest image set. */
 	public $mini_width;
-	/** @var IntegerTextField Target height of smallest images. */
+	/** @var IntegerTextField Target height of the smallest image set. */
 	public $mini_height;
 	/** @var StringSelect Image format, e.g. jpeg, png, etc. */
 	public $format;
@@ -62,7 +62,7 @@ class ContentProperties extends SerializedContent
 	public $param_prefix;
 	/** @var StringTextField Content able name. */
 	public $table;
-	/** @var IntegerSelect Id of parent content type record in site_section table. */
+	/** @var IntegerSelect Record id of parent content type record in site_section table. */
 	public $parent_id;
 	/** @var BooleanCheckbox Flag indicating that this section's content gets cached. */
 	public $is_cached;
@@ -76,9 +76,9 @@ class ContentProperties extends SerializedContent
 	public $label;
 	/** @var array Array of templates used to render the section's content. */
 	public $templates;
-	/** @var string Name of table in database containing content property values. */
-	protected static $table_name;
-	
+    /** @var string */
+    protected static $table_name = 'site_section';
+
 	/**
 	 * SiteSection constructor.
 	 * @param integer[optional] Initial value to assign to the object's id property.
@@ -134,63 +134,52 @@ class ContentProperties extends SerializedContent
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
+     * @throws Exception
 	 */
 	public function delete(): string
 	{
 		/* Update parent id for any child records. */
-		$query = "UPDATE `site_section` SET `parent_id` = NULL WHERE `parent_id` = {$this->id->value}";
-		$this->query($query);
+		$query = "UPDATE `".$this::getTableName()."` SET `parent_id` = NULL WHERE `parent_id` = ?";
+		$this->query($query, 'i', $this->id->value);
 		return(parent::delete());
 	}
 
 	/**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
-	 * @return ?int Id of parent record.
-	 * @throws InvalidQueryException
-	 */
+	 * @return ?int Record id of parent record.
+	 * @throws InvalidQueryException|Exception
+     */
 	public function getParentID(): ?int
 	{
 		if ($this->id->value===null || $this->id->value < 1) {
 			return null;
 		}
-		$query = "CALL siteSectionParentIDSelect({$this->id->value})";
-		$data = $this->fetchRecords($query);
+		$query = "CALL siteSectionParentIDSelect(?)";
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		if (count($data) > 0) {
 			return($data[0]->parent_id);
 		}
 		return null;
 	}
 
-	/**
-	 * Retrieves the content type for the parent of the current content type.
-	 * @return ?int Content type id of the parent record.
-	 * @throws RecordNotFoundException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Retrieves the content type for the parent of the current content type.
+     * @return ?int Content type id of the parent record.
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
 	public function getParentTypeID(): ?int
 	{
 		if ($this->id->value===null || $this->id->value < 1) {
 			return null;
 		}
-		$query = "CALL siteSectionParentTypeID({$this->id->value});";
-		$data = $this->fetchRecords($query);
+		$query = "CALL siteSectionParentTypeID(?);";
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Parent content type not found.");
 		}
 		return($data[0]->content_type_id);
 	}
-
-    /**
-     * Table name getter.
-     * @return string
-     */
-	public function getTableName(): string
-    {
-        if (!isset(static::$table_name)) {
-            static::$table_name = self::DEFAULT_TABLE_NAME;
-        }
-        return static::$table_name;
-    }
 
     /**
      * Indicates if any form data has been entered for the current instance of the object.
@@ -210,14 +199,14 @@ class ContentProperties extends SerializedContent
      * @throws ConfigurationUndefinedException
      * @throws InvalidValueException
      */
-	public function pluralLabel(int $count, $property_name='name'): string
+	public function pluralLabel(int $count, string $property_name='name'): string
 	{
 		return parent::pluralLabel($count, $property_name);
 	}
 
 	/**
 	 * Retrieves site section data from the database using the value of the object's id property.
-	 * Assigns values to the object's properties using data the site section table in the database.
+	 * Assign values to the object's properties using data the site section table in the database.
 	 * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
@@ -225,12 +214,13 @@ class ContentProperties extends SerializedContent
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
+     * @throws Exception
 	 */
 	public function read(): void
 	{
 		parent::read();
-		$query = "CALL siteSectionExtraPropertiesSelect({$this->id->value})";
-		$data = $this->fetchRecords($query);
+		$query = "CALL siteSectionExtraPropertiesSelect(?)";
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		$this->initializeExtraProperties();
 		if (count($data) > 0) {
 			$this->id_param = $data[0]->id_param;
@@ -242,12 +232,12 @@ class ContentProperties extends SerializedContent
 
 	/**
 	 * Retrieve content templates linked to this content type.
-	 * @throws InvalidQueryException Error executing query.
+	 * @throws InvalidQueryException|Exception
 	 */
 	public function readTemplates(): void
 	{
-		$query = "CALL contentTemplateSelectBySectionID({$this->id->value})";
-		$data = $this->fetchRecords($query);
+		$query = "CALL contentTemplateSelectBySectionID(?)";
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		if (count($data) < 1) {
 			return;
 			// throw new RecordNotFoundException("Error retrieving content templates.");

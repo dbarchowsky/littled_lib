@@ -2,11 +2,14 @@
 namespace Littled\PageContent\SiteSection;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
+use Exception;
 
 /**
  * Class ContentTemplate
@@ -15,10 +18,9 @@ use Littled\Request\StringTextField;
 class ContentTemplate extends SerializedContent
 {
 	/** @var int Value of this record in the site section table. */
-	Const SECTION_ID = 33;
-	/** @var string Name of the table containing data for this class. */
-	const TABLE_NAME = "content_template";
-	public static function TABLE_NAME() { return (self::TABLE_NAME); }
+	public const SECTION_ID = 33;
+	/** @var string */
+	protected static $table_name = "content_template";
 
 	/** @var StringTextField Template name. */
 	public $name;
@@ -73,7 +75,7 @@ class ContentTemplate extends SerializedContent
 	 * Checks the instance for data that would require the record to be saved.
 	 * @return bool True/false depending on whether valid data was found in the instance.
 	 */
-	public function hasData()
+	public function hasData(): bool
 	{
 		return ($this->id->value > 0 || $this->path->value || $this->name->value);
 	}
@@ -83,9 +85,13 @@ class ContentTemplate extends SerializedContent
 	 * either the common directory or local depending on the "location" value.
 	 * @return string Full path to template file, taking into account if the location
 	 * is set to the shared location or the local location.
+     * @throws Exception
 	 */
-	public function formatFullPath()
+	public function formatFullPath(): string
 	{
+        if (!defined('COMMON_TEMPLATE_DIR') || !defined('CMS_COMMON_TEMPLATE_DIR')) {
+            throw new Exception(__METHOD__.' Shared template directory not configured.');
+        }
 		$path = $this->path->value;
 		if ($path) {
 			switch ($this->location->value)
@@ -109,31 +115,31 @@ class ContentTemplate extends SerializedContent
 	/**
 	 * Validates the data stored in the instance. Error messages are stored in the instance's $validation_errors
 	 * property.
-	 * @param array[optional] $exclude_properties Names of class properties to exclude from validation.
+	 * @param string[] $exclude_properties (Optional) Names of class properties to exclude from validation.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function validateInput($exclude_properties=[])
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     * @throws Exception
+     */
+	public function validateInput(array $exclude_properties=[])
 	{
 		try {
 			parent::validateInput(['parentID']);
 		}
-		catch (ContentValidationException $ex) { ; /* continue */ }
+		catch (ContentValidationException $ex) { /* continue */ }
 
 		if (!$this->template_dir->value && !$this->location->value) {
-			array_push($this->validationErrors, "Either a template path or location must be specified.");
+			$this->validationErrors[] = "Either a template path or location must be specified.";
 		}
 
 		if ($this->id->value===null && $this->content_type_id->value > 0 && $this->name->value) {
 			$this->connectToDatabase();
 			$escaped_name = $this->name->escapeSQL($this->mysqli);
-			$query = "CALL contentTemplateSectionNameSelect({$this->content_type_id->value}, {$escaped_name})";
+			$query = "CALL contentTemplateSectionNameSelect({$this->content_type_id->value}, $escaped_name)";
 			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$error = "A \"{$this->name->value}\" template already exists for the \"{$data[0]->section}\" area of the site.";
-				array_push($this->validationErrors, $error);
+				$this->validationErrors[] = $error;
 			}
 		}
 		if (count($this->validationErrors) > 0) {

@@ -181,6 +181,9 @@ class MySQLConnection extends AppBase
         $this->connectToDatabase();
         if ($types) {
             $stmt = $this->mysqli->prepare($query);
+            if (!$stmt) {
+                throw new Exception('Could not prepare statement: '.$this->mysqli->error);
+            }
             array_unshift($vars, $types);
             call_user_func_array([$stmt, 'bind_param'], $vars);
             if(!$stmt->execute()) {
@@ -303,6 +306,9 @@ class MySQLConnection extends AppBase
         $this->connectToDatabase();
         if ($types) {
             $stmt = $this->mysqli->prepare($query);
+            if(!$stmt) {
+                throw new Exception('Could not prepare statement: '.$this->mysqli->error);
+            }
             array_unshift($vars, $types);
             call_user_func_array([$stmt, 'bind_param'], $vars);
             if(!$stmt->execute()) {

@@ -19,14 +19,16 @@ class SerializedContent extends SerializedContentValidation
 	public $id;
 	/** @var boolean Flag to skip filling object values from input variables (GET or POST). */
 	public $bypassCollectFromInput;
+    /** @var string */
+    protected static $table_name='';
 
 	/**
+     * @deprecated Use getTableName() instead.
 	 * Interface to retrieve table name associated with inherited classes.
-	 * @throws NotImplementedException
 	 */
 	public static function TABLE_NAME(): string
 	{
-		throw new NotImplementedException('TABLE_NAME() not implemented in inherited class.');
+		return self::getTableName();
 	}
 
 	/**
@@ -189,6 +191,15 @@ class SerializedContent extends SerializedContentValidation
 		}
 	}
 
+    /**
+     * Record id getter.
+     * @return int
+     */
+    public function getRecordId(): ?int
+    {
+        return $this->id->value;
+    }
+
 	/**
 	 * Attempts to read the title or name from a record in the database and use
 	 * its value to set the title or name property of the class instance. Uses the
@@ -215,6 +226,15 @@ class SerializedContent extends SerializedContentValidation
 			}
 		}
 	}
+
+    /**
+     * Table name getter.
+     * @return string
+     */
+    public static function getTableName(): string
+    {
+        return static::$table_name;
+    }
 
 	/**
 	 * Retrieves the name of the record represented by the provided id value.
@@ -326,11 +346,21 @@ class SerializedContent extends SerializedContentValidation
 		}
 	}
 
+    /**
+     * Record id setter.
+     * @param int $id
+     * @return void
+     */
+    public function setRecordId(int $id)
+    {
+        $this->id->setInputValue($id);
+    }
+
 	/**
 	 * Confirm that a record with id value matching the current id value of the object currently exists in the database.
 	 * @return bool True/False depending on if a matching record is found.
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
+     * @throws Exception
 	 */
 	public function recordExists(): bool
 	{
@@ -342,6 +372,16 @@ class SerializedContent extends SerializedContentValidation
 		$data = $this->fetchRecords($query);
 		return ((int)("0".$data[0]->record_exists) === 1);
 	}
+
+    /**
+     * Table name setter.
+     * @param string $table_name
+     * @return void
+     */
+    public static function setTableName(string $table_name)
+    {
+        static::$table_name = $table_name;
+    }
 
 	/**
 	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.

@@ -1,12 +1,20 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
-
+namespace Littled\Tests\SiteContent;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\SiteContent\ContentProperties;
 use PHPUnit\Framework\TestCase;
+use Exception;
 
 class ContentPropertiesTest extends TestCase
 {
@@ -19,129 +27,133 @@ class ContentPropertiesTest extends TestCase
 	/** @var MySQLConnection database connection */
 	public $conn;
 
-	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public static function setUpBeforeClass()
-	{
-		$conn = new MySQLConnection();
-		$query = "INSERT INTO `site_section` (".
-			"`id`".
-			",`name`".
-			",`slug`".
-			",`root_dir`".
-			",`image_path`".
-			",`sub_dir`".
-			",`image_label`".
-			",`width`".
-			",`height`".
-			",`med_width`".
-			",`med_height`".
-			",`save_mini`".
-			",`mini_width`".
-			",`mini_height`".
-			",`format`".
-			",`param_prefix`".
-			",`table`".
-			",`parent_id`".
-			",`is_cached`".
-			",`gallery_thumbnail`".
-			") VALUES (".
-			ContentPropertiesTest::TEST_ID_FOR_DELETE.
-			",'".ContentPropertiesTest::UNIT_TEST_IDENTIFIER." for delete'".
-			",'unit_test_slug'".
-			",'path/to/section/'".
-			",''".
-			",''".
-			",'pic'".
-			",2048".
-			",1880".
-			",null".
-			",null".
-			",false".
-			",null".
-			",null".
-			",'png'".
-			",''".
-			",'unit_test'".
-			",null".
-			",0".
-			",0)";
-		$conn->query($query);
+    /**
+     * @return void
+     * @throws Exception
+     */
+    protected static function clearTestRecords()
+    {
+        $c = new MySQLConnection();
+        $query = "DELETE FROM `site_section` WHERE id in (?,?)";
+        $c->query($query, 'ii', ContentPropertiesTest::TEST_ID_FOR_DELETE, ContentPropertiesTest::TEST_ID_FOR_READ);
+    }
 
-		$query = "INSERT INTO `site_section` (".
-			"`id`".
-			",`name`".
-			",`slug`".
-			",`root_dir`".
-			",`image_path`".
-			",`sub_dir`".
-			",`image_label`".
-			",`width`".
-			",`height`".
-			",`med_width`".
-			",`med_height`".
-			",`save_mini`".
-			",`mini_width`".
-			",`mini_height`".
-			",`format`".
-			",`param_prefix`".
-			",`table`".
-			",`parent_id`".
-			",`is_cached`".
-			",`gallery_thumbnail`".
-			") VALUES (".
-			ContentPropertiesTest::TEST_ID_FOR_READ.
-			",'".ContentPropertiesTest::UNIT_TEST_IDENTIFIER." for reading'".
-			",'unit_test_slug'".
-			",'path/to/section/'".
-			",'path/to/images/'".
-			",'sub/dir/'".
-			",'pic'".
-			",2048".
-			",1880".
-			",1024".
-			",980".
-			",true".
-			",540".
-			",460".
-			",'png'".
-			",'ut_'".
-			",'unit_test'".
-			",".ContentPropertiesTest::TEST_ID_FOR_DELETE.
-			",0".
-			",0)";
-		$conn->query($query);
+    /**
+     * @return void
+     * @throws Exception
+     */
+    protected static function createTestRecords()
+    {
+        $conn = new MySQLConnection();
+        $mysqli = $conn->getMysqli();
+        $query = "INSERT INTO `site_section` (".
+            "`id`".
+            ",`name`".
+            ",`slug`".
+            ",`root_dir`".
+            ",`image_path`".
+            ",`sub_dir`".
+            ",`image_label`".
+            ",`width`".
+            ",`height`".
+            ",`med_width`".
+            ",`med_height`".
+            ",`save_mini`".
+            ",`mini_width`".
+            ",`mini_height`".
+            ",`format`".
+            ",`param_prefix`".
+            ",`table`".
+            ",`parent_id`".
+            ",`is_cached`".
+            ",`gallery_thumbnail`".
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        $id = ContentPropertiesTest::TEST_ID_FOR_DELETE;
+        $name = ContentPropertiesTest::UNIT_TEST_IDENTIFIER;
+        $slug = 'unit_test_slug';
+        $root_dir = 'path/to/section';
+        $image_path = '';
+        $sub_dir = '';
+        $image_label = 'pic';
+        $width = 2048;
+        $height = 1880;
+        $med_width = null;
+        $med_height = null;
+        $save_mini = false;
+        $mini_width = null;
+        $mini_height = null;
+        $format = 'png';
+        $param_prefix = '';
+        $table = 'unit_test';
+        $parent_id = null;
+        $is_cached = false;
+        $gallery_thumbnail = false;
+
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param('issssssiiiiiiisssiii',
+            $id, $name, $slug, $root_dir, $image_path, $sub_dir, $image_label, $width, $height,
+            $med_width, $med_height, $save_mini, $mini_width, $mini_height, $format, $param_prefix, $table,
+            $parent_id, $is_cached, $gallery_thumbnail);
+        if(!$stmt->execute()) {
+            throw new Exception('Error executing query: '.$mysqli->error);
+        }
+
+        $id = ContentPropertiesTest::TEST_ID_FOR_READ;
+        $name = ContentPropertiesTest::UNIT_TEST_IDENTIFIER.' for reading';
+        $image_path = 'path/to/images/';
+        $sub_dir = 'sub/dir/';
+        $med_width = 1024;
+        $med_height = 980;
+        $save_mini = true;
+        $mini_width = 540;
+        $mini_height = 460;
+        $param_prefix = 'ut_';
+        $parent_id = ContentPropertiesTest::TEST_ID_FOR_DELETE;
+        if(!$stmt->execute()) {
+            throw new Exception('Error executing query: '.$mysqli->error);
+        }
+    }
+
+	/**
+	 * @throws Exception
+     */
+	public static function setUpBeforeClass(): void
+	{
+        self::clearTestRecords();
+        self::createTestRecords();
 	}
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public static function tearDownAfterClass()
+	 * @throws InvalidQueryException|Exception
+     */
+	public static function tearDownAfterClass(): void
 	{
+        $name_filter = ContentPropertiesTest::UNIT_TEST_IDENTIFIER."%";
 		$conn = new MySQLConnection();
-		$query = "DELETE FROM `site_section` WHERE `name` LIKE '".ContentPropertiesTest::UNIT_TEST_IDENTIFIER."%'";
-		$conn->query($query);
-		$query = "DELETE FROM `content_template` WHERE `name` LIKE '".ContentPropertiesTest::UNIT_TEST_IDENTIFIER."%'";
-		$conn->query($query);
+
+        $query = "DELETE FROM `site_section` WHERE `name` LIKE ?";
+		$conn->query($query, 's', $name_filter);
+
+		$query = "DELETE FROM `content_template` WHERE `name` LIKE ?";
+		$conn->query($query, 's', $name_filter);
 	}
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->conn = new MySQLConnection();
 		$this->obj = new ContentProperties();
 	}
 
 	/**
-	 * @param int $site_section_id ID of parent site section record.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
-	protected function addContentTemplates($site_section_id)
+	protected function addContentTemplates()
 	{
 		$t = new ContentTemplate(null, self::TEST_ID_FOR_READ, self::UNIT_TEST_IDENTIFIER." details", "", "template.php", "local");
 		$t->save();
@@ -155,43 +167,42 @@ class ContentPropertiesTest extends TestCase
 
 	/**
 	 * @param int $site_section_id Site section to link content operations to.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function addSectionOperations($site_section_id)
+	 * @throws InvalidQueryException|Exception
+     */
+	public function addSectionOperations(int $site_section_id)
 	{
 		$query = "INSERT INTO section_operations (".
 			"`section_id`".
 			",`label`".
 			",`id_param`".
-			") VALUES (".
-			$site_section_id.
-			", '".self::UNIT_TEST_IDENTIFIER." content properties'".
-			", 'putid')";
-		$this->conn->query($query);
+			") VALUES (?,?,?)";
+        $label = self::UNIT_TEST_IDENTIFIER.' content properties';
+        $id_key = 'putid';
+		$this->conn->query($query, '', $site_section_id, $label, $id_key);
 	}
 
 	/**
-	 * @param $site_section_id
+	 * @param int $site_section_id
 	 * @return array
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	protected function fetchExtraProperties($site_section_id)
+	 * @throws InvalidQueryException|Exception
+     */
+	protected function fetchExtraProperties(int $site_section_id): array
 	{
-		$query = "CALL siteSectionExtraPropertiesSelect({$site_section_id})";
-		$data = $this->conn->fetchRecords($query);
+		$query = "CALL siteSectionExtraPropertiesSelect(?)";
+		$data = $this->conn->fetchRecords($query, 'i', $site_section_id);
 		if (count($data) > 0) {
 			return (array($data[0]->id_param, $data[0]->parent, $data[0]->label));
 		}
-		return (array('', '', ''));
+		return array('', '', '');
 	}
 
 	/**
 	 * @param ContentProperties $site_section Object containing templates.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
 	 */
-	protected function removeContentTemplates($site_section)
+	protected function removeContentTemplates(ContentProperties $site_section)
 	{
 		/** @var ContentTemplate $template */
 		foreach($site_section->templates as $template) {
@@ -200,30 +211,35 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
-	 * @param int $site_section_id Id of site section to link content operations to.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function removeSectionOperations($site_section_id)
+	 * @param int $site_section_id Record id of site section to link content operations to.
+	 * @throws InvalidQueryException|Exception
+     */
+	public function removeSectionOperations(int $site_section_id)
 	{
-		$query = "DELETE FROM `section_operations` WHERE `section_id` = {$site_section_id}";
-		$this->conn->query($query);
+		$query = "DELETE FROM `section_operations` WHERE `section_id` = ?";
+		$this->conn->query($query, 'i', $site_section_id);
 	}
+
+    function testTableName()
+    {
+        $this->assertEquals('site_section', ContentProperties::getTableName());
+    }
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testClearValues()
 	{
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 		$this->obj->read();
 		$this->obj->clearValues();
-		$this->assertEquals(0, count($this->obj->templates));
+		$this->assertCount(0, $this->obj->templates);
 		$this->assertEquals('', $this->obj->id_param);
 		$this->assertEquals('', $this->obj->parent);
 		$this->assertEquals('', $this->obj->label);
@@ -286,17 +302,19 @@ class ContentPropertiesTest extends TestCase
 		$this->assertTrue($this->obj->gallery_thumbnail->value);
 	}
 
-	/**
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 */
+    /**
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws NotImplementedException
+     * @throws Exception
+     */
 	public function testDelete()
 	{
 		$this->obj->id->setInputValue(ContentPropertiesTest::TEST_ID_FOR_DELETE);
 
-		$query = "SELECT `id` FROM `".ContentProperties::TABLE_NAME()."` WHERE `parent_id` = ".ContentPropertiesTest::TEST_ID_FOR_DELETE;
-		$data = $this->conn->fetchRecords($query);
+		$query = "SEL"."ECT `id` FROM ".ContentProperties::getTableName()." WHERE `parent_id` = ?";
+        $parent_id = ContentPropertiesTest::TEST_ID_FOR_DELETE;
+		$data = $this->conn->fetchRecords($query, 'i', $parent_id);
 		$child_id = $data[0]->id;
 		$this->assertNotNull($child_id);
 
@@ -304,23 +322,23 @@ class ContentPropertiesTest extends TestCase
 
 		$this->assertGreaterThan(0, $this->obj->id->value);
 
-		$query = "SELECT COUNT(1) AS `count` FROM `".ContentProperties::TABLE_NAME()."` WHERE `id` = {$this->obj->id->value}";
-		$data = $this->conn->fetchRecords($query);
+		$query = "SEL"."ECT COUNT(1) AS `count` FROM `".ContentProperties::getTableName()."` WHERE `id` = ?";
+		$data = $this->conn->fetchRecords($query, 'i', $this->obj->id->value);
 		$this->assertEquals(0, $data[0]->count);
 
-		$query = "SELECT `parent_id` FROM `".ContentProperties::TABLE_NAME()."` WHERE `id` = {$child_id}";
-		$data = $this->conn->fetchRecords($query);
+		$query = "SEL"."ECT `parent_id` FROM `".ContentProperties::getTableName()."` WHERE `id` = ?";
+		$data = $this->conn->fetchRecords($query, 'i', $child_id);
 		$this->assertNull($data[0]->parent_id);
 	}
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testGetParentID()
 	{
@@ -362,7 +380,11 @@ class ContentPropertiesTest extends TestCase
 		$this->assertTrue($obj->hasData());
 	}
 
-	public function testPluralLabel()
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidValueException|Exception
+     */
+    public function testPluralLabel()
 	{
 		$this->assertEquals('', $this->obj->pluralLabel(0));
 		$this->assertEquals('', $this->obj->pluralLabel(1));
@@ -380,24 +402,24 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadTemplates()
 	{
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 		$this->obj->readTemplates();
-		$this->assertEquals(0, count($this->obj->templates));
+		$this->assertCount(0, $this->obj->templates);
 
-		$this->addContentTemplates(self::TEST_ID_FOR_READ);
+		$this->addContentTemplates();
 
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 		$this->obj->readTemplates();
-		$this->assertEquals(3, count($this->obj->templates));
+		$this->assertCount(3, $this->obj->templates);
 		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." edit", $this->obj->templates[2]->name->value);
 
 		$this->removeContentTemplates($this->obj);
@@ -405,12 +427,12 @@ class ContentPropertiesTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithoutTemplatesOrExtraProperties()
 	{
@@ -419,38 +441,45 @@ class ContentPropertiesTest extends TestCase
 		list($id_param, $parent_name, $label) = $this->fetchExtraProperties($this->obj->id->value);
 
 		/* without templates or extra properties */
-		$this->obj->read();
-
-		$this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
-		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-		$this->assertEquals($id_param, $this->obj->id_param);
-		$this->assertEquals($parent_name, $this->obj->parent);
-		$this->assertEquals($label, $this->obj->label);
-		$this->assertEquals(0, count($this->obj->templates));
+        $this->obj->read();
+        $this->postReadAssertions($id_param, $parent_name, $label, 0);
 	}
+
+    /**
+     * @param ?string $id_key
+     * @param ?string $parent_name
+     * @param string $label
+     * @param int $template_count
+     * @return void
+     */
+    protected function postReadAssertions(?string $id_key, ?string $parent_name, string $label, int $template_count)
+    {
+        $this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
+        $this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
+        $this->assertEquals($id_key, $this->obj->id_param);
+        $this->assertEquals($parent_name, $this->obj->parent);
+        $this->assertEquals($label, $this->obj->label);
+        $this->assertCount($template_count, $this->obj->templates);
+    }
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithTemplates()
 	{
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 		list($id_param, $parent_name, $label) = $this->fetchExtraProperties($this->obj->id->value);
-		$this->addContentTemplates($this->obj->id->value);
-		$this->obj->read();
+		$this->addContentTemplates();
 
-		$this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
-		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-		$this->assertEquals($id_param, $this->obj->id_param);
-		$this->assertEquals($parent_name, $this->obj->parent);
-		$this->assertEquals($label, $this->obj->label);
-		$this->assertEquals(3, count($this->obj->templates));
+        $this->obj->read();
+        $this->postReadAssertions($id_param, $parent_name, $label, 3);
+
 		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." edit", $this->obj->templates[2]->name->value);
 
 		$this->removeContentTemplates($this->obj);
@@ -458,12 +487,12 @@ class ContentPropertiesTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithExtraProperties()
 	{
@@ -475,12 +504,7 @@ class ContentPropertiesTest extends TestCase
 
 		list($id_param, $parent_name, $label) = $this->fetchExtraProperties($this->obj->id->value);
 
-		$this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
-		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-		$this->assertEquals($id_param, $this->obj->id_param);
-		$this->assertEquals($parent_name, $this->obj->parent);
-		$this->assertEquals($label, $this->obj->label);
-		$this->assertEquals(0, count($this->obj->templates));
+        $this->postReadAssertions($id_param, $parent_name, $label, 0);
 
 		/* cleanup */
 		$this->removeSectionOperations(self::TEST_ID_FOR_READ);
@@ -488,31 +512,26 @@ class ContentPropertiesTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithTemplatesAndExtraProperties()
 	{
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 
 		/* link templates and section operations */
-		$this->addContentTemplates(self::TEST_ID_FOR_READ);
+		$this->addContentTemplates();
 		$this->addSectionOperations(self::TEST_ID_FOR_READ);
 
 		$this->obj->read();
 
 		list($id_param, $parent_name, $label) = $this->fetchExtraProperties($this->obj->id->value);
 
-		$this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
-		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-		$this->assertEquals($id_param, $this->obj->id_param);
-		$this->assertEquals($parent_name, $this->obj->parent);
-		$this->assertEquals($label, $this->obj->label);
-		$this->assertEquals(3, count($this->obj->templates));
+        $this->postReadAssertions($id_param, $parent_name, $label, 3);
 		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." edit", $this->obj->templates[2]->name->value);
 
 		/* cleanup */

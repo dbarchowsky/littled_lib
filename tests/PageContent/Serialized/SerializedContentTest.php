@@ -264,6 +264,16 @@ class SerializedContentTest extends TestCase
 		$this->assertFalse($obj->columnExists('title', SerializedContentTitleTestHarness::TABLE_NAME()));
 	}
 
+    function testGetRecordId()
+    {
+        $test_id = 125;
+        $sc = new SerializedContent();
+        $this->assertNull($sc->getRecordId());
+
+        $sc->setRecordId($test_id);
+        $this->assertEquals($test_id, $sc->getRecordId());
+    }
+
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException

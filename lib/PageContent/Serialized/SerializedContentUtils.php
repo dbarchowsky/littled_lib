@@ -4,8 +4,6 @@ namespace Littled\PageContent\Serialized;
 use Littled\Database\AppContentBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
@@ -224,12 +222,12 @@ class SerializedContentUtils extends AppContentBase
 		return ((defined($content_type_const))?(constant($content_type_const)):(null));
 	}
 
-	/**
-	 * Assign values contained in array to object input properties.
-	 * @param string $query SQL SELECT statement to use to hydrate object property values.
-	 * @throws RecordNotFoundException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Assign values contained in array to object input properties.
+     * @param string $query SQL SELECT statement to use to hydrate object property values.
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
 	protected function hydrateFromQuery( string $query )
 	{
 		$data = $this->fetchRecords($query);
@@ -311,8 +309,7 @@ class SerializedContentUtils extends AppContentBase
 	 * @param string $property_name Name of property to make plural.
 	 * @return string Plural form of the record label if $count is not 1.
 	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidValueException
-	 */
+     */
 	public function pluralLabel( int $count, string $property_name ): string
 	{
 		if (!property_exists($this, $property_name)) {
@@ -326,13 +323,11 @@ class SerializedContentUtils extends AppContentBase
 			);
 		}
 		if ($this->{$property_name}->value === null || $this->{$property_name}->value === '') {
-			throw new InvalidValueException(
-				"Cannot get plural label for ".get_class($this)."::$property_name null or empty string."
-			);
+			return '';
 		}
 
 		$label = strtolower($this->{$property_name}->value);
-		if ($count==1) {
+		if ($count===1) {
 			return ($label);
 		}
 		elseif (substr($label, -1)=='y') {
