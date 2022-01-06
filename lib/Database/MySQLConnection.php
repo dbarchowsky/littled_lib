@@ -9,7 +9,7 @@ use Exception;
 use mysqli;
 use mysqli_driver;
 use mysqli_sql_exception;
-
+use mysqli_result;
 
 /**
  * Class MySQLConnection
@@ -50,6 +50,7 @@ class MySQLConnection extends AppBase
 	 * @param string $table_name name of the table to look in
 	 * @return boolean True/false depending on if the column is found.
 	 * @throws InvalidQueryException Error executing query.
+     * @throws Exception
 	 */
 	public function columnExists( string $column_name, string $table_name ): bool
 	{
@@ -139,60 +140,73 @@ class MySQLConnection extends AppBase
 	}
 
 	/**
-	 * Executes SQL statement without doing anything with the results of that statement. Uses currently open
-	 * connection if one exists. Makes a connection to the database if one is not already open.
-	 * @param string $query SQL statement to execute.
-	 * @throws InvalidQueryException
-	 * @throws Exception Error connecting to database
-	 */
-	protected function executeQuery(string $query)
-	{
-		if (!$this->mysqli instanceof mysqli) {
-			$this->connectToDatabase();
-		}
-        $result = $this->mysqli->multi_query($query);
-        $error = $this->mysqli->error;
-		if ($result===false && $error!=="") {
-			throw new InvalidQueryException($this->mysqli->error);
-		}
-	}
-
-	/**
 	 * Returns records from database query. This routine will eat up all result sets returned by
 	 * the execution of the query. Use fetchRecordsNonExhaustive() to return only the first result.
 	 * @param string $query SQL query to execute
+     * @param string $types
+     * @param ...$vars
 	 * @return array Array of generic objects holding the data returned by the query.
-	 * @throws InvalidQueryException
+	 * @throws Exception
 	 */
-	public function fetchRecords(string $query): array
+	public function fetchRecords(string $query, string $types='', ...$vars): array
 	{
-		$this->executeQuery($query);
+        // $result = $this->fetchResult($query, $types, $vars);
+        if ($types) {
+            array_unshift($vars, $query, $types);
+            $result = call_user_func_array([$this, 'fetchResult'], $vars);
+        }
+        else {
+            $result = $this->fetchResult($query);
+        }
 		$rs = array();
-		do {
-			$result = $this->mysqli->store_result();
-			if ($result) {
-				while($row = $result->fetch_object()) {
-					$rs[] = $row;
-				}
-				$result->free();
-			}
-		} while($this->mysqli->more_results() && $this->mysqli->next_result());
+        while($row = $result->fetch_object()) {
+            $rs[] = $row;
+        }
+        $result->free();
 		return ($rs);
 	}
 
+    /**
+     * Returns mysqli_result object containing data matching query.
+     * @param string $query
+     * @param string $types
+     * @param ...$vars
+     * @return mysqli_result
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    public function fetchResult(string $query, string $types='', ...$vars): mysqli_result
+    {
+        $this->connectToDatabase();
+        if ($types) {
+            $stmt = $this->mysqli->prepare($query);
+            array_unshift($vars, $types);
+            call_user_func_array([$stmt, 'bind_param'], $vars);
+            if(!$stmt->execute()) {
+                throw new Exception('Error fetching records: '.$this->mysqli->error);
+            }
+            $result = $stmt->get_result();
+            $stmt->close();
+        }
+        else {
+            $result = $this->mysqli->query($query);
+            if(!$result) {
+                throw new Exception('Error fetching records: '.$this->mysqli->error);
+            }
+        }
+        return $result;
+    }
+
 	/**
-	 * Returns only the first set of results from a query. Intended to be used when calling
-	 * stored procedures that return more than a single set of results, e.g. a rowset plus an integer
-	 * representing the total number of records available.
-	 * It is necessary to continue fetching results after calling this method to ensure that all the results have been
-	 * retrieved before executing another query.
+	 * @deprecated Use MySQLConnection::fetchRecords() instead.
 	 * @param string $query Query to execute.
 	 * @return array Data returned from query as an array.
-	 * @throws InvalidQueryException Error executing query.
+	 * @throws InvalidQueryException|Exception Error executing query.
 	 */
 	public function fetchRecordsNonExhaustive(string $query): array
 	{
-		$this->executeQuery($query);
+		$this->query($query);
 
 		/*
 		 * Normally, this would be wrapped in a do...while statement to ensure that all results are retrieved,
@@ -202,7 +216,7 @@ class MySQLConnection extends AppBase
 		$result = $this->mysqli->store_result();
 		if ($result) {
 			while($row = $result->fetch_object()) {
-				array_push($rs, $row);
+				$rs[] = $row;
 			}
 			$result->free();
 		}
@@ -280,23 +294,25 @@ class MySQLConnection extends AppBase
 	/**
 	 * Executes SQL statement
 	 * @param string $query SQL statement to execute.
-	 * @throws InvalidQueryException
-	 * @throws Exception Error connecting to database
+     * @param string $types
+     * @param ...$vars
+	 * @throws Exception
 	 */
-	public function query(string $query)
+	public function query(string $query, string $types='', ...$vars)
 	{
-		$this->executeQuery($query);
-
-		/* eat up any results of the query */
-		while ($this->mysqli->more_results()) {
-			$this->mysqli->next_result();
-			if ($result = $this->mysqli->store_result()) {
-				while ($result->fetch_row()) {
-                    continue;
-				}
-				$result->free();
-			}
-		}
+        $this->connectToDatabase();
+        if ($types) {
+            $stmt = $this->mysqli->prepare($query);
+            array_unshift($vars, $types);
+            call_user_func_array([$stmt, 'bind_param'], $vars);
+            if(!$stmt->execute()) {
+                throw new Exception('Error executing query: '.$this->mysqli->error);
+            }
+            $stmt->close();
+        }
+        else {
+            $this->mysqli->query($query);
+        }
 	}
 
 	/**
