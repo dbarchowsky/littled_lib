@@ -4,7 +4,7 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\ConnectionException;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -86,7 +86,9 @@ class MySQLConnectionTest extends TestCase
     {
         $c = new MySQLConnection();
         $query = "SELECT id, name FROM test_table where name like ? ORDER BY ?";
-        $data = $c->fetchRecords($query, 'ss', '%unit%', 'slot');
+        $name_filter = '%unit%';
+        $order_criteria = 'slot';
+        $data = $c->fetchRecords($query, 'ss', $name_filter, $order_criteria);
         $this->assertGreaterThan(0, count($data));
         $this->assertMatchesRegularExpression('/unit/', $data[0]->name);
     }
@@ -128,9 +130,45 @@ class MySQLConnectionTest extends TestCase
 
     /**
      * @return void
-     * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
-     * @throws InvalidQueryException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    function testQueryAfterFetch()
+    {
+        $c = new MySQLConnection();
+
+        // first run a fetch command
+        $query = "SELECT * FROM `test_table` WHERE `name` LIKE ? ORDER BY `slot` limit 5";
+        $name_filter = '%unit%';
+        $result = $c->fetchResult($query, 's', $name_filter);
+        $this->assertNotFalse($result);
+
+        // follow fetch() with query()
+        $query = "INSERT INTO `test_table` (`name`) VALUES ('testQueryAfterFetch')";
+        $c->query($query);
+
+        // get the current number of records in the table
+        $query = "SELECT COUNT(*) AS `record_count` FROM `test_table`";
+        $data = $c->fetchRecords($query);
+        $this->assertCount(1, $data);
+        $this->assertGreaterThan(0, $data[0]->record_count);
+        $prev_count = $data[0]->record_count;
+
+        // delete the new record
+        $query = "DELETE FROM `test_table` WHERE `name`='testQueryAfterFetch'";
+        $c->query($query);
+
+        // get the current number of records in the table
+        $query = "SELECT COUNT(*) AS `record_count` FROM `test_table`";
+        $data = $c->fetchRecords($query);
+        $this->assertCount(1, $data);
+        $this->assertEquals($prev_count-1, $data[0]->record_count);
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
      * @throws Exception
      */
     function testQueryWithoutVariables()
@@ -151,9 +189,8 @@ class MySQLConnectionTest extends TestCase
 
     /**
      * @return void
-     * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
-     * @throws InvalidQueryException
+     * @throws Exception
      */
     function testQueryWithVariables()
     {
@@ -161,7 +198,10 @@ class MySQLConnectionTest extends TestCase
         $max_id = $this->getMaxTestId($c);
 
         $query = 'INSERT INTO `test_table` (`name`, `bool_col`, `slot`) VALUES (?,?,?)';
-        $c->query($query, 'sii', 'unit_test', 1, 20);
+        $name = 'unit_test';
+        $bool_col = true;
+        $slot = 20;
+        $c->query($query, 'sii', $name, $bool_col, $slot);
 
         $new_id = $this->getMaxTestId($c);
         $this->assertNotEquals($max_id, $new_id);

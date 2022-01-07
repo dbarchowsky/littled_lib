@@ -148,7 +148,7 @@ class MySQLConnection extends AppBase
 	 * @return array Array of generic objects holding the data returned by the query.
 	 * @throws Exception
 	 */
-	public function fetchRecords(string $query, string $types='', ...$vars): array
+	public function fetchRecords(string $query, string $types='', &...$vars): array
 	{
         // $result = $this->fetchResult($query, $types, $vars);
         if ($types) {
@@ -176,7 +176,7 @@ class MySQLConnection extends AppBase
      * @throws ConnectionException
      * @throws Exception
      */
-    public function fetchResult(string $query, string $types='', ...$vars): mysqli_result
+    public function fetchResult(string $query, string $types='', &...$vars): mysqli_result
     {
         $this->connectToDatabase();
         if ($types) {
@@ -301,7 +301,7 @@ class MySQLConnection extends AppBase
      * @param ...$vars
 	 * @throws Exception
 	 */
-	public function query(string $query, string $types='', ...$vars)
+	public function query(string $query, string $types='', &...$vars)
 	{
         $this->connectToDatabase();
         if ($types) {
