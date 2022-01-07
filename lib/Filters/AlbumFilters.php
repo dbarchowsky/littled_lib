@@ -312,7 +312,7 @@ class AlbumFilters extends FilterCollection
 			throw new ResourceNotFoundException("Error retrieving album titles.");
 		}
 		/* get record count from sproc results */
-		$this->getSprocPageCount();
+		$this->getProcedurePageCount();
 		return ($data);
 	}
 
@@ -326,7 +326,7 @@ class AlbumFilters extends FilterCollection
 	public function retrieveListings()
 	{
 		$data = $this->fetchRecordsNonExhaustive($this->formatListingsQuery());
-		$this->getSprocPageCount();
+		$this->getProcedurePageCount();
 		return ($data);
 	}
 }

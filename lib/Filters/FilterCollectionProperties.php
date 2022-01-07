@@ -168,12 +168,11 @@ class FilterCollectionProperties extends AppContentBase
     /**
      * Abstract method for table name getter. Child classes will set initial value within the method.
      * @return string
-     * @throws NotImplementedException
      */
-    public function getTableName(): string
+    public static function getTableName(): string
     {
-        if (!isset(static::$table_name)) {
-            static::$table_name = self::DEFAULT_TABLE_NAME();
+        if (!static::$table_name) {
+            return 'TABLE NAME NOT SET IN '.__CLASS__;
         }
         return static::$table_name;
     }
@@ -218,7 +217,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for name of table containing listing content.
      * @param string $table
      */
-    public function setTableName(string $table)
+    public static function setTableName(string $table)
     {
         static::$table_name = $table;
     }

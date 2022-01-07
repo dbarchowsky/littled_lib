@@ -2,7 +2,6 @@
 namespace Littled\Filters;
 
 use Littled\Database\DBUtils;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
@@ -19,6 +18,9 @@ use mysqli_result;
  */
 class FilterCollection extends FilterCollectionProperties
 {
+    /** @var string */
+    protected const RECORD_COUNT_ARG = '@total_matches';
+
 	/**
 	 * Calculate the total number of pages for the listings based on the total number of records and the length of the pages.
 	 * @param int[optional] $rec_count Total number of records.
@@ -45,6 +47,9 @@ class FilterCollection extends FilterCollectionProperties
 	 */
 	public function calcRecordPosition(): int
 	{
+        if ($this->page->value===null) {
+            $this->page->value = 1;
+        }
 		return (($this->page->value-1)*$this->listings_length->value);
 	}
 
@@ -109,11 +114,19 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Format and return the query string that will retrieve filters listings data.
-	 * @throws NotImplementedException
+     * @returns array Returns an array where the first element is a sql query followed by an array of variables to bind
+     * to the query. See mysqli_statement::bind_param() for specs of the array variables. The 2nd element of the
+     * array is a string describing the types of the following values in the array, e.g. 'iissiis' for int, int,
+     * string, int, etc.
 	 */
-	protected function formatListingsQuery(): string
+	protected function formatListingsQuery(): array
 	{
-		throw new NotImplementedException(get_class($this)."::formatListingsQuery() not implemented.");
+        /**
+         * In child classes the first element of the array is a query string.
+         * The 2nd element of the array is a string describing the types of the following elements, e.g. 'iis' for int, int, string.
+         * The remaining elements are values to bind to the query.
+         */
+		return array('', '', null);
 	}
 
 	/**
@@ -152,7 +165,6 @@ class FilterCollection extends FilterCollectionProperties
     /**
 	 * Formats SQL clauses to the offset and page size of the recordset.
 	 * @return array First element is the lower limit value and the 2nd element is the upper limit value.
-	 * @throws InvalidQueryException
      * @throws NotImplementedException
 	 */
 	public function getQueryLimits(): array
@@ -178,8 +190,8 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Retrieves total number of records matching the current filter values.
-	 * @throws InvalidQueryException
      * @throws NotImplementedException
+     * @throws Exception
 	 */
 	protected function getPageCount()
 	{
@@ -199,22 +211,18 @@ class FilterCollection extends FilterCollectionProperties
 	 * Store total number of matching results for later use when rendering listings.
 	 * @throws Exception
 	 */
-	protected function getSprocPageCount()
+	protected function getProcedurePageCount()
 	{
-		if ($this->mysqli->more_results()) {
-			while ($this->mysqli->more_results()) {
-				/** @var mysqli_result $result */
-				$this->mysqli->next_result();
-				if ($result = $this->mysqli->store_result()) {
-					$this->record_count = $result->fetch_object()->total_matches;
-					$this->page_count = $this->calcPageCount();
-					break;
-				}
-			}
-		}
-		else {
-			throw new Exception("No record count results are available. ");
-		}
+        $this->record_count = $this->page_count = 0;
+        $result = $this->mysqli->query('SELECT CAST('.self::RECORD_COUNT_ARG.' AS UNSIGNED) AS `total_matches`');
+        if (!$result) {
+            throw new Exception('Error getting record count: '.$this->mysqli->error);
+        }
+        $r = $result->fetch_object();
+        $result->free();
+
+        $this->record_count = $r->total_matches;
+        $this->page_count = $this->calcPageCount();
 	}
 
 	/**
@@ -271,45 +279,24 @@ class FilterCollection extends FilterCollectionProperties
 	 */
 	public function retrieveListings(): mysqli_result
 	{
-        $result = null;
         $this->connectToDatabase();
-        $query = $this->formatListingsQuery();
-        if (DBUtils::isProcedure($query)) {
-            return $this->retrieveListingsUsingProcedure($query);
+        $args = $this->formatListingsQuery();
+
+        $result = call_user_func_array([$this, 'fetchResult'], $args);
+		if (!$result) {
+            ContentUtils::printError('Error retrieving listings. '.$this->mysqli->error);
+		}
+
+        // If the query is a procedure that calculates record count, retrieve that total record count
+        if(DBUtils::isProcedure($args[0])) {
+            $pattern = '/'.self::RECORD_COUNT_ARG.'/';
+            if (preg_match($pattern, $args[0])) {
+                $this->getProcedurePageCount();
+            }
         }
-		try {
-			$result = $this->mysqli->query($query);
-		}
-		catch(Exception $ex) {
-            ContentUtils::printError($ex->getMessage());
-		}
-        if (!$result) {
-            throw new Exception("Error retrieving listings: ".$this->mysqli->error);
+        else {
+            $this->getPageCount();
         }
         return $result;
 	}
-
-    /**
-     * Retrieves listings using sql in $query argument. Stores the total
-     * number of matches and updates internal values of total number of pages
-     * and current page number.
-     * @param string $query SQL query to execute.
-     * @return mysqli_result
-     * @throws Exception
-     */
-    protected function retrieveListingsUsingProcedure( string $query ): mysqli_result
-    {
-        $this->connectToDatabase();
-
-        if (!$this->mysqli->multi_query($query)) {
-            throw new Exception("[".__METHOD__."] Error retrieving listings: {$this->mysqli->error}");
-        }
-        $result = $this->mysqli->store_result();
-        if (!$result) {
-            throw new Exception("[".__METHOD__."] Error retrieving listings: {$this->mysqli->error}");
-        }
-        /* get record count from procedure results */
-        $this->getSprocPageCount();
-        return $result;
-    }
 }
