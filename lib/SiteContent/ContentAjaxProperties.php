@@ -4,8 +4,6 @@ namespace Littled\SiteContent;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
@@ -54,11 +52,8 @@ class ContentAjaxProperties extends SerializedContent
 	public $comments;
 	/** @var BooleanCheckbox Flag indicating that the listings are sortable. */
 	public $is_sortable;
-
-	public static function TABLE_NAME(): string
-	{
-		return "section_operations";
-	}
+    /** @var string */
+    protected static $table_name = 'section_operations';
 
 	/**
 	 * ContentAjaxProperties constructor.
@@ -98,7 +93,6 @@ class ContentAjaxProperties extends SerializedContent
 	/**
 	 * {@inheritDoc}
      * @throws ConfigurationUndefinedException
-     * @throws InvalidValueException
      */
 	public function pluralLabel(int $count, string $property_name='label'): string
 	{
@@ -108,7 +102,6 @@ class ContentAjaxProperties extends SerializedContent
 	/**
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
-	 * @throws InvalidQueryException
 	 */
 	public function retrieveContentProperties()
 	{
@@ -126,7 +119,6 @@ class ContentAjaxProperties extends SerializedContent
 	 * @deprecated Use ContentAjaxProperties::retrieveContentProperties() instead.
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
-	 * @throws InvalidQueryException
 	 */
 	public function retrieveSectionProperties()
 	{

@@ -38,21 +38,10 @@ class ContentFilters extends FilterCollection
 	}
 
 	/**
-	 * Placeholder for method intended to be implemented by derived classes.
-	 * Format a query that will be used to retrieve listings recordset.
-	 * @return string SQL query
-	 * @throws NotImplementedException
-	 */
-	protected function formatListingsQuery(): string
-	{
-		throw new NotImplementedException(__METHOD__." not implemented.");
-	}
-
-	/**
 	 * Returns object's content type id value
 	 * @return int
 	 */
-	public function getContentTypeid(): int
+	public function getContentTypeId(): int
 	{
 		return ($this->content_type_id);
 	}

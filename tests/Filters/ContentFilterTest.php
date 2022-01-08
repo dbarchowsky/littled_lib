@@ -1,17 +1,29 @@
 <?php
 namespace Littled\Tests\Filters;
+require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
 use Littled\Filters\ContentFilter;
 use PHPUnit\Framework\TestCase;
+use mysqli;
+use Exception;
 
 class ContentFilterTest extends TestCase
 {
-	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 */
+    /**
+     * @return void
+     * @throws Exception
+     */
 	public function testEscapeSQL()
 	{
-		$mysqli = new \mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+        if (!defined('MYSQL_HOST') ||
+            !defined('MYSQL_USER') ||
+            !defined('MYSQL_PASS') ||
+            !defined('MYSQL_SCHEMA') ||
+            !defined('MYSQL_PORT')) {
+            throw new Exception("Database connection not set.");
+        }
+
+		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		/* test null value */
 		$cf = new ContentFilter('Test Filter', 'p_test', null, 50);

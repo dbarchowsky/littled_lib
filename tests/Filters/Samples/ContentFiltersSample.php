@@ -2,26 +2,16 @@
 namespace Littled\Tests\Filters\Samples;
 
 use Littled\Filters\ContentFilters;
-use mysqli_result;
-use Exception;
 
 class ContentFiltersSample extends ContentFilters
 {
     /** @var int */
     public const CONTENT_ID = 1; /* articles */
+    /** @var string */
+    protected static $table_name='article';
     protected static function DEFAULT_LISTINGS_LENGTH(): int { return 4; }
-    protected static function DEFAULT_KEY_PREFIX(): string
-    {
-        return 'test';
-    }
-    protected static function DEFAULT_COOKIE_KEY(): string
-    {
-        return 'cfcs';
-    }
-    public static function TABLE_NAME(): string
-    {
-        return 'article';
-    }
+    protected static function DEFAULT_KEY_PREFIX(): string { return ''; }
+    protected static function DEFAULT_COOKIE_KEY(): string { return ''; }
 
     public function __construct(int $content_type_id)
     {
@@ -32,22 +22,20 @@ class ContentFiltersSample extends ContentFilters
         $this->listings_length->value = $this->getDefaultListingsLength();
     }
 
-    public function formatListingsQuery(): string
+    protected function formatListingsQuery(): array
     {
-        return "SELECT id, title, text, author, source, source_url, ".
+        return array("SELECT id, title, text, author, source, source_url, ".
             "`date`, caption, slot, enabled, keywords ".
-            "FROM `".$this::TABLE_NAME()."` ".
+            "FROM `".$this::getTableName()."` ".
             "ORDER BY `date` DESC ".
-            "LIMIT ".$this->listings_length->value;
+            "LIMIT ".$this->listings_length->value);
     }
 
     /**
-     * @param string $query
-     * @return mysqli_result
-     * @throws Exception
+     * @return string
      */
-    public function retrieveListingsUsingProcedureTest(string $query): mysqli_result
+    protected function formatQueryClause(): string
     {
-        return $this->retrieveListingsUsingProcedure($query);
+        return '';
     }
 }

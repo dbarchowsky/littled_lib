@@ -277,15 +277,12 @@ class FilterCollection extends FilterCollectionProperties
 	 * @return mysqli_result Listings data
      * @throws Exception
 	 */
-	public function retrieveListings(): mysqli_result
+	public function retrieveListings(): array
 	{
         $this->connectToDatabase();
         $args = $this->formatListingsQuery();
 
-        $result = call_user_func_array([$this, 'fetchResult'], $args);
-		if (!$result) {
-            ContentUtils::printError('Error retrieving listings. '.$this->mysqli->error);
-		}
+        $data = call_user_func_array([$this, 'fetchRecords'], $args);
 
         // If the query is a procedure that calculates record count, retrieve that total record count
         if(DBUtils::isProcedure($args[0])) {
@@ -297,6 +294,6 @@ class FilterCollection extends FilterCollectionProperties
         else {
             $this->getPageCount();
         }
-        return $result;
+        return $data;
 	}
 }

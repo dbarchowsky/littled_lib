@@ -41,11 +41,10 @@ class FilterCollectionTest extends TestCase
     function testRetrieveListings()
     {
         $fc = new TestTableFiltersWithProcedure();
-        $result = $fc->retrieveListings();
-        $this->assertGreaterThan(0, $result->num_rows);
-        $row = $result->fetch_object();
+        $data = $fc->retrieveListings();
+        $this->assertGreaterThan(0, count($data));
+        $row = $data[0];
         $this->assertIsString($row->name);
-        $result->free();
         $this->assertGreaterThan(0, $fc->record_count);
     }
 
@@ -58,21 +57,18 @@ class FilterCollectionTest extends TestCase
         $fc = new TestTableFiltersWithQuery();
 
         // no filters
-        $result = $fc->retrieveListings();
-        $this->assertGreaterThan(0, $result->num_rows);
-        $result->free();
+        $data = $fc->retrieveListings();
+        $this->assertGreaterThan(0, count($data));
         $this->assertGreaterThan(0, $fc->record_count);
 
         // filter that matches some records
         $fc->name_filter->value = 'unit';
-        $result = $fc->retrieveListings();
-        $this->assertGreaterThan(0, $result->num_rows);
-        $result->free();
+        $data = $fc->retrieveListings();
+        $this->assertGreaterThan(0, count($data));
 
         // filter that matches no records
         $fc->name_filter->value = 'string that does not match';
-        $result = $fc->retrieveListings();
-        $this->assertEquals(0, $result->num_rows);
-        $result->free();
+        $data = $fc->retrieveListings();
+        $this->assertCount(0, $data);
     }
 }
