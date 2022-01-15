@@ -1,27 +1,26 @@
 <?php
 namespace Littled\Tests\Filters\Samples;
 
+use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 
-class ContentFiltersSample extends ContentFilters
+class ContentFiltersChild extends ContentFilters
 {
     /** @var int */
-    public const CONTENT_ID = 1; /* articles */
+    protected static $content_type_id = 1; /* articles */
     /** @var string */
     protected static $table_name='article';
-    protected static function DEFAULT_LISTINGS_LENGTH(): int { return 4; }
-    protected static function DEFAULT_KEY_PREFIX(): string { return ''; }
-    protected static function DEFAULT_COOKIE_KEY(): string { return ''; }
+    /** @var int */
+    protected static $default_listings_length = 20;
+    /** @var string */
+    protected static $key_prefix = '';
+    /** @var string */
+    protected static $cookie_key = '';
 
-    public function __construct(int $content_type_id)
-    {
-        $this->content_type_id = self::CONTENT_ID;
-        parent::__construct($content_type_id);
-
-        $this->setDefaultListingsLength(20);
-        $this->listings_length->value = $this->getDefaultListingsLength();
-    }
-
+    /**
+     * @return string[]
+     * @throws NotImplementedException
+     */
     protected function formatListingsQuery(): array
     {
         return array("SELECT id, title, text, author, source, source_url, ".

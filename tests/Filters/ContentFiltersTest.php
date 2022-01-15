@@ -2,22 +2,49 @@
 namespace Littled\Tests\Filters;
 require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
-use Littled\Tests\Filters\Samples\ContentFiltersProcedureSample;
-use Littled\Tests\Filters\Samples\ContentFiltersSample;
+use Littled\Exception\NotImplementedException;
+use Littled\Filters\ContentFilters;
+use Littled\Tests\Filters\Samples\ContentFiltersProcedureChild;
+use Littled\Tests\Filters\Samples\ContentFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
 class ContentFiltersTest extends TestCase
 {
+    /** @var int */
+    const CHILD_CONTENT_TYPE_ID = 1;
+
     function testConstruct()
     {
-        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $cf = new ContentFiltersChild();
         $this->assertEquals('article', $cf->content_properties->label);
+    }
+
+    /**
+     * @return void
+     * @throws NotImplementedException
+     */
+    function testContentTypeIdUnset()
+    {
+        self::expectExceptionMessageMatches('/Content type id not set.*ContentFilters/');
+        ContentFilters::getContentTypeId();
+    }
+
+    /**
+     * @return void
+     * @throws NotImplementedException
+     */
+    function testContentTypeId()
+    {
+        ContentFilters::setContentTypeId(22);
+        $this->assertEquals(22, ContentFilters::getContentTypeId());
+
+        $this->assertEquals(self::CHILD_CONTENT_TYPE_ID, ContentFiltersChild::getContentTypeId());
     }
 
     function testDefaultListingsLength()
     {
-        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $cf = new ContentFiltersChild();
         $this->assertGreaterThan(0, $cf->listings_length->value);
     }
 
@@ -27,7 +54,7 @@ class ContentFiltersTest extends TestCase
      */
     function testRetrieveListings()
     {
-        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $cf = new ContentFiltersChild();
         $data = $cf->retrieveListings();
         $this->assertGreaterThan(2, count($data));
         $last_id = 0;
@@ -52,7 +79,7 @@ class ContentFiltersTest extends TestCase
     function testRetrieveListingsUsingProcedure()
     {
         error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
-        $cf = new ContentFiltersProcedureSample(ContentFiltersSample::CONTENT_ID);
+        $cf = new ContentFiltersProcedureChild();
         $data = $cf->retrieveListings();
         $this->assertCount($cf->listings_length->value, $data);
         $this->assertIsNumeric($cf->record_count);
@@ -65,7 +92,7 @@ class ContentFiltersTest extends TestCase
      */
     function testExecuteListingsQueryAsAssociativeArray()
     {
-        $cf = new ContentFiltersSample(ContentFiltersSample::CONTENT_ID);
+        $cf = new ContentFiltersChild();
         $data = $cf->retrieveListings();
         $this->assertGreaterThan(0, count($data));
         foreach($data as $row) {

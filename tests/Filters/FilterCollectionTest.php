@@ -2,9 +2,9 @@
 namespace Littled\Tests\Filters;
 require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
-use Littled\Tests\Filters\Samples\TestTableFilters;
-use Littled\Tests\Filters\Samples\TestTableFiltersWithProcedure;
-use Littled\Tests\Filters\Samples\TestTableFiltersWithQuery;
+use Littled\Tests\Filters\Samples\FilterCollectionChild;
+use Littled\Tests\Filters\Samples\FilterCollectionChildWithProcedure;
+use Littled\Tests\Filters\Samples\FilterCollectionChildWithQuery;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -13,7 +13,7 @@ class FilterCollectionTest extends TestCase
     function testFormatListingsQueryNotImplemented()
     {
         // Test when not implemented in child class
-        $fc = new TestTableFilters();
+        $fc = new FilterCollectionChild();
         $args = $fc->formatListingsQueryTest();
         $this->assertCount(3, $args);
         $this->assertEquals('', $args[0]);  /* query string */
@@ -26,7 +26,7 @@ class FilterCollectionTest extends TestCase
      */
     function testFormatListingsQueryUsingProcedure()
     {
-        $fc = new TestTableFiltersWithProcedure();
+        $fc = new FilterCollectionChildWithProcedure();
         $args = $fc->formatListingsQuery();
         $this->assertCount(9, $args);
         $this->assertMatchesRegularExpression('/^CALL testTableListingsSelect\(/', $args[0]);
@@ -40,7 +40,7 @@ class FilterCollectionTest extends TestCase
      */
     function testRetrieveListings()
     {
-        $fc = new TestTableFiltersWithProcedure();
+        $fc = new FilterCollectionChildWithProcedure();
         $data = $fc->retrieveListings();
         $this->assertGreaterThan(0, count($data));
         $row = $data[0];
@@ -54,7 +54,7 @@ class FilterCollectionTest extends TestCase
      */
     function testRetrieveListingsWithQuery()
     {
-        $fc = new TestTableFiltersWithQuery();
+        $fc = new FilterCollectionChildWithQuery();
 
         // no filters
         $data = $fc->retrieveListings();

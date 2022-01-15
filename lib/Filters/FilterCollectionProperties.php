@@ -17,42 +17,6 @@ class FilterCollectionProperties extends AppContentBase
     const LINKS_OFFSET = 5;
     const LINKS_END_LENGTH = 2;
 
-    /**
-     * @throws NotImplementedException
-     */
-    protected static function DEFAULT_COOKIE_KEY(): string
-    {
-        throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
-    }
-    /**
-     * @throws NotImplementedException
-     */
-    protected static function DEFAULT_KEY_PREFIX(): string
-    {
-        throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
-    }
-    /**
-     * @throws NotImplementedException
-     */
-    protected static function DEFAULT_LISTINGS_LABEL(): int
-    {
-        throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
-    }
-    /**
-     * @throws NotImplementedException
-     */
-    protected static function DEFAULT_LISTINGS_LENGTH(): int
-    {
-        throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
-    }
-    /**
-     * @throws NotImplementedException
-     */
-    protected static function DEFAULT_TABLE_NAME(): string
-    {
-        throw new NotImplementedException(get_called_class()."::".__FUNCTION__."() not implemented.");
-    }
-
     /** @var BooleanContentFilter Flag to suppress the display of the listings. */
     public $display_listings;
     /** @var StringContentFilter Token indicating the next operation to take, typically after editing a record. */
@@ -76,15 +40,15 @@ class FilterCollectionProperties extends AppContentBase
     /** @var string SQL WHERE clause matching the current filter values. */
     public $sql_clause;
     /** @var string Key for cookie used to preserve filter settings. */
-    protected static $cookie_key;
+    protected static $cookie_key = '';
     /** @var int Default number of line items to display in listings */
-    protected static $default_listings_length;
+    protected static $default_listings_length = null;
     /** @var string Item label to insert into listings content. */
-    protected static $listings_label;
+    protected static $listings_label = '';
     /** @var string String to add to parameter names to make them specific to the current type of listings. */
-    protected static $key_prefix;
+    protected static $key_prefix = '';
     /** @var string Name of table storing listings content. */
-    protected static $table_name;
+    protected static $table_name = '';
 
     /**
      * class constructor
@@ -94,7 +58,7 @@ class FilterCollectionProperties extends AppContentBase
     {
         parent::__construct();
         $this->page = new IntegerContentFilter("Page", $this->getLocalKey($this::PAGE_PARAM), null, null, $this::getCookieKey());
-        $this->listings_length = new IntegerContentFilter("Page length", $this->getLocalKey($this::LISTINGS_LENGTH_PARAM), $this::DEFAULT_LISTINGS_LENGTH(), null, $this::getCookieKey());
+        $this->listings_length = new IntegerContentFilter("Page length", $this->getLocalKey($this::LISTINGS_LENGTH_PARAM), $this::getDefaultListingsLength(), null, $this::getCookieKey());
         $this->next = new StringContentFilter("Next", $this->getLocalKey($this::NEXT_OPERATION_PARAM), '', 16, $this::getCookieKey());
         $this->display_listings = new BooleanContentFilter("Display listings", $this->getLocalKey($this::FILTER_PARAM), false, null, $this::getCookieKey());
         $this->referer_uri = '';
@@ -104,13 +68,9 @@ class FilterCollectionProperties extends AppContentBase
      * Abstract method for cookie key getter. Child classes will set the default value of the cookie key in their
      * implementations of the method.
      * @return string
-     * @throws NotImplementedException
      */
-    public function getCookieKey(): string
+    public static function getCookieKey(): string
     {
-        if (!isset(static::$cookie_key)) {
-            static::$cookie_key = $this::DEFAULT_COOKIE_KEY();
-        }
         return static::$cookie_key;
     }
 
@@ -119,23 +79,24 @@ class FilterCollectionProperties extends AppContentBase
      * their implementations of the method.
      * @throws NotImplementedException
      */
-    public function getListingsLabel(): string
+    public static function getListingsLabel(): string
     {
-        if (!isset(static::$listings_label)) {
-            static::$listings_label = self::DEFAULT_LISTINGS_LABEL();
+        if (!static::$listings_label) {
+            throw new NotImplementedException('Listings label value not set in '.__CLASS__.'.');
         }
         return static::$listings_label;
     }
 
     /**
-     * Abstract method for default listings length getter. Child classes will set an initial value for the property in
+     * Default listings length getter. Child classes will set an initial value for the property in
      * their implementations of the method.
+     * @returns int
      * @throws NotImplementedException
      */
-    public function getDefaultListingsLength(): string
+    public static function getDefaultListingsLength(): int
     {
-        if (!isset(static::$default_listings_length)) {
-            static::$default_listings_length = self::DEFAULT_LISTINGS_LENGTH();
+        if (!static::$default_listings_length) {
+            throw new NotImplementedException('Default listings length value not set in '.__CLASS__.'.');
         }
         return static::$default_listings_length;
     }
@@ -144,13 +105,9 @@ class FilterCollectionProperties extends AppContentBase
      * Abstract method for default query string variable name prefix. Child classes will set a default value for the
      * property in their implementation of the method.
      * @return string
-     * @throws NotImplementedException
      */
-    public function getKeyPrefix(): string
+    public static function getKeyPrefix(): string
     {
-        if (!isset(static::$key_prefix)) {
-            static::$key_prefix = $this::DEFAULT_KEY_PREFIX();
-        }
         return static::$key_prefix;
     }
 
@@ -158,21 +115,21 @@ class FilterCollectionProperties extends AppContentBase
      * Returns a localized name for a query string variable that will hold the value of one of the filters.
      * @param string $base_key Base name of the variable to be added to a localized prefix.
      * @return string
-     * @throws NotImplementedException
      */
-    public function getLocalKey(string $base_key): string
+    public static function getLocalKey(string $base_key): string
     {
-        return ($this->getKeyPrefix().$base_key);
+        return (static::getKeyPrefix().$base_key);
     }
 
     /**
      * Abstract method for table name getter. Child classes will set initial value within the method.
      * @return string
+     * @throws NotImplementedException
      */
     public static function getTableName(): string
     {
         if (!static::$table_name) {
-            return 'TABLE NAME NOT SET IN '.__CLASS__;
+            throw new NotImplementedException('Table name not set in '.__CLASS__.'.');
         }
         return static::$table_name;
     }
@@ -181,7 +138,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for key used to preserve filter values in cookie data.
      * @param string $key
      */
-    public function setCookieKey(string $key)
+    public static function setCookieKey(string $key)
     {
         static::$cookie_key = $key;
     }
@@ -190,7 +147,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for listings label property
      * @param string $label
      */
-    public function setListingsLabel(string $label)
+    public static function setListingsLabel(string $label)
     {
         static::$listings_label = $label;
     }
@@ -199,7 +156,7 @@ class FilterCollectionProperties extends AppContentBase
      * Setter for default listings length property value.
      * @param int $length
      */
-    public function setDefaultListingsLength(int $length)
+    public static function setDefaultListingsLength(int $length)
     {
         static::$default_listings_length = $length;
     }
@@ -208,7 +165,7 @@ class FilterCollectionProperties extends AppContentBase
      * Key prefix setter.
      * @param $prefix
      */
-    public function setKeyPrefix($prefix)
+    public static function setKeyPrefix($prefix)
     {
         static::$key_prefix = $prefix;
     }
@@ -221,4 +178,29 @@ class FilterCollectionProperties extends AppContentBase
     {
         static::$table_name = $table;
     }
+
+    /**
+     * @deprecated Use get/setCookieKey() instead
+     */
+    protected static function DEFAULT_COOKIE_KEY(): string { return ''; }
+
+    /**
+     * @deprecated Use get/setKeyPrefix() instead.
+     */
+    protected static function DEFAULT_KEY_PREFIX(): string { return ''; }
+
+    /**
+     * @deprecated Use get/setListingsLabel() instead
+     */
+    protected static function DEFAULT_LISTINGS_LABEL(): string { return ''; }
+
+    /**
+     * @deprecated Use $default_listings_length and get/setListingsLength() instead
+     */
+    protected static function DEFAULT_LISTINGS_LENGTH(): ?int { return null; }
+
+    /**
+     * @deprecated Use $getTableName instead
+     */
+    protected static function DEFAULT_TABLE_NAME(): string { return ''; }
 }

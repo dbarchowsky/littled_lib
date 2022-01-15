@@ -33,7 +33,7 @@ class DateContentFilterTest extends TestCase
             !defined('MYSQL_PORT')) {
             throw new Exception("Database connection not defined.");
         }
-		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		/* test null value */
 		$cf = new DateContentFilter('Test Filter', 'p_test', null, 50);

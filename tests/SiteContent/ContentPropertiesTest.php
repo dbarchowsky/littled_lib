@@ -35,7 +35,9 @@ class ContentPropertiesTest extends TestCase
     {
         $c = new MySQLConnection();
         $query = "DELETE FROM `site_section` WHERE id in (?,?)";
-        $c->query($query, 'ii', ContentPropertiesTest::TEST_ID_FOR_DELETE, ContentPropertiesTest::TEST_ID_FOR_READ);
+        $id1 = ContentPropertiesTest::TEST_ID_FOR_DELETE;
+        $id2 = ContentPropertiesTest::TEST_ID_FOR_READ;
+        $c->query($query, 'ii', $id1, $id2);
     }
 
     /**
@@ -400,6 +402,23 @@ class ContentPropertiesTest extends TestCase
 		$this->assertEquals('thingy', $this->obj->pluralLabel(1));
 		$this->assertEquals('thingies', $this->obj->pluralLabel(2));
 	}
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+    public function testRead()
+    {
+        $this->obj->id->value = 2;
+        $this->obj->read();
+        $this->assertEquals('Idea', $this->obj->name->value);
+    }
 
 	/**
 	 * @throws ConfigurationUndefinedException

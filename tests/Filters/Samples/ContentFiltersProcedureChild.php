@@ -1,11 +1,10 @@
 <?php
 namespace Littled\Tests\Filters\Samples;
 
-use Cassandra\Date;
 use Littled\Filters\DateContentFilter;
 use Littled\Filters\StringContentFilter;
 
-class ContentFiltersProcedureSample extends ContentFiltersSample
+class ContentFiltersProcedureChild extends ContentFiltersChild
 {
     /** @var StringContentFilter */
     public $title;
@@ -20,11 +19,14 @@ class ContentFiltersProcedureSample extends ContentFiltersSample
     /** @var StringContentFilter */
     public $keyword;
 
-    public function __construct(int $content_type_id)
+    public function __construct()
     {
-        parent::__construct($content_type_id);
+        parent::__construct();
         $this->page->value = 1;
+
+        // overrides the default value
         $this->listings_length->value = 4;
+
         $this->title = new StringContentFilter('title', 'titleFilter', null, 50);
         $this->text = new StringContentFilter('text', 'textFilter', null, 50);
         $this->source = new StringContentFilter('source', 'sourceFilter', null, 50);

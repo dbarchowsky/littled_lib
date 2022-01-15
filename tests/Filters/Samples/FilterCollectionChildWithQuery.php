@@ -3,9 +3,8 @@ namespace Littled\Tests\Filters\Samples;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\NotImplementedException;
 
-class TestTableFiltersWithQuery extends TestTableFilters
+class FilterCollectionChildWithQuery extends FilterCollectionChild
 {
     /**
      * @return array
