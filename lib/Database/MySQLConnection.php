@@ -184,7 +184,7 @@ class MySQLConnection extends AppBase
             array_unshift($vars, $types);
             call_user_func_array([$stmt, 'bind_param'], $vars);
             if(!$stmt->execute()) {
-                throw new Exception('Error fetching records: '.$this->mysqli->error);
+                throw new Exception('Error fetching records: '.$stmt->error);
             }
             $result = $stmt->get_result();
             $stmt->close();
