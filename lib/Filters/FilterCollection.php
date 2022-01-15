@@ -102,7 +102,7 @@ class FilterCollection extends FilterCollectionProperties
 			$this->page->value = 1;
 		}
 		if (!isset($this->listings_length->value)) {
-			$this->listings_length->value = $this->getDefaultListingsLength();
+			$this->listings_length->value = $this::getDefaultListingsLength();
 		}
 
 		if ($this->next->value=="") {
