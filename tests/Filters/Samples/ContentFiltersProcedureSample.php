@@ -38,13 +38,13 @@ class ContentFiltersProcedureSample extends ContentFiltersSample
         return array(
             "CALL articleListingsSelect(?,?,?,?,?,?,?,?,@total_matches)",
             'iissssss',
-            $this->page->value,
-            $this->listings_length->value,
-            $this->title->value,
-            $this->text->value,
-            $this->source->value,
-            $this->published_after->value,
-            $this->published_before->value,
-            $this->keyword->value);
+            &$this->page->value,
+            &$this->listings_length->value,
+            &$this->title->value,
+            &$this->text->value,
+            &$this->source->value,
+            &$this->published_after->value,
+            &$this->published_before->value,
+            &$this->keyword->value);
     }
 }

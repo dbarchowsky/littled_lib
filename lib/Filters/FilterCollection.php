@@ -4,11 +4,9 @@ namespace Littled\Filters;
 use Littled\Database\DBUtils;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
 use Littled\PageContent\PageUtils;
 use Littled\Validation\Validation;
 use Exception;
-use mysqli_result;
 
 
 /**
@@ -274,7 +272,7 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Retrieves listings data from database using object's filter values.
-	 * @return mysqli_result Listings data
+	 * @return array Listings data
      * @throws Exception
 	 */
 	public function retrieveListings(): array

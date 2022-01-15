@@ -51,6 +51,7 @@ class ContentFiltersTest extends TestCase
      */
     function testRetrieveListingsUsingProcedure()
     {
+        error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
         $cf = new ContentFiltersProcedureSample(ContentFiltersSample::CONTENT_ID);
         $data = $cf->retrieveListings();
         $this->assertCount($cf->listings_length->value, $data);
