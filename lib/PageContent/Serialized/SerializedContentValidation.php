@@ -19,7 +19,7 @@ class SerializedContentValidation extends SerializedContentUtils
 			$this->validationErrors = array_merge($this->validationErrors, $err);
 		}
 		else {
-			array_push($this->validationErrors, $err);
+			$this->validationErrors[] = $err;
 		}
 	}
 

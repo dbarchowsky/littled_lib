@@ -10,6 +10,9 @@ use Exception;
 
 class MySQLConnectionTest extends TestCase
 {
+    /** @var string */
+    const TEST_TABLE = 'test_table';
+
     /**
      * @return void
      * @throws Exception
@@ -30,6 +33,17 @@ class MySQLConnectionTest extends TestCase
 		$this->assertIsNumeric($row->id);
         $this->assertIsString($row->title);
 	}
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    function testColumnExists()
+    {
+        $c = new MySQLConnection();
+        $this->assertTrue($c->columnExists('name', self::TEST_TABLE));
+        $this->assertFalse($c->columnExists('doesnt_exist', self::TEST_TABLE));
+    }
 
 	/**
 	 * @throws Exception

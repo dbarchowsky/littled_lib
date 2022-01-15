@@ -56,18 +56,17 @@ class SerializedContent extends SerializedContentValidation
         }
     }
 
-	/**
-	 * Check if a column exists in a given database table in the content item's database table.
-	 * @param string $column_name Name of the column to check for.
-	 * @param string[optional] $table_name This parameter is ignored in this class's implementation of the routine.
-	 * @return boolean True/false depending on if the column is found.
-	 * @throws NotImplementedException Inherited classes haven't set table name value.
-	 * @throws InvalidQueryException Error executing query.
-	 */
+    /**
+     * Check if a column exists in a given database table in the content item's database table.
+     * @param string $column_name Name of the column to check for.
+     * @param string $table_name (Optional) This parameter is ignored in this class's implementation of the routine.
+     * @return boolean True/false depending on if the column is found.
+     * @throws Exception
+     */
 	public function columnExists(string $column_name, string $table_name=''): bool
 	{
-		if ('' === $table_name) {
-			$table_name = $this->TABLE_NAME();
+		if (''===$table_name) {
+			$table_name = $this::getTableName();
 		}
 		return(parent::columnExists($column_name, $table_name));
 	}
@@ -101,12 +100,12 @@ class SerializedContent extends SerializedContentValidation
     }
 
     /**
-	 * Deletes the record from the database. Uses the value object's id property to look up the record.
-	 * @return string Message indicating result of the deletion.
-	 * @throws ContentValidationException Record id not provided.
-	 * @throws NotImplementedException Table name not set in inherited class.
-	 * @throws InvalidQueryException SQL error raised running deletion query.
-	 */
+     * Deletes the record from the database. Uses the value object's id property to look up the record.
+     * @return string Message indicating result of the deletion.
+     * @throws ContentValidationException Record id not provided.
+     * @throws NotImplementedException Table name not set in inherited class.
+     * @throws Exception
+     */
 	public function delete ( ): string
 	{
 		if ($this->id->value===null || $this->id->value<1) {
@@ -117,24 +116,23 @@ class SerializedContent extends SerializedContentValidation
 			return("The requested record could not be found. \n");
 		}
 
-		$query = "DEL"."ETE FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
-		$this->query($query);
+		$query = "DEL"."ETE FROM `".$this::getTableName()."` WHERE `id` = ?";
+		$this->query($query, 'i', $this->id->value);
 		return ("The record has been deleted. \n");
 	}
 
-	/**
-	 * Create a SQL insert statement using the values of the object's input properties & execute the insert statement.
-	 * @throws ConnectionException On connection error.
-	 * @throws ConfigurationUndefinedException Database connection properties not set.
-	 * @throws NotImplementedException Table name not specified in inherited class.
-	 * @throws InvalidQueryException SQL error raised running insert query.
-	 */
+    /**
+     * Create a SQL insert statement using the values of the object's input properties & execute the insert statement.
+     * @throws ConnectionException On connection error.
+     * @throws ConfigurationUndefinedException Database connection properties not set.
+     * @throws Exception
+     */
 	protected function executeInsertQuery()
 	{
 		$fields = $this->formatDatabaseColumnList();
 
 		/* build sql statement */
-		$query = "INS"."ERT INTO `".$this->TABLE_NAME()."` (`".
+		$query = "INS"."ERT INTO `".$this::getTableName()."` (`".
 			implode('`,`', array_keys($fields)).
 			"`) VALUES (".
 			implode(',', array_values($fields)).
@@ -149,9 +147,9 @@ class SerializedContent extends SerializedContentValidation
 	 * Create a SQL update statement using the values of the object's input properties & execute the update statement.
 	 * @throws ConnectionException On connection error.
 	 * @throws ConfigurationUndefinedException Database connection properties not set.
-	 * @throws InvalidQueryException SQL error raised running insert query.
-	 * @throws NotImplementedException Table name not specified in inherited class.
+     * @throws NotImplementedException Table name not specified in inherited class.
 	 * @throws RecordNotFoundException No record exists that matches the id value.
+     * @throws Exception
 	 */
 	protected function executeUpdateQuery()
 	{
@@ -165,21 +163,21 @@ class SerializedContent extends SerializedContentValidation
 		$fields_cb = function($key, $value) { return("`$key`=$value"); };
 
 		/* build and execute sql statement */
-		$query = "UPDATE `".$this->TABLE_NAME()."` SET ".
+		$query = "UPDATE `".$this::getTableName()."` SET ".
 			implode(',', array_map($fields_cb, array_keys($fields), $fields))." ".
-			"WHERE id = {$this->id->value};";
-		$this->query($query);
+			"WHERE id = ?;";
+		$this->query($query, 'i', $this->id->value);
 	}
 
-	/**
-	 * Attempts to determine which column in a table holds title or name values.
-	 * @todo This routine exists for the benefit of the getRecordName() routine. If the switch that is in that routine
-	 * @todo be implemented in inherited classes, then this routine is no longer necessary and can be removed.
-	 * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
-	 * @throws NotImplementedException Inherited classes haven't set table name value.
-	 * @throws InvalidQueryException Error executing query.
-	 */
-	public function getNameColumnIdentifier(): string
+    /**
+     * Attempts to determine which column in a table holds title or name values.
+     * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
+     * @throws InvalidQueryException Error executing query.*@throws Exception
+     * @throws Exception
+     * @todo be implemented in inherited classes, then this routine is no longer necessary and can be removed.
+     * @todo This routine exists for the benefit of the getRecordName() routine. If the switch that is in that routine
+     */
+    public function getNameColumnIdentifier(): string
 	{
 		switch(1) {
 			case ($this->columnExists('name')):
@@ -204,16 +202,16 @@ class SerializedContent extends SerializedContentValidation
 	 * Attempts to read the title or name from a record in the database and use
 	 * its value to set the title or name property of the class instance. Uses the
 	 * value of the internal TABLE_NAME() property to determine which table to search.
-	 * @throws NotImplementedException Table name not specified in inherited classes.
-	 * @throws RecordNotFoundException Requested data not found.
+     * @throws RecordNotFoundException Requested data not found.
 	 * @throws InvalidQueryException Error executing SQL queries.
+     * @throws Exception
 	 */
 	function getRecordLabel()
 	{
 		$column = $this->getNameColumnIdentifier();
 
-		$query = "SEL"."ECT `$column` AS `column_name` FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}";
-		$data = $this->fetchRecords($query);
+		$query = "SEL"."ECT `$column` AS `column_name` FROM `".$this::getTableName()."` WHERE `id` = ?";
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException('Column value not found');
 		}
@@ -242,7 +240,7 @@ class SerializedContent extends SerializedContentValidation
 	 * @param int $id ID value of the record.
 	 * @param string[optional] $field Column name containing the value to retrieve. Defaults to "name".
 	 * @param string[optional] $id_field Column name containing the id value to retrieve. Defaults to "id".
-	 * @throws InvalidQueryException SQL error raised running insert query.
+	 * @throws InvalidQueryException|Exception SQL error raised running insert query.
 	 * @return string|null Retrieved value.
 	 */
 	public function getTypeName(string $table, int $id, $field="name", $id_field="id" ): ?string
@@ -264,9 +262,7 @@ class SerializedContent extends SerializedContentValidation
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException Record id not set.
-	 * @throws NotImplementedException Table name not set.
-	 * @throws InvalidQueryException Error executing query.
-	 * @throws InvalidTypeException Record id is not an instance of IntegerInput.
+     * @throws InvalidTypeException Record id is not an instance of IntegerInput.
 	 * @throws RecordNotFoundException Requested record not available.
 	 */
 	public function read ()
@@ -279,31 +275,31 @@ class SerializedContent extends SerializedContentValidation
 		}
 
 		$fields = $this->formatDatabaseColumnList();
-        $table = ((method_exists($this, 'getTableName'))?($this->getTableName()):($this::TABLE_NAME()));
 		$query = "SELECT `".
 			implode('`,`', array_keys($fields))."` ".
-			"FROM `$table` ".
+			"FROM `".$this::getTableName()."` ".
 			"WHERE id = {$this->id->value}";
 		try {
 			$this->hydrateFromQuery($query);
 		}
 		catch(RecordNotFoundException $ex) {
-			$error_msg = "The requested ".$this->TABLE_NAME()." record could not be found.";
+			$error_msg = "The requested ".$this::getTableName()." record could not be found.";
 			throw new RecordNotFoundException($error_msg);
-		}
-	}
+		} catch (Exception $e) {
+        }
+    }
 
-	/**
-	 * Retrieves a list of records from the database using $query. Converts each
-	 * row in the result to an object of type $type. Stores the objects as an
-	 * array in the object's property specified with $property.
-	 * @param string $property Name of property to use to store list.
-	 * @param string $type Object type to push onto the array.
-	 * @param string $query SQL query to execute to retrieve list.
-	 * @throws InvalidQueryException Error executing query.
-	 * @throws NotImplementedException Currently only stored procedures are supported.
-	 * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
-	 */
+    /**
+     * Retrieves a list of records from the database using $query. Converts each
+     * row in the result to an object of type $type. Stores the objects as an
+     * array in the object's property specified with $property.
+     * @param string $property Name of property to use to store list.
+     * @param string $type Object type to push onto the array.
+     * @param string $query SQL query to execute to retrieve list.
+     * @throws NotImplementedException Currently only stored procedures are supported.
+     * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
+     * @throws Exception
+     */
 	public function readList( string $property, string $type, string $query )
 	{
 		if (stripos($query, "call")===0) {
@@ -320,7 +316,7 @@ class SerializedContent extends SerializedContentValidation
 				throw new InvalidTypeException("Cannot store records in object provided.");
 			}
 			$obj->fill($row);
-			array_push($this->$property, $obj);
+			$this->$property[] = $obj;
 		}
 	}
 
@@ -329,8 +325,7 @@ class SerializedContent extends SerializedContentValidation
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException Unable to establish database connection.
 	 * @throws ContentValidationException Record contains invalid data.
-	 * @throws InvalidQueryException Error executing query.
-	 * @throws NotImplementedException Table name value not set in inherited class.
+     * @throws NotImplementedException Table name value not set in inherited class.
 	 * @throws RecordNotFoundException No record exists that matches the id value.
 	 */
 	public function save ()
@@ -368,8 +363,8 @@ class SerializedContent extends SerializedContentValidation
 			return (false);
 		}
 
-		$query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this->TABLE_NAME()."` WHERE `id` = {$this->id->value}) AS `record_exists`";
-		$data = $this->fetchRecords($query);
+		$query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this::getTableName()."` WHERE `id` = ?) AS `record_exists`";
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		return ((int)("0".$data[0]->record_exists) === 1);
 	}
 

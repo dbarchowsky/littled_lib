@@ -46,14 +46,27 @@ class MySQLConnection extends AppBase
 	 * @param string $column_name name of the column to check for
 	 * @param string $table_name name of the table to look in
 	 * @return boolean True/false depending on if the column is found.
-	 * @throws InvalidQueryException Error executing query.
      * @throws Exception
 	 */
 	public function columnExists( string $column_name, string $table_name ): bool
 	{
-		$data = $this->fetchRecords("SHOW COLUMNS FROM `$table_name` LIKE '$column_name'");
-		$has_rows = (count($data) > 0);
-		return ($has_rows);
+        if (!defined('MYSQL_SCHEMA')) {
+            throw new ConfigurationUndefinedException('Schema undefined in '.__METHOD__.'.');
+        }
+
+        // $query = "SHOW COLUMNS FROM `$table_name` LIKE '$column_name'";
+        $schema = MYSQL_SCHEMA;
+        $query = "SELECT EXISTS ".
+            "(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS ".
+            "WHERE TABLE_SCHEMA=? ".
+            "AND TABLE_NAME=? ".
+            "AND COLUMN_NAME=?) as `column_present`";
+
+		$data = $this->fetchRecords($query, 'sss', $schema, $table_name, $column_name);
+		if (count($data) > 0) {
+            return $data[0]->column_present;
+        }
+		return false;
 	}
 
     /**

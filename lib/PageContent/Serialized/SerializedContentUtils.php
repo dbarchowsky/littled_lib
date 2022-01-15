@@ -216,10 +216,12 @@ class SerializedContentUtils extends AppContentBase
 	 * Checks of SECTION_ID has been defined as a constant of the class and returns its value if it has.
 	 * @return ?int Class's content type id value, if it has been defined.
 	 */
-	public function getContentTypeID(): ?int
+	public static function getContentTypeID(): ?int
 	{
-		$content_type_const = get_class($this)."::SECTION_ID";
-		return ((defined($content_type_const))?(constant($content_type_const)):(null));
+		if (property_exists(get_called_class(), 'content_type_id')) {
+            return static::$content_type_id;
+        }
+        return null;
 	}
 
     /**

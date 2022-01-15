@@ -11,71 +11,11 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\Serialized\SerializedContentUtils;
+use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentChild;
+use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentUtilsChild;
 use Littled\Request\RequestInput;
-use Littled\Request\BooleanInput;
-use Littled\Request\IntegerInput;
-use Littled\Request\StringInput;
 use PHPUnit\Framework\TestCase;
 
-
-/**
- * Class SerializedContentUtilsChild
- * @package Littled\Tests\PageContent
- */
-class SerializedContentUtilsChild extends SerializedContent
-{
-	public $vc_col1;
-	public $vc_col2;
-	public $int_col;
-	public $bool_col;
-	public $prop1;
-	public $prop2;
-	protected static $cache_template = "/path/to/templates/child-cache-template.php";
-
-	const SECTION_ID = 10; /* sketchbook page */
-
-	/**
-	 * SerializedContentUtilsChild constructor.
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-		$this->vc_col1 = new StringInput('Test varchar value 1', 'p_vc1', true, '', 50);
-		$this->vc_col2 = new StringInput('Test varchar value 1', 'p_vc2', false, '', 255);
-		$this->int_col = new IntegerInput('Test int value', 'p_int');
-		$this->bool_col = new BooleanInput('Test bool value', 'p_bool');
-	}
-
-	public static function TABLE_NAME(): string
-	{
-		return ('serialized_content_utils_unit_tests');
-	}
-
-	public function hasData(): bool
-	{
-		if ($this->vc_col2->value !== null && strlen($this->vc_col2->value) > 0) { return(true); }
-		if ($this->vc_col1->value !== null && strlen($this->vc_col1->value) > 0) { return(true); }
-		if ($this->int_col->value !== null) { return(true); }
-		if ($this->bool_col->value !== null) { return(true); }
-		return (parent::hasData());
-	}
-}
-
-class SerializedContentChild extends SerializedContent
-{
-	public $bool_field;
-	public $str_field;
-	/** @var SerializedContentUtilsChild */
-	public $child;
-
-	public function __construct($id = null)
-	{
-		parent::__construct($id);
-		$this->str_field = new StringInput('String Field', 'str_param', true,'test value');
-		$this->bool_field = new BooleanInput('Boolean Field', 'bool_param', true, true);
-		$this->child = null;
-	}
-}
 
 
 class SerializedContentUtilsTest extends TestCase
@@ -87,6 +27,7 @@ class SerializedContentUtilsTest extends TestCase
 
 	public const TEST_SOURCE_TEMPLATE = "serialized-content-source-template.php";
 	public const TEST_OUTPUT_TEMPLATE = "serialized-content-output-template.php";
+    protected const CHILD_CONTENT_TYPE_ID = 10;
 
 	/**
 	 * @throws NotImplementedException Table name is not set in inherited classes.
@@ -191,21 +132,21 @@ class SerializedContentUtilsTest extends TestCase
 		/* clear string property value */
 		$obj->id->value = 78;
 		$this->assertEquals(78, $obj->id->value);
-		$this->assertEquals('', $obj->str_field->value);
+		$this->assertEquals('', $obj->vc_col1->value);
 
 		$obj->clearValues();
 		$this->assertEquals(null, $obj->id->value);
-		$this->assertEquals('', $obj->str_field->value);
+		$this->assertEquals('', $obj->vc_col1->value);
 
 		/* clear boolean property value */
-		$obj->str_field->value = 'foo';
-		$this->assertNull($obj->bool_field->value);
-		$this->assertEquals('foo', $obj->str_field->value);
+		$obj->vc_col1->value = 'foo';
+		$this->assertNull($obj->bool_col->value);
+		$this->assertEquals('foo', $obj->vc_col1->value);
 
 		$obj->clearValues();
 		self::assertNull($obj->id->value);
-		self::assertEquals(null, $obj->bool_field->value);
-		self::assertEquals('', $obj->str_field->value);
+		self::assertEquals(null, $obj->bool_col->value);
+		self::assertEquals('', $obj->vc_col1->value);
 
 		/* clear child object properties recursively */
 		$c = new SerializedContentUtilsChild();
@@ -283,7 +224,7 @@ class SerializedContentUtilsTest extends TestCase
     public function testGetContentTypeID()
     {
     	$obj = new SerializedContentUtilsChild();
-    	$this->assertEquals(SerializedContentUtilsChild::SECTION_ID, $obj->getContentTypeID());
+    	$this->assertEquals(self::CHILD_CONTENT_TYPE_ID, $obj->getContentTypeID());
     }
 
 	public function testGetContentTypeIDWithConstNotDefined()
@@ -346,8 +287,7 @@ class SerializedContentUtilsTest extends TestCase
 		$obj = new SerializedContentUtilsChild();
 
 		// test null property value
-		$this->expectException(InvalidValueException::class);
-		$obj->pluralLabel(1, 'vc_col1');
+		$this->assertEquals('', $obj->pluralLabel(1, 'vc_col1'));
 
 		$obj->vc_col1->setInputValue('thing');
 		$this->assertEquals('thing', $obj->pluralLabel(1, 'vc_col1'));
@@ -361,7 +301,6 @@ class SerializedContentUtilsTest extends TestCase
 	}
 
 	/**
-	 * @throws InvalidValueException
 	 * @throws ConfigurationUndefinedException
 	 */
 	public function testPluralLabelInvalidArguments()
@@ -437,8 +376,8 @@ class SerializedContentUtilsTest extends TestCase
 	 */
 	public function testUpdateCacheFileWithoutContext()
 	{
-		$src_template_path = TEST_ASSETS_PATH . self::TEST_SOURCE_TEMPLATE;
-		$dst_path = TEST_ASSETS_PATH;
+		$src_template_path = TEST_TEMPLATES_PATH . self::TEST_SOURCE_TEMPLATE;
+		$dst_path = TEST_TEMPLATES_PATH;
 		$context = array("page_title" => "My Test Title", "test_var" => "test value");
 		$this->obj->updateCacheFile($context, $src_template_path, $dst_path.self::TEST_OUTPUT_TEMPLATE);
 		$result = file_get_contents($dst_path.self::TEST_OUTPUT_TEMPLATE);
