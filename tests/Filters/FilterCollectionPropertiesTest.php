@@ -55,9 +55,13 @@ class FilterCollectionPropertiesTest extends TestCase
         $this->assertEquals('ckKey', FilterCollectionPropertiesChild::getLocalKey('Key'));
     }
 
+    /**
+     * @return void
+     * @throws NotImplementedException
+     */
     function testDefaultListingsLengthUnset()
     {
-        $this->expectException(NotImplementedException::class);
+        $this->expectExceptionMessageMatches('/Default listings length value not set.*FilterCollectionProperties/');
         FilterCollectionProperties::getDefaultListingsLength();
     }
 
@@ -105,9 +109,13 @@ class FilterCollectionPropertiesTest extends TestCase
         $this->assertEquals('new child', FilterCollectionPropertiesChild::getListingsLabel());
     }
 
+    /**
+     * @return void
+     * @throws NotImplementedException
+     */
     function testTableNameUnset()
     {
-        $this->expectException(NotImplementedException::class);
+        $this->expectExceptionMessageMatches('/Table name not set.*FilterCollectionProperties/');
         FilterCollectionProperties::getTableName();
     }
 

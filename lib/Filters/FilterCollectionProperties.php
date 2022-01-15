@@ -82,7 +82,7 @@ class FilterCollectionProperties extends AppContentBase
     public static function getListingsLabel(): string
     {
         if (!static::$listings_label) {
-            throw new NotImplementedException('Listings label value not set in '.__CLASS__.'.');
+            throw new NotImplementedException('Listings label value not set in '.get_called_class().'.');
         }
         return static::$listings_label;
     }
@@ -96,7 +96,7 @@ class FilterCollectionProperties extends AppContentBase
     public static function getDefaultListingsLength(): int
     {
         if (!static::$default_listings_length) {
-            throw new NotImplementedException('Default listings length value not set in '.__CLASS__.'.');
+            throw new NotImplementedException('Default listings length value not set in '.get_called_class().'.');
         }
         return static::$default_listings_length;
     }
