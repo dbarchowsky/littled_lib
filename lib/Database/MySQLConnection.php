@@ -22,17 +22,14 @@ class MySQLConnection extends AppBase
 	/** @var mysqli Connection to database server. */
 	protected $mysqli;
 
-	/**
-	 * MySQLConnection constructor.
-	 */
-	function __construct()
-	{
-		parent::__construct();
-		$driver = new mysqli_driver();
-		$driver->report_mode = MYSQLI_REPORT_STRICT;
-	}
+    public function __construct()
+    {
+        parent::__construct();
+        $driver = new mysqli_driver();
+        $driver->report_mode = MYSQLI_REPORT_STRICT;
+    }
 
-	/**
+    /**
 	 * Closes mysqli connection.
 	 */
 	public function closeDatabaseConnection()
@@ -144,7 +141,7 @@ class MySQLConnection extends AppBase
 	 * the execution of the query. Use fetchRecordsNonExhaustive() to return only the first result.
 	 * @param string $query SQL query to execute
      * @param string $types
-     * @param ...$vars
+     * @param &...$vars
 	 * @return array Array of generic objects holding the data returned by the query.
 	 * @throws Exception
 	 */
@@ -170,7 +167,7 @@ class MySQLConnection extends AppBase
      * Returns mysqli_result object containing data matching query.
      * @param string $query
      * @param string $types
-     * @param ...$vars
+     * @param &...$vars
      * @return mysqli_result
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
