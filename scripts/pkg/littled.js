@@ -50,7 +50,7 @@ if (typeof LITTLED === "undefined") {
 			let f = document.getElementById('dialog-edit-form');
 			if (!f.url.value) {
 				alert('url not set!');
-				return (false);
+				return false;
 			}
 
 			LITTLED.displayProcessWheel();
@@ -62,7 +62,7 @@ if (typeof LITTLED === "undefined") {
 				success: LITTLED.onLoadFormSuccess,
 				error: LITTLED.ajaxError
 			});
-			return(false);
+			returnfalse;
 		},
 
 		/**
@@ -159,10 +159,10 @@ if (typeof LITTLED === "undefined") {
 		isObjectEmpty: function(obj) {
 			for (let prop in obj) {
 				if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-					return (false);
+					return false;
 				}
 			}
-			return (true);
+			return true;
 		},
 		
 		/**
@@ -223,7 +223,7 @@ if (typeof LITTLED === "undefined") {
             }
             LITTLED.displayStatus(data.status);
             LITTLED.dismissDialog();
-			return (false);
+			return false;
         },
 
 		/**
@@ -243,7 +243,7 @@ if (typeof LITTLED === "undefined") {
                 return(LITTLED.displayError(LITTLED.htmldecode(data.error)));
             }
             $('#' + data.container_id).html(LITTLED.htmldecode(data.content));
-			return (false);
+			return false;
         },
 
 
@@ -255,7 +255,7 @@ if (typeof LITTLED === "undefined") {
         displayAjaxResult: function(data) {
             if (data.error) {
 				let $e = null;
-                if (data.container_id !== undefined && data.container_id != '') {
+                if (undefined !== data.container_id && '' !== data.container_id) {
                     $e = $('#' + data.container_id);
                     $e.html('<div class="error">' + data.error.replace(/\n/mg, '<br />') + '</div>');
                 } else if ($('#error-container').length) {
@@ -263,15 +263,15 @@ if (typeof LITTLED === "undefined") {
                     $e.html(data.error.replace(/\n/mg, '<br />'));
                 } else {
                     alert(data.error);
-                    return (false);
+                    return false;
                 }
                 $e.show();
-                return (false);
+                return false;
             }
 
             $('#' + data.container_id).html(LITTLED.htmldecode(data.content));
             $('#' + data.container_id).show();
-			return(false);
+			return false;
         },
 
         /**
@@ -297,9 +297,8 @@ if (typeof LITTLED === "undefined") {
 			$('#globalDialog .datepicker').datepicker();
             $('#globalDialog .dlg-commit-btn').button().on('click', LITTLED.commitOp);
             $('#globalDialog .dlg-cancel-btn').button().on('click', LITTLED.cancel);
-			return (false);
+			return false;
         },
-
 
         /**
 		 * @deprecated Use $.formDialog('commitOperation') instead.
@@ -332,12 +331,12 @@ if (typeof LITTLED === "undefined") {
                         break;
                     default:
                         LITTLED.displayError('Unhandled operation.');
-                        return (false);
+                        return false;
                 }
 
                 if (uri === '') {
                     alert('Handler not set.');
-                    return (false);
+                    return false;
                 }
 				uri = $.littled.addProtocolAndDomain(uri);
 
@@ -350,75 +349,9 @@ if (typeof LITTLED === "undefined") {
                     success: LITTLED.edit_cb,
                     error: LITTLED.ajaxError
                 });
-				return (false);
+				return false;
             });
-			return(false);
-        },
-
-
-        /**
-		 * @deprecated Use $.formDialog() instead.
-		 * 
-		 * usage:	
-		 * - dialogEdit() without any arguments will pick up record id, 
-		 *		content type id, and operation values from element attributes, 
-		 *		and it will use the default callback of LITTLED.onLoadFormSuccess()
-		 * - dialogEdit(callback) record id, content type id, and operation values
-		 *		will be picked up from element attributes. 'callback' argument
-		 *		value will be used in place of the default callback that handles 
-		 *		loading the form content
-		 * - dialogEdit(id, tid, op) pass in explicit record id, content type,
-		 *		and operation values. Used the default callback to load form content.
-		 */	 
-		dialogEdit: function(a1, a2, op) {
-
-			let cb = LITTLED.onLoadFormSuccess;
-			let id, tid, $e;
-			if (typeof(a1) === 'function') {
-				cb = a1;
-				$e = a2;
-				tid = $e.data('tid');
-			} else if (typeof (a1) === "object" || typeof (a1) === "undefined") {
-				$e = $(this);
-				id = $e.data('id');
-				tid = ((a2===undefined)?($e.data('tid')):(a2));
-			}
-			if (op === undefined) {op = $e.data('op');}
-
-			if (tid===undefined) { 
-				return(LITTLED.displayError('Content type not set.')); 
-			}
-			if (op===undefined) { 
-				return(LITTLED.displayError('Operation not set.')); 
-			}
-
-            LITTLED.execSectionOp(tid, function(data1) {
-
-                if (data1.error) {
-                    return(LITTLED.displayError(data1.error));
-                }
-                let url = LITTLED.getOperationURI(op, data1);
-				if (!url) {
-					return (LITTLED.displayError('Unsupported operation.'));
-				}
-
-                LITTLED.initDialog();
-
-                let arr = {tid: tid};
-                arr[data1.id_param] = id;
-                arr = LITTLED.getQueryArray(arr);
-
-                $.ajax({
-                    method: 'get',
-                    url: url,
-                    data: arr,
-                    dataType: 'json',
-                    success: cb,
-                    error: LITTLED.ajaxError
-                });
-				return (false);
-            });
-			return (false);
+			return false;
         },
 
 		/**
@@ -569,7 +502,7 @@ if (typeof LITTLED === "undefined") {
             if ($e.length) {
 				$e.littled('displayError', err);
             }
-			return (false);
+			return false;
         },
 
 		/**
@@ -694,6 +627,10 @@ if (typeof LITTLED === "undefined") {
 		},
 		dom: {
 			page_error_container: '.alert-error:first'
+		},
+		keys: {
+			content_type_id: 'capContentType', /* matches ContentAjaxProperties::section_id->key */
+			csrf: 'csrf'
 		}
 	};
 
@@ -820,23 +757,24 @@ if (typeof LITTLED === "undefined") {
         /**
         * First makes an AJAX call to get section operations based on the value of tid. 
         * Then executes callback function cb.
-        * @param {int} tid Section id used to retrieve section settings.
+        * @param {int} content_type_id Section id used to retrieve section settings.
         * @param {function} cb Callback used to execute as "success" handler 
 		* after the section's properties have been successfully retrieved.
 		* @param {object} opts (Optional) collection of settings that will
 		* override the library's default settings.
         */
-        retrieveContentOperations: function(tid, cb, opts) {
+        retrieveContentOperations: function(content_type_id, cb, opts) {
 
 			let lclSettings = $.extend(true, {}, settings, opts || {});
+			let url = $.littled.getRelativePath()+lclSettings.ajax.script_path+lclSettings.ajax.content_operations_uri;
 			let pd = {};
-			pd['tid'] = tid;
-			pd['csrf'] = $(lclSettings.csrfSelector).html();
+			pd[lclSettings.keys.content_type_id] = content_type_id;
+			pd[lclSettings.keys.csrf] = $(lclSettings.csrfSelector).html();
 
 			/* ajax call to get script properties */
             $.ajax({
                 type: 'post',
-                url: $.littled.getRelativePath()+lclSettings.ajax.script_path+lclSettings.ajax.content_operations_uri,
+                url: url,
                 dataType: 'json',
                 data: pd,
                 success: cb
