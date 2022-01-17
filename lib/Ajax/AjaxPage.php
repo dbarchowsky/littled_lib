@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Ajax;
 
-
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -33,7 +32,7 @@ class AjaxPage extends MySQLConnection
 	public $content_properties;
 	/** @var FilterCollection Content filters. */
 	public $filters;
-	/** @var JSONResponse JSON response object. */
+	/** @var JSONRecordResponse JSON response object. */
 	public $json;
 	/** @var IntegerInput Content record id. */
 	public $record_id;
@@ -50,7 +49,7 @@ class AjaxPage extends MySQLConnection
 		/* Set exception handler to return JSON error message */
 		set_exception_handler(array($this, 'exceptionHandler'));
 
-		$this->json = new JSONResponse();
+		$this->json = new JSONRecordResponse();
 		$this->record_id = new IntegerInput("Record id", "id", false);
 
 		$this->content_properties = new ContentProperties();
