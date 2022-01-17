@@ -326,8 +326,8 @@
 			/* retrieve active listings filters */
 			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
 			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
-			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type);
-			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id);
+			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type.toLowerCase());
+			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id.toLowerCase());
 
 			/* retrieve operations uris for this content type */
 			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
