@@ -2308,7 +2308,7 @@ if (typeof LITTLED === "undefined") {
 		keys: {
 			record_id: 'id',
 			parent_id: 'pid',
-			content_type: 'tid',
+			content_type: 'capContentType', /* matches ContentActionsProperties::$section_id->key */
 			page: 'p',
 			operation: 'op',
 			csrf: 'csrf'

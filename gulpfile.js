@@ -12,16 +12,16 @@ const paths = {
                     separator: ''
                 },
                 src: [
-                    'scripts/littled/core.js',
-                    'scripts/littled/formDialog.js',
-                    'scripts/littled/inlineEdit.js',
-                    'scripts/littled/lineitems.js',
-                    'scripts/littled/listings.js',
-                    'scripts/littled/keyword.js',
-                    'scripts/littled//keywordFilter.js',
-                    'scripts/littled/resort.js'
+                    'scripts/core.js',
+                    'scripts/formDialog.js',
+                    'scripts/inlineEdit.js',
+                    'scripts//lineitems.js',
+                    'scripts/listings.js',
+                    'scripts/keyword.js',
+                    'scripts/keywordFilter.js',
+                    'scripts/resort.js'
                 ],
-                dir: 'scripts/littled/pkg/',
+                dir: 'scripts/pkg/',
                 dst: 'littled.js'
             }
         },
@@ -31,17 +31,17 @@ const paths = {
                     separator: ''
                 },
                 src: [
-                    'scripts/littled/gallery.js'
+                    'scripts/gallery.js'
                 ],
-                dir: 'scripts/littled/pkg/',
+                dir: 'scripts/pkg/',
                 dst: 'gallery.js'
             }
         },
     },
     uglify: {
         src: [
-            'scripts/littled/pkg/*.js',
-            '!scripts/littled/pkg/*.min.*'
+            'scripts/pkg/*.js',
+            '!scripts/pkg/*.min.*'
         ]
     }
 };
