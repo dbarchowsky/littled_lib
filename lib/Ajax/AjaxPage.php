@@ -30,7 +30,7 @@ class AjaxPage extends MySQLConnection
 	/** @var SectionContent Content article. */
 	public $content;
 	/** @var ContentProperties Content properties. */
-	public $contentProperties;
+	public $content_properties;
 	/** @var FilterCollection Content filters. */
 	public $filters;
 	/** @var JSONResponse JSON response object. */
@@ -53,7 +53,7 @@ class AjaxPage extends MySQLConnection
 		$this->json = new JSONResponse();
 		$this->record_id = new IntegerInput("Record id", "id", false);
 
-		$this->contentProperties = new ContentProperties();
+		$this->content_properties = new ContentProperties();
 		$this->template = null;
 		$this->filters = null; /* set in derived classes */
 		$this->action = "";
@@ -133,14 +133,14 @@ class AjaxPage extends MySQLConnection
 			throw new ConfigurationUndefinedException("Content properties not available.");
 		}
 		$this->connectToDatabase();
-		$query = "CALL contentTemplateLookup({$this->contentProperties->id->value}, '".$this->escapeSQLValue($template_name)."')";
+		$query = "CALL contentTemplateLookup({$this->content_properties->id->value}, '".$this->escapeSQLValue($template_name)."')";
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
 		}
 		$this->template = new ContentTemplate(
 			$data[0]->id,
-			$this->contentProperties->id->value,
+			$this->content_properties->id->value,
 			$data[0]->name,
 			$data[0]->base_path,
 			$data[0]->template_path,
@@ -239,11 +239,11 @@ class AjaxPage extends MySQLConnection
 	 */
 	public function setContentProperties( $key="tid" )
 	{
-		$this->contentProperties->id->value = Validation::collectIntegerRequestVar($key);
-		if ($this->contentProperties->id->value === null) {
+		$this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
+		if ($this->content_properties->id->value === null) {
 			throw new ContentValidationException("Content type not specified.");
 		}
-		$this->contentProperties->read();
+		$this->content_properties->read();
 	}
 
 	/**
@@ -252,13 +252,13 @@ class AjaxPage extends MySQLConnection
 	 */
 	public function setInternalContentTypeValue()
 	{
-		if ($this->contentProperties->id->value>1) {
+		if ($this->content_properties->id->value>1) {
 			return (true);
 		}
 		if (!$this->content instanceof SectionContent) {
 			return (false);
 		}
-		$this->contentProperties->id->value = $this->content->getContentTypeID();
-		return ($this->contentProperties->id->value>0);
+		$this->content_properties->id->value = $this->content->getContentTypeID();
+		return ($this->content_properties->id->value>0);
 	}
 }
