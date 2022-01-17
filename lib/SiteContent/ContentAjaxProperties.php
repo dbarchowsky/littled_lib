@@ -55,6 +55,9 @@ class ContentAjaxProperties extends SerializedContent
     /** @var string */
     protected static $table_name = 'section_operations';
 
+    /** @var string */
+    public const CONTENT_TYPE_KEY = 'capContentType';
+
 	/**
 	 * ContentAjaxProperties constructor.
 	 * @param int|null[optional] $content_type_id Initial content type id value.
@@ -63,7 +66,7 @@ class ContentAjaxProperties extends SerializedContent
 	{
 		parent::__construct();
 		$this->id = new IntegerInput("Id", "capId", false);
-		$this->section_id = new IntegerSelect("Content type", "capContentType", true, $content_type_id);
+		$this->section_id = new IntegerSelect("Content type", self::CONTENT_TYPE_KEY, true, $content_type_id);
 		$this->label = new StringTextField("Label", "capLabel", true, '', 50);
 		$this->id_param = new StringTextField("Id parameter name", "capKeyName", true, '', 50);
 		$this->listings_uri = new StringTextField("Listings URI", "capListURI", false, '', 255);
