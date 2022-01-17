@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Images;
 
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
@@ -96,20 +97,20 @@ class ImageUpload extends ImageLink
 		 * parameter precedence over the generic parameter.
 		 */
 		$this->parent_id->collectRequestData($src);
-		if ($this->parent_id->value === null && $this->parent_id->key != "pid") {
-			$this->parent_id->value = Validation::collectIntegerRequestVar("pid", null, $src);
+		if ($this->parent_id->value === null && $this->parent_id->key != LittledGlobals::PARENT_ID_KEY) {
+			$this->parent_id->value = Validation::collectIntegerRequestVar(LittledGlobals::PARENT_ID_KEY, null, $src);
 		}
 
 		/* collect content type id value, giving derived class's
 		 * parameter precedence over the generic parameter.
 		 */
 		$this->contentProperties->id->collectRequestData($src);
-		if ($this->contentProperties->id->value === null && $this->contentProperties->id->key != "tid") {
-			$this->contentProperties->id->value = Validation::collectIntegerRequestVar("tid", null, $src);
+		if ($this->contentProperties->id->value === null && $this->contentProperties->id->key != LittledGlobals::CONTENT_TYPE_KEY) {
+			$this->contentProperties->id->value = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
 		}
-		$this->new_name->collectFromInput($src);
-		$this->page->collectFromInput($src);
-		$this->randomize->collectFromInput($src);
+		$this->new_name->collectRequestData($src);
+		$this->page->collectRequestData($src);
+		$this->randomize->collectRequestData($src);
 
 		if ($this->contentProperties->id->value>0) {
 			$this->retrieveSectionProperties();
@@ -208,9 +209,9 @@ SQL;
 			$this->generic_params = $generic_params;
 		}
 		if ($this->generic_params==true) {
-			$this->id->key = "id";
-			$this->contentProperties->id->key = "tid";
-			$this->parent_id->key = "pid";
+			$this->id->key = LittledGlobals::CONTENT_TYPE_KEY;
+			$this->contentProperties->id->key = LittledGlobals::CONTENT_TYPE_KEY;
+			$this->parent_id->key = LittledGlobals::PARENT_ID_KEY;
 		}
 		else {
 			$this->setPrefix($this->contentProperties->param_prefix->value);

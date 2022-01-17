@@ -2,6 +2,7 @@
 namespace Littled\Filters;
 
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -45,8 +46,8 @@ class GalleryFilters extends ContentFilters
     /** @var int */
     protected static $default_image_listings_length = 10;
 
-	const ALBUM_PARAM = "pid";
-	const TYPE_PARAM = "tid";
+	const ALBUM_PARAM = LittledGlobals::PARENT_ID_KEY;
+	const TYPE_PARAM = LittledGlobals::CONTENT_TYPE_KEY;
 	const ACCESS_PARAM = "filac";
 	const START_DATE_PARAM = "filsd";
 	const END_DATE_PARAM = "filed";

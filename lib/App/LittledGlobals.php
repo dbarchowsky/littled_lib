@@ -16,12 +16,14 @@ class LittledGlobals
 	/** @var string Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY = 'csrfToken';
 
-	/** @var string Name of request variable used to pass content type. */
-	const CONTENT_TYPE_PARAM = 'tid';
-	/** @var string Name of request variable used to pass CSRF tokens. */
-	const CSRF_TOKEN_PARAM = 'csrf';
-	/** @var string ID request variable name. */
-	const ID_PARAM = 'id';
+	/** @var string Key of the content type id request variable. */
+	const CONTENT_TYPE_KEY = 'tid';
+	/** @var string Key of request variable used to pass CSRF tokens. */
+	const CSRF_TOKEN_KEY = 'csrf';
+    /** @var string Key of the record id request variable. */
+    const ID_KEY = 'id';
+    /** @var string Key of the parent id request variable. */
+    const PARENT_ID_KEY = 'pid';
 
 	/** @var string Request variable name holding record ids. */
 	const P_ID = 'id';

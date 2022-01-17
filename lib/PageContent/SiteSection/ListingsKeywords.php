@@ -26,6 +26,6 @@ class ListingsKeywords extends KeywordSectionContent
 	public function __construct($id, $content_type_id, $keyword_param = "kw")
 	{
 		parent::__construct($id, $content_type_id, $keyword_param);
-		$this->id = new IntegerInput("Record id", LittledGlobals::ID_PARAM, false, $id);
+		$this->id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false, $id);
 	}
 }

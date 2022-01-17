@@ -124,7 +124,7 @@ class Album extends KeywordSectionContent
 	public function collectAlbumID( $src=null )
 	{
 		/* generic id parameter */
-		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM);
+		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY);
 		if ($this->id->value > 0) {
 			return;
 		}
@@ -179,7 +179,7 @@ class Album extends KeywordSectionContent
 	 */
 	public function collectSlugInput( $src=null )
 	{
-		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM, null, $src);
+		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
 		if ($this->id->value===null) {
 			$this->id->collectRequestData($src);
 		}

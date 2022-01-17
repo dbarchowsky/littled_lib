@@ -63,7 +63,7 @@ class PageContent extends MySQLConnection
 	 */
 	public function collectContentId(): ?int
 	{
-		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM);
+		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY);
 		if ($this->content->id->value===null) {
 			if ( $this->content->id instanceof RequestInput) {
 				$this->content->id->collectValue();

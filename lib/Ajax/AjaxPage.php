@@ -1,11 +1,17 @@
 <?php
 namespace Littled\Ajax;
 
+use Exception;
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
@@ -50,7 +56,7 @@ class AjaxPage extends MySQLConnection
 		set_exception_handler(array($this, 'exceptionHandler'));
 
 		$this->json = new JSONRecordResponse();
-		$this->record_id = new IntegerInput("Record id", "id", false);
+		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
 		$this->content_properties = new ContentProperties();
 		$this->template = null;
@@ -63,7 +69,7 @@ class AjaxPage extends MySQLConnection
 	 */
 	public function __destruct()
 	{
-		foreach($this as $key => &$item) {
+		foreach($this as $item) {
 			if (is_object($item) || is_array($item)) {
 				unset($item);
 			}
@@ -79,8 +85,8 @@ class AjaxPage extends MySQLConnection
 	public function collectContentID( $src=null )
 	{
 		$this->content->id->collectRequestData($src);
-		if ($this->content->id->value===null && $this->content->id->key != LittledGlobals::ID_PARAM) {
-			$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_PARAM, null, $src);
+		if ($this->content->id->value===null && $this->content->id->key != LittledGlobals::ID_KEY) {
+			$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
 		}
 	}
 
@@ -89,7 +95,7 @@ class AjaxPage extends MySQLConnection
 	 * @param array|null[optional] $src Optional array of variables to use instead of POST data.
 	 * @return AjaxPage
 	 */
-	public function collectPageAction( $src=null )
+	public function collectPageAction( $src=null ): AjaxPage
 	{
 		if ($src===null) {
 			/* use only POST, not GET */
@@ -108,22 +114,22 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Error Handler
-	 * @param \Exception $ex
+	 * @param Exception $ex
 	 */
-	public function exceptionHandler($ex)
+	public function exceptionHandler( Exception $ex)
 	{
 		$this->json->returnError($ex->getMessage());
 	}
 
-	/**
-	 * Retrieve from the database the path to the details template.
-	 * @param string $template_name Token indicating which type of template to retrieve: details, listings, edit, delete, etc.
-	 * @throws ConfigurationUndefinedException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function getTemplatePath( $template_name )
+    /**
+     * Retrieve from the database the path to the details template.
+     * @param string $template_name Token indicating which type of template to retrieve: details, listings, edit, delete, etc.
+     * @throws ConfigurationUndefinedException
+     * @throws RecordNotFoundException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+	public function getTemplatePath( string $template_name )
 	{
 		if (!is_object($this->content)) {
 			throw new ConfigurationUndefinedException("Content not set.");
@@ -173,20 +179,20 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
 	 * @param string $content_path Path to content template.
-	 * @param SectionContent|null[optional] $content Object containing content values to insert into content templates.
-	 * @param FilterCollection|null[optional] $filters Filter values to be saved in any forms or to used to display the content.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @param SectionContent|null $content (Optional) Object containing content values to insert into content templates.
+	 * @param FilterCollection|null $filters (Optional) Filter values to be saved in any forms or to used to display the content.
+	 * @throws ResourceNotFoundException
 	 */
-	public function loadContent($content_path, &$content=null, &$filters=null )
+	public function loadContent(string $content_path, ?SectionContent &$content=null, ?FilterCollection &$filters=null )
 	{
 		$context = array();
-		if ($content !== null && $content instanceof SectionContent) {
+		if (null !== $content) {
 			$context['content'] = &$content;
 		}
 		else {
 			$context['content'] = &$this->content;
 		}
-		if ($filters !== null && $filters instanceof FilterCollection) {
+		if (null !== $filters) {
 			$context['filters'] = &$filters;
 			$context['qs'] = $filters->formatQueryString();
 		}
@@ -198,9 +204,9 @@ class AjaxPage extends MySQLConnection
 	 * here for legacy reasons. Better to use the json_response_class routine directly.
 	 * @param string $template_path Path to content template to use to generate markup.
 	 * @param array $context Associative array of variables referenced in the template.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
-	public function renderToJSON( $template_path, &$context )
+	public function renderToJSON( string $template_path, array $context )
 	{
 		$this->json->loadContentFromTemplate($template_path, $context);
 	}
@@ -208,9 +214,9 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\ResourceNotFoundException
-	 */
+	 * @throws InvalidQueryException
+	 * @throws ResourceNotFoundException|NotImplementedException
+     */
 	public function retrievePageContent()
 	{
 		$this->filters->collectFilterValues();
@@ -227,16 +233,17 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
-	 * @param string[optional] $key Key used to retrieve content type id value from script arguments/form data. Defaults to "tid".
+	 * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
+     * Defaults to LittledGlobals::CONTENT_TYPE_ID.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
-	public function setContentProperties( $key="tid" )
+	public function setContentProperties( $key=LittledGlobals::CONTENT_TYPE_KEY )
 	{
 		$this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
 		if ($this->content_properties->id->value === null) {
@@ -249,7 +256,7 @@ class AjaxPage extends MySQLConnection
 	 * Ensures that the internal content type id value has been set before its value is accessed.
 	 * @return bool TRUE/FALSE depending on if a valid content type id value could be found.
 	 */
-	public function setInternalContentTypeValue()
+	public function setInternalContentTypeValue(): bool
 	{
 		if ($this->content_properties->id->value>1) {
 			return (true);

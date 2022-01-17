@@ -395,13 +395,13 @@ class Validation
 			return (false);
 		}
 		if ($data) {
-			if (!property_exists($data, LittledGlobals::CSRF_TOKEN_PARAM)) {
+			if (!property_exists($data, LittledGlobals::CSRF_TOKEN_KEY)) {
 				return (false);
 			}
-			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_PARAM}, FILTER_SANITIZE_STRING));
+			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_KEY}, FILTER_SANITIZE_STRING));
 		}
 		else {
-			$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_PARAM, FILTER_SANITIZE_STRING));
+			$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_KEY, FILTER_SANITIZE_STRING));
 		}
 		if ($csrf=='') {
 			return (false);
