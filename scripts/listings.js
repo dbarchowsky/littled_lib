@@ -26,9 +26,9 @@
 		filtersSelector: '[deprecated]',
 		sortableSelector: '[deprecated]',
 		keys: {
-			record_id: 'id',
-			parent_id: 'pid',
-			content_type: 'capContentType', /* matches ContentActionsProperties::$section_id->key */
+			record_id: 'id',		/* matches LittledGlobals::ID_KEY			*/
+			parent_id: 'pid',		/* matches LittleGlobals::PARENT_ID_KEY 	*/
+			content_type: 'tid', 	/* matches LittledGlobals::CONTENT_TYPE_KEY */
 			page: 'p',
 			operation: 'op',
 			csrf: 'csrf'

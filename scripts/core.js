@@ -629,7 +629,7 @@ if (typeof LITTLED === "undefined") {
 			page_error_container: '.alert-error:first'
 		},
 		keys: {
-			content_type_id: 'capContentType', /* matches ContentAjaxProperties::section_id->key */
+			content_type_id: 'tid', /* matches LittledGlobals::CONTENT_TYPE_KEY */
 			csrf: 'csrf'
 		}
 	};

@@ -629,7 +629,7 @@ if (typeof LITTLED === "undefined") {
 			page_error_container: '.alert-error:first'
 		},
 		keys: {
-			content_type_id: 'capContentType', /* matches ContentAjaxProperties::section_id->key */
+			content_type_id: 'tid', /* matches LittledGlobals::CONTENT_TYPE_KEY */
 			csrf: 'csrf'
 		}
 	};
@@ -2244,9 +2244,9 @@ if (typeof LITTLED === "undefined") {
 		filtersSelector: '[deprecated]',
 		sortableSelector: '[deprecated]',
 		keys: {
-			record_id: 'id',
-			parent_id: 'pid',
-			content_type: 'capContentType', /* matches ContentActionsProperties::$section_id->key */
+			record_id: 'id',		/* matches LittledGlobals::ID_KEY			*/
+			parent_id: 'pid',		/* matches LittleGlobals::PARENT_ID_KEY 	*/
+			content_type: 'tid', 	/* matches LittledGlobals::CONTENT_TYPE_KEY */
 			page: 'p',
 			operation: 'op',
 			csrf: 'csrf'
