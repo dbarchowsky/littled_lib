@@ -89,9 +89,14 @@ class ContentTemplate extends SerializedContent
 	 */
 	public function formatFullPath(): string
 	{
-        if (!defined('COMMON_TEMPLATE_DIR') || !defined('CMS_COMMON_TEMPLATE_DIR')) {
-            throw new Exception(__METHOD__.' Shared template directory not configured.');
+        if (!defined('COMMON_TEMPLATE_DIR')) {
+            throw new Exception(__METHOD__." COMMON_TEMPLATE_DIR not defined.");
         }
+        if (!defined('CMS_COMMON_TEMPLATE_DIR')) {
+            throw new Exception(__METHOD__." CMS_COMMON_TEMPLATE_DIR not defined.");
+        }
+        $app_root = ((defined('APP_BASE_DIR'))?(APP_BASE_DIR):(''));
+
 		$path = $this->path->value;
 		if ($path) {
 			switch ($this->location->value)
@@ -103,9 +108,9 @@ class ContentTemplate extends SerializedContent
 					$path = rtrim(CMS_COMMON_TEMPLATE_DIR, '/').'/'.$path;
 					break;
 				default:
-					if ($this->template_dir->value) {
-						$path = rtrim(APP_BASE_DIR, '/').'/'.trim($this->template_dir->value, '/').'/'.ltrim($path,'/');
-					}
+                    $path = (($app_root)?(rtrim($app_root, '/').'/'):('')).
+                        (($this->template_dir->value)?(trim($this->template_dir->value, '/').'/'):('')).
+                        ltrim($path,'/');
 					break;
 			}
 		}

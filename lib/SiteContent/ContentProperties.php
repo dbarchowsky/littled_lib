@@ -73,7 +73,7 @@ class ContentProperties extends SerializedContent
 	public $parent;
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
 	public $label;
-	/** @var array Array of templates used to render the section's content. */
+	/** @var ContentTemplate[] Array of templates used to render the section's content. */
 	public $templates;
     /** @var string */
     protected static $table_name = 'site_section';

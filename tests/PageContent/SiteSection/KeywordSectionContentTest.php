@@ -1,5 +1,6 @@
 <?php
 namespace Littled\Tests\PageContent\SiteSection;
+require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 
 use Littled\Database\MySQLConnection;

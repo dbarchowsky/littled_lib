@@ -1,15 +1,25 @@
 <?php
 namespace Littled\Tests\PageContent\SiteSection;
-
+require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use PHPUnit\Framework\TestCase;
+use Exception;
 
 class ContentTemplateTest extends TestCase
 {
+    /** @var string */
 	const UNIT_TEST_IDENTIFIER = 'unit test';
+    /** @var int */
+    const TEST_CONTENT_TYPE_ID = 6001;
 
 	/** @var ContentTemplate Test ContentTemplate object. */
 	public $obj;
@@ -19,30 +29,36 @@ class ContentTemplateTest extends TestCase
 	public $test_record_id;
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 */
-	public static function setUpBeforeClass()
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException|Exception
+     */
+	public static function setUpBeforeClass(): void
 	{
-		$query = "INSERT INTO `".ContentTemplate::TABLE_NAME()."` (".
-			"`site_section_id`, `name`, `path`, `location`".
-			") VALUES (".
-			CONTENT_TEMPLATE_CONTENT_TYPE_ID.", '".ContentTemplateTest::UNIT_TEST_IDENTIFIER." for reading', '/path/to/templates/template.php', 'local')";
+        $type_id = self::TEST_CONTENT_TYPE_ID;
+        $name = ContentTemplateTest::UNIT_TEST_IDENTIFIER.' for reading';
+        $path = '/path/to/templates/template.php';
+        $location = 'local';
+		$query = 'INS'.'ERT INTO `'.ContentTemplate::getTableName().'`'.
+			' (`site_section_id`, `name`, `path`, `location`) VALUES (?,?,?,?)';
 		$conn = new MySQLConnection();
-		$conn->query($query);
+		$conn->query($query, 'isss', $type_id, $name, $path, $location);
 	}
 
-	public static function tearDownAfterClass()
+    /**
+     * @throws Exception
+     */
+    public static function tearDownAfterClass(): void
 	{
-		$query = "DELETE FROM `".ContentTemplate::TABLE_NAME()."` WHERE LOWER(`name`) LIKE '".ContentTemplateTest::UNIT_TEST_IDENTIFIER."%'";
+        $pattern = ContentTemplateTest::UNIT_TEST_IDENTIFIER.'%';
+		$query = "DEL"."ETE FROM `".ContentTemplate::getTableName()."` WHERE LOWER(`name`) LIKE ?";
 		$conn = new MySQLConnection();
-		$conn->query($query);
+		$conn->query($query, 's', $pattern);
 	}
 
 	/**
 	 * Set up object before each test.
 	 */
-	public function setUp()
+	public function setUp(): void
 	{
 		parent::setUp();
 		$this->obj = new ContentTemplate();
@@ -50,11 +66,10 @@ class ContentTemplateTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\NotImplementedException
-	 */
+     */
 	public function testTableName()
 	{
-		$this->assertEquals('content_template', $this->obj::TABLE_NAME());
+		$this->assertEquals('content_template', $this->obj::getTableName());
 	}
 
 	public function testConstruct()
@@ -109,14 +124,29 @@ class ContentTemplateTest extends TestCase
 		$this->assertTrue($this->obj->hasData());
 	}
 
+    /**
+     * @return void
+     * @throws Exception
+     */
 	public function testGetFullPath()
 	{
+        if (!defined('COMMON_TEMPLATE_DIR')) {
+            define('COMMON_TEMPLATE_DIR', '/var/www/html/vendor/dbarchowsky/littled/templates/');
+        }
+        if (!defined('CMS_COMMON_TEMPLATE_DIR')) {
+            define('CMS_COMMON_TEMPLATE_DIR', '/var/www/html/vendor/dbarchowsky/littled_cms/templates/');
+        }
+
 		/* default path value */
 		$this->assertEquals('', $this->obj->formatFullPath());
 
 		/* just path */
-		$this->obj->path->setInputValue('template.php');
-		$this->assertEquals($this->obj->path->value, $this->obj->formatFullPath());
+        $this->obj->path->setInputValue('template.php');
+        if (!defined('APP_BASE_DIR')) {
+            $this->assertEquals($this->obj->path->value, $this->obj->formatFullPath());
+            define('APP_BASE_DIR', '/var/www/html/');
+        }
+        $this->assertEquals(APP_BASE_DIR.$this->obj->path->value, $this->obj->formatFullPath());
 
 		/* path and template directory with no trailing slash */
 		$this->obj->template_dir->setInputValue('/templates/html');
@@ -136,10 +166,9 @@ class ContentTemplateTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     */
 	public function testValidateInput()
 	{
 		try {
@@ -182,25 +211,24 @@ class ContentTemplateTest extends TestCase
 			$this->obj->validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			;
-		}
+        }
 		$this->assertEmpty($this->obj->validationErrors);
 	}
 
-	/**
-	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
+    /**
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
 	public function testValidateInputDuplicateContentType()
 	{
 		$content_type_id = 33; /* must be a valid site_section id */
 		$template_name = self::UNIT_TEST_IDENTIFIER;
 
-		$query = "SELECT `name` FROM `site_section` WHERE `id` = {$content_type_id}";
+		$query = "SELECT `name` FROM `site_section` WHERE `id` = $content_type_id";
 		$data = $this->conn->fetchRecords($query);
 		$section_name = $data[0]->name;
 
@@ -215,27 +243,30 @@ class ContentTemplateTest extends TestCase
 			$o2->validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			$this->assertContains("Error validating content templates.", $ex->getMessage());
-			$this->assertContains("A \"{$template_name}\" template already exists for the \"{$section_name}\" area of the site.", $o2->validationErrors);
+			$this->assertStringContainsString("Error validating content templates.", $ex->getMessage());
+			$this->assertContains("A \"$template_name\" template already exists for the \"$section_name\" area of the site.", $o2->validationErrors);
 		}
 	}
 
-	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidTypeException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
 	public function testRead()
 	{
-		$query = "SELECT `id` FROM `".ContentTemplate::TABLE_NAME()."` WHERE `name` = '".ContentTemplateTest::UNIT_TEST_IDENTIFIER." for reading'";
-		$data = $this->conn->fetchRecords($query);
+        $name = ContentTemplateTest::UNIT_TEST_IDENTIFIER.' for reading';
+		$query = "SEL"."ECT `id` FROM `".ContentTemplate::getTableName()."` WHERE `name` = ?";
+		$data = $this->conn->fetchRecords($query, 's', $name);
 
 		$this->obj->id->setInputValue($data[0]->id);
 		$this->obj->read();
 
-		$this->assertEquals(CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->content_type_id->value);
+		$this->assertEquals(self::TEST_CONTENT_TYPE_ID, $this->obj->content_type_id->value);
 		$this->assertEquals(ContentTemplateTest::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
 		$this->assertEquals('/path/to/templates/template.php', $this->obj->path->value);
 		$this->assertEquals('local', $this->obj->location->value);
@@ -243,11 +274,11 @@ class ContentTemplateTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+     * @throws Exception
 	 */
 	public function testSave()
 	{
@@ -263,8 +294,8 @@ class ContentTemplateTest extends TestCase
 		$this->obj->save();
 
 		/* fetch the record data */
-		$query = "SELECT * FROM `".$this->obj::TABLE_NAME()."` WHERE `id` = {$this->obj->id->value}";
-		$data = $this->conn->fetchRecords($query);
+		$query = "SEL"."ECT * FROM `".$this->obj::getTableName()."` WHERE `id` = ?";
+		$data = $this->conn->fetchRecords($query, 's', $this->obj->id->value);
 
 		/* compare fetched record data to object property values */
 		$this->assertEquals($this->obj->id->value, $data[0]->id);
