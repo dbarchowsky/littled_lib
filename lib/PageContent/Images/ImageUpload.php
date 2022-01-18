@@ -104,15 +104,15 @@ class ImageUpload extends ImageLink
 		/* collect content type id value, giving derived class's
 		 * parameter precedence over the generic parameter.
 		 */
-		$this->contentProperties->id->collectRequestData($src);
-		if ($this->contentProperties->id->value === null && $this->contentProperties->id->key != LittledGlobals::CONTENT_TYPE_KEY) {
-			$this->contentProperties->id->value = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
+		$this->content_properties->id->collectRequestData($src);
+		if ($this->content_properties->id->value === null && $this->content_properties->id->key != LittledGlobals::CONTENT_TYPE_KEY) {
+			$this->content_properties->id->value = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
 		}
 		$this->new_name->collectRequestData($src);
 		$this->page->collectRequestData($src);
 		$this->randomize->collectRequestData($src);
 
-		if ($this->contentProperties->id->value>0) {
+		if ($this->content_properties->id->value>0) {
 			$this->retrieveSectionProperties();
 		}
 	}
@@ -153,9 +153,9 @@ class ImageUpload extends ImageLink
 	 */
 	public function retrieveLabel()
 	{
-		if ($this->contentProperties->id->value>0) {
+		if ($this->content_properties->id->value>0) {
 
-			$query = "SELECT `label` from `section_operations` WHERE section_id = {$this->contentProperties->id->value}";
+			$query = "SELECT `label` from `section_operations` WHERE section_id = {$this->content_properties->id->value}";
 			$data = $this->fetchRecords($query);
 			if (count($data) > 0) {
 				$this->label = $data[0]->label;
@@ -210,11 +210,11 @@ SQL;
 		}
 		if ($this->generic_params==true) {
 			$this->id->key = LittledGlobals::CONTENT_TYPE_KEY;
-			$this->contentProperties->id->key = LittledGlobals::CONTENT_TYPE_KEY;
+			$this->content_properties->id->key = LittledGlobals::CONTENT_TYPE_KEY;
 			$this->parent_id->key = LittledGlobals::PARENT_ID_KEY;
 		}
 		else {
-			$this->setPrefix($this->contentProperties->param_prefix->value);
+			$this->setPrefix($this->content_properties->param_prefix->value);
 			//$this->id->param = $this->ID_PARAM();
 			//$this->parent_id->param = $this->PARENT_PARAM();
 			//$this->site_section->id->param = $this->TYPE_PARAM();
@@ -257,7 +257,7 @@ SQL;
 	{
 		if (
 			($this->id->value===null) &&
-			($this->contentProperties->id->value===null && $this->parent_id->value===null))
+			($this->content_properties->id->value===null && $this->parent_id->value===null))
 		{
 			throw new ContentValidationException("Either an image or a parent and image type is required.");
 		}

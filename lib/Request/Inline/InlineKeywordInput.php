@@ -34,7 +34,7 @@ class InlineKeywordInput extends KeywordSectionContent
 	{
 		parent::__construct($id, $content_type_id, $keyword_param);
 		$this->id = new IntegerInput("Record ID", Keyword::PARENT_PARAM, true, null);
-		$this->contentProperties->id->key = Keyword::TYPE_PARAM;
+		$this->content_properties->id->key = Keyword::TYPE_PARAM;
 	}
 
 	/**

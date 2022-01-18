@@ -25,7 +25,7 @@ use Exception;
 class ContentProperties extends SerializedContent
 {
 	/** @var string Variable name that holds the site section id value. */
-	const ID_PARAM = 'ssid';
+	const ID_KEY = 'ssid';
 	/** @var int Record id value representing site section data in the database. */
 	const SECTION_ID = 27;
 	/** @var string Name of the table holding site section data. */
@@ -85,7 +85,7 @@ class ContentProperties extends SerializedContent
 	public function __construct($id=null)
 	{
 		parent::__construct($id);
-		$this->id->key = ContentProperties::ID_PARAM;
+		$this->id->key = ContentProperties::ID_KEY;
 		$this->name = new StringTextField("Name", "ssna", true, "", 50);
 		$this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
 		$this->image_path = new StringTextField("Image directory", "ssdr", false, "", 255);
@@ -229,6 +229,13 @@ class ContentProperties extends SerializedContent
 	public function read(): void
 	{
 		parent::read();
+
+        // ensure all fields are in the expected format
+        if (null === $this->save_mini->value) {
+            $this->save_mini->value = false;
+        }
+
+        // retrieve extra properties from database
 		$query = "CALL siteSectionExtraPropertiesSelect(?)";
 		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		$this->initializeExtraProperties();

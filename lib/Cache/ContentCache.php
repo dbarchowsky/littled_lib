@@ -24,7 +24,7 @@ class ContentCache extends MySQLConnection
 	 */
 	public static function setInitialProperties( SectionContent $content ): void
 	{
-		switch($content->contentProperties->id->value)
+		switch($content->content_properties->id->value)
 		{
 			/* define content type-specific handlers here */
 			/* break; */
@@ -104,7 +104,7 @@ class ContentCache extends MySQLConnection
 		switch ($content_properties->id->value) {
 			default:
 				if ($content instanceof SectionContent) {
-					$status = "Unsupported content type: \"{$content->contentProperties->name->value}\".";
+					$status = "Unsupported content type: \"{$content->content_properties->name->value}\".";
 				}
 				break;
 		}

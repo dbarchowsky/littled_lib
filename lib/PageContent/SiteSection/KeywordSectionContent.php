@@ -38,10 +38,10 @@ class KeywordSectionContent extends SectionContent
 		parent::__construct($id, $content_type_id);
 
 		if ($keyword_param != 'kw') {
-			$this->contentProperties->id->key = $keyword_param.$this->contentProperties->id->key;
+			$this->content_properties->id->key = $keyword_param.$this->content_properties->id->key;
 		}
 		/* Suppress generalized error messages related to the content type properties */
-		$this->contentProperties->validationMessage = '';
+		$this->content_properties->validationMessage = '';
 
 		$this->keywordInput = new StringTextarea("Keywords", "{$keyword_param}te", false, '', 1000, null);
 		$this->keywords = array();
@@ -55,7 +55,7 @@ class KeywordSectionContent extends SectionContent
 	 */
 	public function addKeyword( string $term ): void
 	{
-		$this->keywords[] = new Keyword($term, $this->id->value, $this->contentProperties->id->value);
+		$this->keywords[] = new Keyword($term, $this->id->value, $this->content_properties->id->value);
 	}
 
 	/**
@@ -83,7 +83,7 @@ class KeywordSectionContent extends SectionContent
 	public function collectRequestData(?array $src = null)
 	{
 		parent::collectRequestData($src);
-		$this->contentProperties->id->collectRequestData($src);
+		$this->content_properties->id->collectRequestData($src);
 		$this->collectKeywordInput();
 	}
 
@@ -113,7 +113,7 @@ class KeywordSectionContent extends SectionContent
 		}
 		$keywords = $this->extractKeywordTerms($this->keywordInput->value);
 		foreach($keywords as $term) {
-			$this->keywords[] = new Keyword(trim($term), $this->id->value, $this->contentProperties->id->value);
+			$this->keywords[] = new Keyword(trim($term), $this->id->value, $this->content_properties->id->value);
 		}
 	}
 
@@ -150,7 +150,7 @@ class KeywordSectionContent extends SectionContent
 		$this->connectToDatabase();
 		$query = "CALL keywordDeleteLinked (".
 			$this->id->escapeSQL($this->mysqli).",".
-			$this->contentProperties->id->escapeSQL($this->mysqli).")";
+			$this->content_properties->id->escapeSQL($this->mysqli).")";
 		$this->query($query);
 		return ("All linked keyword records were deleted.");
 	}
@@ -182,7 +182,7 @@ class KeywordSectionContent extends SectionContent
 	 */
 	protected function fetchKeywordListTemplate(): void
 	{
-		$ao = new ContentAjaxProperties($this->contentProperties->id->value);
+		$ao = new ContentAjaxProperties($this->content_properties->id->value);
 		$ao->retrieveContentProperties();
 		self::setKeywordsListTemplatePath($ao->keywords_template->value);
 	}
@@ -296,7 +296,7 @@ class KeywordSectionContent extends SectionContent
 	public function read()
 	{
 		parent::read();
-		$this->contentProperties->read();
+		$this->content_properties->read();
 		$this->readKeywords();
 	}
 
@@ -316,12 +316,12 @@ class KeywordSectionContent extends SectionContent
 		$this->connectToDatabase();
 		$query = "CALL keywordSelectLinked(".
 			$this->id->escapeSQL($this->mysqli).",".
-			$this->contentProperties->id->escapeSQL($this->mysqli).")";
+			$this->content_properties->id->escapeSQL($this->mysqli).")";
 		$data = $this->fetchRecords($query);
 
 		foreach($data as $row) {
 			$i = count($this->keywords);
-			$this->keywords[$i] = new Keyword($row->term, $this->id->value, $this->contentProperties->id->value, $row->count);
+			$this->keywords[$i] = new Keyword($row->term, $this->id->value, $this->content_properties->id->value, $row->count);
 		}
 	}
 
@@ -405,7 +405,7 @@ class KeywordSectionContent extends SectionContent
 		}
 		try {
 		    /* validate the content type id to ensure this record has a content type value */
-		    $this->contentProperties->id->validate();
+		    $this->content_properties->id->validate();
         }
         catch(ContentValidationException $ex) {
             $this->validationErrors[] = $ex->getMessage();

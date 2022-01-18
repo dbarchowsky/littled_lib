@@ -109,7 +109,7 @@ class SerializedContentUtils extends AppContentBase
 			if ( is_object($item) &&
 				(!property_exists($item, 'bypassCollectFromInput') || $item->bypassCollectFromInput===false)) {
 					if (method_exists($item, 'collectRequestData')) {
-						$item->collectRequestData(null, $src);
+						$item->collectRequestData($src);
 					}
 					elseif (method_exists($item, 'collectFormInput')) {
 						$item->collectFormInput(null, $src);
@@ -216,7 +216,7 @@ class SerializedContentUtils extends AppContentBase
 	 * Checks of SECTION_ID has been defined as a constant of the class and returns its value if it has.
 	 * @return ?int Class's content type id value, if it has been defined.
 	 */
-	public static function getContentTypeID(): ?int
+	public static function getContentId(): ?int
 	{
 		if (property_exists(get_called_class(), 'content_type_id')) {
             return static::$content_type_id;

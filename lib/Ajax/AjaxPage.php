@@ -165,8 +165,8 @@ class AjaxPage extends MySQLConnection
 			throw new ConfigurationUndefinedException("Content properties not available.");
 		}
 		$this->connectToDatabase();
-		$query = "CALL contentTemplateLookup({$this->content_properties->id->value}, '".$this->escapeSQLValue($template_name)."')";
-		$data = $this->fetchRecords($query);
+		$query = "CALL contentTemplateLookup(?,?)";
+		$data = $this->fetchRecords($query, 'is', $this->content_properties->id->value, $template_name);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
 		}
@@ -267,8 +267,7 @@ class AjaxPage extends MySQLConnection
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function setContentProperties( string $key=LittledGlobals::CONTENT_TYPE_KEY )
 	{
@@ -301,7 +300,7 @@ class AjaxPage extends MySQLConnection
 		if (!$this->content instanceof SectionContent) {
 			return (false);
 		}
-		$this->content_properties->id->value = $this->content->getContentTypeID();
+		$this->content_properties->id->value = $this->content->getContentId();
 		return ($this->content_properties->id->value>0);
 	}
 }
