@@ -140,6 +140,15 @@ class AjaxPage extends MySQLConnection
 	}
 
     /**
+     * Content type id getter.
+     * @return ?int
+     */
+    public function getContentTypeId(): ?int
+    {
+        return ($this->content_properties->id->value);
+    }
+
+    /**
      * Retrieve from the database the path to the details template.
      * @param string $template_name Token indicating which type of template to retrieve: details, listings, edit, delete, etc.
      * @throws ConfigurationUndefinedException
@@ -269,6 +278,16 @@ class AjaxPage extends MySQLConnection
 		}
 		$this->content_properties->read();
 	}
+
+    /**
+     * Content type id setter.
+     * @param int $content_id
+     * @return void
+     */
+    public function setContentTypeId(int $content_id)
+    {
+        $this->content_properties->id->setInputValue($content_id);
+    }
 
 	/**
 	 * Ensures that the internal content type id value has been set before its value is accessed.

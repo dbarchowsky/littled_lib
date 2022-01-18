@@ -2,40 +2,21 @@
 namespace Littled\Tests\Ajax;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\Tests\Filters\Samples\AjaxPageChild;
+use Littled\Ajax\AjaxPage;
 use PHPUnit\Framework\TestCase;
-use Exception;
 
 class AjaxPageTest extends TestCase
 {
     /** @var int */
     protected const TEST_CONTENT_TYPE_ID = 2;
 
-    /**
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     */
-    function _testErrorHandler()
+    function getContentTypeIdTest()
     {
-        $ap = null;
-        try {
-            $ap = new AjaxPageChild();
-        }
-        catch(Exception $e) { /* pass */ }
-        $this->expectOutputRegex('/TypeError/');
-        $ap->throwError();
+        $ap = new AjaxPage();
+        $this->assertNull($ap->getContentTypeId());
+
+        $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+        $this->assertEquals(self::TEST_CONTENT_TYPE_ID, $ap->getContentTypeId());
+        $this->assertEquals(self::TEST_CONTENT_TYPE_ID, $ap->content_properties->id->value);
     }
 }
