@@ -224,12 +224,12 @@ class SerializedContentUtilsTest extends TestCase
     public function testGetContentTypeID()
     {
     	$obj = new SerializedContentUtilsChild();
-    	$this->assertEquals(self::CHILD_CONTENT_TYPE_ID, $obj->getContentTypeID());
+    	$this->assertEquals(self::CHILD_CONTENT_TYPE_ID, $obj->getContentId());
     }
 
 	public function testGetContentTypeIDWithConstNotDefined()
 	{
-		$this->assertNull($this->obj->getContentTypeID());
+		$this->assertNull($this->obj->getContentId());
 	}
 
 	public function testJsonEncode()

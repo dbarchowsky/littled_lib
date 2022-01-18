@@ -300,7 +300,7 @@ class ContentPropertiesTest extends TestCase
 
 	public function testDefaultValues()
 	{
-		$this->assertEquals(ContentProperties::ID_PARAM, $this->obj->id->key);
+		$this->assertEquals(ContentProperties::ID_KEY, $this->obj->id->key);
 		$this->assertEquals('', $this->obj->name->value);
 		$this->assertNull($this->obj->width->value);
 		$this->assertEquals('', $this->obj->format->value);
