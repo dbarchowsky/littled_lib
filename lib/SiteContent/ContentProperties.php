@@ -7,7 +7,6 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -132,8 +131,7 @@ class ContentProperties extends SerializedContent
 	 * Delete this record from the database. Clears parent id of any child records.
 	 * @return string Message indicating result of the deletion.
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
      * @throws Exception
 	 */
 	public function delete(): string
@@ -143,6 +141,20 @@ class ContentProperties extends SerializedContent
 		$this->query($query, 'i', $this->id->value);
 		return(parent::delete());
 	}
+
+    /**
+     * @param string $name
+     * @return ContentTemplate|null
+     */
+    public function getContentTemplateByName(string $name): ?ContentTemplate
+    {
+        foreach($this->templates as $template) {
+            if ($name === $template->name->value) {
+                return $template;
+            }
+        }
+        return null;
+    }
 
 	/**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
@@ -197,7 +209,6 @@ class ContentProperties extends SerializedContent
 	 * @param string $property_name (Optional) Object property holding the identifier for this content. Uses the "name" property unless overridden.
 	 * @return string String formatted to match the number of records. Either singular or plural.
      * @throws ConfigurationUndefinedException
-     * @throws InvalidValueException
      */
 	public function pluralLabel(int $count, string $property_name='name'): string
 	{
@@ -213,7 +224,6 @@ class ContentProperties extends SerializedContent
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
      * @throws Exception
 	 */
 	public function read(): void
@@ -236,6 +246,9 @@ class ContentProperties extends SerializedContent
 	 */
 	public function readTemplates(): void
 	{
+        // clear out any existing data
+        $this->templates = [];
+
 		$query = "CALL contentTemplateSelectBySectionID(?)";
 		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		if (count($data) < 1) {

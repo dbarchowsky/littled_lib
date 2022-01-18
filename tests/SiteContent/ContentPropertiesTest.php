@@ -8,10 +8,10 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
+use Littled\Tests\SiteContent\TestObjects\ContentTemplateData;
 use Littled\SiteContent\ContentProperties;
 use PHPUnit\Framework\TestCase;
 use Exception;
@@ -115,6 +115,58 @@ class ContentPropertiesTest extends TestCase
         if(!$stmt->execute()) {
             throw new Exception('Error executing query: '.$mysqli->error);
         }
+
+        self::createTempContentTemplateRecords($conn);
+    }
+
+    /**
+     * @param MySQLConnection $conn
+     * @return void
+     * @throws Exception
+     */
+    protected static function createTempContentTemplateRecords(MySQLConnection $conn)
+    {
+        $template_data = array(
+            new ContentTemplateData(0, 'listings-'.self::UNIT_TEST_IDENTIFIER, '/path/to/listings-template.php'),
+            new ContentTemplateData(0, 'details-'.self::UNIT_TEST_IDENTIFIER, '/path/to/details-template.php'),
+            new ContentTemplateData(0, 'edit-'.self::UNIT_TEST_IDENTIFIER, '/path/to/edit-template.php'),
+        );
+
+        // retrieve max id
+        $query = 'SELECT MAX(id) as `max_id` FROM content_template';
+        $data = $conn->fetchRecords($query);
+        if (count($data) < 1) {
+            throw new Exception('Content template id not available.');
+        }
+        $new_id = $data[0]->max_id + 100;
+
+        // prepare insert statement
+        $query = "INSERT INTO `content_template` (id, site_section_id, name, path) VALUES (?,?,?,?)";
+        $mysqli = $conn->getMysqli();
+        $stmt = $mysqli->prepare($query);
+        $content_type_id = self::TEST_ID_FOR_READ;
+        $stmt->bind_param('iiss', $new_id, $content_type_id, $name, $path);
+
+        // execute insert statements
+        foreach($template_data as $td) {
+            $name = $td->name;
+            $path = $td->template;
+            if (!$stmt->execute()) {
+                throw new Exception('Error creating temp content template. '.$stmt->error);
+            }
+            $new_id++;
+        }
+    }
+
+    /**
+     * @param MySQLConnection $conn
+     * @return void
+     * @throws Exception
+     */
+    protected static function clearTempContentTemplateRecords(MySQLConnection $conn)
+    {
+        $query = "DELETE FROM `content_template` WHERE `name` like '%-".self::UNIT_TEST_IDENTIFIER."'";
+        $conn->query($query);
     }
 
 	/**
@@ -139,6 +191,8 @@ class ContentPropertiesTest extends TestCase
 
 		$query = "DELETE FROM `content_template` WHERE `name` LIKE ?";
 		$conn->query($query, 's', $name_filter);
+
+        self::clearTempContentTemplateRecords($conn);
 	}
 
 	public function setUp(): void
@@ -151,8 +205,7 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	protected function addContentTemplates()
@@ -201,8 +254,7 @@ class ContentPropertiesTest extends TestCase
 	/**
 	 * @param ContentProperties $site_section Object containing templates.
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
 	 */
 	protected function removeContentTemplates(ContentProperties $site_section)
 	{
@@ -233,8 +285,7 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function testClearValues()
 	{
@@ -306,7 +357,6 @@ class ContentPropertiesTest extends TestCase
 
     /**
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws Exception
      */
@@ -332,6 +382,29 @@ class ContentPropertiesTest extends TestCase
 		$data = $this->conn->fetchRecords($query, 'i', $child_id);
 		$this->assertNull($data[0]->parent_id);
 	}
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws RecordNotFoundException
+     */
+    function testGetContentTemplateByName()
+    {
+        $cp = new ContentProperties();
+        $cp->id->value = self::TEST_ID_FOR_READ;
+        $cp->read();
+
+        $template = $cp->getContentTemplateByName('listings-'.self::UNIT_TEST_IDENTIFIER);
+        $this->assertInstanceOf(ContentTemplate::class, $template);
+        $this->assertEquals('listings-'.self::UNIT_TEST_IDENTIFIER, $template->name->value);
+
+        $template = $cp->getContentTemplateByName('nonexistent-template');
+        $this->assertNull($template);
+    }
 
 	/**
 	 * @throws ContentValidationException
@@ -384,7 +457,7 @@ class ContentPropertiesTest extends TestCase
 
     /**
      * @throws ConfigurationUndefinedException
-     * @throws InvalidValueException|Exception
+     * @throws Exception
      */
     public function testPluralLabel()
 	{
@@ -410,7 +483,6 @@ class ContentPropertiesTest extends TestCase
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidTypeException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public function testRead()
@@ -432,14 +504,14 @@ class ContentPropertiesTest extends TestCase
 	{
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 		$this->obj->readTemplates();
-		$this->assertCount(0, $this->obj->templates);
+		$this->assertCount(3, $this->obj->templates);
 
 		$this->addContentTemplates();
 
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
 		$this->obj->readTemplates();
-		$this->assertCount(3, $this->obj->templates);
-		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." edit", $this->obj->templates[2]->name->value);
+		$this->assertCount(6, $this->obj->templates);
+		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." edit", $this->obj->templates[5]->name->value);
 
 		$this->removeContentTemplates($this->obj);
 	}
@@ -450,8 +522,7 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function testReadWithoutTemplatesOrExtraProperties()
 	{
@@ -510,8 +581,7 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function testReadWithExtraProperties()
 	{
