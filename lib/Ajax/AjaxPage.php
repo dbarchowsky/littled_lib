@@ -1,7 +1,9 @@
 <?php
 namespace Littled\Ajax;
 
+use Error;
 use Exception;
+use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -54,6 +56,7 @@ class AjaxPage extends MySQLConnection
 
 		/* Set exception handler to return JSON error message */
 		set_exception_handler(array($this, 'exceptionHandler'));
+        set_error_handler(array($this, 'errorHandler'));
 
 		$this->json = new JSONRecordResponse();
 		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
@@ -112,11 +115,19 @@ class AjaxPage extends MySQLConnection
 		return ($this);
 	}
 
+    /**
+     * Error handler. Catch error and return the error message to client making ajax request.
+     */
+    public function errorHandler(Error $e)
+    {
+        $this->json->returnError($e->getMessage());
+    }
+
 	/**
-	 * Error Handler
+	 * Exception handler. Catch exceptions and return the error message to client making ajax request.
 	 * @param Exception $ex
 	 */
-	public function exceptionHandler( Exception $ex)
+	public function exceptionHandler(Throwable $ex)
 	{
 		$this->json->returnError($ex->getMessage());
 	}
@@ -243,7 +254,7 @@ class AjaxPage extends MySQLConnection
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
-	public function setContentProperties( $key=LittledGlobals::CONTENT_TYPE_KEY )
+	public function setContentProperties( string $key=LittledGlobals::CONTENT_TYPE_KEY )
 	{
 		$this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
 		if ($this->content_properties->id->value === null) {
