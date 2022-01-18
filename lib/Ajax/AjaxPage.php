@@ -117,10 +117,17 @@ class AjaxPage extends MySQLConnection
 
     /**
      * Error handler. Catch error and return the error message to client making ajax request.
+     * @param int $err_no
+     * @param string $err_str
+     * @param string $err_file
+     * @param ?int $err_line
      */
-    public function errorHandler(Error $e)
+    public function errorHandler(int $err_no, string $err_str, string $err_file='', ?int $err_line=null)
     {
-        $this->json->returnError($e->getMessage());
+        $msg = "$err_str [$err_no]";
+        $msg .= (($err_file)?(" in $err_file"):(''));
+        $msg .= (($err_line)?("($err_line)"):(''));
+        $this->json->returnError($msg);
     }
 
 	/**
