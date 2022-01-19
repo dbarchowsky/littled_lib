@@ -6,10 +6,12 @@
             "Littled\\Tests\\": "tests/"
         }
     },
+    "require": {
+        "dbarchowsky/littled_cms": "dev-develop"
+    },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.0",
-        "phpunit/phpunit": "^9",
-        "dbarchowsky/littled_cms": "dev-develop"
+        "phpunit/phpunit": "^9"
     },
     "repositories": [
         {
