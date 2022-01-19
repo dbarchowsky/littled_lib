@@ -122,6 +122,16 @@ class FilterCollectionProperties extends AppContentBase
     }
 
     /**
+     * When content listings consist of many pages, the listings can be displayed with ellipses. This method returns
+     * page number in the sequence of pages where that break should begin.
+     * @return int
+     */
+    public static function getPageCollapsePoint(): int
+    {
+        return (int)((FilterCollectionProperties::LINKS_OFFSET*2)+(FilterCollectionProperties::LINKS_END_LENGTH*2)+1);
+    }
+
+    /**
      * Abstract method for table name getter. Child classes will set initial value within the method.
      * @return string
      * @throws NotImplementedException
