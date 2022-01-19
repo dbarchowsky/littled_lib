@@ -27,6 +27,10 @@ class ContentAjaxProperties extends SerializedContent
 	public $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
 	public $id_param;
+    /**
+     * @todo consider replacing hard-coded uri fields with a table linked to this one containing
+     * separate records for each possible ajax uri
+     */
 	/** @var StringTextField URI CMS listings URI. */
 	public $listings_uri;
 	/** @var StringTextField URI of AJAX listings utility script. */
