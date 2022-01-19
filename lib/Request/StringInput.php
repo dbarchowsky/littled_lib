@@ -9,6 +9,11 @@ use Littled\PageContent\ContentUtils;
  */
 class StringInput extends RequestInput
 {
+    /** @var string Form input element template filename */
+    protected static $input_template_filename = 'string-text-input.php';
+    /** @var string */
+    protected static $template_filename = 'string-text-field.php';
+
     /**
 	 * {@inheritDoc}
 	 */
@@ -19,11 +24,11 @@ class StringInput extends RequestInput
 
 	/**
 	 * Collects the value of this form input and stores it in the object.
-	 * @param ?int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+     * @param ?int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
 	 * @param ?string $key Key to use in place of the internal $key property value.
 	 */
-	public function collectRequestData (?int $filters=null, ?array $src=null, ?string $key=null)
+	public function collectRequestData (?array $src=null, ?int $filters=null, ?string $key=null)
 	{
 		if ($this->bypassCollectPostData===true) {
 			return;
@@ -83,12 +88,12 @@ class StringInput extends RequestInput
 
     /**
      * Returns string containing HTML to render the input elements in a form.
-     * @param string[optional] $label Text to display as the label for the form input.
+     * @param string $label (Optional) Text to display as the label for the form input.
      * A null value will cause the internal label value to be used. An empty
      * string will cause the label to not be rendered at all.
-     * @param string[optional] $css_class CSS class name(s) to apply to the input container.
+     * @param string $css_class (Optional) CSS class name(s) to apply to the input container.
      */
-    public function render( $label=null, $css_class=null )
+    public function render( string $label='', string $css_class='' )
     {
         if (!$label) {
             $label=$this->label;

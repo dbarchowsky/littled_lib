@@ -1,7 +1,9 @@
 <?php
 namespace Littled\Tests\Request;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 
+use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
 use Littled\Database\MySQLConnection;
 use Littled\Request\RequestInput;
@@ -86,6 +88,6 @@ class StringInputTest extends TestCase
 		$this->assertEquals(StringInput::getTemplateFilename(), $this->obj::getTemplateFilename());
 
 		// parent class's template value should remain unchanged
-		$this->assertEquals(RequestInput::getTemplateFilename(), $this->obj::getTemplateFilename());
+		$this->assertNotEquals(RequestInput::getTemplateFilename(), $this->obj::getTemplateFilename());
 	}
 }

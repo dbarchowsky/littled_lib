@@ -1,5 +1,6 @@
 <?php
 namespace Littled\Tests\Request;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 
 use Littled\Exception\ContentValidationException;
@@ -56,7 +57,8 @@ class EmailTextFieldTest extends TestCase
 	public function testValidateNotRequired()
 	{
 		$this->obj->required = false;
-		$this->assertNull($this->obj->validate());
+		$this->obj->validate();
+        $this->assertFalse($this->obj->hasErrors);
 	}
 
 	public function testValidateDefaultValue()

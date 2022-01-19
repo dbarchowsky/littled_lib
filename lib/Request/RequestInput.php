@@ -130,7 +130,7 @@ class RequestInput
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @throws NotImplementedException
 	 */
-	public function collectRequestData()
+	public function collectRequestData(?array $src=null)
 	{
 		throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
 	}
@@ -342,11 +342,11 @@ class RequestInput
 
 	/**
 	 * Renders the corresponding form field with a label to collect the input data.
-     * @param ?string $label
-     * @param ?string $css_class
+     * @param string $label
+     * @param string $css_class
 	 * @throws NotImplementedException
 	 */
-	public function render( ?string $label=null, ?string $css_class=null )
+	public function render( string $label='', string $css_class='' )
 	{
 	    if (!$label) {
 	        $label = $this->label;

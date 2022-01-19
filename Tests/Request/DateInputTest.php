@@ -1,12 +1,13 @@
 <?php
 namespace Littled\Tests\Request;
-
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\DateInput;
 use PHPUnit\Framework\TestCase;
-
+use Exception;
+use mysqli;
 
 class DateInputTest extends TestCase
 {
@@ -15,14 +16,15 @@ class DateInputTest extends TestCase
     /** @var MySQLConnection Test database connection. */
     public $conn;
 
-    public function setUp()
+    function __construct()
     {
+        parent::__construct();
         $this->obj = new DateInput("Test date", 'p_date');
         $this->conn = new MySQLConnection();
     }
 
     /**
-     * @throws \Littled\Exception\ContentValidationException
+     * @throws ContentValidationException
      */
     public function testValidateValidValues()
     {
@@ -81,7 +83,7 @@ class DateInputTest extends TestCase
 	    $this->assertEquals('', $this->obj->value);
 
 	    $this->obj->setInputValue('7269');
-	    $this->assertEquals("7269-{$m}-{$d}", $this->obj->value);
+	    $this->assertEquals("7269-$m-$d", $this->obj->value);
     }
 
     public function testValidateMissingDateValue()
@@ -113,10 +115,7 @@ class DateInputTest extends TestCase
 
     public function testValidateValueSize()
     {
-        $str = "";
-        for ($i = 0; $i < $this->obj->sizeLimit+1; $i++) {
-            $str .= "a";
-        }
+        $str = str_repeat("a", $this->obj->sizeLimit + 1);
         $this->obj->value = $str;
         try {
             $this->obj->validate();
@@ -146,9 +145,19 @@ class DateInputTest extends TestCase
 	    }
     }
 
+    /**
+     * @throws Exception
+     */
     public function testEscapeSQL()
     {
-	    $mysqli = new \mysqli();
+        if (!defined('MYSQL_HOST') ||
+            !defined('MYSQL_USER') ||
+            !defined('MYSQL_PASS') ||
+            !defined('MYSQL_SCHEMA') ||
+            !defined('MYSQL_PORT')) {
+            throw new Exception('Databae connection properties not defined.');
+        }
+	    $mysqli = new mysqli();
 	    $mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
     	$this->obj->setInputValue('May 23, 2018');

@@ -26,14 +26,9 @@ class URLTextField extends StringTextField
 	}
 
 	/**
-	 * Returns string containing HTML to render the input elements in a form.
-	 * @param string $label Text to display as the label for the form input.
-	 * A null value will cause the internal label value to be used. An empty
-	 * string will cause the label to not be rendered at all.
-	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * {@inheritDoc}
 	 */
-	public function render( $label=null,  $css_class='' )
+	public function render( string $label='',  string $css_class='' )
 	{
 		/** TODO mark the form input as having type="url" */
 		parent::render($label, $css_class);

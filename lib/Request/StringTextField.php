@@ -2,10 +2,6 @@
 namespace Littled\Request;
 
 
-/**
- * Class StringTextFieldInput
- * @package Littled\Request
- */
 class StringTextField extends StringInput
 {
 	/** @var string Form input element template filename */

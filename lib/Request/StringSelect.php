@@ -11,12 +11,9 @@ use Littled\Exception\NotImplementedException;
 class StringSelect extends StringInput
 {
     /**
-     * @param string[optional] $label
-     * @param null[optional] $css_label
-     * @param array[optional] $options
-     * @throws NotImplementedException
+     * {@inheritDoc}
      */
-    public function render($label=null, $css_label=null, $options=[])
+    public function render(string $label='', string $css_label='', array $options=[])
     {
         throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
     }

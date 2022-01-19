@@ -1,10 +1,9 @@
 <?php
 namespace Littled\Tests\Request;
-
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
-use Littled\Database\MySQLConnection;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 
@@ -18,8 +17,9 @@ class StringTextFieldTest extends TestCase
 	/** @var StringTextField Test DateInput object. */
 	public $obj;
 
-	public function setUp() : void
+	function __construct()
 	{
+        parent::__construct();
 		$this->obj = new StringTextField("Test date", 'p_date');
 	}
 
@@ -31,6 +31,10 @@ class StringTextFieldTest extends TestCase
 		// make sure the new value is different from the default
 		$this->assertNotEquals($new_filename, $default);
 
+        // reset these in case they have been modified in the course of running previous unit tests
+        RequestInput::setTemplateFilename('hidden-input.php');
+        StringInput::setTemplateFilename('text-field-input.php');
+
 		// test the object property after it has been set to a new value
 		StringTextField::setTemplateFilename('new-string-template.php');
 		$this->assertNotEquals($default, $this->obj::getTemplateFilename());
@@ -38,6 +42,6 @@ class StringTextFieldTest extends TestCase
 
 		// parent class's template value should remain unchanged
 		$this->assertNotEquals(RequestInput::getTemplateFilename(), $this->obj::getTemplateFilename());
-		$this->assertNotEquals(StringInput::getTemplateFilename(), $this->obj::getTemplateFilename());
+        $this->assertNotEquals(StringInput::getTemplateFilename(), $this->obj::getTemplateFilename());
 	}
 }

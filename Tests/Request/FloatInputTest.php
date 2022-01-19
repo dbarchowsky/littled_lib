@@ -1,9 +1,12 @@
 <?php
 namespace Littled\Tests\Request;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Request\FloatInput;
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
+use Exception;
+use mysqli;
 
 class FloatInputTest extends TestCase
 {
@@ -19,11 +22,22 @@ class FloatInputTest extends TestCase
 		$this->assertEquals(null, $obj->value);
 	}
 
-	public function testEscapeSQL()
+    /**
+     * @throws Exception
+     */
+    public function testEscapeSQL()
 	{
+        if (!defined('MYSQL_HOST') ||
+            !defined('MYSQL_USER') ||
+            !defined('MYSQL_PASS') ||
+            !defined('MYSQL_SCHEMA') ||
+            !defined('MYSQL_PORT')) {
+            throw new Exception('Database connection properties not defined.');
+        }
+
 		$o = new FloatInput("Test", "test");
-		$mysqli = new \mysqli();
-		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA);
+		$mysqli = new mysqli();
+		$mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
 		$this->assertNull($o->value);
 		$this->assertEquals('NULL', $o->escapeSQL($mysqli), "Defaults to 'null'");
@@ -77,79 +91,79 @@ class FloatInputTest extends TestCase
 
 		/* not required, default value (null) */
 		$o->required = false;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* not required, empty string value */
 		$o->required = false;
 		$o->value = '';
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* not required, valid integer value of 1 */
 		$o->required = false;
 		$o->value = 1;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* not required, valid integer value */
 		$o->required = false;
 		$o->value = 765;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, valid integer value of 1 */
 		$o->required = true;
 		$o->value = 1;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, valid integer value of 1 */
 		$o->required = true;
 		$o->value = 0;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, valid integer value */
 		$o->required = true;
 		$o->value = 5248;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* not required, null value */
 		$o->required = false;
 		$o->value = null;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '1';
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '0';
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '8356';
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, float value */
 		$o->required = true;
 		$o->value = 99.06;
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 
 		/* required, float string */
 		$o->required = true;
 		$o->value = '99.06';
-		$this->assertTrue($o->validate());
+		$o->validate();
 		$this->assertFalse($o->hasErrors);
 	}
 

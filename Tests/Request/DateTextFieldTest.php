@@ -1,6 +1,6 @@
 <?php
 namespace Littled\Tests\Request;
-
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Request\DateTextField;
@@ -17,8 +17,9 @@ class DateTextFieldTest extends TestCase
     /** @var MySQLConnection Test database connection. */
     public $conn;
 
-    public function setUp()
+    function __construct()
     {
+        parent::__construct();
         $this->obj = new DateTextField("Test date", 'dateTest');
         $this->conn = new MySQLConnection();
     }

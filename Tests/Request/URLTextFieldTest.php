@@ -1,6 +1,6 @@
 <?php
 namespace Littled\Tests\Request;
-
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
@@ -19,14 +19,15 @@ class URLTextFieldTest extends TestCase
 	/** @var MySQLConnection Test database connection. */
 	public $conn;
 
-	public function setUp()
+    function __construct()
 	{
+        parent::__construct();
 		$this->obj = new URLTextField("Test date", 'p_date');
 		$this->conn = new MySQLConnection();
 	}
 
 	/**
-	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws ContentValidationException
 	 */
 	public function testValidateValidURL()
 	{
