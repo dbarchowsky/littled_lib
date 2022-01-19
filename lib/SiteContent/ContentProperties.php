@@ -41,6 +41,10 @@ class ContentProperties extends SerializedContent
 	public $sub_dir;
 	/** @var StringTextField Label used when displaying images as a group on the front-end. */
 	public $image_label;
+    /**
+     * @todo consider replacing hard-coded image dimension fields with a new table linked to this one
+     * with separate records for each image spec.
+     */
 	/** @var IntegerTextField Target width of full-resolution images. */
 	public $width;
 	/** @var IntegerTextField Target height of full-resolution images. */
