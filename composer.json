@@ -1,20 +1,20 @@
 {
-  "name": "dbarchowsky/littled",
-  "autoload": {
-    "psr-4": {
-      "Littled\\": "lib/",
-      "Littled\\Tests\\": "tests/"
-    }
-  },
-  "require-dev": {
-    "guzzlehttp/guzzle": "^7.0",
-    "phpunit/phpunit": "^9",
-    "dbarchowsky/common_lib": "dev-master"
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/dbarchowsky/common_lib.git"
-    }
-  ]
+    "name": "dbarchowsky/littled",
+    "autoload": {
+        "psr-4": {
+            "Littled\\": "lib/",
+            "Littled\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "guzzlehttp/guzzle": "^7.0",
+        "phpunit/phpunit": "^9",
+        "dbarchowsky/littled_cms": "dev-develop"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/dbarchowsky/littled_cms.git"
+        }
+    ]
 }
