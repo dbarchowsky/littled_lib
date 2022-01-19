@@ -126,7 +126,7 @@ class FilterCollectionProperties extends AppContentBase
      * page number in the sequence of pages where that break should begin.
      * @return int
      */
-    public static function getPageCollapsePoint(): int
+    public static function getPageListCollapsePoint(): int
     {
         return (int)((FilterCollectionProperties::LINKS_OFFSET*2)+(FilterCollectionProperties::LINKS_END_LENGTH*2)+1);
     }
