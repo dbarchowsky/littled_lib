@@ -122,6 +122,15 @@ class FilterCollectionProperties extends AppContentBase
     }
 
     /**
+     * Returns the halfway point in the sequence of page numbers displayed in listings page navigation.
+     * @return int
+     */
+    public static function getPageListHalfPoint(): int
+    {
+        return FilterCollectionProperties::LINKS_OFFSET + FilterCollectionProperties::LINKS_END_LENGTH + 1;
+    }
+
+    /**
      * When content listings consist of many pages, the listings can be displayed with ellipses. This method returns
      * page number in the sequence of pages where that break should begin.
      * @return int

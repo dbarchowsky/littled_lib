@@ -161,6 +161,32 @@ class FilterCollection extends FilterCollectionProperties
     }
 
     /**
+     * Returns the index within the set of all records matching the listings filters of the first record to be
+     * displayed on the current page of listings.
+     * @return int
+     */
+    public function getListingsStartOffset(): int
+    {
+        return (($this->page->value - 1) * $this->listings_length->value) + 1;
+    }
+
+    /**
+     * Returns the index within the set of all records matching the listings filters of the last record to be
+     * displayed on the current page of listings.
+     * @param int $starting_offset
+     * @return int
+     */
+    public function getListingsEndOffset(int $starting_offset): int
+    {
+        if (($starting_offset + $this->listings_length->value - 1) <= $this->record_count) {
+            return $starting_offset + $this->listings_length->value - 1;
+        }
+        else {
+            return $this->record_count;
+        }
+    }
+
+    /**
 	 * Formats SQL clauses to the offset and page size of the recordset.
 	 * @return array First element is the lower limit value and the 2nd element is the upper limit value.
      * @throws NotImplementedException
@@ -204,6 +230,22 @@ class FilterCollection extends FilterCollectionProperties
 		$this->record_count = $data[0]->count;
 		$this->calcPageCount();
 	}
+
+    /**
+     * Returns the mid-point page number of listings page link sequence.
+     * @param int $half_length
+     * @return int
+     */
+    public function getPageListMidPoint(int $half_length): int
+    {
+        if ($this->page->value < $half_length) {
+            return $half_length;
+        }
+        else if ($this->page->value > ($this->page_count-$half_length+1)) {
+            return $this->page_count - $half_length + 1;
+        }
+        return $this->page->value;
+    }
 
 	/**
 	 * Store total number of matching results for later use when rendering listings.
