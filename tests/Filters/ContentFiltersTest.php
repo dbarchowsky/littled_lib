@@ -52,6 +52,24 @@ class ContentFiltersTest extends TestCase
      * @return void
      * @throws Exception
      */
+    function testPluralLabel()
+    {
+        $cf = new ContentFiltersChild();
+        $cf->retrieveListings();
+        $this->assertGreaterThan(1, $cf->record_count);
+        $this->assertEquals('articles', $cf->pluralLabel());
+
+        $cf->record_count = 1;
+        $this->assertEquals('article', $cf->pluralLabel());
+
+        $cf->record_count = 0;
+        $this->assertEquals('articles', $cf->pluralLabel());
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
     function testRetrieveListings()
     {
         $cf = new ContentFiltersChild();

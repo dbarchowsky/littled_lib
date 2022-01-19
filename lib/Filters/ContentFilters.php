@@ -50,6 +50,15 @@ class ContentFilters extends FilterCollection
 	}
 
     /**
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public function pluralLabel(): string
+    {
+        return $this->content_properties->pluralLabel($this->record_count);
+    }
+
+    /**
      * Content type id setter.
      * @param int $content_id
      * @return void
