@@ -8,13 +8,6 @@
   },
   "require-dev": {
     "guzzlehttp/guzzle": "^7.0",
-    "phpunit/phpunit": "^9",
-    "dbarchowsky/common_lib": "dev-master"
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/dbarchowsky/common_lib.git"
-    }
-  ]
+    "phpunit/phpunit": "^9"
+  }
 }
