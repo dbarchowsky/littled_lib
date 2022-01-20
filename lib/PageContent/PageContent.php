@@ -8,7 +8,6 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
-use LittledCommon\FormData\input_class;
 
 /**
  * Class PageContentBase
@@ -24,15 +23,15 @@ class PageContent extends MySQLConnection
     /** @var object Content filters. */
     public $filters;
     /** @var string @var */
-    public $label;
+    public $label = '';
     /** @var string Query string to attach to page links. */
-    protected $query_string;
+    protected $query_string = '';
     /** @var string Query string containing variables defining page state. */
-    public $qs;
+    public $qs = '';
 	/** @var string URL to use for redirects. */
-	public $redirect_url;
+	public $redirect_url = '';
 	/** @var string Path to template file. */
-	public $template_path;
+	public $template_path = '';
 
 	const CANCEL_ACTION = "cancel";
 	const COMMIT_ACTION = "commit";
@@ -44,13 +43,6 @@ class PageContent extends MySQLConnection
     function __construct()
     {
         parent::__construct();
-        $this->content = null;
-        $this->filters = null;
-        $this->qs = '';
-        $this->template_path = '';
-        $this->action = '';
-        $this->redirect_url = '';
-        $this->query_string = '';
         return $this;
     }
 
@@ -67,10 +59,6 @@ class PageContent extends MySQLConnection
 		if ($this->content->id->value===null) {
 			if ( $this->content->id instanceof RequestInput) {
 				$this->content->id->collectValue();
-			}
-			elseif ($this->content->id instanceof input_class){
-				/* @todo remove this call after older version of IntegerInput class is fully removed from all apps */
-				$this->content->id->fill_from_input();
 			}
 		}
 		return ($this->content->id->value);
