@@ -6,8 +6,8 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\ListingsKeywords;
-use Littled\SiteContent\ContentAjaxProperties;
-use Littled\SiteContent\ContentProperties;
+use Littled\Ajax\ContentAjaxProperties;
+use Littled\PageContent\SiteSection\ContentProperties;
 
 /**
  * Class AlbumFilters

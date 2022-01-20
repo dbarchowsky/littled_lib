@@ -19,7 +19,7 @@ use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Request\IntegerInput;
-use Littled\SiteContent\ContentProperties;
+use Littled\PageContent\SiteSection\ContentProperties;
 
 /**
  * Class AjaxPage

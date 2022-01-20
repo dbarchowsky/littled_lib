@@ -1,6 +1,5 @@
 <?php
-namespace Littled\SiteContent;
-
+namespace Littled\Ajax;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;

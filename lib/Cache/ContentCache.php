@@ -8,7 +8,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\SiteSection\SectionContent;
-use Littled\SiteContent\ContentProperties;
+use Littled\PageContent\SiteSection\ContentProperties;
 
 
 /**
@@ -94,7 +94,7 @@ class ContentCache extends MySQLConnection
 
 	/**
 	 * Updates content based on content type.
-	 * @param ContentProperties $content_properties object containing content properties
+	 * @param \Littled\PageContent\SiteSection\ContentProperties $content_properties object containing content properties
 	 * @param ?SectionContent $content (Optional) Either an object representing the content to be updated, or an id of the record to use to update the content cache.
 	 * @return string Message describing the results of the operation.
 	 */

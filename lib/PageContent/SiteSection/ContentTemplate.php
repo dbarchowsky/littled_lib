@@ -117,6 +117,29 @@ class ContentTemplate extends SerializedContent
 		return ($path);
 	}
 
+    /**
+     * Tests for any existing records in the database that would conflict with the
+     * property values of this object instance.
+     * @return string Name of content type matching the object's content_type_id property value
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+    public function testForDuplicateTemplate(): string
+    {
+        if (null === $this->id->value &&
+            0 < $this->content_type_id->value &&
+            $this->name->value) {
+            $this->connectToDatabase();
+            $query = "CALL contentTemplateSectionNameSelect(?,?)";
+            $data = $this->fetchRecords($query, 'is', $this->content_type_id->value, $this->name->value);
+            if (0 < count($data)) {
+                return $data[0]->section;
+            }
+        }
+        return '';
+    }
+
 	/**
 	 * Validates the data stored in the instance. Error messages are stored in the instance's $validation_errors
 	 * property.
@@ -137,16 +160,11 @@ class ContentTemplate extends SerializedContent
 			$this->validationErrors[] = "Either a template path or location must be specified.";
 		}
 
-		if ($this->id->value===null && $this->content_type_id->value > 0 && $this->name->value) {
-			$this->connectToDatabase();
-			$escaped_name = $this->name->escapeSQL($this->mysqli);
-			$query = "CALL contentTemplateSectionNameSelect({$this->content_type_id->value}, $escaped_name)";
-			$data = $this->fetchRecords($query);
-			if (count($data) > 0) {
-				$error = "A \"{$this->name->value}\" template already exists for the \"{$data[0]->section}\" area of the site.";
-				$this->validationErrors[] = $error;
-			}
-		}
+        if ($section = $this->testForDuplicateTemplate()) {
+            $error = "A \"{$this->name->value}\" template already exists for the \"$section\" area of the site.";
+            $this->validationErrors[] = $error;
+        }
+
 		if (count($this->validationErrors) > 0) {
 			throw new ContentValidationException("Error validating content templates.");
 		}

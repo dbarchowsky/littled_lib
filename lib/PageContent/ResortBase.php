@@ -13,7 +13,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
-use Littled\SiteContent\ContentProperties;
+use Littled\PageContent\SiteSection\ContentProperties;
 
 /**
  * Class ResortBase

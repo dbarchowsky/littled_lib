@@ -13,8 +13,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\SiteContent\ContentAjaxProperties;
-use Littled\SiteContent\ContentProperties;
+use Littled\Ajax\ContentAjaxProperties;
 use Exception;
 
 /**
@@ -171,12 +170,14 @@ class SectionContent extends SerializedContent
 
 	/**
 	 * Tests for a valid content type id. Throws ContentValidationException if the property value isn't current set.
+     * @param string $msg (Optional) Message to prepend to error message.
 	 * @throws ContentValidationException
 	 */
-	protected function testForContentType()
+	protected function testForContentType(string $msg='')
 	{
-		if ($this->content_properties->id->value === null || $this->content_properties->id->value < 0) {
-			throw new ContentValidationException("Could not perform operation. A content type was not specified.");
+		if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
+            $msg = ($msg)?("$msg "):("Could not perform operation. ");
+			throw new ContentValidationException("{$msg}A content type was not specified.");
 		}
 	}
 }

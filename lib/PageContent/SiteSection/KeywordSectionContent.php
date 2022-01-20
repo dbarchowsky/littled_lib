@@ -3,6 +3,7 @@ namespace Littled\PageContent\SiteSection;
 
 
 // use Littled\Cache\ContentCache;
+use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -14,13 +15,13 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
-use Littled\SiteContent\ContentAjaxProperties;
+use Littled\Ajax\ContentAjaxProperties;
 
 class KeywordSectionContent extends SectionContent
 {
 	/** @var StringTextarea Container for keyword form data. */
 	public $keywordInput;
-	/** @var array Array of Keyword objects. */
+	/** @var Keyword[] Array of Keyword objects. */
 	public $keywords;
 	/** @var string Path to template that renders keyword cells that combine a keyword list with buttons to edit the keywords. */
 	protected static $keywordCellTemplate = '';
@@ -52,9 +53,15 @@ class KeywordSectionContent extends SectionContent
 	/**
 	 * Pushes a new keyword term onto the current list of Keyword objects stored in the object's $keyword property.
 	 * @param string $term Keyword term to push onto the stack.
+     * @throws Exception
 	 */
 	public function addKeyword( string $term ): void
 	{
+        $this->testForParentID('Could not add keyword.');
+        $this->testForContentType('Could not add keyword.');
+        if (null === $this->content_properties->id->value) {
+            throw new Exception('Could not add keyword. Content type not set.');
+        }
 		$this->keywords[] = new Keyword($term, $this->id->value, $this->content_properties->id->value);
 	}
 
@@ -107,7 +114,7 @@ class KeywordSectionContent extends SectionContent
 	public function collectKeywordInput(?array $src=null): void
 	{
 		$this->clearKeywordData();
-		$this->keywordInput->collectRequestData(null, $src);
+		$this->keywordInput->collectRequestData($src);
 		if (!$this->keywordInput->value) {
 			return;
 		}
@@ -124,7 +131,6 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws NotImplementedException
 	 */
 	public function delete(): string
@@ -134,24 +140,21 @@ class KeywordSectionContent extends SectionContent
 		return ($status);
 	}
 
-	/**
-	 * Deletes any keyword records linked to the main content record represented by the object.
-	 * @return string String containing a description of the results of the deletion.
-	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Deletes any keyword records linked to the main content record represented by the object.
+     * @return string String containing a description of the results of the deletion.
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function deleteKeywords(): string
 	{
 		$this->testForParentID();
 		$this->testForContentType();
 
-		$this->connectToDatabase();
-		$query = "CALL keywordDeleteLinked (".
-			$this->id->escapeSQL($this->mysqli).",".
-			$this->content_properties->id->escapeSQL($this->mysqli).")";
-		$this->query($query);
+		$query = "CALL keywordDeleteLinked (?,?)";
+		$this->query($query, 'ii', $this->id->value, $this->content_properties->id->value);
 		return ("All linked keyword records were deleted.");
 	}
 
@@ -177,8 +180,7 @@ class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Retrieves the keyword template path from the database and uses the value to set the class's keyword template path property.
-	 * @throws InvalidQueryException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	protected function fetchKeywordListTemplate(): void
 	{
@@ -195,8 +197,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+     */
 	public function formatKeywordList($fetch_from_database=true): string
 	{
 		if ($fetch_from_database && $this->hasData()) {
@@ -212,8 +213,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 * @throws ResourceNotFoundException
 	 */
 	public function formatKeywordListPageContent(array $context=array()): string
@@ -254,8 +254,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+     */
 	public function getKeywordTermsArray( $fetch_from_database=true ): array
 	{
 		if ($fetch_from_database && $this->hasData()) {
@@ -290,8 +289,7 @@ class KeywordSectionContent extends SectionContent
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function read()
 	{
@@ -300,13 +298,13 @@ class KeywordSectionContent extends SectionContent
 		$this->readKeywords();
 	}
 
-	/**
-	 * Retrieves keywords linked to the current record.
-	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Retrieves keywords linked to the current record.
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function readKeywords()
 	{
 		$this->testForParentID();
@@ -314,10 +312,8 @@ class KeywordSectionContent extends SectionContent
 
 		$this->clearKeywordList();
 		$this->connectToDatabase();
-		$query = "CALL keywordSelectLinked(".
-			$this->id->escapeSQL($this->mysqli).",".
-			$this->content_properties->id->escapeSQL($this->mysqli).")";
-		$data = $this->fetchRecords($query);
+		$query = "CALL keywordSelectLinked(?,?)";
+		$data = $this->fetchRecords($query, 'ii', $this->id->value, $this->content_properties->id->value);
 
 		foreach($data as $row) {
 			$i = count($this->keywords);

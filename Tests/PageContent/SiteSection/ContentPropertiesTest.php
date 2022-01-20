@@ -1,6 +1,6 @@
 <?php
-namespace Littled\Tests\SiteContent;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
+namespace Littled\Tests\PageContent\SiteSection;
+require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -11,8 +11,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\SiteContent\TestObjects\ContentTemplateData;
-use Littled\SiteContent\ContentProperties;
+use Littled\Tests\PageContent\SiteSection\TestObjects\ContentTemplateData;
+use Littled\PageContent\SiteSection\ContentProperties;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -22,7 +22,7 @@ class ContentPropertiesTest extends TestCase
 	const TEST_ID_FOR_DELETE = 6000;
 	const TEST_ID_FOR_READ = 6001;
 
-	/** @var ContentProperties Test SiteSection object. */
+	/** @var \Littled\PageContent\SiteSection\ContentProperties Test SiteSection object. */
 	public $obj;
 	/** @var MySQLConnection database connection */
 	public $conn;
@@ -258,7 +258,6 @@ class ContentPropertiesTest extends TestCase
 	 */
 	protected function removeContentTemplates(ContentProperties $site_section)
 	{
-		/** @var ContentTemplate $template */
 		foreach($site_section->templates as $template) {
 			$template->delete();
 		}
@@ -374,7 +373,7 @@ class ContentPropertiesTest extends TestCase
 
 		$this->assertGreaterThan(0, $this->obj->id->value);
 
-		$query = "SEL"."ECT COUNT(1) AS `count` FROM `".ContentProperties::getTableName()."` WHERE `id` = ?";
+		$query = "SEL"."ECT COUNT(1) AS `count` FROM `". ContentProperties::getTableName()."` WHERE `id` = ?";
 		$data = $this->conn->fetchRecords($query, 'i', $this->obj->id->value);
 		$this->assertEquals(0, $data[0]->count);
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\SiteContent\TestObjects;
+namespace Littled\Tests\PageContent\SiteSection\TestObjects;
 
 class ContentTemplateData
 {

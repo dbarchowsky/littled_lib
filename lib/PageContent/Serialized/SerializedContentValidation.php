@@ -98,9 +98,6 @@ class SerializedContentValidation extends SerializedContentUtils
 					$property->validateInput();
 				}
 				catch(ContentValidationException $ex) {
-					if (strlen($ex->getMessage()) > 0) {
-						$this->addValidationError($ex->getMessage());
-					}
 					$this->addValidationError($property->validationErrors);
 				}
 			}

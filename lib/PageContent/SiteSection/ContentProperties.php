@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\SiteContent;
+namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;

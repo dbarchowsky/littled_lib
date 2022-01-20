@@ -2,9 +2,9 @@
 namespace Littled\Keyword;
 
 
+use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
 use Littled\PageContent\Serialized\SerializedContentValidation;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringTextarea;
@@ -39,11 +39,11 @@ class Keyword extends SerializedContentValidation
 	/**
 	 * Keyword constructor.
 	 * @param string $keyword Keyword term.
-	 * @param int $parent_id Parent id.
-	 * @param int $type_id Keyword type id.
-	 * @param int[optional] $count Keyword count. Defaults to 0.
+	 * @param ?int $parent_id Parent id.
+	 * @param ?int $type_id Keyword type id.
+	 * @param int $count (Optional) Keyword count. Defaults to 0.
 	 */
-	function __construct( string $keyword, int $parent_id, int $type_id, $count=0 )
+	function __construct( string $keyword, ?int $parent_id=null, ?int $type_id=null, int $count=0 )
 	{
 		parent::__construct();
 		$this->term = new StringTextarea("Keyword", Keyword::KEYWORD_PARAM, true, $keyword, 1000, null);
@@ -52,13 +52,13 @@ class Keyword extends SerializedContentValidation
 		$this->count = $count;
 	}
 
-	/**
-	 * Deletes Keyword record from database.
-	 * @return string
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Deletes Keyword record from database.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function delete(): string
 	{
 		if (!$this->hasData()) {
@@ -73,13 +73,13 @@ class Keyword extends SerializedContentValidation
 		return ("The keyword \"{$this->term->value}\" was successfully deleted.");
 	}
 
-	/**
-	 * Checks if the search term already exists in the database.
-	 * @return bool True/false depending on whether the term already exists in the database for its parent.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Checks if the search term already exists in the database.
+     * @return bool True/false depending on whether the term already exists in the database for its parent.
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function exists(): bool
 	{
 		$this->connectToDatabase();
@@ -102,12 +102,12 @@ class Keyword extends SerializedContentValidation
 			$this->parent_id->value > 0);
 	}
 
-	/**
-	 * Saves keywords to the database.
+    /**
+     * Saves keywords to the database.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
-	 */
+     * @throws Exception
+     */
 	public function save(): void
 	{
 		if ($this->hasData()===false) {

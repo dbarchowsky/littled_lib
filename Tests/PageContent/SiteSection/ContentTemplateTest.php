@@ -19,7 +19,7 @@ class ContentTemplateTest extends TestCase
     /** @var string */
 	const UNIT_TEST_IDENTIFIER = 'unit test';
     /** @var int */
-    const TEST_CONTENT_TYPE_ID = 6001;
+    const TEST_CONTENT_TYPE_ID = 33;    /** "Content Template" record in site_section table */
 
 	/** @var ContentTemplate Test ContentTemplate object. */
 	public $obj;
@@ -225,27 +225,36 @@ class ContentTemplateTest extends TestCase
      */
 	public function testValidateInputDuplicateContentType()
 	{
-		$content_type_id = 33; /* must be a valid site_section id */
-		$template_name = self::UNIT_TEST_IDENTIFIER;
+        $section_name = 'Content Template';
 
-		$query = "SELECT `name` FROM `site_section` WHERE `id` = $content_type_id";
-		$data = $this->conn->fetchRecords($query);
-		$section_name = $data[0]->name;
+        // Retrieve test content template record
+		$query = "SEL"."ECT `name`".
+            " FROM `".$this->obj->getTableName()."`".
+            " WHERE site_section_id = ? AND `name` LIKE ?";
+        $name_filter = self::UNIT_TEST_IDENTIFIER.'%';
+        $content_type_id = self::TEST_CONTENT_TYPE_ID;
+		$data = $this->conn->fetchRecords($query, 'is', $content_type_id, $name_filter);
+        if (count($data) < 1) {
+            throw new Exception('Could not retrieve test record.');
+        }
+		$template_name = $data[0]->name;
 
-		$this->obj->content_type_id->setInputValue($content_type_id);
-		$this->obj->name->setInputValue($template_name);
-		$this->obj->path->setInputValue("template.php");
-		$this->obj->location->setInputValue('local');
-		$this->obj->save();
-
+        // test the duplicate validator method directly
 		$o2 = new ContentTemplate(null, $content_type_id, $template_name, "", "another-template.php", "local");
-		try {
-			$o2->validateInput();
-		}
-		catch (ContentValidationException $ex) {
-			$this->assertStringContainsString("Error validating content templates.", $ex->getMessage());
-			$this->assertContains("A \"$template_name\" template already exists for the \"$section_name\" area of the site.", $o2->validationErrors);
-		}
+        $this->assertEquals($section_name, $o2->testForDuplicateTemplate());
+
+        // test request input validation which calls the duplicate validator method
+        try {
+            $o2->validateInput();
+        }
+        catch(Exception $ex) {
+            $this->assertMatchesRegularExpression('/Error validating content templates./', $ex->getMessage());
+            $this->assertContains("A \"$template_name\" template already exists for the \"$section_name\" area of the site.", $o2->validationErrors);
+        }
+
+        // test the duplicate validator with a unique template nmae
+        $o2->name->setInputValue('Very unique template name');
+        $this->assertEquals('', $o2->testForDuplicateTemplate());
 	}
 
     /**

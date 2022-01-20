@@ -108,7 +108,7 @@ class SerializedContent extends SerializedContentValidation
      */
 	public function delete ( ): string
 	{
-		if ($this->id->value===null || $this->id->value<1) {
+		if (null === $this->id->value || 1 > $this->id->value) {
 			throw new ContentValidationException("Id not provided.");
 		}
 
@@ -228,9 +228,13 @@ class SerializedContent extends SerializedContentValidation
     /**
      * Table name getter.
      * @return string
+     * @throws NotImplementedException
      */
     public static function getTableName(): string
     {
+        if ('' === static::$table_name) {
+            throw new NotImplementedException('Table name not set.');
+        }
         return static::$table_name;
     }
 
@@ -380,12 +384,14 @@ class SerializedContent extends SerializedContentValidation
 
 	/**
 	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
+     * @param string (Optional) Informational message to prepend to error message thrown when a valid parent id is not found.
 	 * @throws ContentValidationException
 	 */
-	protected function testForParentID()
+	protected function testForParentID(string $msg='')
 	{
 		if ($this->id->value === null || $this->id->value < 0) {
-			throw new ContentValidationException("Could not perform operation. A parent record was not provided.");
+            $msg = ($msg)?("$msg "):('Could not perform operation. ');
+			throw new ContentValidationException("{$msg}A parent record was not provided.");
 		}
 	}
 

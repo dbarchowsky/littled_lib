@@ -3,9 +3,15 @@ namespace Littled\Tests\PageContent\SiteSection;
 require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 
+use Exception;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 use PHPUnit\Framework\TestCase;
@@ -25,36 +31,43 @@ class KeywordSectionContentTest extends TestCase
 	public $conn;
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws InvalidQueryException|Exception
+     */
 	public static function setUpBeforeClass(): void
 	{
 		parent::setUpBeforeClass();
 		$conn = new MySQLConnection();
-		$query = "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES ('test read 1',".
-			KeywordSectionContentTest::TEST_PARENT_ID_FOR_READ.",".
-			KeywordSectionContentTest::TEST_CONTENT_TYPE_ID.");";
-		$query .= "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES ('test_read_2',".
-			KeywordSectionContentTest::TEST_PARENT_ID_FOR_READ.",".
-			KeywordSectionContentTest::TEST_CONTENT_TYPE_ID.");";
-		$query .= "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES ('testread3',".
-			KeywordSectionContentTest::TEST_PARENT_ID_FOR_READ.",".
-			KeywordSectionContentTest::TEST_CONTENT_TYPE_ID.");";
-		$query .= "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES ('test del 01',".
-			KeywordSectionContentTest::TEST_PARENT_ID_FOR_DELETE.",".
-			KeywordSectionContentTest::TEST_CONTENT_TYPE_ID.");";
-		$query .= "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES ('testdel_02',".
-			KeywordSectionContentTest::TEST_PARENT_ID_FOR_DELETE.",".
-			KeywordSectionContentTest::TEST_CONTENT_TYPE_ID.");";
-		$query .= "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES ('testdel_03',".
-			KeywordSectionContentTest::TEST_PARENT_ID_FOR_DELETE.",".
-			KeywordSectionContentTest::TEST_CONTENT_TYPE_ID.");";
-		$conn->query($query);
+        $mysqli = $conn::getMysqli();
+        $term = $parent_id = null;
+        $content_type_id = self::TEST_CONTENT_TYPE_ID;
+        $query = 'INSERT INTO `keyword` (`term`, `parent_id`, `type_id`) VALUES (?,?,?)';
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param('sii', $term, $parent_id, $content_type_id);
+
+        $parent_id = self::TEST_PARENT_ID_FOR_READ;
+        $term = 'test read 1';
+        $stmt->execute();
+
+        $term = 'test_read_2';
+        $stmt->execute();
+
+        $term = 'testread3';
+        $stmt->execute();
+
+        $parent_id = self::TEST_PARENT_ID_FOR_DELETE;
+        $term = 'test del 01';
+        $stmt->execute();
+
+        $term = 'testdel_02';
+        $stmt->execute();
+
+        $term = 'testdel_03';
+        $stmt->execute();
 	}
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws InvalidQueryException|Exception
+     */
 	public static function tearDownAfterClass(): void
 	{
 		parent::tearDownAfterClass();
@@ -68,9 +81,9 @@ class KeywordSectionContentTest extends TestCase
 		$conn->query($query);
 	}
 
-	public function setUp(): void
+	function __construct()
 	{
-		parent::setUp();
+		parent::__construct();
 		$this->conn = new MySQLConnection();
 		$this->obj = new KeywordSectionContent();
 	}
@@ -79,12 +92,12 @@ class KeywordSectionContentTest extends TestCase
 	 * @param int $parent_id
 	 * @param int $type_id
 	 * @return int Number of matching records.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function getKeywordCount($parent_id, $type_id)
-	{
+	 * @throws InvalidQueryException|Exception
+     */
+	public function getKeywordCount(int $parent_id, int $type_id): int
+    {
 		$query = "SELECT COUNT(1) as `count` FROM `keyword`".
-			" WHERE `parent_id` = {$parent_id} AND `type_id` = {$type_id}";
+			" WHERE `parent_id` = $parent_id AND `type_id` = $type_id";
 		return($this->conn->fetchRecords($query)[0]->count);
 	}
 
@@ -96,7 +109,7 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertEquals('kwte', $this->obj->keywordInput->key);
 		$this->assertFalse($this->obj->keywordInput->isDatabaseField);
 		$this->assertTrue(is_array($this->obj->keywords));
-		$this->assertEquals(0, count($this->obj->keywords));
+		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());
 	}
 
@@ -108,30 +121,50 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertEquals('bizte', $obj->keywordInput->key);
 	}
 
+    /**
+     * @return void
+     * @throws Exception
+     */
 	public function testAddKeyword()
 	{
-		$prev_count = count($this->obj->keywords);
+        $obj = new KeywordSectionContent();
+        $prev_count = count($obj->keywords);
 
-		$this->obj->addKeyword('test new term');
-		$this->assertEquals($prev_count+1, count($this->obj->keywords));
-		$this->assertEquals('test new term', $this->obj->keywords[0]->term->value);
+        try {
+            $obj->addKeyword('test new term');
+        }
+        catch(Exception $ex) {
+            $this->assertMatchesRegularExpression('/parent record was not provided/i', $ex->getMessage());
+        }
 
-		$this->obj->addKeyword('test II new term');
-		$this->assertEquals($prev_count+2, count($this->obj->keywords));
-		$this->assertEquals('test II new term', $this->obj->keywords[1]->term->value);
+        $obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+        try {
+            $obj->addKeyword('test new term');
+        }
+        catch(Exception $ex) {
+            $this->assertMatchesRegularExpression('/content type was not specified/i', $ex->getMessage());
+        }
+
+        $obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+		$obj->addKeyword('test new term');
+		$this->assertCount($prev_count + 1, $obj->keywords);
+		$this->assertEquals('test new term', $obj->keywords[0]->term->value);
+
+		$obj->addKeyword('test II new term');
+		$this->assertCount($prev_count + 2, $obj->keywords);
+		$this->assertEquals('test II new term', $obj->keywords[1]->term->value);
 	}
 
 	public function testClearKeywordData()
 	{
 		$this->obj->keywordInput->value = "foo,bar,biz,bash";
 		$this->obj->keywords = array('foo', 'bar', 'biz', 'bash');
-		$this->obj->hasKeywordData = true;
 
 		$this->obj->clearKeywordData();
 
 		$this->assertEquals('', $this->obj->keywordInput->value);
 		$this->assertTrue(is_array($this->obj->keywords));
-		$this->assertEquals(0, count($this->obj->keywords));
+		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());
 	}
 
@@ -153,16 +186,15 @@ class KeywordSectionContentTest extends TestCase
 		$this->obj->collectKeywordInput();
 		$this->assertEquals('', $this->obj->keywordInput->value);
 		$this->assertTrue(is_array($this->obj->keywords));
-		$this->assertEquals(0, count($this->obj->keywords));
+		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());
 	}
 
 	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+     */
 	public function testCollectKeywordInput()
 	{
 		$src = array($this->obj->keywordInput->key => "foo , bar, biz,bash, hhoo,haa dee,didly, dah ");
@@ -179,33 +211,34 @@ class KeywordSectionContentTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+     */
 	public function testCollectKeywordInputWithBadValues()
 	{
-		$src = array($this->obj->keywordInput->key => ",,foo , bar, 0,,625,before script <script>print ('what');</script> after script, dah ,");
+        $inject_test = "[before script]<script>alert('what');</script>[after script]";
+        $key = ",foo , bar, 0,,625,$inject_test, dah ,";
+		$src = array($this->obj->keywordInput->key => $key);
 		$this->obj->collectKeywordInput($src);
 		$keywords = $this->obj->getKeywordTermsArray(false);
-		$this->assertEquals(6, count($keywords));
+		$this->assertCount(6, $keywords);
 		$this->assertContains('foo', $keywords);
 		$this->assertContains('0', $keywords);
 		$this->assertContains('625', $keywords);
-		$this->assertContains("before script print (&#39;what&#39;); after script", $keywords);
+		$this->assertContains("[before script]alert(&#39;what&#39;);[after script]", $keywords);
 		$this->assertContains('dah', $keywords);
 	}
 
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     */
 	public function testDelete()
 	{
+        // record id not provided
 		try {
 			$this->obj->delete();
 		}
@@ -213,50 +246,58 @@ class KeywordSectionContentTest extends TestCase
 			$this->assertEquals('Id not provided.', $ex->getMessage());
 		}
 
+        // content type not provided
 		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
 		try {
 			$this->obj->delete();
 		}
 		catch(NotImplementedException $ex) {
-			$this->assertEquals('TABLE_NAME() not implemented in inherited class.', $ex->getMessage());
+			$this->assertMatchesRegularExpression('/Table name not set./', $ex->getMessage());
 		}
 	}
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function testDeleteKeywords()
 	{
+        $keyword_count = $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID);
+
+        // Attempting to delete keywords without specifying their parent record or content type.
 		try {
 			$this->obj->deleteKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. A parent record was not provided.", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/A parent record was not provided/", $ex->getMessage());
 		}
 
+        // Attempting to delete keywords without specifying a content type.
 		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
 		$this->obj->content_properties->id->value = null;
 		try {
 			$this->obj->deleteKeywords();
 		}
-		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. A content type was not provided.", $ex->getMessage());
+		catch(Exception $ex) {
+			$this->assertMatchesRegularExpression("/A content type was not specified/", $ex->getMessage());
 		}
 
+        // Attempting to delete keyword while specifying content type but not parent record id
 		$this->obj->id->value = null;
 		$this->obj->content_properties->id->value = self::TEST_CONTENT_TYPE_ID;
 		try {
 			$this->obj->deleteKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. A parent record was not provided.", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/A parent record was not provided/", $ex->getMessage());
 		}
 
+        // Confirm that the object still retains keyword list after attempts to delete them fail.
 		$this->assertGreaterThan(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
 
+        // Confirm object's keyword list is empty after deleting keyword database records
 		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
 		$this->obj->content_properties->id->value = self::TEST_CONTENT_TYPE_ID;
 		$this->obj->deleteKeywords();
@@ -265,34 +306,32 @@ class KeywordSectionContentTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     */
 	public function testFormatKeywordListFromObjectProperties()
 	{
 		$keywords = $this->obj->formatKeywordList(false);
 		$this->assertEquals("", $keywords);
 
-		array_push($this->obj->keywords, new Keyword('foo',
-			self::TEST_PARENT_ID_FOR_DELETE,
-			self::TEST_CONTENT_TYPE_ID));
-		array_push($this->obj->keywords, new Keyword('biz bash',
-			self::TEST_PARENT_ID_FOR_DELETE,
-			self::TEST_CONTENT_TYPE_ID));
-		array_push($this->obj->keywords, new Keyword('6425',
-			self::TEST_PARENT_ID_FOR_DELETE,
-			self::TEST_CONTENT_TYPE_ID));
+		$this->obj->keywords[] = new Keyword('foo',
+            self::TEST_PARENT_ID_FOR_DELETE,
+            self::TEST_CONTENT_TYPE_ID);
+		$this->obj->keywords[] = new Keyword('biz bash',
+            self::TEST_PARENT_ID_FOR_DELETE,
+            self::TEST_CONTENT_TYPE_ID);
+		$this->obj->keywords[] = new Keyword('6425',
+            self::TEST_PARENT_ID_FOR_DELETE,
+            self::TEST_CONTENT_TYPE_ID);
 		$keywords = $this->obj->formatKeywordList(false);
 		$this->assertEquals("foo, biz bash, 6425", $keywords);
 	}
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     */
 	public function testFormatKeywordListFromDatabase()
 	{
 		try {
@@ -318,6 +357,10 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertEquals("test read 1, testread3, test_read_2", $this->obj->formatKeywordList());
 	}
 
+    /**
+     * @return void
+     * @throws Exception
+     */
 	public function testHasKeywordData()
 	{
 		$this->assertFalse($this->obj->hasKeywordData());
@@ -334,27 +377,29 @@ class KeywordSectionContentTest extends TestCase
 		$this->obj->keywordInput->setInputValue(null);
 		$this->assertFalse($this->obj->hasKeywordData());
 
-		array_push($this->obj->keywords, new Keyword(null, self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ));
+        $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+        $this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+        $this->obj->addKeyword('a');
+        $this->assertTrue($this->obj->hasKeywordData());
+
+		$this->obj->keywords[0]->term->setInputValue('');
 		$this->assertFalse($this->obj->hasKeywordData());
 
-		$this->obj->keywords[0]->term->setInputValue('a');
+		$this->obj->keywords[] = new Keyword('test keyword', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ);
 		$this->assertTrue($this->obj->hasKeywordData());
 
-		array_push($this->obj->keywords, new Keyword('test keyword', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ));
-		$this->assertTrue($this->obj->hasKeywordData());
-
-		array_push($this->obj->keywords, new Keyword(' spaced  ', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ));
+		$this->obj->keywords[] = new Keyword(' spaced  ', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ);
 		$this->assertTrue($this->obj->hasKeywordData());
 	}
 
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws RecordNotFoundException
 	 */
 	public function testSave()
 	{
@@ -365,28 +410,24 @@ class KeywordSectionContentTest extends TestCase
 			$this->assertEquals("A content type was not specified.", $ex->getMessage());
 		}
 
-		$this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
-		try {
-			$this->obj->save();
-		}
-		catch (ContentValidationException $ex) {
-			$this->assertEquals("Record has no data to save.", $ex->getMessage());
-		}
-
 		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
 		try {
 			$this->obj->save();
 		}
 		catch (NotImplementedException $ex) {
-			$this->assertEquals("TABLE_NAME() not implemented in inherited class.", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/table name not set/i", $ex->getMessage());
 		}
-	}
+        catch(ContentValidationException $ex) {
+            $this->assertMatchesRegularExpression('/content type was not specified/i', $ex->getMessage());
+        }
+    }
 
     /**
      * @throws ContentValidationException
-     * @throws \Littled\Exception\ConfigurationUndefinedException
-     * @throws \Littled\Exception\ConnectionException
-     * @throws \Littled\Exception\InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws Exception
      */
 	public function testSaveKeywords()
 	{
@@ -402,27 +443,23 @@ class KeywordSectionContentTest extends TestCase
 			$this->obj->saveKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. A content type was not provided.", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/content type was not specified/i", $ex->getMessage());
 		}
 
 		/* test it silently skips over saving if there are no terms to save */
 		$this->obj->content_properties->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
 		$this->obj->saveKeywords();
 
-		$this->assertEquals(0, count($this->obj->keywords));
+		$this->assertCount(0, $this->obj->keywords);
 
 		$this->obj->addKeyword('test new term');
 
-		try {
-			$this->obj->saveKeywords();
-		}
-		catch(NotImplementedException $ex) {
-			$this->assertEquals("TABLE_NAME() not implemented in inherited class.", $ex->getMessage());
-		}
-	}
+        $this->obj->saveKeywords();
+    }
 
     /**
      * @throws ContentValidationException
+     * @throws Exception
      */
 	public function testValidateInput()
 	{
@@ -431,13 +468,15 @@ class KeywordSectionContentTest extends TestCase
 		}
 		catch(ContentValidationException $ex) {
 			$this->assertEquals("Errors were found in the content.", $ex->getMessage());
-			$this->assertEquals(1, count($this->obj->validationErrors));
+			$this->assertGreaterThan(0, count($this->obj->validationErrors));
 			$this->assertContains("Content type is required.", $this->obj->validationErrors);
 		}
 
+        $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
 		$this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
-		$this->obj->validateInput();
-		$this->assertEquals(0, count($this->obj->validationErrors));
+        $this->obj->content_properties->read();
+        $this->obj->validateInput();
+		$this->assertCount(0, $this->obj->validationErrors);
 
 		$this->obj->addKeyword('test');
 		$this->obj->keywords[0]->term->value = '';

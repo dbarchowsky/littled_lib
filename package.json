@@ -5,7 +5,7 @@
   "main": "gulpfile.js",
   "directories": {
     "lib": "lib",
-    "test": "tests"
+    "test": "Tests"
   },
   "scripts": {
     "test": "node test.js"

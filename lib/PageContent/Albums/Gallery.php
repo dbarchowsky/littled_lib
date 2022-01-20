@@ -7,7 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Images\ImageLink;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\SiteContent\ContentProperties;
+use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\IntegerInput;
 
 
