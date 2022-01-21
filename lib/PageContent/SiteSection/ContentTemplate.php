@@ -18,14 +18,14 @@ use Exception;
 class ContentTemplate extends SerializedContent
 {
 	/** @var int Value of this record in the site section table. */
-	public const SECTION_ID = 33;
+	protected static $content_type_id = 33;
 	/** @var string */
 	protected static $table_name = "content_template";
 
 	/** @var StringTextField Template name. */
 	public $name;
 	/** @var IntegerInput Content type id. */
-	public $content_type_id;
+	public $content_id;
 	/** @var string Root directory of the content type, as specified in the parent site_section table. */
 	public $template_dir;
 	/** @var StringTextField Relative path to the content template. */
@@ -51,7 +51,7 @@ class ContentTemplate extends SerializedContent
 		$this->id->label = "Template id";
 		$this->id->key = 'templateID';
 		$this->id->required = false;
-		$this->content_type_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
+		$this->content_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
 		$this->name = new StringTextField("Name", "templateName", true, $name, 45);
 		$this->template_dir = new StringTextField("Template directory", "templateDir", false, $base_dir, 200);
 		$this->path = new StringTextField("Template file", "templatePath", true, $path, 255);
@@ -59,11 +59,11 @@ class ContentTemplate extends SerializedContent
 
 		/* non-default column names in database table */
 		$this->template_dir->isDatabaseField = false;
-		$this->content_type_id->columnName = 'site_section_id';
+		$this->content_id->columnName = 'site_section_id';
 
 		/* pointer to site section id for the benefit of editing these
 		 * records in the CMS */
-		$this->parentID = &$this->content_type_id;
+		$this->parentID = &$this->content_id;
 
 		/* ensure this has a trailing slash */
 		if ($base_dir) {
@@ -128,11 +128,11 @@ class ContentTemplate extends SerializedContent
     public function testForDuplicateTemplate(): string
     {
         if (null === $this->id->value &&
-            0 < $this->content_type_id->value &&
+            0 < $this->content_id->value &&
             $this->name->value) {
             $this->connectToDatabase();
             $query = "CALL contentTemplateSectionNameSelect(?,?)";
-            $data = $this->fetchRecords($query, 'is', $this->content_type_id->value, $this->name->value);
+            $data = $this->fetchRecords($query, 'is', $this->content_id->value, $this->name->value);
             if (0 < count($data)) {
                 return $data[0]->section;
             }

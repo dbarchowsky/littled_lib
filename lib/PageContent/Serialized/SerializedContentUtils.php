@@ -26,6 +26,8 @@ class SerializedContentUtils extends AppContentBase
 	public $validationErrors;
 	/** @var string Error message returned when invalid form data is encountered. */
 	public $validationMessage;
+	/** @var int */
+	protected static $content_type_id = null;
 	/** @var string Path to cache template. */
 	protected static $cache_template = '';
 	/** @var string Path to rendered cache file to use on site front-end. */
@@ -213,15 +215,16 @@ class SerializedContentUtils extends AppContentBase
     }
 
 	/**
-	 * Checks of SECTION_ID has been defined as a constant of the class and returns its value if it has.
+	 * Checks if content type id property exists and returns its value.
 	 * @return ?int Class's content type id value, if it has been defined.
+	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getContentId(): ?int
+	public static function getContentTypeId(): ?int
 	{
-		if (property_exists(get_called_class(), 'content_type_id')) {
-            return static::$content_type_id;
+		if (null === static::$content_type_id) {
+            throw new ConfigurationUndefinedException('Content type not set.');
         }
-        return null;
+        return static::$content_type_id;
 	}
 
     /**

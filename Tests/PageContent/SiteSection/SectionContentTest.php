@@ -66,19 +66,31 @@ class SectionContentTest extends TestCase
 		$this->assertFalse($this->obj->content_properties->is_cached->value);
 	}
 
-	public function testGetContentTypeIDUsingInternalValue()
+	public function testGetContentTypeIdUsingInternalValue()
 	{
 		$this->obj->content_properties->id->setInputValue(self::CONTENT_TEMPLATE_CONTENT_TYPE_ID);
         // this value comes from object static property
-		$this->assertNull($this->obj::getContentId());
+		try {
+			$this->obj::getContentTypeId();
+		}
+		catch(ConfigurationUndefinedException $ex) {
+			$this->assertMatchesRegularExpression('/content type not set/i', $ex->getMessage());
+		}
         // this value comes from database record
-        $this->assertEquals(self::CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->getContentTypeId());
+        $this->assertEquals(self::CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->getContentPropertyId());
 	}
 
 	public function testGetContentTypeIDUsingDatabaseValue()
 	{
-		/* returns null because SECTION_ID constant is not defined for SectionContent, only for inherited classes. */
-		$this->assertNull($this->obj->getContentId());
+		/*
+		 * Throws error because SECTION_ID constant is not defined for SectionContent, only for inherited classes.
+		 */
+		try {
+			$this->obj->getContentTypeId();
+		}
+		catch(ConfigurationUndefinedException $ex) {
+			$this->assertMatchesRegularExpression('/content type not set/i', $ex->getMessage());
+		}
 	}
 
 	/**

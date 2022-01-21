@@ -16,10 +16,6 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Ajax\ContentAjaxProperties;
 use Exception;
 
-/**
- * Class SectionContent
- * @package Littled\PageContent\SiteSection
- */
 class SectionContent extends SerializedContent
 {
 	/** @var ContentProperties Site section properties. */
@@ -61,19 +57,16 @@ class SectionContent extends SerializedContent
 	}
 
 	/**
-	 * Fetches the id of the site section that this record belongs to.
-	 * @return int|null ID of the site section that this record belongs to.
+	 * Content properties id getter.
+	 * @return int
 	 */
-	public function getContentTypeId(): ?int
+	public function getContentPropertyId(): int
 	{
-		if ($this->content_properties->id->value > 0) {
-			return ($this->content_properties->id->value);
-		}
-		return (parent::getContentId());
+		return $this->content_properties->id->value;
 	}
 
 	/**
-	 * Returns the path to the listings template for this type of content.
+	 * Returns the path to the "listings" template for this type of content.
 	 * The client app will set the value of the $listingsTemplate property.
 	 * @return string Path to listings template.
      * @throws Exception
@@ -98,7 +91,8 @@ class SectionContent extends SerializedContent
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-     * @throws RecordNotFoundException
+	 * @throws RecordNotFoundException
+	 * @throws NotImplementedException
 	 */
 	public function read()
 	{
@@ -107,7 +101,7 @@ class SectionContent extends SerializedContent
 	}
 
 	/**
-	 * Generates markup to use to refresh listings content after inline edits have been applied to the listings data.
+	 * Generates markup to use to refresh listings content after inline edits have been applied to the "listings" data.
 	 * @param FilterCollection $filters Filters to apply to listings content
 	 * @return string Updated listings markup.
 	 * @throws ResourceNotFoundException

@@ -115,7 +115,7 @@ class ContentTemplateTest extends TestCase
 		$this->assertFalse($this->obj->hasData());
 
 		$this->obj->template_dir->setInputValue('/path/to/templates/');
-		$this->obj->content_type_id->setInputValue(72);
+		$this->obj->content_id->setInputValue(72);
 		$this->obj->location->setInputValue('bottom');
 		$this->assertFalse($this->obj->hasData());
 
@@ -190,7 +190,7 @@ class ContentTemplateTest extends TestCase
 			$this->assertNotContains("Name is required.", $this->obj->validationErrors);
 		}
 
-		$this->obj->content_type_id->setInputValue(2);
+		$this->obj->content_id->setInputValue(2);
 		try {
 			$this->obj->validateInput();
 		}
@@ -275,7 +275,7 @@ class ContentTemplateTest extends TestCase
 		$this->obj->id->setInputValue($data[0]->id);
 		$this->obj->read();
 
-		$this->assertEquals(self::TEST_CONTENT_TYPE_ID, $this->obj->content_type_id->value);
+		$this->assertEquals(self::TEST_CONTENT_TYPE_ID, $this->obj->content_id->value);
 		$this->assertEquals(ContentTemplateTest::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
 		$this->assertEquals('/path/to/templates/template.php', $this->obj->path->value);
 		$this->assertEquals('local', $this->obj->location->value);
@@ -292,7 +292,7 @@ class ContentTemplateTest extends TestCase
 	public function testSave()
 	{
 		/* set object property values */
-		$this->obj->content_type_id->setInputValue(45);
+		$this->obj->content_id->setInputValue(45);
 		$this->obj->name->setInputValue("Unit Test");
 		$this->obj->template_dir->setInputValue("unit_tests/");
 		$this->obj->path->setInputValue("test-template.php");
@@ -308,7 +308,7 @@ class ContentTemplateTest extends TestCase
 
 		/* compare fetched record data to object property values */
 		$this->assertEquals($this->obj->id->value, $data[0]->id);
-		$this->assertEquals($this->obj->content_type_id->value, $data[0]->site_section_id);
+		$this->assertEquals($this->obj->content_id->value, $data[0]->site_section_id);
 		$this->assertEquals($this->obj->name->value, $data[0]->name);
 		$this->assertEquals($this->obj->path->value, $data[0]->path);
 		$this->assertEquals($this->obj->location->value, $data[0]->location);

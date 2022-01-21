@@ -23,7 +23,8 @@ class SerializedContent extends SerializedContentValidation
     protected static $table_name='';
 
 	/**
-     * @deprecated Use getTableName() instead.
+	 * @throws NotImplementedException
+	 * @deprecated Use getTableName() instead.
 	 * Interface to retrieve table name associated with inherited classes.
 	 */
 	public static function TABLE_NAME(): string
@@ -266,8 +267,9 @@ class SerializedContent extends SerializedContentValidation
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException Record id not set.
-     * @throws InvalidTypeException Record id is not an instance of IntegerInput.
+	 * @throws InvalidTypeException Record id is not an instance of IntegerInput.
 	 * @throws RecordNotFoundException Requested record not available.
+	 * @throws NotImplementedException
 	 */
 	public function read ()
 	{
