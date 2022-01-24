@@ -93,6 +93,22 @@ class Breadcrumbs
 	}
 
 	/**
+	 * @param string $label
+	 * @return BreadcrumbsNode|null
+	 */
+	public function find(string $label): ?BreadcrumbsNode
+	{
+		$node = $this->first;
+		while($node) {
+			if ($label === $node->label) {
+				return $node;
+			}
+			$node = $node->nextNode;
+		}
+		return null;
+	}
+
+	/**
 	 * @return string Breadcrumbs template path.
 	 */
 	public static function getBreadcrumbsTemplatePath(): string

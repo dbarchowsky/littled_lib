@@ -136,9 +136,9 @@ class PageConfig
 
 	/**
 	 * Returns current breadcrumbs list
-	 * @return Breadcrumbs
+	 * @return Breadcrumbs|null
 	 */
-	public static function getBreadcrumbs(): Breadcrumbs
+	public static function getBreadcrumbs(): ?Breadcrumbs
 	{
 		return(static::$breadcrumbs);
 	}
@@ -411,6 +411,23 @@ class PageConfig
 			return;
 		}
 		static::$utilityLinks->setCSSClass($css_class);
+	}
+
+	/**
+	 * Updates the url of a breadcrumb node. Label is used to lookup the breadcrumb node to update within the list of nodes.
+	 * @param string $label
+	 * @param string $url
+	 * @return void
+	 */
+	public static function updateBreadcrumb(string $label, string $url)
+	{
+		if (null === static::$breadcrumbs) {
+			return;
+		}
+		$node = static::$breadcrumbs->find($label);
+		if ($node) {
+			$node->url = $url;
+		}
 	}
 
 	/**

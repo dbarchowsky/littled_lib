@@ -8,10 +8,10 @@ class LittledGlobals
 	protected static $appDomain = '';
 	/** @var string Root URI for CMS pages. */
 	protected static $cmsRootURI = '';
-	/** @var string Path to directory containing mysql authentication (outside of public access). */
+	/** @var string Path to directory containing mysql authentication (outside public access). */
 	protected static $mysqlKeysPath = '';
 	/** @var string Path to directory containing app templates. */
-	protected static $templatePath;
+	protected static $templatePath = '';
 
 	/** @var string Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY = 'csrfToken';
@@ -42,7 +42,7 @@ class LittledGlobals
 	 * Gets app domain name.
 	 * @return string App domain name.
 	 */
-	public static function getAppDomain()
+	public static function getAppDomain(): string
 	{
 		return (static::$appDomain);
 	}
@@ -51,7 +51,7 @@ class LittledGlobals
 	 * Gets path to current CMS root URI.
 	 * @return string CMS root URI.
 	 */
-	public static function getCMSRootURI()
+	public static function getCMSRootURI(): string
 	{
 		return (static::$cmsRootURI);
 	}
@@ -60,7 +60,7 @@ class LittledGlobals
 	 * Gets path to current MySQL authentication directory.
 	 * @return string MySQL keys path.
 	 */
-	public static function getMySQLKeysPath()
+	public static function getMySQLKeysPath(): string
 	{
 		return (static::$mysqlKeysPath);
 	}
@@ -69,7 +69,7 @@ class LittledGlobals
 	 * Returns current template root path.
 	 * @return string Template root path.
 	 */
-	public static function getTemplatePath()
+	public static function getTemplatePath(): string
 	{
 		return (static::$templatePath);
 	}
@@ -78,16 +78,16 @@ class LittledGlobals
 	 * Sets the domain name for the app.
 	 * @param string $domain App domain name.
 	 */
-	public static function setAppDomain($domain)
+	public static function setAppDomain(string $domain='')
 	{
-		static::$appDomain = (($domain) ? ($domain) : (''));
+		static::$appDomain = $domain;
 	}
 
 	/**
 	 * Sets path to current CMS URI root.
 	 * @param string $uri CMS URI root.
 	 */
-	public static function setCMSRootURI($uri)
+	public static function setCMSRootURI(string $uri)
 	{
 		static::$cmsRootURI = (($uri) ? (rtrim($uri, '/').'/') : (''));
 	}
@@ -96,7 +96,7 @@ class LittledGlobals
 	 * Sets path to current MySQL authentication directory.
 	 * @param string $path MySQL keys path.
 	 */
-	public static function setMySQLKeysPath($path)
+	public static function setMySQLKeysPath(string $path)
 	{
 		static::$mysqlKeysPath = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
@@ -105,7 +105,7 @@ class LittledGlobals
 	 * Sets root template directory path.
 	 * @param string $path Path to root directory containing template files.
 	 */
-	public static function setTemplatePath($path)
+	public static function setTemplatePath(string $path)
 	{
 		static::$templatePath = (($path) ? (rtrim($path, '/').'/') : (''));
 	}

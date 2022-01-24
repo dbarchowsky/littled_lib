@@ -4,6 +4,7 @@ namespace Littled\Tests\App;
 
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 use PHPUnit\Framework\TestCase;
 
 class LittledGlobalsTest extends TestCase
@@ -15,10 +16,7 @@ class LittledGlobalsTest extends TestCase
 		LittledGlobals::setAppDomain('damienjay.com');
 		self::assertEquals('damienjay.com', LittledGlobals::getAppDomain());
 
-		LittledGlobals::setAppDomain('');
-		self::assertEquals('', LittledGlobals::getAppDomain());
-
-		LittledGlobals::setAppDomain(null);
+		LittledGlobals::setAppDomain();
 		self::assertEquals('', LittledGlobals::getAppDomain());
 	}
 
@@ -37,9 +35,6 @@ class LittledGlobalsTest extends TestCase
 
 		LittledGlobals::setCMSRootURI('');
 		self::assertEquals('', LittledGlobals::getCMSRootURI());
-
-		LittledGlobals::setCMSRootURI(null);
-		self::assertEquals('', LittledGlobals::getCMSRootURI());
 	}
 
 	public function testMySQLKeysPath()
@@ -57,11 +52,11 @@ class LittledGlobalsTest extends TestCase
 
 		LittledGlobals::setMySQLKeysPath('');
 		self::assertEquals('', LittledGlobals::getMySQLKeysPath());
-
-		LittledGlobals::setMySQLKeysPath(null);
-		self::assertEquals('', LittledGlobals::getMySQLKeysPath());
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	public function testTemplatePath()
 	{
 		self::assertEquals('', LittledGlobals::getTemplatePath());
@@ -76,9 +71,6 @@ class LittledGlobalsTest extends TestCase
 		self::assertEquals('/path/to/templates/', LittledGlobals::getTemplatePath());
 
 		LittledGlobals::setTemplatePath('');
-		self::assertEquals('', LittledGlobals::getTemplatePath());
-
-		LittledGlobals::setTemplatePath(null);
 		self::assertEquals('', LittledGlobals::getTemplatePath());
 	}
 }

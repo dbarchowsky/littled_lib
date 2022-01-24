@@ -1,6 +1,8 @@
 <?php
 namespace Littled\Tests\PageContent;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
+use Littled\App\LittledGlobals;
 use Littled\PageContent\Metadata\MetadataElement;
 use Littled\PageContent\PageConfig;
 use Littled\PageContent\Metadata\Preload;
@@ -9,7 +11,13 @@ use PHPUnit\Framework\TestCase;
 
 class PageConfigTest extends TestCase
 {
-    public function testAddUtilityLink()
+	function __construct(?string $name = null, array $data = [], $dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		LittledGlobals::setTemplatePath(SHARED_CMS_TEMPLATE_DIR);
+	}
+
+	public function testAddUtilityLink()
     {
         $link1 = array('label' => 'label-one', 'url' => '/url-one');
         $link2 = array('label' => 'label-two', 'url' => '/url-two');
@@ -64,6 +72,35 @@ class PageConfigTest extends TestCase
         $preloads = PageConfig::getPreloads();
         $this->assertCount(1, $preloads);
     }
+
+	function testUpdateBreadcrumb()
+	{
+		$new_url = "https://localhost/newurl";
+
+		// call the method with no breadcrumbs
+		PageConfig::updateBreadcrumb('node_2', $new_url);
+		$breadcrumbs = PageConfig::getBreadcrumbs();
+		$this->assertNull($breadcrumbs);
+
+		// set up some breadcrumbs
+		PageConfig::addBreadcrumb('first node', 'https://localhost/firstnode');
+		PageConfig::addBreadcrumb('node_2', 'https://localhost/second_node');
+		PageConfig::addBreadcrumb('node 3', 'https://localhost/thirdnode');
+
+		// confirm the initial value of the test node
+		$breadcrumbs = PageConfig::getBreadcrumbs();
+		$this->assertNotEquals($new_url, $breadcrumbs->find('node_2')->url);
+
+		// confirm updated value of test node
+		PageConfig::updateBreadcrumb('node_2', $new_url);
+		$this->assertNotEquals($new_url, $breadcrumbs->find('first node')->url);
+		$this->assertEquals($new_url, $breadcrumbs->find('node_2')->url);
+		$this->assertNotEquals($new_url, $breadcrumbs->find('node 3')->url);
+
+		// confirm calling method on non-existent node
+		PageConfig::updateBreadcrumb('node_22', 'https://mybogusurl.com');
+		$this->assertEquals($new_url, $breadcrumbs->find('node_2')->url);
+	}
 
 	public function testUnregisterStylesheets()
 	{

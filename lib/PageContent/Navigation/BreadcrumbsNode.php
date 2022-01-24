@@ -1,8 +1,8 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
+use Littled\App\LittledGlobals;
 use Littled\PageContent\ContentUtils;
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 
 
@@ -32,21 +32,16 @@ class BreadcrumbsNode
     /**
      * Class constructor.
      * @param string $label Text to display for this item within the navigation menu.
-     * @param string $url (Optional) URL where the menu item will link to.
+     * @param ?string $url (Optional) URL where the menu item will link to.
      * @param string $dom_dom_id (Optional) value for the breadcrumb node's id attribute.
      * @param string $css_css_class (Optional) value for the breadcrumb node's class attribute.
-     * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-    function __construct ($label, $url=null, $dom_dom_id="", $css_css_class="")
+    function __construct (string $label, ?string $url=null, string $dom_dom_id="", string $css_css_class="")
     {
-	    if (!defined('LITTLED_TEMPLATE_DIR')) {
-		    throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not defined in app settings.");
-	    }
-
-	    $this::$breadcrumbsNodeTemplate = LITTLED_TEMPLATE_DIR . "framework/navigation/breadcrumbs_node.php";
+	    $this::$breadcrumbsNodeTemplate = LittledGlobals::getTemplatePath()."framework/navigation/breadcrumbs_node.php";
 	    if (!file_exists($this::$breadcrumbsNodeTemplate)) {
-		    throw new ResourceNotFoundException("Breadcrumbs template not found at {$this::$breadcrumbsNodeTemplate}.");
+		    throw new ResourceNotFoundException("Breadcrumbs template not found at ".$this::$breadcrumbsNodeTemplate);
 	    }
 
 		$this->label = $label;
@@ -59,13 +54,13 @@ class BreadcrumbsNode
 	 * Returns the path to the node template path.
 	 * @return string Template path.
 	 */
-    public static function getNodeTemplatePath()
+    public static function getNodeTemplatePath(): string
     {
     	return static::$breadcrumbsNodeTemplate;
     }
 
     /**
-     * Outputs markup for the the individual navigation menu node.
+     * Outputs markup for the individual navigation menu node.
 	 * @throws ResourceNotFoundException
 	 */
     public function render ( )
@@ -79,7 +74,7 @@ class BreadcrumbsNode
 	 * Sets the path to the breadcrumb nodes template.
 	 * @param string $path Template path.
 	 */
-    public static function setNodeTemplatePath($path)
+    public static function setNodeTemplatePath(string $path)
     {
     	static::$breadcrumbsNodeTemplate = $path;
     }

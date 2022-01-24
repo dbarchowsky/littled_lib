@@ -29,6 +29,23 @@ class BreadcrumbsTest extends TestCase
         $this->assertEquals(self::TEMPLATE_PATH, Breadcrumbs::getBreadcrumbsTemplatePath());
     }
 
+	function testFind()
+	{
+		$first_url = 'https://localhost/myurl';
+
+		$b = new Breadcrumbs();
+		$this->assertNull($b->find('node'));
+
+		$b->addNode('test_01', $first_url);
+		$this->assertNull($b->find('node'));
+		$this->assertEquals($first_url, $b->find('test_01')->url);
+
+		$b->addNode('test 02', 'https://another.url');
+		$this->assertEquals($first_url, $b->find('test_01')->url);
+		$this->assertEquals('https://another.url', $b->find('test 02')->url);
+		$this->assertNull($b->find('bogus label'));
+	}
+
     /**
      * @return void
      * @throws ResourceNotFoundException
