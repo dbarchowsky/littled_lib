@@ -23,6 +23,14 @@ class StringTextFieldTest extends TestCase
 		$this->obj = new StringTextField("Test date", 'p_date');
 	}
 
+    function testSaveInForm()
+    {
+        // confirm that this child class uses a different template than base class StringInput
+        $this->obj::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+        $this->expectOutputRegex('/<input type=\"text\" name=\"'.$this->obj->key.'\"/');
+        $this->obj->saveInForm();
+    }
+
 	public function testTemplateFilename()
 	{
 		$new_filename = 'new-string-template.php';

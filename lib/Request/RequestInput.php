@@ -402,7 +402,7 @@ class RequestInput
 	        $key = $this->key;
         }
         if(!$template) {
-            $template = RequestInput::getTemplatePath();
+            $template = $this::getTemplatePath();
         }
 		ContentUtils::renderTemplateWithErrors($template, array(
             'key' => $key,
