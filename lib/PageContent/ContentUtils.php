@@ -89,16 +89,16 @@ class ContentUtils
      * Inserts data into a template file and renders the result. Catches exceptions and prints error messages directly to the DOM.
      * @param string $template_path Path to template to render.
      * @param array|null $context Data to insert into the template.
-     * @param string[optional] $css_class CSS class to apply to the error message container element.
-     * @param string[optional] $encoding Defaults to 'UTF-8'
+     * @param string $css_class (Optional) CSS class to apply to the error message container element.
+     * @param string $encoding (Optional) Defaults to 'UTF-8'
      */
-    public static function renderTemplateWithErrors(string $template_path, array $context=null, $css_class=null, $encoding="UTF-8")
+    public static function renderTemplateWithErrors(string $template_path, array $context=null, string $css_class='', string $encoding='UTF-8')
     {
         try {
             ContentUtils::renderTemplate($template_path, $context);
         }
         catch(ResourceNotFoundException $ex) {
-            PageUtils::showError($ex->getMessage(), $css_class, $encoding);
+            ContentUtils::printError($ex->getMessage(), '', $css_class, $encoding);
         }
     }
 }
