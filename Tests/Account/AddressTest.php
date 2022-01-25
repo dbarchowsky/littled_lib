@@ -6,7 +6,6 @@ use Littled\Account\Address;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
@@ -49,7 +48,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws Exception
@@ -64,7 +62,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
@@ -94,7 +91,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws InvalidValueException
@@ -176,7 +172,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ConnectionException
      * @throws NotImplementedException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
@@ -226,7 +221,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws NotImplementedException
      */
@@ -284,7 +278,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
@@ -480,7 +473,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws Exception
@@ -497,7 +489,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ConnectionException
      * @throws NotImplementedException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ResourceNotFoundException
      * @throws ConfigurationUndefinedException
@@ -534,7 +525,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
@@ -553,7 +543,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ContentValidationException
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      */
@@ -604,7 +593,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws RecordNotFoundException
@@ -645,7 +633,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
@@ -656,7 +643,6 @@ class AddressTest extends ContentValidationTestCase
     {
 		$query = "SELECT MAX(`id`) AS `max_id` FROM `address`;";
 		$result = $this->address->fetchRecords($query);
-		$max_id = $result[0]->max_id;
 
     	$this->address->first_name->value = 'Damien';
     	$this->address->last_name->value = 'Barchowsky';
@@ -666,8 +652,14 @@ class AddressTest extends ContentValidationTestCase
     	$this->address->zip->value = '91505';
     	$this->address->save();
 
-    	$this->assertEquals(($max_id+1), $this->address->id->value);
+        $data = $this->address->fetchRecords('SELECT LAST_INSERT_ID() as `insert_id`');
+        if (1 > count($data)) {
+            throw new Exception('Could not retrieve insert id.');
+        }
 
+    	$this->assertEquals($data[0]->insert_id, $this->address->id->value);
+
+        // confirm values stored in the database
     	$new_address = new Address();
     	$new_address->id->value = $this->address->id->value;
     	$new_address->read();
@@ -680,6 +672,161 @@ class AddressTest extends ContentValidationTestCase
 	    $this->assertEquals($new_address->city->value, $this->address->city->value);
 	    $this->assertEquals($new_address->state_id->value, $this->address->state_id->value);
 	    $this->assertEquals($new_address->zip->value, $this->address->zip->value);
+
+        // clean up
+        $new_address->delete();
+        $this->address->id->value = null;
+    }
+
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws Exception
+     */
+    function testSaveProcedure()
+    {
+        $query = 'CALL addressUpdate(@record_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        $types = 'ssssssisssssssssssii';
+        $record_id = $longitude = $latitude = null;
+        $salutation = $address1 = $address2 = $state = $fax = $company = '';
+        $home_phone = $work_phone = $title = $location = $url = '';
+        $first_name = 'Damien';
+        $last_name = 'Barchowsky';
+        $city = 'Burbank';
+        $state_id = 9;
+        $zip = '91505';
+        $country = 'US';
+        $email = 'dbarchowsky@gmail.com';
+        $mysqli = $this->address->getMysqli();
+
+        // configure record id as MYSQL session variable in order to retrieve insert id
+        $s1 = $mysqli->prepare('SET @record_id = ?');
+        $s1->bind_param('i', $record_id);
+        $s1->execute();
+
+        // call stored procedure to create a new address record
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param($types,
+            $salutation,
+            $first_name,
+            $last_name,
+            $address1,
+            $address2,
+            $city,
+            $state_id,
+            $state,
+            $zip,
+            $country,
+            $home_phone,
+            $work_phone,
+            $fax,
+            $email,
+            $company,
+            $title,
+            $location,
+            $url,
+            $longitude,
+            $latitude
+        );
+        $stmt->execute();
+        $stmt->close();
+
+        // retrieve record id value
+        $result = $mysqli->query('SELECT @record_id as `insert_id`');
+        $row = $result->fetch_object();
+        $record_id = $row->insert_id;
+        $result->free();
+        $s1->close();
+
+        // query to confirm insert id value
+        $result = $mysqli->query('SELECT LAST_INSERT_ID() as `insert_id`');
+        if (!$result) {
+            throw new Exception('Error retrieving insert id '.$mysqli->error);
+        }
+        $row = $result->fetch_object();
+        $insert_id = $row->insert_id;
+        $result->free();
+
+        // confirm insert id value
+        $this->assertNotNull($record_id);
+        $this->assertEquals($insert_id, $record_id);
+
+        // clean up new record
+        $stmt = $mysqli->prepare('DELETE FROM `address` WHERE id = ?');
+        $stmt->bind_param('i', $record_id);
+        if (!$stmt->execute()) {
+            throw new Exception('Error deleting inserted record: '.$stmt->error);
+        }
+        $stmt->close();
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
+    function testUpdateProcedure()
+    {
+        $address = new Address();
+        $address->id->setInputValue(self::TEST_ID_VALUE);
+        $address->read();
+
+        $query = 'CALL addressUpdate(@record_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        $types = 'ssssssisssssssssssii';
+
+        $mysqli = $this->address->getMysqli();
+        $s1 = $mysqli->prepare('SET @record_id = ?');
+        $s1->bind_param('i', $address->id->value);
+        $s1->execute();
+
+        $stmt = $mysqli->prepare($query);
+        $stmt->bind_param($types,
+            $address->salutation->value,
+            $address->first_name->value,
+            $address->last_name->value,
+            $address->address1->value,
+            $address->address2->value,
+            $address->city->value,
+            $address->state_id->value,
+            $address->state->value,
+            $address->zip->value,
+            $address->country->value,
+            $address->home_phone->value,
+            $address->work_phone->value,
+            $address->fax->value,
+            $address->email->value,
+            $address->company->value,
+            $address->title->value,
+            $address->location->value,
+            $address->url->value,
+            $address->longitude->value,
+            $address->latitude->value
+        );
+        $stmt->execute();
+        $stmt->close();
+
+        // verify the value returned in @record_id parameter
+        $result = $mysqli->query('SELECT @record_id as `record_id`');
+        $row = $result->fetch_object();
+        $record_id = $row->record_id;
+        $result->free();
+        $s1->close();
+
+        $this->assertEquals(self::TEST_ID_VALUE, $record_id);
+
+        // verify that the existing id is different from whatever the last insert id value may be
+        $result = $mysqli->query('SELECT LAST_INSERT_ID() as `insert_id`');
+        if(1 > $result->num_rows) {
+            throw new Exception('Error retrieving insert id.');
+        }
+        $row = $result->fetch_object();
+        $result->free();
+
+        $this->assertNotEquals($row->insert_id, $address->id->value);
     }
 
     /**
@@ -687,8 +834,8 @@ class AddressTest extends ContentValidationTestCase
      */
     public function testTableName()
     {
-    	$this->assertEquals('address', Address::TABLE_NAME());
-	    $this->assertEquals('address', $this->address::TABLE_NAME());
+    	$this->assertEquals('address', Address::getTableName());
+	    $this->assertEquals('address', $this->address::getTableName());
     }
 
     /**
@@ -869,7 +1016,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ContentValidationException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
      */
     public function disabled_testValidateUniqueEmailDefaultValue()
@@ -880,7 +1026,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ContentValidationException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
      */
     public function disabled_testValidateUniqueExistingEmail()
@@ -892,7 +1037,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ContentValidationException
      * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
      */
     public function disabled_testValidateUniqueValidEmail()

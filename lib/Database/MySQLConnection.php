@@ -319,8 +319,8 @@ class MySQLConnection extends AppBase
             if(!$stmt) {
                 throw new Exception('Could not prepare statement: '.$this->mysqli->error);
             }
-            array_unshift($vars, $types);
-            call_user_func_array([$stmt, 'bind_param'], $vars);
+            $stmt->bind_param($types, ...$vars);
+
             if(!$stmt->execute()) {
                 throw new Exception('Error executing query: '.$this->mysqli->error);
             }
@@ -347,9 +347,14 @@ class MySQLConnection extends AppBase
 	/**
 	 * Retrieves the last insert id created in the database.
 	 * @return int Last insert id value.
+     * @throws Exception
 	 */
 	public function retrieveInsertID(): int
 	{
-		return ($this->mysqli->insert_id);
+		$data = $this->fetchRecords('SELECT LAST_INSERT_ID() as `insert_id`');
+        if (1 > count($data)) {
+            throw new Exception('Could not retrieve insert id.');
+        }
+        return $data[0]->insert_id;
 	}
 }

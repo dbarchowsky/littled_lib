@@ -74,30 +74,14 @@ class SerializedContent extends SerializedContentValidation
 
     /**
      * Execute query that will commit object properties to the database.
-     * @param string $query
-     * @param string $content_type (Optional) label to use to describe the content that was being saved in the case of
-     * database errors.
-     * @throws Exception
+     * @param array $query
+     * @param string $types
+     * @param mixed ...$vars
      */
-    protected function commitSaveQuery(string $query, string $content_type)
+    protected function commitSaveQuery(array $query, string $types, &...$vars)
     {
-        if (!$this->mysqli->multi_query($query)) {
-            /* N.B. MySQL errors thrown from SQL statements embedded in the
-             * multi query won't necessarily cause mysqli->multi_query() to
-             * return false. E.g. errors in the stored proc b/c it isn't the
-             * first SQL statement executed.
-             */
-            throw new Exception((($content_type)?("Error saving $content_type: "):('')).$this->mysqli->error);
-        }
-        do {
-            if ($result = $this->mysqli->store_result()) {
-                $this->updateIdAfterCommit($result);
-                $result->close();
-            }
-        } while ($this->mysqli->next_result());
-	    if ($this->mysqli->error) {
-		    throw new Exception((($content_type)?("Error saving $content_type: "):('')).$this->mysqli->error);
-	    }
+        array_unshift($vars, $query, $types);
+        call_user_func_array([$this, 'query'], $vars);
     }
 
     /**
@@ -400,15 +384,14 @@ class SerializedContent extends SerializedContentValidation
     /**
      * Update the internal id property value after committing object property
      * values to the database.
-     * @param mysqli_result $result
+     * @throws Exception
      */
-    protected function updateIdAfterCommit(mysqli_result $result)
+    protected function updateIdAfterCommit()
     {
-        if ($this->id->value===null) {
-            $row = $result->fetch_assoc();
-            if (is_array($row) && array_key_exists('_p_record_id', $row)) {
-                $this->id->value = $row['_p_record_id'];
-            }
+        $data = $this->fetchRecords("SELECT p_insert_id AS `id`");
+        if (1 > count($data)) {
+            throw new Exception('Could not retrieve new record id.');
         }
+        $this->id->value = $data[0]->id;
     }
 }

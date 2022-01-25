@@ -70,7 +70,9 @@ REPLACE INTO `address` (
      , p_latitude
      , p_longitude
 );
-SET p_address_id = LAST_INSERT_ID();
+IF p_address_id IS NULL THEN
+    SELECT LAST_INSERT_ID() INTO p_address_id;
+END IF;
 
 END$$
 

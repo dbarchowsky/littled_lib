@@ -5,7 +5,6 @@ namespace Littled\Account;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
@@ -29,6 +28,9 @@ use Exception;
  */
 class Address extends SerializedContent
 {
+    /** @var string */
+    protected static $table_name = 'address';
+
     /** @var string Google maps api key */
     protected static $gmap_api_key;
     /** @var string */
@@ -36,18 +38,13 @@ class Address extends SerializedContent
     /** @var string */
     protected static $street_address_data_template = 'forms/data/street_address_form_data.php';
 
-	const ID_PARAM = "adid";
-	const LOCATION_PARAM = "adlo";
+	const ID_KEY = "adid";
+	const LOCATION_KEY = "adlo";
 
 	// possible values for formatting address data into strings
 	const FORMAT_ADDRESS_ONE_LINE   = 'one_line';
 	const FORMAT_ADDRESS_HTML       = 'html';
 	const FORMAT_ADDRESS_GOOGLE     = 'google';
-
-	const TABLE_NAME = "address";
-	public static function TABLE_NAME (): string {
-	    return (self::TABLE_NAME);
-	}
 
     /**
      * Inserts Google Maps key into URL to use to access Google Maps.
@@ -114,11 +111,11 @@ class Address extends SerializedContent
 	function __construct ( $prefix="" ) 
 	{
 		parent::__construct();
-		$this->id = new IntegerInput("Address ID", $prefix.self::ID_PARAM, false, null);
+		$this->id = new IntegerInput("Address ID", $prefix.self::ID_KEY, false, null);
 		$this->salutation = new StringSelect("Salutation", "{$prefix}adsl", false, "", 10);
 		$this->first_name = new StringTextField("First Name", "{$prefix}adfn", true, "", 50);
 		$this->last_name = new StringTextField("Last Name", "{$prefix}adln", true, "", 50);
-		$this->location = new StringTextField("Location name", $prefix.self::LOCATION_PARAM, false, "", 200);
+		$this->location = new StringTextField("Location name", $prefix.self::LOCATION_KEY, false, "", 200);
 		$this->company = new StringTextField("Company", $prefix."lco", false, "", 100);
 		$this->address1 = new StringTextField("Street", "{$prefix}ads1", true, "", 100);
 		$this->address2 = new StringTextField("Street", "{$prefix}ads2", false, "", 100);
@@ -300,37 +297,35 @@ class Address extends SerializedContent
 
     /**
      * Returns a query to use to store the current object property values in the database.
-     * @return string
+     * @return array
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      */
-    public function generateUpdateQuery(): string
+    public function generateUpdateQuery(): array
     {
         $this->connectToDatabase();
-        return ("SET @address_id = ".(($this->id->value===null)?("null"):($this->id->escapeSQL($this->mysqli))).";".
-            "CALL addressUpdate(".
-            "@address_id".
-            ",".$this->salutation->escapeSQL($this->mysqli).
-            ",".$this->first_name->escapeSQL($this->mysqli).
-            ",".$this->last_name->escapeSQL($this->mysqli).
-            ",".$this->address1->escapeSQL($this->mysqli).
-            ",".$this->address2->escapeSQL($this->mysqli).
-            ",".$this->city->escapeSQL($this->mysqli).
-            ",".$this->state_id->escapeSQL($this->mysqli).
-            ",".$this->state->escapeSQL($this->mysqli).
-            ",".$this->zip->escapeSQL($this->mysqli).
-            ",".$this->country->escapeSQL($this->mysqli).
-            ",".$this->home_phone->escapeSQL($this->mysqli).
-            ",".$this->work_phone->escapeSQL($this->mysqli).
-            ",".$this->fax->escapeSQL($this->mysqli).
-            ",".$this->email->escapeSQL($this->mysqli).
-            ",".$this->company->escapeSQL($this->mysqli).
-            ",".$this->title->escapeSQL($this->mysqli).
-            ",".$this->location->escapeSQL($this->mysqli).
-            ",".$this->url->escapeSQL($this->mysqli).
-            ",".$this->latitude->escapeSQL($this->mysqli).
-            ",".$this->longitude->escapeSQL($this->mysqli).
-            ");SELECT @address_id AS _p_record_id;");
+        return array('CALL addressUpdate(@record_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            'ssssssisssssssssssii',
+            &$this->salutation->value,
+            &$this->first_name->value,
+            &$this->last_name->value,
+            &$this->address1->value,
+            &$this->address2->value,
+            &$this->city->value,
+            &$this->state_id->value,
+            &$this->state->value,
+            &$this->zip->value,
+            &$this->country->value,
+            &$this->home_phone->value,
+            &$this->work_phone->value,
+            &$this->fax->value,
+            &$this->email->value,
+            &$this->company->value,
+            &$this->title->value,
+            &$this->location->value,
+            &$this->url->value,
+            &$this->latitude->value,
+            &$this->longitude->value);
     }
 
     /**
@@ -484,7 +479,6 @@ class Address extends SerializedContent
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
@@ -516,10 +510,11 @@ class Address extends SerializedContent
         if ($this->state_id->value===null || $this->state_id->value<1) {
             return;
         }
-        $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = {$this->state_id->value}";
-        $rs = $this->fetchRecords($query);
-        if (count($rs) > 0) {
-            list($this->state->value, $this->state_abbrev) = array_values((array)$rs[0]);
+        $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = ?";
+        $data = $this->fetchRecords($query, 'i', $this->state_id->value);
+        if (0 < count($data)) {
+            $this->state->value = $data[0]->name;
+            $this->state_abbrev = $data[0]->abbrev;
         }
         else {
         	throw new RecordNotFoundException("Requested state properties not found.");
@@ -542,8 +537,22 @@ class Address extends SerializedContent
             /* translate street address into longitude and latitude */
             $this->lookupMapPosition();
         }
-        $query = $this->generateUpdateQuery();
-        $this->commitSaveQuery($query, $content_label);
+        $vars = $this->generateUpdateQuery();
+
+        $s1 = $this->mysqli->prepare('SET @record_id = ?');
+        $s1->bind_param('i', $this->id->value);
+        $s1->execute();
+
+        call_user_func_array([$this, 'query'], $vars);
+
+        if (null === $this->id->value || 1 > $this->id->value) {
+            $data = $this->fetchRecords('SELECT @record_id as `insert_id`');
+            if (1 > count($data)) {
+                throw new Exception('New record id not found.');
+            }
+            $this->id->setInputValue($data[0]->insert_id);
+        }
+        $s1->close();
 	}
 
     /**
@@ -559,7 +568,7 @@ class Address extends SerializedContent
      * Street address data template file name setter
      * @param string $filename
      */
-    public static function setstreetAddressDataTemplate(string $filename)
+    public static function setStreetAddressDataTemplate(string $filename)
     {
         static::$street_address_data_template = $filename;
     }
@@ -593,13 +602,13 @@ class Address extends SerializedContent
         return null;
 	}
 
-	/**
-	 * Validates email addresses used with member accounts to make sure that they are valid email addresses, and that they do not already exist in the database.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Validates email addresses used with member accounts to make sure that they are valid email addresses, and that they do not already exist in the database.
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws Exception
+     */
 	public function validateUniqueEmail()
 	{
 		if ($this->email->value) {
