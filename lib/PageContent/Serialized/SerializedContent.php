@@ -312,15 +312,15 @@ class SerializedContent extends SerializedContentValidation
      * array in the object's property specified with $property.
      * @param string $property Name of property to use to store list.
      * @param string $type Object type to push onto the array.
-     * @param string $query SQL query to execute to retrieve list.
+     * @param ...$vars
      * @throws NotImplementedException Currently only stored procedures are supported.
      * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
      * @throws Exception
      */
-	public function readList( string $property, string $type, string $query )
+	public function readList( string $property, string $type, &...$vars )
 	{
-		if (stripos($query, "call")===0) {
-			$data = $this->fetchRecords($query);
+		if (stripos($vars[0], "call")===0) {
+			$data = call_user_func_array([$this, 'fetchRecords'], $vars);
 		}
 		else {
 			throw new NotImplementedException("Unsupported query type for retrieving record list.");
