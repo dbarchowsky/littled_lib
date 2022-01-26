@@ -537,22 +537,8 @@ class Address extends SerializedContent
             /* translate street address into longitude and latitude */
             $this->lookupMapPosition();
         }
-        $vars = $this->generateUpdateQuery();
 
-        $s1 = $this->mysqli->prepare('SET @record_id = ?');
-        $s1->bind_param('i', $this->id->value);
-        $s1->execute();
-
-        call_user_func_array([$this, 'query'], $vars);
-
-        if (null === $this->id->value || 1 > $this->id->value) {
-            $data = $this->fetchRecords('SELECT @record_id as `insert_id`');
-            if (1 > count($data)) {
-                throw new Exception('New record id not found.');
-            }
-            $this->id->setInputValue($data[0]->insert_id);
-        }
-        $s1->close();
+        parent::save();
 	}
 
     /**

@@ -11,7 +11,6 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Request\RequestInput;
 use Littled\Request\IntegerInput;
 use Exception;
-use mysqli_result;
 
 class SerializedContent extends SerializedContentValidation
 {
@@ -74,14 +73,29 @@ class SerializedContent extends SerializedContentValidation
 
     /**
      * Execute query that will commit object properties to the database.
-     * @param array $query
+     * @param string $query
      * @param string $types
      * @param mixed ...$vars
+     * @return void
+     * @throws Exception
      */
-    protected function commitSaveQuery(array $query, string $types, &...$vars)
+    protected function commitSaveQuery(string $query, string $types='', &...$vars)
     {
+        $s1 = $this->mysqli->prepare('SET @record_id = ?');
+        $s1->bind_param('i', $this->id->value);
+        $s1->execute();
+
         array_unshift($vars, $query, $types);
         call_user_func_array([$this, 'query'], $vars);
+
+        if (null === $this->id->value || 1 > $this->id->value) {
+            $data = $this->fetchRecords('SELECT @record_id as `insert_id`');
+            if (1 > count($data)) {
+                throw new Exception('New record id not found.');
+            }
+            $this->id->setInputValue($data[0]->insert_id);
+        }
+        $s1->close();
     }
 
     /**
@@ -153,6 +167,19 @@ class SerializedContent extends SerializedContentValidation
 			"WHERE id = ?;";
 		$this->query($query, 'i', $this->id->value);
 	}
+
+    /**
+     * Returns query string, type string, and values to be inserted into the query. The query
+     * will insert a new record or update an existing record depending on the value of object's id
+     * property. If the id property is null, a new record is inserted. IF the proeprty value matches
+     * a record in the database, that record is updated.
+     * @return array|null
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        /** To be implemented in inherited classes. */
+        return null;
+    }
 
     /**
      * Attempts to determine which column in a table holds title or name values.
@@ -317,18 +344,24 @@ class SerializedContent extends SerializedContentValidation
 	 * @throws ContentValidationException Record contains invalid data.
      * @throws NotImplementedException Table name value not set in inherited class.
 	 * @throws RecordNotFoundException No record exists that matches the id value.
+     * @throws Exception
 	 */
 	public function save ()
 	{
 		if (!$this->hasData()) {
 			throw new ContentValidationException("Record has no data to save.");
 		}
-		if (is_numeric($this->id->value)) {
-			$this->executeUpdateQuery();
-		}
-		else {
-			$this->executeInsertQuery();
-		}
+        $vars = $this->generateUpdateQuery();
+        if ($vars) {
+            call_user_func_array([$this, 'commitSaveQuery'], $vars);
+        }
+        else {
+            if (is_numeric($this->id->value)) {
+                $this->executeUpdateQuery();
+            } else {
+                $this->executeInsertQuery();
+            }
+        }
 	}
 
     /**
