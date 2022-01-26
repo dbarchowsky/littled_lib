@@ -487,6 +487,38 @@ class AddressTest extends ContentValidationTestCase
     }
 
     /**
+     * @return void
+     * @throws Exception
+     */
+    function testLookupStateByName()
+    {
+        $md_state_id = 27;
+        $ca_state_id = 9;
+
+        $this->address->id->setInputValue(null);
+
+        $this->address->state->setInputValue('md');
+        $this->assertEquals($md_state_id, $this->address->lookupStateByName());
+        $this->assertEquals($md_state_id, $this->address->id->value);
+
+        $this->address->state->setInputValue('CA');
+        $this->assertEquals($ca_state_id, $this->address->lookupStateByName());
+        $this->assertEquals($ca_state_id, $this->address->id->value);
+
+        $this->address->state->setInputValue('Maryland');
+        $this->assertEquals($md_state_id, $this->address->lookupStateByName());
+        $this->assertEquals($md_state_id, $this->address->id->value);
+
+        $this->address->state->setInputValue('california');
+        $this->assertEquals($ca_state_id, $this->address->lookupStateByName());
+        $this->assertEquals($ca_state_id, $this->address->id->value);
+
+        $this->address->state->setInputValue('bogus name');
+        $this->assertNull($this->address->lookupStateByName());
+        $this->assertNull($this->address->id->value);
+    }
+
+    /**
      * @throws ConnectionException
      * @throws NotImplementedException
      * @throws InvalidTypeException

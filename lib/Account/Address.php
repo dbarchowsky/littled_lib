@@ -374,6 +374,25 @@ class Address extends SerializedContent
     }
 
     /**
+     * Returns the state id from the database that matches the current value of the object's state name property.
+     * @return int|null
+     * @throws Exception
+     */
+    public function lookupStateByName(): ?int
+    {
+        $this->id->value = null;
+        if (''===$this->state->value || null===$this->state->value) {
+            return null;
+        }
+        $data = $this->fetchRecords('CALL lookupStateByName(?)', 's', $this->state->value);
+        if (1 > count($data)) {
+            return null;
+        }
+        $this->id->setInputValue($data[0]->id);
+        return $this->id->value;
+    }
+
+    /**
      * Retrieves longitude and latitude for the current address using Google Maps API.
      * @throws Exception
      */
