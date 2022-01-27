@@ -81,6 +81,7 @@ class SerializedContent extends SerializedContentValidation
      */
     protected function commitSaveQuery(string $query, string $types='', &...$vars)
     {
+        $this->connectToDatabase();
         $s1 = $this->mysqli->prepare('SET @record_id = ?');
         $s1->bind_param('i', $this->id->value);
         $s1->execute();
