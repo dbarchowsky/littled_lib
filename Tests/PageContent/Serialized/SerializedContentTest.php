@@ -115,6 +115,35 @@ class SerializedContentTest extends TestCase
 		$this->conn = new MySQLConnection();
 	}
 
+    /**
+     * @throws ContentValidationException
+     */
+    function testBypassValidation()
+    {
+        $obj = new SerializedContentChild();
+        $obj->vc_col1->setAsNotRequired();
+
+        // confirm no validation errors with no required fields
+        $obj->validateInput();
+        $this->assertCount(0, $obj->validationErrors);
+
+        // set one property value as required with bypassValidation called with default value (TRUE)
+        $obj->vc_col2->setAsRequired();
+        $obj->bypassValidation();
+        $obj->validateInput();
+        $this->assertCount(0, $obj->validationErrors);
+
+        // pass explicit TRUE value to bypassValidation()
+        $obj->bypassValidation(true);
+        $obj->validateInput();
+        $this->assertCount(0, $obj->validationErrors);
+
+        // turn off validation bypass to confirm errors are caught
+        $obj->bypassValidation(false);
+        $this->expectExceptionMessageMatches('/required information is missing/i');
+        $obj->validateInput();
+    }
+
 	/**
      * @throws Exception
      */
