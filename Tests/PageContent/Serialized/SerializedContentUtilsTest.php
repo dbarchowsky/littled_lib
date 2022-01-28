@@ -2,11 +2,10 @@
 namespace Littled\Tests\PageContent\Serialized;
 require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
+use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -29,16 +28,16 @@ class SerializedContentUtilsTest extends TestCase
 	public const TEST_OUTPUT_TEMPLATE = "serialized-content-output-template.php";
     protected const CHILD_CONTENT_TYPE_ID = 10;
 
-	/**
-	 * @throws NotImplementedException Table name is not set in inherited classes.
-	 * @throws InvalidQueryException Error executing query.
-	 */
+    /**
+     * @throws NotImplementedException Table name is not set in inherited classes.
+     * @throws Exception
+     */
 	public static function setUpBeforeClass(): void
 	{
 		$c = new MySQLConnection();
 
-		$query = "DROP TABLE IF EXISTS `".SerializedContentUtilsChild::TABLE_NAME()."`; ".
-			"CREATE TABLE `".SerializedContentUtilsChild::TABLE_NAME()."` (".
+		$query = "DROP TABLE IF EXISTS `".SerializedContentUtilsChild::getTableName()."`; ".
+			"CREATE TABLE `".SerializedContentUtilsChild::getTableName()."` (".
 			"`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,".
 			"`vc_col1` VARCHAR(50),".
 			"`vc_col2` VARCHAR(255),".
@@ -47,14 +46,14 @@ class SerializedContentUtilsTest extends TestCase
 		$c->query($query);
 	}
 
-	/**
-	 * @throws NotImplementedException Table name is not set in inherited classes.
-	 * @throws InvalidQueryException Error executing query.
-	 */
+    /**
+     * @throws NotImplementedException Table name is not set in inherited classes.
+     * @throws Exception
+     */
 	public static function tearDownAfterClass(): void
 	{
 		$c = new MySQLConnection();
-		$query = "DR"."OP TABLE `".SerializedContentUtilsChild::TABLE_NAME()."`";
+		$query = "DR"."OP TABLE `".SerializedContentUtilsChild::getTableName()."`";
 		$c->query($query);
 	}
 
@@ -221,15 +220,22 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertNull($dst->int_col->value);
 	}
 
+    /**
+     * @throws ConfigurationUndefinedException
+     */
     public function testGetContentTypeID()
     {
     	$obj = new SerializedContentUtilsChild();
-    	$this->assertEquals(self::CHILD_CONTENT_TYPE_ID, $obj->getContentId());
+    	$this->assertEquals(self::CHILD_CONTENT_TYPE_ID, $obj::getContentTypeId());
     }
 
-	public function testGetContentTypeIDWithConstNotDefined()
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    public function testGetContentTypeIDWithConstNotDefined()
 	{
-		$this->assertNull($this->obj->getContentId());
+        $this->expectExceptionMessageMatches('/content type not set/i');
+		$this->obj::getContentTypeId();
 	}
 
 	public function testJsonEncode()
@@ -280,8 +286,7 @@ class SerializedContentUtilsTest extends TestCase
 
 	/**
 	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidValueException
-	 */
+     */
 	public function testPluralLabel()
 	{
 		$obj = new SerializedContentUtilsChild();

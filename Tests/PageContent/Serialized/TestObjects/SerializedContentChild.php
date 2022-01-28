@@ -23,6 +23,8 @@ class SerializedContentChild extends SerializedContent
     public $prop2;
     /** @var array Test array container */
     public $array_container;
+    /** @var SerializedContentChild */
+    public $child = null;
     /** @var string */
     protected static $table_name = 'sc_child_temp_unit_test';
 

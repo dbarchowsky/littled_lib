@@ -17,9 +17,7 @@ class SerializedContent extends SerializedContentValidation
 	/** @var IntegerInput Record id. */
 	public $id;
 	/** @var boolean Flag to skip filling object values from input variables (GET or POST). */
-	public $bypassCollectFromInput;
-    /** @var int */
-    protected $bypass_validation = false;
+	public $bypassCollectFromInput = false;
     /** @var string */
     protected static $table_name='';
 
@@ -41,18 +39,7 @@ class SerializedContent extends SerializedContentValidation
 	{
 		parent::__construct();
 		$this->id = new IntegerInput('id', 'id', false, $id);
-		$this->bypassCollectFromInput = false;
 	}
-
-    /**
-     * Specify if the object should skip validation.
-     * @param bool $option (Optional) Set to TRUE (default value) to cause the object to bypass validation.
-     * @return void
-     */
-    public function bypassValidation(bool $option=true)
-    {
-        $this->bypass_validation = $option;
-    }
 
     /**
      * Clears all form input values
@@ -443,15 +430,5 @@ class SerializedContent extends SerializedContentValidation
             throw new Exception('Could not retrieve new record id.');
         }
         $this->id->value = $data[0]->id;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function validateInput(array $exclude_properties = [])
-    {
-        if (false===$this->bypass_validation) {
-            parent::validateInput($exclude_properties);
-        }
     }
 }

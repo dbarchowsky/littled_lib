@@ -8,6 +8,9 @@ use Littled\Request\RequestInput;
 
 class SerializedContentValidation extends SerializedContentUtils
 {
+    /** @var int */
+    protected $bypass_validation = false;
+
 	/**
 	 * Stores new error message string on stack of current error messages.
 	 * @param string|array $err Array or string containing errors to push onto the current
@@ -23,7 +26,17 @@ class SerializedContentValidation extends SerializedContentUtils
 		}
 	}
 
-	/**
+    /**
+     * Specify if the object should skip validation.
+     * @param bool $option (Optional) Set to TRUE (default value) to cause the object to bypass validation.
+     * @return void
+     */
+    public function bypassValidation(bool $option=true)
+    {
+        $this->bypass_validation = $option;
+    }
+
+    /**
 	 * Removes all validation errors from the object.
 	 */
 	public function clearValidationErrors()
@@ -79,6 +92,10 @@ class SerializedContentValidation extends SerializedContentUtils
 	 */
 	public function validateInput(array $exclude_properties=[])
 	{
+        if (true===$this->bypass_validation) {
+            return;
+        }
+
 		$this->validationErrors = [];
 		foreach($this as $key => $property) {
 			if (in_array($key, $exclude_properties)) {
