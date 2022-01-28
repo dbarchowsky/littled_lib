@@ -323,7 +323,9 @@ class SerializedContent extends SerializedContentValidation
 	public function readList( string $property, string $type, string $query, string $types='', &...$vars )
 	{
 		if (stripos($query, "call")===0) {
-			$data = $this->fetchRecords($query, $types, $vars);
+            array_unshift($vars, $query, $types);
+            $data = call_user_func_array([$this, 'fetchRecords'], $vars);
+			// $data = $this->fetchRecords($query, $types, $vars);
 		}
 		else {
 			throw new NotImplementedException("Unsupported query type for retrieving record list.");

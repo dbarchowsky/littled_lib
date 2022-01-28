@@ -1,7 +1,8 @@
 <?php
 namespace Littled\Tests\PageContent\Serialized;
-require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
+require_once (realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
+use Littled\Tests\PageContent\Serialized\DataProvider\ReadListTestDataProvider;
 use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentChild;
 use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentNameTestHarness;
 use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentTitleTestHarness;
@@ -15,6 +16,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\Tests\PageContent\Serialized\TestObjects\SketchbookTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -27,7 +29,6 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws NotImplementedException Table name is not set in inherited classes.
-	 * @throws InvalidQueryException Error executing query.
      * @throws Exception
      */
 	public static function setUpBeforeClass() : void
@@ -96,7 +97,6 @@ class SerializedContentTest extends TestCase
 
     /**
      * @throws NotImplementedException Table name is not set in inherited classes.
-     * @throws InvalidQueryException Error executing query.
      * @throws Exception
      */
 	public static function tearDownAfterClass(): void
@@ -380,8 +380,8 @@ class SerializedContentTest extends TestCase
      * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-     * @throws InvalidTypeException
-	 */
+     * @throws InvalidTypeException|NotImplementedException
+     */
     public function testReadNonExistentRecord()
     {
     	$obj = new SerializedContentChild();
@@ -394,8 +394,8 @@ class SerializedContentTest extends TestCase
      * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-     * @throws InvalidTypeException
-	 */
+     * @throws InvalidTypeException|NotImplementedException
+     */
 	public function testReadNullID()
 	{
 		$obj = new SerializedContentChild();
@@ -411,7 +411,7 @@ class SerializedContentTest extends TestCase
 	 * @throws ContentValidationException
      * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
+	 * @throws ConnectionException|NotImplementedException
      */
 	public function testReadInvalidObject()
 	{
@@ -445,6 +445,23 @@ class SerializedContentTest extends TestCase
 	    $this->assertContains('test four', array_map($title_cb, $obj->array_container));
 	    $this->assertContains('bar', array_map($vc_cb, $obj->array_container));
 	    $this->assertContains('biz', array_map($vc_cb, $obj->array_container));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\PageContent\Serialized\DataProvider\ReadListTestDataProvider::readListProvider
+     * @return void
+     * @throws InvalidTypeException
+     * @throws NotImplementedException|ConfigurationUndefinedException
+     */
+    function testReadListWithArguments(ReadListTestDataProvider $data)
+    {
+        $o = new SketchbookTestHarness($data->record_id);
+        $content_type_id = $o::getContentTypeId();
+        $o->readList($data->property_name, $data->class_name, 'CALL keywordSelectLinked(?,?)', 'ii', $data->record_id, $content_type_id);
+        $this->assertCount(count($data->records), $o->keyword_list);
+        if (0 < count($data->records)) {
+            $this->assertContains($data->records[0]->term->value, array_map(function($kw) { return $kw->term->value; }, $o->keyword_list));
+        }
     }
 
 	/**
