@@ -134,6 +134,17 @@ class ContentFilter
 		return ('');
 	}
 
+    /**
+     * Returns string safe from XSS attacks that can be embedded in HTML.
+     * @param ?int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
+     * Same values as 3rd argument to PHP's filter_var() routine.
+     * @return string XSS-safe string.
+     */
+    public function safeValue( ?int $options=null ): string
+    {
+        return htmlspecialchars(strip_tags($this->value));
+    }
+
 	/**
 	 * Saves the filter value as a cookie variable.
 	 */
