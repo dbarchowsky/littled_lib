@@ -2,8 +2,6 @@
 namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
-
-use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
 use Littled\Database\MySQLConnection;
 use Littled\Request\RequestInput;

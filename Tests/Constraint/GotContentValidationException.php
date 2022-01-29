@@ -8,7 +8,6 @@ use Exception;
 
 final class GotContentValidationException extends Constraint
 {
-
 	/**
 	 * @inheritDoc
 	 */
@@ -36,6 +35,9 @@ final class GotContentValidationException extends Constraint
 			}
 		}
 		catch(ContentValidationException $e) {
+            if (property_exists($other, 'error')) {
+                $other->error = $e->getMessage();
+            }
 			return true;
 		}
 		return false;

@@ -11,6 +11,15 @@ use Littled\Exception\ContentValidationException;
  */
 class DateInput extends StringInput
 {
+    /** @property int */
+    public const DEFAULT_SIZE_LIMIT = 20;
+    /** @var string */
+    protected static $input_template_filename = 'date-text-input.php';
+    /** @var string */
+    protected static $template_filename = 'date-text-field.php';
+    /** @var string */
+    public $format = 'Y-m-d H:i:00';
+
 	/**
 	 * DateInput constructor.
 	 * @param string $label Input label
@@ -25,7 +34,7 @@ class DateInput extends StringInput
 		string $param,
 		bool $required = false,
 		$value = null,
-		int $size_limit = 20,
+		int $size_limit = self::DEFAULT_SIZE_LIMIT,
 		?int $index=null
 	)
 	{
@@ -43,25 +52,6 @@ class DateInput extends StringInput
 		if (strlen("".$this->value)>0) {
 			$this->setDateValue();
 		}
-	}
-
-	/**
-	 * Validates the date value.
-	 * @param string $date_format (Optional) date format to apply to the date value. Default value is 'Y-m-d H:i:00'.
-	 * @throws ContentValidationException Date value is missing when required or is in an unrecognized format.
-	 */
-	public function validate( string $date_format='Y-m-d H:i:00' )
-	{
-		if (true === $this->required && (null === $this->value || strlen($this->value) < 1)) {
-			throw new ContentValidationException("$this->label is required.");
-		}
-		if (false === $this->required && (null === $this->value || strlen($this->value) < 1)) {
-			return;
-		}
-		if (strlen($this->value) > $this->sizeLimit) {
-			throw new ContentValidationException("$this->label is limited to $this->sizeLimit character".(($this->sizeLimit!=1)?("s"):("")).".");
-		}
-		$this->setDateValue($date_format);
 	}
 
 	/**
@@ -94,13 +84,17 @@ class DateInput extends StringInput
 
 	/**
 	 * Returns the current value of the object as formatted string value.
-	 * @param string $date_format (Optional) date format to apply to the date value. Default value is 'Y-m-d H:i:00'.
+     * @param string $date_format
      * @return ?string Formatted date string.
 	 * @throws ContentValidationException Current value not a valid date value.
      */
-	public function formatDateValue( string $date_format='Y-m-d H:i:00' ): ?string
+	public function formatDateValue(string $date_format=''): ?string
 	{
-		$valid = (strtotime($this->value)!==false);
+        $date_format = $date_format ?: $this->format;
+        if ('' === $this->value || null === $this->value) {
+            return '';
+        }
+		$valid = (false !== strtotime($this->value));
 		if (!$valid) {
 			$valid = (DateTime::createFromFormat('d/m/Y', $this->value) !== false);
 		}
@@ -110,22 +104,40 @@ class DateInput extends StringInput
 		if (!$valid) {
 			throw new ContentValidationException("$this->label is not in a recognized date format.");
 		}
-		if ($date_format !== null) {
+		if (null !== $date_format && '' !== $date_format) {
 			return (date($date_format, strtotime($this->value)));
 		}
 		return $this->value;
 	}
 
     /**
+     * Date format string getter.
+     * @return string
+     */
+    public function getFormat(): string
+    {
+        return $this->format;
+    }
+
+    /**
      * Converts the current value of the object to a standard date format.
-     * @param string $date_format (Optional) date format to apply to the date value. Default value is 'Y-m-d H:i:00'.
+     * @param string $date_format
      * @throws ContentValidationException Current value not a valid date value.
      */
-	protected function setDateValue( string $date_format='Y-m-d H:i:00' )
+	protected function setDateValue(string $date_format='')
     {
-        if (strlen($date_format) > 0) {
-            $this->value = $this->formatDateValue($date_format);
-        }
+        $date_format = $date_format ?: $this->format;
+        $this->value = $this->formatDateValue($date_format);
+    }
+
+    /**
+     * Date format string setter.
+     * @param string $format
+     * @return void
+     */
+    public function setFormat(string $format)
+    {
+        $this->format = $format;
     }
 
 	/**
@@ -135,12 +147,31 @@ class DateInput extends StringInput
 	 */
 	public function setInputValue($value, string $date_format='Y-m-d')
 	{
+        $date_format = $date_format ?: $this->format;
 		parent::setInputValue($value);
 		try {
-			$this->setDateValue('Y-m-d');
+			$this->setDateValue($date_format);
 		}
 		catch(ContentValidationException $ex) {
 			$this->value = '';
 		}
 	}
+
+    /**
+     * Validates the date value.
+     * @throws ContentValidationException Date value is missing when required or is in an unrecognized format.
+     */
+    public function validate()
+    {
+        if (true === $this->required && (null === $this->value || strlen($this->value) < 1)) {
+            throw new ContentValidationException("$this->label is required.");
+        }
+        if (false === $this->required && (null === $this->value || strlen($this->value) < 1)) {
+            return;
+        }
+        if (strlen($this->value) > $this->sizeLimit) {
+            throw new ContentValidationException("$this->label is limited to $this->sizeLimit character".(($this->sizeLimit!=1)?("s"):("")).".");
+        }
+        $this->setDateValue();
+    }
 }

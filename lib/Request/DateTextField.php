@@ -2,8 +2,9 @@
 namespace Littled\Request;
 
 
+use Exception;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\NotImplementedException;
+use Littled\PageContent\ContentUtils;
 
 /**
  * Class DateTextField
@@ -31,10 +32,17 @@ class DateTextField extends DateInput
      * @param string $label (Optional) If a value is provided, it will override the object's internal $label property value.
      * @param string $css_class (Optional) CSS class name to apply to the form input element.
      * @param array $options (Optional) Options to display.
-     * @throws NotImplementedException
      */
 	public function render(string $label='', string $css_class='', array $options=[])
     {
-	    throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
+        try {
+            ContentUtils::renderTemplate(static::getTemplatePath(),
+                array('input' => $this,
+                    'label' => $label,
+                    'css_class' => $css_class));
+        }
+        catch(Exception $e) {
+            ContentUtils::printError($e->getMessage());
+        }
     }
 }

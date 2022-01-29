@@ -3,196 +3,210 @@ namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\DateInput;
-use PHPUnit\Framework\TestCase;
+use Littled\Request\DateTextField;
+use Littled\Request\RequestInput;
+use Littled\Tests\Request\DataProvider\DateInputTestDataProvider;
+use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
-use mysqli;
 
-class DateInputTest extends TestCase
+class DateInputTest extends ContentValidationTestCase
 {
+    /** @property string */
+    public const DEFAULT_LABEL = 'Test Date';
+    /** @property string */
+    public const DEFAULT_KEY = 'p_date';
     /** @var DateInput Test DateInput object. */
     public $obj;
     /** @var MySQLConnection Test database connection. */
     public $conn;
 
-    function __construct()
+    public static function setUpBeforeClass(): void
     {
-        parent::__construct();
-        $this->obj = new DateInput("Test date", 'p_date');
-        $this->conn = new MySQLConnection();
+        parent::setUpBeforeClass();
+        DateInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 
     /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     */
+    function __construct($name='', array $data=[], $data_name='')
+    {
+        parent::__construct($name, $data, $data_name);
+        $this->obj = new DateInput(self::DEFAULT_LABEL, self::DEFAULT_KEY);
+        $this->conn = new MySQLConnection();
+        $this->conn->connectToDatabase();
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::escapeSQLProvider
+     * @throws Exception
+     */
+    public function testEscapeSQL(?string $date_string, ?string $expected)
+    {
+        $this->obj->setInputValue($date_string);
+        $this->assertEquals($expected, $this->obj->escapeSQL($this->conn->getMysqli()));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::formatDateValueProvider()
+     * @param string|null $date_string
+     * @param string|null $format
+     * @param string|null $expected
+     * @return void
      * @throws ContentValidationException
      */
-    public function testValidateValidValues()
+    function testFormatDateValueUsingArgument(?string $date_string, ?string $format, ?string $expected)
     {
-        $this->obj->required = true;
-        $this->obj->value = '1/15/2018';
-        $this->obj->validate();
-        $this->assertEquals('2018-01-15 00:00:00', $this->obj->value);
-
-        $this->obj->value = '12/31/1999';
-        $this->obj->validate();
-        $this->assertEquals('1999-12-31 00:00:00', $this->obj->value);
-
-        $this->obj->value = '1/1/2094';
-        $this->obj->validate();
-        $this->assertEquals('2094-01-01 00:00:00', $this->obj->value);
-
-        $this->obj->value = '2018-02-14';
-        $this->obj->validate();
-        $this->assertEquals('2018-02-14 00:00:00', $this->obj->value);
-
-        $this->obj->value = '01/01/2004';
-        $this->obj->validate();
-        $this->assertEquals('2004-01-01 00:00:00', $this->obj->value);
-
-        $this->obj->value = '11/01/2020';
-        $this->obj->validate();
-        $this->assertEquals('2020-11-01 00:00:00', $this->obj->value);
-
-	    $this->obj->value = '11-1-2020';
-	    $this->obj->validate();
-	    $this->assertEquals('2020-01-11 00:00:00', $this->obj->value);
-
-	    $this->obj->value = 'May 13, 1980';
-	    $this->obj->validate();
-	    $this->assertEquals('1980-05-13 00:00:00', $this->obj->value);
+        $o = new DateTextField(self::DEFAULT_LABEL, self::DEFAULT_KEY, false);
+        $o->value = $date_string; /** set value here because class constructor converts passed value */
+        if ('[use default]' !== $format) {
+            $this->assertEquals($expected, $o->formatDateValue($format), "return value, format: $format");
+        }
+        else {
+            $this->assertEquals($expected, $o->formatDateValue(), "return value, format: $format");
+        }
+        $this->assertEquals($date_string, $o->value, "internal value, format: $format");
     }
 
-    public function testSetInputValue()
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::formatDateValueUsingInvalidDateProvider()
+     * @param string|null $date_string
+     * @param string|null $format
+     * @param string|null $expected
+     * @return void
+     * @throws ContentValidationException
+     */
+    function testFormatDateValueUsingInvalidDate(?string $date_string, ?string $format, ?string $expected)
     {
-    	$m = date('m');
-    	$d = date('d');
-
-    	$this->obj->setInputValue('');
-    	$this->assertEquals('', $this->obj->value);
-
-	    $this->obj->setInputValue('1/1/2018');
-	    $this->assertEquals('2018-01-01', $this->obj->value);
-
-	    $this->obj->setInputValue('2018-01-01');
-	    $this->assertEquals('2018-01-01', $this->obj->value);
-
-	    $this->obj->setInputValue('June 13, 1969');
-	    $this->assertEquals('1969-06-13', $this->obj->value);
-
-	    $this->obj->setInputValue('dfdfdfd');
-	    $this->assertEquals('', $this->obj->value);
-
-	    $this->obj->setInputValue('7269');
-	    $this->assertEquals("7269-$m-$d", $this->obj->value);
+        $o = new DateTextField(self::DEFAULT_LABEL, self::DEFAULT_KEY, false);
+        $o->value = $date_string;
+        $this->expectExceptionMessageMatches($expected);
+        $this->assertEquals($expected, $o->formatDateValue($format));
     }
 
-    public function testValidateMissingDateValue()
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::formatDateValueProvider()
+     * @param string|null $date_string
+     * @param string|null $format
+     * @param string|null $expected
+     * @return void
+     * @throws ContentValidationException
+     */
+    function testFormatDateValueUsingProperty(?string $date_string, ?string $format, ?string $expected)
+    {
+        $o = new DateTextField(self::DEFAULT_LABEL, self::DEFAULT_KEY, false);
+        $o->value = $date_string; /** set value here because class constructor converts passed value */
+        if ('[use default]' !== $format) {
+            $o->setFormat($format);
+        }
+        $this->assertEquals($expected, $o->formatDateValue(), "return value, format: $format");
+        $this->assertEquals($date_string, $o->value, "internal value, format: $format");
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::renderTestProvider()
+     * @param DateTextField $o
+     * @param string|null $expected
+     * @param string $label
+     * @param string $css_class
+     * @return void
+     */
+    function testRender(DateTextField $o, ?string $expected='', string $label='', string $css_class='')
+    {
+        $this->expectOutputRegex($expected);
+        $o->render($label, $css_class);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::setInputValueProvider
+     * @param string|null $date_string
+     * @param string|null $expected
+     * @return void
+     */
+    public function testSetInputValue(?string $date_string, ?string $expected)
+    {
+    	$this->obj->setInputValue($date_string);
+    	$this->assertEquals($expected, $this->obj->value);
+    }
+
+    function testTemplatePath()
+    {
+        $this->assertEquals(RequestInput::getTemplateBasePath(), DateInput::getTemplateBasePath());
+        $this->assertEquals('date-text-input.php', DateInput::getInputTemplateFilename());
+        $this->assertEquals('date-text-field.php', DateInput::getTemplateFilename());
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::validateMissingDateValueProvider
+     * @param string|null $date_string
+     * @param string|null $expected
+     * @return void
+     */
+    public function testValidateMissingDateValue(?string $date_string, ?string $expected)
+    {
+        $this->obj->setAsRequired();
+        if ('[use default]' !== $date_string) {
+            $this->obj->value = $date_string;
+        }
+        $this->assertContentValidationException($this->obj);
+        $this->assertMatchesRegularExpression($expected, $this->obj->error);
+        $this->obj->clearValidationErrors();
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::validateValidValuesProvider
+     * @throws ContentValidationException
+     */
+    public function testValidateValidValues(?string $date_string, ?string $expected)
     {
         $this->obj->required = true;
-        try {
-            $this->obj->validate();
-        }
-        catch(ContentValidationException $ex) {
-            $this->assertEquals("Test date is required.", $ex->getMessage());
-        }
-
-        $this->obj->value = null;
-        try {
-            $this->obj->validate();
-        }
-        catch(ContentValidationException $ex) {
-            $this->assertEquals("Test date is required.", $ex->getMessage());
-        }
-
-        $this->obj->value = '';
-        try {
-            $this->obj->validate();
-        }
-        catch(ContentValidationException $ex) {
-            $this->assertEquals("Test date is required.", $ex->getMessage());
-        }
+        $this->obj->value = $date_string;
+        $this->obj->validate();
+        $this->assertEquals($expected, $this->obj->value);
     }
 
     public function testValidateValueSize()
     {
         $str = str_repeat("a", $this->obj->sizeLimit + 1);
         $this->obj->value = $str;
-        try {
-            $this->obj->validate();
-        }
-        catch(ContentValidationException $ex) {
-            $this->assertEquals("{$this->obj->label} is limited to {$this->obj->sizeLimit} characters.", $ex->getMessage());
-        }
-    }
-
-    public function testValidateInvalidDateFormats()
-    {
-        $this->obj->required = false;
-        $this->obj->value = '32-2-2018';
-        try {
-            $this->obj->validate();
-        }
-        catch (ContentValidationException $ex) {
-            $this->assertEquals("Test date is not in a recognized date format.", $ex->getMessage());
-        }
-
-	    $this->obj->value = 'duygoci';
-	    try {
-		    $this->obj->validate();
-	    }
-	    catch (ContentValidationException $ex) {
-		    $this->assertEquals("Test date is not in a recognized date format.", $ex->getMessage());
-	    }
+        $this->assertContentValidationException($this->obj);
+        $pattern = "/{$this->obj->label} is limited to {$this->obj->sizeLimit} characters/i";
+        $this->assertMatchesRegularExpression($pattern, $this->obj->error);
+        $this->obj->clearValidationErrors();
     }
 
     /**
-     * @throws Exception
+     * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::validateInvalidDateFormatsProvider
+     * @param string|null $date_string
+     * @param string|null $expected
+     * @return void
      */
-    public function testEscapeSQL()
+    public function testValidateInvalidDateFormats(?string $date_string, ?string $expected)
     {
-        if (!defined('MYSQL_HOST') ||
-            !defined('MYSQL_USER') ||
-            !defined('MYSQL_PASS') ||
-            !defined('MYSQL_SCHEMA') ||
-            !defined('MYSQL_PORT')) {
-            throw new Exception('Databae connection properties not defined.');
-        }
-	    $mysqli = new mysqli();
-	    $mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
-
-    	$this->obj->setInputValue('May 23, 2018');
-    	$this->assertEquals("'2018-05-23 00:00:00'", $this->obj->escapeSQL($mysqli));
-
-	    $this->obj->value = null;
-	    $this->assertEquals('NULL', $this->obj->escapeSQL($mysqli));
-
-	    $this->obj->setInputValue('');
-	    $this->assertEquals('NULL', $this->obj->escapeSQL($mysqli));
-
-	    $this->obj->value = "fdoclxps";
-	    $this->assertEquals("'fdoclxps'", $this->obj->escapeSQL($mysqli));
+        $this->obj->required = false;
+        $this->obj->value = $date_string;
+        $this->assertContentValidationException($this->obj);
+        $this->assertMatchesRegularExpression($expected, $this->obj->error);
+        $this->obj->clearValidationErrors();
     }
 
+    /**
+     * @throws ContentValidationException
+     */
     public function testValidateWhenNotRequired()
     {
-    	$error_msg = '';
     	$this->obj->required = false;
     	$this->obj->value = null;
-    	try {
-		    $this->obj->validate();
-	    }
-    	catch(ContentValidationException $ex) {
-    		$error_msg = $ex->getMessage();
-	    }
-	    $this->assertEquals('', $error_msg);
+        $this->obj->validate();
+	    $this->assertEquals('', $this->obj->error);
 
     	$this->obj->value = '';
-	    try {
-		    $this->obj->validate();
-	    }
-	    catch(ContentValidationException $ex) {
-		    $error_msg = $ex->getMessage();
-	    }
-	    $this->assertEquals('', $error_msg);
+        $this->obj->validate();
+	    $this->assertEquals('', $this->obj->error);
     }
 }
