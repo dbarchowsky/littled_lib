@@ -97,10 +97,12 @@ class PageContent extends MySQLConnection
      * will preserver the current page state. The query string value is
      * stored as the value of the object's $qs property.
      * @todo Consider moving this method to dedicated cms page content class
+     * @returns string
      */
-    public function formatPageStateQueryString()
+    public function formatPageStateQueryString(): string
     {
         $this->qs = $this->filters->formatQueryString();
+		return ($this->qs);
     }
 
     /**
