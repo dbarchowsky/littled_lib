@@ -2,6 +2,7 @@
 namespace Littled\PageContent;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Metadata\Preload;
 use Littled\Validation\Validation;
@@ -53,6 +54,7 @@ class PageConfig
      * @param string $type
      * @param string $name
      * @param string $value
+     * @throws InvalidValueException
      */
     public static function addPageMetadata(string $type, string $name, string $value)
     {
@@ -414,7 +416,7 @@ class PageConfig
 	}
 
 	/**
-	 * Updates the url of a breadcrumb node. Label is used to lookup the breadcrumb node to update within the list of nodes.
+	 * Updates the url of a breadcrumb node. Label is used to look up the breadcrumb node to update within the list of nodes.
 	 * @param string $label
 	 * @param string $url
 	 * @return void

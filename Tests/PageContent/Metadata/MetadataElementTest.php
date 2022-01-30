@@ -16,6 +16,18 @@ class MetadataElementTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\PageContent\Metadata\DataProvider\MetadataElementTestProvider::renderTestProvider()
+     * @param MetadataElement $o
+     * @param string $expected
+     * @return void
+     */
+    function testRender(MetadataElement $o, string $expected)
+    {
+        $this->expectOutputRegex($expected);
+        $o->render();
+    }
+
+    /**
      * @throws InvalidValueException
      */
     public function testSetType()

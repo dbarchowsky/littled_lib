@@ -53,6 +53,17 @@ class MetadataElement
     }
 
     /**
+     * Injects metadata properties as page markup.
+     * @return void
+     */
+    public function render()
+    {
+?>
+<meta <?=$this->getType()?>="<?=$this->getName()?>" content="<?=$this->getContent()?>" />
+<?php
+    }
+
+    /**
      * @param string $content
      */
     public function setContent(string $content)

@@ -30,6 +30,10 @@ class Preload
 		$this->extra_attributes = $extra_attributes;
 	}
 
+    /**
+     * Injects property values as page markup.
+     * @return void
+     */
     public function render()
     {
         if (''===$this->tag || null===$this->tag) {
@@ -44,7 +48,7 @@ class Preload
         array_walk($extras, $extras_cb);
         $extras = implode('', $extras);
 ?>
-        <<?=$this->tag ?> rel="<?=$this->rel ?>"<?=$href.$extras ?> />
+<<?=$this->tag ?> rel="<?=$this->rel ?>"<?=$href.$extras ?> />
 <?php
     }
 }

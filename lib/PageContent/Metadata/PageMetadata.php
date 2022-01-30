@@ -41,7 +41,7 @@ class PageMetadata
      */
     public function addPageMetadata(string $type, string $name, string $value)
     {
-        array_push($this->extras, new MetadataElement($type, $name, $value));
+        $this->extras[] = new MetadataElement($type, $name, $value);
     }
 
     public function getDescription(): string
