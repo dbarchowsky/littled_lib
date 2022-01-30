@@ -7,7 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
-use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -20,7 +20,7 @@ class PageContent extends MySQLConnection
 {
     /** @var string Token representing the current action to take on the page. */
     public $action;
-    /** @var SerializedContent Page content. */
+    /** @var SectionContent Page content. */
     public $content;
     /** @var ContentFilters Content filters. */
     public $filters;
