@@ -2329,7 +2329,7 @@ if (typeof LITTLED === "undefined") {
             let $p = $(this).parent();
 			let op = $(this).data(lclSettings.keys.operation);
 			let fd = {t: $(this).data('t')};
-			fd[lclSettings.keys.record_id] = $(this).data(lclSettings.keys.record_id),
+			fd[lclSettings.keys.record_id] = $(this).data(lclSettings.keys.record_id);
 			fd[lclSettings.keys.operation] = op;
 			fd[lclSettings.keys.csrf] = $(lclSettings.dom.csrfSelector).html();
             let url = methods.getInlineURL(op, evt.data||{});
