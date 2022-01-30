@@ -463,7 +463,7 @@
 		else {
 			$.error('Method ' + method + ' does not exist on jQuery.listings.');
 		}
-		return (false);
+		return false;
 	};
 	
 }) ( jQuery );
