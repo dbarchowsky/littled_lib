@@ -92,6 +92,16 @@ class PageContent extends MySQLConnection
         }
     }
 
+	/**
+	 * Formats and stores query string from current filter property values.
+	 * @return string
+	 */
+	public function formatQueryString(): string
+	{
+		$this->query_string = $this->filters->formatQueryString();
+		return $this->query_string;
+	}
+
     /**
      * Uses current filter values to generate a query string that
      * will preserver the current page state. The query string value is
@@ -102,7 +112,7 @@ class PageContent extends MySQLConnection
     public function formatPageStateQueryString(): string
     {
         $this->qs = $this->filters->formatQueryString();
-		return ($this->qs);
+		return $this->qs;
     }
 
     /**
