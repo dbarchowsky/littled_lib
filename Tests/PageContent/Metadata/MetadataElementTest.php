@@ -1,6 +1,6 @@
 <?php
-
 namespace Littled\Tests\PageContent\Metadata;
+require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Metadata\MetadataElement;

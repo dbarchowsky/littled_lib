@@ -19,13 +19,13 @@ class PageConfig
 {
 	/** @var string CSS class to apply to the page content. */
 	public static $contentCSSClass = '';
-	/** @var array List of css includes. */
+	/** @var string[] List of css includes. */
 	public static $stylesheets = array();
-	/** @var array List of script includes. */
+	/** @var string[] List of script includes. */
 	public static $scripts = array();
-	/** @var array List of preload images. */
+	/** @var Preload[] List of preload images. */
 	public static $preloads = array();
-	/** @var object Site metadata */
+	/** @var PageMetadata Site metadata */
 	protected static $metadata;
 	/** @var string Status message passed from one page to another */
 	protected static $status;

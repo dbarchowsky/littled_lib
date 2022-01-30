@@ -3,6 +3,8 @@
 namespace Littled\PageContent\Metadata;
 
 
+use Littled\PageContent\ContentUtils;
+
 class Preload
 {
 	/** @var string Tag type of the preload element */
@@ -11,20 +13,38 @@ class Preload
 	public $rel;
 	/** @var string Value to insert into the "href" attribute of the element */
 	public $url;
-	/** @var string Extra attributes to attach to the element */
-	public $extra_attribute;
+	/** @var array Extra attributes to attach to the element */
+	public $extra_attributes;
 
 	/**
 	 * @param string $tag
 	 * @param string $rel
 	 * @param string $url
-	 * @param string $extra_attribute
+	 * @param array $extra_attributes[]
 	 */
-	function __construct(string $tag, string $rel='', string $url='', string $extra_attribute='')
+	function __construct(string $tag, string $rel='', string $url='', array $extra_attributes=[])
 	{
 		$this->tag = $tag;
 		$this->rel = $rel;
 		$this->url = $url;
-		$this->extra_attribute = $extra_attribute;
+		$this->extra_attributes = $extra_attributes;
 	}
+
+    public function render()
+    {
+        if (''===$this->tag || null===$this->tag) {
+            ContentUtils::printError('Missing required metadata tag.');
+            return;
+        }
+        $href = (($this->url)?(" href=\"$this->url\""):(''));
+        $extras_cb = function(&$value, $key) {
+            $value = (($value)?(" $key=\"$value\""):(" $key"));
+        };
+        $extras = $this->extra_attributes;
+        array_walk($extras, $extras_cb);
+        $extras = implode('', $extras);
+?>
+        <<?=$this->tag ?> rel="<?=$this->rel ?>"<?=$href.$extras ?> />
+<?php
+    }
 }
