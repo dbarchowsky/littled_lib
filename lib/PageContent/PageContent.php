@@ -6,6 +6,8 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Filters\ContentFilters;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -18,9 +20,9 @@ class PageContent extends MySQLConnection
 {
     /** @var string Token representing the current action to take on the page. */
     public $action;
-    /** @var object Page content. */
+    /** @var SerializedContent Page content. */
     public $content;
-    /** @var object Content filters. */
+    /** @var ContentFilters Content filters. */
     public $filters;
     /** @var string @var */
     public $label = '';
@@ -58,7 +60,7 @@ class PageContent extends MySQLConnection
 		$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY);
 		if ($this->content->id->value===null) {
 			if ( $this->content->id instanceof RequestInput) {
-				$this->content->id->collectValue();
+				$this->content->id->collectRequestData();
 			}
 		}
 		return ($this->content->id->value);
@@ -98,7 +100,7 @@ class PageContent extends MySQLConnection
      */
     public function formatPageStateQueryString()
     {
-        $this->qs = $this->filters->format_query_string();
+        $this->qs = $this->filters->formatQueryString();
     }
 
     /**
