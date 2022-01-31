@@ -2,8 +2,13 @@
 
 namespace Littled\Tests\Request\DataProvider;
 
-class DateFormatData
+class DateFormatTestData
 {
+	/** @property string */
+	public const DEFAULT_LABEL = 'Test Date';
+	/** @property string */
+	public const DEFAULT_KEY = 'p_date';
+
     /** @var string */
     public $date_string;
     /** @var string */

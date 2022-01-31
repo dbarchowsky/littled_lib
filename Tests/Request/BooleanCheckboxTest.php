@@ -4,6 +4,7 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Request\RequestInput;
 use Littled\Request\BooleanCheckbox;
+use Littled\Tests\Request\DataProvider\BooleanInputTestData;
 use PHPUnit\Framework\TestCase;
 
 class BooleanCheckboxTest extends TestCase
@@ -13,32 +14,33 @@ class BooleanCheckboxTest extends TestCase
     function setUp(): void
     {
         parent::setUp();
-        RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
     }
+	public function __construct(?string $name = null, array $data = [], $dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		BooleanCheckbox::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+		BooleanCheckbox::setTemplateFilename('boolean-checkbox-field.php');
+	}
 
-    /**
-     *
-     */
-    public function testSaveInForm()
+	/**
+	 * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::saveInFormProvider()
+	 * @param BooleanInputTestData $data
+	 * @return void
+	 */
+    public function testSaveInForm(BooleanInputTestData $data)
     {
-        RequestInput::setTemplateFilename('forms/input-elements/hidden-input.php');
-
-        // confirm that the path to the boolean checkbox template is unchanged
-        $o = new BooleanCheckbox("Checkbox Test", "boolCBTest");
-        $this->assertEquals(self::DEFAULT_TEMPLATE_FILENAME, $o::getTemplateFilename());
-
-        $expected = "<input type=\"hidden\" name=\"$o->key\" value=\"\" />\n";
-        $this->expectOutputString($expected);
-        $o->saveInForm();
-
-        $o->value = true;
-        $expected = $expected."<input type=\"hidden\" name=\"$o->key\" value=\"1\" />\n";
-        $this->expectOutputString($expected);
-        $o->saveInForm();
-
-        $o->value = false;
-        $expected = $expected."<input type=\"hidden\" name=\"$o->key\" value=\"0\" />\n";
-        $this->expectOutputString($expected);
+	    $o = new BooleanCheckbox(BooleanInputTestData::DEFAULT_LABEL, BooleanInputTestData::DEFAULT_KEY);
+	    $o->setInputValue($data->value);
+        $this->expectOutputRegex($data->expected_regex);
         $o->saveInForm();
     }
+
+	public function testTemplatePath()
+	{
+		$original = BooleanCheckbox::getTemplateFilename();
+		BooleanCheckbox::setTemplateFilename('special-bool-template.php');
+		$this->assertEquals(RequestInput::getTemplateBasePath().BooleanCheckbox::getTemplateFilename(), BooleanCheckbox::getTemplatePath());
+		$this->assertNotEquals(RequestInput::getTemplateBasePath().BooleanCheckbox::getTemplateFilename(), RequestInput::getTemplatePath());
+		BooleanCheckbox::setTemplateFilename($original);
+	}
 }

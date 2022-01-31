@@ -129,7 +129,8 @@ class RequestInputTest extends TestCase
 
     public function testSaveInForm()
     {
-        RequestInput::setTemplateFilename('forms/input-elements/hidden-input.php');
+		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+        RequestInput::setTemplateFilename('hidden-input.php');
 
         // test basic template output
         $expected = "<input type=\"hidden\" name=\"{$this->obj->key}\" value=\"{$this->obj->value}\" />\n";

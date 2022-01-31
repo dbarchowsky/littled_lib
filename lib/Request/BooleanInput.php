@@ -11,6 +11,9 @@ use Littled\Validation\Validation;
  */
 class BooleanInput extends RequestInput
 {
+	/** @var string */
+	protected static $template_filename = 'hidden-input.php';
+
 	/**
 	 * Clears the data container value.
 	 */

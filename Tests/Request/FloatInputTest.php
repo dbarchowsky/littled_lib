@@ -4,11 +4,11 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Request\FloatInput;
 use Littled\Exception\ContentValidationException;
-use PHPUnit\Framework\TestCase;
+use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 use mysqli;
 
-class FloatInputTest extends TestCase
+class FloatInputTest extends ContentValidationTestCase
 {
 	public function testConstructor()
 	{

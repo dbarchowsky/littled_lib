@@ -25,9 +25,8 @@ class StringTextFieldTest extends TestCase
 
     function testSaveInForm()
     {
-        // confirm that this child class uses a different template than base class StringInput
-        $this->obj::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
-        $this->expectOutputRegex('/<input type=\"text\" name=\"'.$this->obj->key.'\"/');
+	    RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+        $this->expectOutputRegex('/<input type=\"hidden\" name=\"'.$this->obj->key.'\"/');
         $this->obj->saveInForm();
     }
 
