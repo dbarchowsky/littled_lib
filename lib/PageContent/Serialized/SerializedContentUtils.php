@@ -331,7 +331,7 @@ class SerializedContentUtils extends AppContentBase
 			return '';
 		}
 
-		$label = strtolower($this->{$property_name}->value);
+		$label = $this->{$property_name}->value;
 		if ($count===1) {
 			return ($label);
 		}
