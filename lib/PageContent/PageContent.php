@@ -116,6 +116,18 @@ class PageContent extends MySQLConnection
     }
 
     /**
+     * Content label getter.
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        if ($this->content instanceof SectionContent) {
+            return $this->content->getLabel();
+        }
+        return '';
+    }
+
+    /**
      * Record id getter.
      * @return int|null
      */
