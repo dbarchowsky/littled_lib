@@ -2,7 +2,10 @@
 
 namespace Littled\Tests\PageContent\TestObject;
 
-class PageContentChild extends \Littled\PageContent\PageContent
+use Littled\PageContent\PageContent;
+use Littled\PageContent\SiteSection\SectionContent;
+
+class PageContentChild extends PageContent
 {
     /** @var string */
     public $injected_text;
@@ -10,6 +13,7 @@ class PageContentChild extends \Littled\PageContent\PageContent
     public function __construct()
     {
         parent::__construct();
+        $this->content = new SectionContent();
         $this->injected_text = '';
     }
 

@@ -24,13 +24,17 @@ class PageContentTest extends TestCase
         $this->obj = new PageContent();
     }
 
-    public function testSetTemplatePath()
+    /**
+     * @dataProvider \Littled\Tests\PageContent\DataProvider\PageContentTestDataProvider::getRecordIdProvider()
+     * @param int|null $record_id
+     * @param int|null $expected
+     * @return void
+     */
+    function testGetRecordId(?int $record_id, ?int $expected)
     {
-        $test_template_path = '/path/to/template.php';
-        $this->assertEquals('', $this->obj->template_path);
-
-        $this->obj->setTemplatePath($test_template_path);
-        $this->assertEquals($test_template_path, $this->obj->template_path);
+        $o = new PageContentChild();
+        $o->content->id->value = $record_id;
+        $this->assertEquals($expected, $o->getRecordId());
     }
 
     /**
@@ -73,6 +77,15 @@ class PageContentTest extends TestCase
 
         $this->expectOutputRegex($pattern);
         $o->sendResponse();
+    }
+
+    public function testSetTemplatePath()
+    {
+        $test_template_path = '/path/to/template.php';
+        $this->assertEquals('', $this->obj->template_path);
+
+        $this->obj->setTemplatePath($test_template_path);
+        $this->assertEquals($test_template_path, $this->obj->template_path);
     }
 
     /**

@@ -116,6 +116,18 @@ class PageContent extends MySQLConnection
     }
 
     /**
+     * Record id getter.
+     * @return int|null
+     */
+    public function getRecordId(): ?int
+    {
+        if ($this->content->id->value) {
+            return $this->content->id->value;
+        }
+        return null;
+    }
+
+    /**
      * Returns array containing the variables and their values to be injected into
      * the template when rendering page content.
      * @return array
