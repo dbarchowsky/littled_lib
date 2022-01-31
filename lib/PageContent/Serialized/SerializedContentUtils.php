@@ -335,15 +335,9 @@ class SerializedContentUtils extends AppContentBase
 		if ($count===1) {
 			return ($label);
 		}
-		elseif (substr($label, -1)=='y') {
-			return (substr($label, 0, -1).'ies');
-		}
-		elseif (substr($label, -1)=='s') {
-			return ($label);
-		}
-		else {
-			return ($label.'s');
-		}
+        else {
+            return (static::makePlural($label));
+        }
 	}
 
     /**
