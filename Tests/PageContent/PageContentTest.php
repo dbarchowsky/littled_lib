@@ -24,6 +24,21 @@ class PageContentTest extends TestCase
         $this->obj = new PageContent();
     }
 
+	protected function tearDown(): void
+	{
+		parent::tearDown();
+		$this->obj->closeDatabaseConnection();
+	}
+
+	function testGetContentLabel()
+	{
+		$o = new PageContentChild();
+		$this->assertEquals('', $o->getContentLabel());
+
+		$o->content->content_properties->name->setInputValue('my assigned value');
+		$this->assertEquals('my assigned value', $o->getContentLabel());
+	}
+
     /**
      * @dataProvider \Littled\Tests\PageContent\DataProvider\PageContentTestDataProvider::getRecordIdProvider()
      * @param int|null $record_id
@@ -58,7 +73,7 @@ class PageContentTest extends TestCase
     {
         $this->obj->setTemplatePath(PageContentTest::DYNAMIC_TEMPLATE_PATH);
         $this->expectOutputRegex('/This is test template content\./');
-        $this->obj->render();
+        $this->obj->render(array('test_var' => ''));
     }
 
     /**
