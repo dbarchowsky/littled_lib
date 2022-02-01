@@ -14,6 +14,9 @@ use mysqli;
  */
 class ContentFilter
 {
+	/** @var string */
+	protected static $preserve_value_template = 'filter-preserved-input.php';
+
 	/** @var string Key of the cookie element holding the filter value. */
 	public $cookieKey;
 	/** @var string Variable name used to pass along filter values. */
@@ -110,7 +113,7 @@ class ContentFilter
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
 		if ($this->value===null) {
-			return ("null");
+			return ("NULL");
 		}
 		if ($this->value===true) {
 			return ('1');
@@ -134,7 +137,25 @@ class ContentFilter
 		return ('');
 	}
 
-    /**
+	/**
+	 * Value preservation form getter.
+	 * @return string
+	 */
+	public function getPreserveValueTemplate(): string
+	{
+		return static::$preserve_value_template;
+	}
+
+	/**
+	 * Value preservation form getter.
+	 * @return string
+	 */
+	public function getPreserveValueTemplatePath(): string
+	{
+		return RequestInput::getTemplateBasePath().static::$preserve_value_template;
+	}
+
+	/**
      * Returns string safe from XSS attacks that can be embedded in HTML.
      * @param ?int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
      * Same values as 3rd argument to PHP's filter_var() routine.
@@ -172,10 +193,20 @@ class ContentFilter
 	 */
 	public function saveInForm()
 	{
-		ContentUtils::renderTemplate(RequestInput::getTemplateBasePath()."hidden-input.php", array(
+		ContentUtils::renderTemplate(static::getPreserveValueTemplatePath(), array(
 			'key' => $this->key,
 			'index' => '',
 			'value' => $this->value
 		));
+	}
+
+	/**
+	 * Value preservation form setter.
+	 * @param string $filename
+	 * @return void
+	 */
+	public function setPreserveValueTemplate(string $filename)
+	{
+		static::$preserve_value_template = $filename;
 	}
 }

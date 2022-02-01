@@ -2,7 +2,9 @@
 namespace Littled\Tests\Filters;
 require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilter;
+use Littled\Request\RequestInput;
 use Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider;
 use PHPUnit\Framework\TestCase;
 use mysqli;
@@ -10,10 +12,6 @@ use Exception;
 
 class ContentFilterTest extends TestCase
 {
-    /** @property string */
-    public const DEFAULT_LABEL = 'Test Filter';
-    /** @property string */
-    public const DEFAULT_KEY = 'p_filter';
     /** @var mysqli */
     protected $mysqli;
 
@@ -38,8 +36,25 @@ class ContentFilterTest extends TestCase
      */
 	public function testEscapeSQL(ContentFilterTestDataProvider $data)
 	{
-        $o = new ContentFilter(self::DEFAULT_LABEL, self::DEFAULT_KEY, $data->value, 50);
+        $o = new ContentFilter(ContentFilterTestDataProvider::DEFAULT_LABEL, ContentFilterTestDataProvider::DEFAULT_KEY, $data->value, 50);
+		// re-assign to make sure we're working with the raw value
+		$o->value = $data->value;
         $this->assertEquals($data->expected, $o->escapeSQL($this->mysqli));
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::saveInFormTestProvider()
+	 * @param ContentFilterTestDataProvider $data
+	 * @return void
+	 * @throws ResourceNotFoundException
+	 */
+	function testSaveInForm(ContentFilterTestDataProvider $data)
+	{
+		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+		$o = new ContentFilter(ContentFilterTestDataProvider::DEFAULT_LABEL, ContentFilterTestDataProvider::DEFAULT_KEY, $data->value, 50);
+		$o->value = $data->value;
+		$this->expectOutputRegex($data->expected);
+		$o->saveInForm();
 	}
 
     /**
@@ -49,7 +64,7 @@ class ContentFilterTest extends TestCase
      */
     function testSafeValue(ContentFilterTestDataProvider $data)
     {
-        $o = new ContentFilter(self::DEFAULT_LABEL, self::DEFAULT_KEY, $data->value, 50);
+        $o = new ContentFilter(ContentFilterTestDataProvider::DEFAULT_LABEL, ContentFilterTestDataProvider::DEFAULT_KEY, $data->value, 50);
         $this->assertEquals($data->expected, $o->safeValue());
     }
 }
