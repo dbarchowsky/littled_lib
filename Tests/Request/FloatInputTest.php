@@ -4,12 +4,20 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Request\FloatInput;
 use Littled\Exception\ContentValidationException;
+use Littled\Request\RequestInput;
+use Littled\Tests\Request\DataProvider\FloatInputTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 use mysqli;
 
 class FloatInputTest extends ContentValidationTestCase
 {
+	public function __construct(?string $name = null, array $data = [], $dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+	}
+
 	public function testConstructor()
 	{
 		$obj = new FloatInput("Label", "key", false, 0);
@@ -210,51 +218,29 @@ class FloatInputTest extends ContentValidationTestCase
 		$o->validate();
 	}
 
-	public function testSetInputValue()
+	/**
+	 * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::renderTestProvider()
+	 * @param FloatInputTestData $data
+	 * @return void
+	 */
+	function testRender(FloatInputTestData $data)
 	{
-		$o = new FloatInput("Test object", "bol_test");
-		$this->assertNull($o->value);
+		$this->expectOutputRegex($data->expected_regex);
+		$data->obj->render();
+	}
 
-		$o->setInputValue(true);
-		$this->assertNull($o->value);
-
-		$o->setInputValue('true');
-		$this->assertNull($o->value);
-
-		$o->setInputValue('1');
-		$this->assertEquals(1, $o->value);
-
-		$o->setInputValue(1);
-		$this->assertEquals(1, $o->value);
-
-		$o->setInputValue(false);
-		$this->assertNull($o->value);
-
-		$o->setInputValue('false');
-		$this->assertNull($o->value);
-
-		$o->setInputValue('0');
-		$this->assertEquals(0, $o->value);
-
-		$o->setInputValue(0);
-		$this->assertEquals(0, $o->value);
-
-		$o->setInputValue(45);
-		$this->assertEquals(45, $o->value);
-
-		$o->setInputValue('45');
-		$this->assertEquals(45, $o->value);
-
-		$o->setInputValue(32.7);
-		$this->assertEquals(32.7, $o->value);
-
-		$o->setInputValue('32.7');
-		$this->assertEquals(32.7, $o->value);
-
-		$o->setInputValue('some arbitrary sting');
-		$this->assertNull($o->value);
-
-		$o->setInputValue(null);
-		$this->assertNull($o->value);
+	/**
+	 * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::setInputValueTestProvider()
+	 * @param FloatInputTestData $data
+	 * @return void
+	 */
+	public function testSetInputValue(FloatInputTestData $data)
+	{
+		if (null === $data->expected) {
+			$this->assertNull($data->obj->value);
+		}
+		else {
+			$this->assertEquals($data->expected, $data->obj->value);
+		}
 	}
 }

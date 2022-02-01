@@ -8,8 +8,12 @@ use Littled\Validation\Validation;
  * Class FloatInput
  * @package Littled\Request
  */
-class FloatInput extends RequestInput
+class FloatInput extends RenderedInput
 {
+	/** @var string Form input element template filename */
+	protected static $input_template_filename = 'string-text-input.php';
+	/** @var string */
+	protected static $template_filename = 'string-text-field.php';
     /** @var int */
     const DEFAULT_DATA_SIZE = 16;
 
@@ -57,18 +61,6 @@ class FloatInput extends RequestInput
 	public function setInputValue($value)
 	{
 		$this->value = Validation::parseNumeric($value);
-	}
-
-	/**
-	 * Render the form input element(s) in the DOM.
-	 * @param string|null[optional] $label String to use as input label. If this value is not provided, the object's
-	 * $label property value will be used. Defaults to NULL.
-	 * @param string[optional] $css_class CSS class name(s) to apply to the input container.
-	 * @param array[optional] $options Associative array containing attributes and attribute values to apply to the HTML element.
-	 */
-	public function render( $label=null, $css_class=null, $options=[] )
-	{
-		print ("<span class='\"alert alert-warning\">".get_class($this)."::renderInput() )Not implemented.</span></div>");
 	}
 
 	/**
