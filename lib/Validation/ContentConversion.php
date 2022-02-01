@@ -14,7 +14,7 @@ class ContentConversion
 	 * @param string $content Source content to clean.
 	 * @return string parsed content
 	 */
-	public static function cleanTextForXml($content)
+	public static function cleanTextForXml(string $content): string
 	{
 		/* remove newline characters */
 		$content = preg_replace("/[\n\r]/", "<br />", $content);
@@ -35,7 +35,7 @@ class ContentConversion
 	 * @param string $content Text to fix.
 	 * @return string Fixed text.
 	 */
-	public static function cleanTinymceTextForXml( $content )
+	public static function cleanTinymceTextForXml( string $content ): string
 	{
 		/* remove newline characters */
 		$content = preg_replace("/[\n\r]/", "", $content);
@@ -60,11 +60,28 @@ class ContentConversion
 	}
 
 	/**
+	 * Formats a string that can be inserted into the name attribute of an input html element to represent the
+	 * element's position in an array.
+	 * @param mixed $index
+	 * @return string
+	 */
+	public static function formatIndexMarkup($index): string
+	{
+		if (is_numeric($index)) {
+			return "[$index]";
+		}
+		if (strlen("".$index)>0) {
+			return "['$index']";
+		}
+		return '';
+	}
+
+	/**
 	 * convert HTML paragraph tags to <br /> tags
 	 * @param string $html Source markup to parse.
 	 * @return string Markup with <p> tags converted to <br /> tags.
 	 */
-	public static function htmlPTagsToBrTags( $html )
+	public static function htmlPTagsToBrTags( string $html ): string
 	{
 		$html = preg_replace('/<p[^>]*>/', '', $html); /* Remove the start <p> or <p attr=""> */
 		$html = preg_replace('/<\/p>/', '<br /><br />', $html); /* Replace the end */
@@ -78,7 +95,7 @@ class ContentConversion
 	 * @param string $content Source content to parse.
 	 * @return string Content stripped of newlines.
 	 */
-	public static function stripNewlinesForXml($content)
+	public static function stripNewlinesForXml(string $content): string
 	{
 		/* remove newline characters */
 		$content = preg_replace("/[\n\r]/", "", $content);

@@ -1,27 +1,33 @@
 <?php
-use Littled\Validation\Validation;
+namespace Littled\Tests\Validation;
+require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
-class ValidationTest extends \PHPUnit\Framework\TestCase
+use Littled\Exception\ContentValidationException;
+use Littled\Validation\Validation;
+use PHPUnit\Framework\TestCase;
+
+
+class ValidationTest extends TestCase
 {
 	public function testParseNumeric()
 	{
 		$int_overflow = (PHP_INT_MAX+1);
 
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("1"), 1, "\"1\" returns numeric value.");
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("0"), 0, "\"0\" returns numeric value.");
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("-1"), -1);
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("5"), 5);
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("".PHP_INT_MAX), PHP_INT_MAX, "parseNumeric() with largest possible integer value");
+		$this->assertEquals(1, Validation::parseNumeric("1"), "\"1\" returns numeric value.");
+		$this->assertEquals(0, Validation::parseNumeric("0"), "\"0\" returns numeric value.");
+		$this->assertEquals(-1, Validation::parseNumeric("-1"));
+		$this->assertEquals(5, Validation::parseNumeric("5"));
+		$this->assertEquals(PHP_INT_MAX, Validation::parseNumeric("".PHP_INT_MAX), "parseNumeric() with largest possible integer value");
 		// $this->assertEquals(Littled\Validation\Validation::parseNumeric("".(PHP_INT_MAX+1)), $int_overflow, "parseNumeric() with value overflowing int max value");
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("0.01"), 0.01);
-		$this->assertEquals(Littled\Validation\Validation::parseNumeric("4.5"), 4.5);
-		$this->assertNull(Littled\Validation\Validation::parseNumeric("zero"));
-		$this->assertNull(Littled\Validation\Validation::parseNumeric("j01"));
-		$this->assertNull(Littled\Validation\Validation::parseNumeric("01jx"));
-		$this->assertNull(Littled\Validation\Validation::parseNumeric("true"));
-		$this->assertNull(Littled\Validation\Validation::parseNumeric("false"));
-		$this->assertNull(Littled\Validation\Validation::parseNumeric(true));
-		$this->assertNull(Littled\Validation\Validation::parseNumeric(false));
+		$this->assertEquals(0.01, Validation::parseNumeric("0.01"));
+		$this->assertEquals(4.5, Validation::parseNumeric("4.5"));
+		$this->assertNull(Validation::parseNumeric("zero"));
+		$this->assertNull(Validation::parseNumeric("j01"));
+		$this->assertNull(Validation::parseNumeric("01jx"));
+		$this->assertNull(Validation::parseNumeric("true"));
+		$this->assertNull(Validation::parseNumeric("false"));
+		$this->assertNull(Validation::parseNumeric(true));
+		$this->assertNull(Validation::parseNumeric(false));
 	}
 	
 	public function testIsInteger()
@@ -63,12 +69,12 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 
 	public function testParseInteger()
 	{
-		$this->assertEquals(Validation::parseInteger(1), 1);
-		$this->assertEquals(Validation::parseInteger(0), 0);
-		$this->assertEquals(Validation::parseInteger(-1), -1);
-		$this->assertEquals(Validation::parseInteger("1"), 1);
-		$this->assertEquals(Validation::parseInteger("0"), 0);
-		$this->assertEquals(Validation::parseInteger("-1"), -1);
+		$this->assertEquals(1, Validation::parseInteger(1));
+		$this->assertEquals(0, Validation::parseInteger(0));
+		$this->assertEquals(-1, Validation::parseInteger(-1));
+		$this->assertEquals(1, Validation::parseInteger("1"));
+		$this->assertEquals(0, Validation::parseInteger("0"));
+		$this->assertEquals(-1, Validation::parseInteger("-1"));
 		$this->assertNull(Validation::parseInteger("-"));
 		$this->assertNull(Validation::parseInteger("true"));
 		$this->assertNull(Validation::parseInteger("false"));
@@ -80,7 +86,7 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\ContentValidationException
+	 * @throws ContentValidationException
 	 */
 	public function testValidateDateString()
 	{
@@ -105,7 +111,7 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 		try {
 			$d = Validation::validateDateString('February 08, 87');
 		}
-		catch (\Littled\Exception\ContentValidationException $ex) {
+		catch (ContentValidationException $ex) {
 			$this->assertEquals("Unrecognized date value.", $ex->getMessage(), "F d, y format");
 		}
 	}
@@ -118,24 +124,24 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 			'float_array' => array(1.5, 0.36, 10.05),
 			'mixed_array' => array(4.5, 'test value', 10, 22.6));
 		$result = Validation::collectIntegerArrayRequestVar('int', $src);
-		$this->assertEquals(1, count($result));
+		$this->assertCount(1, $result);
 		$this->assertEquals($src['int'], $result[0]);
 
 		$result = Validation::collectIntegerArrayRequestVar('float', $src);
-		$this->assertEquals(0, count($result));
+		$this->assertCount(0, $result);
 
 		$result = Validation::collectIntegerArrayRequestVar('int_array', $src);
-		$this->assertEquals(4, count($result));
+		$this->assertCount(4, $result);
 		$this->assertEquals($src['int_array'][0], $result[0]);
 		$this->assertEquals($src['int_array'][1], $result[1]);
 		$this->assertEquals($src['int_array'][2], $result[2]);
 		$this->assertEquals($src['int_array'][3], $result[3]);
 
 		$result = Validation::collectIntegerArrayRequestVar('float_array', $src);
-		$this->assertEquals(0, count($result));
+		$this->assertCount(0, $result);
 
 		$result = Validation::collectIntegerArrayRequestVar('mixed_array', $src);
-		$this->assertEquals(1, count($result));
+		$this->assertCount(1, $result);
 		$this->assertEquals($src['mixed_array'][2], $result[0]);
 	}
 
@@ -147,28 +153,28 @@ class ValidationTest extends \PHPUnit\Framework\TestCase
 			'float_array' => array(1.5, 0.36, 10.05),
 			'mixed_array' => array(4.5, 'test value', 10, 22.6));
 		$result = Validation::collectNumericArrayRequestVar('int', $src);
-		$this->assertEquals(1, count($result));
+		$this->assertCount(1, $result);
 		$this->assertEquals($src['int'], $result[0]);
 
 		$result = Validation::collectNumericArrayRequestVar('float', $src);
-		$this->assertEquals(1, count($result));
+		$this->assertCount(1, $result);
 		$this->assertEquals($src['float'], $result[0]);
 
 		$result = Validation::collectNumericArrayRequestVar('int_array', $src);
-		$this->assertEquals(4, count($result));
+		$this->assertCount(4, $result);
 		$this->assertEquals($src['int_array'][0], $result[0]);
 		$this->assertEquals($src['int_array'][1], $result[1]);
 		$this->assertEquals($src['int_array'][2], $result[2]);
 		$this->assertEquals($src['int_array'][3], $result[3]);
 
 		$result = Validation::collectNumericArrayRequestVar('float_array', $src);
-		$this->assertEquals(3, count($result));
+		$this->assertCount(3, $result);
 		$this->assertEquals($src['float_array'][0], $result[0]);
 		$this->assertEquals($src['float_array'][1], $result[1]);
 		$this->assertEquals($src['float_array'][2], $result[2]);
 
 		$result = Validation::collectNumericArrayRequestVar('mixed_array', $src);
-		$this->assertEquals(3, count($result));
+		$this->assertCount(3, $result);
 		$this->assertEquals($src['mixed_array'][0], $result[0]);
 		$this->assertEquals($src['mixed_array'][2], $result[1]);
 		$this->assertEquals($src['mixed_array'][3], $result[2]);

@@ -5,6 +5,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
+use Littled\Validation\ContentConversion;
 use Littled\Validation\Validation;
 use Exception;
 use mysqli;
@@ -180,13 +181,7 @@ class RequestInput
      */
     public function formatIndexMarkup(): string
     {
-        if (is_numeric($this->index)) {
-            return "[$this->index]";
-        }
-        if (strlen("".$this->index)>0) {
-            return "['$this->index']";
-        }
-        return '';
+		return ContentConversion::formatIndexMarkup($this->index);
     }
 
 	/**
