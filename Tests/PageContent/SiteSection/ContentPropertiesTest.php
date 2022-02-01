@@ -19,10 +19,12 @@ use Exception;
 class ContentPropertiesTest extends TestCase
 {
 	const UNIT_TEST_IDENTIFIER = "Unit Test";
+	const TEST_CONTENT_LABEL_READING = self::UNIT_TEST_IDENTIFIER.' for reading';
 	const TEST_ID_FOR_DELETE = 6000;
 	const TEST_ID_FOR_READ = 6001;
+	const TEST_IMAGE_LABEL = 'pic';
 
-	/** @var \Littled\PageContent\SiteSection\ContentProperties Test SiteSection object. */
+	/** @var ContentProperties Test SiteSection object. */
 	public $obj;
 	/** @var MySQLConnection database connection */
 	public $conn;
@@ -77,7 +79,7 @@ class ContentPropertiesTest extends TestCase
         $root_dir = 'path/to/section';
         $image_path = '';
         $sub_dir = '';
-        $image_label = 'pic';
+        $image_label = ContentPropertiesTest::TEST_IMAGE_LABEL;
         $width = 2048;
         $height = 1880;
         $med_width = null;
@@ -102,7 +104,7 @@ class ContentPropertiesTest extends TestCase
         }
 
         $id = ContentPropertiesTest::TEST_ID_FOR_READ;
-        $name = ContentPropertiesTest::UNIT_TEST_IDENTIFIER.' for reading';
+        $name = ContentPropertiesTest::TEST_CONTENT_LABEL_READING;
         $image_path = 'path/to/images/';
         $sub_dir = 'sub/dir/';
         $med_width = 1024;
@@ -197,8 +199,15 @@ class ContentPropertiesTest extends TestCase
 
 	public function setUp(): void
 	{
+		parent::setUp();
 		$this->conn = new MySQLConnection();
 		$this->obj = new ContentProperties();
+	}
+
+	protected function tearDown(): void
+	{
+		parent::tearDown();
+		$this->conn->closeDatabaseConnection();
 	}
 
 	/**
@@ -273,7 +282,10 @@ class ContentPropertiesTest extends TestCase
 		$this->conn->query($query, 'i', $site_section_id);
 	}
 
-    function testTableName()
+	/**
+	 * @throws NotImplementedException
+	 */
+	function testTableName()
     {
         $this->assertEquals('site_section', ContentProperties::getTableName());
     }
@@ -308,6 +320,32 @@ class ContentPropertiesTest extends TestCase
 		$this->assertFalse($this->obj->is_cached->value);
 		$this->assertFalse($this->obj->save_mini->value);
 		$this->assertFalse($this->obj->gallery_thumbnail->value);
+	}
+
+	/**
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 */
+	function testGetContentLabel()
+	{
+		$o = new ContentProperties();
+		$this->assertEquals('', $o->getContentLabel());
+
+		$o->label = 'My Assigned Label';
+		$this->assertEquals('', $o->getContentLabel());
+
+		$o->name->setInputValue('My Assigned Label');
+		$o->label = '';
+		$this->assertEquals('My Assigned Label', $o->getContentLabel());
+
+		$o->id->setInputValue(self::TEST_ID_FOR_READ);
+		$o->read();
+		$this->assertEquals(ContentPropertiesTest::TEST_CONTENT_LABEL_READING, $o->getContentLabel());
+		$this->assertEquals(ContentPropertiesTest::TEST_IMAGE_LABEL, $o->label);
 	}
 
 	public function testInitialize()

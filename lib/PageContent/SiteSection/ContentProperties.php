@@ -76,7 +76,7 @@ class ContentProperties extends SerializedContent
 	/** @var string Parent content type name. */
 	public $parent;
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
-	public $label;
+	public $label='';
 	/** @var ContentTemplate[] Array of templates used to render the section's content. */
 	public $templates;
     /** @var string */
@@ -159,6 +159,15 @@ class ContentProperties extends SerializedContent
         }
         return null;
     }
+
+	/**
+	 * Content label getter.
+	 * @return string
+	 */
+	public function getContentLabel(): string
+	{
+		return $this->name->value;
+	}
 
 	/**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.

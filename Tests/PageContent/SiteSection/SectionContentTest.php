@@ -29,7 +29,13 @@ class SectionContentTest extends TestCase
         $this->conn = new MySQLConnection();
     }
 
-    public function testConstructorDefaultValues()
+	protected function tearDown(): void
+	{
+		parent::tearDown();
+		$this->conn->closeDatabaseConnection();
+	}
+
+	public function testConstructorDefaultValues()
 	{
 		$this->assertNull($this->obj->id->value);
 		$this->assertNull($this->obj->content_properties->id->value);
@@ -64,6 +70,21 @@ class SectionContentTest extends TestCase
 		$this->assertNull($this->obj->content_properties->width->value);
 		$this->assertFalse($this->obj->content_properties->save_mini->value);
 		$this->assertFalse($this->obj->content_properties->is_cached->value);
+	}
+
+	function testGetContentLabel()
+	{
+		$o = new SectionContent();
+		$this->assertEquals('', $o->getContentLabel());
+
+		$o->content_properties->label = 'my assigned value';
+		$this->assertEquals('', $o->getContentLabel());
+		$this->assertEquals('my assigned value', $o->getLabel());
+
+		$o->content_properties->name->setInputValue('my assigned value');
+		$o->content_properties->label = '';
+		$this->assertEquals('my assigned value', $o->getContentLabel());
+		$this->assertEquals('', $o->getLabel());
 	}
 
 	public function testGetContentTypeIdUsingInternalValue()

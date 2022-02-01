@@ -75,6 +75,15 @@ class SectionContent extends SerializedContent
     }
 
 	/**
+	 * Content label getter.
+	 * @return string
+	 */
+	public function getContentLabel(): string
+	{
+		return $this->content_properties->getContentLabel();
+	}
+
+	/**
 	 * Returns the path to the "listings" template for this type of content.
 	 * The client app will set the value of the $listingsTemplate property.
 	 * @return string Path to listings template.
