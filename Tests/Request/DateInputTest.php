@@ -18,14 +18,25 @@ class DateInputTest extends ContentValidationTestCase
 	/** @var MySQLConnection Test database connection. */
 	public $conn;
 
-	/**
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->conn = new MySQLConnection();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
+    }
+
+    /**
 	 */
 	function __construct($name='', array $data=[], $data_name='')
 	{
 		parent::__construct($name, $data, $data_name);
 		DateInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
 		$this->obj = new DateInput(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY);
-		$this->conn = new MySQLConnection();
 	}
 
 	/**

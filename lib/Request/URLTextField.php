@@ -40,7 +40,7 @@ class URLTextField extends StringTextField
 	 */
 	public function setInputValue($value)
 	{
-		$this->value = filter_var(strip_tags($value), FILTER_SANITIZE_URL);
+		$this->value = filter_var(strip_tags(''.$value), FILTER_SANITIZE_URL);
 	}
 
 	/**

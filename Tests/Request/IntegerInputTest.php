@@ -4,6 +4,7 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Littled\Database\MySQLConnection;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
@@ -26,26 +27,23 @@ class IntegerInputTest extends TestCase
 	/** @var string Name of variable used to pass form data to test harness page. */
 	const TEST_HARNESS_VARIABLE_NAME = 'var';
 
-    /**
-     * @throws Exception
-     */
     protected function setUp(): void
     {
         parent::setUp();
-        if (!defined('MYSQL_HOST') ||
-            !defined('MYSQL_USER') ||
-            !defined('MYSQL_PASS') ||
-            !defined('MYSQL_SCHEMA') ||
-            !defined('MYSQL_PORT')) {
-            throw new Exception("Database connection properties not found.");
-        }
-        $this->mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
+        $this->conn = new MySQLConnection();
+        $this->conn->connectToDatabase();
+        $this->mysqli = $this->conn->getMysqli();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
     }
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-        $this->mysqli = new mysqli();
         $this->obj = new IntegerInput('Test Input', 'test_key');
     }
 

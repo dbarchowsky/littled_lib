@@ -4,7 +4,6 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Tests\Request\DataProvider\StringInputTestData;
 use PHPUnit\Framework\TestCase;
-use Littled\Database\MySQLConnection;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 
@@ -17,15 +16,17 @@ class StringInputTest extends TestCase
 {
 	/** @var StringInput Test DateInput object. */
 	public $obj;
-	/** @var MySQLConnection Test database connection. */
-	public $conn;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+    }
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-        RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
         $this->obj = new StringInput("Test date", 'p_date');
-        $this->conn = new MySQLConnection();
     }
 
     public function testConstructor()
@@ -57,6 +58,19 @@ class StringInputTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::renderInputTestProvider()
+     * @param StringInputTestData $data
+     * @return void
+     */
+    function testRenderInput(StringInputTestData $data)
+    {
+        $data->obj->cssClass = $data->css_class;
+        $this->expectOutputRegex($data->expected_regex);
+        $data->obj->renderInput($data->label_override);
+    }
+
+
+    /**
      * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::setInputValueTestProvider()
      * @param StringInputTestData $data
      * @return void
@@ -73,6 +87,8 @@ class StringInputTest extends TestCase
 
 	public function testSetTemplatePath()
 	{
+        $original = RequestInput::getInputTemplatePath();
+
 		$path = "/path/to/templates/";
 		RequestInput::setTemplateBasePath($path);
 		$this->assertEquals($path, $this->obj::getTemplateBasePath());
@@ -81,6 +97,8 @@ class StringInputTest extends TestCase
 		$this->obj::setTemplateBasePath($new_path);
 		$this->assertNotEquals($path, $this->obj::getTemplateBasePath());
 		$this->assertEquals($new_path, $this->obj::getTemplateBasePath());
+
+        RequestInput::setTemplateBasePath($original);
 	}
 
 	public function testTemplateFilename()

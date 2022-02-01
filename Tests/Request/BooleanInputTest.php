@@ -21,7 +21,21 @@ class BooleanInputTest extends ContentValidationTestCase
 	/** @var mysqli */
 	public $mysqli;
 
-	/**
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->conn = new MySQLConnection();
+        $this->conn->connectToDatabase();
+        $this->mysqli = $this->conn->getMysqli();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
+    }
+
+    /**
 	 * @param string|null $name
 	 * @param array $data
 	 * @param mixed $dataName
@@ -32,9 +46,6 @@ class BooleanInputTest extends ContentValidationTestCase
     {
         parent::__construct($name, $data, $dataName);
         $this->o = new BooleanInput('Test Input Label', 'testKey');
-		$this->conn = new MySQLConnection();
-		$this->conn->connectToDatabase();
-		$this->mysqli = $this->conn->getMysqli();
 		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 

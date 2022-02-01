@@ -16,14 +16,11 @@ class URLTextFieldTest extends TestCase
 {
 	/** @var URLTextField Test DateInput object. */
 	public $obj;
-	/** @var MySQLConnection Test database connection. */
-	public $conn;
 
     function __construct()
 	{
         parent::__construct();
 		$this->obj = new URLTextField("Test date", 'p_date');
-		$this->conn = new MySQLConnection();
 	}
 
 	/**

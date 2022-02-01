@@ -22,7 +22,7 @@ class RenderedInput extends RequestInput
 		if (!$css_class) {
 			$css_class = $this->cssClass;
 		}
-		ContentUtils::renderTemplateWithErrors(self::getTemplatePath(), array(
+		ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), array(
 			'input' => &$this,
 			'label' => $label,
 			'css_class' => $css_class
@@ -38,7 +38,7 @@ class RenderedInput extends RequestInput
 		if (!$label) {
 			$label = $this->label;
 		}
-		ContentUtils::renderTemplateWithErrors(self::getInputTemplateFilename(), array(
+		ContentUtils::renderTemplateWithErrors(static::getInputTemplatePath(), array(
 			'input' => &$this,
 			'label' => $label
 		));

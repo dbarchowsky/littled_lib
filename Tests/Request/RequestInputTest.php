@@ -3,6 +3,7 @@ namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 require_once(APP_BASE_DIR . "/tests/Base/DatabaseTestCase.php");
 
+use Littled\Database\MySQLConnection;
 use mysqli;
 use Exception;
 use Littled\Request\RequestInput;
@@ -11,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 
 class RequestInputTest extends TestCase
 {
+    /** @var MySQLConnection */
+    public $conn;
 	/** @var mysqli Test database connection. */
 	public $mysqli;
 	/** @var RequestInput Test RequestInput object. */
@@ -22,18 +25,18 @@ class RequestInputTest extends TestCase
 	public function setUp(): void
 	{
 		parent::setUp();
-		$this->mysqli = new mysqli();
-		if (!defined('MYSQL_HOST') ||
-			!defined('MYSQL_USER') ||
-			!defined('MYSQL_PASS') ||
-			!defined('MYSQL_SCHEMA') ||
-			!defined('MYSQL_PORT')) {
-			throw new Exception("Database connection properties not found.");
-		}
         RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
-		$this->mysqli->connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
+        $this->conn = new MySQLConnection();
+        $this->conn->connectToDatabase();
+        $this->mysqli = $this->conn->getMysqli();
 		$this->obj = new RequestInput("Test", "test_param");
 	}
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
+    }
 
     public function testClearValidationErrors()
     {
@@ -159,11 +162,15 @@ class RequestInputTest extends TestCase
 
 	public function testSetTemplatePath()
 	{
+        $original = $this->obj::getInputTemplatePath();
+
 		$path = "/path/to/templates/";
 		$this->obj::setTemplateBasePath($path);
 		$this->assertEquals($path, $this->obj::getTemplateBasePath());
 
 		$new_obj = new RequestInput("New label", "new_param");
 		$this->assertEquals($path, $new_obj::getTemplateBasePath());
+
+        $this->obj::setTemplateBasePath($original);
 	}
 }

@@ -54,7 +54,7 @@ class IntegerInput extends RequestInput
     /**
      * {@inheritDoc}
      */
-    public function safeValue(?int $options = null): string
+    public function safeValue($options=[]): string
     {
         if (!is_numeric($this->value)) {
             return ('');

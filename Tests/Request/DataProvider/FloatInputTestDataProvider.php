@@ -63,8 +63,38 @@ class FloatInputTestDataProvider
 	public static function renderTestProvider(): array
 	{
 		return array(
-			[new FloatInputTestData('', '/<div(.|\n)*?<label.*?>'.FloatInputTestData::DEFAULT_LABEL.'<\/label>(.|\n)*<input type=\"text\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\".* \/>/', '[use default]')],
+			[new FloatInputTestData('', '/<div(.|\n)*?<label.*?>'.FloatInputTestData::DEFAULT_LABEL.'<\/label>(.|\n)*<input type=\"number\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\".* \/>/', '[use default]')],
 			[new FloatInputTestData('', '/<div class=\"form-cell\">(.|\n)*<input.*value=\"45.23\".* \/>/', 45.23)],
 		);
 	}
+
+    public static function renderInputTestProvider(): array
+    {
+        return array(
+            [new FloatInputTestData('',
+                '/<input type=\"number\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\" id=\"'.FloatInputTestData::DEFAULT_KEY.'\" value=\"\" title=\"'.FloatInputTestData::DEFAULT_LABEL.'\" maxlength=\"50\" \/>/',
+                '[use default]')],
+            [new FloatInputTestData('',
+                '/<input.* value=\"45.37\".* \/>/',
+                45.37)],
+            [new FloatInputTestData('',
+                '/<input.* value=\"45.37\".* \/>/',
+                45.37)],
+            [new FloatInputTestData('',
+                '/<input.* value=\"45.37\".* title=\"my special label\".* \/>/',
+                45.37, false, null, 'my special label')],
+            [new FloatInputTestData('',
+                '/<input.* value=\"45.37\".* title=\"my special label\".* placeholder=\"my special label\" \/>/',
+                45.37, false, null, 'my special label', '', true)],
+            [new FloatInputTestData('',
+                '/<input.* value=\"45.37\".* title=\"'.FloatInputTestData::DEFAULT_LABEL.'\".* placeholder=\"'.FloatInputTestData::DEFAULT_LABEL.'\" \/>/',
+                45.37, false, null, '', '', true)],
+            [new FloatInputTestData('',
+                '/<input.* name=\"'.FloatInputTestData::DEFAULT_KEY.'\[0\]\" id=\"'.FloatInputTestData::DEFAULT_KEY.'-0\" value=\"45.37\".* \/>/',
+                45.37, false, 0)],
+            [new FloatInputTestData('',
+                '/<input.* value=\"45.37\".* class=\"my-special-class\" \/>/',
+                45.37, false, null, '', 'my-special-class')],
+        );
+    }
 }

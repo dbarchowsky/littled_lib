@@ -17,7 +17,13 @@ class FloatInput extends RenderedInput
     /** @var int */
     const DEFAULT_DATA_SIZE = 16;
 
-	/**
+    public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
+    {
+        parent::__construct($label, $key, $required, $value, $size_limit, $index);
+        $this->contentType = 'number';
+    }
+
+    /**
 	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @param ?string $key Key to use in place of the internal $key property value.

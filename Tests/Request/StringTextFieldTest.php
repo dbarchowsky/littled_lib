@@ -17,7 +17,13 @@ class StringTextFieldTest extends TestCase
 	/** @var StringTextField Test DateInput object. */
 	public $obj;
 
-	function __construct()
+    protected function setUp(): void
+    {
+        parent::setUp();
+        RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+    }
+
+    function __construct()
 	{
         parent::__construct();
 		$this->obj = new StringTextField("Test date", 'p_date');
@@ -25,7 +31,6 @@ class StringTextFieldTest extends TestCase
 
     function testSaveInForm()
     {
-	    RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
         $this->expectOutputRegex('/<input type=\"hidden\" name=\"'.$this->obj->key.'\"/');
         $this->obj->saveInForm();
     }

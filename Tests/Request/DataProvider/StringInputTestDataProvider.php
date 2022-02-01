@@ -62,4 +62,37 @@ class StringInputTestDataProvider
             [new StringInputTestData('', '/<label for=\"'.StringInputTestData::DEFAULT_KEY.'-0\"(.|\n)*<input.* name=\"'.StringInputTestData::DEFAULT_KEY.'\[0\]\" id=\"'.StringInputTestData::DEFAULT_KEY.'-0\"/', 'my test value', false, 0)],
 		);
 	}
+
+    public static function renderInputTestProvider(): array
+    {
+        return array(
+            [new StringInputTestData('',
+                '/<input type=\"text\" name=\"'.StringInputTestData::DEFAULT_KEY.'\" id=\"'.StringInputTestData::DEFAULT_KEY.'\" value=\"\" title=\"'.StringInputTestData::DEFAULT_LABEL.'\" maxlength=\"50\" \/>/',
+                '[use default]')],
+            [new StringInputTestData('',
+                '/<input.* value=\"hello honey!\".* \/>/',
+                'hello honey!')],
+            [new StringInputTestData('',
+                '/<input.* value=\"what up!\".* \/>/',
+                'what up!')],
+            [new StringInputTestData('',
+                '/<input.* value=\"yo yo\. yo, yo!\".* title=\"my special label\".* \/>/',
+                'yo yo. yo, yo!', false, null, 'my special label')],
+            [new StringInputTestData('',
+                '/<input.* value=\"foo bar\".* title=\"my special label\".* placeholder=\"my special label\" \/>/',
+                'foo bar', false, null, 'my special label', '', true)],
+            [new StringInputTestData('',
+                '/<input.* value=\"foo bar\".* title=\"'.StringInputTestData::DEFAULT_LABEL.'\".* placeholder=\"'.StringInputTestData::DEFAULT_LABEL.'\" \/>/',
+                'foo bar', false, null, '', '', true)],
+            [new StringInputTestData('',
+                '/<input.* name=\"'.StringInputTestData::DEFAULT_KEY.'\[0\]\" id=\"'.StringInputTestData::DEFAULT_KEY.'-0\" value=\"foo bar\".* \/>/',
+                'foo bar', false, 0)],
+            [new StringInputTestData('',
+                '/<input.* value=\"foo bar\".* class=\"my-special-class\" \/>/',
+                'foo bar', false, null, '', 'my-special-class')],
+            [new StringInputTestData('',
+                '/<input.* value=\"ampersand&amp;&lt;script&gt;\".* \/>/',
+                'ampersand&<script>')],
+        );
+    }
 }

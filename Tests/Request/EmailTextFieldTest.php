@@ -30,7 +30,13 @@ class EmailTextFieldTest extends TestCase
 		$this->conn = new MySQLConnection();
 	}
 
-	public function testConstructor()
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
+    }
+
+    public function testConstructor()
 	{
 		$obj = new EmailTextField("Label", "key", false, "dbarchowsky@gmail.com", 200, 4);
 		$this->assertEquals("Label", $obj->label);

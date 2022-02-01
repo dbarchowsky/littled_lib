@@ -21,8 +21,17 @@ class StringInputTestData
     public $label_override;
     /** @var string */
     public $css_class;
+    /** @var bool */
+    public $display_placeholder;
 
-	public function __construct($expected, string $expected_regex, $value, $required=false, ?int $index=null, string $label_override='', string $css_class='')
+	public function __construct(
+        $expected,
+        string $expected_regex,
+        $value, $required=false,
+        ?int $index=null,
+        string $label_override='',
+        string $css_class='',
+        bool $display_placeholder=false)
 	{
 		$this->expected = $expected;
 		$this->expected_regex = $expected_regex;
@@ -30,6 +39,7 @@ class StringInputTestData
 		if ('[use default]' !== $value) {
 			$this->obj->setInputValue($value);
 		}
+        $this->obj->displayPlaceholder = $display_placeholder;
         $this->value = $value;
         $this->label_override = $label_override;
         $this->css_class = $css_class;

@@ -172,7 +172,7 @@ class RequestInput
 	 */
 	public function formatErrorLabel(): string
 	{
-		return (ucfirst(strtolower($this->label)));
+		return (ucfirst(strtolower(''.$this->label)));
 	}
 
     /**
@@ -377,11 +377,11 @@ class RequestInput
 
 	/**
 	 * Returns string safe from XSS attacks that can be embedded in HTML.
-	 * @param ?int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
+	 * @param int|array $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
 	 * Same values as 3rd argument to PHP's filter_var() routine.
 	 * @return string XSS-safe string.
 	 */
-	public function safeValue( ?int $options=null ): string
+	public function safeValue($options=[] ): string
 	{
 		return (filter_var($this->value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
 	}

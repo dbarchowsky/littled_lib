@@ -17,11 +17,22 @@ class DateTextFieldTest extends TestCase
     /** @var MySQLConnection Test database connection. */
     public $conn;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->conn = new MySQLConnection();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
+    }
+
     function __construct()
     {
         parent::__construct();
         $this->obj = new DateTextField("Test date", 'dateTest');
-        $this->conn = new MySQLConnection();
     }
 
     public function testFormatFrontFacingValue()

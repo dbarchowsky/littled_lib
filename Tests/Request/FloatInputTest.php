@@ -18,13 +18,24 @@ class FloatInputTest extends ContentValidationTestCase
     /** @var mysqli */
     public $mysqli;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->conn = new MySQLConnection();
+        $this->conn->connectToDatabase();
+        $this->mysqli = $this->conn->getMysqli();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $this->conn->closeDatabaseConnection();
+    }
+
 	public function __construct(?string $name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
 		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
-        $this->conn = new MySQLConnection();
-        $this->conn->connectToDatabase();
-        $this->mysqli = $this->conn->getMysqli();
 	}
 
 	public function testConstructor()
@@ -62,7 +73,19 @@ class FloatInputTest extends ContentValidationTestCase
     function testRender(FloatInputTestData $data)
     {
         $this->expectOutputRegex($data->expected_regex);
-        $data->obj->render();
+        $data->obj->render($data->css_class, $data->label_override);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::renderInputTestProvider()
+     * @param FloatInputTestData $data
+     * @return void
+     */
+    function testRenderInput(FloatInputTestData $data)
+    {
+        $data->obj->cssClass = $data->css_class;
+        $this->expectOutputRegex($data->expected_regex);
+        $data->obj->renderInput($data->label_override);
     }
 
     /**
