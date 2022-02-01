@@ -28,6 +28,6 @@ class FloatInputTestData
 		if ('[use default]' !== $value) {
 			$this->obj->setInputValue($value);
 		}
-		$this->value = $value;
+        $this->value = $value;
 	}
 }

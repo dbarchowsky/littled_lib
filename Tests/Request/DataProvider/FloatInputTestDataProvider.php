@@ -5,6 +5,26 @@ namespace Littled\Tests\Request\DataProvider;
 
 class FloatInputTestDataProvider
 {
+    public static function escapeSQLTestProvider(): array
+    {
+        return array(
+            [new FloatInputTestData('NULL','', '[use default]')],
+            [new FloatInputTestData('NULL','', true)],
+            [new FloatInputTestData('NULL','', 'true')],
+            [new FloatInputTestData('1','', '1')],
+            [new FloatInputTestData('1','', 1)],
+            [new FloatInputTestData('NULL','', false)],
+            [new FloatInputTestData('NULL','', 'false')],
+            [new FloatInputTestData('0','', '0')],
+            [new FloatInputTestData('0','', 0)],
+            [new FloatInputTestData('45','', 45)],
+            [new FloatInputTestData('56','', '56')],
+            [new FloatInputTestData('3.005','', 3.005)],
+            [new FloatInputTestData('3.07','', '3.07')],
+            [new FloatInputTestData('NULL','', 'foobar')],
+        );
+    }
+
 	public static function saveInFormTestProvider(): array
 	{
 		return array(

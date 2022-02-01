@@ -2,6 +2,7 @@
 namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
+use Littled\Tests\Request\DataProvider\StringInputTestData;
 use PHPUnit\Framework\TestCase;
 use Littled\Database\MySQLConnection;
 use Littled\Request\RequestInput;
@@ -19,13 +20,15 @@ class StringInputTest extends TestCase
 	/** @var MySQLConnection Test database connection. */
 	public $conn;
 
-	public function setUp() : void
-	{
-		$this->obj = new StringInput("Test date", 'p_date');
-		$this->conn = new MySQLConnection();
-	}
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+        RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+        $this->obj = new StringInput("Test date", 'p_date');
+        $this->conn = new MySQLConnection();
+    }
 
-	public function testConstructor()
+    public function testConstructor()
 	{
 		$obj = new StringInput("Label", "key", false, "test value", 200, 4);
 		$this->assertEquals("Label", $obj->label);
@@ -42,23 +45,31 @@ class StringInputTest extends TestCase
 		$this->assertEquals("43", $obj->value);
 	}
 
-	public function testSetInputValue()
-	{
-		$this->obj->setInputValue('');
-		$this->assertEquals('', $this->obj->value);
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::renderTestProvider()
+     * @param StringInputTestData $data
+     * @return void
+     */
+    function testRender(StringInputTestData $data)
+    {
+        $this->expectOutputRegex($data->expected_regex);
+        $data->obj->render($data->label_override, $data->css_class);
+    }
 
-		$this->obj->setInputValue('test value');
-		$this->assertEquals('test value', $this->obj->value);
-
-		$this->obj->setInputValue(4573);
-		$this->assertEquals('4573', $this->obj->value);
-
-		$this->obj->setInputValue(null);
-		$this->assertEquals('', $this->obj->value);
-
-		$this->obj->setInputValue(873.03);
-		$this->assertEquals('873.03', $this->obj->value);
-	}
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::setInputValueTestProvider()
+     * @param StringInputTestData $data
+     * @return void
+     */
+    public function testSetInputValue(StringInputTestData $data)
+    {
+        if (null === $data->expected) {
+            $this->assertNull($data->obj->value);
+        }
+        else {
+            $this->assertEquals($data->expected, $data->obj->value);
+        }
+    }
 
 	public function testSetTemplatePath()
 	{
