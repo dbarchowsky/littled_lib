@@ -30,6 +30,19 @@ class PageContentTest extends TestCase
 		$this->obj->closeDatabaseConnection();
 	}
 
+	/**
+	 * @dataProvider \Littled\Tests\PageContent\DataProvider\PageContentTestDataProvider::collectEditActionTestProvider()
+	 * @param string $expected
+	 * @param array $data
+	 * @return void
+	 */
+	function testCollectEditAction(string $expected, array $data)
+	{
+		$o = new PageContent();
+		$o->collectEditAction($data);
+		$this->assertEquals($expected, $o->edit_action);
+	}
+
 	function testGetContentLabel()
 	{
 		$o = new PageContentChild();

@@ -19,7 +19,7 @@ use Littled\Validation\Validation;
 class PageContent extends MySQLConnection
 {
     /** @var string Token representing the current action to take on the page. */
-    public $action;
+    public $edit_action='';
     /** @var SectionContent Page content. */
     public $content;
     /** @var ContentFilters Content filters. */
@@ -73,23 +73,25 @@ class PageContent extends MySQLConnection
      */
     public function collectEditAction( $src=null )
     {
-        if ($src===null) {
+		$keys = array(
+			LittledGlobals::P_CANCEL => self::CANCEL_ACTION,
+	        LittledGlobals::P_COMMIT => self::COMMIT_ACTION);
+        if (null===$src) {
             $src = $_POST;
         }
-        if(array_key_exists(LittledGlobals::P_CANCEL, $src)) {
-            $this->action = filter_var($src[LittledGlobals::P_CANCEL], FILTER_SANITIZE_STRING);
-        }
-        if ($this->action) {
-            $this->action = "cancel";
-        }
-        else {
-            if(array_key_exists(LittledGlobals::P_COMMIT, $src)) {
-                $this->action = filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING);
-            }
-            if ($this->action) {
-                $this->action = "commit";
-            }
-        }
+		foreach ($keys as $key => $value) {
+			if (array_key_exists($key, $src)) {
+				$this->edit_action = filter_var($src[$key], FILTER_SANITIZE_STRING);
+			}
+			if (0===$this->edit_action|| '0'===$this->edit_action) {
+				$this->edit_action = '';
+				continue;
+			}
+			if ($this->edit_action) {
+				$this->edit_action = $value;
+				return;
+			}
+		}
     }
 
 	/**
