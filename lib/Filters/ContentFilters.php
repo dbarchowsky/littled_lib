@@ -13,7 +13,18 @@ use Exception;
  */
 class ContentFilters extends FilterCollection
 {
-	/** @var \Littled\PageContent\SiteSection\ContentProperties Content properties */
+	/** @var string */
+	public const NEXT_OP_ADD = 'add';
+	/** @var string */
+	public const NEXT_OP_VIEW = 'view';
+	/** @var string */
+	public const NEXT_OP_ADD_IMAGE = 'add_img';
+	/** @var string */
+	public const NEXT_OP_PREVIOUS = 'prev';
+	/** @var string */
+	public const NEXT_OP_LIST = 'list';
+
+	/** @var ContentProperties Content properties */
 	public $content_properties;
 	/** @var ContentAjaxProperties Ajax properties */
 	public $ajax_properties;
