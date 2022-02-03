@@ -4,6 +4,7 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 require_once(APP_BASE_DIR . "/tests/Base/DatabaseTestCase.php");
 
 use Littled\Database\MySQLConnection;
+use Littled\Tests\Request\DataProvider\RequestInputTestDataProvider;
 use mysqli;
 use Exception;
 use Littled\Request\RequestInput;
@@ -65,6 +66,25 @@ class RequestInputTest extends TestCase
 		$this->obj->value = "abc";
 		$this->assertEquals("'abc'", $this->obj->escapeSQL($this->mysqli), "Strings are quoted");
 	}
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\RequestInputTestDataProvider::formatClassAttributeTestProvider()
+     * @param string $expected
+     * @param string $css_class
+     * @param string $class_override
+     * @param bool $has_error
+     * @return void
+     */
+    function testFormatClassAttribute(string $expected, string $css_class='', string $class_override='', bool $has_error=false)
+    {
+        $o = new RequestInput(RequestInputTestDataProvider::TEST_LABEL, RequestInputTestDataProvider::TEST_KEY);
+        $o->cssClass = $css_class;
+        if ($has_error) {
+            $o->error = 'Request input error';
+            $o->hasErrors = true;
+        }
+        $this->assertEquals($expected, $o->formatClassAttributeMarkup($class_override));
+    }
 
 	public function testFormatErrorLabel()
 	{

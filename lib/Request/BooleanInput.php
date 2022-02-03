@@ -30,7 +30,7 @@ class BooleanInput extends RequestInput
 	 */
 	public function collectRequestData (?array $src=null, ?string $key=null)
 	{
-		$this->value = Validation::parseBooleanInput((($key)?:($this->key)), $this->index, $src);
+		$this->value = Validation::collectBooleanRequestVar((($key)?:($this->key)), $this->index, $src);
 	}
 
 	/**
@@ -76,10 +76,10 @@ class BooleanInput extends RequestInput
 
 	/**
 	 * Render the form input element(s) in the DOM.
-	 * @param string[optional] $label If a value is provided, it will override the object's internal $label property value.
-	 * @param string[optional] $css_class CSS class name to apply to the form input element.
+	 * @param string $label If a value is provided, it will override the object's internal $label property value.
+	 * @param string $css_class CSS class name to apply to the form input element.
 	 */
-	public function render($label = null, $css_class = '')
+	public function render(string $label='', string $css_class='')
 	{
 		if (false === $this->isTemplateDefined()) {
 			ContentUtils::printError("\"".__METHOD__."\" not implemented.");
@@ -88,8 +88,6 @@ class BooleanInput extends RequestInput
 		if (!$label) {
 			$label = $this->label;
 		}
-		$error_class = (($this->hasErrors)?($this::getErrorClass()):(''));
-		$css_class = trim(implode(' ', array($this->cssClass, $css_class, $error_class)));
 		$selection_state = ((true === $this->value)?(' checked="checked"'):(''));
 		$required_str = (($this->required)?($this::getRequiredIndicator()):(''));
 

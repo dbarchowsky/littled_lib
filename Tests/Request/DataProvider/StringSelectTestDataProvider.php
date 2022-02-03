@@ -20,7 +20,7 @@ class StringSelectTestDataProvider
 				StringSelectTestData::TEST_OPTIONS,
 				'new special label')],
 			[new StringSelectTestData(
-				'/<div class=\"my-special-class\">(.|\n)*<label(.|\n)*<select/',
+				'/<div class=\"form-cell my-special-class\">(.|\n)*<label(.|\n)*<select/',
 				new StringSelect(StringSelectTestData::TEST_LABEL, StringSelectTestData::TEST_KEY),
 				StringSelectTestData::TEST_OPTIONS,
 				'', 'my-special-class')],

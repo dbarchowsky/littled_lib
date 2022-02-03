@@ -40,6 +40,7 @@ class StringSelectTestData
 		?int $options_size=null)
 	{
 		$this->input = $o;
+        $this->input->cssClass = 'form-cell';
 		$this->expected = $expected;
 		$this->options = $options;
 		$this->override_label = $override_label;

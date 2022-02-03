@@ -37,6 +37,19 @@ class BooleanInputTestDataProvider
 		);
 	}
 
+    public static function renderTestProvider(): array
+    {
+        return array(
+            [new BooleanInputTestData('', '/^\s*<div.*>\s*<label for=\"'.BooleanInputTestData::DEFAULT_KEY.'\"><input type=\"checkbox\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" id=\"'.BooleanInputTestData::DEFAULT_KEY.'\".* \/>\s*'.BooleanInputTestData::DEFAULT_LABEL.'<\/label>\s*/', '[use default]')],
+            [new BooleanInputTestData('', '/^\s*<div class=\"my-class\"/', '[use default]', false, false, '', 'my-class')],
+            [new BooleanInputTestData('', '/^\s*<div class=\"my-class other-class\"/', '[use default]', false, false, '', 'my-class', 'other-class')],
+            [new BooleanInputTestData('', '/^\s*<div class=\"my-class other-class input-error\"/', '[use default]', false, true, '', 'my-class', 'other-class')],
+            [new BooleanInputTestData('', '/^\s*<div class=\"my-class input-error\"/', '[use default]', false, true, '', 'my-class')],
+            [new BooleanInputTestData('', '/^\s*<div class=\"input-error\"/', '[use default]', false, true)],
+            [new BooleanInputTestData('', '/^\s*<div.*>\s*<label.*><input.*>\s*'.BooleanInputTestData::DEFAULT_LABEL.' \(\*\)<\/label>\s*/', '[use default]', true)],
+        );
+    }
+
 	public static function saveInFormProvider(): array
 	{
 		return array(

@@ -35,6 +35,17 @@ class BooleanCheckboxTest extends TestCase
         $o->saveInForm();
     }
 
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::renderTestProvider()
+     * @param BooleanInputTestData $data
+     * @return void
+     */
+    function testRender(BooleanInputTestData $data)
+    {
+        $this->expectOutputRegex($data->expected_regex);
+        $data->obj->render($data->label_override, $data->class_override);
+    }
+
 	public function testTemplatePath()
 	{
 		$original = BooleanCheckbox::getTemplateFilename();

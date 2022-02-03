@@ -5,8 +5,6 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Littled\Database\MySQLConnection;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
@@ -18,8 +16,6 @@ class IntegerInputTest extends TestCase
 {
     /** @var IntegerInput */
     public $obj;
-    /** @var mysqli */
-    public $mysqli;
     /** @var bool */
     const MAKE_HTTP_REQUEST = false;
 
@@ -30,23 +26,15 @@ class IntegerInputTest extends TestCase
 	/** @var string Name of variable used to pass form data to test harness page. */
 	const TEST_HARNESS_VARIABLE_NAME = 'var';
 
-    /**
-     * @throws ConnectionException
-     * @throws ConfigurationUndefinedException
-     */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->conn = new MySQLConnection();
-        $this->conn->connectToDatabase();
-        $this->mysqli = $this->conn->getMysqli();
         RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->conn->closeDatabaseConnection();
     }
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
@@ -265,14 +253,15 @@ class IntegerInputTest extends TestCase
      * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::escapeSQLTestProvider()
      * @param $expected
      * @param $value
+     * @param mysqli $mysqli
      * @param string $msg
      * @return void
      */
-    public function testEscapeSQL($expected, $value, string $msg='')
+    public function testEscapeSQL($expected, $value, mysqli $mysqli, string $msg='')
     {
         $o = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
         $o->setInputValue($value);
-        $this->assertEquals($expected, $o->escapeSQL($this->mysqli), $msg);
+        $this->assertEquals($expected, $o->escapeSQL($mysqli), $msg);
     }
 
     /**

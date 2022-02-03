@@ -3,6 +3,8 @@
 namespace Littled\Tests\Request\DataProvider;
 
 
+use Littled\Database\MySQLConnection;
+
 class IntegerInputTestDataProvider
 {
 	public static function collectRequestDataTestProvider(): array
@@ -26,22 +28,25 @@ class IntegerInputTestDataProvider
 
     public static function escapeSQLTestProvider(): array
     {
+        $conn = new MySQLConnection();
+        $conn->connectToDatabase();
+        $mysqli = $conn->getMysqli();
         return array(
-            ['NULL', '[use default]', 'input value: [not set]'],
-            ['NULL', true, 'input value: true'],
-            ['NULL', 'true', 'input value: "true"'],
-            ['1', '1', 'input value: "1"'],
-            ['1', 1, 'input value: 1'],
-            ['NULL', false, 'input value: false'],
-            ['NULL', 'false', 'input value: "false"'],
-            ['0', '0', 'input value: "0"'],
-            ['0', 0, 'input value: 0'],
-            ['45', 45, 'input value: 45'],
-            ['56', '56', 'input value: "56"'],
-            ['3', 3.005, 'input value: 3.005'],
-            ['3', '3.07', 'input value: "3.07"'],
-            ['4', 3.51, 'input value: 3.51'],
-            ['NULL', 'foobar', 'input value: "foobar"'],
+            ['NULL', '[use default]', $mysqli, 'input value: [not set]'],
+            ['NULL', true, $mysqli, 'input value: true'],
+            ['NULL', 'true', $mysqli, 'input value: "true"'],
+            ['1', '1', $mysqli, 'input value: "1"'],
+            ['1', 1, $mysqli, 'input value: 1'],
+            ['NULL', false, $mysqli, 'input value: false'],
+            ['NULL', 'false', $mysqli, 'input value: "false"'],
+            ['0', '0', $mysqli, 'input value: "0"'],
+            ['0', 0, $mysqli, 'input value: 0'],
+            ['45', 45, $mysqli, 'input value: 45'],
+            ['56', '56', $mysqli, 'input value: "56"'],
+            ['3', 3.005, $mysqli, 'input value: 3.005'],
+            ['3', '3.07', $mysqli, 'input value: "3.07"'],
+            ['4', 3.51, $mysqli, 'input value: 3.51'],
+            ['NULL', 'foobar', $mysqli, 'input value: "foobar"'],
         );
     }
 

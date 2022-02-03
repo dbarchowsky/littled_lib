@@ -17,8 +17,21 @@ use mysqli;
  */
 class RequestInput
 {
+    /** @var string Path to form input templates. */
+    protected static $template_base_path = '';
+    /** @var string Input template filename. */
+    protected static $template_filename = 'hidden-input.php';
+    /** @var string Form input element filename. */
+    protected static $input_template_filename = '';
+    /** @var string Required field indicator string. */
+    protected static $required_field_indicator = ' (*)';
+    /** @var string Error indicator CSS class. */
+    protected static $error_class = 'form-error';
+    /** @var string */
+    protected static $input_error_css_class = 'input-error';
+
 	/** @var string Name of CSS class to be used when displaying the form input. */
-	public $cssClass;
+	public $cssClass='';
 	/** @var string Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
 	public $contentType;
 	/**
@@ -60,16 +73,6 @@ class RequestInput
 	public $value;
 	/** @var string If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
 	public $width;
-	/** @var string Path to form input templates. */
-	protected static $template_base_path = '';
-	/** @var string Input template filename. */
-	protected static $template_filename = 'hidden-input.php';
-	/** @var string Form input element filename. */
-	protected static $input_template_filename = '';
-	/** @var string Error indicator CSS class. */
-	protected static $error_class = 'form-error';
-	/** @var string Required field indicator string. */
-	protected static $required_field_indicator = ' (*)';
 
 	/**
 	 * class constructor
@@ -165,6 +168,18 @@ class RequestInput
 		}
 	}
 
+    /**
+     * Formats the css class attribute string to be injected into markup of the input's container element.
+     * @param string $css_class
+     * @return string
+     */
+    public function formatClassAttributeMarkup(string $css_class=''): string
+    {
+        $error_class = (($this->hasErrors)?(static::$input_error_css_class):(''));
+        $classes = trim(implode(' ', array_filter(array($this->cssClass, $css_class, $error_class))));
+        return (($classes)?(" class=\"$classes\""):(''));
+    }
+
 	/**
 	 * Returns a consistently formatted label string for use in error messages.
 	 * Default format is first letter capitalized.
@@ -200,6 +215,15 @@ class RequestInput
 		}
 		return ('');
 	}
+
+    /**
+     * Returns markup to inject into input container element to indicate on the front-end that the input form data is required.
+     * @return string
+     */
+    public function formatRequiredIndicatorMarkup(): string
+    {
+        return (($this->required)?(static::getRequiredIndicator()):(''));
+    }
 
     /**
      * Formats the value of the object in a way where it can be inserted into markup.
