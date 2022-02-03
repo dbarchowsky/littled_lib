@@ -63,7 +63,7 @@ class FloatInputTestDataProvider
 	public static function renderTestProvider(): array
 	{
 		return array(
-			[new FloatInputTestData('', '/<div(.|\n)*?<label.*?>'.FloatInputTestData::DEFAULT_LABEL.'<\/label>(.|\n)*<input type=\"number\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\".* \/>/', '[use default]')],
+			[new FloatInputTestData('', '/<div(.|\n)*?<label.*?>'.FloatInputTestData::DEFAULT_LABEL.'<\/label>(.|\n)*<input type=\"number\" step=\"0.01\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\".* \/>/', '[use default]')],
 			[new FloatInputTestData('', '/<div class=\"form-cell\">(.|\n)*<input.*value=\"45.23\".* \/>/', 45.23)],
 		);
 	}
@@ -72,7 +72,7 @@ class FloatInputTestDataProvider
     {
         return array(
             [new FloatInputTestData('',
-                '/<input type=\"number\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\" id=\"'.FloatInputTestData::DEFAULT_KEY.'\" value=\"\" title=\"'.FloatInputTestData::DEFAULT_LABEL.'\" maxlength=\"50\" \/>/',
+                '/<input type=\"number\" step=\"0.01\" name=\"'.FloatInputTestData::DEFAULT_KEY.'\" id=\"'.FloatInputTestData::DEFAULT_KEY.'\" value=\"\" title=\"'.FloatInputTestData::DEFAULT_LABEL.'\" maxlength=\"50\" \/>/',
                 '[use default]')],
             [new FloatInputTestData('',
                 '/<input.* value=\"45.37\".* \/>/',
