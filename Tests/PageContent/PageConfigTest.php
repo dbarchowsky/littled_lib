@@ -35,7 +35,7 @@ class PageConfigTest extends TestCase
         $menu = PageConfig::getUtilityLinks();
         $this->assertEquals(2, $menu->getNodeCount());
 
-        $node = PageConfig::getUtilityLinks()->first->nextNode;
+        $node = PageConfig::getUtilityLinks()->first->next_node;
         $this->assertEquals($link2['url'], $node->url);
         $this->assertEquals($link2['label'], $node->label);
     }

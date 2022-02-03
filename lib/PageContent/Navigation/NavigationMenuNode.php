@@ -1,8 +1,7 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
+use Littled\App\LittledGlobals;
 
 
 /**
@@ -10,34 +9,22 @@ use Littled\PageContent\ContentUtils;
  * Navigation menu node object used to configure and render individual items on navigation menus.
  * @package Littled\PageContent\Navigation
  */
-class NavigationMenuNode
+class NavigationMenuNode extends NavigationNodeBase
 {
+	/** @var string */
+	protected static $node_template_path = '';
+
 	/** @var string Extra attributes to add to the node HTML tag, e.g. "data-id" */
 	public $attributes;
-	/** @var string CSS class to apply to the node */
-	public $cssClass;
 	/** @var string Description */
 	public $title;
-	/** @var string DOM id value */
-	public $domId;
 	/** @var string Path to image to display as content of the menu node. */
-	public $imgPath;
-	/** @var string Node label displayed on the page */
-	public $label;
+	public $image_path;
 	/** @var int Nesting level of the node. */
 	public $level;
-	/** @var NavigationMenuNode Link to next node in the menu. */
-	public $nextNode;
-	/** @var NavigationMenuNode Link to previous node in the menu. */
-	public $prevNode;
 	/** @var string Named browser target. For opening new browser windows, e.g. "_blank" */
 	public $target;
-	/** @var string URL that the node links to */
-	public $url;
 
-	/** @var string Path to template to use to render the node */
-	protected static $menuNodeTemplate = '';
-	
 	/**
 	 * Class constructor.
 	 * @param string $label Text to display for this item within the navigation menu.
@@ -50,50 +37,31 @@ class NavigationMenuNode
 	 */
 	function __construct ( string $label='', string $url='', string $title='', string $target='', int $level=0, string $dom_id='', string $attributes='')
 	{
-		$this->label = $label;
-		$this->url = $url;
+		parent::__construct($label, $url);
 		$this->target = $target;
 		$this->title = $title;
 		$this->level = $level;
-		$this->domId = $dom_id;
+		$this->dom_id = $dom_id;
 		$this->attributes = $attributes;
 	}
 
 	/**
-	 * @return string Navigation menu node template path.
+	 * {@inheritDoc}
 	 */
 	public static function getNodeTemplatePath(): string
 	{
-		return (static::$menuNodeTemplate);
+		if (!static::$node_template_path) {
+			static::$node_template_path = LittledGlobals::getTemplatePath().'framework/navigation/navigation-menu-node.php';
+		}
+		return (static::$node_template_path);
 	}
 
-    /**
-     * render
-     * Outputs markup for the individual navigation menu node.
-	 * @throws ResourceNotFoundException
-	 */
-    public function render ( )
-    {
-	    ContentUtils::renderTemplate($this::getNodeTemplatePath(), array(
-		    'node' => &$this
-	    ));
-    }
-	
 	/**
 	 * Sets the path to an image file to use as the content of the menu node.
 	 * @param string $path Path to image.
 	 */
 	public function setImagePath(string $path)
 	{
-		$this->imgPath = $path;		
-	}
-
-	/**
-	 * Sets the path to the breadcrumb nodes template.
-	 * @param string $path Template path.
-	 */
-	public static function setNodeTemplatePath(string $path)
-	{
-		static::$menuNodeTemplate = $path;
+		$this->image_path = $path;
 	}
 }

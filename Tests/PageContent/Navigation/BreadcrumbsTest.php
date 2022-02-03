@@ -2,38 +2,46 @@
 namespace Littled\Tests\PageContent\Navigation;
 require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Navigation\Breadcrumbs;
+use Littled\Tests\PageContent\Navigation\DataProvider\BreadcrumbsTestData;
 use PHPUnit\Framework\TestCase;
 
 class BreadcrumbsTest extends TestCase
 {
+	/** @var string */
+	public const TEMPLATE_PATH = 'framework/navigation/breadcrumbs-menu.php';
     /** @var Breadcrumbs */
     protected $obj;
-
-    protected const TEMPLATE_PATH = '../../assets/templates/breadcrumbs.php';
 
     protected function setUp(): void
     {
         parent::setUp();
+		LittledGlobals::setTemplatePath(LITTLED_TEMPLATE_DIR);
         $this->obj = new Breadcrumbs();
     }
 
     function testSetBreadcrumbsTemplatePath()
     {
+		$original = Breadcrumbs::getBreadcrumbsTemplatePath();
+
         // test default value
         $this->assertEquals('', Breadcrumbs::getBreadcrumbsTemplatePath());
 
         // test assigned template value
-        Breadcrumbs::setBreadcrumbsTemplatePath(self::TEMPLATE_PATH);
-        $this->assertEquals(self::TEMPLATE_PATH, Breadcrumbs::getBreadcrumbsTemplatePath());
+        Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getTemplatePath().self::TEMPLATE_PATH);
+        $this->assertEquals(LittledGlobals::getTemplatePath().self::TEMPLATE_PATH, Breadcrumbs::getBreadcrumbsTemplatePath());
+	    $this->assertEquals(LittledGlobals::getTemplatePath().self::TEMPLATE_PATH, Breadcrumbs::getMenuTemplatePath());
+
+		Breadcrumbs::setBreadcrumbsTemplatePath($original);
     }
 
 	function testFind()
 	{
 		$first_url = 'https://localhost/myurl';
-
 		$b = new Breadcrumbs();
+
 		$this->assertNull($b->find('node'));
 
 		$b->addNode('test_01', $first_url);
@@ -47,21 +55,15 @@ class BreadcrumbsTest extends TestCase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\BreadcrumbsTestDataProvider::renderTestProvider()
+     * @param BreadcrumbsTestData $data
      * @return void
      * @throws ResourceNotFoundException
      */
-    function testRender()
+    function testRender(BreadcrumbsTestData $data)
     {
-        $label1 = 'BC1';
-        $url1 = '/url1';
-        $pattern = '/^<ul>\W*<li><a href=\"'.str_replace('/', '\/', $url1).'\">'.$label1.'<\/a><\/li>(.|\n)*<\/ul>/';
-
-        // set up menu
-        Breadcrumbs::setBreadcrumbsTemplatePath(SHARED_CMS_TEMPLATE_DIR.'framework/navigation/breadcrumbs.php');
-        $this->obj->addNode($label1, $url1);
-        $this->obj->addNode('BC 2', '/url-2');
-
-        $this->expectOutputRegex($pattern);
-        $this->obj->render();
+	    Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getTemplatePath().self::TEMPLATE_PATH);
+        $this->expectOutputRegex($data->expected);
+        $data->menu->render();
     }
 }

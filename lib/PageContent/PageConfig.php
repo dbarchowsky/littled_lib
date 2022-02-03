@@ -122,6 +122,16 @@ class PageConfig
 	}
 
 	/**
+	 * Removes all utility link nodes.
+	 */
+	public static function clearUtilityLinks()
+	{
+		if (isset(static::$utilityLinks)) {
+			static::$utilityLinks->clearNodes();
+		}
+	}
+
+	/**
 	 * Collects page status value as defined in request variables (e.g. GET, POST, session)
 	 * @throws ConfigurationUndefinedException
 	 */

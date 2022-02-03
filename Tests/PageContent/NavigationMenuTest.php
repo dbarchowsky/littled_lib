@@ -28,7 +28,7 @@ class NavigationMenuTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse(strpos($markup, '<img'), "Node without image has no 'img' tag.");
 		$this->assertNotFalse(strpos($markup, '<a href="#"'), "Node without url has no 'href' attribute.");
 
-		$n = $n->nextNode;
+		$n = $n->next_node;
 		ob_start();
 		$n->render();
 		$markup = ob_get_contents();
@@ -39,7 +39,7 @@ class NavigationMenuTest extends \PHPUnit_Framework_TestCase
 		$this->assertNotFalse(strpos($markup, '/path/to/image.jpg'), "Unlinked image node expected image path.");
 		$this->assertNotFalse(strpos($markup, '<a href="#"'), "Unlinked image node has no 'href' attribute.");
 
-		$n = $n->nextNode;
+		$n = $n->next_node;
 		ob_start();
 		$n->render();
 		$markup = ob_get_contents();

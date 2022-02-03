@@ -1,38 +1,18 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\PageContent\ContentUtils;
-use Littled\Exception\ResourceNotFoundException;
-
 
 /**
  * Class Breadcrumbs
  * @package Littled\PageContent\Navigation
  */
-class Breadcrumbs
+class Breadcrumbs extends NavigationMenuBase
 {
-	/** @var BreadcrumbsNode Pointer to first node in the list of breadcrumbs. */
-	public $first;
-	/** @var BreadcrumbsNode Pointer to last node in the list of breadcrumbs. */
-	public $last;
-	/** @var string CSS class to apply to the breadcrumb menu parent element */
-	public $cssClass;
+	/** @var string */
+	protected static $menu_template_path = '';
+	/** @var string */
+	protected static $node_type = 'Littled\PageContent\Navigation\BreadcrumbsNode';
 
-	/** @var string Path to template used to display the breadcrumbs. */
-	protected static $breadcrumbsTemplate = "";
-	/** @var string Class name of the class used to render the breadcrumb nodes. */
-	protected static $nodeType = 'Littled\PageContent\Navigation\BreadcrumbsNode';
-
-	/**
-	 * Class constructor.
-	 */
-	public function __construct()
-	{
-		$this->first = null;
-		$this->last = null;
-		$this->cssClass = '';
-	}
-	
 	/**
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label Text to display for this item within the navigation menu.
@@ -43,11 +23,11 @@ class Breadcrumbs
 	function addNode (string $label, string $url='', string $dom_id='', string $css_class='')
 	{
 		/** @var $node BreadcrumbsNode */
-		$node_type = $this::$nodeType;
+		$node_type = static::$node_type;
 		$node = new $node_type($label, $url, $dom_id, $css_class);
 		if (isset($this->first)) {
-			$this->last->nextNode = $node;
-			$node->prevNode = $this->last;
+			$this->last->next_node = $node;
+			$node->prev_node = $this->last;
 		}
 		else {
 			$this->first = $node;
@@ -55,42 +35,6 @@ class Breadcrumbs
         $this->last = $node;
 	}
 	
-	/**
-	 * Remove and delete all nodes on the tree.
-	 */
-	public function clearNodes()
-	{
-		while(isset($this->last)) {
-			$node = null;
-			if (isset($this->last->prevNode) && is_object($this->last->prevNode)) {
-				$node = &$this->last->prevNode;
-			}
-			unset($this->last);
-			if (is_object($node)) {
-				$this->last = &$node;
-			}
-		}
-		unset($this->first);
-	}
-
-	/**
-	 * removes the last node from the chain
-	 */
-	function dropLast ( )
-	{
-		if (!isset($this->last)) {
-			return;
-		}
-
-		if (isset($this->last->prevNode)) {
-			$node = $this->last->prevNode;
-			unset($node->nextNode);
-			$this->last = $node;
-		}
-		else {
-			unset($this->last);
-		}
-	}
 
 	/**
 	 * @param string $label
@@ -103,7 +47,7 @@ class Breadcrumbs
 			if ($label === $node->label) {
 				return $node;
 			}
-			$node = $node->nextNode;
+			$node = $node->next_node;
 		}
 		return null;
 	}
@@ -113,61 +57,11 @@ class Breadcrumbs
 	 */
 	public static function getBreadcrumbsTemplatePath(): string
 	{
-		return static::$breadcrumbsTemplate;
+		return static::getMenuTemplatePath();
 	}
 
-	/**
-	 * @return string Returns the type set for the breadcrumb nodes.
-	 */
-	public static function getNodeType(): string
+	public static function setBreadcrumbsTemplatePath(string $path)
 	{
-		return static::$nodeType;
-	}
-
-	/**
-	 * Returns true/false depending on whether the menu current contains any nodes.
-	 * @return bool true if the menu has nodes, false otherwise
-	 */
-	public function hasNodes (): bool
-	{
-		return (isset($this->first));
-	}
-
-	/**
-	 * Outputs navigation menu markup.
-	 * @throws ResourceNotFoundException
-	 */
-	public function render ()
-	{
-		ContentUtils::renderTemplate($this::getBreadcrumbsTemplatePath(), array(
-			'breadcrumbs' => &$this
-		));
-	}
-
-	/**
-	 * Sets the path to the breadcrumb template.
-	 * @param string $path Path to breadcrumbs template.
-	 */
-	public static function setBreadcrumbsTemplatePath( string $path )
-	{
-		static::$breadcrumbsTemplate = $path;
-	}
-
-	/**
-	 * Sets the CSS class of the breadcrumbs parent element.
-	 * @param string $css_class
-	 */
-	public function setCSSClass(string $css_class)
-	{
-		$this->cssClass = $css_class;
-	}
-
-	/**
-	 * Sets the type of the breadcrumb nodes.
-	 * @param string $type Name of the class to use as breadcrumb nodes.
-	 */
-	public static function setNodeType(string $type)
-	{
-		static::$nodeType = $type;
+		static::setMenuTemplatePath($path);
 	}
 }
