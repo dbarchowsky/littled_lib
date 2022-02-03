@@ -5,11 +5,13 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
+use Littled\Request\RequestInput;
 use Littled\Tests\Request\DataProvider\IntegerInputTestData;
 use PHPUnit\Framework\TestCase;
-use Exception;
 use mysqli;
 
 class IntegerInputTest extends TestCase
@@ -28,12 +30,17 @@ class IntegerInputTest extends TestCase
 	/** @var string Name of variable used to pass form data to test harness page. */
 	const TEST_HARNESS_VARIABLE_NAME = 'var';
 
+    /**
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
     protected function setUp(): void
     {
         parent::setUp();
         $this->conn = new MySQLConnection();
         $this->conn->connectToDatabase();
         $this->mysqli = $this->conn->getMysqli();
+        RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 
     protected function tearDown(): void
@@ -254,6 +261,43 @@ class IntegerInputTest extends TestCase
         }
 	}
 
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::escapeSQLTestProvider()
+     * @param $expected
+     * @param $value
+     * @param string $msg
+     * @return void
+     */
+    public function testEscapeSQL($expected, $value, string $msg='')
+    {
+        $o = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
+        $o->setInputValue($value);
+        $this->assertEquals($expected, $o->escapeSQL($this->mysqli), $msg);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::renderTestProvider()
+     * @param IntegerInputTestData $data
+     * @return void
+     */
+    function testRender(IntegerInputTestData $data)
+    {
+        $this->expectOutputRegex($data->expected_regex);
+        $data->obj->render($data->css_class, $data->label_override);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::renderInputTestProvider()
+     * @param IntegerInputTestData $data
+     * @return void
+     */
+    function testRenderInput(IntegerInputTestData $data)
+    {
+        $data->obj->cssClass = $data->css_class;
+        $this->expectOutputRegex($data->expected_regex);
+        $data->obj->renderInput($data->label_override);
+    }
+
     public function testSafeValue()
     {
         $this->obj->value = null;
@@ -270,6 +314,22 @@ class IntegerInputTest extends TestCase
 
         $this->obj->value = '<script>alert("hello!")</script>';
         $this->assertEquals('', $this->obj->safeValue());
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::setInputValueTestProvider()
+     * @param $expected
+     * @param $value
+     * @param string $msg
+     * @return void
+     */
+    public function testSetInputValue($expected, $value, string $msg='')
+    {
+        $o = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
+        if ('[use default]' !== $value) {
+            $o->setInputValue($value);
+        }
+        $this->assertEquals($expected, $o->value);
     }
 
     /**
@@ -416,53 +476,6 @@ class IntegerInputTest extends TestCase
         }
 	}
 
-	public function testEscapeSQL()
-	{
-		$o = new IntegerInput("Test", "test");
-
-		$this->assertNull($o->value);
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "Defaults to 'null'");
-
-		$o->value = true;
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "True value translates to '1'");
-
-		$o->value = 'true';
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "String 'true' evaluates to null");
-
-		$o->value = '1';
-		$this->assertEquals('1', $o->escapeSQL($this->mysqli), "String '1' evaluates to '1'\"'");
-
-		$o->value = 1;
-		$this->assertEquals('1', $o->escapeSQL($this->mysqli), "Integer value 1 evaluates to '1'\"'");
-
-		$o->value = false;
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "False value translates to '0'");
-
-		$o->value = 'false';
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "String 'false' evaluates to null");
-
-		$o->value = '0';
-		$this->assertEquals('0', $o->escapeSQL($this->mysqli), "String '0' evaluates to '1'\"'");
-
-		$o->value = 0;
-		$this->assertEquals('0', $o->escapeSQL($this->mysqli), "Integer value 0 evaluates to '1'\"'");
-
-		$o->value = 45;
-		$this->assertEquals('45', $o->escapeSQL($this->mysqli), "Valid integer value.");
-
-		$o->value = '56';
-		$this->assertEquals('56', $o->escapeSQL($this->mysqli), "Valid integer value.");
-
-		$o->value = 3.005;
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "Float value evaluates to 'null'\"'");
-
-		$o->value = '3.005';
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "Float value evaluates to 'null'\"'");
-
-		$o->value = 'foobar';
-		$this->assertEquals('NULL', $o->escapeSQL($this->mysqli), "Arbitrary string evaluates to 'null'\"'");
-	}
-
 	public function testValidateValidValues()
 	{
 		$o = new IntegerInput("Test", "test");
@@ -547,67 +560,5 @@ class IntegerInputTest extends TestCase
 		$o = new IntegerInput('test label', 'ptest', false);
 		$o->value = 'foo';
 		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
-	}
-
-	public function testValidateNotRequiredFloatValue()
-	{
-		$o = new IntegerInput('test label', 'ptest', false);
-		$o->value = 87.56;
-		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
-	}
-
-	public function testValidateRequiredFloatValue()
-	{
-		$o = new IntegerInput('test label', 'ptest', true);
-		$o->value = 94.052;
-		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
-	}
-
-	public function testSetInputValue()
-	{
-		$o = new IntegerInput("Test object", "bol_test");
-		$this->assertNull($o->value);
-
-		$o->setInputValue(true);
-		$this->assertNull($o->value);
-
-		$o->setInputValue('true');
-		$this->assertNull($o->value);
-
-		$o->setInputValue('1');
-		$this->assertEquals(1, $o->value);
-
-		$o->setInputValue(1);
-		$this->assertEquals(1, $o->value);
-
-		$o->setInputValue(false);
-		$this->assertNull($o->value);
-
-		$o->setInputValue('false');
-		$this->assertNull($o->value);
-
-		$o->setInputValue('0');
-		$this->assertEquals(0, $o->value);
-
-		$o->setInputValue(0);
-		$this->assertEquals(0, $o->value);
-
-		$o->setInputValue(45);
-		$this->assertEquals(45, $o->value);
-
-		$o->setInputValue('45');
-		$this->assertEquals(45, $o->value);
-
-		$o->setInputValue(32.7);
-		$this->assertNull($o->value);
-
-		$o->setInputValue('32.7');
-		$this->assertNull($o->value);
-
-		$o->setInputValue('some arbitrary sting');
-		$this->assertNull($o->value);
-
-		$o->setInputValue(null);
-		$this->assertNull($o->value);
 	}
 }
