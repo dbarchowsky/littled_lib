@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Littled\Database\MySQLConnection;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
+use Littled\Tests\Request\DataProvider\IntegerInputTestData;
 use PHPUnit\Framework\TestCase;
 use Exception;
 use mysqli;
@@ -101,6 +102,19 @@ class IntegerInputTest extends TestCase
 		]);
 		return(json_decode($response->getBody()->getContents(), true));
 	}
+
+    /**
+     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::collectRequestDataTestProvider()
+     * @param $expected
+     * @param $value
+     * @return void
+     */
+    function testCollectRequestData($expected, $value)
+    {
+        $obj = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
+        $obj->collectRequestData(array(IntegerInputTestData::DEFAULT_KEY => $value));
+        $this->assertEquals($expected, $obj->value);
+    }
 
 	public function testConstructor()
 	{

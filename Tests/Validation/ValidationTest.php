@@ -3,49 +3,45 @@ namespace Littled\Tests\Validation;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Exception\ContentValidationException;
+use Littled\Tests\Request\DataProvider\IntegerInputTestData;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 
 
 class ValidationTest extends TestCase
 {
-	public function testParseNumeric()
-	{
-		$int_overflow = (PHP_INT_MAX+1);
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseIntegerTestProvider()
+     * @param $expected
+     * @param $value
+     * @param string $msg
+     * @return void
+     */
+    public function testCollectIntegerRequestVar($expected, $value, string $msg='')
+    {
+        $this->assertEquals($expected, Validation::collectIntegerRequestVar('testKey', null, array('testKey' => $value)), $msg);
+    }
 
-		$this->assertEquals(1, Validation::parseNumeric("1"), "\"1\" returns numeric value.");
-		$this->assertEquals(0, Validation::parseNumeric("0"), "\"0\" returns numeric value.");
-		$this->assertEquals(-1, Validation::parseNumeric("-1"));
-		$this->assertEquals(5, Validation::parseNumeric("5"));
-		$this->assertEquals(PHP_INT_MAX, Validation::parseNumeric("".PHP_INT_MAX), "parseNumeric() with largest possible integer value");
-		// $this->assertEquals(Littled\Validation\Validation::parseNumeric("".(PHP_INT_MAX+1)), $int_overflow, "parseNumeric() with value overflowing int max value");
-		$this->assertEquals(0.01, Validation::parseNumeric("0.01"));
-		$this->assertEquals(4.5, Validation::parseNumeric("4.5"));
-		$this->assertNull(Validation::parseNumeric("zero"));
-		$this->assertNull(Validation::parseNumeric("j01"));
-		$this->assertNull(Validation::parseNumeric("01jx"));
-		$this->assertNull(Validation::parseNumeric("true"));
-		$this->assertNull(Validation::parseNumeric("false"));
-		$this->assertNull(Validation::parseNumeric(true));
-		$this->assertNull(Validation::parseNumeric(false));
-	}
-	
-	public function testIsInteger()
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::isIntegerTestProvider()
+     * @param $expected
+     * @param $value
+     * @return void
+     */
+    public function testIsInteger($expected, $value)
+    {
+        $this->assertEquals($expected, Validation::isInteger($value));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseNumericTestProvider()
+     * @param $expected
+     * @param $value
+     * @return void
+     */
+	public function testParseNumeric($expected, $value)
 	{
-		$this->assertTrue(Validation::isInteger(1));
-		$this->assertTrue(Validation::isInteger(0));
-		$this->assertTrue(Validation::isInteger(-1));
-		$this->assertTrue(Validation::isInteger("1"));
-		$this->assertTrue(Validation::isInteger("0"));
-		$this->assertTrue(Validation::isInteger("-1"));
-		$this->assertFalse(Validation::isInteger("-"));
-		$this->assertFalse(Validation::isInteger("true"));
-		$this->assertFalse(Validation::isInteger("false"));
-		$this->assertFalse(Validation::isInteger(true));
-		$this->assertFalse(Validation::isInteger(false));
-		$this->assertFalse(Validation::isInteger(4.5));
-		$this->assertFalse(Validation::isInteger('4.5'));
-		$this->assertFalse(Validation::isInteger(null));
+        $this->assertEquals($expected, Validation::parseNumeric($value));
 	}
 
 	public function testIsStringWithContent()
@@ -67,22 +63,16 @@ class ValidationTest extends TestCase
 		$this->assertTrue(Validation::isStringWithContent('435'));
 	}
 
-	public function testParseInteger()
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseIntegerTestProvider()
+     * @param $expected
+     * @param $value
+     * @param string $msg
+     * @return void
+     */
+	public function testParseInteger($expected, $value, string $msg='')
 	{
-		$this->assertEquals(1, Validation::parseInteger(1));
-		$this->assertEquals(0, Validation::parseInteger(0));
-		$this->assertEquals(-1, Validation::parseInteger(-1));
-		$this->assertEquals(1, Validation::parseInteger("1"));
-		$this->assertEquals(0, Validation::parseInteger("0"));
-		$this->assertEquals(-1, Validation::parseInteger("-1"));
-		$this->assertNull(Validation::parseInteger("-"));
-		$this->assertNull(Validation::parseInteger("true"));
-		$this->assertNull(Validation::parseInteger("false"));
-		$this->assertNull(Validation::parseInteger(true));
-		$this->assertNull(Validation::parseInteger(false));
-		$this->assertNull(Validation::parseInteger(4.5));
-		$this->assertNull(Validation::parseInteger('4.5'));
-		$this->assertNull(Validation::parseInteger(null));
+        $this->assertEquals($expected, Validation::parseInteger($value), $msg);
 	}
 
 	/**

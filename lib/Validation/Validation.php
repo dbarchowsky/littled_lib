@@ -44,9 +44,9 @@ class Validation
 	 * @param string $key Key in the collection storing the value to look up.
 	 * @param int|null $index Index of the array to look up, if the variable's value is an array.
 	 * @param array|null $src Array to search for $key, e.g. $_GET or $_POST
-	 * @return string|null
+	 * @return string|bool|null
 	 */
-	protected static function _parseInput( int $filter, string $key, ?int $index=null, ?array $src=null ): ?string
+	protected static function _parseInput( int $filter, string $key, ?int $index=null, ?array $src=null )
 	{
 		$value = null;
 		if ($src===null) {
@@ -143,7 +143,10 @@ class Validation
 	 */
 	public static function collectIntegerRequestVar(string $key, ?int $index=null, ?array $src=null): ?int
 	{
-		$value = Validation::_parseInput(FILTER_VALIDATE_INT, $key, $index, $src);
+        if (null !== $src && key_exists($key, $src) && (true===$src[$key] || false===$src[$key])) {
+            return null;
+        }
+		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return Validation::parseInteger($value);
 	}
 
@@ -350,8 +353,8 @@ class Validation
 	 */
 	public static function parseInteger( $value ): ?int
 	{
-		if (Validation::isInteger($value)) {
-			return ((int)$value);
+        if (is_numeric($value)) {
+			return ((int)round($value));
 		}
 		return null;
 	}
