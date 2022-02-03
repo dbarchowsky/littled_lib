@@ -3,12 +3,13 @@ namespace Littled\Tests\Request;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Request\FloatInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
 use Littled\Tests\Request\DataProvider\FloatInputTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
-use Exception;
 use mysqli;
 
 class FloatInputTest extends ContentValidationTestCase
@@ -18,7 +19,11 @@ class FloatInputTest extends ContentValidationTestCase
     /** @var mysqli */
     public $mysqli;
 
-    protected function setUp(): void
+	/**
+	 * @throws ConnectionException
+	 * @throws ConfigurationUndefinedException
+	 */
+	protected function setUp(): void
     {
         parent::setUp();
         $this->conn = new MySQLConnection();
@@ -36,6 +41,19 @@ class FloatInputTest extends ContentValidationTestCase
 	{
 		parent::__construct($name, $data, $dataName);
 		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::collectRequestDataTestProvider()
+	 * @param $expected
+	 * @param $value
+	 * @return void
+	 */
+	function testCollectRequestData($expected, $value)
+	{
+		$obj = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY);
+		$obj->collectRequestData(array(FloatInputTestData::DEFAULT_KEY => $value));
+		$this->assertEquals($expected, $obj->value);
 	}
 
 	public function testConstructor()
@@ -193,7 +211,7 @@ class FloatInputTest extends ContentValidationTestCase
 	 */
 	public function testValidateRequiredDefaultValue()
 	{
-		$o = new FloatInput('test label', 'ptest', true);
+		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, true);
 		$this->expectException(ContentValidationException::class);
 		$o->validate();
 	}
@@ -203,7 +221,7 @@ class FloatInputTest extends ContentValidationTestCase
 	 */
 	public function testValidateRequiredEmptyStringValue()
 	{
-		$o = new FloatInput('test label', 'ptest', true);
+		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, true);
 		$o->value = '';
 		$this->expectException(ContentValidationException::class);
 		$o->validate();
@@ -214,7 +232,7 @@ class FloatInputTest extends ContentValidationTestCase
 	 */
 	public function testValidateRequiredStringValue()
 	{
-		$o = new FloatInput('test label', 'ptest', true);
+		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, true);
 		$o->value = 'foo';
 		$this->expectException(ContentValidationException::class);
 		$o->validate();
@@ -225,7 +243,7 @@ class FloatInputTest extends ContentValidationTestCase
 	 */
 	public function testValidateNotRequiredStringValue()
 	{
-		$o = new FloatInput('test label', 'ptest', false);
+		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, false);
 		$o->value = 'foo';
 		$this->expectException(ContentValidationException::class);
 		$o->validate();

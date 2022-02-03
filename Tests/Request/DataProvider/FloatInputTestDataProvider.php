@@ -5,6 +5,24 @@ namespace Littled\Tests\Request\DataProvider;
 
 class FloatInputTestDataProvider
 {
+	public static function collectRequestDataTestProvider(): array
+	{
+		return array(
+			[null, null],
+			[1, '1'],
+			[0, '0'],
+			[1, 1],
+			[0, 0],
+			[7640, 7640],
+			[784, '784'],
+			[null, 'foobar'],
+			[2.9, 2.9],
+			[0.0041, 0.0041],
+			[0.0041, '0.0041'],
+			[7692.0071, '7692.0071'],
+		);
+	}
+
     public static function escapeSQLTestProvider(): array
     {
         return array(
