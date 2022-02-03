@@ -3,6 +3,8 @@ namespace Littled\Tests\PageContent\Serialized;
 require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Exception\ContentValidationException;
+use Littled\PageContent\Serialized\SerializedContentUtils;
+use Littled\PageContent\Serialized\SerializedContentValidation;
 use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentValidationChild;
 use PHPUnit\Framework\TestCase;
 
@@ -23,6 +25,26 @@ class SerializedContentValidationTest extends TestCase
 		$this->obj->addValidationError('Test error message.');
 		self::assertCount(1, $this->obj->validationErrors);
 	}
+
+    public function testUnshiftValidationError()
+    {
+        $o = new SerializedContentValidation();
+        $o->unshiftValidationError('number one');
+        self::assertCount(1, $o->validationErrors);
+
+        $o->unshiftValidationError('number two');
+        self::assertCount(2, $o->validationErrors);
+        self::assertEquals('number two', $o->validationErrors[0]);
+
+        $o->addValidationError('number three');
+        self::assertEquals('number three', $o->validationErrors[2]);
+
+        $o->unshiftValidationError('number four');
+        self::assertCount(4, $o->validationErrors);
+        self::assertEquals('number four', $o->validationErrors[0]);
+        self::assertEquals('number two', $o->validationErrors[1]);
+        self::assertEquals('number three', $o->validationErrors[3]);
+    }
 
 	public function testClearValidationErrors()
 	{

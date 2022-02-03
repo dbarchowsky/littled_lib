@@ -22,9 +22,24 @@ class SerializedContentValidation extends SerializedContentUtils
 			$this->validationErrors = array_merge($this->validationErrors, $err);
 		}
 		else {
-			$this->validationErrors[] = $err;
+            $this->validationErrors[] = $err;
 		}
 	}
+
+    /**
+     * Stores new error message string at the beginning of the stack of current error messages.
+     * @param string|array $err Array or string containing errors to push onto the current
+     * stack of error messages.
+     */
+    public function unshiftValidationError($err)
+    {
+        if (is_array($err)) {
+            $this->validationErrors = array_merge($err, $this->validationErrors);
+        }
+        else {
+            array_unshift($this->validationErrors, $err);
+        }
+    }
 
     /**
      * Specify if the object should skip validation.
