@@ -207,15 +207,23 @@ class Validation
 	}
 
 	/**
+	 * @deprecated Use Validation::collectStringRequestVar() instead.
+	 */
+	public static function collectStringInput( string $key, int $filter=FILTER_SANITIZE_STRING, ?int $index=null, ?array $src=null ): string
+	{
+		return Validation::collectStringRequestVar($key, $filter, $index, $src);
+	}
+
+	/**
 	 * Searches POST, GET and session data, in that order, for a property corresponding to $key.
 	 * @param string $key Key of the variable value to collect.
 	 * @param int $filter Filter token corresponding to the 3rd parameter of PHP's built-in filter_input() routine.
 	 * @param int|null $index Index of the input if it is part of an array.
 	 * @param array|null $src Optional array of variables to use instead of POST or GET data.
-	 * @return ?int Value found for the requested key. Returns an empty string
+	 * @return string Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectStringInput( string $key, int $filter=FILTER_SANITIZE_STRING, ?int $index=null, ?array $src=null ): ?int
+	public static function collectStringRequestVar( string $key, int $filter=FILTER_SANITIZE_STRING, ?int $index=null, ?array $src=null ): string
 	{
 		if ($src===null) {
 			$src = array_merge($_GET, $_POST);
@@ -226,6 +234,7 @@ class Validation
 		}
 		return ($value);
 	}
+
 	/**
 	 * Tests POST data for the current requested action. Returns a token indicating
 	 * the action that can be used in place of testing POST data directly on
