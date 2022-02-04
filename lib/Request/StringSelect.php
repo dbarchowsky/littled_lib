@@ -29,6 +29,15 @@ class StringSelect extends StringInput
 		$this->allow_multiple = true;
 	}
 
+    /**
+     * Returns input size attribute markup to inject into template.
+     * @return string
+     */
+    public function formatSizeAttributeMarkup(): string
+    {
+        return ((0 < $this->options_length)?(" size=\"$this->options_length\""):(''));
+    }
+
 	/**
 	 * Options length getter.
 	 * @return int|null
