@@ -7,7 +7,7 @@ use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 
-class SerializedContentChild extends SerializedContent
+class SerializedContentChild extends SerializedContentTestHarness
 {
     /** @var StringInput Test string input property */
     public $vc_col1;

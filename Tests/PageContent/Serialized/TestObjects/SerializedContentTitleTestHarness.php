@@ -2,11 +2,10 @@
 
 namespace Littled\Tests\PageContent\Serialized\TestObjects;
 
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 
-class SerializedContentTitleTestHarness extends SerializedContent
+class SerializedContentTitleTestHarness extends SerializedContentTestHarness
 {
     /** @var StringInput Title property */
     public $title;

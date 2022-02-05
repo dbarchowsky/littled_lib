@@ -31,4 +31,12 @@ class KeywordTestHarness extends SerializedContent
         $this->parent_id = new IntegerInput('parent id', 'kwpid', false, $parent_id);
         $this->type_id = new IntegerInput('type id', 'kwtid', false, $parent_id);
     }
+
+    public function generateUpdateQuery(): ?array
+    {
+        /**
+         * Implement abstract method not referenced for unit test purposes.
+         */
+        return array();
+    }
 }

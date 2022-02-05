@@ -173,7 +173,7 @@ abstract class KeywordSectionContent extends SectionContent
 		}
 		$terms = array_filter($terms, function($term) { return(strlen($term) > 0);});
 		array_walk($terms, function(&$term) {
-			$term = trim(filter_var($term, FILTER_SANITIZE_STRING));
+			$term = trim(htmlentities(strip_tags($term)));
 		});
 		return ($terms);
 	}
@@ -229,6 +229,14 @@ abstract class KeywordSectionContent extends SectionContent
 	}
 
     /**
+     * Implement abstract method not referenced for unit test purposes.
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        return array();
+    }
+
+    /**
      * Returns path to keywords container template.
      * @return string Path to keywords container template.
      */
@@ -269,7 +277,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 */
 	public function hasKeywordData(): bool
 	{
-		if (strlen($this->keywordInput->value) > 0) {
+		if (strlen(''.$this->keywordInput->value) > 0) {
 			return (true);
 		}
 		if (is_array($this->keywords)) {

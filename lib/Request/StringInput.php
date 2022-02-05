@@ -39,12 +39,7 @@ class StringInput extends RenderedInput
 		}
 
 		if ($filters===null) {
-			if (strpos($this->class, "mce-editor")!==false) {
-				$filters = FILTER_UNSAFE_RAW;
-			}
-			else {
-				$filters = FILTER_SANITIZE_STRING;
-			}
+            $filters = FILTER_UNSAFE_RAW;
 		}
 		$this->value = null;
 		if ($this->index===null) {

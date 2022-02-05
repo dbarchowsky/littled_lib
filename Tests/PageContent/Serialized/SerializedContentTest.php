@@ -111,7 +111,7 @@ class SerializedContentTest extends TestCase
 
 	public function setUp(): void
 	{
-		$this->obj = new SerializedContent();
+		$this->obj = new SerializedContentChild();
 		$this->conn = new MySQLConnection();
 	}
 
@@ -160,7 +160,7 @@ class SerializedContentTest extends TestCase
     function testGetRecordId()
     {
         $test_id = 125;
-        $sc = new SerializedContent();
+        $sc = new SerializedContentChild();
         $this->assertNull($sc->getRecordId());
 
         $sc->setRecordId($test_id);

@@ -11,6 +11,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
@@ -25,7 +26,7 @@ class SectionContentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->obj = new SectionContent();
+        $this->obj = new SectionContentTestHarness();
         $this->conn = new MySQLConnection();
     }
 
@@ -43,7 +44,7 @@ class SectionContentTest extends TestCase
 
 	public function testConstructorWithIDs()
 	{
-		$obj = new SectionContent(45, 88);
+		$obj = new SectionContentTestHarness(45, 88);
 		$this->assertEquals(45, $obj->id->value);
 		$this->assertEquals(88, $obj->content_properties->id->value);
 	}
@@ -74,7 +75,7 @@ class SectionContentTest extends TestCase
 
 	function testGetContentLabel()
 	{
-		$o = new SectionContent();
+		$o = new SectionContentTestHarness();
 		$this->assertEquals('', $o->getContentLabel());
 
 		$o->content_properties->label = 'my assigned value';

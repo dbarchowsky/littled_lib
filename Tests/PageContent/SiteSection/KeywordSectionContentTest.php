@@ -14,6 +14,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
+use Littled\Tests\PageContent\SiteSection\TestObjects\KeywordSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -31,7 +32,7 @@ class KeywordSectionContentTest extends TestCase
 	public $conn;
 
 	/**
-	 * @throws InvalidQueryException|Exception
+	 * @throws Exception
      */
 	public static function setUpBeforeClass(): void
 	{
@@ -85,7 +86,7 @@ class KeywordSectionContentTest extends TestCase
 	{
 		parent::__construct();
 		$this->conn = new MySQLConnection();
-		$this->obj = new KeywordSectionContent();
+		$this->obj = new KeywordSectionContentTestHarness();
 	}
 
 	/**
@@ -115,7 +116,7 @@ class KeywordSectionContentTest extends TestCase
 
 	public function testConstructorPassedValues()
 	{
-		$obj = new KeywordSectionContent(83, 629, 'biz');
+		$obj = new KeywordSectionContentTestHarness(83, 629, 'biz');
 		$this->assertEquals(83, $obj->id->value);
 		$this->assertEquals(629, $obj->content_properties->id->value);
 		$this->assertEquals('bizte', $obj->keywordInput->key);
@@ -127,7 +128,7 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function testAddKeyword()
 	{
-        $obj = new KeywordSectionContent();
+        $obj = new KeywordSectionContentTestHarness();
         $prev_count = count($obj->keywords);
 
         try {
@@ -226,7 +227,7 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertContains('foo', $keywords);
 		$this->assertContains('0', $keywords);
 		$this->assertContains('625', $keywords);
-		$this->assertContains("[before script]alert(&#39;what&#39;);[after script]", $keywords);
+		$this->assertContains("[before script]alert(&#039;what&#039;);[after script]", $keywords);
 		$this->assertContains('dah', $keywords);
 	}
 
@@ -393,8 +394,7 @@ class KeywordSectionContentTest extends TestCase
 	}
 
 	/**
-	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException

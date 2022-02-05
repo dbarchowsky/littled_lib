@@ -56,7 +56,15 @@ abstract class SectionContent extends SerializedContent
 		return ("Successfully deleted ".strtolower($this->content_properties->name->value)." record.");
 	}
 
-	/**
+    /**
+     * Implement abstract method not referenced for unit test purposes.
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        return array();
+    }
+
+    /**
 	 * Content properties id getter.
 	 * @return int
 	 */

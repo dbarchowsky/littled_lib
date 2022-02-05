@@ -2,11 +2,10 @@
 
 namespace Littled\Tests\PageContent\Serialized\TestObjects;
 
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 
-class SerializedContentNameTestHarness extends SerializedContent
+class SerializedContentNameTestHarness extends SerializedContentTestHarness
 {
     public $name;
     public $vc_col;

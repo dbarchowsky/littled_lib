@@ -10,7 +10,6 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerTextField;
 use Littled\Request\IntegerSelect;
@@ -33,6 +32,8 @@ class ContentProperties extends SerializedContent
 
 	/** @var StringTextField Name of the content. */
 	public $name;
+    /** @var StringTextField Name of the content. */
+    public $slug;
 	/** @var StringTextField Root directory for section content. */
 	public $root_dir;
 	/** @var StringTextField Target path for image uploads. */
@@ -90,7 +91,8 @@ class ContentProperties extends SerializedContent
 	{
 		parent::__construct($id);
 		$this->id->key = ContentProperties::ID_KEY;
-		$this->name = new StringTextField("Name", "ssna", true, "", 50);
+		$this->name = new StringTextField("Name", "ssna", true, '', 50);
+        $this->slug = new StringTextField("Slug", "ssSlug", false, '', 50);
 		$this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
 		$this->image_path = new StringTextField("Image directory", "ssdr", false, "", 255);
 		$this->sub_dir = new StringTextField("Thumbnail subdirectory", "ssts", false, "", 100);
@@ -145,6 +147,31 @@ class ContentProperties extends SerializedContent
 		$this->query($query, 'i', $this->id->value);
 		return(parent::delete());
 	}
+
+    public function generateUpdateQuery(): ?array
+    {
+        return array('CALL contentPropertiesUpdate(@record_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            'ssssssiiiiiiisssiii',
+            &$this->name->value,
+            &$this->slug->value,
+            &$this->root_dir->value,
+            &$this->image_path->value,
+            &$this->sub_dir->value,
+            &$this->image_label->value,
+            &$this->width->value,
+            &$this->height->value,
+            &$this->med_width->value,
+            &$this->med_height->value,
+            &$this->save_mini->value,
+            &$this->mini_width->value,
+            &$this->mini_height->value,
+            &$this->format->value,
+            &$this->param_prefix->value,
+            &$this->table->value,
+            &$this->parent_id->value,
+            &$this->is_cached->value,
+            &$this->gallery_thumbnail->value);
+    }
 
     /**
      * @param string $name

@@ -10,12 +10,13 @@ use Littled\Request\IntegerInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Exception;
+use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentTestHarness;
 
 /**
  * Class ContentTemplate
  * @package Littled\Tests\SiteContent
  */
-class ContentTemplate extends SerializedContent
+class ContentTemplate extends SerializedContentTestHarness
 {
 	/** @var int Value of this record in the site section table. */
 	protected static $content_type_id = 33;

@@ -59,13 +59,13 @@ class SerializedContentUtilsTest extends TestCase
 
 	public function setUp(): void
 	{
-		$this->obj = new SerializedContent();
+		$this->obj = new SerializedContentChild();
 		$this->conn = new MySQLConnection();
 	}
 
 	public function testAppendDelimiter()
     {
-        $obj = new SerializedContent();
+        $obj = new SerializedContentChild();
         self::assertEquals("abc, ", $obj->appendSeparator('abc'));
         self::assertEquals('abc: ', $obj->appendSeparator('abc', ':'));
         self::assertEquals('abcnnn ', $obj->appendSeparator('abc', 'nnn'));
@@ -329,7 +329,7 @@ class SerializedContentUtilsTest extends TestCase
 
     public function testPrependDelimiter()
     {
-        $obj = new SerializedContent();
+        $obj = new SerializedContentChild();
         self::assertEquals(", abc", $obj->prependSeparator('abc'));
         self::assertEquals(': abc', $obj->prependSeparator('abc', ':'));
         self::assertEquals('nnn abc', $obj->prependSeparator('abc', 'nnn'));
@@ -342,9 +342,13 @@ class SerializedContentUtilsTest extends TestCase
 		RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR."forms/input-elements/");
 
 		// test object with no added RequestInput properties
-		$obj = new SerializedContent();
+		$obj = new SerializedContentChild();
 		$expected1 =
-			"<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" />\n";
+            "<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$obj->vc_col1->key}\" value=\"{$obj->vc_col1->value}\" />\n".
+            "<input type=\"hidden\" name=\"{$obj->vc_col2->key}\" value=\"{$obj->vc_col2->value}\" />\n".
+            "<input type=\"hidden\" name=\"{$obj->int_col->key}\" value=\"{$obj->int_col->value}\" />\n".
+            "<input type=\"hidden\" name=\"{$obj->bool_col->key}\" value=\"{$obj->bool_col->value}\" />\n";
 		$this->expectOutputString($expected1);
 		$obj->preserveInForm();
 
@@ -352,19 +356,21 @@ class SerializedContentUtilsTest extends TestCase
 		// N.B. expectOutputString() evaluates against ALL strings that have been printed to STDOUT
 		$o2 = new SerializedContentUtilsChild();
 		$expected2 = $expected1.
+            "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->vc_col2->key}\" value=\"{$o2->vc_col2->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->bool_col->key}\" value=\"{$o2->bool_col->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
+            "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n";
 		$this->expectOutputString($expected2);
 		$o2->preserveInForm();
 
 		// test object with excluded properties
 		$expected3 = $expected2.
+            "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
+            "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n";
 		$this->expectOutputString($expected3);
 		$o2->preserveInForm(array('p_vc2', 'p_bool'));
 
