@@ -163,7 +163,7 @@ class ContentFilter
      */
     public function safeValue( ?int $options=null ): string
     {
-        return htmlspecialchars(strip_tags($this->value));
+        return htmlspecialchars(strip_tags(''.$this->value), ENT_NOQUOTES);
     }
 
 	/**

@@ -57,13 +57,13 @@ class ContentFiltersTest extends TestCase
         $cf = new ContentFiltersChild();
         $cf->retrieveListings();
         $this->assertGreaterThan(1, $cf->record_count);
-        $this->assertEquals('articles', $cf->pluralLabel());
+        $this->assertEquals('Articles', $cf->pluralLabel());
 
         $cf->record_count = 1;
-        $this->assertEquals('article', $cf->pluralLabel());
+        $this->assertEquals('Article', $cf->pluralLabel());
 
         $cf->record_count = 0;
-        $this->assertEquals('articles', $cf->pluralLabel());
+        $this->assertEquals('Articles', $cf->pluralLabel());
     }
 
     /**
