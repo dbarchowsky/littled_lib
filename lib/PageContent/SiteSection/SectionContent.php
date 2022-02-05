@@ -16,7 +16,7 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Ajax\ContentAjaxProperties;
 use Exception;
 
-class SectionContent extends SerializedContent
+abstract class SectionContent extends SerializedContent
 {
 	/** @var ContentProperties Site section properties. */
 	public $content_properties;

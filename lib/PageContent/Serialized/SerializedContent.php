@@ -12,7 +12,7 @@ use Littled\Request\RequestInput;
 use Littled\Request\IntegerInput;
 use Exception;
 
-class SerializedContent extends SerializedContentValidation
+abstract class SerializedContent extends SerializedContentValidation
 {
 	/** @var IntegerInput Record id. */
 	public $id;
@@ -175,11 +175,7 @@ class SerializedContent extends SerializedContentValidation
      * a record in the database, that record is updated.
      * @return array|null
      */
-    public function generateUpdateQuery(): ?array
-    {
-        /** To be implemented in inherited classes. */
-        return null;
-    }
+    public abstract function generateUpdateQuery(): ?array;
 
     /**
      * Attempts to determine which column in a table holds title or name values.

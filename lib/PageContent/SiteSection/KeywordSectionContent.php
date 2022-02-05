@@ -17,7 +17,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
 use Littled\Ajax\ContentAjaxProperties;
 
-class KeywordSectionContent extends SectionContent
+abstract class KeywordSectionContent extends SectionContent
 {
 	/** @var StringTextarea Container for keyword form data. */
 	public $keywordInput;
