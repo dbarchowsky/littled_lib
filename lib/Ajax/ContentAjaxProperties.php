@@ -85,6 +85,15 @@ class ContentAjaxProperties extends SerializedContent
 		$this->is_sortable = new BooleanCheckbox("Is sortable", "capIsSortable", false, false);
 	}
 
+    /**
+     * Implements abstract method but throws error. When this class is used directly, it is for writing only.
+     * @return array|null
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        return array('Error: '.__METHOD__.' called. This class is not used for writing.');
+    }
+
 	/**
 	 * Returns true/false depending on whether any data is detected in the object.
 	 * @return bool TRUE if the object is holding usable data, false otherwise.

@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Ajax;
 
-use Error;
 use Exception;
 use Throwable;
 use Littled\App\LittledGlobals;
@@ -300,7 +299,7 @@ class AjaxPage extends MySQLConnection
 		if (!$this->content instanceof SectionContent) {
 			return (false);
 		}
-		$this->content_properties->id->value = $this->content->getContentId();
+		$this->content_properties->id->value = $this->content->getRecordId();
 		return ($this->content_properties->id->value>0);
 	}
 }
