@@ -5,7 +5,7 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
-use Littled\Tests\PageContent\TestObject\PageContentChild;
+use Littled\Tests\PageContent\TestHarness\PageContentChild;
 use PHPUnit\Framework\TestCase;
 
 

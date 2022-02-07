@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\PageContent\TestObject;
+namespace Littled\Tests\PageContent\TestHarness;
 
 use Littled\PageContent\PageContent;
 use Littled\PageContent\SiteSection\SectionContent;

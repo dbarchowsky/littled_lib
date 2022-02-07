@@ -441,10 +441,10 @@ class Validation
 		else {
 			$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_KEY, FILTER_SANITIZE_STRING));
 		}
-		if ($csrf=='') {
+		if (''===$csrf) {
 			return (false);
 		}
-		return ($csrf == $_SESSION[LittledGlobals::CSRF_SESSION_KEY]);
+		return ($_SESSION[LittledGlobals::CSRF_SESSION_KEY]===$csrf);
 	}
 
 	/**

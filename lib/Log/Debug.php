@@ -1,6 +1,8 @@
 <?php
 namespace Littled\Log;
 
+use DateTime;
+use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 
 class Debug
@@ -9,10 +11,10 @@ class Debug
 	 * Utility routine that should be easier to spot in code than a simple call
 	 * to PHP's built-in exit() routine. 
 	 * @param string $debug_msg (Optional) Error message to display before bailing.
-	 * @param boolean $display_line_number (Optional) flag to display/supress the line number in the debug output. Default value is TRUE.
-	 * @param boolean $display_method_name (Optional) flag to display/suppress the current method name in the debug output. Default value is FALSE.
+	 * @param bool $display_line_number (Optional) flag to display/suppress the line number in the debug output. Default value is TRUE.
+	 * @param bool $display_method_name (Optional) flag to display/suppress the current method name in the debug output. Default value is FALSE.
 	 */
-	public static function stopScript( $debug_msg='', $display_line_number=true, $display_method_name=false )
+	public static function stopScript(string $debug_msg='', bool $display_line_number=true, bool $display_method_name=false )
 	{
 		if ($debug_msg) {
 			Debug::output($debug_msg, $display_line_number, $display_method_name);
@@ -23,11 +25,11 @@ class Debug
 	/**
 	 * Generates log file name based on the current date and time.
 	 * @return string Log filename.
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function generateLogFilename()
-	{
-		$date = new \DateTime();
+	public static function generateLogFilename(): string
+    {
+		$date = new DateTime();
 		return ($date->format('Y-m-d-H-i-s').".log");
 	}
 
@@ -35,21 +37,31 @@ class Debug
 	 * Prints out json encoded version of a variable.
 	 * @param mixed $var Variable to inspect
 	 */
-	public static function inspectAsJSON( &$var )
+	public static function inspectAsJSON( $var )
 	{
 		header('Content-Type: application/json');
 		print (json_encode($var));
 		exit;
 	}
 
+    /**
+     * Returns the current method name with its class without the path.
+     * @return string
+     */
+    public static function getShortMethodName(): string
+    {
+        $debug = debug_backtrace();
+        return $debug[1]['class']."::".$debug[1]['function'];
+    }
+
 	/**
 	 * Wrapper for PHP var_dump() routine that places it between preformatted text tags.
 	 * @param mixed $var Variable to inspect.
 	 */
-	public static function inspectInBrowser( &$var )
+	public static function inspectInBrowser( $var ): void
 	{
 		print ("<pre>");
-		print (var_dump($var));
+		var_dump($var);
 		print ("</pre>");
 	}
 
@@ -60,8 +72,8 @@ class Debug
 	 * @return int Status code.
 	 * @throws ConfigurationUndefinedException If ERROR_LOG is not defined.
 	 */
-	public static function log ( $status, $msg )
-	{
+	public static function log (string $status, string $msg ): int
+    {
 		if (!defined('ERROR_LOG')) {
 			throw new ConfigurationUndefinedException("ERROR_LOG not defined in app settings.");
 		}
@@ -72,10 +84,10 @@ class Debug
 
 		$msg = "[".date("m/d/y H:i:s")."] [".$_SERVER["SERVER_NAME"]."] [".$status."] ".basename($_SERVER["PHP_SELF"]).": ".$msg."\n";
 
-		$rval = fwrite($fh, $msg);
+		$return = fwrite($fh, $msg);
 
 		fclose($fh);
-		return($rval);
+		return($return);
 	}
 
 	/**
@@ -83,8 +95,8 @@ class Debug
 	 * @return string Path to log directory
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function LOG_DIR()
-	{
+	public static function LOG_DIR(): string
+    {
 		if (!defined('APP_BASE_DIR')) {
 			throw new ConfigurationUndefinedException("APP_BASE_DIR not defined in app settings.");
 		}
@@ -95,9 +107,9 @@ class Debug
 	 * Logs a variable value to a log file.
 	 * @param mixed $var Variable to inspect and log
 	 * @throws ConfigurationUndefinedException
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public static function logVariable( &$var )
+	public static function logVariable( $var )
 	{
 		$f = fopen(self::LOG_DIR().self::generateLogFilename(), 'a');
 		if ($f) {
@@ -112,9 +124,9 @@ class Debug
 	 * @param bool $display_line_number Flag to control inclusion of the line number where the output() method
 	 * was called. Defaults to true.
 	 * @param bool $display_method_name Flag to control inclusion of the method name where the output() method
-	 * was colled. Defaults to true.
+	 * was called. Defaults to true.
 	 */
-	public static function output( $msg, $display_line_number=true, $display_method_name=false )
+	public static function output(string $msg, bool $display_line_number=true, bool $display_method_name=false )
 	{
 		if (defined('SUPPRESS_DEBUG') && SUPPRESS_DEBUG==true) {
 			return;
@@ -136,14 +148,14 @@ class Debug
 	 * Prints the current stack in the browser.
 	 * @param string $msg Optional message to include in the output.
 	 */
-	public static function stackTrace($msg="")
+	public static function stackTrace(string $msg="")
 	{
 		$backtrace = debug_backtrace();
 		for($i=(count($backtrace)-1); $i>=0; $i--) {
 			print "<div class=\"debug\">[".basename($backtrace[$i]['file']).", line ".$backtrace[$i]['line']."]</div>\n";
 		}
 		if ($msg!="") {
-			print "<div class=\"debug\"><span class=\"formerror\">*** DEBUG *** </span>{$msg}</div>\n";
+			print "<div class=\"debug\"><span class=\"formerror\">*** DEBUG *** </span>$msg</div>\n";
 		}
 	}
 
@@ -151,16 +163,16 @@ class Debug
 	 * Prints the value corresponding to the key in the session collection.
 	 * @param string $key Key of the session variable to inspect.
 	 */
-	public static function testSessionVariable( $key )
+	public static function testSessionVariable(string $key )
 	{
 		if (!isset($_SESSION[$key])) {
-			Debug::output("SESSION[{$key}] not set.");
+			Debug::output("SESSION[$key] not set.");
 			return;
 		}
 		if (trim($_SESSION[$key]) == '') {
-			Debug::output("SESSION[{$key}] is empty.");
+			Debug::output("SESSION[$key] is empty.");
 			return;
 		}
-		Debug::output("\$_SESSION[{$key}]: ".$_SESSION[$key]);
+		Debug::output("\$_SESSION[$key]: ".$_SESSION[$key]);
 	}
 }
