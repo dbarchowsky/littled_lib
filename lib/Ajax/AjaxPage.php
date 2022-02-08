@@ -2,6 +2,7 @@
 namespace Littled\Ajax;
 
 use Exception;
+use Littled\Request\StringInput;
 use Throwable;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
@@ -49,9 +50,10 @@ class AjaxPage extends MySQLConnection
 	public $filters;
 	/** @var JSONRecordResponse JSON response object. */
 	public $json;
-    /** @var  */
 	/** @var IntegerInput Content record id. */
 	public $record_id;
+    /** @var StringInput Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
+    public $template_token;
 	/** @var ContentTemplate Current content template properties. */
 	public $template;
 
@@ -70,6 +72,7 @@ class AjaxPage extends MySQLConnection
 		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
 		$this->content_properties = new ContentProperties();
+        $this->template_token = new StringInput('Template token', 'templateToken', false, '', 45);
 		$this->template = null;
 		$this->filters = null; /* set in derived classes */
 		$this->action = "";
@@ -212,6 +215,17 @@ class AjaxPage extends MySQLConnection
 			$data[0]->template_path,
 			$data[0]->location);
 	}
+
+    /**
+     * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
+     * property value to that template object.
+     * @param string $template_name
+     * @return void
+     */
+    public function lookupTemplateByName(string $template_name)
+    {
+        $this->template = $this->content_properties->getContentTemplateByName($template_name);
+    }
 
 	/**
 	 * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.
