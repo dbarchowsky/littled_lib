@@ -1,6 +1,6 @@
 (function ($) {
 
-    let scripts_path = '/vendor/dbarchowsky/littled_cms/ajax/scripts/';
+    let scripts_path = '/vendor/dbarchowsky/littled_cms/ajax/';
 
     let settings = {
         allowSorting: true,

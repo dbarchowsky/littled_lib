@@ -5,7 +5,7 @@
 	 */
 	var settings = {
 		uris: {
-			resort: '/vendor/dbarchowsky/littled_cms/ajax/scripts/utils/resort.php'
+			resort: '/vendor/dbarchowsky/littled_cms/ajax/utils/resort.php'
 		},
 		dom: {
 			listings_container: '.listings',

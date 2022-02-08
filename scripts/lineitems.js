@@ -1,6 +1,6 @@
 (function ($) {
 
-    let script_root = '/vendor/dbarchowsky/littled_cms/ajax/scripts/';
+    let script_root = '/vendor/dbarchowsky/littled_cms/ajax/';
 
 	let settings = {
 		parentSelector: '.line-items-container',

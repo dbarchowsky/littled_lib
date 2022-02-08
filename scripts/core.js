@@ -2,7 +2,7 @@ if (typeof LITTLED === "undefined") {
 
 	LITTLED = {
 
-		script_root: '/vendor/littled_cms/ajax/scripts/',
+		script_root: '/vendor/littled_cms/ajax/',
 		edit_url: '',
 		delete_url: '',
 		view_url: '',
@@ -622,7 +622,7 @@ if (typeof LITTLED === "undefined") {
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
-		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/',
 			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {

@@ -1,6 +1,6 @@
 (function ($) {
 
-    let script_path = '/vendor/dbarchowsky/littled_cms/ajax/scripts/';
+    let script_path = '/vendor/dbarchowsky/littled_cms/ajax/';
 
 	let settings = {
 		site_label: '',

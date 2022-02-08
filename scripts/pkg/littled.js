@@ -2,7 +2,7 @@ if (typeof LITTLED === "undefined") {
 
 	LITTLED = {
 
-		script_root: '/vendor/littled_cms/ajax/scripts/',
+		script_root: '/vendor/littled_cms/ajax/',
 		edit_url: '',
 		delete_url: '',
 		view_url: '',
@@ -622,7 +622,7 @@ if (typeof LITTLED === "undefined") {
 		csrfSelector: '#csrf-token',
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
-		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/',
 			content_operations_uri: 'utils/script_properties.php'
 		},
 		dom: {
@@ -1626,7 +1626,7 @@ if (typeof LITTLED === "undefined") {
 }) ( jQuery );
 (function ($) {
 
-    let script_root = '/vendor/dbarchowsky/littled_cms/ajax/scripts/';
+    let script_root = '/vendor/dbarchowsky/littled_cms/ajax/';
 
 	let settings = {
 		parentSelector: '.line-items-container',
@@ -2224,7 +2224,7 @@ if (typeof LITTLED === "undefined") {
 	let settings = {
 		displayWarnings: true,
 		inlineOps: {
-		    root: '/vendor/dbarchowsky/littled_cms/ajax/scripts/utils/',
+		    root: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
 			nameURL: 'edit_name.php',
 			dateURL: 'edit_date.php',
 			accessURL: 'edit_access.php',
@@ -2935,7 +2935,7 @@ if (typeof LITTLED === "undefined") {
 	 */
 	let settings = {
 	    ajax: {
-            script_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+            script_path: '/vendor/dbarchowsky/littled_cms/ajax/',
         },
 		uris: {
 			keyword_autocomplete: 'utils/keyword_autocomplete.php',
@@ -3058,7 +3058,7 @@ if (typeof LITTLED === "undefined") {
 	 */
 	var settings = {
 		uris: {
-			resort: '/vendor/dbarchowsky/littled_cms/ajax/scripts/utils/resort.php'
+			resort: '/vendor/dbarchowsky/littled_cms/ajax/utils/resort.php'
 		},
 		dom: {
 			listings_container: '.listings',

@@ -5,7 +5,7 @@
 	 */
 	let settings = {
 	    ajax: {
-            script_path: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+            script_path: '/vendor/dbarchowsky/littled_cms/ajax/',
         },
 		uris: {
 			keyword_autocomplete: 'utils/keyword_autocomplete.php',
