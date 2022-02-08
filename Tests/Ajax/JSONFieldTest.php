@@ -3,7 +3,7 @@ namespace Littled\Tests\Ajax;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Ajax\JSONField;
-use Littled\Tests\Ajax\Samples\JSONResponseSample;
+use Littled\Tests\Ajax\TestHarness\JSONResponseSample;
 use PHPUnit\Framework\TestCase;
 
 class JSONFieldTest extends TestCase

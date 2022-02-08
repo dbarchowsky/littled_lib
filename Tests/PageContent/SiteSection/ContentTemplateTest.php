@@ -2,11 +2,11 @@
 namespace Littled\Tests\PageContent\SiteSection;
 require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
+use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -29,11 +29,17 @@ class ContentTemplateTest extends TestCase
 	public $test_record_id;
 
 	/**
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException|Exception
+     * @throws NotImplementedException|Exception
      */
 	public static function setUpBeforeClass(): void
 	{
+        if (!defined('COMMON_TEMPLATE_DIR')) {
+            define('COMMON_TEMPLATE_DIR', '/var/www/html/vendor/dbarchowsky/littled/templates/');
+        }
+        if (!defined('CMS_COMMON_TEMPLATE_DIR')) {
+            define('CMS_COMMON_TEMPLATE_DIR', '/var/www/html/vendor/dbarchowsky/littled_cms/templates/');
+        }
+
         $type_id = self::TEST_CONTENT_TYPE_ID;
         $name = ContentTemplateTest::UNIT_TEST_IDENTIFIER.' for reading';
         $path = '/path/to/templates/template.php';
@@ -42,6 +48,8 @@ class ContentTemplateTest extends TestCase
 			' (`site_section_id`, `name`, `path`, `location`) VALUES (?,?,?,?)';
 		$conn = new MySQLConnection();
 		$conn->query($query, 'isss', $type_id, $name, $path, $location);
+        LittledGlobals::setTemplatePath(COMMON_TEMPLATE_DIR);
+        LittledGlobals::setCMSTemplatePath(CMS_COMMON_TEMPLATE_DIR);
 	}
 
     /**
@@ -53,6 +61,8 @@ class ContentTemplateTest extends TestCase
 		$query = "DEL"."ETE FROM `".ContentTemplate::getTableName()."` WHERE LOWER(`name`) LIKE ?";
 		$conn = new MySQLConnection();
 		$conn->query($query, 's', $pattern);
+        LittledGlobals::setTemplatePath('');
+        LittledGlobals::setCMSTemplatePath('');
 	}
 
 	/**
@@ -65,7 +75,8 @@ class ContentTemplateTest extends TestCase
 		$this->conn = new MySQLConnection();
 	}
 
-	/**
+    /**
+     * @throws NotImplementedException
      */
 	public function testTableName()
 	{
@@ -108,7 +119,7 @@ class ContentTemplateTest extends TestCase
 		$this->assertTrue($this->obj->hasData());
 
 		$this->obj->name->setInputValue('');
-		$this->obj->path->setInputValue('mytemplate.php');
+		$this->obj->path->setInputValue('my-template.php');
 		$this->assertTrue($this->obj->hasData());
 
 		$this->obj->path->setInputValue('');
@@ -130,13 +141,6 @@ class ContentTemplateTest extends TestCase
      */
 	public function testGetFullPath()
 	{
-        if (!defined('COMMON_TEMPLATE_DIR')) {
-            define('COMMON_TEMPLATE_DIR', '/var/www/html/vendor/dbarchowsky/littled/templates/');
-        }
-        if (!defined('CMS_COMMON_TEMPLATE_DIR')) {
-            define('CMS_COMMON_TEMPLATE_DIR', '/var/www/html/vendor/dbarchowsky/littled_cms/templates/');
-        }
-
 		/* default path value */
 		$this->assertEquals('', $this->obj->formatFullPath());
 
@@ -216,11 +220,9 @@ class ContentTemplateTest extends TestCase
 	}
 
     /**
-     * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws NotImplementedException
-     * @throws RecordNotFoundException
      * @throws Exception
      */
 	public function testValidateInputDuplicateContentType()
@@ -252,7 +254,7 @@ class ContentTemplateTest extends TestCase
             $this->assertContains("A \"$template_name\" template already exists for the \"$section_name\" area of the site.", $o2->validationErrors);
         }
 
-        // test the duplicate validator with a unique template nmae
+        // test the duplicate validator with a unique template name
         $o2->name->setInputValue('Very unique template name');
         $this->assertEquals('', $o2->testForDuplicateTemplate());
 	}

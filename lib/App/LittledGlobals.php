@@ -2,16 +2,20 @@
 namespace Littled\App;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+
 class LittledGlobals
 {
 	/** @var string App domain name. */
-	protected static $appDomain = '';
+	protected static $app_domain = '';
 	/** @var string Root URI for CMS pages. */
-	protected static $cmsRootURI = '';
+	protected static $cms_root_uri = '';
 	/** @var string Path to directory containing mysql authentication (outside public access). */
-	protected static $mysqlKeysPath = '';
+	protected static $mysql_keys_path = '';
 	/** @var string Path to directory containing app templates. */
-	protected static $templatePath = '';
+	protected static $template_path = '';
+    /** @var string Path to directory containing app templates. */
+    protected static $cms_template_path = '';
 
 	/** @var string Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY = 'csrfToken';
@@ -44,7 +48,7 @@ class LittledGlobals
 	 */
 	public static function getAppDomain(): string
 	{
-		return (static::$appDomain);
+		return static::$app_domain;
 	}
 
 	/**
@@ -53,8 +57,21 @@ class LittledGlobals
 	 */
 	public static function getCMSRootURI(): string
 	{
-		return (static::$cmsRootURI);
+		return static::$cms_root_uri;
 	}
+
+    /**
+     * Returns current template root path.
+     * @return string Template root path.
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getCMSTemplatePath(): string
+    {
+        if (''===static::$cms_template_path) {
+            throw new ConfigurationUndefinedException('LittledGlobals CMS template path value not set.');
+        }
+        return static::$cms_template_path;
+    }
 
 	/**
 	 * Gets path to current MySQL authentication directory.
@@ -62,16 +79,20 @@ class LittledGlobals
 	 */
 	public static function getMySQLKeysPath(): string
 	{
-		return (static::$mysqlKeysPath);
+		return static::$mysql_keys_path;
 	}
 
 	/**
 	 * Returns current template root path.
 	 * @return string Template root path.
+     * @throws ConfigurationUndefinedException
 	 */
 	public static function getTemplatePath(): string
 	{
-		return (static::$templatePath);
+        if (''===static::$template_path) {
+            throw new ConfigurationUndefinedException('LittledGlobals template path value not set.');
+        }
+		return static::$template_path;
 	}
 
 	/**
@@ -80,7 +101,7 @@ class LittledGlobals
 	 */
 	public static function setAppDomain(string $domain='')
 	{
-		static::$appDomain = $domain;
+		static::$app_domain = $domain;
 	}
 
 	/**
@@ -89,8 +110,17 @@ class LittledGlobals
 	 */
 	public static function setCMSRootURI(string $uri)
 	{
-		static::$cmsRootURI = (($uri) ? (rtrim($uri, '/').'/') : (''));
+		static::$cms_root_uri = (($uri) ? (rtrim($uri, '/').'/') : (''));
 	}
+
+    /**
+     * Sets root template directory path.
+     * @param string $path Path to root directory containing template files.
+     */
+    public static function setCMSTemplatePath(string $path)
+    {
+        static::$cms_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
+    }
 
 	/**
 	 * Sets path to current MySQL authentication directory.
@@ -98,7 +128,7 @@ class LittledGlobals
 	 */
 	public static function setMySQLKeysPath(string $path)
 	{
-		static::$mysqlKeysPath = (($path) ? (rtrim($path, '/').'/') : (''));
+		static::$mysql_keys_path = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
 
 	/**
@@ -107,6 +137,6 @@ class LittledGlobals
 	 */
 	public static function setTemplatePath(string $path)
 	{
-		static::$templatePath = (($path) ? (rtrim($path, '/').'/') : (''));
+		static::$template_path = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
 }

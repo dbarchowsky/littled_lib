@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\Ajax\Samples;
+namespace Littled\Tests\Ajax\TestHarness;
 
 use Littled\Ajax\JSONField;
 use Littled\Ajax\JSONResponse;

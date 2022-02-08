@@ -2,6 +2,7 @@
 namespace Littled\PageContent\SiteSection;
 
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -90,12 +91,6 @@ class ContentTemplate extends SerializedContentTestHarness
 	 */
 	public function formatFullPath(): string
 	{
-        if (!defined('COMMON_TEMPLATE_DIR')) {
-            throw new Exception(__METHOD__." COMMON_TEMPLATE_DIR not defined.");
-        }
-        if (!defined('CMS_COMMON_TEMPLATE_DIR')) {
-            throw new Exception(__METHOD__." CMS_COMMON_TEMPLATE_DIR not defined.");
-        }
         $app_root = ((defined('APP_BASE_DIR'))?(APP_BASE_DIR):(''));
 
 		$path = $this->path->value;
@@ -103,10 +98,10 @@ class ContentTemplate extends SerializedContentTestHarness
 			switch ($this->location->value)
 			{
 				case 'shared':
-					$path = rtrim(COMMON_TEMPLATE_DIR, '/').'/'.$path;
+					$path = rtrim(LittledGlobals::getTemplatePath(), '/').'/'.$path;
 					break;
 				case 'shared-cms':
-					$path = rtrim(CMS_COMMON_TEMPLATE_DIR, '/').'/'.$path;
+					$path = rtrim(LittledGlobals::getCMSTemplatePath(), '/').'/'.$path;
 					break;
 				default:
                     $path = (($app_root)?(rtrim($app_root, '/').'/'):('')).
