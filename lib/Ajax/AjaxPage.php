@@ -41,6 +41,8 @@ class AjaxPage extends MySQLConnection
 	const COMMIT_ACTION = 'commit';
 	/** @var string */
 	const CANCEL_ACTION = 'cancel';
+    /** @var string */
+    const TEMPLATE_TOKEN_KEY = 'templateToken';
 
 	/** @var string String indicating the action to be taken on the page. */
 	public $action;
@@ -74,7 +76,7 @@ class AjaxPage extends MySQLConnection
 		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
 		$this->content_properties = new ContentProperties();
-        $this->template_token = new StringInput('Template token', 'templateToken', false, static::getDefaultTemplateName(), 45);
+        $this->template_token = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
 		$this->template = null;
 		$this->filters = null; /* set in derived classes */
 		$this->action = "";
@@ -106,7 +108,33 @@ class AjaxPage extends MySQLConnection
 		}
 	}
 
-	/**
+    /**
+     * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
+     * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
+     * Defaults to LittledGlobals::CONTENT_TYPE_ID.
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws RecordNotFoundException
+     */
+    public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY )
+    {
+        $this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
+        if ($this->content_properties->id->value === null) {
+            throw new ContentValidationException("Content type not specified.");
+        }
+        $this->content_properties->read();
+
+        $this->template_token->collectRequestData();
+        if (!$this->template_token->value) {
+            $this->template_token->value = static::getDefaultTemplateName();
+        }
+        $this->lookupTemplate();
+    }
+
+    /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
 	 * @param array|null[optional] $src Optional array of variables to use instead of POST data.
 	 * @return AjaxPage
@@ -233,8 +261,9 @@ class AjaxPage extends MySQLConnection
      * @param string $template_name
      * @return void
      */
-    public function lookupTemplateByName(string $template_name)
+    public function lookupTemplate(string $template_name='')
     {
+        $template_name = $template_name ?: $this->template_token->value;
         $this->template = $this->content_properties->getContentTemplateByName($template_name);
     }
 
@@ -347,26 +376,6 @@ class AjaxPage extends MySQLConnection
         unset($o);
         static::$controller_class = $class_name;
     }
-
-    /**
-	 * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
-	 * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
-     * Defaults to LittledGlobals::CONTENT_TYPE_ID.
-	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
-     * @throws RecordNotFoundException
-	 */
-	public function setContentProperties( string $key=LittledGlobals::CONTENT_TYPE_KEY )
-	{
-		$this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
-		if ($this->content_properties->id->value === null) {
-			throw new ContentValidationException("Content type not specified.");
-		}
-		$this->content_properties->read();
-	}
 
     /**
      * Content type id setter.

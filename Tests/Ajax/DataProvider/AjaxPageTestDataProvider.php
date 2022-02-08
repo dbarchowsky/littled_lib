@@ -3,10 +3,32 @@
 namespace Littled\Tests\Ajax\DataProvider;
 
 use Error;
+use Littled\Ajax\AjaxPage;
+use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
+use Littled\Tests\Ajax\AjaxPageTest;
 
 class AjaxPageTestDataProvider
 {
+    public static function collectContentPropertiesTestProvider(): array
+    {
+        return array(
+            array(
+                AjaxPageTest::TEST_CONTENT_TYPE_ID,
+                AjaxPage::getDefaultTemplateName(),
+                array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID),
+                'Content type id value present in POST data'),
+            array(
+                AjaxPageTest::TEST_CONTENT_TYPE_ID,
+                'listings',
+                array(
+                    LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID,
+                    AjaxPage::TEMPLATE_TOKEN_KEY => 'listings'),
+                'Content type id and template token values in POST data'),
+            array(null, AjaxPage::getDefaultTemplateName(), [], 'No values present in POST data.'),
+        );
+    }
+
     public static function setCacheClassTestProvider(): array
     {
         return array(

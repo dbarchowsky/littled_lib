@@ -2,6 +2,7 @@
 namespace Littled\Request;
 
 use Littled\PageContent\ContentUtils;
+use Littled\Validation\Validation;
 
 /**
  * Class StringInput
@@ -30,55 +31,14 @@ class StringInput extends RenderedInput
 	 */
 	public function collectRequestData (?array $src=null, ?int $filters=null, ?string $key=null)
 	{
-		if ($this->bypassCollectPostData===true) {
+		if (true===$this->bypassCollectPostData) {
 			return;
 		}
-
-		if (!$key) {
-			$key = $this->key;
-		}
-
-		if ($filters===null) {
+        $key = $key ?: $this->key;
+		if (null===$filters) {
             $filters = FILTER_UNSAFE_RAW;
 		}
-		$this->value = null;
-		if ($this->index===null) {
-			/* single value */
-			if (is_array($src)) {
-				/* user-defined source array */
-				$this->value = null;
-				if(array_key_exists($key, $src)) {
-					$this->value = filter_var($src[$key], $filters);
-				}
-			}
-			else {
-				/* POST or GET */
-				$this->value = filter_input(INPUT_POST, $key, $filters);
-				if ($this->value===null || $this->value===false) {
-					$this->value = filter_input(INPUT_GET, $key, $filters);
-				}
-			}
-		}
-		else {
-			/* array */
-			if (is_array($src)) {
-				/* user-defined source array */
-				$arr = [];
-				if (array_key_exists($key, $src)) {
-					$arr = filter_var($src[$key], FILTER_REQUIRE_ARRAY, $filters);
-				}
-			}
-			else {
-				/* POST and GET */
-				$arr = filter_input(INPUT_POST, $key, FILTER_REQUIRE_ARRAY, $filters);
-				if (!is_array($arr)) {
-					$arr = filter_input(INPUT_GET, $key, FILTER_REQUIRE_ARRAY, $filters);
-				}
-			}
-			if (is_array($arr) && array_key_exists($this->index, $arr)) {
-				$this->value = $arr[$this->index];
-			}
-		}
+        $this->value = Validation::collectStringRequestVar($key, $filters, $this->index, $src);
 	}
 
 	/**

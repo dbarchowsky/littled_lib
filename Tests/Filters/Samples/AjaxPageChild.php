@@ -25,6 +25,6 @@ class AjaxPageChild extends AjaxPage
      */
     function throwError()
     {
-        $this->setContentProperties();
+        $this->collectContentProperties();
     }
 }
