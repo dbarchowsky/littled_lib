@@ -74,7 +74,7 @@ class AjaxPage extends MySQLConnection
 		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
 		$this->content_properties = new ContentProperties();
-        $this->template_token = new StringInput('Template token', 'templateToken', false, '', 45);
+        $this->template_token = new StringInput('Template token', 'templateToken', false, static::getDefaultTemplateName(), 45);
 		$this->template = null;
 		$this->filters = null; /* set in derived classes */
 		$this->action = "";
