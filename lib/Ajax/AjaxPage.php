@@ -2,6 +2,9 @@
 namespace Littled\Ajax;
 
 use Exception;
+use Littled\Cache\ContentCache;
+use Littled\Log\Debug;
+use Littled\PageContent\ContentController;
 use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
@@ -26,6 +29,11 @@ use Littled\PageContent\SiteSection\ContentProperties;
  */
 class AjaxPage extends MySQLConnection
 {
+    /** @var string Name of class to use to cache content. */
+    protected static $cache_class = ContentCache::class;
+    /** @var string Name of class to use as content controller. */
+    protected static $controller_class = ContentController::class;
+
 	/** @var string */
 	const COMMIT_ACTION = 'commit';
 	/** @var string */
@@ -41,6 +49,7 @@ class AjaxPage extends MySQLConnection
 	public $filters;
 	/** @var JSONRecordResponse JSON response object. */
 	public $json;
+    /** @var  */
 	/** @var IntegerInput Content record id. */
 	public $record_id;
 	/** @var ContentTemplate Current content template properties. */
@@ -103,11 +112,11 @@ class AjaxPage extends MySQLConnection
 			/* use only POST, not GET */
 			$src = &$_POST;
 		}
-		if (Validation::parseBooleanInput(LittledGlobals::P_COMMIT, null, $src)===true) {
+		if (Validation::collectBooleanRequestVar(LittledGlobals::P_COMMIT, null, $src)===true) {
 			$this->action = 'commit';
 			return($this);
 		}
-		if (Validation::parseBooleanInput(LittledGlobals::P_CANCEL, null, $src)===true) {
+		if (Validation::collectBooleanRequestVar(LittledGlobals::P_CANCEL, null, $src)===true) {
 			$this->action = 'cancel';
 			return($this);
 		}
@@ -139,6 +148,32 @@ class AjaxPage extends MySQLConnection
 	}
 
     /**
+     * Cache class name getter.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getCacheClass(): string
+    {
+        if (ContentCache::class === static::$cache_class) {
+            throw new ConfigurationUndefinedException('Cache class not configured.');
+        }
+        return static::$cache_class;
+    }
+
+    /**
+     * Controller class name getter.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getControllerClass(): string
+    {
+        if (ContentController::class === static::$controller_class) {
+            throw new ConfigurationUndefinedException('Controller class not configured.');
+        }
+        return static::$controller_class;
+    }
+
+    /**
      * Content type id getter.
      * @return ?int
      */
@@ -148,7 +183,7 @@ class AjaxPage extends MySQLConnection
     }
 
     /**
-     * Retrieve from the database the path to the details template.
+     * Retrieve from the database the path to details template.
      * @param string $template_name Token indicating which type of template to retrieve: details, listings, edit, delete, etc.
      * @throws ConfigurationUndefinedException
      * @throws RecordNotFoundException
@@ -190,7 +225,7 @@ class AjaxPage extends MySQLConnection
 			$src = &$_POST;
 		}
 		/* get object type from POST data */
-		$class_name = Validation::collectStringInput('class', null, $src);
+		$class_name = Validation::collectStringRequestVar('class', null, $src);
 		if (!$class_name) {
 			throw new ContentValidationException("Content type not provided.");
 		}
@@ -240,8 +275,7 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
 	 * @throws RecordNotFoundException
-	 * @throws InvalidQueryException
-	 * @throws ResourceNotFoundException|NotImplementedException
+     * @throws ResourceNotFoundException|NotImplementedException
      */
 	public function retrievePageContent()
 	{
@@ -257,7 +291,35 @@ class AjaxPage extends MySQLConnection
 		$this->json->sendResponse();
 	}
 
-	/**
+    /**
+     * Content cache class setter.
+     * @param string $class_name Name of class to use to cache ajax content. Must be derived from \Littled\PageContent\Cache\ContentCache
+     * @return void
+     * @throws InvalidTypeException
+     */
+    public static function setCacheClass(string $class_name)
+    {
+        if(!$class_name instanceof ContentCache) {
+            throw new InvalidTypeException(Debug::getShortMethodName().' Invalid content cache type. ');
+        }
+        static::$cache_class = $class_name;
+    }
+
+    /**
+     * Content cache class setter.
+     * @param string $class_name Name of class to use as content controller. Must be derived from \Littled\PageContent\ContentController
+     * @return void
+     * @throws InvalidTypeException
+     */
+    public static function setControllerClass(string $class_name)
+    {
+        if(!$class_name instanceof ContentController) {
+            throw new InvalidTypeException(Debug::getShortMethodName().' Invalid controller type. ');
+        }
+        static::$controller_class = $class_name;
+    }
+
+    /**
 	 * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
 	 * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
