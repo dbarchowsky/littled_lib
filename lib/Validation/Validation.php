@@ -196,17 +196,13 @@ class Validation
 	 */
 	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
 	{
-		if (is_array($src)) {
-			if (!array_key_exists($key, $src)) {
-				return null;
-			}
-			return trim(filter_var($src[$key], $filter));
-		}
-		$value = trim(filter_input(INPUT_POST, $key, $filter));
-		if (!$value) {
-			$value = trim(filter_input(INPUT_GET, $key, $filter));
-		}
-		return $value;
+        if (!is_array($src)) {
+            $src = array_merge($_POST, $_GET);
+        }
+        if (!array_key_exists($key, $src)) {
+            return null;
+        }
+        return trim(filter_var($src[$key], $filter));
 	}
 
 	/**
