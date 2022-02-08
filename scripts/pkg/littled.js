@@ -420,7 +420,7 @@ if (typeof LITTLED === "undefined") {
             /* ajax call to get script properties */
             $.ajax({
                 type: 'get',
-                url: LITTLED.script_root + 'utils/script_properties.php',
+                url: LITTLED.script_root + 'utils/script-properties.php',
                 dataType: 'json',
                 data: {tid: tid},
                 success: cb,
@@ -623,7 +623,7 @@ if (typeof LITTLED === "undefined") {
 		progress_markup: '<div class="dialog-in-process"></div>',
 		ajax: {
 		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/',
-			content_operations_uri: 'utils/script_properties.php'
+			content_operations_uri: 'utils/script-properties.php'
 		},
 		dom: {
 			page_error_container: '.alert-error:first'
