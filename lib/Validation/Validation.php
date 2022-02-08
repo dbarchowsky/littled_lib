@@ -194,7 +194,7 @@ class Validation
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectRequestVar(string $key, int $filter=FILTER_SANITIZE_STRING, ?array $src=null ): ?string
+	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
 	{
 		if (is_array($src)) {
 			if (!array_key_exists($key, $src)) {
@@ -212,7 +212,7 @@ class Validation
 	/**
 	 * @deprecated Use Validation::collectStringRequestVar() instead.
 	 */
-	public static function collectStringInput( string $key, int $filter=FILTER_SANITIZE_STRING, ?int $index=null, ?array $src=null ): ?string
+	public static function collectStringInput( string $key, int $filter=FILTER_UNSAFE_RAW, ?int $index=null, ?array $src=null ): ?string
 	{
 		return Validation::collectStringRequestVar($key, $filter, $index, $src);
 	}
@@ -226,7 +226,7 @@ class Validation
 	 * @return string Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectStringRequestVar( string $key, int $filter=FILTER_SANITIZE_STRING, ?int $index=null, ?array $src=null ): ?string
+	public static function collectStringRequestVar( string $key, int $filter=FILTER_UNSAFE_RAW, ?int $index=null, ?array $src=null ): ?string
 	{
 		if ($src===null) {
 			$src = array_merge($_GET, $_POST);
@@ -246,12 +246,12 @@ class Validation
 	 */
 	public static function getPageAction(): string
 	{
-		$action = trim(filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_SANITIZE_STRING));
+		$action = trim(filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_UNSAFE_RAW));
 		if (strlen($action) > 0) {
 			$action = LittledGlobals::P_COMMIT;
 		}
 		else {
-			$action = trim(filter_input(INPUT_POST, LittledGlobals::P_CANCEL, FILTER_SANITIZE_STRING));
+			$action = trim(filter_input(INPUT_POST, LittledGlobals::P_CANCEL, FILTER_UNSAFE_RAW));
 			if (strlen($action) > 0) {
 				$action = LittledGlobals::P_CANCEL;
 			}
