@@ -5,12 +5,23 @@ require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 use Littled\Ajax\AjaxPage;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
+use Littled\PageContent\SiteSection\SectionContent;
 use PHPUnit\Framework\TestCase;
 
 class AjaxPageTest extends TestCase
 {
     /** @var int */
-    protected const TEST_CONTENT_TYPE_ID = 2;
+    public const TEST_CONTENT_TYPE_ID = 2;
+
+    /**
+     * @throws InvalidTypeException
+     */
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        AjaxPage::setControllerClass('Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness');
+        AjaxPage::setCacheClass('Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness');
+    }
 
     function testGetContentTypeId()
     {
@@ -20,6 +31,15 @@ class AjaxPageTest extends TestCase
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
         $this->assertEquals(self::TEST_CONTENT_TYPE_ID, $ap->getContentTypeId());
         $this->assertEquals(self::TEST_CONTENT_TYPE_ID, $ap->content_properties->id->value);
+    }
+
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    function testGetContentObject()
+    {
+        $content = call_user_func_array([AjaxPage::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
+        $this->assertInstanceOf(SectionContent::class, $content);
     }
 
     /**

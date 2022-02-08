@@ -11,7 +11,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\PageContent\SiteSection\TestObjects\ContentTemplateData;
+use Littled\Tests\PageContent\SiteSection\TestHarness\ContentTemplateData;
 use Littled\PageContent\SiteSection\ContentProperties;
 use PHPUnit\Framework\TestCase;
 use Exception;

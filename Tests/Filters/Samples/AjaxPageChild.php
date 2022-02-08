@@ -21,11 +21,10 @@ class AjaxPageChild extends AjaxPage
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidTypeException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     function throwError()
     {
-        $this->setContentProperties(new DateTime());
+        $this->setContentProperties();
     }
 }

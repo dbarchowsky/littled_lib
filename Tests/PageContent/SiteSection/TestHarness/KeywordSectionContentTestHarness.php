@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection\TestObjects;
+namespace Littled\Tests\PageContent\SiteSection\TestHarness;
 
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 

@@ -14,7 +14,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
-use Littled\Tests\PageContent\SiteSection\TestObjects\KeywordSectionContentTestHarness;
+use Littled\Tests\PageContent\SiteSection\TestHarness\KeywordSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
