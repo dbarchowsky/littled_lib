@@ -67,7 +67,7 @@ abstract class ContentCache extends MySQLConnection
     {
         if ($page->record_id->value>0) {
             $content->id->value = $page->record_id->value;
-            $content->read();
+            static::loadContentByType($content);
         }
         $filters->collectFilterValues();
         $filters->display_listings->value = true;
