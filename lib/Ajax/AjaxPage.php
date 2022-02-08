@@ -2,10 +2,10 @@
 namespace Littled\Ajax;
 
 use Exception;
-use Littled\Cache\ContentCache;
-use Littled\Log\Debug;
-use Littled\PageContent\ContentController;
 use Throwable;
+use Littled\PageContent\Cache\ContentCache;
+use Littled\PageContent\ContentController;
+use Littled\Log\Debug;
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -299,9 +299,11 @@ class AjaxPage extends MySQLConnection
      */
     public static function setCacheClass(string $class_name)
     {
-        if(!$class_name instanceof ContentCache) {
-            throw new InvalidTypeException(Debug::getShortMethodName().' Invalid content cache type. ');
+        $o = new $class_name;
+        if(!$o instanceof ContentCache) {
+            throw new InvalidTypeException("\"$class_name\" is not a valid content cache type.");
         }
+        unset($o);
         static::$cache_class = $class_name;
     }
 
@@ -313,9 +315,11 @@ class AjaxPage extends MySQLConnection
      */
     public static function setControllerClass(string $class_name)
     {
-        if(!$class_name instanceof ContentController) {
+        $o = new $class_name;
+        if(!$o instanceof ContentController) {
             throw new InvalidTypeException(Debug::getShortMethodName().' Invalid controller type. ');
         }
+        unset($o);
         static::$controller_class = $class_name;
     }
 
