@@ -34,7 +34,7 @@ class FilterCollectionProperties extends AppContentBase
     /** @var string SQL query string used to fetch the current record set. */
     public $query_string;
     /** @var integer Total number of records matching the current filter values. */
-    public $record_count;
+    public $record_count = 0;
     /** @var string URL to redirect back to, if specified */
     public $referer_uri;
     /** @var string SQL WHERE clause matching the current filter values. */
