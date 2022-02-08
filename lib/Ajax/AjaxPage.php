@@ -34,6 +34,8 @@ class AjaxPage extends MySQLConnection
     protected static $cache_class = ContentCache::class;
     /** @var string Name of class to use as content controller. */
     protected static $controller_class = ContentController::class;
+    /** @var string Name of the default template to use in derived classes to generate markup. */
+    protected static $default_template_name = '';
 
 	/** @var string */
 	const COMMIT_ACTION = 'commit';
@@ -183,6 +185,15 @@ class AjaxPage extends MySQLConnection
     public function getContentTypeId(): ?int
     {
         return ($this->content_properties->id->value);
+    }
+
+    /**
+     * Default token name getter.
+     * @return string
+     */
+    public static function getDefaultTemplateName(): string
+    {
+        return static::$default_template_name;
     }
 
     /**
@@ -365,6 +376,16 @@ class AjaxPage extends MySQLConnection
     public function setContentTypeId(int $content_id)
     {
         $this->content_properties->id->setInputValue($content_id);
+    }
+
+    /**
+     * Default template name setter.
+     * @param string $name
+     * @return void
+     */
+    public static function setDefaultTemplateName(string $name)
+    {
+        static::$default_template_name = $name;
     }
 
 	/**
