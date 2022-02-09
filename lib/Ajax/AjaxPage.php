@@ -327,6 +327,24 @@ class AjaxPage extends MySQLConnection
 	}
 
 	/**
+	 * Hydrates the content properties object by retrieving data from the database.
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws RecordNotFoundException
+	 */
+	public function retrieveContentProperties()
+	{
+		if (1 > $this->getContentTypeId()) {
+			throw new ConfigurationUndefinedException('Content properties could not be retrieved. A content type was not specified.');
+		}
+		$this->content_properties->read();
+	}
+
+	/**
 	 * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
 	 * @throws RecordNotFoundException
      * @throws ResourceNotFoundException|NotImplementedException
