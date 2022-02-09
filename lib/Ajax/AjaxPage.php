@@ -328,6 +328,7 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Hydrates the content properties object by retrieving data from the database.
+	 * @param int|null $content_type_id
 	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
@@ -336,8 +337,11 @@ class AjaxPage extends MySQLConnection
 	 * @throws InvalidTypeException
 	 * @throws RecordNotFoundException
 	 */
-	public function retrieveContentProperties()
+	public function retrieveContentProperties(?int $content_type_id=null)
 	{
+		if (0 < $content_type_id) {
+			$this->setContentTypeId($content_type_id);
+		}
 		if (1 > $this->getContentTypeId()) {
 			throw new ConfigurationUndefinedException('Content properties could not be retrieved. A content type was not specified.');
 		}
