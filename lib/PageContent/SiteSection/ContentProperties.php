@@ -73,7 +73,7 @@ class ContentProperties extends SerializedContent
 	/** @var BooleanCheckbox Flag indicating to use gallery thumbnails. */
 	public $gallery_thumbnail;
 	/** @var string Name of the argument used to pass the record id to and from pages and scripts. Stored in the section_operations table. */
-	public $id_param;
+	public $id_key;
 	/** @var string Parent content type name. */
 	public $parent;
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
@@ -119,7 +119,7 @@ class ContentProperties extends SerializedContent
 	protected function initializeExtraProperties()
 	{
 		$this->templates = array();
-		$this->id_param = "";
+		$this->id_key = "";
 		$this->label = "";
 		$this->parent = "";
 	}
@@ -280,7 +280,7 @@ class ContentProperties extends SerializedContent
 		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		$this->initializeExtraProperties();
 		if (count($data) > 0) {
-			$this->id_param = $data[0]->id_param;
+			$this->id_key = $data[0]->id_param;
 			$this->parent = $data[0]->parent;
 			$this->label = $data[0]->label;
 		}

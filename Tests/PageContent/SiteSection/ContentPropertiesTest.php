@@ -304,7 +304,7 @@ class ContentPropertiesTest extends TestCase
 		$this->obj->read();
 		$this->obj->clearValues();
 		$this->assertCount(0, $this->obj->templates);
-		$this->assertEquals('', $this->obj->id_param);
+		$this->assertEquals('', $this->obj->id_key);
 		$this->assertEquals('', $this->obj->parent);
 		$this->assertEquals('', $this->obj->label);
 	}
@@ -583,7 +583,7 @@ class ContentPropertiesTest extends TestCase
     {
         $this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
         $this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-        $this->assertEquals($id_key, $this->obj->id_param);
+        $this->assertEquals($id_key, $this->obj->id_key);
         $this->assertEquals($parent_name, $this->obj->parent);
         $this->assertEquals($label, $this->obj->label);
         $this->assertCount($template_count, $this->obj->templates);
