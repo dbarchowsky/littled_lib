@@ -4,6 +4,7 @@ namespace Littled\Validation;
 use DateTime;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
+use stdClass;
 
 /**
  * Class Validation
@@ -126,11 +127,16 @@ class Validation
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
-		$arr = filter_var($src[$key], FILTER_VALIDATE_INT, FILTER_FORCE_ARRAY);
+		$arr = filter_var($src[$key], FILTER_VALIDATE_FLOAT, FILTER_FORCE_ARRAY);
 		if (!is_array($arr)) {
 			return null;
 		}
-		return (array_values(array_filter($arr)));
+		// filter out any elements that are false or null, but keep elements equal to "0"
+		$arr = array_filter($arr, function($i) { return (false!==$i && null!==$i); });
+		// convert float values to int
+		$arr = array_map(function($i) { return Validation::parseInteger($i); }, $arr);
+		// re-index the returned array
+		return array_values($arr);
 	}
 
 	/**
@@ -419,27 +425,29 @@ class Validation
 
 	/**
 	 * Check for valid CSRF token.
-	 * @param ?object $data Optional object that will contain the CSRF token. POST data is used by default if this
+	 * @param stdClass|null $data Optional object that will contain the CSRF token. POST data is used by default if this
 	 * parameter is not supplied.
 	 * @return bool TRUE if the CSRF token is valid, FALSE otherwise.
 	 */
-	public static function validateCSRF( ?object $data=null ): bool
+	public static function validateCSRF( ?stdClass $data=null ): bool
 	{
 		if (!array_key_exists(LittledGlobals::CSRF_SESSION_KEY, $_SESSION)) {
-			return (false);
+			return false;
 		}
 		if ($data) {
 			if (!property_exists($data, LittledGlobals::CSRF_TOKEN_KEY)) {
-				return (false);
+				return false;
 			}
 			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_KEY}, FILTER_UNSAFE_RAW));
 		}
 		else {
-			$post_data = $_POST;
-			$csrf = trim(filter_var($post_data, LittledGlobals::CSRF_TOKEN_KEY, FILTER_UNSAFE_RAW));
+			if (!array_key_exists(LittledGlobals::CSRF_TOKEN_KEY, $_POST)) {
+				return false;
+			}
+			$csrf = trim(filter_var($_POST[LittledGlobals::CSRF_TOKEN_KEY], FILTER_UNSAFE_RAW));
 		}
 		if (''===$csrf) {
-			return (false);
+			return false;
 		}
 		return ($_SESSION[LittledGlobals::CSRF_SESSION_KEY]===$csrf);
 	}

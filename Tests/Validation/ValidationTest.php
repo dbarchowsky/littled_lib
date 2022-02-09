@@ -6,11 +6,29 @@ use Littled\Exception\ContentValidationException;
 use Littled\Tests\Request\DataProvider\IntegerInputTestData;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 
 class ValidationTest extends TestCase
 {
-    /**
+	/**
+	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::collectIntegerArrayRequestVarTestProvider()
+	 * @param array $expected
+	 * @param string $key
+	 * @param mixed $values
+	 * @return void
+	 */
+	public function testCollectIntegerArrayRequestVar(array $expected, string $key, $values)
+	{
+		$_POST[$key] = $values;
+		$result = Validation::collectIntegerArrayRequestVar($key);
+		$this->assertCount(count($expected), $result, "key: $key");
+		for($i=0; $i<count($expected); $i++) {
+			$this->assertEquals($expected[$i], $result[$i], "key: $key");
+		}
+	}
+
+	/**
      * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseIntegerTestProvider()
      * @param $expected
      * @param $value
@@ -33,7 +51,23 @@ class ValidationTest extends TestCase
         $this->assertEquals($expected, Validation::isInteger($value));
     }
 
-    /**
+	/**
+	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::isStringWithContentTestProvider()
+	 * @param bool $expected
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function testIsStringWithContent(bool $expected, $value)
+	{
+		if ($expected) {
+			$this->assertTrue(Validation::isStringWithContent($value));
+		}
+		else {
+			$this->assertFalse(Validation::isStringWithContent($value));
+		}
+	}
+
+	/**
      * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseNumericTestProvider()
      * @param $expected
      * @param $value
@@ -42,25 +76,6 @@ class ValidationTest extends TestCase
 	public function testParseNumeric($expected, $value)
 	{
         $this->assertEquals($expected, Validation::parseNumeric($value));
-	}
-
-	public function testIsStringWithContent()
-	{
-		$this->assertFalse(Validation::isStringWithContent(null));
-		$this->assertFalse(Validation::isStringWithContent(false));
-		$this->assertFalse(Validation::isStringWithContent(true));
-		$this->assertFalse(Validation::isStringWithContent(0));
-		$this->assertFalse(Validation::isStringWithContent(1));
-		$this->assertFalse(Validation::isStringWithContent(435));
-		$this->assertFalse(Validation::isStringWithContent(''));
-		$this->assertTrue(Validation::isStringWithContent('a'));
-		$this->assertTrue(Validation::isStringWithContent('foo biz bar bash'));
-		$this->assertTrue(Validation::isStringWithContent('null'));
-		$this->assertTrue(Validation::isStringWithContent('false'));
-		$this->assertTrue(Validation::isStringWithContent('true'));
-		$this->assertTrue(Validation::isStringWithContent('0'));
-		$this->assertTrue(Validation::isStringWithContent('1'));
-		$this->assertTrue(Validation::isStringWithContent('435'));
 	}
 
     /**
@@ -76,97 +91,40 @@ class ValidationTest extends TestCase
 	}
 
 	/**
+	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::validateCSRFTestProvider()
+	 * @param bool $expected
+	 * @param array $post_data
+	 * @param array $session_data
+	 * @param stdClass|null $user_data
+	 * @return void
+	 */
+	function validateCSRFTest(bool $expected, array $post_data, array $session_data, ?stdClass $user_data)
+	{
+		$_POST = $post_data;
+		$_SESSION = $session_data;
+		if ($expected) {
+			$this->assertTrue(Validation::validateCSRF($user_data));
+		}
+		else {
+			$this->assertFalse(Validation::validateCSRF($user_data));
+		}
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::validateDateStringTestProvider()
+	 * @param string $expected
+	 * @param string $expected_exception
+	 * @param string $date_string
+	 * @param string $format
+	 * @return void
 	 * @throws ContentValidationException
 	 */
-	public function testValidateDateString()
+	public function testValidateDateString(string $expected, string $expected_exception, string $date_string, string $format)
 	{
-		$d = Validation::validateDateString('2016-03-15');
-		$this->assertEquals('2016-03-15', $d->format('Y-m-d'), "Y-m-d format");
-		$d = Validation::validateDateString('3/15/2016');
-		$this->assertEquals('2016-03-15', $d->format('Y-m-d'), "n/j/Y format");
-		$d = Validation::validateDateString('03/15/2016');
-		$this->assertEquals('2016-03-15', $d->format('Y-m-d'), "m/d/Y format");
-		$d = Validation::validateDateString('3/2/2016');
-		$this->assertEquals('2016-03-02', $d->format('Y-m-d'), "n/j/Y format");
-		$d = Validation::validateDateString('02/08/1987');
-		$this->assertEquals('1987-02-08', $d->format('Y-m-d'), "m/d/Y format");
-		$d = Validation::validateDateString('2/8/87');
-		$this->assertEquals('1987-02-08', $d->format('Y-m-d'), "n/j/y format");
-		$d = Validation::validateDateString('02/08/87');
-		$this->assertEquals('1987-02-08', $d->format('Y-m-d'), "m/d/y format");
-		$d = Validation::validateDateString('February 08, 1987');
-		$this->assertEquals('1987-02-08', $d->format('Y-m-d'), "F d, Y format");
-		$d = Validation::validateDateString('February 8, 1987');
-		$this->assertEquals('1987-02-08', $d->format('Y-m-d'), "F j, Y format");
-		try {
-			$d = Validation::validateDateString('February 08, 87');
+		if ($expected_exception) {
+			$this->expectException($expected_exception);
 		}
-		catch (ContentValidationException $ex) {
-			$this->assertEquals("Unrecognized date value.", $ex->getMessage(), "F d, y format");
-		}
-	}
-
-	public function testCollectIntegerArrayRequestVar()
-	{
-		$src = array('int' => 44,
-			'float' => 208.04,
-			'int_array' => array(5, 6, 8, 3),
-			'float_array' => array(1.5, 0.36, 10.05),
-			'mixed_array' => array(4.5, 'test value', 10, 22.6));
-		$result = Validation::collectIntegerArrayRequestVar('int', $src);
-		$this->assertCount(1, $result);
-		$this->assertEquals($src['int'], $result[0]);
-
-		$result = Validation::collectIntegerArrayRequestVar('float', $src);
-		$this->assertCount(0, $result);
-
-		$result = Validation::collectIntegerArrayRequestVar('int_array', $src);
-		$this->assertCount(4, $result);
-		$this->assertEquals($src['int_array'][0], $result[0]);
-		$this->assertEquals($src['int_array'][1], $result[1]);
-		$this->assertEquals($src['int_array'][2], $result[2]);
-		$this->assertEquals($src['int_array'][3], $result[3]);
-
-		$result = Validation::collectIntegerArrayRequestVar('float_array', $src);
-		$this->assertCount(0, $result);
-
-		$result = Validation::collectIntegerArrayRequestVar('mixed_array', $src);
-		$this->assertCount(1, $result);
-		$this->assertEquals($src['mixed_array'][2], $result[0]);
-	}
-
-	public function testCollectNumericArrayRequestVar()
-	{
-		$src = array('int' => 44,
-			'float' => 208.04,
-			'int_array' => array(5, 6, 8, 3),
-			'float_array' => array(1.5, 0.36, 10.05),
-			'mixed_array' => array(4.5, 'test value', 10, 22.6));
-		$result = Validation::collectNumericArrayRequestVar('int', $src);
-		$this->assertCount(1, $result);
-		$this->assertEquals($src['int'], $result[0]);
-
-		$result = Validation::collectNumericArrayRequestVar('float', $src);
-		$this->assertCount(1, $result);
-		$this->assertEquals($src['float'], $result[0]);
-
-		$result = Validation::collectNumericArrayRequestVar('int_array', $src);
-		$this->assertCount(4, $result);
-		$this->assertEquals($src['int_array'][0], $result[0]);
-		$this->assertEquals($src['int_array'][1], $result[1]);
-		$this->assertEquals($src['int_array'][2], $result[2]);
-		$this->assertEquals($src['int_array'][3], $result[3]);
-
-		$result = Validation::collectNumericArrayRequestVar('float_array', $src);
-		$this->assertCount(3, $result);
-		$this->assertEquals($src['float_array'][0], $result[0]);
-		$this->assertEquals($src['float_array'][1], $result[1]);
-		$this->assertEquals($src['float_array'][2], $result[2]);
-
-		$result = Validation::collectNumericArrayRequestVar('mixed_array', $src);
-		$this->assertCount(3, $result);
-		$this->assertEquals($src['mixed_array'][0], $result[0]);
-		$this->assertEquals($src['mixed_array'][2], $result[1]);
-		$this->assertEquals($src['mixed_array'][3], $result[2]);
+		$d = Validation::validateDateString($date_string);
+		$this->assertEquals($expected, $d->format('Y-m-d'), "$format format");
 	}
 }
