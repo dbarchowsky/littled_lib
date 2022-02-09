@@ -100,13 +100,13 @@ class Validation
 			return null;
 		}
 		if ($index!==null) {
-			$arr = filter_var($src[$key], FILTER_SANITIZE_STRING, FILTER_REQUIRE_ARRAY);
+			$arr = filter_var($src[$key], FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
 			if (is_array($arr) && count($arr) >= ($index-1)) {
 				$value = $arr[$index];
 			}
 		}
 		else {
-			$value = trim(filter_var($src[$key], FILTER_SANITIZE_STRING));
+			$value = trim(filter_var($src[$key], FILTER_UNSAFE_RAW));
 		}
 
 		return Validation::parseBoolean($value);
@@ -432,10 +432,11 @@ class Validation
 			if (!property_exists($data, LittledGlobals::CSRF_TOKEN_KEY)) {
 				return (false);
 			}
-			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_KEY}, FILTER_SANITIZE_STRING));
+			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_KEY}, FILTER_UNSAFE_RAW));
 		}
 		else {
-			$csrf = trim(filter_input(INPUT_POST, LittledGlobals::CSRF_TOKEN_KEY, FILTER_SANITIZE_STRING));
+			$post_data = $_POST;
+			$csrf = trim(filter_var($post_data, LittledGlobals::CSRF_TOKEN_KEY, FILTER_UNSAFE_RAW));
 		}
 		if (''===$csrf) {
 			return (false);
