@@ -102,7 +102,7 @@ abstract class ContentCache extends MySQLConnection
     {
         /* retrieve content and filter values */
         list($content_class, $filters_class) =
-            call_user_func_array([static::getControllerClass(), 'getContentAndFiltersClasses'], $page->content_properties->id->value);
+            call_user_func_array([static::getControllerClass(), 'getContentAndFiltersClasses'], array($page->getContentTypeId()));
         $rcc = new ReflectionClass($content_class);
         $rcf = new ReflectionClass($filters_class);
         /** @var SectionContent $content */
