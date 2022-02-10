@@ -1,11 +1,14 @@
 <?php
 namespace Littled\Ajax;
 
+use Exception;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\SiteSection\ContentRoute;
+use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerSelect;
@@ -14,6 +17,9 @@ use Littled\Request\StringTextField;
 
 class ContentAjaxProperties extends SerializedContent
 {
+	/** @var string */
+	protected static $table_name = 'section_operations';
+
 	/** @var IntegerInput Record id. */
 	public $id;
 	/**
@@ -26,9 +32,13 @@ class ContentAjaxProperties extends SerializedContent
 	public $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
 	public $id_param;
+	/** @var ContentRoute[] All routes linked to this content type. */
+	public $routes=[];
+	/** @var ContentTemplate[] All templates linked to this content type. */
+	public $templates=[];
+
     /**
-     * @todo consider replacing hard-coded uri fields with a table linked to this one containing
-     * separate records for each possible ajax uri
+     * @todo consider replacing hard-coded uri fields with a table linked to this one containing separate records for each possible ajax uri. See $routes and $templates property.
      */
 	/** @var StringTextField URI CMS listings URI. */
 	public $listings_uri;
@@ -56,8 +66,6 @@ class ContentAjaxProperties extends SerializedContent
 	public $comments;
 	/** @var BooleanCheckbox Flag indicating that the listings are sortable. */
 	public $is_sortable;
-    /** @var string */
-    protected static $table_name = 'section_operations';
 
 	/**
 	 * ContentAjaxProperties constructor.
@@ -115,6 +123,7 @@ class ContentAjaxProperties extends SerializedContent
 	/**
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
+	 * @throws Exception
 	 */
 	public function retrieveContentProperties()
 	{
@@ -126,6 +135,40 @@ class ContentAjaxProperties extends SerializedContent
 		}
 		$query = "CALL siteSectionPropertiesSelect({$this->section_id->value})";
 		$this->hydrateFromQuery($query);
+
+		$this->retrieveRoutes();
+		$this->retrieveTemplates();
+	}
+
+	/**
+	 * Hydrates the $routes property with data from database for all routes linked to this content type.
+	 * @return void
+	 * @throws Exception
+	 */
+	public function retrieveRoutes()
+	{
+		$this->routes = array();
+		$record_id = $operation = null;
+		$query = 'CALL contentRouteSelect(?,?,?)';
+		$data = $this->fetchRecords($query, 'iis', $record_id, $this->section_id->value, $operation);
+		foreach($data as $row) {
+			$this->routes[] = new ContentRoute($row->id, $row->site_section_id, $row->operation, $row->url);
+		}
+	}
+
+	/**
+	 * Hydrates the $templates property with data from database for all templates linked to this content type.
+	 * @return void
+	 * @throws Exception
+	 */
+	public function retrieveTemplates()
+	{
+		$this->templates = array();
+		$query = 'CALL contentTemplateSelectBySectionId(?)';
+		$data = $this->fetchRecords($query, 'i', $this->section_id->value);
+		foreach($data as $row) {
+			$this->templates[] = new ContentTemplate($row->id, $this->section_id->value, $row->name, '', $row->path, $row->location);
+		}
 	}
 
 	/**

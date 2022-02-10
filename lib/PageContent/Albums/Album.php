@@ -74,7 +74,7 @@ class Album extends KeywordSectionContent
 	/**
 	 * class constructor
 	 * @param int $content_type_id Id of the content's site section.
-	 * @param int $images_content_content_id Id of the gallery's site section
+	 * @param int $images__content_type_id Id of the gallery's site section
 	 * @param int[optional] $id Id of the content record.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
@@ -84,7 +84,7 @@ class Album extends KeywordSectionContent
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct ($content_type_id, $images_content_content_id, $id=null)
+	function __construct ($content_type_id, $images__content_type_id, $id=null)
     {
 		parent::__construct($id, $content_type_id, "abkw");
 		$this->id = new IntegerInput("Gallery ID", self::ID_PARAM, false, $id);
@@ -101,7 +101,7 @@ class Album extends KeywordSectionContent
 		$this->layout = new StringSelect("Layout", "ablo", false, "", 20);
 		$this->section_id = &$this->content_properties->id;
 
-		$this->gallery = new Gallery($images_content_content_id, $this->id->value);
+		$this->gallery = new Gallery($images__content_type_id, $this->id->value);
 
 		$this->keywordInput->label = "keywords";
 

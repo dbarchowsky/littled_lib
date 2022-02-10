@@ -44,9 +44,9 @@ class ImageUpload extends ImageLink
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct( $content_type_id=null, $parent_id=null )
+	function __construct($content_type_id=null, $parent_type_id=null )
 	{
-		parent::__construct("", "", $content_type_id, $parent_id);
+		parent::__construct("", "", $content_type_id, $parent_type_id);
 
 		$this->label = "";
 		$this->generic_params = false;

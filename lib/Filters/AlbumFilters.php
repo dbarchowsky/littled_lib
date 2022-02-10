@@ -52,7 +52,7 @@ class AlbumFilters extends FilterCollection
 	/**
 	 * AlbumFilters constructor
 	 * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
-	 * @param int $page_content_content_id ID of the site_section representing the images within the listings (From the site_section table.)
+	 * @param int $page__content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
 	 * @param int[optional] $default_page_len Length of the pages of listings.
 	 * @throws InvalidQueryException
 	 * @throws RecordNotFoundException
@@ -62,7 +62,7 @@ class AlbumFilters extends FilterCollection
 	 * @throws \Littled\Exception\InvalidTypeException
 	 * @throws \Littled\Exception\NotImplementedException
 	 */
-	function __construct ($content_type_id, $page_content_content_id, $default_page_len=10 )
+	function __construct ($content_type_id, $page__content_type_id, $default_page_len=10 )
 	{
 		parent::__construct();
 
@@ -80,7 +80,7 @@ class AlbumFilters extends FilterCollection
 		$this->ajaxProperties = new ContentAjaxProperties();
 		$this->ajaxProperties->section_id->value = $content_type_id;
 		$this->getAjaxProperties();
-		$this->gallery = new GalleryFilters($page_content_content_id, $default_page_len);
+		$this->gallery = new GalleryFilters($page__content_type_id, $default_page_len);
 		$this->previous_record_id = $this->next_record_id = 0;
 	}
 

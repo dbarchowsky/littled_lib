@@ -33,9 +33,9 @@ class SocialXPostImage extends ImageUpload
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct($_generic_params=true, $contenttype_id=null, $parent_id=null )
+	function __construct($_generic_params=true, $contenttype_type_id=null, $parent_id=null )
 	{
-		parent::__construct($contenttype_id, $parent_id);
+		parent::__construct($contenttype_type_id, $parent_id);
 		$this->flickr_id = new StringInput("Flickr ID", "ixfi", false, "", 50);
 		$this->wp_id = new StringInput("WordPress ID", "ixwp", false, null);
 		$this->twitter_id = new StringInput("Twitter ID", "ixti", false, "", 64);

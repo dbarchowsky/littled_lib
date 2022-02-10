@@ -49,11 +49,11 @@ class Gallery extends MySQLConnection
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct ($content_type_id, $parent_id=null )
+	function __construct ($content_type_id, $parent_type_id=null )
 	{
 		parent::__construct();
 		$this->contentProperties = new ContentProperties($content_type_id);
-		$this->parent_id = $parent_id;
+		$this->parent_id = $parent_type_id;
 		$this->label = "Image";
 
 		$this->list = array();

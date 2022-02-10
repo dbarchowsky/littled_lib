@@ -15,10 +15,10 @@ class SketchbookTestHarness extends SectionContent
     /** @var KeywordTestHarness[] */
     public $keyword_list;
 
-    function __construct(int $id = null, int $content_content_id = null)
+    function __construct(int $id = null, int $content_type_id = null)
     {
-        $content_content_id = $content_content_id ?: static::$content_type_id;
-        parent::__construct($id, $content_content_id);
+        $content_type_id = $content_type_id ?: static::$content_type_id;
+        parent::__construct($id, $content_type_id);
         $this->keyword_list = [];
     }
 }

@@ -38,21 +38,21 @@ class ContentTemplate extends SerializedContent
 
 	/**
 	 * ContentTemplate constructor.
-	 * @param null[optional] $id ID value of the record. Defaults to NULL.
-	 * @param null[optional] $content_type_id Site section id of the record. Defaults to NULL.
-	 * @param string[optional] $name Name of the template. Defaults to empty string.
-	 * @param string[optional] $base_dir Base path where the templates are located. Defaults to empty string.
-	 * @param string[optional] $path Path to the template file. Defaults to empty string.
-	 * @param string[optional] $location Context in which the template is used. Defaults to empty string.
+	 * @param int|null $id ID value of the record. Defaults to NULL.
+	 * @param int|null $content_type_id Site section id of the record. Defaults to NULL.
+	 * @param string $name Name of the template. Defaults to empty string.
+	 * @param string $base_dir Base path where the templates are located. Defaults to empty string.
+	 * @param string $path Path to the template file. Defaults to empty string.
+	 * @param string $location Context in which the template is used. Defaults to empty string.
 	 */
-	function __construct($id=null, $content_content_id=null, $name='', $base_dir='', $path='', $location='')
+	function __construct(?int $id=null, ?int $content_type_id=null, string $name='', string $base_dir='', string $path='', string $location='')
 	{
 		parent::__construct($id);
 
 		$this->id->label = "Template id";
 		$this->id->key = 'templateID';
 		$this->id->required = false;
-		$this->content_id = new IntegerInput("Content type", "contentTypeID", true, $content_content_id);
+		$this->content_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
 		$this->name = new StringTextField("Name", "templateName", true, $name, 45);
 		$this->template_dir = new StringTextField("Template directory", "templateDir", false, $base_dir, 200);
 		$this->path = new StringTextField("Template file", "templatePath", true, $path, 255);
@@ -73,8 +73,7 @@ class ContentTemplate extends SerializedContent
 	}
 
 	/**
-	 * Checks the instance for data that would require the record to be saved.
-	 * @return bool True/false depending on whether valid data was found in the instance.
+	 * @inheritDoc
 	 */
 	public function hasData(): bool
 	{
