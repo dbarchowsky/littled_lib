@@ -1080,11 +1080,11 @@ if (typeof LITTLED === "undefined") {
 })(jQuery);
 
 /*
- * jQuery added functionality
+ * formDialog jQuery extension.
  */
 (function($) {
 
-	var settings = {
+	let settings = {
 		event: 'click',
 		width: 'auto',
 		height: 'auto',
@@ -1135,17 +1135,17 @@ if (typeof LITTLED === "undefined") {
 		}
 	};
 
-	var methods = {
+	let methods = {
 
 		/**
 		 * Binds event handler to element that will open a dialog on that event.
-		 * By default the event is a 'click' event, but it can be overridden with
+		 * By default, the event is a 'click' event, but it can be overridden with
 		 * options.event. 
 		 * @param {Object} options
-		 * @returns {_L4.methods@call;on}
+		 * @returns
 		 */
 		init: function(options) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this
 				.off(lclSettings.event, methods.open)
 				.on(lclSettings.event, options, methods.open);
@@ -1154,10 +1154,10 @@ if (typeof LITTLED === "undefined") {
 		/**
 		 * Disables the dialog event handler.
 		 * @param {Object} options
-		 * @returns {_L4.methods@call;off}
+		 * @returns
 		 */
 		cancel: function(options) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			/* un-bind event handler */
 			return this.off(lclSettings.event, methods.open);
 		},
@@ -1165,14 +1165,14 @@ if (typeof LITTLED === "undefined") {
 		open: function(evt) {
 
 			evt.preventDefault();
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
 			/* hide existing error messages */
 			methods.dismissErrorMessages(options);
 			
 			/* retrieve operation properties */
-			var nav = {};
+			let nav = {};
 			nav[lclSettings.keys.operation] = ((lclSettings.hasOwnProperty('scriptData') && lclSettings.scriptData.hasOwnProperty(lclSettings.keys.operation))?(lclSettings.scriptData.op):($(this).data('op')));
 			nav[lclSettings.keys.record_id] = ((lclSettings.hasOwnProperty('scriptData') && lclSettings.scriptData.hasOwnProperty(lclSettings.keys.record_id))?(lclSettings.scriptData.id):($(this).data('id')));
 			nav[lclSettings.keys.content_type_id] = ((lclSettings.hasOwnProperty('scriptData') && lclSettings.scriptData.hasOwnProperty(lclSettings.keys.content_type_id))?(lclSettings.scriptData.tid):($(this).data('tid')));
@@ -1191,7 +1191,7 @@ if (typeof LITTLED === "undefined") {
 			}
 
 			/* get a pointer to the element for reference inside the callback routines */
-			var $e = $(this);
+			let $e = $(this);
 
 			$.littled.retrieveContentOperations(nav[lclSettings.keys.content_type_id], function(data1) {
 
@@ -1199,7 +1199,7 @@ if (typeof LITTLED === "undefined") {
 					$(lclSettings.dom.page_error_container).littled('displayError', data1.error);
 					return;
                 }
-                var dialog_url = methods.getOperationURI(nav[lclSettings.keys.operation], data1);
+                let dialog_url = methods.getOperationURI(nav[lclSettings.keys.operation], data1);
 				if (!dialog_url) {
 					$(lclSettings.dom.page_error_container).littled('displayError', 'Operation handler not specified.');
 					return;
@@ -1207,8 +1207,8 @@ if (typeof LITTLED === "undefined") {
 
                 nav[data1.id_param] = nav[lclSettings.keys.record_id];
                 $.extend(nav, lclSettings.scriptData || {});
-				var fd = $(lclSettings.dom.listings_filters).formDialog('retrieveFormFilters', options);
-				if (_.size(fd) > 0) {
+				let fd = $(lclSettings.dom.listings_filters).formDialog('retrieveFormFilters', options);
+				if (fd.length > 0) {
 					$.extend(fd, nav);
 				}
 				else {
@@ -1234,10 +1234,10 @@ if (typeof LITTLED === "undefined") {
 
 		display: function(data) {
 
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
 			if (data.error) {
 				$(lclSettings.dom.page_error_container).littled('displayError', data.error);
-				return (false);
+				return false;
 			}
 
 			return this.each(function() {
@@ -1279,7 +1279,7 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		bindDialogHandlers: function(options) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			return this.each(function() {
 				$('.datepicker', $(this)).datepicker();
 				$('.dlg-commit-btn', $(this)).button().on('click', options, methods.commitOperation);
@@ -1292,13 +1292,13 @@ if (typeof LITTLED === "undefined") {
 
 		collectValue: function( key, $f ) {
 		
-			var value = $(this).data(key);
+			let value = $(this).data(key);
 			if (!value) {
 				if (typeof $f !== 'object') {
 					$f = $(this).closest('form');
 				}
 				if ($f.length) {
-					var $i = $('input[name="'+key+'"]', $f);
+					let $i = $('input[name="'+key+'"]', $f);
 					if ($i.length) {
 						value = $i.val();
 					}
@@ -1310,14 +1310,14 @@ if (typeof LITTLED === "undefined") {
 		commitOperation: function(evt) {
 			
 			evt.preventDefault();
-			var options = evt.data || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = evt.data || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 			
 			methods.dismissErrorMessages(options);
 
-			var $f = $(this).closest('form');
-			var tid = $(this).formDialog('collectValue', lclSettings.keys.content_type_id, $f);
-			var op = $(this).formDialog('collectValue', lclSettings.keys.operation, $f);
+			let $f = $(this).closest('form');
+			let tid = $(this).formDialog('collectValue', lclSettings.keys.content_type_id, $f);
+			let op = $(this).formDialog('collectValue', lclSettings.keys.operation, $f);
 
 			if (!tid) { 
 				methods.displayError('Content type not specified.', options);
@@ -1335,7 +1335,7 @@ if (typeof LITTLED === "undefined") {
 					return;
 				}
 
-				var url = methods.getOperationURI(op, data1);
+				let url = methods.getOperationURI(op, data1);
 				if (!url) {
 					methods.displayError('Invalid operation.', options);
 					return;
@@ -1366,8 +1366,8 @@ if (typeof LITTLED === "undefined") {
 
 		onOperationSuccess: function(data) {
 
-			var options = data.settings || {};
-			var lclSettings = $.extend(true, {}, settings, options);
+			let options = data.settings || {};
+			let lclSettings = $.extend(true, {}, settings, options);
 
 			/* clear existing status messages */
 			methods.dismissErrorMessages(options);
@@ -1403,7 +1403,7 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		dismissErrorMessages: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			/* removing this element is removed while the dialog
 			 * is open causes the page to shift up. too distracting. */
 			// $(lclSettings.dom.status_container+':visible').hide('fast');
@@ -1413,7 +1413,7 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		clearPageContent: function( data ) {
-			var lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let lclSettings = $.extend(true, {}, settings, data.settings || {});
 			return this.each(function() {
 				if (data.error) {
 					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
@@ -1427,8 +1427,8 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		retrieveFormFilters: function( options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});
-			var filters = {};
+			let lclSettings = $.extend(true, {}, settings, options || {});
+			let filters = {};
 			this.each(function() {
 				filters = $(this).serializeObject();
 				$.extend(filters, {
@@ -1479,12 +1479,12 @@ if (typeof LITTLED === "undefined") {
 		},
 		
 		ajaxError: function(xhr, error) {
-			var err = '[' + xhr.status + ' ' + xhr.statusText + '] ' + xhr.responseText;
+			let err = '[' + xhr.status + ' ' + xhr.statusText + '] ' + xhr.responseText;
 			methods.displayError(err);
 		},
 		
 		displayError: function( error, options ) {
-			var lclSettings = $.extend(true, {}, settings, options || {});			
+			let lclSettings = $.extend(true, {}, settings, options || {});
 			if ($(lclSettings.dom.dialog_container).is(':visible')) {
 				$(lclSettings.dom.dialog_error_container).littled('displayError', error);
 			}
