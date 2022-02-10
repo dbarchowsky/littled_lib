@@ -118,6 +118,22 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertFalse($ar['bool_col']);
 	}
 
+	function testArrayEncodeWithChildren()
+	{
+		$o = new SerializedContentUtilsChild();
+		$ar = $o->arrayEncode();
+		$this->assertArrayHasKey('child_array', $ar);
+		foreach($ar['child_array'] as $element) {
+			$this->assertArrayHasKey('name', $element);
+			$this->assertArrayHasKey('int_col', $element);
+			$this->assertArrayHasKey('date', $element);
+		}
+
+		$names = array_map(function($i) { return $i['name']; }, $ar['child_array']);
+		$this->assertContains('First test child', $names);
+		$this->assertContains('2nd test child', $names);
+	}
+
 	public function testClearValues()
 	{
 		$obj = new SerializedContentChild();

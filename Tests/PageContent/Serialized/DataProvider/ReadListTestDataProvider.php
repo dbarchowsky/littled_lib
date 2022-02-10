@@ -28,7 +28,7 @@ class ReadListTestDataProvider
         return [
             [new ReadListTestDataProvider(
                 'keyword_list',
-                '\Littled\Tests\PageContent\Serialized\TestObjects\KeywordTestHarness',
+                '\Littled\Tests\PageContent\Serialized\TestHarness\KeywordTestHarness',
                 641,
                 [
                     new KeywordTestHarness(80435, 'sketchbooks', 641, 11),
@@ -38,7 +38,7 @@ class ReadListTestDataProvider
             )],
             [new ReadListTestDataProvider(
                 'keyword_list',
-                '\Littled\Tests\PageContent\Serialized\TestObjects\KeywordTestHarness',
+                '\Littled\Tests\PageContent\Serialized\TestHarness\KeywordTestHarness',
                 17,
                 [
                     new KeywordTestHarness(80069, 'sketchbooks', 17, 11),
@@ -47,7 +47,7 @@ class ReadListTestDataProvider
             )],
             [new ReadListTestDataProvider(
                 'keyword_list',
-                '\Littled\Tests\PageContent\Serialized\TestObjects\KeywordTestHarness',
+                '\Littled\Tests\PageContent\Serialized\TestHarness\KeywordTestHarness',
                 134,
                 []
             )]

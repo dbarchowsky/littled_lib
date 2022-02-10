@@ -25,14 +25,23 @@ class TestTable extends SerializedContent
 	/** @var IntegerInput */
 	public $slot;
 
-	public function __construct($id = null)
+	/**
+	 * Class constructor.
+	 * @param int|null $id Record id.
+	 * @param string $name Test string field.
+	 * @param int|null $int_col Test integer value field.
+	 * @param bool|null $bool_col Test boolean value field.
+	 * @param string $date Test date value field.
+	 * @param int|null $slot Place of the record within listings of similar records.
+	 */
+	public function __construct(?int $id = null, string $name='', ?int $int_col=null, ?bool $bool_col=null, string $date='', ?int $slot=null)
 	{
 		parent::__construct($id);
-		$this->name = new StringInput('Name', 'name', false, '', 50);
-		$this->int_col = new IntegerInput('Integer column', 'intCol');
-		$this->bool_col = new BooleanInput('Boolean column', 'boolCol');
-		$this->date = new DateInput('Date', 'Date column');
-		$this->slot = new IntegerInput('Slot', 'slot');
+		$this->name = new StringInput('Name', 'name', false, $name, 50);
+		$this->int_col = new IntegerInput('Integer column', 'intCol', false, $int_col);
+		$this->bool_col = new BooleanInput('Boolean column', 'boolCol', false, $bool_col);
+		$this->date = new DateInput('Date', 'Date column', false, $date);
+		$this->slot = new IntegerInput('Slot', 'slot', false, $slot);
 	}
 
 	/**

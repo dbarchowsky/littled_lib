@@ -81,6 +81,15 @@ class SerializedContentUtils extends AppContentBase
 					}
 				}
 			}
+			elseif(is_array($item)) {
+				$temp = [];
+				foreach ($item as $element) {
+					if ($element instanceof SerializedContent) {
+						$temp[] = $element->arrayEncode($exclude_keys);
+					}
+				}
+				$ar[$key] = $temp;
+			}
 		}
 		return ($ar);
 	}

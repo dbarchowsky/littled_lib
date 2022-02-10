@@ -468,7 +468,7 @@ class SerializedContentTest extends TestCase
 	        return($o->vc_col->value);
 	    };
 	    $obj = new SerializedContentChild();
-    	$obj->readList('array_container', 'Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentTitleTestHarness', $query);
+    	$obj->readList('array_container', 'Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentTitleTestHarness', $query);
     	$this->assertGreaterThan(0, count($obj->array_container));
     	$this->assertContains('test one', array_map($title_cb, $obj->array_container));
 	    $this->assertContains('test four', array_map($title_cb, $obj->array_container));
