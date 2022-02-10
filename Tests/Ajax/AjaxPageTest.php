@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 class AjaxPageTest extends TestCase
 {
     /** @var int */
-    public const TEST_CONTENT_TYPE_ID = 2;
+	public const TEST_CONTENT_TYPE_ID = 6037; /* "Test Section" in littledamien database */
     /** @var int */
     public const TEST_TEMPLATE_CONTENT_TYPE_ID = 31;
 
@@ -59,6 +59,26 @@ class AjaxPageTest extends TestCase
         $this->assertEquals($expected_content_id, $ap->getContentTypeId(), $msg);
         $this->assertEquals($expected_template_token, $ap->template_token->value, $msg);
     }
+
+	/**
+	 * @throws RecordNotFoundException
+	 * @throws ContentValidationException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 */
+	function testGetContentLabel()
+	{
+		$ap = new AjaxPage();
+		$this->assertEquals('', $ap->getContentLabel());
+
+		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+		$this->assertEquals('', $ap->getContentLabel());
+
+		$ap->content_properties->read();
+		$this->assertEquals('Test Section', $ap->getContentLabel());
+	}
 
     function testGetContentTypeId()
     {

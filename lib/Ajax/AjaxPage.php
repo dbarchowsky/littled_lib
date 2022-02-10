@@ -208,6 +208,18 @@ class AjaxPage extends MySQLConnection
         return static::$controller_class;
     }
 
+	/**
+	 * Content label getter.
+	 * @return string
+	 */
+	public function getContentLabel(): string
+	{
+		if (1 > $this->content_properties->getRecordId()) {
+			return '';
+		}
+		return $this->content_properties->getContentLabel();
+	}
+
     /**
      * Content type id getter.
      * @return ?int
