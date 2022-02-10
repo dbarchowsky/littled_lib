@@ -34,6 +34,8 @@ class AjaxPage extends MySQLConnection
     protected static $cache_class = ContentCache::class;
     /** @var string Name of class to use as content controller. */
     protected static $controller_class = ContentController::class;
+	/** @var string Path to directory containing template files */
+	protected static $template_path = '';
     /** @var string Name of the default template to use in derived classes to generate markup. */
     protected static $default_template_name = '';
 
@@ -224,38 +226,21 @@ class AjaxPage extends MySQLConnection
         return static::$default_template_name;
     }
 
-    /**
-     * Retrieve from the database the path to details template.
-     * @param string $template_name Token indicating which type of template to retrieve: details, listings, edit, delete, etc.
-     * @throws ConfigurationUndefinedException
-     * @throws RecordNotFoundException
-     * @throws ConnectionException
-     * @throws Exception
-     */
-	public function getTemplatePath( string $template_name )
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function getFullTemplatePath(): string
 	{
-		if (!is_object($this->content)) {
-			throw new ConfigurationUndefinedException("Content not set.");
+		if (''===static::$template_path) {
+			throw new ConfigurationUndefinedException("Content template location is not set.");
 		}
-		if (!$this->setInternalContentTypeValue()) {
-			throw new ConfigurationUndefinedException("Content properties not available.");
+		if (!$this->template instanceof ContentTemplate) {
+			throw new ConfigurationUndefinedException("Content template is not set.");
 		}
-		$this->connectToDatabase();
-		$query = "CALL contentTemplateLookup(?,?)";
-		$data = $this->fetchRecords($query, 'is', $this->content_properties->id->value, $template_name);
-		if (count($data) < 1) {
-			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
-		}
-		$this->template = new ContentTemplate(
-			$data[0]->id,
-			$this->content_properties->id->value,
-			$data[0]->name,
-			$data[0]->base_path,
-			$data[0]->template_path,
-			$data[0]->location);
+		return static::$template_path.$this->template->path->value;
 	}
 
-    /**
+	/**
      * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
      * property value to that template object.
      * @param string $template_name
@@ -357,6 +342,37 @@ class AjaxPage extends MySQLConnection
 	{
 		$this->filters->collectFilterValues();
 		$this->json->content->value = $this->content->refreshContentAfterEdit($this->filters);
+	}
+
+	/**
+	 * Retrieve template properties from the database and store them in the page's template property.
+	 * @param string $template_name Token indicating which type of template to retrieve: details, listings, edit, delete, etc.
+	 * @throws ConfigurationUndefinedException
+	 * @throws RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws Exception
+	 */
+	public function retrieveTemplateProperties(string $template_name)
+	{
+		if (!is_object($this->content)) {
+			throw new ConfigurationUndefinedException("Content not set.");
+		}
+		if (!$this->setInternalContentTypeValue()) {
+			throw new ConfigurationUndefinedException("Content properties not available.");
+		}
+		$this->connectToDatabase();
+		$query = "CALL contentTemplateLookup(?,?)";
+		$data = $this->fetchRecords($query, 'is', $this->content_properties->id->value, $template_name);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
+		}
+		$this->template = new ContentTemplate(
+			$data[0]->id,
+			$this->content_properties->id->value,
+			$data[0]->name,
+			$data[0]->base_path,
+			$data[0]->template_path,
+			$data[0]->location);
 	}
 
 	/**

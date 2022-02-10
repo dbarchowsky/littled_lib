@@ -95,10 +95,9 @@ abstract class ContentCache extends MySQLConnection
      * Retrieves content and filters based on page object's content type id setting.
      * Inserts content into template and saves resulting markup in page object's "json" property.
      * @param AjaxPage $page Object containing content type id and json container for resulting markup.
-     * @param string $operation Token representing operation being requested by the client.
      * @throws Exception
      */
-    public static function loadJsonContent( AjaxPage $page, string $operation )
+    public static function loadJsonContent(AjaxPage $page)
     {
         /* retrieve content and filter values */
         list($content_class, $filters_class) =
@@ -111,11 +110,8 @@ abstract class ContentCache extends MySQLConnection
         $filters = $rcf->newInstance();
         ContentCache::loadContent($content, $filters, $page);
 
-        $template_path = static::loadJsonTemplatePath($page, $operation);
-
         /* Insert content into template. Save resulting markup in page object's "json" property. */
-        $page->content_properties = &$content;
-        $page->loadContent($template_path, $content);
+        $page->loadContent($page->getFullTemplatePath(), $content);
     }
 
     /**
