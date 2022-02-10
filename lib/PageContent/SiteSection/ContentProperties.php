@@ -29,6 +29,10 @@ class ContentProperties extends SerializedContent
 	const SECTION_ID = 27;
 	/** @var string Name of the table holding site section data. */
 	const DEFAULT_TABLE_NAME = 'site_section';
+	/** @var int */
+	protected static $content_type_id = self::SECTION_ID;
+	/** @var string */
+	protected static $table_name = 'site_section';
 
 	/** @var StringTextField Name of the content. */
 	public $name;
@@ -73,15 +77,15 @@ class ContentProperties extends SerializedContent
 	/** @var BooleanCheckbox Flag indicating to use gallery thumbnails. */
 	public $gallery_thumbnail;
 	/** @var string Name of the argument used to pass the record id to and from pages and scripts. Stored in the section_operations table. */
-	public $id_key;
+	public $id_key = '';
 	/** @var string Parent content type name. */
-	public $parent;
+	public $parent = '';
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
 	public $label='';
 	/** @var ContentTemplate[] Array of templates used to render the section's content. */
-	public $templates;
-    /** @var string */
-    protected static $table_name = 'site_section';
+	public $templates=[];
+	/** @var ContentRoute[] Array of templates used to render the section's content. */
+	public $routes=[];
 
 	/**
 	 * SiteSection constructor.
@@ -110,18 +114,6 @@ class ContentProperties extends SerializedContent
 		$this->parent_id = new IntegerSelect("Parent", "sspi", false, null);
 		$this->is_cached = new BooleanCheckbox("Cache content", "sscc", false, false);
 		$this->gallery_thumbnail = new BooleanCheckbox("Gallery thumbnail", "ssgt", false, false);
-		$this->initializeExtraProperties();
-	}
-
-	/**
-	 * Sets initial values for the object's extra properties.
-	 */
-	protected function initializeExtraProperties()
-	{
-		$this->templates = array();
-		$this->id_key = "";
-		$this->label = "";
-		$this->parent = "";
 	}
 
 	/**
@@ -130,7 +122,7 @@ class ContentProperties extends SerializedContent
 	public function clearValues()
 	{
 		parent::clearValues();
-		$this->initializeExtraProperties();
+		$this->resetExtraProperties();
 	}
 
 	/**
@@ -173,7 +165,21 @@ class ContentProperties extends SerializedContent
             &$this->gallery_thumbnail->value);
     }
 
-    /**
+	/**
+	 * @param string $operation
+	 * @return ContentRoute|null
+	 */
+	public function getContentRouteByOperation(string $operation): ?ContentRoute
+	{
+		foreach($this->routes as $route) {
+			if ($operation === $route->operation->value) {
+				return $route;
+			}
+		}
+		return null;
+	}
+
+	/**
      * @param string $name
      * @return ContentTemplate|null
      */
@@ -278,13 +284,38 @@ class ContentProperties extends SerializedContent
         // retrieve extra properties from database
 		$query = "CALL siteSectionExtraPropertiesSelect(?)";
 		$data = $this->fetchRecords($query, 'i', $this->id->value);
-		$this->initializeExtraProperties();
+		$this->resetExtraProperties();
 		if (count($data) > 0) {
 			$this->id_key = $data[0]->id_param;
 			$this->parent = $data[0]->parent;
 			$this->label = $data[0]->label;
 		}
+		$this->readRoutes();
 		$this->readTemplates();
+	}
+
+	/**
+	 * Retrieve content routes linked to this content type.
+	 * @throws InvalidQueryException|Exception
+	 */
+	public function readRoutes(): void
+	{
+		// clear out any existing data
+		$this->routes = [];
+
+		$query = "CALL contentRouteSelect(?,?,?)";
+		$id = $name = null;
+		$data = $this->fetchRecords($query, 'iis', $id, $this->id->value, $name);
+		if (count($data) < 1) {
+			return;
+		}
+		foreach($data as $row) {
+			$this->routes[] = new ContentRoute(
+				$row->id,
+				$this->id->value,
+				$row->operation,
+				$row->url);
+		}
 	}
 
 	/**
@@ -303,8 +334,7 @@ class ContentProperties extends SerializedContent
 			// throw new RecordNotFoundException("Error retrieving content templates.");
 		}
 		foreach($data as $row) {
-			$i = count($this->templates);
-			$this->templates[$i] = new ContentTemplate(
+			$this->templates[] = new ContentTemplate(
 				$row->id,
 				$this->id->value,
 				$row->name,
@@ -312,5 +342,18 @@ class ContentProperties extends SerializedContent
 				$row->path,
 				$row->location);
 		}
+	}
+
+	/**
+	 * Resets the values of class properties not initialized automatically by the parent class.
+	 * @return void
+	 */
+	protected function resetExtraProperties()
+	{
+		$this->templates = array();
+		$this->routes = array();
+		$this->id_key = '';
+		$this->parent = '';
+		$this->label = '';
 	}
 }

@@ -11,13 +11,12 @@ use Littled\Request\IntegerInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Exception;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentTestHarness;
 
 /**
  * Class ContentTemplate
  * @package Littled\Tests\SiteContent
  */
-class ContentTemplate extends SerializedContentTestHarness
+class ContentTemplate extends SerializedContent
 {
 	/** @var int Value of this record in the site section table. */
 	protected static $content_type_id = 33;
@@ -46,14 +45,14 @@ class ContentTemplate extends SerializedContentTestHarness
 	 * @param string[optional] $path Path to the template file. Defaults to empty string.
 	 * @param string[optional] $location Context in which the template is used. Defaults to empty string.
 	 */
-	function __construct($id=null, $content_type_id=null, $name='', $base_dir='', $path='', $location='')
+	function __construct($id=null, $content_content_id=null, $name='', $base_dir='', $path='', $location='')
 	{
 		parent::__construct($id);
 
 		$this->id->label = "Template id";
 		$this->id->key = 'templateID';
 		$this->id->required = false;
-		$this->content_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
+		$this->content_id = new IntegerInput("Content type", "contentTypeID", true, $content_content_id);
 		$this->name = new StringTextField("Name", "templateName", true, $name, 45);
 		$this->template_dir = new StringTextField("Template directory", "templateDir", false, $base_dir, 200);
 		$this->path = new StringTextField("Template file", "templatePath", true, $path, 255);
@@ -111,6 +110,14 @@ class ContentTemplate extends SerializedContentTestHarness
 			}
 		}
 		return ($path);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function generateUpdateQuery(): ?array
+	{
+		return null;
 	}
 
     /**

@@ -10,8 +10,10 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\PageContent\SiteSection\TestHarness\ContentTemplateData;
+use Littled\Tests\PageContent\SiteSection\DataProvider\ContentTemplateData;
 use Littled\PageContent\SiteSection\ContentProperties;
 use PHPUnit\Framework\TestCase;
 use Exception;
@@ -22,6 +24,7 @@ class ContentPropertiesTest extends TestCase
 	const TEST_CONTENT_LABEL_READING = self::UNIT_TEST_IDENTIFIER.' for reading';
 	const TEST_ID_FOR_DELETE = 6000;
 	const TEST_ID_FOR_READ = 6001;
+	const TEST_CONTENT_TYPE_ID = 6037;
 	const TEST_IMAGE_LABEL = 'pic';
 
 	/** @var ContentProperties Test SiteSection object. */
@@ -181,7 +184,7 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
-	 * @throws InvalidQueryException|Exception
+	 * @throws Exception
      */
 	public static function tearDownAfterClass(): void
 	{
@@ -191,7 +194,10 @@ class ContentPropertiesTest extends TestCase
         $query = "DELETE FROM `site_section` WHERE `name` LIKE ?";
 		$conn->query($query, 's', $name_filter);
 
-		$query = "DELETE FROM `content_template` WHERE `name` LIKE ?";
+		$query = "DEL"."ETE FROM `".ContentTemplate::getTableName()."` WHERE `name` LIKE ?";
+		$conn->query($query, 's', $name_filter);
+
+		$query = "DEL"."ETE FROM `".ContentRoute::getTableName()."` WHERE `operation` LIKE ?";
 		$conn->query($query, 's', $name_filter);
 
         self::clearTempContentTemplateRecords($conn);
@@ -208,6 +214,22 @@ class ContentPropertiesTest extends TestCase
 	{
 		parent::tearDown();
 		$this->conn->closeDatabaseConnection();
+	}
+
+	/**
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws NotImplementedException
+	 * @throws ConfigurationUndefinedException
+	 */
+	protected function addContentRoutes(int $n)
+	{
+		for($i=0; $i<$n; $i++) {
+			$name = self::UNIT_TEST_IDENTIFIER.sprintf(' %02d', $i);
+			$route = new ContentRoute(null, self::TEST_CONTENT_TYPE_ID, $name, 'https://localhost');
+			$route->save();
+		}
 	}
 
 	/**
@@ -233,7 +255,7 @@ class ContentPropertiesTest extends TestCase
 	 * @param int $site_section_id Site section to link content operations to.
 	 * @throws InvalidQueryException|Exception
      */
-	public function addSectionOperations(int $site_section_id)
+	protected function addSectionOperations(int $site_section_id)
 	{
 		$query = "INSERT INTO section_operations (".
 			"`section_id`".
@@ -261,6 +283,35 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
+	 * @param ?string $id_key
+	 * @param ?string $parent_name
+	 * @param string $label
+	 * @param int $template_count
+	 * @return void
+	 */
+	protected function postReadAssertions(?string $id_key, ?string $parent_name, string $label, int $template_count)
+	{
+		$this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
+		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
+		$this->assertEquals($id_key, $this->obj->id_key);
+		$this->assertEquals($parent_name, $this->obj->parent);
+		$this->assertEquals($label, $this->obj->label);
+		$this->assertCount($template_count, $this->obj->templates);
+	}
+
+	/**
+	 * @throws NotImplementedException
+	 * @throws Exception
+	 */
+	protected function removeContentRoutes(SerializedContent $o)
+	{
+		$section_id = self::TEST_CONTENT_TYPE_ID;
+		$name = self::UNIT_TEST_IDENTIFIER.'%';
+		$query = "DEL"."ETE FROM `".ContentRoute::getTableName()."` WHERE site_section_id = ? AND operation LIKE ?";
+		$o->query($query, 'is', $section_id, $name);
+	}
+
+	/**
 	 * @param ContentProperties $site_section Object containing templates.
 	 * @throws ContentValidationException
      * @throws NotImplementedException
@@ -276,7 +327,7 @@ class ContentPropertiesTest extends TestCase
 	 * @param int $site_section_id Record id of site section to link content operations to.
 	 * @throws InvalidQueryException|Exception
      */
-	public function removeSectionOperations(int $site_section_id)
+	protected function removeSectionOperations(int $site_section_id)
 	{
 		$query = "DELETE FROM `section_operations` WHERE `section_id` = ?";
 		$this->conn->query($query, 'i', $site_section_id);
@@ -420,7 +471,32 @@ class ContentPropertiesTest extends TestCase
 		$this->assertNull($data[0]->parent_id);
 	}
 
-    /**
+	/**
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws RecordNotFoundException
+	 */
+	function testGetContentRouteByOperation()
+	{
+		$cp = new ContentProperties();
+		$cp->id->value = self::TEST_CONTENT_TYPE_ID;
+		$cp->read();
+
+		$this->assertGreaterThan(0, count($cp->routes));
+
+		$route = $cp->getContentRouteByOperation('listings');
+		$this->assertInstanceOf(ContentRoute::class, $route);
+		$this->assertEquals('listings', $route->operation->value);
+
+		$route = $cp->getContentRouteByOperation('nonexistent-template');
+		$this->assertNull($route);
+	}
+
+	/**
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -537,6 +613,35 @@ class ContentPropertiesTest extends TestCase
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
+	public function testReadRoutes()
+	{
+		$add_amount = 2;
+		$cp = new ContentProperties();
+		$cp->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+		$cp->readRoutes();
+		$original_count = count($cp->routes);
+		$this->assertGreaterThan(0, $original_count);
+
+		$this->addContentRoutes($add_amount);
+
+		$cp->readRoutes();
+		$this->assertCount($original_count+$add_amount, $cp->routes);
+		$names = array_map(function($i) { return $i->operation->value; }, $cp->routes);
+		for($i=0; $i<$add_amount;$i++) {
+			$expected = self::UNIT_TEST_IDENTIFIER . sprintf(' %02d', $i);
+			$this->assertContains($expected, $names);
+		}
+		$this->removeContentRoutes($cp);
+	}
+
+	/**
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 */
 	public function testReadTemplates()
 	{
 		$this->obj->id->setInputValue(self::TEST_ID_FOR_READ);
@@ -571,23 +676,6 @@ class ContentPropertiesTest extends TestCase
         $this->obj->read();
         $this->postReadAssertions($id_param, $parent_name, $label, 0);
 	}
-
-    /**
-     * @param ?string $id_key
-     * @param ?string $parent_name
-     * @param string $label
-     * @param int $template_count
-     * @return void
-     */
-    protected function postReadAssertions(?string $id_key, ?string $parent_name, string $label, int $template_count)
-    {
-        $this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
-        $this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-        $this->assertEquals($id_key, $this->obj->id_key);
-        $this->assertEquals($parent_name, $this->obj->parent);
-        $this->assertEquals($label, $this->obj->label);
-        $this->assertCount($template_count, $this->obj->templates);
-    }
 
 	/**
 	 * @throws ContentValidationException

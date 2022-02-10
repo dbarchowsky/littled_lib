@@ -2,6 +2,7 @@
 namespace Littled\Ajax;
 
 use Exception;
+use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
 use Littled\PageContent\Cache\ContentCache;
@@ -47,7 +48,7 @@ class AjaxPage extends MySQLConnection
     const TEMPLATE_TOKEN_KEY = 'templateToken';
 
 	/** @var string String indicating the action to be taken on the page. */
-	public $action;
+	public $action='';
 	/** @var SectionContent Content article. */
 	public $content;
 	/** @var ContentProperties Content properties. */
@@ -59,9 +60,11 @@ class AjaxPage extends MySQLConnection
 	/** @var IntegerInput Content record id. */
 	public $record_id;
     /** @var StringInput Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
-    public $template_token;
+    public $operation;
 	/** @var ContentTemplate Current content template properties. */
-	public $template;
+	public $template=null;
+	/** @var ContentRoute Current content route properties. */
+	public $route=null;
 
 	/**
 	 * Class constructor.
@@ -78,7 +81,7 @@ class AjaxPage extends MySQLConnection
 		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
 		$this->content_properties = new ContentProperties();
-        $this->template_token = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
+        $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
 		$this->template = null;
 		$this->filters = null; /* set in derived classes */
 		$this->action = "";
@@ -129,9 +132,9 @@ class AjaxPage extends MySQLConnection
         }
         $this->content_properties->read();
 
-        $this->template_token->collectRequestData();
-        if (!$this->template_token->value) {
-            $this->template_token->value = static::getDefaultTemplateName();
+        $this->operation->collectRequestData();
+        if (!$this->operation->value) {
+            $this->operation->value = static::getDefaultTemplateName();
         }
         $this->lookupTemplate();
     }
@@ -253,15 +256,27 @@ class AjaxPage extends MySQLConnection
 	}
 
 	/**
+	 * Looks for the route matching $route_name in the currently loaded templates. Sets the object's route
+	 * property value to that route object.
+	 * @param string $operation
+	 * @return void
+	 */
+	public function lookupRoute(string $operation='')
+	{
+		$operation = $operation ?: $this->operation->value;
+		$this->route = $this->content_properties->getContentRouteByOperation($operation);
+	}
+
+	/**
      * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
      * property value to that template object.
-     * @param string $template_name
+     * @param string $operation
      * @return void
      */
-    public function lookupTemplate(string $template_name='')
+    public function lookupTemplate(string $operation='')
     {
-        $template_name = $template_name ?: $this->template_token->value;
-        $this->template = $this->content_properties->getContentTemplateByName($template_name);
+        $operation = $operation ?: $this->operation->value;
+        $this->template = $this->content_properties->getContentTemplateByName($operation);
     }
 
 	/**

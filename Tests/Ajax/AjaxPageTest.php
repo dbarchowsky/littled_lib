@@ -32,22 +32,23 @@ class AjaxPageTest extends TestCase
     function testConstructor()
     {
         $ap = new AjaxPage();
-        $this->assertEquals('', $ap->template_token->value);
+        $this->assertEquals('', $ap->operation->value);
     }
 
-    /**
-     * @dataProvider \Littled\Tests\Ajax\DataProvider\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
-     * @param int|null $expected_content_id
-     * @param string $expected_template_token
-     * @param array $post_data
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws InvalidTypeException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws RecordNotFoundException
-     */
+	/**
+	 * @dataProvider \Littled\Tests\Ajax\DataProvider\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
+	 * @param int|null $expected_content_id
+	 * @param string $expected_template_token
+	 * @param array $post_data
+	 * @param string $msg
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws RecordNotFoundException
+	 */
     function testCollectContentProperties(?int $expected_content_id, string $expected_template_token, array $post_data, string $msg='')
     {
         $_POST = $post_data;
@@ -57,7 +58,7 @@ class AjaxPageTest extends TestCase
         }
         $ap->collectContentProperties();
         $this->assertEquals($expected_content_id, $ap->getContentTypeId(), $msg);
-        $this->assertEquals($expected_template_token, $ap->template_token->value, $msg);
+        $this->assertEquals($expected_template_token, $ap->operation->value, $msg);
     }
 
 	/**
@@ -99,14 +100,39 @@ class AjaxPageTest extends TestCase
         $this->assertInstanceOf(SectionContent::class, $content);
     }
 
-    function testLookupTemplate()
+	function testLookupRoute()
+	{
+		$ap = new AjaxPage();
+		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+		$ap->content_properties->read();
+		$this->assertGreaterThan(0, count($ap->content_properties->routes));
+
+		$ap->operation->value = 'listings';
+		$ap->lookupRoute();
+		$this->assertEquals('listings', $ap->route->operation->value);
+		$this->assertEquals('/ajax/utils/listings.php', $ap->route->url->value);
+
+		$ap->lookupRoute('delete');
+		$this->assertEquals('delete', $ap->route->operation->value);
+		$this->assertEquals('/ajax/utils/delete-record.php', $ap->route->url->value);
+	}
+
+	/**
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 */
+	function testLookupTemplate()
     {
         $ap = new AjaxPage();
         $ap->setContentTypeId(self::TEST_TEMPLATE_CONTENT_TYPE_ID);
         $ap->content_properties->read();
         $this->assertGreaterThan(0, count($ap->content_properties->templates));
 
-        $ap->template_token->value = 'details';
+        $ap->operation->value = 'details';
         $ap->lookupTemplate();
         $this->assertEquals('details', $ap->template->name->value);
 

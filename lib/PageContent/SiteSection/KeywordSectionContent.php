@@ -34,9 +34,9 @@ abstract class KeywordSectionContent extends SectionContent
 	 * @param int|null[optional] $content_type_id ID of this object's content type. Defaults to NULL.
 	 * @param string[optional] $keyword_param Name of the variable containing comma-delimited keywords collected from HTML forms.
 	 */
-	function __construct($id = null, $content_type_id = null, $keyword_param='kw')
+	function __construct($id = null, $content_content_id = null, $keyword_param='kw')
 	{
-		parent::__construct($id, $content_type_id);
+		parent::__construct($id, $content_content_id);
 
 		if ($keyword_param != 'kw') {
 			$this->content_properties->id->key = $keyword_param.$this->content_properties->id->key;
