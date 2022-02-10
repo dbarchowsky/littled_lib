@@ -7,12 +7,14 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\Serialized\SerializedContentUtils;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentChild;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentUtilsChild;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentChild;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentTestHarness;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentUtilsChild;
 use Littled\Request\RequestInput;
+use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 use PHPUnit\Framework\TestCase;
 
 
@@ -27,6 +29,7 @@ class SerializedContentUtilsTest extends TestCase
 	public const TEST_SOURCE_TEMPLATE = "serialized-content-source-template.php";
 	public const TEST_OUTPUT_TEMPLATE = "serialized-content-output-template.php";
     protected const CHILD_CONTENT_TYPE_ID = 10;
+	public const TEST_RECORD_ID = 2023;
 
     /**
      * @throws NotImplementedException Table name is not set in inherited classes.
@@ -238,6 +241,31 @@ class SerializedContentUtilsTest extends TestCase
 		$this->obj::getContentTypeId();
 	}
 
+	/**
+	 * @throws RecordNotFoundException
+	 * @throws NotImplementedException
+	 */
+	function testHydrateFromQueryWithArguments()
+	{
+		$o = new TestTable();
+		$record_id = self::TEST_RECORD_ID;
+		$query = 'SEL'.'ECT name, int_col, bool_col, date, slot FROM `'.$o::getTableName().'` WHERE ID = ?';
+		$o->hydrateFromQueryPublic($query, 'i', $record_id);
+		$this->assertEquals('fixed test record', $o->name->value);
+	}
+
+	/**
+	 * @throws RecordNotFoundException
+	 * @throws NotImplementedException
+	 */
+	function testHydrateFromQueryWithoutArguments()
+	{
+		$o = new TestTable();
+		$query = 'SEL'.'ECT name, int_col, bool_col, date, slot FROM `'.$o::getTableName().'` WHERE ID = '.self::TEST_RECORD_ID;
+		$o->hydrateFromQueryPublic($query);
+		$this->assertEquals('fixed test record', $o->name->value);
+	}
+
 	public function testJsonEncode()
 	{
 		$obj = new SerializedContentUtilsChild();
@@ -344,11 +372,11 @@ class SerializedContentUtilsTest extends TestCase
 		// test object with no added RequestInput properties
 		$obj = new SerializedContentChild();
 		$expected1 =
-            "<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$obj->vc_col1->key}\" value=\"{$obj->vc_col1->value}\" />\n".
             "<input type=\"hidden\" name=\"{$obj->vc_col2->key}\" value=\"{$obj->vc_col2->value}\" />\n".
             "<input type=\"hidden\" name=\"{$obj->int_col->key}\" value=\"{$obj->int_col->value}\" />\n".
-            "<input type=\"hidden\" name=\"{$obj->bool_col->key}\" value=\"{$obj->bool_col->value}\" />\n";
+            "<input type=\"hidden\" name=\"{$obj->bool_col->key}\" value=\"{$obj->bool_col->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" />\n";
 		$this->expectOutputString($expected1);
 		$obj->preserveInForm();
 
@@ -356,24 +384,23 @@ class SerializedContentUtilsTest extends TestCase
 		// N.B. expectOutputString() evaluates against ALL strings that have been printed to STDOUT
 		$o2 = new SerializedContentUtilsChild();
 		$expected2 = $expected1.
-            "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->vc_col2->key}\" value=\"{$o2->vc_col2->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->bool_col->key}\" value=\"{$o2->bool_col->value}\" />\n".
-            "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n";
+			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
 		$this->expectOutputString($expected2);
 		$o2->preserveInForm();
 
 		// test object with excluded properties
 		$expected3 = $expected2.
-            "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n".
+			"<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
 			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
-            "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n";
+			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
 		$this->expectOutputString($expected3);
 		$o2->preserveInForm(array('p_vc2', 'p_bool'));
-
 	}
 
     public function testCacheTemplatePath()

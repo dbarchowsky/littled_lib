@@ -1,8 +1,7 @@
 <?php
 
-namespace Littled\Tests\PageContent\Serialized\TestObjects;
+namespace Littled\Tests\PageContent\Serialized\TestHarness;
 
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;

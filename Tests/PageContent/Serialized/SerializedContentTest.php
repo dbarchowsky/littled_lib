@@ -3,10 +3,10 @@ namespace Littled\Tests\PageContent\Serialized;
 require_once (realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Tests\PageContent\Serialized\DataProvider\ReadListTestDataProvider;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentChild;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentNameTestHarness;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentTitleTestHarness;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentNonDefaultColumn;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentChild;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentNameTestHarness;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentTitleTestHarness;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentNonDefaultColumn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -16,7 +16,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Tests\PageContent\Serialized\TestObjects\SketchbookTestHarness;
+use Littled\Tests\PageContent\Serialized\TestHarness\SketchbookTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

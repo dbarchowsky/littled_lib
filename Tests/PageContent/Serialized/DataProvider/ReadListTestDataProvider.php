@@ -2,7 +2,7 @@
 
 namespace Littled\Tests\PageContent\Serialized\DataProvider;
 
-use Littled\Tests\PageContent\Serialized\TestObjects\KeywordTestHarness;
+use Littled\Tests\PageContent\Serialized\TestHarness\KeywordTestHarness;
 
 class ReadListTestDataProvider
 {

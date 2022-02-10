@@ -233,9 +233,15 @@ class SerializedContentUtils extends AppContentBase
      * @throws RecordNotFoundException
      * @throws Exception
      */
-	protected function hydrateFromQuery( string $query )
+	protected function hydrateFromQuery( string $query, string $types='', &...$vars )
 	{
-		$data = $this->fetchRecords($query);
+		if ($types) {
+			array_unshift($vars, $query, $types);
+			$data = call_user_func_array([$this, 'fetchRecords'], $vars);
+		}
+		else {
+			$data = $this->fetchRecords($query);
+		}
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Record not found.");
 		}

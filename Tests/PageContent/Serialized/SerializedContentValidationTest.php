@@ -5,7 +5,7 @@ require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Serialized\SerializedContentUtils;
 use Littled\PageContent\Serialized\SerializedContentValidation;
-use Littled\Tests\PageContent\Serialized\TestObjects\SerializedContentValidationChild;
+use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentValidationChild;
 use PHPUnit\Framework\TestCase;
 
 

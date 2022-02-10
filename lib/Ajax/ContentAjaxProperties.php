@@ -133,9 +133,7 @@ class ContentAjaxProperties extends SerializedContent
 		catch(ContentValidationException $ex) {
 			return;
 		}
-		$query = "CALL siteSectionPropertiesSelect({$this->section_id->value})";
-		$this->hydrateFromQuery($query);
-
+		$this->hydrateFromQuery('CALL siteSectionPropertiesSelect(?)', 'i', $this->section_id->value);
 		$this->retrieveRoutes();
 		$this->retrieveTemplates();
 	}
