@@ -2,6 +2,7 @@
 namespace Littled\Ajax;
 
 use Exception;
+use Littled\Filters\ContentFilters;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
@@ -98,6 +99,26 @@ class AjaxPage extends MySQLConnection
 				unset($item);
 			}
 		}
+	}
+
+	/**
+	 * Retrieves content and filters based on page object's content type id setting.
+	 * Inserts content into template and saves resulting markup in page object's "json" property.
+	 * @throws Exception
+	 */
+	public function collectAndLoadJsonContent()
+	{
+		/* retrieve content object if needed */
+		if (!is_object($this->content)) {
+			$this->content = call_user_func_array([static::getControllerClass(), 'getContentObject'], array($this->getContentTypeId()));
+		}
+
+		/** retrieve filters object if needed */
+		if (!is_object($this->filters)) {
+			$this->filters = call_user_func_array([static::getControllerClass(), 'getContentFiltersObject'], array($this->getContentTypeId()));
+		}
+		$this->loadContentAndFiltersData();
+		$this->loadTemplateContent();
 	}
 
 	/**
@@ -208,19 +229,6 @@ class AjaxPage extends MySQLConnection
         return static::$cache_class;
     }
 
-    /**
-     * Controller class name getter.
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getControllerClass(): string
-    {
-        if (ContentController::class === static::$controller_class) {
-            throw new ConfigurationUndefinedException('Controller class not configured.');
-        }
-        return static::$controller_class;
-    }
-
 	/**
 	 * Content label getter.
 	 * @return string
@@ -242,7 +250,20 @@ class AjaxPage extends MySQLConnection
         return ($this->content_properties->id->value);
     }
 
-    /**
+	/**
+	 * Controller class name getter.
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getControllerClass(): string
+	{
+		if (ContentController::class === static::$controller_class) {
+			throw new ConfigurationUndefinedException('Controller class not configured.');
+		}
+		return static::$controller_class;
+	}
+
+	/**
      * Default token name getter.
      * @return string
      */
@@ -264,75 +285,6 @@ class AjaxPage extends MySQLConnection
 		}
 		return static::$template_path.$this->template->path->value;
 	}
-
-    /**
-     * Collects filter values from request data, and reads the content data from the database.
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws NotImplementedException
-     */
-    public function loadContentAndFiltersData()
-    {
-        $this->collectFiltersRequestData();
-        $this->retrieveContentData();
-    }
-
-    /**
-     * Retrieves content and filters based on page object's content type id setting.
-     * Inserts content into template and saves resulting markup in page object's "json" property.
-     * @throws Exception
-     */
-    public function loadJsonContent()
-    {
-        /* retrieve content object if needed */
-        if (!is_object($this->content)) {
-            $this->content = call_user_func_array([static::getControllerClass(), 'getContentObject'], array($this->getContentTypeId()));
-        }
-
-        /** retrieve filters object if needed */
-        if (!is_object($this->filters)) {
-            $this->filters = call_user_func_array([static::getControllerClass(), 'getContentFiltersObject'], array($this->getContentTypeId()));
-        }
-        $this->loadContentAndFiltersData();
-        $this->filters->display_listings->value = true;
-        $this->loadTemplateContent();
-    }
-
-    /**
-     * Inject content data into template. Save the resulting markup in page object's "json" property.
-     * This can be overridden in client apps for more control over the location of the templates.
-     * @return void
-     * @throws ResourceNotFoundException
-     * @throws Exception
-     */
-    public function loadTemplateContent()
-    {
-        $this->loadContent($this->template->formatFullPath(), $this->content);
-    }
-
-    /**
-	 * Looks for the route matching $route_name in the currently loaded templates. Sets the object's route
-	 * property value to that route object.
-	 * @param string $operation
-	 * @return void
-	 */
-	public function lookupRoute(string $operation='')
-	{
-		$operation = $operation ?: $this->operation->value;
-		$this->route = $this->content_properties->getContentRouteByOperation($operation);
-	}
-
-	/**
-     * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
-     * property value to that template object.
-     * @param string $operation
-     * @return void
-     */
-    public function lookupTemplate(string $operation='')
-    {
-        $operation = $operation ?: $this->operation->value;
-        $this->template = $this->content_properties->getContentTemplateByName($operation);
-    }
 
 	/**
 	 * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.
@@ -359,27 +311,55 @@ class AjaxPage extends MySQLConnection
 	}
 
 	/**
+     * Collects filter values from request data, and reads the content data from the database.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws NotImplementedException
+     */
+    public function loadContentAndFiltersData()
+    {
+        $this->collectFiltersRequestData();
+        $this->retrieveContentData();
+    }
+
+	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
-	 * @param string $content_path Path to content template.
-	 * @param SerializedContent|null $content (Optional) Object containing content values to insert into content templates.
-	 * @param FilterCollection|null $filters (Optional) Filter values to be saved in any forms or to used to display the content.
-	 * @throws ResourceNotFoundException
 	 */
-	public function loadContent(string $content_path, ?SerializedContent &$content=null, ?FilterCollection &$filters=null )
+	public function loadTemplateContent()
 	{
-		$context = array();
-		if (null !== $content) {
-			$context['content'] = &$content;
+		$context = array(
+			'content' => $this->content,
+			'filters' => $this->filters
+		);
+		if ($this->filters instanceof ContentFilters) {
+			$context['qs'] = $this->filters->formatQueryString();
 		}
-		else {
-			$context['content'] = &$this->content;
-		}
-		if (null !== $filters) {
-			$context['filters'] = &$filters;
-			$context['qs'] = $filters->formatQueryString();
-		}
-		$this->json->loadContentFromTemplate($content_path, $context);
+		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $context);
 	}
+
+	/**
+	 * Looks for the route matching $route_name in the currently loaded templates. Sets the object's route
+	 * property value to that route object.
+	 * @param string $operation
+	 * @return void
+	 */
+	public function lookupRoute(string $operation='')
+	{
+		$operation = $operation ?: $this->operation->value;
+		$this->route = $this->content_properties->getContentRouteByOperation($operation);
+	}
+
+	/**
+     * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
+     * property value to that template object.
+     * @param string $operation
+     * @return void
+     */
+    public function lookupTemplate(string $operation='')
+    {
+        $operation = $operation ?: $this->operation->value;
+        $this->template = $this->content_properties->getContentTemplateByName($operation);
+    }
 
 	/**
 	 * Wrapper for json_response_class::load_content_from_template() preserved
@@ -505,22 +485,6 @@ class AjaxPage extends MySQLConnection
     }
 
     /**
-     * Content cache class setter.
-     * @param string $class_name Name of class to use as content controller. Must be derived from \Littled\PageContent\ContentController
-     * @return void
-     * @throws InvalidTypeException
-     */
-    public static function setControllerClass(string $class_name)
-    {
-        $o = new $class_name;
-        if(!$o instanceof ContentController) {
-            throw new InvalidTypeException(Debug::getShortMethodName().' Invalid controller type. ');
-        }
-        unset($o);
-        static::$controller_class = $class_name;
-    }
-
-    /**
      * Content type id setter.
      * @param int $content_id
      * @return void
@@ -530,7 +494,23 @@ class AjaxPage extends MySQLConnection
         $this->content_properties->id->setInputValue($content_id);
     }
 
-    /**
+	/**
+	 * Content cache class setter.
+	 * @param string $class_name Name of class to use as content controller. Must be derived from \Littled\PageContent\ContentController
+	 * @return void
+	 * @throws InvalidTypeException
+	 */
+	public static function setControllerClass(string $class_name)
+	{
+		$o = new $class_name;
+		if(!$o instanceof ContentController) {
+			throw new InvalidTypeException(Debug::getShortMethodName().' Invalid controller type. ');
+		}
+		unset($o);
+		static::$controller_class = $class_name;
+	}
+
+	/**
      * Default template name setter.
      * @param string $name
      * @return void

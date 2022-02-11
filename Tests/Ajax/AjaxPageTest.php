@@ -11,6 +11,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
 use PHPUnit\Framework\TestCase;
 
@@ -102,7 +103,7 @@ class AjaxPageTest extends TestCase
     function testGetContentObject()
     {
         $content = call_user_func_array([AjaxPage::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
-        $this->assertInstanceOf(SectionContent::class, $content);
+        $this->assertInstanceOf(SerializedContent::class, $content);
     }
 
     /**
@@ -114,7 +115,7 @@ class AjaxPageTest extends TestCase
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
-    function testLoadJsonContent()
+    function testCollectAndLoadJsonContent()
     {
         $ap = new AjaxPage();
 
@@ -128,7 +129,7 @@ class AjaxPageTest extends TestCase
         $ap->content->id->setInputValue(self::TEST_RECORD_ID);
 
         // inject record content into template
-        $ap->loadJsonContent();
+        $ap->collectAndLoadJsonContent();
         $this->assertMatchesRegularExpression('/^\s*<div class=\"dialog delete-confirmation\"/', $ap->json->content->value);
     }
 
