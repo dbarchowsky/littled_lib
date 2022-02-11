@@ -382,18 +382,28 @@
 		},
 
 		getOperationURI: function(op, data) {
-			switch (op) {
-				case 'edit':
-					return(data.edit_uri);
-				case 'upload':
-					return ((data.upload_uri)?(data.upload_uri):(data.edit_uri));
-				case 'delete':
-					return(data.delete_uri);
-				case 'view':
-				case 'details':
-					return(data.details_uri);
-				default:
-					return('');
+            if (data.hasOwnProperty('routes')) {
+                for(let i=0, len=data['routes'].length; i < len; i++) {
+                    if (op===data['routes'][i].operation) {
+                        return (data['routes'][i].url);
+                    }
+                }
+            }
+            else {
+                /** @TODO remove this block after records have been entered in content_routes for all content types */
+                switch (op) {
+                    case 'edit':
+                        return (data.edit_uri);
+                    case 'upload':
+                        return ((data.upload_uri) ? (data.upload_uri) : (data.edit_uri));
+                    case 'delete':
+                        return (data.delete_uri);
+                    case 'view':
+                    case 'details':
+                        return (data.details_uri);
+                    default:
+                        return ('');
+                }
 			}
 		},
 		

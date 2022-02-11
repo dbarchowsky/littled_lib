@@ -1463,18 +1463,28 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		getOperationURI: function(op, data) {
-			switch (op) {
-				case 'edit':
-					return(data.edit_uri);
-				case 'upload':
-					return ((data.upload_uri)?(data.upload_uri):(data.edit_uri));
-				case 'delete':
-					return(data.delete_uri);
-				case 'view':
-				case 'details':
-					return(data.details_uri);
-				default:
-					return('');
+            if (data.hasOwnProperty('routes')) {
+                for(let i=0, len=data['routes'].length; i < len; i++) {
+                    if (op===data['routes'][i].operation) {
+                        return (data['routes'][i].url);
+                    }
+                }
+            }
+            else {
+                /** @TODO remove this block after records have been entered in content_routes for all content types */
+                switch (op) {
+                    case 'edit':
+                        return (data.edit_uri);
+                    case 'upload':
+                        return ((data.upload_uri) ? (data.upload_uri) : (data.edit_uri));
+                    case 'delete':
+                        return (data.delete_uri);
+                    case 'view':
+                    case 'details':
+                        return (data.details_uri);
+                    default:
+                        return ('');
+                }
 			}
 		},
 		
@@ -1988,7 +1998,7 @@ if (typeof LITTLED === "undefined") {
 		 * routine is invoked on. Handlers are bound to the necessary elements 
 		 * within the new element. 
 		 * - Intended as callback for methods within the library that fetch edit 
-		 * form markup from AJAX scripts.
+		 * form markup from AJAX js.
 		 * @param {object} data Collection of JSON data returned from AJAX script.
 		 * @returns {_L1.methods@call;each}
 		 */
@@ -2224,7 +2234,7 @@ if (typeof LITTLED === "undefined") {
 	let settings = {
 		displayWarnings: true,
 		inlineOps: {
-		    root: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+		    root: '/vendor/dbarchowsky/littled_cms/ajax/js/',
 			nameURL: 'edit_name.php',
 			dateURL: 'edit_date.php',
 			accessURL: 'edit_access.php',
