@@ -12,16 +12,16 @@ const paths = {
                     separator: ''
                 },
                 src: [
-                    'scripts/core.js',
-                    'scripts/formDialog.js',
-                    'scripts/inlineEdit.js',
-                    'scripts//lineitems.js',
-                    'scripts/listings.js',
-                    'scripts/keyword.js',
-                    'scripts/keywordFilter.js',
-                    'scripts/resort.js'
+                    'js/core.js',
+                    'js/formDialog.js',
+                    'js/inlineEdit.js',
+                    'js//lineitems.js',
+                    'js/listings.js',
+                    'js/keyword.js',
+                    'js/keywordFilter.js',
+                    'js/resort.js'
                 ],
-                dir: 'scripts/pkg/',
+                dir: 'js/pkg/',
                 dst: 'littled.js'
             }
         },
@@ -31,17 +31,17 @@ const paths = {
                     separator: ''
                 },
                 src: [
-                    'scripts/gallery.js'
+                    'js/gallery.js'
                 ],
-                dir: 'scripts/pkg/',
+                dir: 'js/pkg/',
                 dst: 'gallery.js'
             }
         },
     },
     uglify: {
         src: [
-            'scripts/pkg/*.js',
-            '!scripts/pkg/*.min.*'
+            'js/pkg/*.js',
+            '!js/pkg/*.min.*'
         ]
     }
 };
@@ -49,19 +49,19 @@ const paths = {
 /**
  *  combine all javascript into one file
  */
-gulp.task('littled-scripts', function() {
+gulp.task('littled-js', function() {
     return gulp.src(paths.scripts.littled.concat.src)
         .pipe(concat(paths.scripts.littled.concat.dst))
         .pipe(gulp.dest(paths.scripts.littled.concat.dir));
 });
 
-gulp.task('gallery-scripts', function() {
+gulp.task('gallery-js', function() {
     return gulp.src(paths.scripts.gallery.concat.src)
         .pipe(concat(paths.scripts.gallery.concat.dst))
         .pipe(gulp.dest(paths.scripts.gallery.concat.dir));
 });
 
-gulp.task('scripts', gulp.parallel('littled-scripts', 'gallery-scripts'), function() {
+gulp.task('scripts', gulp.parallel('littled-js', 'gallery-js'), function() {
 
 });
 

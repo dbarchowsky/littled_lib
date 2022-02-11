@@ -362,7 +362,7 @@
 		 * routine is invoked on. Handlers are bound to the necessary elements 
 		 * within the new element. 
 		 * - Intended as callback for methods within the library that fetch edit 
-		 * form markup from AJAX scripts.
+		 * form markup from AJAX js.
 		 * @param {object} data Collection of JSON data returned from AJAX script.
 		 * @returns {_L1.methods@call;each}
 		 */

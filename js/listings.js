@@ -6,7 +6,7 @@
 	let settings = {
 		displayWarnings: true,
 		inlineOps: {
-		    root: '/vendor/dbarchowsky/littled_cms/ajax/scripts/',
+		    root: '/vendor/dbarchowsky/littled_cms/ajax/js/',
 			nameURL: 'edit_name.php',
 			dateURL: 'edit_date.php',
 			accessURL: 'edit_access.php',
