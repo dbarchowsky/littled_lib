@@ -56,8 +56,8 @@ class ContentAjaxPropertiesTest extends TestCase
 
 		$paths = array_map(function($i) { return $i->path->value;}, $cap->templates);
 		$paths = implode(' ', $paths);
-		$this->assertMatchesRegularExpression('/delete-confirmation-dialog\.php/', $paths);
-		$this->assertMatchesRegularExpression('/templates\/listings\.php/', $paths);
+		$this->assertMatchesRegularExpression('/\bdelete-confirmation-dialog\.php\b/', $paths);
+		$this->assertMatchesRegularExpression('/\blistings\.php\b/', $paths);
 
 		$record_ids = array_map(function($i) { return $i->id->value;}, $cap->templates);
 		$this->assertContains(383, $record_ids);

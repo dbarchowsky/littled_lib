@@ -20,7 +20,7 @@ class CMSBreadcrumbs extends Breadcrumbs
 		parent::__construct();
 
 		/* override default breadcrumbs template path */
-		static::setMenuTemplatePath(LittledGlobals::getTemplatePath()."framework/navigation/breadcrumbs-menu.php");
+		static::setMenuTemplatePath(LittledGlobals::getLocalTemplatePath()."framework/navigation/breadcrumbs-menu.php");
 		static::setNodeType('Littled\PageContent\Navigation\CMS\BreadcrumbsNode');
 	}
 

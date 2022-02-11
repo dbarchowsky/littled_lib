@@ -37,7 +37,7 @@ class BreadcrumbsNode extends NavigationNodeBase
     public static function getNodeTemplatePath(): string
     {
 		if (!static::$node_template_path) {
-			static::setNodeTemplatePath(LittledGlobals::getTemplatePath().'framework/navigation/breadcrumbs-node.php');
+			static::setNodeTemplatePath(LittledGlobals::getLocalTemplatePath().'framework/navigation/breadcrumbs-node.php');
 		}
     	return static::$node_template_path;
     }

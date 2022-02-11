@@ -11,7 +11,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\PageContent\SiteSection\ContentProperties;
-use Littled\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
+use Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase

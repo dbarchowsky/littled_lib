@@ -13,7 +13,7 @@ class LittledGlobals
 	/** @var string Path to directory containing mysql authentication (outside public access). */
 	protected static $mysql_keys_path = '';
 	/** @var string Path to directory containing app templates. */
-	protected static $template_path = '';
+	protected static $local_template_path = '';
     /** @var string Path to directory containing app templates. */
     protected static $shared_template_path = '';
 
@@ -87,12 +87,12 @@ class LittledGlobals
 	 * @return string Template root path.
      * @throws ConfigurationUndefinedException
 	 */
-	public static function getTemplatePath(): string
+	public static function getLocalTemplatePath(): string
 	{
-        if (''===static::$template_path) {
+        if (''===static::$local_template_path) {
             throw new ConfigurationUndefinedException('LittledGlobals template path value not set.');
         }
-		return static::$template_path;
+		return static::$local_template_path;
 	}
 
 	/**
@@ -135,8 +135,8 @@ class LittledGlobals
 	 * Sets root template directory path.
 	 * @param string $path Path to root directory containing template files.
 	 */
-	public static function setTemplatePath(string $path)
+	public static function setLocalTemplatePath(string $path)
 	{
-		static::$template_path = (($path) ? (rtrim($path, '/').'/') : (''));
+		static::$local_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
 }

@@ -227,7 +227,7 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertContains('foo', $keywords);
 		$this->assertContains('0', $keywords);
 		$this->assertContains('625', $keywords);
-		$this->assertContains("[before script]alert(&#039;what&#039;);[after script]", $keywords);
+		$this->assertContains("[before script]alert('what');[after script]", $keywords);
 		$this->assertContains('dah', $keywords);
 	}
 

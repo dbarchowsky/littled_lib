@@ -96,7 +96,7 @@ class ContentTemplate extends SerializedContent
 			switch ($this->location->value)
 			{
 				case 'shared':
-					$path = rtrim(LittledGlobals::getTemplatePath(), '/').'/'.$path;
+					$path = rtrim(LittledGlobals::getLocalTemplatePath(), '/').'/'.$path;
 					break;
 				case 'shared-cms':
 					$path = rtrim(LittledGlobals::getSharedTemplatePath(), '/').'/'.$path;
