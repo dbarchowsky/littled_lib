@@ -2,6 +2,7 @@
 namespace Littled\Ajax;
 
 use Exception;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
@@ -140,6 +141,15 @@ class AjaxPage extends MySQLConnection
     }
 
     /**
+     * Fills out filter values from request data.
+     * @throws NotImplementedException
+     */
+    public function collectFiltersRequestData()
+    {
+        $this->filters->collectFilterValues();
+    }
+
+    /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
 	 * @param array|null[optional] $src Optional array of variables to use instead of POST data.
 	 * @return AjaxPage
@@ -255,7 +265,52 @@ class AjaxPage extends MySQLConnection
 		return static::$template_path.$this->template->path->value;
 	}
 
-	/**
+    /**
+     * Collects filter values from request data, and reads the content data from the database.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws NotImplementedException
+     */
+    public function loadContentAndFiltersData()
+    {
+        $this->collectFiltersRequestData();
+        $this->retrieveContentData();
+    }
+
+    /**
+     * Retrieves content and filters based on page object's content type id setting.
+     * Inserts content into template and saves resulting markup in page object's "json" property.
+     * @throws Exception
+     */
+    public function loadJsonContent()
+    {
+        /* retrieve content object if needed */
+        if (!is_object($this->content)) {
+            $this->content = call_user_func_array([static::getControllerClass(), 'getContentObject'], array($this->getContentTypeId()));
+        }
+
+        /** retrieve filters object if needed */
+        if (!is_object($this->filters)) {
+            $this->filters = call_user_func_array([static::getControllerClass(), 'getContentFiltersObject'], array($this->getContentTypeId()));
+        }
+        $this->loadContentAndFiltersData();
+        $this->filters->display_listings->value = true;
+        $this->loadTemplateContent();
+    }
+
+    /**
+     * Inject content data into template. Save the resulting markup in page object's "json" property.
+     * This can be overridden in client apps for more control over the location of the templates.
+     * @return void
+     * @throws ResourceNotFoundException
+     * @throws Exception
+     */
+    public function loadTemplateContent()
+    {
+        $this->loadContent($this->template->formatFullPath(), $this->content);
+    }
+
+    /**
 	 * Looks for the route matching $route_name in the currently loaded templates. Sets the object's route
 	 * property value to that route object.
 	 * @param string $operation
@@ -306,11 +361,11 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
 	 * @param string $content_path Path to content template.
-	 * @param SectionContent|null $content (Optional) Object containing content values to insert into content templates.
+	 * @param SerializedContent|null $content (Optional) Object containing content values to insert into content templates.
 	 * @param FilterCollection|null $filters (Optional) Filter values to be saved in any forms or to used to display the content.
 	 * @throws ResourceNotFoundException
 	 */
-	public function loadContent(string $content_path, ?SectionContent &$content=null, ?FilterCollection &$filters=null )
+	public function loadContent(string $content_path, ?SerializedContent &$content=null, ?FilterCollection &$filters=null )
 	{
 		$context = array();
 		if (null !== $content) {
@@ -338,9 +393,25 @@ class AjaxPage extends MySQLConnection
 		$this->json->loadContentFromTemplate($template_path, $context);
 	}
 
+    /**
+     * Retrieves content data from the database
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    public function retrieveContentData()
+    {
+        if(!is_object($this->content)) {
+            return;
+        }
+        if ($this->record_id->value>0) {
+            $this->content->id->value = $this->record_id->value;
+        }
+        call_user_func_array([$this::getControllerClass(), 'retrieveContentDataByType'], array($this->content));
+    }
+
 	/**
 	 * Hydrates the content properties object by retrieving data from the database.
-	 * @param int|null $content_type_id
+	 * @param int|null $content_type_id (Optional) The id of the content type. The instance's internal value will be updated with this value if provided.
 	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
@@ -357,7 +428,14 @@ class AjaxPage extends MySQLConnection
 		if (1 > $this->getContentTypeId()) {
 			throw new ConfigurationUndefinedException('Content properties could not be retrieved. A content type was not specified.');
 		}
+        // retrieve content properties from databaes
 		$this->content_properties->read();
+
+        // set the active template and route properties if an operation has been specified
+        if ($this->operation->value) {
+            $this->lookupRoute();
+            $this->lookupTemplate();
+        }
 	}
 
 	/**

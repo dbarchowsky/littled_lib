@@ -12,6 +12,11 @@ use Littled\Request\StringInput;
 
 class TestTable extends SerializedContent
 {
+    /** @var int */
+    public const CONTENT_TYPE_ID = 6037;
+    /** @var int */
+    protected static $content_type_id = self::CONTENT_TYPE_ID;
+    /** @var string */
 	protected static $table_name = 'test_table';
 
 	/** @var StringInput */

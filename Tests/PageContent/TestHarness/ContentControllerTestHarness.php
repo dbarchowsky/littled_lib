@@ -2,7 +2,6 @@
 
 namespace Littled\Tests\PageContent\TestHarness;
 
-use Exception;
 use Littled\PageContent\ContentController;
 use Littled\Tests\Ajax\AjaxPageTest;
 
@@ -15,7 +14,7 @@ class ContentControllerTestHarness extends ContentController
     {
         switch($content_id) {
             case AjaxPageTest::TEST_CONTENT_TYPE_ID:
-                return 'Littled\Tests\PageContent\SiteSection\TestHarness\KeywordSectionContentTestHarness';
+                return 'Littled\Tests\PageContent\Serialized\TestHarness\TestTable';
             default:
                 return 'TestContentClassString';
         }
@@ -26,6 +25,11 @@ class ContentControllerTestHarness extends ContentController
      */
     public static function getContentFiltersClass(int $content_id): string
     {
-        return 'TestContentFiltersClassString';
+        switch($content_id) {
+            case AjaxPageTest::TEST_CONTENT_TYPE_ID:
+                return 'Littled\Tests\Filters\TestHarness\TestTableFilters';
+            default:
+                return 'TestContentClassString';
+        }
     }
 }

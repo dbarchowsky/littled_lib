@@ -2,7 +2,9 @@
 namespace Littled\Tests\Ajax;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
+use Exception;
 use Littled\Ajax\AjaxPage;
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -18,6 +20,8 @@ class AjaxPageTest extends TestCase
 	public const TEST_CONTENT_TYPE_ID = 6037; /* "Test Section" in littledamien database */
     /** @var int */
     public const TEST_TEMPLATE_CONTENT_TYPE_ID = 31;
+    /** @var int */
+    public const TEST_RECORD_ID = 2023;
 
     /**
      * @throws InvalidTypeException
@@ -25,6 +29,7 @@ class AjaxPageTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
+        LittledGlobals::setTemplatePath(APP_BASE_DIR.'/Tests/assets/templates/');
         AjaxPage::setControllerClass('Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness');
         AjaxPage::setCacheClass('Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness');
     }
@@ -100,7 +105,42 @@ class AjaxPageTest extends TestCase
         $this->assertInstanceOf(SectionContent::class, $content);
     }
 
-	function testLookupRoute()
+    /**
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     * @throws Exception
+     */
+    function testLoadJsonContent()
+    {
+        $ap = new AjaxPage();
+
+        // retrieve content properties
+        $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+        $ap->operation->setInputValue('delete');
+        $ap->retrieveContentProperties();
+
+        // retrieve record content from database
+        $ap->content = call_user_func_array([$ap::getControllerClass(), 'getContentObject'], array($ap->getContentTypeId()));
+        $ap->content->id->setInputValue(self::TEST_RECORD_ID);
+
+        // inject record content into template
+        $ap->loadJsonContent();
+        $this->assertMatchesRegularExpression('/^\s*<div class=\"dialog delete-confirmation\"/', $ap->json->content->value);
+    }
+
+    /**
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     */
+    function testLookupRoute()
 	{
 		$ap = new AjaxPage();
 		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
