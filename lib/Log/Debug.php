@@ -51,7 +51,8 @@ class Debug
     public static function getShortMethodName(): string
     {
         $debug = debug_backtrace();
-        return $debug[1]['class']."::".$debug[1]['function'];
+        $class_path = explode('\\', $debug[1]['class']);
+        return end($class_path)."::".$debug[1]['function'];
     }
 
 	/**
