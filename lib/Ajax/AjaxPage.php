@@ -3,7 +3,6 @@ namespace Littled\Ajax;
 
 use Exception;
 use Littled\Filters\ContentFilters;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
@@ -324,6 +323,8 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
+	 * @throws ResourceNotFoundException
+	 * @throws Exception
 	 */
 	public function loadTemplateContent()
 	{
@@ -408,7 +409,7 @@ class AjaxPage extends MySQLConnection
 		if (1 > $this->getContentTypeId()) {
 			throw new ConfigurationUndefinedException('Content properties could not be retrieved. A content type was not specified.');
 		}
-        // retrieve content properties from databaes
+        // retrieve content properties from databases
 		$this->content_properties->read();
 
         // set the active template and route properties if an operation has been specified
