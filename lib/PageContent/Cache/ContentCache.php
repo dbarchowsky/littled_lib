@@ -111,7 +111,7 @@ abstract class ContentCache extends MySQLConnection
         ContentCache::loadContent($content, $filters, $page);
 
         /* Insert content into template. Save resulting markup in page object's "json" property. */
-        $page->loadContent($page->getFullTemplatePath(), $content);
+        $page->loadContent($page->template->formatFullPath(), $content);
     }
 
     /**
