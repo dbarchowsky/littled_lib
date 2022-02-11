@@ -49,7 +49,7 @@ class ContentTemplateTest extends TestCase
 		$conn = new MySQLConnection();
 		$conn->query($query, 'isss', $type_id, $name, $path, $location);
         LittledGlobals::setTemplatePath(COMMON_TEMPLATE_DIR);
-        LittledGlobals::setCMSTemplatePath(CMS_COMMON_TEMPLATE_DIR);
+        LittledGlobals::setSharedTemplatePath(CMS_COMMON_TEMPLATE_DIR);
 	}
 
     /**
@@ -62,7 +62,7 @@ class ContentTemplateTest extends TestCase
 		$conn = new MySQLConnection();
 		$conn->query($query, 's', $pattern);
         LittledGlobals::setTemplatePath('');
-        LittledGlobals::setCMSTemplatePath('');
+        LittledGlobals::setSharedTemplatePath('');
 	}
 
 	/**

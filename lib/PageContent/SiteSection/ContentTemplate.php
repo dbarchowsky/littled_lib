@@ -99,7 +99,7 @@ class ContentTemplate extends SerializedContent
 					$path = rtrim(LittledGlobals::getTemplatePath(), '/').'/'.$path;
 					break;
 				case 'shared-cms':
-					$path = rtrim(LittledGlobals::getCMSTemplatePath(), '/').'/'.$path;
+					$path = rtrim(LittledGlobals::getSharedTemplatePath(), '/').'/'.$path;
 					break;
 				default:
                     $path = (($app_root)?(rtrim($app_root, '/').'/'):('')).

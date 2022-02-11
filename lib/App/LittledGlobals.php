@@ -15,7 +15,7 @@ class LittledGlobals
 	/** @var string Path to directory containing app templates. */
 	protected static $template_path = '';
     /** @var string Path to directory containing app templates. */
-    protected static $cms_template_path = '';
+    protected static $shared_template_path = '';
 
 	/** @var string Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY = 'csrfToken';
@@ -65,12 +65,12 @@ class LittledGlobals
      * @return string Template root path.
      * @throws ConfigurationUndefinedException
      */
-    public static function getCMSTemplatePath(): string
+    public static function getSharedTemplatePath(): string
     {
-        if (''===static::$cms_template_path) {
+        if (''===static::$shared_template_path) {
             throw new ConfigurationUndefinedException('LittledGlobals CMS template path value not set.');
         }
-        return static::$cms_template_path;
+        return static::$shared_template_path;
     }
 
 	/**
@@ -117,9 +117,9 @@ class LittledGlobals
      * Sets root template directory path.
      * @param string $path Path to root directory containing template files.
      */
-    public static function setCMSTemplatePath(string $path)
+    public static function setSharedTemplatePath(string $path)
     {
-        static::$cms_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
+        static::$shared_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
     }
 
 	/**
