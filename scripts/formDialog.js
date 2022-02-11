@@ -127,7 +127,7 @@
                 nav[data1.id_param] = nav[lclSettings.keys.record_id];
                 $.extend(nav, lclSettings.scriptData || {});
 				let fd = $(lclSettings.dom.listings_filters).formDialog('retrieveFormFilters', options);
-				if (fd.length > 0) {
+				if (Object.keys(fd).length > 0) {
 					$.extend(fd, nav);
 				}
 				else {
