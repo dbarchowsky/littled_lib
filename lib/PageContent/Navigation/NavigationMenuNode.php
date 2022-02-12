@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 
 
 /**
@@ -45,13 +46,14 @@ class NavigationMenuNode extends NavigationNodeBase
 		$this->attributes = $attributes;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+    /**
+     * {@inheritDoc}
+     * @throws ConfigurationUndefinedException
+     */
 	public static function getNodeTemplatePath(): string
 	{
 		if (!static::$node_template_path) {
-			static::$node_template_path = LittledGlobals::getLocalTemplatesPath().'framework/navigation/navigation-menu-node.php';
+			static::$node_template_path = LittledGlobals::getSharedTemplatesPath().'framework/navigation/navigation-menu-node.php';
 		}
 		return (static::$node_template_path);
 	}
