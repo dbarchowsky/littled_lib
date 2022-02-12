@@ -6,6 +6,8 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Log\Debug;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringSelect;
@@ -114,6 +116,41 @@ class ContentTemplate extends SerializedContent
 	{
 		return null;
 	}
+
+    /**
+     * Looks up and retrieves template properties from the database using section type id and operation name.
+     * @param int|null $content_type_id
+     * @param string $operation
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
+    public function retrieveUsingContentTypeAndOperation(?int $content_type_id=null, string $operation='')
+    {
+        if ($content_type_id > 0) {
+            $this->content_id->setInputValue($content_type_id);
+        }
+        if ($operation) {
+            $this->name->setInputValue($operation);
+        }
+        if ($this->content_id->value===null || $this->content_id->value < 1) {
+            throw new ConfigurationUndefinedException('['.Debug::getShortMethodName().'] Content type not provided.');
+        }
+        if (!$this->name->value) {
+            throw new ConfigurationUndefinedException('['.Debug::getShortMethodName().'] Operation not provided.');
+        }
+        $data = $this->fetchRecords('CALL contentTemplateLookup(?,?)',
+            'is',
+            $this->content_id->value,
+            $this->name->value);
+        if (count($data) < 1) {
+            throw new RecordNotFoundException('['.Debug::getShortMethodName().'] '.ucfirst($this->name->value).' template not found.');
+        }
+        $this->id->value = $data[0]->id;
+        $this->path->value = $data[0]->template_path;
+        $this->location->value = $data[0]->location;
+    }
 
     /**
      * Tests for any existing records in the database that would conflict with the

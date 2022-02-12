@@ -3,7 +3,6 @@ namespace Littled\Ajax;
 
 use Exception;
 use Littled\Filters\ContentFilters;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
@@ -372,18 +371,32 @@ class AjaxPage extends MySQLConnection
     }
 
     /**
+     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the AjaxPage class's methods.
+     * @param int|null $record_id
+     * @param int|null $content_type_id
+     * @param string $operation
+     * @param string $base_dir
+     * @param string $template
+     * @param string $location
+     * @return ContentTemplate
+     */
+    protected function newTemplateInstance(?int $record_id=null, ?int $content_type_id=null, string $operation='', string $base_dir='', string $template='', string $location=''): ContentTemplate
+    {
+        return new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location);
+    }
+
+    /**
      * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the class's json property's content property, which is then sent back to the client.
      * @throws Exception
      */
-    public function refreshContentAfterEdit ()
+    public function refreshContentAfterEdit (string $next_operation)
     {
-        $template_path = call_user_func_array([static::getControllerClass(), 'getPostEditTemplatePath'], array($this->getContentTypeId(), $this->action));
-        if ($template_path) {
-            $this->json->loadContentFromTemplate($template_path, array(
-                'content' => &$this->content,
-                'filters' => &$this->filters
-            ));
-        }
+        $template = $this->newTemplateInstance();
+        $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
+        $this->json->loadContentFromTemplate($template->formatFullPath(), array(
+            'content' => &$this->content,
+            'filters' => &$this->filters
+        ));
     }
 
     /**
@@ -490,9 +503,9 @@ class AjaxPage extends MySQLConnection
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
 		}
-		$this->template = new ContentTemplate(
+		$this->template = $this->newTemplateInstance(
 			$data[0]->id,
-			$this->content_properties->id->value,
+			$this->getContentTypeId(),
 			$data[0]->name,
 			$data[0]->base_path,
 			$data[0]->template_path,

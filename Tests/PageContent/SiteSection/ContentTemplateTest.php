@@ -20,7 +20,7 @@ class ContentTemplateTest extends TestCase
     /** @var string */
 	const UNIT_TEST_IDENTIFIER = 'unit test';
     /** @var int */
-    const TEST_CONTENT_TYPE_ID = 33;    /** "Content Template" record in site_section table */
+    const TEST_CONTENT_TYPE_ID = 6037;    /** "Content Template" record in site_section table */
 
 	/** @var ContentTemplate Test ContentTemplate object. */
 	public $obj;
@@ -145,6 +145,38 @@ class ContentTemplateTest extends TestCase
 		$this->assertEquals($data->expected, $data->template->formatFullPath(), $data->msg);
 	}
 
+    /**
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     */
+    function testRetrieveUsingContentTypeAndOperation()
+    {
+        $operation = 'listings';
+
+        $t1 = new ContentTemplate();
+        $t1->retrieveUsingContentTypeAndOperation(self::TEST_CONTENT_TYPE_ID, $operation);
+        $this->assertMatchesRegularExpression('/listings\.php$/', $t1->path->value);
+
+        $t2 = new ContentTemplate(null, self::TEST_CONTENT_TYPE_ID, $operation);
+        $t2->retrieveUsingContentTypeAndOperation();
+        $this->assertMatchesRegularExpression('/listings\.php$/', $t2->path->value);
+
+        $t3 = new ContentTemplate();
+        try {
+            $t3->retrieveUsingContentTypeAndOperation();
+        }
+        catch(ConfigurationUndefinedException $e) {
+            $this->assertMatchesRegularExpression('/content type not provided/i', $e->getMessage());
+        }
+
+        try {
+            $t3->retrieveUsingContentTypeAndOperation(self::TEST_CONTENT_TYPE_ID);
+        }
+        catch(ConfigurationUndefinedException $e) {
+            $this->assertMatchesRegularExpression('/operation not provided/i', $e->getMessage());
+        }
+    }
+
 	/**
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
@@ -203,7 +235,7 @@ class ContentTemplateTest extends TestCase
      */
 	public function testValidateInputDuplicateContentType()
 	{
-        $section_name = 'Content Template';
+        $section_name = 'Test Section';
 
         // Retrieve test content template record
 		$query = "SEL"."ECT `name`".
