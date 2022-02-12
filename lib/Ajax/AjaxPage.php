@@ -397,6 +397,7 @@ class AjaxPage extends MySQLConnection
 
     /**
      * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the class's json property's content property, which is then sent back to the client.
+     * @param string $next_operation Token determining which template to load.
      * @throws Exception
      */
     public function refreshContentAfterEdit (string $next_operation)
