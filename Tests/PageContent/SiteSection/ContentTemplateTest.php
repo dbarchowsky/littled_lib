@@ -11,6 +11,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
+use Littled\Tests\PageContent\SiteSection\DataProvider\ContentTemplateTestDataProvider;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -48,8 +49,8 @@ class ContentTemplateTest extends TestCase
 			' (`site_section_id`, `name`, `path`, `location`) VALUES (?,?,?,?)';
 		$conn = new MySQLConnection();
 		$conn->query($query, 'isss', $type_id, $name, $path, $location);
-        LittledGlobals::setLocalTemplatesPath(COMMON_TEMPLATE_DIR);
-        LittledGlobals::setSharedTemplatesPath(CMS_COMMON_TEMPLATE_DIR);
+		LittledGlobals::setLocalTemplatesPath(LITTLED_TEMPLATE_DIR);
+		LittledGlobals::setSharedTemplatesPath(LITTLED_TEMPLATE_DIR);
 	}
 
     /**
@@ -61,8 +62,6 @@ class ContentTemplateTest extends TestCase
 		$query = "DEL"."ETE FROM `".ContentTemplate::getTableName()."` WHERE LOWER(`name`) LIKE ?";
 		$conn = new MySQLConnection();
 		$conn->query($query, 's', $pattern);
-        LittledGlobals::setLocalTemplatesPath('');
-        LittledGlobals::setSharedTemplatesPath('');
 	}
 
 	/**
@@ -136,37 +135,14 @@ class ContentTemplateTest extends TestCase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\PageContent\SiteSection\DataProvider\ContentTemplateTestDataProvider::formatFullPathTestProvider()
      * @return void
      * @throws Exception
      */
-	public function testGetFullPath()
+	public function testFormatFullPath(ContentTemplateTestDataProvider $data)
 	{
 		/* default path value */
-		$this->assertEquals('', $this->obj->formatFullPath());
-
-		/* just path */
-        $this->obj->path->setInputValue('template.php');
-        if (!defined('APP_BASE_DIR')) {
-            $this->assertEquals($this->obj->path->value, $this->obj->formatFullPath());
-            define('APP_BASE_DIR', '/var/www/html/');
-        }
-        $this->assertEquals(APP_BASE_DIR.$this->obj->path->value, $this->obj->formatFullPath());
-
-		/* path and template directory with no trailing slash */
-		$this->obj->template_dir->setInputValue('/templates/html');
-		$this->assertEquals(APP_BASE_DIR.'templates/html/template.php', $this->obj->formatFullPath());
-
-		/* path and template directory with trailing slash */
-		$this->obj->template_dir->value = "{$this->obj->template_dir->value}/";
-		$this->assertEquals(APP_BASE_DIR.'templates/html/template.php', $this->obj->formatFullPath());
-
-		/* location value set to SHARED */
-		$this->obj->location->setInputValue('shared');
-		$this->assertEquals(COMMON_TEMPLATE_DIR.'template.php', $this->obj->formatFullPath());
-
-		/* location value set to SHARED CMS */
-		$this->obj->location->setInputValue('shared-cms');
-		$this->assertEquals(CMS_COMMON_TEMPLATE_DIR.'template.php', $this->obj->formatFullPath());
+		$this->assertEquals($data->expected, $data->template->formatFullPath(), $data->msg);
 	}
 
 	/**

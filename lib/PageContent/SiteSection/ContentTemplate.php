@@ -11,6 +11,7 @@ use Littled\Request\IntegerInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Exception;
+use Littled\Utility\LittledUtility;
 
 /**
  * Class ContentTemplate
@@ -89,26 +90,19 @@ class ContentTemplate extends SerializedContent
 	 */
 	public function formatFullPath(): string
 	{
-        $app_root = ((defined('APP_BASE_DIR'))?(APP_BASE_DIR):(''));
-
-		$path = $this->path->value;
-		if ($path) {
+		$template_dir = '';
+		if ($this->path->value) {
 			switch ($this->location->value)
 			{
-				case 'shared':
-					$path = rtrim(LittledGlobals::getLocalTemplatesPath(), '/').'/'.$path;
-					break;
-				case 'shared-cms':
-					$path = rtrim(LittledGlobals::getSharedTemplatesPath(), '/').'/'.$path;
+				case 'local':
+					$template_dir = LittledGlobals::getLocalTemplatesPath();
 					break;
 				default:
-                    $path = (($app_root)?(rtrim($app_root, '/').'/'):('')).
-                        (($this->template_dir->value)?(trim($this->template_dir->value, '/').'/'):('')).
-                        ltrim($path,'/');
+					$template_dir = LittledGlobals::getSharedTemplatesPath();
 					break;
 			}
 		}
-		return ($path);
+		return LittledUtility::joinPathParts(array($template_dir, $this->path->value));
 	}
 
 	/**

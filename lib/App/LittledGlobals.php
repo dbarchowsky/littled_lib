@@ -68,7 +68,7 @@ class LittledGlobals
 	public static function getLocalTemplatesPath(): string
 	{
 		if (''===static::$local_template_path) {
-			throw new ConfigurationUndefinedException('LittledGlobals template path value not set.');
+			throw new ConfigurationUndefinedException('LittledGlobals local template path value not set.');
 		}
 		return static::$local_template_path;
 	}
@@ -90,7 +90,7 @@ class LittledGlobals
 	public static function getSharedTemplatesPath(): string
 	{
 		if (''===static::$shared_template_path) {
-			throw new ConfigurationUndefinedException('LittledGlobals CMS template path value not set.');
+			throw new ConfigurationUndefinedException('LittledGlobals shared template path value not set.');
 		}
 		return static::$shared_template_path;
 	}
