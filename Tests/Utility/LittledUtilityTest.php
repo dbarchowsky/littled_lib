@@ -18,4 +18,16 @@ class LittledUtilityTest extends TestCase
 	{
 		$this->assertEquals($expected, LittledUtility::joinPathParts($parts));
 	}
+
+    /**
+     * @dataProvider \Littled\Tests\Utility\DataProvider\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
+     * @param string $expected
+     * @param string $path
+     * @param int $levels
+     * @return void
+     */
+    function testStripPathLevels(string $expected, string $path, int $levels, string $msg='')
+    {
+        $this->assertEquals($expected, LittledUtility::stripPathLevels($path, $levels), $msg);
+    }
 }

@@ -28,4 +28,17 @@ class LittledUtilityTestDataProvider
 			['/path/to/test/', array('/path/', 'to', '/test/')],
 		);
 	}
+
+    public static function stripPathLevelsTestProvider(): array
+    {
+        return array(
+            ['/path/to/some/lower/directory/foo/', '/path/to/some/lower/directory/foo/bar/', 1, 'levels: 1'],
+            ['/path/to/some/lower/', '/path/to/some/lower/directory/foo/bar/', 3, 'levels: 3'],
+            ['', '/path/to/foo/', 4, 'overrun'],
+            ['/path/', '/path/to/some/lower/directory/foo/bar/', 6, 'levels: 6'],
+            ['/path/to/some/', 'path/to/some/lower/directory/foo/bar', 4, 'no leading or trailing slashes'],
+            ['/path/to/some/lower/', '/path/to/some/lower/directory/foo/bar', 3, 'no trailing slash'],
+            ['/path/to/some/lower/directory/', 'path/to/some/lower/directory/foo/bar/', 2, 'no leading slash'],
+        );
+    }
 }
