@@ -338,7 +338,7 @@ class ContentProperties extends SerializedContent
 				$row->id,
 				$this->id->value,
 				$row->name,
-				$this->root_dir->value,
+				'',
 				$row->path,
 				''.$row->location);
 		}

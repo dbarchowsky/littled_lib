@@ -181,11 +181,11 @@ class AjaxPage extends MySQLConnection
 			$src = &$_POST;
 		}
 		if (Validation::collectBooleanRequestVar(LittledGlobals::P_COMMIT, null, $src)===true) {
-			$this->action = 'commit';
+			$this->action = self::COMMIT_ACTION;
 			return($this);
 		}
 		if (Validation::collectBooleanRequestVar(LittledGlobals::P_CANCEL, null, $src)===true) {
-			$this->action = 'cancel';
+			$this->action = self::CANCEL_ACTION;
 			return($this);
 		}
 		return ($this);
@@ -395,8 +395,22 @@ class AjaxPage extends MySQLConnection
         if ($this->record_id->value>0) {
             $this->content->id->value = $this->record_id->value;
         }
+		if ($this->content->id->value===null || $this->content->id->value < 1) {
+			throw new ConfigurationUndefinedException('A record id was not provided.');
+		}
         call_user_func_array([$this::getControllerClass(), 'retrieveContentDataByType'], array($this->content));
     }
+
+	/**
+	 * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function retrieveContentObjectAndData()
+	{
+		$this->content = call_user_func_array([static::getControllerClass(), 'getContentObject'], array($this->getContentTypeId()));
+		$this->retrieveContentData();
+	}
 
 	/**
 	 * Hydrates the content properties object by retrieving data from the database.

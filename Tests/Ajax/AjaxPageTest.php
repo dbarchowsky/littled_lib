@@ -12,7 +12,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\PageContent\SiteSection\SectionContent;
+use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 use PHPUnit\Framework\TestCase;
 
 class AjaxPageTest extends TestCase
@@ -23,6 +23,8 @@ class AjaxPageTest extends TestCase
     public const TEST_TEMPLATE_CONTENT_TYPE_ID = 31;
     /** @var int */
     public const TEST_RECORD_ID = 2023;
+	/** @var string */
+	public const TEST_RECORD_NAME = 'fixed test record';
 
     /**
      * @throws InvalidTypeException
@@ -31,6 +33,7 @@ class AjaxPageTest extends TestCase
     {
         parent::setUpBeforeClass();
         LittledGlobals::setLocalTemplatesPath(APP_BASE_DIR.'/Tests/assets/templates/');
+	    LittledGlobals::setSharedTemplatesPath(APP_BASE_DIR.'/Tests/assets/templates/');
         AjaxPage::setControllerClass('Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness');
         AjaxPage::setCacheClass('Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness');
     }
@@ -180,6 +183,26 @@ class AjaxPageTest extends TestCase
         $ap->lookupTemplate('delete');
         $this->assertEquals('delete', $ap->template->name->value);
     }
+
+	/**
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 */
+	function testRetrieveContentObjectAndData()
+	{
+		$ap = new AjaxPage();
+		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+		$ap->retrieveContentProperties();
+		$ap->record_id->setInputValue(self::TEST_RECORD_ID);
+		$ap->retrieveContentObjectAndData();
+		/** @var TestTable $content */
+		$content = $ap->content;
+		$this->assertEquals(self::TEST_RECORD_NAME, $content->name->value);
+	}
 
     /**
      * @dataProvider \Littled\Tests\Ajax\DataProvider\AjaxPageTestDataProvider::setCacheClassTestProvider()
