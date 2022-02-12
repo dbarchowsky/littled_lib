@@ -96,10 +96,10 @@ class ContentTemplate extends SerializedContent
 			switch ($this->location->value)
 			{
 				case 'shared':
-					$path = rtrim(LittledGlobals::getLocalTemplatePath(), '/').'/'.$path;
+					$path = rtrim(LittledGlobals::getLocalTemplatesPath(), '/').'/'.$path;
 					break;
 				case 'shared-cms':
-					$path = rtrim(LittledGlobals::getSharedTemplatePath(), '/').'/'.$path;
+					$path = rtrim(LittledGlobals::getSharedTemplatesPath(), '/').'/'.$path;
 					break;
 				default:
                     $path = (($app_root)?(rtrim($app_root, '/').'/'):('')).

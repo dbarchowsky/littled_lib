@@ -48,8 +48,8 @@ class ContentTemplateTest extends TestCase
 			' (`site_section_id`, `name`, `path`, `location`) VALUES (?,?,?,?)';
 		$conn = new MySQLConnection();
 		$conn->query($query, 'isss', $type_id, $name, $path, $location);
-        LittledGlobals::setLocalTemplatePath(COMMON_TEMPLATE_DIR);
-        LittledGlobals::setSharedTemplatePath(CMS_COMMON_TEMPLATE_DIR);
+        LittledGlobals::setLocalTemplatesPath(COMMON_TEMPLATE_DIR);
+        LittledGlobals::setSharedTemplatesPath(CMS_COMMON_TEMPLATE_DIR);
 	}
 
     /**
@@ -61,8 +61,8 @@ class ContentTemplateTest extends TestCase
 		$query = "DEL"."ETE FROM `".ContentTemplate::getTableName()."` WHERE LOWER(`name`) LIKE ?";
 		$conn = new MySQLConnection();
 		$conn->query($query, 's', $pattern);
-        LittledGlobals::setLocalTemplatePath('');
-        LittledGlobals::setSharedTemplatePath('');
+        LittledGlobals::setLocalTemplatesPath('');
+        LittledGlobals::setSharedTemplatesPath('');
 	}
 
 	/**

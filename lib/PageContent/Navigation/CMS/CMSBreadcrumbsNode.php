@@ -16,6 +16,6 @@ class CMSBreadcrumbsNode extends BreadcrumbsNode
 	public function __construct(string $label, string $url='', string $dom_id='', string $css_class='')
 	{
 		parent::__construct( $label, $url, $dom_id, $css_class );
-		static::setNodeTemplatePath(LittledGlobals::getLocalTemplatePath().'framework/navigation/breadcrumbs-node.php');
+		static::setNodeTemplatePath(LittledGlobals::getLocalTemplatesPath().'framework/navigation/breadcrumbs-node.php');
 	}
 }

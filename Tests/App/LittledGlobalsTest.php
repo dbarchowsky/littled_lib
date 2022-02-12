@@ -62,7 +62,7 @@ class LittledGlobalsTest extends TestCase
     {
         // run this test before making any other assignments to LittledGlobals::$template_path
         $this->expectException(ConfigurationUndefinedException::class);
-        LittledGlobals::getLocalTemplatePath();
+        LittledGlobals::getLocalTemplatesPath();
     }
 
     /**
@@ -70,17 +70,17 @@ class LittledGlobalsTest extends TestCase
 	 */
 	public function testTemplatePath()
 	{
-		LittledGlobals::setLocalTemplatePath('/path/to/templates/no/terminating/slash');
-		self::assertEquals('/path/to/templates/no/terminating/slash/', LittledGlobals::getLocalTemplatePath());
+		LittledGlobals::setLocalTemplatesPath('/path/to/templates/no/terminating/slash');
+		self::assertEquals('/path/to/templates/no/terminating/slash/', LittledGlobals::getLocalTemplatesPath());
 
-		LittledGlobals::setLocalTemplatePath('/path/to/templates/');
-		self::assertEquals('/path/to/templates/', LittledGlobals::getLocalTemplatePath());
+		LittledGlobals::setLocalTemplatesPath('/path/to/templates/');
+		self::assertEquals('/path/to/templates/', LittledGlobals::getLocalTemplatesPath());
 	}
 
     function testTemplatePathWhenEmpty()
     {
-        LittledGlobals::setLocalTemplatePath('');
+        LittledGlobals::setLocalTemplatesPath('');
         $this->expectException(ConfigurationUndefinedException::class);
-        LittledGlobals::getLocalTemplatePath();
+        LittledGlobals::getLocalTemplatesPath();
     }
 }

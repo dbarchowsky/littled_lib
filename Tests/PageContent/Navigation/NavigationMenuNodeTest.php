@@ -12,7 +12,7 @@ class NavigationMenuNodeTest extends TestCase
 	protected function setUp(): void
 	{
 		parent::setUp();
-		LittledGlobals::setLocalTemplatePath(LITTLED_TEMPLATE_DIR);
+		LittledGlobals::setLocalTemplatesPath(LITTLED_TEMPLATE_DIR);
 	}
 
 	/**

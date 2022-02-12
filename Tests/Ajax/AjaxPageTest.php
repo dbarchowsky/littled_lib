@@ -30,7 +30,7 @@ class AjaxPageTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        LittledGlobals::setLocalTemplatePath(APP_BASE_DIR.'/Tests/assets/templates/');
+        LittledGlobals::setLocalTemplatesPath(APP_BASE_DIR.'/Tests/assets/templates/');
         AjaxPage::setControllerClass('Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness');
         AjaxPage::setCacheClass('Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness');
     }

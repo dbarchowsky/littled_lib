@@ -19,6 +19,6 @@ class CMSNavigationMenuNode extends NavigationMenuNode
 	public function __construct( string $label='', string $url='', string $target='', int $level=0, string $dom_id='', string $attributes='' )
 	{
 		parent::__construct( $label, $url, $target, $level, $dom_id, $attributes );
-		static::setNodeTemplatePath(LittledGlobals::getLocalTemplatePath()."framework/navigation/navigation-menu-node.php");
+		static::setNodeTemplatePath(LittledGlobals::getLocalTemplatesPath()."framework/navigation/navigation-menu-node.php");
 	}
 }

@@ -60,18 +60,18 @@ class LittledGlobals
 		return static::$cms_root_uri;
 	}
 
-    /**
-     * Returns current template root path.
-     * @return string Template root path.
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getSharedTemplatePath(): string
-    {
-        if (''===static::$shared_template_path) {
-            throw new ConfigurationUndefinedException('LittledGlobals CMS template path value not set.');
-        }
-        return static::$shared_template_path;
-    }
+	/**
+	 * Returns current template root path.
+	 * @return string Template root path.
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getLocalTemplatesPath(): string
+	{
+		if (''===static::$local_template_path) {
+			throw new ConfigurationUndefinedException('LittledGlobals template path value not set.');
+		}
+		return static::$local_template_path;
+	}
 
 	/**
 	 * Gets path to current MySQL authentication directory.
@@ -85,14 +85,14 @@ class LittledGlobals
 	/**
 	 * Returns current template root path.
 	 * @return string Template root path.
-     * @throws ConfigurationUndefinedException
+	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getLocalTemplatePath(): string
+	public static function getSharedTemplatesPath(): string
 	{
-        if (''===static::$local_template_path) {
-            throw new ConfigurationUndefinedException('LittledGlobals template path value not set.');
-        }
-		return static::$local_template_path;
+		if (''===static::$shared_template_path) {
+			throw new ConfigurationUndefinedException('LittledGlobals CMS template path value not set.');
+		}
+		return static::$shared_template_path;
 	}
 
 	/**
@@ -113,14 +113,14 @@ class LittledGlobals
 		static::$cms_root_uri = (($uri) ? (rtrim($uri, '/').'/') : (''));
 	}
 
-    /**
-     * Sets root template directory path.
-     * @param string $path Path to root directory containing template files.
-     */
-    public static function setSharedTemplatePath(string $path)
-    {
-        static::$shared_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
-    }
+	/**
+	 * Sets root template directory path.
+	 * @param string $path Path to root directory containing template files.
+	 */
+	public static function setLocalTemplatesPath(string $path)
+	{
+		static::$local_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
+	}
 
 	/**
 	 * Sets path to current MySQL authentication directory.
@@ -135,8 +135,8 @@ class LittledGlobals
 	 * Sets root template directory path.
 	 * @param string $path Path to root directory containing template files.
 	 */
-	public static function setLocalTemplatePath(string $path)
+	public static function setSharedTemplatesPath(string $path)
 	{
-		static::$local_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
+		static::$shared_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
 }

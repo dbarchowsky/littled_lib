@@ -21,7 +21,7 @@ class NavigationMenuTest extends TestCase
     {
         parent::setUp();
         $this->obj = new NavigationMenu();
-		LittledGlobals::setLocalTemplatePath(LITTLED_TEMPLATE_DIR);
+		LittledGlobals::setLocalTemplatesPath(LITTLED_TEMPLATE_DIR);
     }
 
     function testGetNodeCount()

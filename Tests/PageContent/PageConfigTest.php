@@ -14,7 +14,7 @@ class PageConfigTest extends TestCase
 	function __construct(?string $name = null, array $data = [], $dataName = '')
 	{
 		parent::__construct($name, $data, $dataName);
-		LittledGlobals::setLocalTemplatePath(SHARED_CMS_TEMPLATE_DIR);
+		LittledGlobals::setLocalTemplatesPath(SHARED_CMS_TEMPLATE_DIR);
 	}
 
 	public function testAddUtilityLink()

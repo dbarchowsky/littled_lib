@@ -18,7 +18,7 @@ class BreadcrumbsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-		LittledGlobals::setLocalTemplatePath(LITTLED_TEMPLATE_DIR);
+		LittledGlobals::setLocalTemplatesPath(LITTLED_TEMPLATE_DIR);
         $this->obj = new Breadcrumbs();
     }
 
@@ -30,9 +30,9 @@ class BreadcrumbsTest extends TestCase
         $this->assertEquals('', Breadcrumbs::getBreadcrumbsTemplatePath());
 
         // test assigned template value
-        Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getLocalTemplatePath().self::TEMPLATE_PATH);
-        $this->assertEquals(LittledGlobals::getLocalTemplatePath().self::TEMPLATE_PATH, Breadcrumbs::getBreadcrumbsTemplatePath());
-	    $this->assertEquals(LittledGlobals::getLocalTemplatePath().self::TEMPLATE_PATH, Breadcrumbs::getMenuTemplatePath());
+        Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH);
+        $this->assertEquals(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH, Breadcrumbs::getBreadcrumbsTemplatePath());
+	    $this->assertEquals(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH, Breadcrumbs::getMenuTemplatePath());
 
 		Breadcrumbs::setBreadcrumbsTemplatePath($original);
     }
@@ -62,7 +62,7 @@ class BreadcrumbsTest extends TestCase
      */
     function testRender(BreadcrumbsTestData $data)
     {
-	    Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getLocalTemplatePath().self::TEMPLATE_PATH);
+	    Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH);
         $this->expectOutputRegex($data->expected);
         $data->menu->render();
     }
