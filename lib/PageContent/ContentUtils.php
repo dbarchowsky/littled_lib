@@ -39,9 +39,12 @@ class ContentUtils
             }
         }
         ob_start();
-        include($template_path);
-        $markup = ob_get_contents();
-        ob_end_clean();
+		try {
+			include($template_path);
+			$markup = ob_get_contents();
+		} finally {
+			ob_end_clean();
+		}
 
         return ($markup);
     }

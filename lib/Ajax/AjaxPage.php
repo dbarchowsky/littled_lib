@@ -200,9 +200,17 @@ class AjaxPage extends MySQLConnection
      */
     public function errorHandler(int $err_no, string $err_str, string $err_file='', ?int $err_line=null)
     {
+		// remove anything that might currently be in the output buffer
+	    while (ob_get_level()) {
+		    ob_end_clean();
+	    }
+
+		// collect information for error message
         $msg = "$err_str [$err_no]";
         $msg .= (($err_file)?(" in $err_file"):(''));
         $msg .= (($err_line)?("($err_line)"):(''));
+
+		// populate "error" attribute of the response
         $this->json->returnError($msg);
     }
 
