@@ -92,15 +92,17 @@ class ContentTemplate extends SerializedContent
 	{
 		$template_dir = '';
 		if ($this->path->value) {
-			switch ($this->location->value)
-			{
-				case 'local':
-					$template_dir = LittledGlobals::getLocalTemplatesPath();
-					break;
-				default:
-					$template_dir = LittledGlobals::getSharedTemplatesPath();
-					break;
-			}
+            if ($this->template_dir->value) {
+                return LittledUtility::joinPathParts(array($this->template_dir->value, $this->path->value));
+            }
+            switch ($this->location->value) {
+                case 'local':
+                    $template_dir = LittledGlobals::getLocalTemplatesPath();
+                    break;
+                default:
+                    $template_dir = LittledGlobals::getSharedTemplatesPath();
+                    break;
+            }
 		}
 		return LittledUtility::joinPathParts(array($template_dir, $this->path->value));
 	}
