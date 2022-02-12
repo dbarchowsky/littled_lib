@@ -18,15 +18,6 @@ class ContentCacheTestHarness extends ContentCache
     }
 
     /**
-     * @param SectionContent $content
-     * @return string
-     */
-    protected static function loadPostEditTemplatePath(SerializedContent $content): string
-    {
-        return 'Abstract method placeholder.';
-    }
-
-    /**
      * @param int $content_id
      * @return void
      */

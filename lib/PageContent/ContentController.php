@@ -91,6 +91,13 @@ abstract class ContentController
     }
 
     /**
+     * Returns the page to the template used to render markup returned to the client after a record  has been edited.
+     * @param SectionContent $content
+     * @return string
+     */
+    protected abstract static function getPostEditTemplatePath(SerializedContent $content): string;
+
+    /**
      * Default action is to load content property values from the database. This method can instead be overridden to
      * perform different actions depending on content type. E.g. replace the default action with a switch statement
      * evaluating the content type id value.

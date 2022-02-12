@@ -52,7 +52,7 @@ class ContentAjaxPropertiesTest extends TestCase
 		$this->assertContains('delete', $names);
 
 		$locations = array_map(function($i) { return $i->location->value;}, $cap->templates);
-		$this->assertContains('shared', $locations);
+		$this->assertContains('local', $locations);
 
 		$paths = array_map(function($i) { return $i->path->value;}, $cap->templates);
 		$paths = implode(' ', $paths);

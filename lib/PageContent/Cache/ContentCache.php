@@ -60,35 +60,6 @@ abstract class ContentCache extends MySQLConnection
     protected abstract static function loadJsonTemplatePath(AjaxPage $page, string $operation ): string;
 
     /**
-     * Returns the page to the template used to render markup returned to the client after a record  has been edited.
-     * @param SectionContent $content
-     * @return string
-     */
-    protected abstract static function loadPostEditTemplatePath(SerializedContent $content): string;
-
-    /**
-     * Refresh content after performing an AJAX edit on a record
-     * @param SerializedContent $content Object representing the content record that was updated.
-     * @param ContentFilters $filters Object containing pages filters to be used to return refreshed page content.
-     * @param JSONRecordResponse $json Object used to return page content after AJAX call.
-     * @throws Exception
-     */
-    public static function refreshContentAfterEdit (
-        SerializedContent &$content,
-        ContentFilters &$filters,
-        JSONRecordResponse $json
-    )
-    {
-        $template_path = static::loadPostEditTemplatePath($content);
-        if ($template_path) {
-            $json->loadContentFromTemplate($template_path, array(
-                'content' => &$content,
-                'filters' => &$filters
-            ));
-        }
-    }
-
-    /**
      * Tailored for image updates, refreshes page content after performing an (ajax) update to an individual record.
      * @param SectionContent $content Object representing the content record that was updated.
      * @param FilterCollection $filters Object containing pages filters to be used to return refreshed page content.

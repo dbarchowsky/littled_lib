@@ -3,6 +3,7 @@ namespace Littled\Ajax;
 
 use Exception;
 use Littled\Filters\ContentFilters;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
@@ -370,7 +371,22 @@ class AjaxPage extends MySQLConnection
         $this->template = $this->content_properties->getContentTemplateByName($operation);
     }
 
-	/**
+    /**
+     * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the class's json property's content property, which is then sent back to the client.
+     * @throws Exception
+     */
+    public function refreshContentAfterEdit ()
+    {
+        $template_path = call_user_func_array([static::getControllerClass(), 'getPostEditTemplatePath'], array($this->getContentTypeId(), $this->action));
+        if ($template_path) {
+            $this->json->loadContentFromTemplate($template_path, array(
+                'content' => &$this->content,
+                'filters' => &$this->filters
+            ));
+        }
+    }
+
+    /**
 	 * Wrapper for json_response_class::load_content_from_template() preserved
 	 * here for legacy reasons. Better to use the json_response_class routine directly.
 	 * @param string $template_path Path to content template to use to generate markup.

@@ -3,6 +3,8 @@
 namespace Littled\Tests\PageContent\TestHarness;
 
 use Littled\PageContent\ContentController;
+use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\Ajax\AjaxPageTest;
 
 class ContentControllerTestHarness extends ContentController
@@ -31,5 +33,14 @@ class ContentControllerTestHarness extends ContentController
             default:
                 return 'TestContentClassString';
         }
+    }
+
+    /**
+     * @param SectionContent $content
+     * @return string
+     */
+    protected static function getPostEditTemplatePath(SerializedContent $content): string
+    {
+        return 'Abstract method placeholder.';
     }
 }
