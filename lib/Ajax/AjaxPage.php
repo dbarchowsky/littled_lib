@@ -81,7 +81,7 @@ class AjaxPage extends MySQLConnection
 		$this->json = new JSONRecordResponse();
 		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
-		$this->content_properties = new ContentProperties();
+		$this->content_properties = $this->newContentPropertiesInstance();
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
 		$this->template = null;
 		$this->filters = null; /* set in derived classes */
@@ -368,6 +368,16 @@ class AjaxPage extends MySQLConnection
     {
         $operation = $operation ?: $this->operation->value;
         $this->template = $this->content_properties->getContentTemplateByName($operation);
+    }
+
+    /**
+     * Returns new ContentProperties instance. Can be used in derived classes to provide customized ContentProperties objects to the AjaxPage class's methods.
+     * @param int|null $record_id Initial content type record id value.
+     * @return ContentProperties
+     */
+    protected function newContentPropertiesInstance(?int $record_id=null): ContentProperties
+    {
+        return new ContentProperties($record_id);
     }
 
     /**

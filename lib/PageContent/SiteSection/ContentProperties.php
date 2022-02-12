@@ -89,9 +89,9 @@ class ContentProperties extends SerializedContent
 
 	/**
 	 * SiteSection constructor.
-	 * @param integer[optional] Initial value to assign to the object's id property.
+	 * @param ?int $id Initial value to assign to the object's id property.
 	 */
-	public function __construct($id=null)
+	public function __construct(?int $id=null)
 	{
 		parent::__construct($id);
 		$this->id->key = ContentProperties::ID_KEY;
@@ -250,6 +250,34 @@ class ContentProperties extends SerializedContent
     }
 
     /**
+     * Returns a new ContentRoute instance. Derived classes can override to provide the object with custom route objects.
+     * @param int|null $record_id
+     * @param int|null $content_type_id
+     * @param string $operation
+     * @param string $url
+     * @return ContentRoute
+     */
+    protected function newRouteInstance(?int $record_id=null, ?int $content_type_id=null, string $operation='', string $url=''): ContentRoute
+    {
+        return new ContentRoute($record_id, $content_type_id, $operation, $url);
+    }
+
+    /**
+     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the AjaxPage class's methods.
+     * @param int|null $record_id
+     * @param int|null $content_type_id
+     * @param string $operation
+     * @param string $base_dir
+     * @param string $template
+     * @param string $location
+     * @return ContentTemplate
+     */
+    protected function newTemplateInstance(?int $record_id=null, ?int $content_type_id=null, string $operation='', string $base_dir='', string $template='', string $location=''): ContentTemplate
+    {
+        return new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location);
+    }
+
+    /**
 	 * Returns a single or plural version of the content type identifier, depending on the number of records.
 	 * @param int $count Number of records being worked on.
 	 * @param string $property_name (Optional) Object property holding the identifier for this content. Uses the "name" property unless overridden.
@@ -310,7 +338,7 @@ class ContentProperties extends SerializedContent
 			return;
 		}
 		foreach($data as $row) {
-			$this->routes[] = new ContentRoute(
+			$this->routes[] = $this->newRouteInstance(
 				$row->id,
 				$this->id->value,
 				$row->operation,
@@ -334,7 +362,7 @@ class ContentProperties extends SerializedContent
 			// throw new RecordNotFoundException("Error retrieving content templates.");
 		}
 		foreach($data as $row) {
-			$this->templates[] = new ContentTemplate(
+			$this->templates[] = $this->newTemplateInstance(
 				$row->id,
 				$this->id->value,
 				$row->name,
