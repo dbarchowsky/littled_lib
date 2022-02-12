@@ -48,7 +48,7 @@ class BreadcrumbsNode extends NavigationNodeBase
 	 */
     public function render ( )
     {
-	    ContentUtils::renderTemplate($this::getNodeTemplatePath(), array(
+	    ContentUtils::renderTemplate(static::getNodeTemplatePath(), array(
 		    'node' => &$this
 	    ));
     }
