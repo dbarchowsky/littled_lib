@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\PageContent\ContentUtils;
 use Littled\Exception\ResourceNotFoundException;
 
@@ -30,22 +31,23 @@ class BreadcrumbsNode extends NavigationNodeBase
 		$this->dom_id = $dom_id;
     }
 
-	/**
-	 * Returns the path to the node template path.
-	 * @return string Template path.
-	 */
+    /**
+     * Returns the path to the node template path.
+     * @return string Template path.
+     * @throws ConfigurationUndefinedException
+     */
     public static function getNodeTemplatePath(): string
     {
 		if (!static::$node_template_path) {
-			static::setNodeTemplatePath(LittledGlobals::getLocalTemplatesPath().'framework/navigation/breadcrumbs-node.php');
+			static::setNodeTemplatePath(LittledGlobals::getSharedTemplatesPath().'framework/navigation/breadcrumbs-menu-node.php');
 		}
     	return static::$node_template_path;
     }
 
     /**
      * Outputs markup for the individual navigation menu node.
-	 * @throws ResourceNotFoundException
-	 */
+	 * @throws ResourceNotFoundException|ConfigurationUndefinedException
+     */
     public function render ( )
     {
 	    ContentUtils::renderTemplate(static::getNodeTemplatePath(), array(
