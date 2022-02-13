@@ -62,7 +62,7 @@ class DateInput extends StringInput
 	 */
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
-        if ($this->value=="") {
+        if ($this->value==='') {
             return ("NULL");
         }
         $ts = strtotime($this->value);
