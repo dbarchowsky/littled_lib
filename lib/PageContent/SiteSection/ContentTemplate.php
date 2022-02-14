@@ -128,22 +128,19 @@ class ContentTemplate extends SerializedContent
      */
     public function retrieveUsingContentTypeAndOperation(?int $content_type_id=null, string $operation='')
     {
-        if ($content_type_id > 0) {
-            $this->content_id->setInputValue($content_type_id);
-        }
-        if ($operation) {
-            $this->name->setInputValue($operation);
-        }
-        if ($this->content_id->value===null || $this->content_id->value < 1) {
+        $content_type_id = $content_type_id ?: $this->content_id->value;
+        $operation = $operation ?: $this->name->value;
+
+        if ($content_type_id===null || $content_type_id < 1) {
             throw new ConfigurationUndefinedException('['.Debug::getShortMethodName().'] Content type not provided.');
         }
-        if (!$this->name->value) {
+        if (!$operation) {
             throw new ConfigurationUndefinedException('['.Debug::getShortMethodName().'] Operation not provided.');
         }
         $data = $this->fetchRecords('CALL contentTemplateLookup(?,?)',
             'is',
-            $this->content_id->value,
-            $this->name->value);
+            $content_type_id,
+            $operation);
         if (count($data) < 1) {
             throw new RecordNotFoundException('['.Debug::getShortMethodName().'] '.ucfirst($this->name->value).' template not found.');
         }
