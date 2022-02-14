@@ -148,7 +148,7 @@ class RequestInput
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
 		if ($this->value===null) {
-			return ("null");
+			return ("NULL");
 		}
 		return (($include_quotes)?("'"):("")).$mysqli->real_escape_string($this->value).(($include_quotes)?("'"):(""));
 	}

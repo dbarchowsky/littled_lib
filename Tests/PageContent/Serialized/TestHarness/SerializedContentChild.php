@@ -2,6 +2,8 @@
 
 namespace Littled\Tests\PageContent\Serialized\TestHarness;
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;

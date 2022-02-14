@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Request;
 
-use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 
 /**

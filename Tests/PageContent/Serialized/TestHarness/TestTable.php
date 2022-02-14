@@ -3,6 +3,8 @@
 namespace Littled\Tests\PageContent\Serialized\TestHarness;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanInput;
@@ -49,7 +51,15 @@ class TestTable extends SerializedContent
 		$this->slot = new IntegerInput('Slot', 'slot', false, $slot);
 	}
 
-	/**
+    /**
+     * @inheritDoc
+     */
+    public function formatDatabaseColumnListPublic(array $used_keys = []): array
+    {
+        return parent::formatDatabaseColumnList($used_keys);
+    }
+
+    /**
 	 * @inheritDoc
 	 */
 	public function generateUpdateQuery(): ?array

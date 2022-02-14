@@ -183,6 +183,7 @@ class SerializedContentUtils extends AppContentBase
 	 */
 	protected function formatDatabaseColumnList(array $used_keys=[]): array
 	{
+        $this->connectToDatabase();
 		$fields = array();
 		foreach ($this as $key => $item) {
 			if ($this->isInput($key, $item, $used_keys)) {
@@ -191,9 +192,9 @@ class SerializedContentUtils extends AppContentBase
 				}
 				/* format column name and value for SQL statement */
 				if ($item->columnName) {
-					$fields[$item->columnName] = $this->escapeSQLValue($item->value);
+					$fields[$item->columnName] = $item->escapeSQL($this->mysqli);
 				} else {
-					$fields[$key] = $this->escapeSQLValue($item->value);
+					$fields[$key] = $item->escapeSQl($this->mysqli);
 				}
 			}
 		}

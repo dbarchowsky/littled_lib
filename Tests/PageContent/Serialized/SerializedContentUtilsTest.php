@@ -5,6 +5,7 @@ require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -240,6 +241,18 @@ class SerializedContentUtilsTest extends TestCase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\PageContent\Serialized\DataProvider\SerializedContentUtilsTestDataProvider::formatDatabaseColumnList()
+     */
+    public function testFormatDatabaseColumnList(array $expected, TestTable $o, string $msg='')
+    {
+        $fields = $o->formatDatabaseColumnListPublic();
+        foreach ($expected as $key => $value) {
+            $this->assertArrayHasKey($key, $fields, "$msg; field: $key");
+            $this->assertEquals($value, $fields[$key], "$msg; field: $key");
+        }
+    }
+
+    /**
      * @throws ConfigurationUndefinedException
      */
     public function testGetContentTypeID()
@@ -387,36 +400,54 @@ class SerializedContentUtilsTest extends TestCase
 
 		// test object with no added RequestInput properties
 		$obj = new SerializedContentChild();
-		$expected1 =
-			"<input type=\"hidden\" name=\"{$obj->vc_col1->key}\" value=\"{$obj->vc_col1->value}\" />\n".
-            "<input type=\"hidden\" name=\"{$obj->vc_col2->key}\" value=\"{$obj->vc_col2->value}\" />\n".
-            "<input type=\"hidden\" name=\"{$obj->int_col->key}\" value=\"{$obj->int_col->value}\" />\n".
-            "<input type=\"hidden\" name=\"{$obj->bool_col->key}\" value=\"{$obj->bool_col->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" />\n";
-		$this->expectOutputString($expected1);
+
+        ob_start();
 		$obj->preserveInForm();
+        $ob = ob_get_contents();
+
+        $pattern = "/<input type=\"hidden\" name=\"{$obj->vc_col1->key}\" value=\"{$obj->vc_col1->value}\" \/>\n/";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "/<input type=\"hidden\" name=\"{$obj->vc_col2->key}\" value=\"{$obj->vc_col2->value}\" \/>\n/";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "/<input type=\"hidden\" name=\"{$obj->int_col->key}\" value=\"{$obj->int_col->value}\" \/>\n/";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "/<input type=\"hidden\" name=\"{$obj->bool_col->key}\" value=\"{$obj->bool_col->value}\" \/>\n/";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "/<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" \/>\n/";
+        $this->assertMatchesRegularExpression($pattern, $ob);
 
 		// test object with added RequestInput properties
 		// N.B. expectOutputString() evaluates against ALL strings that have been printed to STDOUT
 		$o2 = new SerializedContentUtilsChild();
-		$expected2 = $expected1.
-			"<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->vc_col2->key}\" value=\"{$o2->vc_col2->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->bool_col->key}\" value=\"{$o2->bool_col->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
-		$this->expectOutputString($expected2);
-		$o2->preserveInForm();
+        $o2->preserveInForm();
+        $ob = ob_get_contents();
 
-		// test object with excluded properties
-		$expected3 = $expected2.
-			"<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" />\n".
-			"<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" />\n";
-		$this->expectOutputString($expected3);
-		$o2->preserveInForm(array('p_vc2', 'p_bool'));
+        $pattern = "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->vc_col2->key}\" value=\"{$o2->vc_col2->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->bool_col->key}\" value=\"{$o2->bool_col->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+
+        $o2->preserveInForm(array('p_vc2', 'p_bool'));
+        $ob = ob_get_contents();
+
+        // test object with excluded properties
+        $pattern = "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        $pattern = "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" \/>\n";
+        $this->assertMatchesRegularExpression($pattern, $ob);
+        ob_end_clean();
 	}
 
     public function testCacheTemplatePath()
