@@ -1,1 +1,0 @@
-ALTER TABLE site_section ADD filters_class varchar(255) NULL AFTER `content_class`;

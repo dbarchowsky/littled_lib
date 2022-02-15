@@ -1,4 +1,4 @@
-CREATE TABLE content_route
+CREATE OR REPLACE TABLE content_route
 (
     id                  INT             AUTO_INCREMENT PRIMARY KEY,
     site_section_id     INT             NOT NULL,

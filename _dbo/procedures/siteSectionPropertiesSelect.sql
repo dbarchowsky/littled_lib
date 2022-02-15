@@ -1,11 +1,11 @@
 DROP PROCEDURE IF EXISTS `siteSectionPropertiesSelect`;
 DELIMITER $$
 CREATE PROCEDURE `siteSectionPropertiesSelect`(
-  IN p_section_id INT
+    IN      p_section_id        INT
 )
 BEGIN
 
-  SELECT
+    SELECT
          id,
          section_id,
          label,
@@ -26,5 +26,4 @@ BEGIN
     FROM section_operations
     WHERE section_id = p_section_id;
 
-END$$
-DELIMITER ;
+END $$

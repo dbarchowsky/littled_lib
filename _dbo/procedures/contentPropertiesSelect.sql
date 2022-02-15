@@ -25,7 +25,7 @@ CREATE PROCEDURE `contentPropertiesSelect`(
       ss.`is_cached`,
       ss.`gallery_thumbnail`,
       so.`id_param`,
-      IFNULL(so.`label`, IFNULL(ss.`image_label`, ss.`name`)) `label`,
+      IFNULL(so.`label`, IFNULL(ss.`image_label`, ss.`name`)) AS `label`,
       p.`name` `parent`
     FROM `site_section` ss
     LEFT JOIN `section_operations` so ON ss.id = so.section_id
