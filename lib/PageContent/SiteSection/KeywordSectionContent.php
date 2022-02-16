@@ -394,10 +394,10 @@ abstract class KeywordSectionContent extends SectionContent
 	/**
 	 * Validates the internal property values of the object for data that is not valid.
 	 * Updates the $validation_errors property of the object with messages describing the invalid values.
-	 * @param ?array $exclude_properties (Optional) Collection of variable names to ignore in the request data.
+	 * @param array $exclude_properties (Optional) Collection of variable names to ignore in the request data.
 	 * @throws ContentValidationException Errors found in the form data.
 	 */
-	public function validateInput($exclude_properties = [])
+	public function validateInput(array $exclude_properties=[])
 	{
 		try {
 		    /* bypass validation of site section properties */

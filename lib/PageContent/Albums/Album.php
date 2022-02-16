@@ -2,11 +2,18 @@
 namespace Littled\PageContent\Albums;
 
 
+use Exception;
 use JsonSchema\Exception\ValidationException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Validation\Validation;
 use Littled\Request\IntegerInput;
 use Littled\Request\DateInput;
@@ -25,6 +32,20 @@ use Littled\PageContent\SiteSection\KeywordSectionContent;
  */
 class Album extends KeywordSectionContent
 {
+	/** @var int|null */
+	public static $pages_content_type_id=null;
+
+	/** @var string */
+	public static $albumMetadataTemplate = '';
+	/** @var string */
+	public static $galleryListingsTemplate = '';
+	/** @var string */
+	public static $thumbnailLinkContainerTemplate = '';
+	/** @var string */
+	public static $thumbnailOverlayButtonsTemplate = '';
+	/** @var string */
+	public static $thumbnailUploadTemplate = '';
+
 	/** @var string Id http variable name. */
 	const ID_PARAM = "abid";
 	/** @var string Title http variable name. */
@@ -42,7 +63,7 @@ class Album extends KeywordSectionContent
 	public $slug;
 	/** @var StringTextarea Album description. */
 	public $description;
-	/** @var int Token representing the content type of the record. */
+	/** @var IntegerInput Token representing the content type of the record. */
 	public $section_id;
 	/** @var StringTextField Plain english display date for the album. */
 	public $date;
@@ -63,28 +84,20 @@ class Album extends KeywordSectionContent
 	/** @var boolean $check_access Flag to override the $access property value. */
 	public $check_access;
 
-	public static $albumMetadataTemplate = '';
-	public static $galleryListingsTemplate = '';
-	public static $thumbnailLinkContainerTemplate = '';
-	public static $thumbnailOverlayButtonsTemplate = '';
-	public static $thumbnailUploadTemplate = '';
-
-	public static function TABLE_NAME() { return(self::TABLE_NAME); }
-
 	/**
 	 * class constructor
-	 * @param int $content_type_id Id of the content's site section.
-	 * @param int $images__content_type_id Id of the gallery's site section
-	 * @param int[optional] $id Id of the content record.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @param int $content_type_id The id of the content's site section.
+	 * @param int $images_content_type_id The id of the gallery's site section
+	 * @param ?int $id (Optional) The id of the content record.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
-	function __construct ($content_type_id, $images__content_type_id, $id=null)
+	function __construct (int $content_type_id, int $images_content_type_id, ?int $id=null)
     {
 		parent::__construct($id, $content_type_id, "abkw");
 		$this->id = new IntegerInput("Gallery ID", self::ID_PARAM, false, $id);
@@ -101,7 +114,10 @@ class Album extends KeywordSectionContent
 		$this->layout = new StringSelect("Layout", "ablo", false, "", 20);
 		$this->section_id = &$this->content_properties->id;
 
-		$this->gallery = new Gallery($images__content_type_id, $this->id->value);
+		if ($images_content_type_id > 0) {
+			static::setPagesContentType($images_content_type_id);
+		}
+		$this->gallery = new Gallery(static::getPagesContentType(), $this->getRecordId());
 
 		$this->keywordInput->label = "keywords";
 
@@ -118,8 +134,8 @@ class Album extends KeywordSectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function collectAlbumID( $src=null )
 	{
@@ -154,10 +170,10 @@ class Album extends KeywordSectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
 	 */
 	public function collectRequestData ($src=null )
 	{
@@ -165,7 +181,7 @@ class Album extends KeywordSectionContent
 		parent::collectRequestData($src);
 		$this->gallery->collectFromInput($src);
 		if ($this->title->value && $this->slug->value=="") {
-			$this->slug->value = $this->generateDefaultSlug();
+			$this->generateDefaultSlug();
 		}
 	}
 
@@ -175,18 +191,18 @@ class Album extends KeywordSectionContent
 	 * Update the $id, $section_id, $title and $slug properties of the object.
 	 * The $section_id property value is set from the object's internal constant
 	 * value and not from data passed to the script.
-	 * @param array|null[optional] $src Array of variables to use to fill object property values in place of request variables.
+	 * @param array|null $src Array of variables to use to fill object property values in place of request variables.
 	 */
-	public function collectSlugInput( $src=null )
+	public function collectSlugInput( ?array $src=null )
 	{
 		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
 		if ($this->id->value===null) {
 			$this->id->collectRequestData($src);
 		}
-		$this->section_id->value = $this->getContentId();
-		$this->title->collectFromInput($src);
+		$this->section_id->value = $this->getContentPropertyId();
+		$this->title->collectRequestData($src);
 		if ($this->id->value > 0) {
-			$this->slug->collectFromInput($src);
+			$this->slug->collectRequestData($src);
 		}
 		else {
 			/* if this is a new record, make sure to regenerate the $slug
@@ -204,12 +220,12 @@ class Album extends KeywordSectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
 	 */
-	public function delete()
+	public function delete(): string
 	{
 		$this->testForAlbumID();
 
@@ -235,7 +251,7 @@ class Album extends KeywordSectionContent
 	 * Returns message to display to indicate that a record was successfully removed.
 	 * @returns string Message to display to indicate successful deletion operation.
 	 */
-	protected function formatDeleteStatusMessage ( )
+	protected function formatDeleteStatusMessage ( ): string
 	{
 		return ("The &ldquo;{$this->title->value}&rdquo; ".strtolower($this->content_properties->label)." was successfully deleted.");
 	}
@@ -246,7 +262,7 @@ class Album extends KeywordSectionContent
 	 * @param string[optional] $slug Explicit value to use as the basis for the
 	 * slug value.
 	 */
-	public function formatSlug( $slug='' )
+	public function formatSlug( string $slug='' )
 	{
 		if ($slug) {
 			$this->slug->value = $slug;
@@ -274,12 +290,9 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Generate a default slug value using the existing title value.
-	 * - Checks for incompatibilities with exisitng slug values.
+	 * - Checks for incompatibilities with existing slug values.
 	 * - Ensures that the generated slug value is unique.
 	 * - Stores the slug value in the object's $slug property.
-	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
 	 */
 	public function generateDefaultSlug()
 	{
@@ -287,42 +300,52 @@ class Album extends KeywordSectionContent
 		$slug_base = $this->slug->value;
 
 		$index = 1;
-		while($this->validateSlug()===false) {
-			if (strlen("{$slug_base}-{$index}") > $this->slug->sizeLimit) {
-				/* avoid overruns */
-				$slug_base = substr($slug_base, -1 * (strlen("-{$index}")));
+		$valid_slug = false;
+		while(!$valid_slug) {
+			try {
+				$this->validateSlug();
+				$valid_slug = true;
 			}
-			$this->slug->value = "{$slug_base}-{$index}";
-			$index++;
+			catch(Exception $e) {
+				if (strlen("$slug_base-$index") > $this->slug->sizeLimit) {
+					/* avoid overruns */
+					$slug_base = substr($slug_base, -1 * (strlen("-$index")));
+				}
+				$this->slug->value = "$slug_base-$index";
+				$index++;
+			}
 		}
 	}
 
-	public static function getAlbumMetadataTemplatePath()
+	/**
+	 * Album metadata template path getter.
+	 * @return string
+	 */
+	public static function getAlbumMetadataTemplatePath(): string
     {
-        return (static::$albumMetadataTemplate);
+        return static::$albumMetadataTemplate;
     }
 
 	/**
 	 * Returns the title of the album.
 	 * @return string Title of the album.
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
 	 */
-	public function getBookTitle() {
-		return ($this->getRecordLabel());
+	public function getBookTitle(): string
+	{
+		return $this->getContentLabel();
 	}
 
 	/**
-	 * Retrieves the first page in the album's gallery
+	 * Retrieves the first page of the album's gallery
 	 * @param bool[optional] $read_keywords If set to true, keywords associated with the image will also be retrieved. defaults to false.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
 	public function getDefaultPage( $read_keywords=false )
 	{
@@ -342,40 +365,48 @@ class Album extends KeywordSectionContent
     /**
      * @return string Gallery listings template path.
      */
-    public static function getGalleryListingsTemplatePath()
+    public static function getGalleryListingsTemplatePath(): string
     {
-        return (static::$galleryListingsTemplate);
+        return static::$galleryListingsTemplate;
     }
+
+	/**
+	 * Pages content type getter.
+	 * @return int
+	 */
+	public static function getPagesContentType(): int
+	{
+		return static::$pages_content_type_id;
+	}
 
     /**
      * @return string Album linked-thumbnail selection tool template path.
      */
-    public static function getThumbnailLinkContainerTemplatePath()
+    public static function getThumbnailLinkContainerTemplatePath(): string
     {
-        return (static::$thumbnailLinkContainerTemplate);
+        return static::$thumbnailLinkContainerTemplate;
     }
 
     /**
      * @return string Thumbnail overlay buttons template path.
      */
-	public static function getThumbnailOverlayButtonsTemplatePath()
+	public static function getThumbnailOverlayButtonsTemplatePath(): string
     {
-        return (static::$thumbnailOverlayButtonsTemplate);
+        return static::$thumbnailOverlayButtonsTemplate;
     }
 
     /**
      * @return string Thumbnail upload container template path.
      */
-    public static function getThumbnailUploadTemplatePath()
+    public static function getThumbnailUploadTemplatePath(): string
     {
         return (static::$thumbnailUploadTemplate);
     }
 
 	/**
-	 * Indicates if any form data has been entered for the current instance of the object.
-	 * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images have been uploaded. Most likely should be overridden in derived classes.
+	 * @inheritDoc
 	 */
-	public function hasData ()
+	public function hasData (): bool
 	{
 		return ($this->id->value>0 || strlen($this->title->value)>0 || $this->gallery->hasData());
 	}
@@ -385,7 +416,7 @@ class Album extends KeywordSectionContent
 	 * independently of the images in the gallery.
 	 * @return bool TRUE if unlinked images are allowed.
 	 */
-	public function hasIndependentGalleryThumbnail()
+	public function hasIndependentGalleryThumbnail(): bool
 	{
 		return (
 			false === isset($this->content_properties) ||
@@ -394,12 +425,11 @@ class Album extends KeywordSectionContent
 	}
 
 	/**
-	 * Tests the album properties to determine if a link to one of the images
-	 * in the album's gallery should be saved as the thumbnail image for the album.
+	 * Tests the album properties to determine if a link to one of the album's gallery images should be saved as the thumbnail image for the album.
 	 * @return bool TRUE/FALSE depending on if the album properties
-	 * dictate that a link to the thumbnail image should be saved in the album record
+	 * dictate that a link to the thumbnail image should be saved for the album record
 	 */
-	protected function hasThumbnailLink()
+	protected function hasThumbnailLink(): bool
 	{
 		return (
 			/* manual setting from database specifying to use a gallery image as the album thumbnail */
@@ -423,17 +453,17 @@ class Album extends KeywordSectionContent
 	 * slug value is not located.
 	 * @throws ConfigurationUndefinedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConnectionException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
 	public function lookupSlug()
 	{
 		$this->connectToDatabase();
-		$query = "SEL"."ECT `id` FROM `".$this::TABLE_NAME()."` ".
-			"WHERE (`section_id` = {$this->section_id->value}) ".
-			"AND (`slug` = ".$this->slug->escapeSQL($this->mysqli).")";
-		$data = $this->fetchRecords($query);
+		$query = "SEL"."ECT `id` FROM `".static::getTableName()."` ".
+			"WHERE `section_id` = ? ".
+			"AND `slug` = ?";
+		$data = $this->fetchRecords($query, 'is', $this->section_id->value, $this->slug->value);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Slug not found.");
 		}
@@ -442,49 +472,52 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Marks the current pages as being either at the start, end, or middle of the book.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws Exception
 	 */
 	protected function markLimits()
 	{
 		$first_page_id = $last_page_id = null;
-		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->content_properties->id->value})";
-		$data = $this->fetchRecords($query);
+		$record_id = $this->getRecordId();
+		$content_type_id = $this->getContentPropertyId();
+		$query = "CALL albumFirstPageSelect(?,?)";
+		$data = $this->fetchRecords($query, 'ii', $record_id, $content_type_id);
 		if (count($data) > 0) {
 			$first_page_id = $data[0]->id;
 		}
 
-		$query = "CALL albumLastPageSelect({$this->id->value},{$this->content_properties->id->value})";
-		$data = $this->fetchRecords($query);
+		$query = "CALL albumLastPageSelect(?,?)";
+		$data = $this->fetchRecords($query, 'ii', $record_id, $content_type_id);
 		if (count($data) > 0) {
 			$last_page_id = $data[0]->id;
 		}
 
-		foreach ($this->gallery->list as &$page) {
+		foreach ($this->gallery->list as $page) {
 			$page->isFirstPage->value = ($first_page_id > 0 && $page->id->value == $first_page_id);
 			$page->isLastPage->value = ($last_page_id > 0 && $page->id->value == $last_page_id);
 		}
 	}
 
 	/**
-	 * Read the content record, along with it's site section properties, gallery images, and keywords.
-	 * @param bool[optional] $read_images Flag to additionally read all the images attached to the record. Defaults to true.
-	 * @param bool[optional] $read_image_keywords Flag to additionally read the keywords for all of the images in the gallery. Defaults to false.
+	 * Read the content record, along with its site section properties, gallery images, and keywords.
+	 * @param bool $read_images (Optional) Flag to additionally read all the images attached to the record. Defaults to true.
+	 * @param bool $read_image_keywords (Optional) Flag to additionally read the keywords for all the images in the gallery. Defaults to false.
 	 * @throws ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 * @throws Exception
 	 */
-	public function read ($read_images=true, $read_image_keywords=false)
+	public function read (bool $read_images=true, bool $read_image_keywords=false)
 	{
 		if ($this->check_access==true) {
-			$query = "SEL"."ECT COUNT(1) AS `count` FROM `".$this->TABLE_NAME()."` WHERE id = {$this->id->value} AND `access` NOT IN ('public')";
-			$data = $this->fetchRecords($query);
+			$query = "SEL"."ECT COUNT(1) AS `count` FROM `".static::getTableName()."` WHERE id = ? AND `access` NOT IN ('public')";
+			$data = $this->fetchRecords($query, 'i', $this->id->value);
 			$is_protected = ($data[0]->count > 0);
 
-			if ($is_protected==-true) {
+			if ($is_protected===true) {
 				throw new ConfigurationUndefinedException("Access denied.");
 			}
 		}
@@ -504,14 +537,15 @@ class Album extends KeywordSectionContent
 			 * happens when there is some other record attached to this
 			 * content type???
 			 */
-			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = {$this->content_properties->id->value}";
-			$data = $this->fetchRecords($query);
+			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = ?";
+			$content_type_id = $this->getContentPropertyId();
+			$data = $this->fetchRecords($query, 'i', $content_type_id);
 			$this->gallery->contentProperties->id->value = ((count($data) > 0)?($data[0]->id):(null));
 		}
 
 		$this->gallery->parent_id = $this->id->value;
 		if ($read_images==true) {
-			$this->gallery->read($read_image_keywords, true);
+			$this->gallery->read($read_image_keywords);
 		}
 		else {
 			$this->gallery->readThumbnail();
@@ -520,17 +554,18 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Retrieves single page and puts it in gallery array.
-	 * @param int $page_id Id of the image_link record to load.
-	 * @param boolean $read_keywords (optional) if set to true, keywords associated with the image will also be retrieved. defaults to false.
+	 * @param int $page_id The id of the image_link record to load.
+	 * @param bool $read_keywords (optional) if set to true, keywords associated with the image will also be retrieved. defaults to false.
 	 * @throws ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 * @throws Exception
 	 */
-	public function readPage( $page_id, $read_keywords=false )
+	public function readPage( int $page_id, bool $read_keywords=false )
 	{
 		$this->gallery->list = array();
 		$this->gallery->list[0] =
@@ -547,20 +582,21 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Saves content record, along with gallery images and keywords.
-	 * @param boolean $save_thumbnail (Optional) Flag to additionally save a thumbnail record (dbo: image_link) as opposed to linking to an existing image in the gallery list as this content item's thumbnail. Default TRUE.
-	 * @param boolean $update_cache (Optional) Flag to additionally update content cache. Default TRUE.
+	 * @param bool $save_thumbnail (Optional) Flag to additionally save a thumbnail record (dbo: image_link) as opposed to linking to an existing image in the gallery list as this content item's thumbnail. Default TRUE.
+	 * @param bool $update_cache (Optional) Flag to additionally update content cache. Default TRUE.
 	 * @return string Message to display to user indicating the result of the operation.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\OperationAbortedException
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws OperationAbortedException
+	 * @throws ResourceNotFoundException
+	 * @throws Exception
 	 */
-	public function save ($save_thumbnail=true, $update_cache=true)
+	public function save (bool $save_thumbnail=true, bool $update_cache=true): string
 	{
 		$status = "";
 		$is_new = ($this->id->value===null);
@@ -576,19 +612,19 @@ class Album extends KeywordSectionContent
 				$this->columnExists("mod_date")
 			)) {
 			/* update create/mod dates */
-			$query = "UPDATE `".$this->TABLE_NAME()."` SET ";
+			$query = "UPDATE `".static::getTableName()."` SET ";
 			if ($is_new) {
 				$query .= "create_date = NOW(), ";
 			}
-			$query .= "mod_date = NOW() WHERE id = {$this->id->value}";
-			$this->query($query);
+			$query .= "mod_date = NOW() WHERE id = ?";
+			$this->query($query, 'i', $this->id->value);
 		}
 
 		if ($is_new) {
 			$this->setDefaultSlotValue();
 		}
 
-		/* save images currently in this album's gallery */
+		/* save all images currently loaded into this album's gallery */
 		$this->gallery->parent_id = $this->id->value;
 		$this->gallery->save($save_thumbnail && $is_new);
 
@@ -603,28 +639,33 @@ class Album extends KeywordSectionContent
 
 		if (method_exists($this, "updateCacheFile") && $update_cache) {
 			/** TODO set the path to the cache file */
-			$status .= $this->updateCacheFile('', '');
+			try {
+				$this->updateCacheFile('', '');
+				$status .= "The cache file was updated. \n";
+			}
+			catch(Exception $e) {
+				$status .= "Error updating the cache file. ".$e->getMessage()." \n";
+			}
+
 		}
 		return ($status);
 	}
 
 	/**
 	 * Sets the album thumbnail to the first image in the gallery when creating a new album
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
 	protected function saveThumbnailLink()
 	{
-		$query = "UPDATE `".$this->TABLE_NAME()."` ".
-			"SET tn_id = {$this->gallery->list[0]->id->value} ".
-			"WHERE id = {$this->id->value}";
-		$this->query($query);
+		$query = "UPDATE `".static::getTableName()."` SET tn_id = ? WHERE id = ?";
+		$this->query($query, 'ii', $this->gallery->list[0]->id->value, $this->id->value);
 	}
 
 	/**
 	 * Updates the slot value on new album records to put the new record at the top of the list.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
 	protected function setDefaultSlotValue()
 	{
@@ -638,17 +679,32 @@ class Album extends KeywordSectionContent
 		/* query to update the values of the pre-existing albums in this
 		 * group to push them back to make space for the new one at the front
 		 */
-		$query = "UPDATE `".$this->TABLE_NAME()."` SET slot = IFNULL(slot,0)+1";
+		$types_str = '';
+		$vars = [];
+		$query = "UPDATE `".static::getTableName()."` SET slot = IFNULL(slot,0)+1";
 		if ($has_section_id) {
-			$query .= " WHERE (section_id = {$this->section_id->value})";
+			$query .= " WHERE (section_id = ?)";
+			$types_str .= 'i';
+			$vars[] = $this->section_id->value;
 		}
-		$this->query($query);
+		array_unshift($vars, $query, $types_str);
+		call_user_func_array([$this, 'query'], $vars);
 
 		/* query to update the slot value of this record to put it at the
 		 * front of the list of albums.
 		 */
-		$query = "UPDATE `".$this->TABLE_NAME()."` SET slot = 0 WHERE id = {$this->id->value}";
-		$this->query($query);
+		$query = "UPDATE `".static::getTableName()."` SET slot = 0 WHERE id = ?";
+		$this->query($query, 'i', $this->id->value);
+	}
+
+	/**
+	 * Pages content type setter.
+	 * @param int $content_type_id
+	 * @return void
+	 */
+	public function setPagesContentType(int $content_type_id)
+	{
+		static::$pages_content_type_id = $content_type_id;
 	}
 
 	/**
@@ -667,13 +723,13 @@ class Album extends KeywordSectionContent
 	 * values into the record in the database.
 	 * @param bool $has_slot
 	 * @param bool $has_section_id
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
-	protected function testForSlotColumns ( &$has_slot, &$has_section_id )
+	protected function testForSlotColumns ( bool &$has_slot, bool &$has_section_id )
 	{
 		$query = "SHOW COLUMNS ".
-			"FROM `".$this->TABLE_NAME()."` ".
+			"FROM `".static::getTableName()."` ".
 			"WHERE `field` LIKE 'slot' ".
 			"OR `field` LIKE 'section_id'";
 		$data = $this->fetchRecords($query);
@@ -703,43 +759,39 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Updates the internal column that stores all keywords for this record and all of its child records used for fulltext searches.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
 	public function updateFulltextKeywords()
 	{
 		/* avoid exceeding limit on GROUP_CONCAT() */
 		$this->query("SET @@group_concat_max_len := @@max_allowed_packet;");
 
-		$query = "CALL albumFulltextKeywordsUpdate(".
-			$this->TABLE_NAME().",".
-			"{$this->id->value},".
-			"{$this->content_properties->id->value},".
-			"{$this->gallery->contentProperties->id->value})";
-		$this->query($query);
+		$query = "CALL albumFulltextKeywordsUpdate(".static::getTableName().",?,?,?";
+		$record_id = $this->getRecordId();
+		$content_type_id = $this->getContentPropertyId();
+		$gallery_content_type_id = static::getPagesContentType();
+		$this->query($query, 'iii', $record_id, $content_type_id, $gallery_content_type_id);
 	}
 
 	/**
-	 * Validate form data collected with fill_from_input() routine.
-	 * @param array[optional] List of object properties that do not require validation.
-	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @inheritDoc
+	 * @throws Exception
 	 */
-	public function validateInput ( $exclude_properties=array() )
+	public function validateInput ( array $exclude_properties=[] )
 	{
 		try {
 			parent::validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			; /* continue */
+			/* continue */
 		}
 
 		try {
 			$this->gallery->validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
+			$this->validationErrors[] = $ex->getMessage();
 			$this->validationErrors = array_merge($this->validationErrors, $this->gallery->validationErrors);
 		}
 
@@ -748,7 +800,8 @@ class Album extends KeywordSectionContent
 				$this->validateSlug();
 			}
 			catch (ContentValidationException $ex) {
-				array_push($this->validationErrors, $ex->getMessage());
+				$this->validationErrors[] = $ex->getMessage();
+			} catch (NotImplementedException $e) {
 			}
 		}
 
@@ -760,8 +813,8 @@ class Album extends KeywordSectionContent
 	/**
 	 * Validates the current value of the object's $slug property against existing records in the database.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws NotImplementedException
+	 * @throws Exception
 	 */
 	public function validateSlug()
 	{
@@ -769,8 +822,8 @@ class Album extends KeywordSectionContent
 			/* get the existing slug. if they are the same then the current
 			 * value of the object's $slug property doesn't need to be checked.
 			 */
-			$query = "SEL"."ECT `slug` FROM `".$this->TABLE_NAME()."` WHERE (`id` = {$this->id->value})";
-			$data = $this->fetchRecords($query);
+			$query = "SEL"."ECT `slug` FROM `".static::getTableName()."` WHERE (`id` = ?)";
+			$data = $this->fetchRecords($query, 'i', $this->id->value);
 			if (count($data) < 1) {
 				throw new ContentValidationException("Slug value could not be retrieved for validation.");
 			}
@@ -790,16 +843,25 @@ class Album extends KeywordSectionContent
 		/**
 		 * Query to search for existing records with slug values that match the object's $slug property value.
 		 */
-		$query = "SEL"."ECT COUNT(1) AS `count` FROM `".$this->TABLE_NAME()."` ";
+		$query = "SEL"."ECT COUNT(1) AS `count` FROM `".static::getTableName()."` ";
+		$types_str = '';
+		$vars = [];
 		if (property_exists($this, "section_id") && $this->section_id->value > 0) {
-			$query .= "WHERE (section_id = {$this->section_id->value}) ";
+			$query .= "WHERE (section_id = ? ";
+			$types_str .= 'i';
+			$vars[] = $this->section_id->value;
 		}
 		$query .= ((strpos($query, "WHERE") > 0)?('AND '):('WHERE '));
-		$query .= "(`slug` LIKE '".$this->slug->escapeSQL($this->mysqli)."') ";
+		$query .= "(`slug` LIKE ?) ";
+		$types_str .= 's';
+		$vars[] = $this->slug->value;
 		if ($this->id->value > 0) {
-			$query .= "AND (`id` <> {$this->id->value}) ";
-		}
-		$data = $this->fetchRecords($query);
+			$query .= "AND (`id` <> ?) ";
+			$types_str .= 'i';
+			$vars[] = $this->id->value;
+ 		}
+		array_unshift($vars, $query, $types_str);
+		$data = call_user_func_array([$this, 'fetchRecords'], $vars);
 		if (count($data) > 0) {
 			throw new ContentValidationException("A &ldquo;{$this->slug->value}&rdquo; slug already exists.");
 		}

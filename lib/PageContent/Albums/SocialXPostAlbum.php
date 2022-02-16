@@ -32,9 +32,9 @@ class SocialXPostAlbum extends Album
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct ($content_type_id=null, $images__content_type_id=null, $id=null )
+	function __construct ($content_type_id=null, $images_content_type_id=null, $id=null )
 	{
-		parent::__construct($content_type_id, $images__content_type_id, $id);
+		parent::__construct($content_type_id, $images_content_type_id, $id);
 		$this->update_blog = new BooleanCheckbox("Update blog", "axub", false, false);
 		$this->flickr_id = new IntegerInput("Flickr ID", "axfi", false, null);
 		$this->wp_id = new IntegerInput("WordPress ID", "axwp", false, null);
