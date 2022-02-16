@@ -24,6 +24,8 @@ class LittledGlobals
 	const CONTENT_TYPE_KEY = 'tid';
 	/** @var string Key of request variable used to pass CSRF tokens. */
 	const CSRF_TOKEN_KEY = 'csrf';
+	/** @var string Key of request variable used to pass error messages. */
+	const ERROR_MSG_KEY = 'err';
     /** @var string Key of the record id request variable. */
     const ID_KEY = 'id';
     /** @var string Key of the parent id request variable. */
