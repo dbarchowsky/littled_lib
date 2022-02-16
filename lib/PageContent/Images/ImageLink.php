@@ -2,10 +2,17 @@
 namespace Littled\PageContent\Images;
 
 
-use Littled\Cache\ContentCache;
+use Exception;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 use Littled\Request\BooleanInput;
 use Littled\Request\DateTextField;
@@ -24,6 +31,11 @@ use stdClass;
  */
 class ImageLink extends KeywordSectionContent
 {
+	/** @var string */
+	protected static $table_name='image_link';
+	/** @var string Name of class to use to cache content. */
+	protected static $cache_class = ContentCache::class;
+
 	/** @var array HTTP request variable names. */
 	const vars = array(
 		'id' => 'ilid',
@@ -35,9 +47,6 @@ class ImageLink extends KeywordSectionContent
 		'release_date' => 'ilrd',
 		'randomize_filename' => 'ilrf'
 	);
-
-	/** @var string Name of table in the database that stores this object's data. */
-	const TABLE_NAME = 'image_link';
 
 	/** @var IntegerInput $id image_link record id */
 	public $id;
@@ -71,8 +80,6 @@ class ImageLink extends KeywordSectionContent
 	public $isFirstPage;
 	/** @var BooleanInput Flag indicating this record is the last image in a series of images. */
 	public $isLastPage;
-
-	public static function TABLE_NAME() { return (ImageLink::TABLE_NAME); }
 
 	/**
 	 * ImageLink constructor.
@@ -148,15 +155,15 @@ class ImageLink extends KeywordSectionContent
 	public function collectRequestData($src=null )
 	{
 		$this->collectInlineInput($src);
-		$this->title->collectFromInput(null, $src);
-		$this->description->collectFromInput(null, $src);
+		$this->title->collectRequestData(null, $src);
+		$this->description->collectRequestData(null, $src);
 		$this->full->collectRequestData($src);
 		$this->med->collectRequestData($src);
 		$this->mini->collectRequestData($src);
 		$this->slot->collectRequestData(null, $src);
 		$this->page_number->collectRequestData(null, $src);
-		$this->access->collectFromInput(null, $src);
-		$this->release_date->collectFromInput(null, $src);
+		$this->access->collectRequestData(null, $src);
+		$this->release_date->collectRequestData(null, $src);
 	}
 
 	/**
@@ -170,33 +177,33 @@ class ImageLink extends KeywordSectionContent
 		if (($this->parent_id->key != $this::vars['parent_id']) &&
 			($this->parent_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
-			$this->parent_id->collectRequestData(null, $src, $this::vars['parent_id']);
+			$this->parent_id->collectRequestData($src, $this::vars['parent_id']);
 		}
 		$this->content_properties->id->collectRequestData();
 		if (($this->type_id->key != $this::vars['content_type']) &&
 			($this->type_id->value===null)) {
 			/* sometimes in the case of image uploads the script doesn't know about individualized form parameters */
-			$this->type_id->collectRequestData(null, $src, $this::vars['content_type']);
+			$this->type_id->collectRequestData($src, $this::vars['content_type']);
 		}
-		$this->randomize->collectFromInput(null, $src);
+		$this->randomize->collectRequestData(null, $src);
 	}
 
 	/**
 	 * Deletes image_link record along with all images records and files attached to the record.
 	 * @return string Status message detailing the results of the operation.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws Exception
 	 */
-	public function delete()
+	public function delete(): string
 	{
 		if ($this->id->value===null || $this->id->value<1) {
 			throw new ContentValidationException("Id not provided.");
 		}
 
-		$status = "";
-		$status .= $this::deleteLinkedImage($this->full, "full-resolution");
+		$status = $this::deleteLinkedImage($this->full, "full-resolution");
 		$status .= $this::deleteLinkedImage($this->med, "medium-resolution");
 		$status .= $this::deleteLinkedImage($this->mini, "thumbnail");
 
@@ -219,12 +226,13 @@ class ImageLink extends KeywordSectionContent
 	 * @param Image $image Image object to be removed.
 	 * @param string $description Description of the image being removed.
 	 * @return string Description of the results of the operation.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
+	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException
+	 * @throws Exception
 	 */
-	protected static function deleteLinkedImage( $image, $description)
+	protected static function deleteLinkedImage( Image $image, string $description): string
 	{
 		if ($image->id->value===null || $image->id->value < 1) {
 			return ("");
@@ -237,7 +245,7 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Tests to see if this image is a thumbnail image for a parent record. Deletes that link if it is found.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException|Exception
 	 */
 	protected function deleteThumbnailLink()
 	{
@@ -246,7 +254,7 @@ class ImageLink extends KeywordSectionContent
 			/**
 			 * Get parent table name and flag indicating that the thumbnail
 			 * points to a record in the gallery (as opposed to an image_link
-			 * record independent from the gallery)
+			 * record independent of the gallery)
 			 */
 			$parent_table = '';
 			$query = "CALL siteSectionParentTableSelect($this->content_properties->id->value);";
@@ -275,35 +283,38 @@ class ImageLink extends KeywordSectionContent
 			}
 
 			/* make sure parent table has thumbnail column */
-			$query = "SHOW COLUMNS FROM `{$parent_table}` LIKE 'tn_id'";
+			$query = "SHOW COLUMNS FROM `$parent_table` LIKE 'tn_id'";
 			$data = $this->fetchRecords($query);
 			$found_tn_column = count($data) > 0;
 
-			if ($parent_table && $found_tn_column) {
+			if ($found_tn_column) {
 				/**
-				 * If this content type has thumbnails pointing to records in its
+				 * If this content type has thumbnails pointing at records in its
 				 * gallery, then use the first image uploaded into the gallery
 				 * as the thumbnail.
 				 */
 				$query = "SELECT COUNT(1) as `count` ".
 					"FROM `image_link` ".
-					"WHERE `parent_id` = {$this->parent_id->value} ".
-					"AND `type_id` = {$this->content_properties->id->value}";
-				$data = $this->fetchRecords($query);
+					"WHERE `parent_id` = ? ".
+					"AND `type_id` = ?";
+				$content_type_id = $this->getContentPropertyId();
+				$data = $this->fetchRecords($query, 'ii', $this->parent_id->value, $content_type_id);
 				$page_count = $data[0]->count;
 
-				if ($page_count==0) {
+				if ($page_count===0) {
 					/* Updates the parent record's thumbnail to point at the image that was just uploaded. */
-					$query = "CALL thumbnailUnsetParentLink('{$parent_table}',{$this->parent_id})";
-					$this->query($query);
+					$query = "CALL thumbnailUnsetParentLink(?,?)";
+					$this->query($query, 'si', $parent_table, $this->parent_id->value);
 				}
 				else {
-					$query = "CALL thumbnailUpdateParentWithImageLink(".
-						"'{$parent_table}',".
-						"{$this->parent_id->value},".
-						"{$this->id->value},".
-						"{$this->content_properties->id->value})";
-					$this->query($query);
+					$query = "CALL thumbnailUpdateParentWithImageLink(?,?,?,?)";
+					$content_type_id = $this->getContentPropertyId();
+					$this->query($query,
+						'siii',
+						$parent_table,
+						$this->parent_id->value,
+						$this->id->value,
+						$content_type_id);
 				}
 			}
 		}
@@ -311,48 +322,62 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Wrapper around SQL statement to insert new image_link record in the database
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException|Exception
 	 */
 	protected function executeInsertQuery()
 	{
-		$query = "INSERT INTO `image_link` ".
+		$query = "INS"."ERT INTO `image_link` ".
 			"(`fullres_id`,`med_id`,`mini_id`,`parent_id`,`type_id`,`slot`,`page_number`,`access`,".
-			"`title`,`description`,`release_date`) VALUES (".
-			$this->full->id->escapeSQL($this->mysqli).", ".
-			$this->med->id->escapeSQL($this->mysqli).", ".
-			$this->mini->id->escapeSQL($this->mysqli).", ".
-			$this->parent_id->escapeSQL($this->mysqli).", ".
-			$this->content_properties->id->escapeSQL($this->mysqli).", ".
-			$this->slot->escapeSQL($this->mysqli).", ".
-			$this->page_number->escapeSQL($this->mysqli).", ".
-			$this->access->escapeSQL($this->mysqli).", ".
-			$this->title->escapeSQL($this->mysqli).", ".
-			$this->description->escapeSQL($this->mysqli).", ".
-			$this->release_date->escapeSQL($this->mysqli).")";
-		$this->query($query);
+			"`title`,`description`,`release_date`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+		$this->query($query,
+		'iiiiiiissss',
+			$this->full->id->value,
+			$this->med->id->value,
+			$this->mini->id->value,
+			$this->parent_id->value,
+			$this->content_properties->id->value,
+			$this->slot->value,
+			$this->page_number->value,
+			$this->access->value,
+			$this->title->value,
+			$this->description->value,
+			$this->release_date->value);
 		$this->id->value = $this->retrieveInsertID();
 	}
 
 	/**
 	 * Wrapper around SQL statement to update existing image_link record in the database.
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException|Exception
 	 */
 	protected function executeUpdateQuery()
 	{
 		$query = "UPDATE `image_link` SET ".
-			"`fullres_id` = ".$this->full->id->escapeSQL($this->mysqli).", ".
-			"`med_id` = ".$this->med->id->escapeSQL($this->mysqli).", ".
-			"`mini_id` = ".$this->mini->id->escapeSQL($this->mysqli).", ".
-			"`parent_id` = ".$this->parent_id->escapeSQL($this->mysqli).", ".
-			"`type_id` = ".$this->content_properties->id->escapeSQL($this->mysqli).", ".
-			"`title` = ".$this->title->escapeSQL($this->mysqli).", ".
-			"`description` = ".$this->description->escapeSQL($this->mysqli).", ".
-			"`slot` = ".$this->slot->escapeSQL($this->mysqli).", ".
-			"`page_number` = ".$this->page_number->escapeSQL($this->mysqli).", ".
-			"`access` = ".$this->access->escapeSQL($this->mysqli).", ".
-			"`release_date` = ".$this->release_date->escapeSQL($this->mysqli)." ".
-			"WHERE `id` = {$this->id->value}";
-		$this->query($query);
+			"`fullres_id` = ?, ".
+			"`med_id` = ?, ".
+			"`mini_id` = ?, ".
+			"`parent_id` = ?, ".
+			"`type_id` = ?, ".
+			"`title` = ?, ".
+			"`description` = ?, ".
+			"`slot` = ?, ".
+			"`page_number` = ?, ".
+			"`access` = ?, ".
+			"`release_date` = ? ".
+			"WHERE `id` = ?";
+		$this->query($query,
+		'iiiiissiissi',
+			$this->full->id->value,
+			$this->med->id->value,
+			$this->mini->id->value,
+			$this->parent_id->value,
+			$this->content_properties->id->value,
+			$this->title->value,
+			$this->description->value,
+			$this->slot->value,
+			$this->page_number->value,
+			$this->access->value,
+			$this->release_date->value,
+			$this->id->value);
 	}
 
 	/**
@@ -360,12 +385,12 @@ class ImageLink extends KeywordSectionContent
 	 * @param int $parent_id ID of the parent record to which the thumbnails are linked.
 	 * @param int[optional] $limit Number of records to return. Defaults to 5.
 	 * @return array Thumbnail data
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryException|Exception
 	 */
-	public static function fetchPageThumbnails($parent_id, $limit=5 )
+	public static function fetchPageThumbnails(int $parent_id, int $limit=5 ): array
 	{
 		$conn = new MySQLConnection();
-		$query = "CALL imageLinkPageThumbnailsSelect({$parent_id},{$limit})";
+		$query = "CALL imageLinkPageThumbnailsSelect($parent_id,$limit)";
 		return ($conn->fetchRecords($query));
 	}
 
@@ -418,34 +443,25 @@ class ImageLink extends KeywordSectionContent
 	 * Returns the content type id of the parent of this ImageLink record.
 	 * @return int|null Parent content type id.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
 	 */
-	public function getParentContentTypeID()
+	public function getParentContentTypeID(): ?int
 	{
 		return ($this->content_properties->getParentTypeID());
 	}
 
 	/**
-	 * Indicates if any form data that would require being stored in the database has been entered for the current instance of the object.
-	 * @return boolean Returns TRUE if data exists. Returns FALSE if the object doesn't contain any relevant data.
+	 * @inheritDoc
 	 */
-	public function hasData()
+	public function hasData(): bool
 	{
 		return ($this->id->value>0 || $this->full->id->value>0 || $this->full->path->value);
 	}
 
 	/**
-	 * Retrieves record corresponding to the object from the database and uses it to fill the object's property values.
-	 * @param bool[optional] $read_keywords Retrieve keywords linked to the image if set to TRUE. Default value is TRUE.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @inheritDoc
+	 * @throws Exception
 	 */
-	public function read( $read_keywords=true )
+	public function read( bool $read_keywords=true )
 	{
 		$this->connectToDatabase();
 		$query = "CALL imageLinkSelect(".$this->id->escapeSQL($this->mysqli).
@@ -461,14 +477,7 @@ class ImageLink extends KeywordSectionContent
 	}
 
 	/**
-	 * Retrieves site section properties and stores that data in object properties.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @inheritDoc
 	 */
 	public function retrieveSectionProperties()
 	{
@@ -481,19 +490,20 @@ class ImageLink extends KeywordSectionContent
 	}
 
 	/**
-	 * Upload images attached to the object, and save their properties in the datbase.
+	 * Upload images attached to the object, and save their properties in the database.
 	 * @param bool $save_keywords (optional) Update keywords for the record. Defaults to true.
 	 * @param bool $randomize_filename (Optional) flag if set to true the new image file will be given a randomized filename
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\OperationAbortedException
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws OperationAbortedException
+	 * @throws ResourceNotFoundException
+	 * @throws Exception
 	 */
-	public function save($save_keywords=true, $randomize_filename=false )
+	public function save(bool $save_keywords=true, bool $randomize_filename=false )
 	{
 		$is_new_image = ((isset($_FILES[$this->full->path->key]) && $_FILES[$this->full->path->key]["name"]));
 
@@ -533,9 +543,9 @@ class ImageLink extends KeywordSectionContent
 	 * Also updates parent's keywords if the parent object has a keyword cache.
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
 	 */
 	public function saveKeywords()
 	{
@@ -547,7 +557,7 @@ class ImageLink extends KeywordSectionContent
 	 * Prepends string to all property key values.
 	 * @param string $prefix String to prepend to all property keys.
 	 */
-	public function setPrefix( $prefix )
+	public function setPrefix( string $prefix )
 	{
 		foreach($this::vars as $property => $default_name) {
 			if (property_exists($this, $property) && $this->$property instanceof RequestInput) {
@@ -566,7 +576,7 @@ class ImageLink extends KeywordSectionContent
 	 * updates the destination directory for all the versions of the image
 	 * @param string $path Path to the image upload directory (relative to the web image root).
 	 */
-	public function setImageDestinationPath( $path )
+	public function setImageDestinationPath( string $path )
 	{
 		$this->full->image_dir = $path;
 		$this->med->image_dir = $path;
@@ -581,7 +591,7 @@ class ImageLink extends KeywordSectionContent
 	 * @param int $width Thumbnail image width.
 	 * @param int $height Thumbnail image height.
 	 */
-	public function setThumbnail ($id, $path, $width, $height)
+	public function setThumbnail (int $id, string $path, int $width, int $height)
 	{
 		$this->mini->id->value = $id;
 		$this->mini->path->value = $path;
@@ -591,10 +601,10 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Sets the value of the image label. Updates the image_link field as well
-	 * as all of the children image objects.
+	 * as all the children image objects.
 	 * @param string $title The label for the image.
 	 */
-	public function setTitle ( $title )
+	public function setTitle ( string $title )
 	{
 		$this->title->value = $title;
 		$this->full->alt->value = $title;
@@ -606,24 +616,19 @@ class ImageLink extends KeywordSectionContent
 	 * Updates the internal column that stores all keywords for this record and all of its child records used for fulltext searches.
 	 * Also updates the keywords for the parent of the image_link records.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws Exception
 	 */
 	public function updateFulltextKeywords()
 	{
-		$query = "CALL imageLinkUpdateKeywords({$this->id->value});";
-		$this->query($query);
+		$query = "CALL imageLinkUpdateKeywords(?);";
+		$this->query($query, 'i', $this->id->value);
 
 		/**
 		 * The logic here may have gotten garbled here when refactored from common_lib. Not 100% sure what the
 		 * goal of this logic is.
 		 */
-		if (class_exists("ContentCache") && method_exists("ContentCache", "updateKeywords")) {
-			if ($this->parent_id->value>0) {
-				$parent_type_id = $this->content_properties->getParentTypeID();
-				if ($parent_type_id) {
-					ContentCache::updateKeywords($this->parent_id->value, $this->content_properties);
-				}
-			}
+		if ($this->parent_id->value>0 && $this->content_properties->getParentTypeID()) {
+			ContentCache::updateKeywords($this->parent_id->value, $this->getContentPropertyId());
 		}
 	}
 
@@ -632,15 +637,15 @@ class ImageLink extends KeywordSectionContent
 	 * including operations such as extracting keywords, resizing, and renaming.
 	 * @param bool[optional] $randomize_filename Optional flag if set to true the new image file will be given a randomized filename. Defaults to FALSE.
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\OperationAbortedException
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws OperationAbortedException
+	 * @throws ResourceNotFoundException
 	 */
-	public function upload($randomize_filename=false )
+	public function upload(bool $randomize_filename=false )
 	{
 		if (!isset($_FILES[$this->full->path->key])) {
 			return;
@@ -675,13 +680,13 @@ class ImageLink extends KeywordSectionContent
 			$this->parent_id->validate();
 		}
 		catch (ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
+			$this->validationErrors[] = $ex->getMessage();
 		}
 		try {
 			$this->content_properties->id->validate();
 		}
 		catch (ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
+			$this->validationErrors[] = $ex->getMessage();
 		}
 		if (count($this->validationErrors) > 0) {
 			throw new ContentValidationException("Errors found in image set.");
@@ -699,7 +704,7 @@ class ImageLink extends KeywordSectionContent
 			parent::validateInput($exclude_properties);
 		}
 		catch(ContentValidationException $ex) {
-			; /* continue */
+			/* continue */
 		}
 		try {
 			$this->full->validateInput();
