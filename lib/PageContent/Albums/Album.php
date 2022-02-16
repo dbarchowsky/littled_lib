@@ -3,7 +3,6 @@ namespace Littled\PageContent\Albums;
 
 
 use Exception;
-use JsonSchema\Exception\ValidationException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -161,7 +160,7 @@ class Album extends KeywordSectionContent
 			return;
 		}
 
-		throw new ValidationException("A record was not specified.");
+		throw new ContentValidationException("A record was not specified.");
 	}
 
 	/**
@@ -344,7 +343,6 @@ class Album extends KeywordSectionContent
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
 	 * @throws Exception
 	 */
 	public function getDefaultPage( $read_keywords=false )
@@ -561,7 +559,6 @@ class Album extends KeywordSectionContent
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 * @throws Exception
 	 */
