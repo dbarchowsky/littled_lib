@@ -16,6 +16,7 @@ use Littled\Request\StringInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
+use stdClass;
 
 /**
  * Class ImageLink
@@ -370,13 +371,19 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Populate object's property values from a database recordset.
-	 * @param object $data Recordset containing values.
+	 * @param stdClass $data Recordset containing values.
 	 */
-	protected function fillFromRecordset( $data )
+	public function fillFromRecordset( stdClass $data)
 	{
-		$this->parent_id->value = $data->parent_id;
-		$this->content_properties->id->value = $data->type_id;
-		$this->type_name = $data->type_name;
+		if (property_exists($data, 'parent_id')) {
+			$this->parent_id->value = $data->parent_id;
+		}
+		if (property_exists($data, 'type_id')) {
+			$this->content_properties->id->value = $data->type_id;
+		}
+		if (property_exists($data, 'type_name')) {
+			$this->type_name = $data->type_name;
+		}
 		$this->title->value = $data->title;
 		$this->description->value = $data->description;
 		$this->full->id->value = $data->fullres_id;
@@ -393,10 +400,18 @@ class ImageLink extends KeywordSectionContent
 		$this->mini->path->value = $data->mini_path;
 		$this->mini->width->value = $data->mini_width;
 		$this->mini->height->value = $data->mini_height;
-		$this->slot->value = $data->slot;
-		$this->page_number->value = $data->page_number;
-		$this->access->value = $data->access;
-		$this->release_date->value = date('n/j/Y',strtotime($data->release_date));
+		if (property_exists($data, 'slot')) {
+			$this->slot->value = $data->slot;
+		}
+		if (property_exists($data, 'page_number')) {
+			$this->page_number->value = $data->page_number;
+		}
+		if (property_exists($data, 'access')) {
+			$this->access->value = $data->access;
+		}
+		if (property_exists($data, 'release_date')) {
+			$this->release_date->value = date('n/j/Y', strtotime($data->release_date));
+		}
 	}
 
 	/**

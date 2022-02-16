@@ -531,7 +531,7 @@ class Album extends KeywordSectionContent
 		$this->content_properties->read();
 
 		/* check if the gallery's content property type has been set */
-		if ($this->gallery->contentProperties->id->value<1) {
+		if ($this->gallery->content_properties->id->value<1) {
 			/* assumes that the gallery's content properties exist
 			 * as a child of this object's content type. Although -- what
 			 * happens when there is some other record attached to this
@@ -540,7 +540,7 @@ class Album extends KeywordSectionContent
 			$query = "SELECT `id` FROM `site_section` WHERE `parent_id` = ?";
 			$content_type_id = $this->getContentPropertyId();
 			$data = $this->fetchRecords($query, 'i', $content_type_id);
-			$this->gallery->contentProperties->id->value = ((count($data) > 0)?($data[0]->id):(null));
+			$this->gallery->content_properties->id->value = ((count($data) > 0)?($data[0]->id):(null));
 		}
 
 		$this->gallery->parent_id = $this->id->value;
@@ -570,9 +570,9 @@ class Album extends KeywordSectionContent
 		$this->gallery->list = array();
 		$this->gallery->list[0] =
 			new ImageLink(
-				$this->gallery->contentProperties->image_path->value,
-				$this->gallery->contentProperties->param_prefix->value,
-				$this->gallery->contentProperties->id->value,
+				$this->gallery->content_properties->image_path->value,
+				$this->gallery->content_properties->param_prefix->value,
+				$this->gallery->content_properties->id->value,
 				$this->id,
 				$page_id);
 		$this->gallery->list[0]->read($read_keywords);
@@ -792,7 +792,7 @@ class Album extends KeywordSectionContent
 		}
 		catch (ContentValidationException $ex) {
 			$this->validationErrors[] = $ex->getMessage();
-			$this->validationErrors = array_merge($this->validationErrors, $this->gallery->validationErrors);
+			$this->validationErrors = array_merge($this->validationErrors, $this->gallery->validation_errors);
 		}
 
 		if ($this->slug->value) {

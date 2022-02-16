@@ -54,7 +54,7 @@ class AlbumViewer extends SocialXPostAlbum
 	function __construct($content_type_id, $page__content_type_id, $image_dir )
 	{
 		parent::__construct($content_type_id, $page__content_type_id);
-		$this->pageContentTypeID = &$this->gallery->contentProperties->id->value;
+		$this->pageContentTypeID = &$this->gallery->content_properties->id->value;
 		$this->imagePath = $image_dir;
 		$this->id->key = $this::ID_PARAM;
 		$this->direction = new StringInput("Direction", "op", false, "", 10);
