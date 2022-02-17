@@ -22,6 +22,16 @@ class IntegerArrayContentFilter extends IntegerContentFilter
 	}
 
 	/**
+	 * Returns string containing the list of values stored in the filter delimited with commas by default. The delimiter can be overridden using the $delimiter argument.
+	 * @param string $delimiter Character or string that will separate the values in the string. Comma by default.
+	 * @return string
+	 */
+	public function formatValuesString(string $delimiter=','): string
+	{
+		return implode($delimiter, $this->value);
+	}
+
+	/**
 	 * Output markup that will preserve the filter's value in an HTML form.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ResourceNotFoundException
