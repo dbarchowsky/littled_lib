@@ -7,7 +7,7 @@ use Littled\Filters\ContentFilters;
 class ContentFiltersChild extends ContentFilters
 {
     /** @var int */
-    protected static $content_type_id = 1; /* articles */
+    protected static ?int $content_type_id = 1; /* articles */
     /** @var string */
     protected static $table_name='article';
     /** @var int */

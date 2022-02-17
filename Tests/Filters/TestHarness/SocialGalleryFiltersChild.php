@@ -7,7 +7,7 @@ use Littled\Filters\SocialGalleryFilters;
 class SocialGalleryFiltersChild extends SocialGalleryFilters
 {
     /** @var int */
-    protected static $content_type_id = 11; /* sketchbook on littledamien site */
+    protected static ?int $content_type_id = 11; /* sketchbook on littledamien site */
 
     public function __construct()
     {

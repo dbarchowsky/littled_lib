@@ -9,5 +9,5 @@ class TestTableFilters extends ContentFilters
 {
     /** @var int */
     protected static $default_listings_length = 20;
-    protected static $content_type_id = TestTable::CONTENT_TYPE_ID;
+    protected static ?int $content_type_id = TestTable::CONTENT_TYPE_ID;
 }

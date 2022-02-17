@@ -19,7 +19,7 @@ class SocialAlbumFilters extends AlbumFilters
 	/**
 	 * SocialAlbumFilters constructor
 	 * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
-	 * @param int $page__content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
+	 * @param int $page_content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
 	 * @param int[optional] $default_page_len Length of the pages of listings.
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
 	 * @throws \Littled\Exception\ConnectionException
@@ -29,9 +29,9 @@ class SocialAlbumFilters extends AlbumFilters
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct($content_type_id, $page__content_type_id, $default_page_len = 10)
+	function __construct($content_type_id, $page_content_type_id, $default_page_len = 10)
 	{
-		parent::__construct($content_type_id, $page__content_type_id, $default_page_len);
+		parent::__construct($content_type_id, $page_content_type_id, $default_page_len);
 
 		$this->posted_to_wordpress = new IntegerContentFilter("posted to wordpress", "fawp", null, null, $this::COOKIE_NAME);
 		$this->posted_to_flickr = new IntegerContentFilter("posted to flickr", "fafk", null, null, $this::COOKIE_NAME);

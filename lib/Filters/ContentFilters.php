@@ -25,11 +25,11 @@ class ContentFilters extends FilterCollection
 	public const NEXT_OP_LIST = 'list';
 
 	/** @var ContentProperties Content properties */
-	public $content_properties;
+	public ContentProperties $content_properties;
 	/** @var ContentAjaxProperties Ajax properties */
-	public $ajax_properties;
-	/** @var int */
-	protected static $content_type_id = null;
+	public ContentAjaxProperties $ajax_properties;
+	/** @var ?int */
+	protected static ?int $content_type_id = null;
 
 	/**
 	 * ContentFilters constructor.

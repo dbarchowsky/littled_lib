@@ -41,7 +41,7 @@ class AlbumViewer extends SocialXPostAlbum
 	/**
 	 * AlbumViewer constructor
 	 * @param int $content_type_id
-	 * @param int $page__content_type_id
+	 * @param int $page_content_type_id
 	 * @param string $image_dir
 	 * @throws ContentValidationException
 	 * @throws \Littled\Exception\ConfigurationUndefinedException
@@ -51,9 +51,9 @@ class AlbumViewer extends SocialXPostAlbum
 	 * @throws \Littled\Exception\NotImplementedException
 	 * @throws \Littled\Exception\RecordNotFoundException
 	 */
-	function __construct($content_type_id, $page__content_type_id, $image_dir )
+	function __construct($content_type_id, $page_content_type_id, $image_dir )
 	{
-		parent::__construct($content_type_id, $page__content_type_id);
+		parent::__construct($content_type_id, $page_content_type_id);
 		$this->pageContentTypeID = &$this->gallery->content_properties->id->value;
 		$this->imagePath = $image_dir;
 		$this->id->key = $this::ID_PARAM;
