@@ -2531,6 +2531,19 @@ if (typeof LITTLED === "undefined") {
 			$(lclSettings.dom.status_container).littled('displayStatus', data.status);
 		},
 
+        getListingsURI: function(data) {
+            if (data.ajax_listings_uri) {
+                return data.ajax_listings_uri;
+            }
+            if (data.routes) {
+                for (let i=0; i<data.routes.length; $i++) {
+                    if (data.routes[i].operation==='listings') {
+                        return data.routes[i].url;
+                    }
+                }
+            }
+        },
+
 		/**
 		 * Handler for button elements that navigate to different pages within
 		 * the listings.
@@ -2560,19 +2573,23 @@ if (typeof LITTLED === "undefined") {
 			/* retrieve operations uris for this content type */
 			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
 
+                let listings_uri = '';
 				if (data.error) {
 					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
 					return;
-				} else if (!data.ajax_listings_uri) {
-					$(lclSettings.dom.page_error_container).littled('displayError', "Handler not defined.");
-					return;
+				} else {
+                    listings_uri = methods.getListingsURI(data);
+                    if (listings_uri==='') {
+                        $(lclSettings.dom.page_error_container).littled('displayError', "Listings route not found.");
+                        return;
+                    }
 				}
 
 				/* make request to listings ajax script for this content type 
 				 * to retrieve the updated listings content
 				 */
 				$.post(
-					data.ajax_listings_uri,
+					listings_uri,
 					fd,
 					function(data2) {
 						
@@ -2622,17 +2639,17 @@ if (typeof LITTLED === "undefined") {
 				.littled('displayError', 'An URI was not provided.');
 				return;
 			}
-			let url = lclSettings.uris.record_details +
-				'?'+lclSettings.keys.record_id+'='+id +
-				'&' + $(lclSettings.dom.filters_form).serialize();
-			window.location = url;
+			window.location = lclSettings.uris.record_details +
+                '?'+lclSettings.keys.record_id+'='+id +
+                '&' + $(lclSettings.dom.filters_form).serialize();
 		},
 
 		/**
 		 * Updates a key/value pair in the query string, esp. the current page
 		 * value.
 		 * @param {string} key Key to update in the query string.
-		 * @param {mixed} value New value to assign to the key.
+		 * @param value New value to assign to the key.
+         * @param options
 		 * @returns {undefined}
 		 */
 		updateNavigationValue: function( key, value, options ) {
