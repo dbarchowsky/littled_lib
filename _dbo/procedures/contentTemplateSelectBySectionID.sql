@@ -14,6 +14,4 @@ BEGIN
     WHERE (t.`site_section_id` = p_id)
     ORDER BY t.`id`;
 
-END$$
-
-DELIMITER ;
+END $$
