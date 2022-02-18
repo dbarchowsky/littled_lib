@@ -355,6 +355,22 @@ class Address extends SerializedContent
         return static::$gmap_api_key;
     }
 
+	/**
+	 * Returns TRUE if any valid address data is found assigned to the object's properties.
+	 * @return bool
+	 */
+	public function hasAddressData(): bool
+	{
+		$data = substr($this->address1->value,0,1).
+			substr($this->address2->value,0,1).
+			substr($this->city->value,0,1).
+			substr($this->state->value,0,1).
+			substr($this->state_abbrev,0,1).
+			(string)(($this->state_id->value<1)?(''):($this->state_id->value)).
+			substr($this->zip->value,0,1);
+		return (strlen($data) > 0);
+	}
+
     /**
      * Indicates if any form data has been entered for the current instance of the object.
      * @return bool Returns true if editing an existing record, a title has been entered, or if any gallery images

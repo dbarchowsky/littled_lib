@@ -12,6 +12,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
+use Littled\Tests\Account\DataProvider\AddressTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
@@ -408,6 +409,20 @@ class AddressTest extends ContentValidationTestCase
     {
     	$this->assertMatchesRegularExpression('/\?key=.*&address/', Address::GOOGLE_MAPS_URI());
     }
+
+	/**
+	 * @dataProvider \Littled\Tests\Account\DataProvider\AddressTestDataProvider::hasAddressDataTestProvider()
+	 * @return void
+	 */
+	public function testHasAddressData(AddressTestData $data)
+	{
+		if ($data->expected===true) {
+			$this->assertTrue($data->obj->hasAddressData());
+		}
+		else {
+			$this->assertFalse($data->obj->hasAddressData());
+		}
+	}
 
     public function testHasData()
     {
