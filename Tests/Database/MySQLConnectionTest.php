@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Database;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -100,11 +99,11 @@ class MySQLConnectionTest extends TestCase
     {
         $c = new MySQLConnection();
         $query = "SELECT id, name FROM test_table where name like ? ORDER BY ?";
-        $name_filter = '%unit%';
+        $name_filter = '%foo%';
         $order_criteria = 'slot';
         $data = $c->fetchRecords($query, 'ss', $name_filter, $order_criteria);
         $this->assertGreaterThan(0, count($data));
-        $this->assertMatchesRegularExpression('/unit/', $data[0]->name);
+        $this->assertMatchesRegularExpression('/foo/', $data[0]->name);
     }
 
     /**
