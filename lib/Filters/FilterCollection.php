@@ -338,14 +338,22 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
 	/**
+	 * Retrieves the record ids of the records adjacent to the requested record in the record listings sequence.
+	 * The order of the records preserves the current filters being applied to the listings.
+	 * @param int $record_id The id of the current record from the record listings sequence.
 	 * @throws Exception
 	 */
-	public function retrieveNeighborIds(int $record_id): array
+	public function retrieveNeighborIds(int $record_id)
 	{
+		// reset previous and next record id property values
+		$this->previous_record_id = null;
+		$this->next_record_id = null;
+
+		// retrieve the current page of listings in order to look up the current record's position
 		$data = $this->retrieveListings();
 		if (count($data) < 1) {
 			// no matching records found
-			return array(null, null);
+			return;
 		}
 
 		$index = null;
@@ -356,22 +364,20 @@ class FilterCollection extends FilterCollectionProperties
 			}
 		}
 		if ($index===null) {
-			// current record not found in the listings
-			return array(null, null);
+			return;
 		}
 
-		$prev_id = $next_id = null;
 		if ($index===0) {
 			/**
 			 * Current location is the first record in the page of listings.
 			 * Load the previous page of listings to get the previous record id in the sequence.
 			 */
-			$next_id = ((count($data)>1) ? ($data[$index+1]->id) : (null));
+			$this->next_record_id = ((count($data)>1) ? ($data[$index+1]->id) : (null));
 			if ($this->page->value > 1) {
 				$this->page->value--;
 				$data = $this->retrieveListings();
 				if (count($data) > 0) {
-					$prev_id = end($data)->id;
+					$this->previous_record_id = end($data)->id;
 				}
 				$this->page->value++;
 			}
@@ -381,20 +387,20 @@ class FilterCollection extends FilterCollectionProperties
 			 * Current location is the last record in the page of listings.
 			 * Load the next page of listings to get the next record id in the sequence.
 			 */
-			$prev_id = $data[$index-1]->id;
+			$this->previous_record_id = $data[$index-1]->id;
 			if ($this->page->value<$this->page_count) {
 				$this->page->value++;
 				$data = $this->retrieveListings();
 				if (count($data) > 0) {
-					$next_id = $data[0]->id;
+					$this->next_record_id = $data[0]->id;
 				}
 				$this->page->value--;
 			}
 		}
 		else {
 			// current location has neighbors on both sides within this record set
-			return array($data[$index-1]->id, $data[$index+1]->id);
+			$this->previous_record_id = $data[$index-1]->id;
+			$this->next_record_id = $data[$index+1]->id;
 		}
-		return array($prev_id, $next_id);
 	}
 }

@@ -58,8 +58,8 @@ class FilterCollectionRetrievalTest extends TestCase
 		$f->page->value = $page;
 		$f->listings_length->value = self::TEST_LISTINGS_LENGTH;
 
-		list($prev_id, $next_id) = $f->retrieveNeighborIds($record_id);
-		$this->assertEquals($expected_prev_id, $prev_id, $msg.', previous id');
-		$this->assertEquals($expected_next_id, $next_id, $msg.', next id');
+		$f->retrieveNeighborIds($record_id);
+		$this->assertEquals($expected_prev_id, $f->previous_record_id, $msg.', previous id');
+		$this->assertEquals($expected_next_id, $f->next_record_id, $msg.', next id');
 	}
 }
