@@ -273,7 +273,7 @@ class SerializedContentUtils extends AppContentBase
 					$custom_key = $item->columnName;
 					$item->setInputValue($row->$custom_key);
 				}
-				else {
+				elseif(property_exists($row, $key)) {
 					$item->setInputValue($row->$key);
 				}
 			}
