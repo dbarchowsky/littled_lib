@@ -121,7 +121,7 @@ class FilterCollectionProperties extends AppContentBase
         return (static::getKeyPrefix().$base_key);
     }
 
-    /**
+	/**
      * Returns the halfway point in the sequence of page numbers displayed in listings page navigation.
      * @return int
      */

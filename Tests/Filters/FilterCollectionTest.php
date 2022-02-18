@@ -1,13 +1,11 @@
 <?php
 namespace Littled\Tests\Filters;
-require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Tests\Filters\Samples\FilterCollectionChild;
-use Littled\Tests\Filters\Samples\FilterCollectionChildWithProcedure;
-use Littled\Tests\Filters\Samples\FilterCollectionChildWithQuery;
+use Littled\Tests\Filters\TestHarness\FilterCollectionChild;
+use Littled\Tests\Filters\TestHarness\FilterCollectionChildWithProcedure;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -34,7 +32,7 @@ class FilterCollectionTest extends TestCase
         }
         $name = $date = $int_col = $bool_col = $slot = null;
         $stmt->bind_param('siisi', $name, $int_col, $bool_col, $date, $slot);
-        for($slot=0; $slot<5; $slot++) {
+        for($slot=1000; $slot<1005; $slot++) {
             $name = self::TEST_RECORD_LABEL.' '.sprintf('%02d', $slot);
             $date = date('Y-m-d h:i:s');
             $int_col = $slot * 11;
@@ -79,43 +77,5 @@ class FilterCollectionTest extends TestCase
         $this->assertMatchesRegularExpression('/^CALL testTableListingsSelect\(/', $args[0]);
         $this->assertEquals('iisiiss', $args[1]);
         $this->assertNull($args[2]); /* page filter, the first filter value in the list */
-    }
-
-    /**
-     * @return void
-     * @throws Exception
-     */
-    function testRetrieveListings()
-    {
-        $fc = new FilterCollectionChildWithProcedure();
-        $data = $fc->retrieveListings();
-        $this->assertGreaterThan(0, count($data));
-        $row = $data[0];
-        $this->assertIsString($row->name);
-        $this->assertGreaterThan(0, $fc->record_count);
-    }
-
-    /**
-     * @return void
-     * @throws Exception
-     */
-    function testRetrieveListingsWithQuery()
-    {
-        $fc = new FilterCollectionChildWithQuery();
-
-        // no filters
-        $data = $fc->retrieveListings();
-        $this->assertGreaterThan(0, count($data));
-        $this->assertGreaterThan(0, $fc->record_count);
-
-        // filter that matches some records
-        $fc->name_filter->value = 'unit';
-        $data = $fc->retrieveListings();
-        $this->assertGreaterThan(0, count($data));
-
-        // filter that matches no records
-        $fc->name_filter->value = 'string that does not match';
-        $data = $fc->retrieveListings();
-        $this->assertCount(0, $data);
     }
 }

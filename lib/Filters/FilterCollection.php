@@ -336,4 +336,65 @@ class FilterCollection extends FilterCollectionProperties
         }
         return $data;
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function retrieveNeighborIds(int $record_id): array
+	{
+		$data = $this->retrieveListings();
+		if (count($data) < 1) {
+			// no matching records found
+			return array(null, null);
+		}
+
+		$index = null;
+		foreach ($data as $row) {
+			if ($row->id === $record_id) {
+				$index = (int)$row->index;
+				break;
+			}
+		}
+		if ($index===null) {
+			// current record not found in the listings
+			return array(null, null);
+		}
+
+		$prev_id = $next_id = null;
+		if ($index===0) {
+			/**
+			 * Current location is the first record in the page of listings.
+			 * Load the previous page of listings to get the previous record id in the sequence.
+			 */
+			$next_id = ((count($data)>1) ? ($data[$index+1]->id) : (null));
+			if ($this->page->value > 1) {
+				$this->page->value--;
+				$data = $this->retrieveListings();
+				if (count($data) > 0) {
+					$prev_id = end($data)->id;
+				}
+				$this->page->value++;
+			}
+		}
+		elseif ($index===count($data)-1) {
+			/**
+			 * Current location is the last record in the page of listings.
+			 * Load the next page of listings to get the next record id in the sequence.
+			 */
+			$prev_id = $data[$index-1]->id;
+			if ($this->page->value<$this->page_count) {
+				$this->page->value++;
+				$data = $this->retrieveListings();
+				if (count($data) > 0) {
+					$next_id = $data[0]->id;
+				}
+				$this->page->value--;
+			}
+		}
+		else {
+			// current location has neighbors on both sides within this record set
+			return array($data[$index-1]->id, $data[$index+1]->id);
+		}
+		return array($prev_id, $next_id);
+	}
 }

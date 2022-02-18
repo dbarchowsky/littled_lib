@@ -26,8 +26,9 @@ BEGIN
              t.`int_col`,
              t.`bool_col`,
              t.`date`,
-             t.`slot`
-         FROM `test_table` t
+             t.`slot`,
+             (@row:=@row+1) as `index`
+         FROM `test_table` t, (SELECT @row:=-1) r
          WHERE (NULLIF(?, '''') IS NULL OR t.`name` LIKE ?)
            AND (? IS NULL OR t.`int_col`=?)
            AND (? IS NULL OR t.`bool_col`=?)
@@ -49,5 +50,3 @@ BEGIN
     SELECT FOUND_ROWS() INTO total_matches;
 
 END $$
-
-DELIMITER ;

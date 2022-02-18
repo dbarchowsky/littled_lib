@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\Filters\TestHarness;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;

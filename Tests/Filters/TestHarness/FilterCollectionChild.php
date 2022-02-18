@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\Filters\TestHarness;
 
 use Littled\Filters\BooleanContentFilter;
 use Littled\Filters\DateContentFilter;
