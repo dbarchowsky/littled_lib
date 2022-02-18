@@ -28,8 +28,8 @@ class ContentFilters extends FilterCollection
 	public ContentProperties $content_properties;
 	/** @var ContentAjaxProperties Ajax properties */
 	public ContentAjaxProperties $ajax_properties;
-	/** @var int */
-	protected static int $content_type_id;
+	/** @var ?int */
+	protected static ?int $content_type_id=null;
 
 	/**
 	 * ContentFilters constructor.
