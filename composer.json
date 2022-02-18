@@ -1,13 +1,13 @@
 {
-  "name": "dbarchowsky/littled",
-  "autoload": {
-    "psr-4": {
-      "Littled\\": "lib/",
-      "Littled\\Tests\\": "Tests/"
+    "name": "dbarchowsky/littled",
+    "autoload": {
+        "psr-4": {
+            "Littled\\": "lib/",
+            "Littled\\Tests\\": "Tests/"
+        }
+    },
+    "require-dev": {
+        "guzzlehttp/guzzle": "^7.0",
+        "phpunit/phpunit": "^9"
     }
-  },
-  "require-dev": {
-    "guzzlehttp/guzzle": "^7.0",
-    "phpunit/phpunit": "^9"
-  }
 }
