@@ -155,7 +155,6 @@ if (typeof LITTLED === "undefined") {
 			}
 		},
 
-
 		isObjectEmpty: function(obj) {
 			for (let prop in obj) {
 				if (Object.prototype.hasOwnProperty.call(obj, prop)) {
@@ -164,7 +163,20 @@ if (typeof LITTLED === "undefined") {
 			}
 			return true;
 		},
-		
+
+		setCookie: function(name, value, days) {
+			let expires = '';
+			if (days) {
+				let date = new Date();
+				date.setTime(date.getTime() + (days*24*60*60*1000));
+				expires = "; expires=" + date.toUTCString();
+			}
+			if (value) {
+				value.encodeURIComponent(value)
+			}
+			document.cookie = name + '=' + (value || '') + expires + '; path=/';
+		},
+
 		/**
 		 * @deprecated Use $.littled.getDomain() instead.
 		 */
