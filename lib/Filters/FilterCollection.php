@@ -119,11 +119,6 @@ class FilterCollection extends FilterCollectionProperties
 	 */
 	protected function formatListingsQuery(): array
 	{
-        /**
-         * In child classes the first element of the array is a query string.
-         * The 2nd element of the array is a string describing the types of the following elements, e.g. 'iis' for int, int, string.
-         * The remaining elements are values to bind to the query.
-         */
 		return array('', '', null);
 	}
 
@@ -159,6 +154,15 @@ class FilterCollection extends FilterCollectionProperties
         }
         return ($this->query_string);
     }
+
+	/**
+	 * Returns the procedure call, type string, and arguments used in the searchTitles() method.
+	 * @return array
+	 */
+	protected function formatTitleSearchQuery(): array
+	{
+		return array('', '', null);
+	}
 
     /**
      * Returns the index within the set of all records matching the listings filters of the first record to be
@@ -402,5 +406,23 @@ class FilterCollection extends FilterCollectionProperties
 			$this->previous_record_id = $data[$index-1]->id;
 			$this->next_record_id = $data[$index+1]->id;
 		}
+	}
+
+	/**
+	 * Retrieves recordset containing codes or titles matching the current keyword filter that can then be used to populate autocomplete routines.
+	 * @return array Record set containing matching package records
+	 * @throws Exception
+	 */
+	public function searchTitles(): array
+	{
+		$args = $this->formatTitleSearchQuery();
+		if (count($args) > 1 && $args[1]) {
+			$data = call_user_func_array([$this, 'fetchRecords'], $args);
+		}
+		else {
+			$data = $this->fetchRecords($args[0]);
+		}
+		$this->getProcedurePageCount();
+		return $data;
 	}
 }

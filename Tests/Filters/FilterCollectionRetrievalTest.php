@@ -10,6 +10,26 @@ class FilterCollectionRetrievalTest extends TestCase
 {
 	public const TEST_LISTINGS_LENGTH = 5;
 
+	/**
+	 * @throws Exception
+	 */
+	function testSearchTitles()
+	{
+		$f = new TestTableFilters();
+		$f->page->value = null;
+		$f->listings_length->value = null;
+		$f->name->value = '';
+
+		$data = $f->searchTitles();
+		$data1_size = count($data);
+		$this->assertGreaterThan(0, $data1_size);
+
+		$f->name->value = 'foo';
+		$data = $f->searchTitles();
+		$this->assertGreaterThan(0, count($data));
+		$this->assertGreaterThan(count($data), $data1_size);
+	}
+
     /**
      * @return void
      * @throws Exception

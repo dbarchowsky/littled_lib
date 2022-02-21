@@ -44,4 +44,14 @@ class TestTableFilters extends ContentFilters
 			&$this->date_after->value,
 			&$this->date_before->value);
 	}
+
+	protected function formatTitleSearchQuery(): array
+	{
+		return array(
+			'CALL testTableTitlesSelect (?,?,?,@total_matches)',
+			'iis',
+			&$this->page->value,
+			&$this->listings_length->value,
+			&$this->name->value);
+	}
 }
