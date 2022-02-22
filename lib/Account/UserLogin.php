@@ -3,11 +3,11 @@
 namespace Littled\Account;
 
 
+use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Request\IntegerSelect;
+use Littled\Exception\InvalidCredentialsException;
 use Littled\Request\StringTextField;
 use Littled\Request\StringPasswordField;
 
@@ -18,39 +18,24 @@ use Littled\Request\StringPasswordField;
  */
 class UserLogin extends UserAccount
 {
-	/** @var string Name of variable holding user name value for authentication purposes. */
-	const USERNAME_PARAM = "sulg";
-	/** @var string Name of variable holding password value for authentication purposes. */
-	const PASSWORD_PARAM = "supw";
-	/** @var string Name of variable holding requested access value. */
-	const ACCESS_PARAM = "suac";
-
-	/** @var int Basic credentials token value. */
-	const BASIC_AUTHENTICATION = 1;
-	/** @var int Admin credentials token value. */
-	const ADMIN_AUTHENTICATION = 2;
+	/** @var string Name of variable holding username value for authentication purposes. */
+	const USERNAME_KEY = "sulg";
 
 	/** @var StringTextField Pointer to username/login property. */
-	public $login;
-	/** @var StringPasswordField Account password. */
-	public $password;
-	/** @var IntegerSelect Access level of this user account. */
-	public $access;
+	public StringTextField $login;
 	/** @var StringPasswordField Password confirmation for registration and account updates. */
-	public $password_confirm;
+	public StringPasswordField $password_confirm;
 	/** @var StringPasswordField $new_password Container for new password form input. */
-	public $new_password;
+	public StringPasswordField $new_password;
 	/* @var StringTextField Alias for $login class property */
-	public $uname;
-	/* @var StringTextField Alias for $login class property */
-	public $username;
+	public StringTextField $uname;
+	/** @var StringTextField */
+	public StringTextField $username;
 
 	function __construct($id = null)
 	{
 		parent::__construct($id);
-		$this->login = new StringTextField("Username", self::USERNAME_PARAM, true, "", 50);
-		$this->password = new StringPasswordField("Password", self::PASSWORD_PARAM, true, "", 256);
-		$this->access = new IntegerSelect("Access", self::ACCESS_PARAM, true, self::BASIC_AUTHENTICATION);
+		$this->login = new StringTextField("Username", self::USERNAME_KEY, true, "", 50);
 		$this->password_confirm = new StringPasswordField("Confirm Password", "pwdConfirm", true, "", 256);
 		$this->new_password = new StringPasswordField('New Password', 'newPswd', false, '', 50);
 
@@ -62,7 +47,7 @@ class UserLogin extends UserAccount
 	}
 
 	/**
-	 * Overrides parent routine to copy email value into user name field.
+	 * Overrides parent routine to copy email value into username field.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
 	public function collectRequestData(?array $src=null): void
@@ -78,23 +63,22 @@ class UserLogin extends UserAccount
 	public function collectFromSession()
 	{
 		parent::collectFromSession();
-		if (isset($_SESSION[$this->username->key]))
-		{
+		$this->username->value='';
+		$this->password->value='';
+		$this->access->value=self::DISABLED;
+		if (isset($_SESSION[$this->username->key])) {
 			$this->username->value=$_SESSION[$this->username->key];
 		}
-		if (isset($_SESSION[$this->password->key]))
-		{
+		if (isset($_SESSION[$this->password->key])) {
 			$this->password->value=$_SESSION[$this->password->key];
 		}
-		if (isset($_SESSION[$this->access->key]))
-		{
+		if (isset($_SESSION[$this->access->key])) {
 			$this->access->value=$_SESSION[$this->access->key];
 		}
 	}
 
 	/**
-	 * Indicates if any form data has been entered for the current instance of the object.
-	 * @return bool  Returns true if editing an existing record, a title has been entered, or if any gallery images have been uploaded. Most likely should be overridden in derived classes.
+	 * @inheritDoc
 	 */
 	public function hasData(): bool
 	{
@@ -106,16 +90,34 @@ class UserLogin extends UserAccount
 	}
 
 	/**
+	 * Checks the current login state. Throws InvalidCredentialsException if login state is not available or if the
+	 * login state does not match the requested access level.
+	 * @param int $access_level Access level needed for the login.
+	 * @return void
+	 * @throws InvalidCredentialsException
+	 */
+	public function requiresLogin(int $access_level)
+	{
+		$this->collectFromSession();
+		if ($this->username->value==='' || $this->password->value==='') {
+			throw new InvalidCredentialsException('User is not logged in.');
+		}
+		if ($this->access->value===null || $this->access->value<=UserAccount::DISABLED || $this->access->value < $access_level) {
+			throw new InvalidCredentialsException('User does not have access.');
+		}
+	}
+
+	/**
 	 * Validates form data submitted from registration form.
 	 * Password is not entered during registration. It is assigned after the person has been approved.
-	 * Throws ContentValidationException if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
-	 * @param array[optional] $exclude_properties Optional array of properties to exclude from validation.
+	 * Throws ContentValidationException if the form data is not valid, with the specific errors returned to the Exception's getMessage method.
+	 * @param array $exclude_properties Optional array of properties to exclude from validation.
+	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
 	 */
-	public function validateInput($exclude_properties=[])
+	public function validateInput(array $exclude_properties=[])
 	{
 		try {
 			parent::validateInput();
@@ -128,7 +130,7 @@ class UserLogin extends UserAccount
 
 		try {
 			$this->validateUserName();
-		} catch (ContentValidationException $ex) {
+		} catch (Exception $ex) {
 			$this->addValidationError($ex->getMessage());
 			/* continue validating other properties */
 		}
@@ -140,25 +142,23 @@ class UserLogin extends UserAccount
 
 	/**
 	 * Looks up username in database to confirm that it is not already in use.
-	 * Throws exception if the username is not valid, with the specific errors returned in the Exception's getMessage method.
+	 * Throws exception if the username is not valid, with the specific errors returned to the Exception's getMessage method.
 	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
+	 * @throws Exception
 	 */
 	public function validateUserName()
 	{
-		$this->connectToDatabase();
-
-		$query = "SELECT id FROM `site_user` ".
-			"WHERE (`login` = ".$this->uname->escapeSQL($this->mysqli).") ";
-		if ($this->id->value>0)
-		{
-			$query .= "AND (id != {$this->id->value})";
+		$query = "SEL"."ECT id FROM `".static::getTableName()."` WHERE (`login` = ?)";
+		$types_str = 's';
+		$vars = [$this->username->value];
+		if ($this->id->value>0) {
+			$query .= "AND (id != ?)";
+			$types_str .= 'i';
+			$vars[]= $this->id->value;
 		}
-
-		$rs = $this->fetchRecords($query);
-		if (count($rs) > 0) {
+		array_unshift($vars, $query, $types_str);
+		$data = call_user_func_array([$this, 'fetchRecords'], $vars);
+		if (count($data) > 0) {
 			throw new ContentValidationException("User name already exists.");
 		}
 	}

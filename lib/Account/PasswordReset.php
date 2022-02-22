@@ -119,7 +119,7 @@ class PasswordReset extends UserAccount
 		}
 		$body = str_replace("[[username]]", $this->uname->value, $body);
 		$body = str_replace("[[password]]", $this->password->value, $body);
-		$body = str_replace("[[account url]]", self::getAccountActivationURI(), $body);
+		$body = str_replace("[[account url]]", self::getAccountActivationuri(), $body);
 
 		$mail = new mail_class(
 			$this->sender_name,

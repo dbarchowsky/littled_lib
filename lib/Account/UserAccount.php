@@ -5,9 +5,10 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\Request\IntegerSelect;
+use Littled\Request\StringPasswordField;
 use Littled\Social\Mailer;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
@@ -20,40 +21,54 @@ use Exception;
  */
 class UserAccount extends SerializedContent
 {
-	/** @var int Disabled value. */
-	const DISABLED = 0;
-	/** @var string Name of variable holding record id value. */
-	const ID_PARAM = "suid";
 	/** @var int Type of site content represented by user account records, as found in the site_content table. */
-	const SECTION_ID = 10;
-	/** @var string Name of table holding user account records. */
-	const TABLE_NAME = "site_user";
+	const SITE_SECTION_ID        = 10;
+	/** @var string */
+	protected static $table_name = 'site_user';
+	/** @var string AES key used to encrypt passwords */
+	protected static string $aes_key='';
+	/** @var int Disabled value. */
+	const DISABLED              = 0;
+	/** @var int Basic credentials token value. */
+	const BASIC_AUTHENTICATION  = 1;
+	/** @var int Admin credentials token value. */
+	const ADMIN_AUTHENTICATION  = 2;
+	/** @var string Name of variable holding record id value. */
+	const ID_KEY                = "suid";
+	/** @var string Name of variable holding password value for authentication purposes. */
+	const PASSWORD_KEY          = "supw";
+	/** @var string Name of variable holding requested access value. */
+	const ACCESS_KEY            = "suac";
 
 	/** @var string Account activation URI. */
-	protected static $accountActivationURI  = '';
+	protected static string $account_activation_uri  = '';
 	/** @var string Email address to display for support issues. */
-	protected static $contactEmail = '';
+	protected static string $contact_email = '';
 	/** @var string Registration notice email template path. */
-	protected static $registrationNoticeEmailTemplate = '';
+	protected static string $registration_notice_email_template = '';
 
 	/** @var IntegerInput Account record id. */
     public $id;
-    /** @var StringTextField User name/login. */
-    public $uname;
+    /** @var StringTextField Username/login. */
+    public StringTextField $uname;
     /** @var StringTextField Pointer to username/login property. */
-    public $username;
-    /** @var Address Address information for the user account: name, street address, phone, etc. */
-    public $contact_info;
-    /** @var BooleanCheckbox Flag allowing user account to opt in or out of email contact. */
-    public $email_opt_in;
-    /** @var BooleanCheckbox Flag allowing user accout to opt in or out of postal contact. */
-    public $postal_opt_in;
+    public StringTextField $username;
+	/** @var StringPasswordField Pointer to username/login property. */
+	public StringPasswordField $password;
+	/** @var Address */
+	public Address $contact_info;
+	/** @var IntegerSelect  */
+	public IntegerSelect $access;
+	/** @var BooleanCheckbox Flag allowing user account to opt in or out of email contact. */
+    public BooleanCheckbox $email_opt_in;
+    /** @var BooleanCheckbox Flag allowing user account to opt in or out of postal contact. */
+    public BooleanCheckbox $postal_opt_in;
     /** @var IntegerInput Pointer to the record id of the contact information record linked to this user account. */
-    public $contact_id;
+    public IntegerInput $contact_id;
     /** @var string Shortcut to the first and last name associated with the account. */
-    public $fullname;
+    public string $fullname;
 	/** @var string Name of sender for password reset emails. */
-	protected $sender_name;
+	protected string $sender_name;
 
 	/**
 	 * UserAccount constructor.
@@ -62,10 +77,12 @@ class UserAccount extends SerializedContent
     public function __construct($id = null)
     {
 	    parent::__construct($id);
-	    $this->id = new IntegerInput("Announcement id", self::ID_PARAM, false);
+	    $this->id = new IntegerInput("Announcement id", self::ID_KEY, false);
 	    $this->contact_info = new Address();
 	    $this->email_opt_in = new BooleanCheckbox("Email Opt-In", "sueo", false, false);
 	    $this->postal_opt_in = new BooleanCheckbox("Snail Mail Opt-In", "suso", false, false);
+	    $this->password = new StringPasswordField("Password", self::PASSWORD_KEY, true, "", 256);
+	    $this->access = new IntegerSelect("Access", self::ACCESS_KEY, true, self::BASIC_AUTHENTICATION);
 
 	    $this->contact_id = &$this->contact_info->id;
 	    $this->contact_info->first_name->required = false;
@@ -81,36 +98,43 @@ class UserAccount extends SerializedContent
     }
 
 	/**
-	 * Static function returning the name of the table holding user account records.
-	 * @return string Name of table holding user account records.
-	 */
-	public static function TABLE_NAME(): string
-	{
-		return (self::TABLE_NAME);
-	}
-
-	/**
 	 * Fills object properties from data stored in the current session.
 	 * @return void
 	 */
 	public function collectFromSession ( )
 	{
-		if (isset($_SESSION[$this->id->key]))
-		{
+		if (isset($_SESSION[$this->id->key])) {
 			$this->id->value=$_SESSION[$this->id->key];
 		}
-		if (isset($_SESSION[$this->contact_info->first_name->key]))
-		{
+		if (isset($_SESSION[$this->contact_info->first_name->key])) {
 			$this->contact_info->first_name->value=$_SESSION[$this->contact_info->first_name->key];
 		}
-		if (isset($_SESSION[$this->contact_info->last_name->key]))
-		{
+		if (isset($_SESSION[$this->contact_info->last_name->key])) {
 			$this->contact_info->last_name->value=$_SESSION[$this->contact_info->last_name->key];
 		}
-		if (isset($_SESSION[$this->contact_info->email->key]))
-		{
+		if (isset($_SESSION[$this->contact_info->email->key])) {
 			$this->contact_info->email->value=$_SESSION[$this->contact_info->email->key];
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function generateUpdateQuery(): ?array
+	{
+		$key = static::getAESKey();
+		return array(
+			'userAccountUpdate(@record_id,?,?,?,?,?,?,?)',
+			'ssiiiis',
+			&$this->username->value,
+			&$this->password->value,
+			&$this->contact_info->id->value,
+			&$this->access->value,
+			&$this->email_opt_in->value,
+			&$this->postal_opt_in->value,
+			$key
+		);
 	}
 
 	/**
@@ -120,11 +144,23 @@ class UserAccount extends SerializedContent
 	 */
 	public static function getAccountActivationURI(): string
 	{
-		if (static::$accountActivationURI == '')
-		{
+		if (static::$account_activation_uri==='') {
 			throw new ConfigurationUndefinedException("Account activation URI not configured.");
 		}
-		return (static::$accountActivationURI);
+		return (static::$account_activation_uri);
+	}
+
+	/**
+	 * AES key getter.
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getAESKey(): string
+	{
+		if (static::$aes_key==='') {
+			throw new ConfigurationUndefinedException('Key not set.');
+		}
+		return static::$aes_key;
 	}
 
 	/**
@@ -134,11 +170,11 @@ class UserAccount extends SerializedContent
 	 */
 	public static function getContactEmail(): string
 	{
-		if (static::$accountActivationURI == '')
+		if (static::$account_activation_uri==='')
 		{
 			throw new ConfigurationUndefinedException("Contact email not configured.");
 		}
-		return (static::$contactEmail);
+		return (static::$contact_email);
 	}
 
 	/**
@@ -148,11 +184,11 @@ class UserAccount extends SerializedContent
 	 */
 	public static function getRegistrationNoticeEmailTemplate(): string
 	{
-		if (static::$registrationNoticeEmailTemplate == '')
+		if (static::$registration_notice_email_template==='')
 		{
 			throw new ConfigurationUndefinedException("Registration notice email template path not configured.");
 		}
-		return (static::$registrationNoticeEmailTemplate);
+		return (static::$registration_notice_email_template);
 	}
 
 	/**
@@ -165,8 +201,7 @@ class UserAccount extends SerializedContent
 	}
 
 	/**
-	 * Indicates if any form data has been entered for the current instance of the object.
-	 * @return bool  Returns true if editing an existing record, a title has been entered, or if any gallery images have been uploaded. Most likely should be overridden in derived classes.
+	 * @inheritDoc
 	 */
 	public function hasData ( ): bool
 	{
@@ -191,7 +226,7 @@ class UserAccount extends SerializedContent
 		$body = fread($f, filesize($template_path));
 		fclose($f);
 
-		$cms_uri = self::getAccountActivationURI()."?".self::ID_PARAM."={$this->id->value}";
+		$cms_uri = self::getAccountActivationURI()."?".self::ID_KEY."={$this->id->value}";
 
 		/* update email template with login data */
 		$body = str_replace("[[username]]", $this->uname->value, $body);
@@ -217,7 +252,17 @@ class UserAccount extends SerializedContent
 	 */
 	public static function setAccountActivationURI(string $uri)
 	{
-		static::$accountActivationURI = $uri;
+		static::$account_activation_uri = $uri;
+	}
+
+	/**
+	 * AES key setter.
+	 * @param string $key
+	 * @return void
+	 */
+	public static function setAESKey(string $key)
+	{
+		static::$aes_key = $key;
 	}
 
 	/**
@@ -226,7 +271,7 @@ class UserAccount extends SerializedContent
 	 */
 	public function setContactEmail(string $email)
 	{
-		static::$contactEmail = $email;
+		static::$contact_email = $email;
 	}
 
 	/**
@@ -236,11 +281,10 @@ class UserAccount extends SerializedContent
 	 */
 	public static function setRegistrationNoticeEmailTemplate(string $path)
 	{
-		if (!file_exists($path))
-		{
+		if (!file_exists($path)) {
 			throw new ResourceNotFoundException("Registration notice email template not found.");
 		}
-		static::$registrationNoticeEmailTemplate = $path;
+		static::$registration_notice_email_template = $path;
 	}
 
 	/**
@@ -255,14 +299,13 @@ class UserAccount extends SerializedContent
 	/**
 	 * Validates form data submitted from registration form.
 	 * Password is not entered during registration. It is assigned after the person has been approved.
-	 * Throws ContentValidationException if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
+	 * Throws ContentValidationException if the form data is not valid, with the specific errors returned to the Exception's getMessage method.
 	 * @param array $exclude_properties Optional array of properties to exclude from validation.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
 	 */
-	public function validateInput($exclude_properties=[])
+	public function validateInput(array $exclude_properties=[])
 	{
 		try {
 			parent::validateInput();
@@ -274,8 +317,7 @@ class UserAccount extends SerializedContent
 			!$this->contact_info->company->value) {
 			$this->addValidationError("Either first name and last name or company must be entered.");
 		}
-		if (!$this->contact_info->email->error)
-		{
+		if (!$this->contact_info->email->error) {
 			$this->contact_info->validateUniqueEmail();
 		}
 

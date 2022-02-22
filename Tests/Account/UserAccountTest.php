@@ -66,14 +66,14 @@ class UserAccountTest extends TestCase
 	public function testAccountActivationURI ()
 	{
 		self::expectException(ConfigurationUndefinedException::class);
-		$uri = UserAccount::getAccountActivationURI();
+		$uri = UserAccount::getAccountActivationuri();
 
 		UserAccount::setAccountActivationURI('https://foobar.com/biz/bash/');
-		self::assertEquals('https://foobar.com/biz/bash', UserAccount::getAccountActivationURI());
+		self::assertEquals('https://foobar.com/biz/bash', UserAccount::getAccountActivationuri());
 
 		$obj = new UserAccount();
-		self::assertEquals('https://foobar.com/biz/bash', $this->obj->getAccountActivationURI());
-		self::assertEquals('https://foobar.com/biz/bash', $obj->getAccountActivationURI());
+		self::assertEquals('https://foobar.com/biz/bash', $this->obj->getAccountActivationuri());
+		self::assertEquals('https://foobar.com/biz/bash', $obj->getAccountActivationuri());
 	}
 
 	public function testCollectFromInput()
