@@ -40,7 +40,7 @@ class LittledGlobals
 	/** @var string Request variable flag indicating that listings are being filtered. */
 	const P_FILTER = 'filter';
 	/** @var string Request variable containing status message. */
-	const P_MESSAGE = 'msg';
+	const INFO_MESSAGE_KEY = 'msg';
 	/** @var string Request variable name containing referring URLs. */
 	const P_REFERER = 'ref';
 

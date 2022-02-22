@@ -39,7 +39,7 @@ class PageUtils
 	 */
 	public static function doRedirect($target_uri='', $msg=null)
 	{
-		$_SESSION[LittledGlobals::P_MESSAGE] = $msg;
+		$_SESSION[LittledGlobals::INFO_MESSAGE_KEY] = $msg;
 
 		$uri = Validation::collectStringInput(LittledGlobals::P_REFERER, FILTER_SANITIZE_URL);
 		if (!$uri) {
