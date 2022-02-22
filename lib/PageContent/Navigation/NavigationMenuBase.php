@@ -9,23 +9,16 @@ use Littled\PageContent\ContentUtils;
 class NavigationMenuBase
 {
 	/** @var string Path to template used to display the breadcrumbs. */
-	protected static $menu_template_path = "";
+	protected static string $menu_template_path='';
 	/** @var string Class name of the class used to render the breadcrumb nodes. */
-	protected static $node_type = '';
+	protected static string $node_type='';
 
-	/** @var BreadcrumbsNode Pointer to first node in the list of breadcrumbs. */
-	public $first;
-	/** @var BreadcrumbsNode Pointer to last node in the list of breadcrumbs. */
-	public $last;
+	/** @var NavigationMenuNode Pointer to first node in the list of breadcrumbs. */
+	public NavigationMenuNode $first;
+	/** @var NavigationMenuNode Pointer to last node in the list of breadcrumbs. */
+	public NavigationMenuNode $last;
 	/** @var string CSS class to apply to the breadcrumb menu parent element */
-	public $css_class;
-
-	function __construct()
-	{
-		$this->first = null;
-		$this->last = null;
-		$this->css_class = '';
-	}
+	public string $css_class='';
 
 	/**
 	 * Adds menu item to navigation menu and sets its properties.

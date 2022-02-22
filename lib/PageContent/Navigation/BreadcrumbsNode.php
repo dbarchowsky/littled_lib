@@ -15,7 +15,7 @@ use Littled\Exception\ResourceNotFoundException;
 class BreadcrumbsNode extends NavigationNodeBase
 {
 	/** @var string */
-	protected static $node_template_path = '';
+	protected static string $node_template_path = '';
 	
     /**
      * Class constructor.

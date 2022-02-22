@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent;
 
-use Littled\Exception\ConfigurationUndefinedException;
+use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Metadata\Preload;
@@ -19,21 +19,21 @@ use Exception;
 class PageConfig 
 {
 	/** @var string CSS class to apply to the page content. */
-	public static $contentCSSClass = '';
+	public static string $contentCSSClass = '';
 	/** @var string[] List of css includes. */
-	public static $stylesheets = array();
+	public static array $stylesheets = array();
 	/** @var string[] List of script includes. */
-	public static $scripts = array();
+	public static array $scripts = array();
 	/** @var Preload[] List of preload images. */
-	public static $preloads = array();
+	public static array $preloads = array();
 	/** @var PageMetadata Site metadata */
-	protected static $metadata;
+	protected static PageMetadata $metadata;
 	/** @var string Status message passed from one page to another */
-	protected static $status;
+	protected static string $status;
 	/** @var NavigationMenu Page utility links list. */
-	protected static $utilityLinks;
+	protected static NavigationMenu $utilityLinks;
 	/** @var Breadcrumbs Page breadcrumb list. */
-	protected static $breadcrumbs;
+	protected static Breadcrumbs $breadcrumbs;
 
 	/**
 	 * Adds breadcrumb node.
@@ -133,16 +133,12 @@ class PageConfig
 
 	/**
 	 * Collects page status value as defined in request variables (e.g. GET, POST, session)
-	 * @throws ConfigurationUndefinedException
 	 */
 	public static function collectPageStatus( )
 	{
-		if (!defined('P_MESSAGE')) {
-			throw new ConfigurationUndefinedException("P_MESSAGE not defined in app settings.");
-		}
-		static::$status = Validation::collectStringInput(P_MESSAGE);
-		if(isset($_SESSION[P_MESSAGE])) {
-			unset($_SESSION[P_MESSAGE]);
+		static::$status = Validation::collectStringRequestVar(LittledGlobals::INFO_MESSAGE_KEY);
+		if(isset($_SESSION[LittledGlobals::INFO_MESSAGE_KEY])) {
+			unset($_SESSION[LittledGlobals::INFO_MESSAGE_KEY]);
 		}
 	}
 

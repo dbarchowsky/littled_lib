@@ -16,15 +16,15 @@ class NavigationMenuNode extends NavigationNodeBase
 	protected static $node_template_path = '';
 
 	/** @var string Extra attributes to add to the node HTML tag, e.g. "data-id" */
-	public $attributes;
+	public string $attributes;
 	/** @var string Description */
-	public $title;
+	public string $title;
 	/** @var string Path to image to display as content of the menu node. */
-	public $image_path;
+	public string $image_path;
 	/** @var int Nesting level of the node. */
-	public $level;
+	public int $level;
 	/** @var string Named browser target. For opening new browser windows, e.g. "_blank" */
-	public $target;
+	public string $target;
 
 	/**
 	 * Class constructor.

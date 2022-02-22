@@ -9,20 +9,20 @@ use Littled\PageContent\ContentUtils;
 class NavigationNodeBase
 {
 	/** @var string */
-	protected static $node_template_path = '';
+	protected static string $node_template_path = '';
 
 	/** @var string CSS class to apply to the node. */
-	public $css_class;
+	public string $css_class;
 	/** @var string DOM id for the node element */
-	public $dom_id;
+	public string $dom_id;
 	/** @var string Node label to display on the page. */
-	public $label;
+	public string $label;
 	/** @var NavigationMenuNode Link to next node in the menu. */
-	public $next_node;
+	public NavigationMenuNode $next_node;
 	/** @var NavigationMenuNode Link to previous node in the menu. */
-	public $prev_node;
+	public NavigationMenuNode $prev_node;
 	/** @var string URL that the node links to */
-	public $url;
+	public string $url;
 
 	/**
 	 * Class constructor
