@@ -64,6 +64,16 @@ class ContentUtils
         printf($fmt, htmlspecialchars($msg, ENT_QUOTES, $encoding));
     }
 
+	/**
+	 * Redirects to URI.
+	 * @param string $uri
+	 * @return void
+	 */
+	public static function redirectToURI(string $uri)
+	{
+		header("Location: $uri");
+	}
+
     /**
      * Inserts data into a template file and renders the result.
      * @param string $template_path Path to template to render.
