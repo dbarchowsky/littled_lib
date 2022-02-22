@@ -18,6 +18,8 @@ use Littled\Request\StringPasswordField;
  */
 class UserLogin extends UserAccount
 {
+	/** @var string */
+	protected static string $login_uri='';
 	/** @var string Name of variable holding username value for authentication purposes. */
 	const USERNAME_KEY = "sulg";
 
@@ -78,6 +80,19 @@ class UserLogin extends UserAccount
 	}
 
 	/**
+	 * Login URI getter.
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getLoginURI(): string
+	{
+		if (static::$login_uri==='') {
+			throw new ConfigurationUndefinedException('Login URI value not set.');
+		}
+		return static::$login_uri;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function hasData(): bool
@@ -105,6 +120,16 @@ class UserLogin extends UserAccount
 		if ($this->access->value===null || $this->access->value<=UserAccount::DISABLED || $this->access->value < $access_level) {
 			throw new InvalidCredentialsException('User does not have access.');
 		}
+	}
+
+	/**
+	 * Login URI setter.
+	 * @param string $uri
+	 * @return void
+	 */
+	public static function setLoginURI(string $uri)
+	{
+		static::$login_uri = $uri;
 	}
 
 	/**
