@@ -23,7 +23,7 @@ class Breadcrumbs extends NavigationMenuBase
 	function addNode (string $label, string $url='', string $dom_id='', string $css_class='')
 	{
 		/** @var $node BreadcrumbsNode */
-		$node_type = static::$node_type;
+		$node_type = static::getNodeType();
 		$node = new $node_type($label, $url, $dom_id, $css_class);
 		if (isset($this->first)) {
 			$this->last->next_node = $node;

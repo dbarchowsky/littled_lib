@@ -26,7 +26,7 @@ class NavigationMenu extends NavigationMenuBase
 	public function addNode ( string $label, string $url='', string $title='', string $target='', int $level=0, string $dom_id='', string $attributes='')
 	{
 		parent::addNode($label, $url);
-		$node_type = static::$node_type;
+		$node_type = static::getNodeType();
 		/** @var $node NavigationMenuNode */
 		$node = new $node_type($label, $url, $title, $target, $level, $dom_id, $attributes);
 		$this->initializeChildren($node);
