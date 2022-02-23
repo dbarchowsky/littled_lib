@@ -20,13 +20,13 @@ use Littled\Ajax\ContentAjaxProperties;
 abstract class KeywordSectionContent extends SectionContent
 {
 	/** @var StringTextarea Container for keyword form data. */
-	public $keywordInput;
+	public StringTextarea $keywordInput;
 	/** @var Keyword[] Array of Keyword objects. */
-	public $keywords;
+	public array $keywords=[];
 	/** @var string Path to template that renders keyword cells that combine a keyword list with buttons to edit the keywords. */
-	protected static $keywordCellTemplate = '';
+	protected static string $keywordCellTemplate = '';
 	/** @var string Path to keyword list template file. */
-	protected static $keywordListTemplate = '';
+	protected static string $keywordListTemplate = '';
 
 	/**
 	 * KeywordSectionContent constructor.
@@ -45,7 +45,6 @@ abstract class KeywordSectionContent extends SectionContent
 		$this->content_properties->validationMessage = '';
 
 		$this->keywordInput = new StringTextarea("Keywords", "{$keyword_param}te", false, '', 1000, null);
-		$this->keywords = array();
 
 		$this->keywordInput->isDatabaseField = false;
 	}
@@ -129,8 +128,6 @@ abstract class KeywordSectionContent extends SectionContent
 	 * to that main record.
 	 * @return string String containing a description of the results of the deletion.
 	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws NotImplementedException
 	 */
 	public function delete(): string
@@ -144,8 +141,6 @@ abstract class KeywordSectionContent extends SectionContent
      * Deletes any keyword records linked to the main content record represented by the object.
      * @return string String containing a description of the results of the deletion.
      * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws Exception
      */
 	public function deleteKeywords(): string
@@ -278,27 +273,27 @@ abstract class KeywordSectionContent extends SectionContent
 	public function hasKeywordData(): bool
 	{
 		if (strlen(''.$this->keywordInput->value) > 0) {
-			return (true);
+			return true;
 		}
-		if (is_array($this->keywords)) {
-			foreach($this->keywords as $keyword) {
-				if (strlen($keyword->term->value) > 0) {
-					return (true);
-				}
-			}
-		}
-		return (false);
+        foreach($this->keywords as $keyword) {
+            if (strlen($keyword->term->value) > 0) {
+                return true;
+            }
+        }
+		return false;
 	}
 
 	/**
 	 * Retrieve record data.
-	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
-	 */
+     */
 	public function read()
 	{
 		parent::read();
@@ -346,19 +341,16 @@ abstract class KeywordSectionContent extends SectionContent
 		// ContentCache::updateKeywords($this->id->value, $this->contentProperties);
 	}
 
-	/**
-	 * Saves all keywords linked to the main record object.
-	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 */
+    /**
+     * Saves all keywords linked to the main record object.
+     * @throws ContentValidationException
+     * @throws Exception
+     */
 	public function saveKeywords()
 	{
 		$this->deleteKeywords();
 		foreach($this->keywords as $keyword) {
-			/** @var Keyword $keyword */
-			$keyword->parent_id->value = $this->id->value;
+            $keyword->parent_id->value = $this->id->value;
 			$keyword->save();
 		}
 	}
@@ -414,7 +406,6 @@ abstract class KeywordSectionContent extends SectionContent
         catch(ContentValidationException $ex) {
             $this->validationErrors[] = $ex->getMessage();
         }
-        /** @var Keyword $keyword */
         foreach($this->keywords as $keyword) {
             try {
                 $keyword->validateInput();
