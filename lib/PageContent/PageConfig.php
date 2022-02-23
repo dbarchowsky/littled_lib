@@ -2,8 +2,10 @@
 namespace Littled\PageContent;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Log\Debug;
 use Littled\PageContent\Metadata\Preload;
 use Littled\Validation\Validation;
 use Littled\PageContent\Metadata\PageMetadata;
@@ -34,6 +36,10 @@ class PageConfig
 	protected static NavigationMenu $utilityLinks;
 	/** @var Breadcrumbs Page breadcrumb list. */
 	protected static Breadcrumbs $breadcrumbs;
+	/** @var string */
+	protected static string $breadcrumbs_class = Breadcrumbs::class;
+	/** @var string */
+	protected static string $navigation_menu_class = NavigationMenu::class;
 
 	/**
 	 * Adds breadcrumb node.
@@ -45,7 +51,7 @@ class PageConfig
 	public static function addBreadcrumb(string $label, string $url='', string $dom_id='', string $css_class='')
 	{
 		if (!isset(static::$breadcrumbs)) {
-			static::$breadcrumbs = new Breadcrumbs();
+			static::$breadcrumbs = new static::$breadcrumbs_class();
 		}
 		static::$breadcrumbs->addNode($label, $url, $dom_id, $css_class);
 	}
@@ -82,7 +88,7 @@ class PageConfig
         string $attributes='')
 	{
 		if (!isset(static::$utilityLinks)) {
-			static::$utilityLinks = new NavigationMenu();
+			static::$utilityLinks = new static::$navigation_menu_class();
 		}
 		static::$utilityLinks->addNode($label, $url, $title, $target, $level, $dom_id, $attributes);
 	}
@@ -239,11 +245,11 @@ class PageConfig
 
 	/**
 	 * Gets the current list of utility links.
-	 * @return NavigationMenu
+	 * @return ?NavigationMenu
 	 */
-	public static function getUtilityLinks(): NavigationMenu
+	public static function getUtilityLinks(): ?NavigationMenu
 	{
-		return(static::$utilityLinks);
+		return(isset(static::$utilityLinks)?(static::$utilityLinks):(null));
 	}
 
 	/**
@@ -289,7 +295,7 @@ class PageConfig
 	 */
 	public static function renderBreadcrumbs()
 	{
-		if (!is_object(static::$breadcrumbs)) {
+		if (!isset(static::$breadcrumbs)) {
 			return;
 		}
 		static::$breadcrumbs->render();
@@ -301,7 +307,7 @@ class PageConfig
 	 */
 	public static function renderUtilityLinks()
 	{
-		if (!is_object(static::$utilityLinks)) {
+		if (!isset(static::$utilityLinks)) {
 			return;
 		}
 		static::$utilityLinks->render();
@@ -314,6 +320,20 @@ class PageConfig
 	public static function setBreadcrumbs(Breadcrumbs $breadcrumbs)
 	{
 		static::$breadcrumbs = $breadcrumbs;
+	}
+
+	/**
+	 * Breadcrumbs class name setter.
+	 * @param string $class
+	 * @return void
+	 * @throws InvalidTypeException
+	 */
+	public static function setBreadcrumbsClass(string $class)
+	{
+		if (!class_exists($class)) {
+			throw new InvalidTypeException(Debug::getShortMethodName()." \"$class\" is an invalid type.");
+		}
+		static::$breadcrumbs_class = $class;
 	}
 
 	/**
@@ -381,6 +401,20 @@ class PageConfig
 	}
 
 	/**
+	 * Navigation menu class name setter.
+	 * @param string $class
+	 * @return void
+	 * @throws InvalidTypeException
+	 */
+	public static function setNavigationMenuClass(string $class)
+	{
+		if (!class_exists($class)) {
+			throw new InvalidTypeException(Debug::getShortMethodName()." \"$class\" is an invalid type.");
+		}
+		static::$navigation_menu_class = $class;
+	}
+
+	/**
 	 * Sets the page title value.
 	 * @param string $title
 	 */
@@ -415,7 +449,7 @@ class PageConfig
 	 */
 	public static function setUtilityLinksCssClass(string $css_class)
 	{
-		if (static::$utilityLinks===null) {
+		if (!isset(static::$utilityLinks)) {
 			return;
 		}
 		static::$utilityLinks->setCSSClass($css_class);
