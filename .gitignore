@@ -7,5 +7,6 @@ _gsdata_/
 composer.phar
 composer.lock
 node_modules/
+package-lock.json
 Tests/config/
 Tests/assets/*-output-template.php

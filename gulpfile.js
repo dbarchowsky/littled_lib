@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const concat = require('gulp-concat');
+const jest = require('gulp-jest').default;
 const rename = require('gulp-rename');
 const terser = require('gulp-terser');
 const pump = require('pump');
@@ -37,6 +38,11 @@ const paths = {
                 dst: 'gallery.js'
             }
         },
+        tests: {
+            src: [
+                'js/tests'
+            ]
+        }
     },
     uglify: {
         src: [
@@ -59,6 +65,11 @@ gulp.task('gallery-js', function() {
     return gulp.src(paths.scripts.gallery.concat.src)
         .pipe(concat(paths.scripts.gallery.concat.dst))
         .pipe(gulp.dest(paths.scripts.gallery.concat.dir));
+});
+
+gulp.task('jest', function() {
+    return gulp.src(paths.scripts.tests.src)
+        .pipe(jest());
 });
 
 gulp.task('scripts', gulp.parallel('littled-js', 'gallery-js'), function() {
