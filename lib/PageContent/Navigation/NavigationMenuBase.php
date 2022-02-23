@@ -13,10 +13,10 @@ class NavigationMenuBase
 	/** @var string Class name of the class used to render the breadcrumb nodes. */
 	protected static string $node_type='';
 
-	/** @var NavigationMenuNode Pointer to first node in the list of breadcrumbs. */
-	public NavigationMenuNode $first;
-	/** @var NavigationMenuNode Pointer to last node in the list of breadcrumbs. */
-	public NavigationMenuNode $last;
+	/** @var NavigationNodeBase Pointer to first node in the list of breadcrumbs. */
+	public NavigationNodeBase $first;
+	/** @var NavigationNodeBase Pointer to last node in the list of breadcrumbs. */
+	public NavigationNodeBase $last;
 	/** @var string CSS class to apply to the breadcrumb menu parent element */
 	public string $css_class='';
 
@@ -82,11 +82,11 @@ class NavigationMenuBase
 	public function getNodeCount(): int
 	{
 		$n = 0;
-		$node = $this->first;
-		if (isset($node)) {
-			while(isset($node)) {
+		if (isset($this->first)) {
+			$node = $this->first;
+			while($node) {
 				$n++;
-				$node = $node->next_node;
+				$node = ((isset($node->next_node))?($node->next_node):(null));
 			}
 		}
 		return $n;
@@ -114,7 +114,7 @@ class NavigationMenuBase
 	 * @param NavigationNodeBase $node
 	 * @return void
 	 */
-	protected function initializeChildren(NavigationNodeBase &$node)
+	protected function initializeChildren(NavigationNodeBase $node)
 	{
 		if (isset($this->first)) {
 			$this->last->next_node = $node;

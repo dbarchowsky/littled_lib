@@ -13,7 +13,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 class NavigationMenuNode extends NavigationNodeBase
 {
 	/** @var string */
-	protected static $node_template_path = '';
+	protected static string $node_template_path = '';
 
 	/** @var string Extra attributes to add to the node HTML tag, e.g. "data-id" */
 	public string $attributes;

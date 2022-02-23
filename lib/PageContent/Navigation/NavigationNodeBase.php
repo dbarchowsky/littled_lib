@@ -17,10 +17,10 @@ class NavigationNodeBase
 	public string $dom_id;
 	/** @var string Node label to display on the page. */
 	public string $label;
-	/** @var NavigationMenuNode Link to next node in the menu. */
-	public NavigationMenuNode $next_node;
-	/** @var NavigationMenuNode Link to previous node in the menu. */
-	public NavigationMenuNode $prev_node;
+	/** @var NavigationNodeBase Link to next node in the menu. */
+	public NavigationNodeBase $next_node;
+	/** @var NavigationNodeBase Link to previous node in the menu. */
+	public NavigationNodeBase $prev_node;
 	/** @var string URL that the node links to */
 	public string $url;
 

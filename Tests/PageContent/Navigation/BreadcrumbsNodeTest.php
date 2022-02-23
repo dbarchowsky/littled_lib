@@ -13,6 +13,7 @@ class BreadcrumbsNodeTest extends TestCase
 	{
 		parent::setUp();
 		LittledGlobals::setLocalTemplatesPath(LITTLED_TEMPLATE_DIR);
+		LittledGlobals::setSharedTemplatesPath(LITTLED_TEMPLATE_DIR);
 	}
 
 	/**

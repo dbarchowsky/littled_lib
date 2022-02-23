@@ -1,9 +1,6 @@
 <?php
 namespace Littled\PageContent\Navigation;
 
-use Littled\PageContent\ContentUtils;
-use Littled\Exception\ResourceNotFoundException;
-
 
 /**
  * Class NavigationMenu
@@ -12,9 +9,9 @@ use Littled\Exception\ResourceNotFoundException;
 class NavigationMenu extends NavigationMenuBase
 {
 	/** @var string */
-	protected static $menu_template_path = '';
+	protected static string $menu_template_path = '';
 	/** @var string */
-	protected static $node_type = 'Littled\PageContent\Navigation\NavigationMenuNode';
+	protected static string $node_type = 'Littled\PageContent\Navigation\NavigationMenuNode';
 
 	/**
 	 * Adds menu item to navigation menu and sets its properties.
