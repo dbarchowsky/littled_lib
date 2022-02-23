@@ -7,42 +7,39 @@ use Littled\Exception\ConfigurationUndefinedException;
 class LittledGlobals
 {
 	/** @var string App domain name. */
-	protected static $app_domain = '';
+	protected static string $app_domain = '';
 	/** @var string Root URI for CMS pages. */
-	protected static $cms_root_uri = '';
+	protected static string $cms_root_uri = '';
 	/** @var string Path to directory containing mysql authentication (outside public access). */
-	protected static $mysql_keys_path = '';
+	protected static string $mysql_keys_path = '';
 	/** @var string Path to directory containing app templates. */
-	protected static $local_template_path = '';
+	protected static string $local_template_path = '';
     /** @var string Path to directory containing app templates. */
-    protected static $shared_template_path = '';
+    protected static string $shared_template_path = '';
 
 	/** @var string Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY = 'csrfToken';
 
+    /** @var string Request variable name to cancel operations. */
+    const CANCEL_KEY = 'cancel';
+    /** @var string Request variable name to commit operations. */
+    const COMMIT_KEY = 'commit';
 	/** @var string Key of the content type id request variable. */
 	const CONTENT_TYPE_KEY = 'tid';
 	/** @var string Key of request variable used to pass CSRF tokens. */
 	const CSRF_TOKEN_KEY = 'csrf';
 	/** @var string Key of request variable used to pass error messages. */
 	const ERROR_MSG_KEY = 'err';
+    /** @var string Request variable flag indicating that listings are being filtered. */
+    const FILTER_KEY = 'filter';
     /** @var string Key of the record id request variable. */
     const ID_KEY = 'id';
+    /** @var string Request variable containing status message. */
+    const INFO_MESSAGE_KEY = 'msg';
     /** @var string Key of the parent id request variable. */
     const PARENT_ID_KEY = 'pid';
-
-	/** @var string Request variable name holding record ids. */
-	const P_ID = 'id';
-	/** @var string Request variable name to cancel operations. */
-	const P_CANCEL = 'cancel';
-	/** @var string Request variable name to commit operations. */
-	const P_COMMIT = 'commit';
-	/** @var string Request variable flag indicating that listings are being filtered. */
-	const P_FILTER = 'filter';
-	/** @var string Request variable containing status message. */
-	const INFO_MESSAGE_KEY = 'msg';
 	/** @var string Request variable name containing referring URLs. */
-	const P_REFERER = 'ref';
+	const REFERER_KEY = 'ref';
 
 	/**
 	 * Gets app domain name.

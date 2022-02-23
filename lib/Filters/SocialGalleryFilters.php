@@ -6,19 +6,16 @@ use Littled\Exception\NotImplementedException;
 
 class SocialGalleryFilters extends GalleryFilters
 {
-    /** @var int */
-    protected static $default_listings_length = 50;
-    /** @var string */
-    protected static $listings_label = '';
-    /** @var string */
-    protected static $frontend_uri = '';
+    protected static int $default_listings_length = 50;
+    protected static string $listings_label = '';
+    protected static string $frontend_uri = '';
     
 	/** @var BooleanContentFilter Control to filter records that have been previously posted on WordPress. */
-	public $onWordpress;
+	public BooleanContentFilter $onWordpress;
 	/** @var BooleanContentFilter Control to filter records that have been previously posted to Twitter. */
-	public $onTwitter;
+	public BooleanContentFilter $onTwitter;
 	/** @var BooleanContentFilter Control to filter records that have been assigned a short URL. */
-	public $hasShortURL;
+	public BooleanContentFilter $hasShortURL;
 
 	/**
 	 * class constructor
@@ -52,7 +49,7 @@ class SocialGalleryFilters extends GalleryFilters
 	{
         $content_id = $this::getContentTypeId();
 		return array('CALL socialGalleryFilteredSelect(?,?,?,?,?,?,?,?,?,?,?,?,?,@total_matches)',
-            'iiiisssiisiii',
+            'iiiissssisiii',
             &$this->page->value,
             &$this->listings_length->value,
             &$content_id,

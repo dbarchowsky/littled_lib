@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\Filters\TestHarness;
 
 use Littled\Filters\DateContentFilter;
 use Littled\Filters\StringContentFilter;
@@ -7,17 +7,17 @@ use Littled\Filters\StringContentFilter;
 class ContentFiltersProcedureChild extends ContentFiltersChild
 {
     /** @var StringContentFilter */
-    public $title;
+    public StringContentFilter $title;
     /** @var StringContentFilter */
-    public $text;
+    public StringContentFilter $text;
     /** @var StringContentFilter */
-    public $source;
+    public StringContentFilter $source;
     /** @var DateContentFilter */
-    public $published_after;
+    public DateContentFilter $published_after;
     /** @var DateContentFilter */
-    public $published_before;
+    public DateContentFilter $published_before;
     /** @var StringContentFilter */
-    public $keyword;
+    public StringContentFilter $keyword;
 
     public function __construct()
     {

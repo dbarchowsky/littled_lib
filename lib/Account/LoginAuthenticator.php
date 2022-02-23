@@ -40,7 +40,7 @@ class LoginAuthenticator extends UserLogin
 		parent::__construct($id);
 		$this->bypass_login = false;
 		$this->logged_in = false;
-		$this->redirect_uri = new StringInput('redirect uri', LittledGlobals::P_REFERER, false, '', 500);
+		$this->redirect_uri = new StringInput('redirect uri', LittledGlobals::REFERER_KEY, false, '', 500);
 	}
 
 	/**
@@ -155,7 +155,7 @@ class LoginAuthenticator extends UserLogin
 		if (!$this->logged_in)
 		{
 			/* NB INPUT_SERVER is unreliable with filter_input() */
-			$_SESSION[LittledGlobals::P_REFERER] = $_SERVER['PHP_SELF'].PageUtils::serializePageData();
+			$_SESSION[LittledGlobals::REFERER_KEY] = $_SERVER['PHP_SELF'].PageUtils::serializePageData();
 			if ($msg) {
 				$_SESSION[LittledGlobals::INFO_MESSAGE_KEY] = $msg;
 			}

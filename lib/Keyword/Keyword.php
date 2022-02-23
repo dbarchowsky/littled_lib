@@ -17,24 +17,24 @@ use Littled\Request\StringTextarea;
 class Keyword extends SerializedContentValidation
 {
 	/** @var string Parent input variable name. */
-	const PARENT_PARAM = 'kwpi';
+	const PARENT_KEY = 'kwpi';
 	/** @var string Keyword type input variable name. */
-	const TYPE_PARAM = 'kwti';
+	const TYPE_KEY = 'kwti';
 	/** @var string Keyword input variable name. */
-	const KEYWORD_PARAM = 'kwtx';
+	const KEYWORD_KEY = 'kwtx';
 	/** @var string Keyword filter variable name. */
-	const FILTER_PARAM = 'flkw';
+	const FILTER_KEY = 'flkw';
 
 	/** @var StringTextarea Keyword term. */
-	public $term;
+	public StringTextarea $term;
 	/** @var IntegerInput Keyword type id. */
-	public $type_id;
+	public IntegerInput $type_id;
 	/** @var IntegerInput Keyword parent id. */
-	public $parent_id;
+	public IntegerInput $parent_id;
 	/** @var string Keyword type name. */
-	public $type;
+	public string $type;
 	/** @var int Keyword count. */
-	public $count;
+	public int $count;
 
 	/**
 	 * Keyword constructor.
@@ -46,9 +46,9 @@ class Keyword extends SerializedContentValidation
 	function __construct(string $keyword, ?int $parent_type_id=null, ?int $type_id=null, int $count=0 )
 	{
 		parent::__construct();
-		$this->term = new StringTextarea("Keyword", Keyword::KEYWORD_PARAM, true, $keyword, 1000, null);
-		$this->type_id = new IntegerInput("Keyword type", Keyword::TYPE_PARAM, true, $type_id);
-		$this->parent_id = new IntegerInput("Parent", Keyword::PARENT_PARAM, true, $parent_type_id);
+		$this->term = new StringTextarea("Keyword", Keyword::KEYWORD_KEY, true, $keyword, 1000, null);
+		$this->type_id = new IntegerInput("Keyword type", Keyword::TYPE_KEY, true, $type_id);
+		$this->parent_id = new IntegerInput("Parent", Keyword::PARENT_KEY, true, $parent_type_id);
 		$this->count = $count;
 	}
 
@@ -64,12 +64,7 @@ class Keyword extends SerializedContentValidation
 		if (!$this->hasData()) {
 			return('');
 		}
-		$this->connectToDatabase();
-		$query = "CALL keywordDelete(".
-			$this->term->escapeSQL($this->mysqli).",".
-			$this->type_id->escapeSQL($this->mysqli).",".
-			$this->parent_id->escapeSQL($this->mysqli).")";
-		$this->query($query);
+		$this->query('CALL keywordDelete(?,?,?)', 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
 		return ("The keyword \"{$this->term->value}\" was successfully deleted.");
 	}
 
@@ -82,18 +77,12 @@ class Keyword extends SerializedContentValidation
      */
 	public function exists(): bool
 	{
-		$this->connectToDatabase();
-		$query = "CALL keywordLookup(".
-			$this->term->escapeSQL($this->mysqli).",".
-			$this->type_id->escapeSQL($this->mysqli).",".
-			$this->parent_id->escapeSQL($this->mysqli).")";
-		$data = $this->fetchRecords($query);
+		$data = $this->fetchRecords("CALL keywordLookup(?,?,?)", 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
 		return ($data[0]->match_count>0);
 	}
 
 	/**
-	 * Checks if a valid keyword term is currently stored in the object.
-	 * @return bool True/false depending on whether the object contains a search term.
+	 * @inheritDoc
 	 */
 	public function hasData(): bool
 	{
@@ -103,9 +92,8 @@ class Keyword extends SerializedContentValidation
 	}
 
     /**
-     * Saves keywords to the database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * Commits keyword data to the database
+     * @return void
      * @throws Exception
      */
 	public function save(): void
@@ -113,11 +101,6 @@ class Keyword extends SerializedContentValidation
 		if ($this->hasData()===false) {
 			return;
 		}
-		$this->connectToDatabase();
-		$query = "CALL keywordInsert(".
-			$this->term->escapeSQL($this->mysqli).",".
-			$this->type_id->escapeSQL($this->mysqli).",".
-			$this->parent_id->escapeSQL($this->mysqli).")";
-		$this->query($query);
+		$this->query('CALL keywordInsert(?,?,?)', 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
 	}
 }

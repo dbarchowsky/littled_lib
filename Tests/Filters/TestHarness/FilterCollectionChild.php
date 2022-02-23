@@ -10,20 +10,13 @@ use Littled\Filters\StringContentFilter;
 
 class FilterCollectionChild extends FilterCollection
 {
-    /** @var StringContentFilter */
-    public $name_filter;
-    /** @var IntegerContentFilter */
-    public $int_filter;
-    /** @var BooleanContentFilter */
-    public $bool_filter;
-    /** @var DateContentFilter */
-    public $date_after;
-    /** @var DateContentFilter */
-    public $date_before;
-    /** @var string */
-    protected static $table_name='test_table';
-    /** @var int */
-    protected static $default_listings_length = 15;
+    public StringContentFilter $name_filter;
+    public IntegerContentFilter $int_filter;
+    public BooleanContentFilter $bool_filter;
+    public DateContentFilter $date_after;
+    public DateContentFilter $date_before;
+    protected static string $table_name='test_table';
+    protected static int $default_listings_length = 15;
 
     public function __construct()
     {

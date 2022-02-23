@@ -2,23 +2,21 @@
 namespace Littled\Tests\Filters;
 require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
+use Littled\Database\MySQLConnection;
 use Littled\Filters\SocialGalleryFilters;
-use Littled\Tests\Filters\Samples\SocialGalleryFiltersChild;
+use Littled\Tests\Filters\TestHarness\SocialGalleryFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
 class SocialGalleryFiltersTest extends TestCase
 {
-	/** @var SocialGalleryFilters Filters object used to retrieve gallery listings data. */
-	public $filters;
-
 	/**
 	 * @throws Exception
 	 */
 	public function testRetrieveListings()
 	{
-		$this->filters = new SocialGalleryFiltersChild();
-		$data = $this->filters->retrieveListings();
+		$o = new SocialGalleryFiltersChild();
+		$data = $o->retrieveListings();
 		$this->assertGreaterThan(0, count($data), "Returned records with default filters.");
 	}
 
@@ -27,14 +25,19 @@ class SocialGalleryFiltersTest extends TestCase
 	 */
 	public function testRetrieveWordpressListings()
 	{
-		$this->filters = new SocialGalleryFiltersChild();
-		$this->filters->onWordpress->value = true;
-		$data = $this->filters->retrieveListings();
-		$this->assertGreaterThan(0, count($data));
+		$o = new SocialGalleryFiltersChild();
+        $data = $o->retrieveListings();
+        $full_count = count($data);
 
-		$this->filters->onWordpress->value = false;
-		$data = $this->filters->retrieveListings();
+		$o->onWordpress->value = true;
+		$data = $o->retrieveListings();
 		$this->assertGreaterThan(0, count($data));
+        $this->assertLessThan($full_count, count($data));
+
+		$o->onWordpress->value = false;
+		$data = $o->retrieveListings();
+		$this->assertGreaterThan(0, count($data));
+        $this->assertLessThan($full_count, count($data));
 	}
 
 	/**
@@ -42,14 +45,17 @@ class SocialGalleryFiltersTest extends TestCase
 	 */
 	public function testRetrieveTwitterListings()
 	{
-		$this->filters = new SocialGalleryFiltersChild();
-		$this->filters->onTwitter->value = true;
-		$data = $this->filters->retrieveListings();
-		$this->assertGreaterThan(0, count($data));
+		$o = new SocialGalleryFiltersChild();
+        $data = $o->retrieveListings();
+        $full_count = count($data);
 
-		$this->filters->onTwitter->value = false;
-		$data = $this->filters->retrieveListings();
-		$this->assertGreaterThan(0, count($data));
+		$o->onTwitter->value = true;
+		$data = $o->retrieveListings();
+		$this->assertCount(0, $data);
+
+		$o->onTwitter->value = false;
+		$data = $o->retrieveListings();
+		$this->assertCount($full_count, $data);
 	}
 
 	/**
@@ -57,13 +63,18 @@ class SocialGalleryFiltersTest extends TestCase
 	 */
 	public function testRetrieveShortURLListings()
 	{
-		$this->filters = new SocialGalleryFiltersChild();
-		$this->filters->hasShortURL->value = true;
-		$data = $this->filters->retrieveListings();
-		$this->assertGreaterThan(0, count($data));
+		$o = new SocialGalleryFiltersChild();
+        $data = $o->retrieveListings();
+        $full_count = count($data);
 
-		$this->filters->hasShortURL->value = false;
-		$data = $this->filters->retrieveListings();
+		$o->hasShortURL->value = true;
+		$data = $o->retrieveListings();
 		$this->assertGreaterThan(0, count($data));
+        $this->assertLessThan($full_count, count($data));
+
+		$o->hasShortURL->value = false;
+		$data = $o->retrieveListings();
+		$this->assertGreaterThan(0, count($data));
+        $this->assertLessThan($full_count, count($data));
 	}
 }

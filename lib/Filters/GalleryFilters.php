@@ -8,7 +8,6 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
@@ -22,29 +21,29 @@ use Exception;
 class GalleryFilters extends ContentFilters
 {
 	/** @var StringContentFilter Title filter. */
-	public $title;
+	public StringContentFilter $title;
 	/** @var IntegerContentFilter Album filter. */
-	public $albumId;
+	public IntegerContentFilter $albumId;
 	/** @var DateContentFilter Release date lower limit filter. */
-	public $releaseAfter;
+	public DateContentFilter $releaseAfter;
 	/** @var DateContentFilter Release date upper limit filter. */
-	public $releaseBefore;
+	public DateContentFilter $releaseBefore;
 	/** @var StringContentFilter Access filter. */
-	public $access;
+	public StringContentFilter $access;
 	/** @var StringContentFilter Keyword filter. */
-	public $keyword;
+	public StringContentFilter $keyword;
 	/** @var IntegerContentFilter Slot filter. */
-	public $slot;
+	public IntegerContentFilter $slot;
 	/** @var StringContentFilter Name filter. */
-	public $name;
+	public StringContentFilter $name;
 	/** @var string Details page URI */
-	public $details_uri;
+	public string $details_uri;
     /** @var string */
-    protected static $cookie_key = 'alp';
+    protected static string $cookie_key = 'alp';
     /** @var int */
-    protected static $default_listings_length = 10;
+    protected static int $default_listings_length = 10;
     /** @var int */
-    protected static $default_image_listings_length = 10;
+    protected static int $default_image_listings_length = 10;
 
 	const ALBUM_PARAM = LittledGlobals::PARENT_ID_KEY;
 	const TYPE_PARAM = LittledGlobals::CONTENT_TYPE_KEY;
@@ -73,7 +72,7 @@ class GalleryFilters extends ContentFilters
 		$this->releaseAfter = new DateContentFilter("start date", $this::START_DATE_PARAM, '', 20, $this::getCookieKey());
 		$this->releaseBefore = new DateContentFilter("end date", $this::END_DATE_PARAM, '', 20, $this::getCookieKey());
 		$this->access = new StringContentFilter("access", $this::ACCESS_PARAM, '', 20, $this::getCookieKey());
-		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_PARAM, '', 50, $this::getCookieKey());
+		$this->keyword = new StringContentFilter("keyword", Keyword::FILTER_KEY, '', 50, $this::getCookieKey());
 		$this->slot = new IntegerContentFilter("page", $this::SLOT_PARAM, null, null, $this::getCookieKey());
 	}
 
@@ -107,8 +106,7 @@ class GalleryFilters extends ContentFilters
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 */
+     */
 	public function getContentProperties ($content_type_id=null)
 	{
 		if ($content_type_id>0) {
@@ -146,7 +144,6 @@ class GalleryFilters extends ContentFilters
 	 * @param int|null $count Number determining if the label is plural or not.
 	 * @return string Plural form of the record label if $count is not 1.
      * @throws ConfigurationUndefinedException
-     * @throws InvalidValueException
      */
 	public function pluralLabel( ?int $count=null ): string
 	{

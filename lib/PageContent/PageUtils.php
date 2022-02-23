@@ -41,7 +41,7 @@ class PageUtils
 	{
 		$_SESSION[LittledGlobals::INFO_MESSAGE_KEY] = $msg;
 
-		$uri = Validation::collectStringInput(LittledGlobals::P_REFERER, FILTER_SANITIZE_URL);
+		$uri = Validation::collectStringInput(LittledGlobals::REFERER_KEY, FILTER_SANITIZE_URL);
 		if (!$uri) {
 			$uri = $target_uri;
 		}

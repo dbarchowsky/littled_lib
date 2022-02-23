@@ -4,51 +4,51 @@
 namespace Littled\Filters;
 
 
+use Littled\App\LittledGlobals;
 use Littled\Database\AppContentBase;
 use Littled\Exception\NotImplementedException;
 
 class FilterCollectionProperties extends AppContentBase
 {
-    const PAGE_PARAM = 'p';
-    const LISTINGS_LENGTH_PARAM = 'pl';
-    const NEXT_OPERATION_PARAM= 'next';
-    const FILTER_PARAM = 'filt';
-    const REFERRING_URL_PARAM = 'ref';
+    const PAGE_KEY = 'p';
+    const LISTINGS_LENGTH_KEY = 'pl';
+    const NEXT_OPERATION_KEY= 'next';
+    const FILTER_KEY = LittledGlobals::FILTER_KEY;
     const LINKS_OFFSET = 5;
     const LINKS_END_LENGTH = 2;
 
     /** @var BooleanContentFilter Flag to suppress the display of the listings. */
-    public $display_listings;
+    public BooleanContentFilter $display_listings;
     /** @var StringContentFilter Token indicating the next operation to take, typically after editing a record. */
-    public $next;
-    /** @var integer Record id of the next record in the sequence matching the current filter values. */
-    public $next_record_id;
+    public StringContentFilter $next;
+    /** @var ?int Record id of the next record in the sequence matching the current filter values. */
+    public ?int $next_record_id=null;
     /** @var IntegerContentFilter Current page number. */
-    public $page;
+    public IntegerContentFilter $page;
     /** @var integer Total number of pages available for records matching the current filter values. */
-    public $page_count;
+    public int $page_count;
     /** @var IntegerContentFilter Maximum number of records to display per page. */
-    public $listings_length;
-    /** @var integer Record id of the previous record in the sequence matching the current filter values. */
-    public $previous_record_id;
+    public IntegerContentFilter $listings_length;
+    /** @var ?int Record id of the previous record in the sequence matching the current filter values. */
+    public ?int $previous_record_id=null;
     /** @var string SQL query string used to fetch the current record set. */
-    public $query_string;
+    public string $query_string='';
     /** @var integer Total number of records matching the current filter values. */
-    public $record_count = 0;
+    public int $record_count = 0;
     /** @var string URL to redirect back to, if specified */
-    public $referer_uri;
+    public string $referer_uri='';
     /** @var string SQL WHERE clause matching the current filter values. */
-    public $sql_clause;
+    public string $sql_clause='';
     /** @var string Key for cookie used to preserve filter settings. */
-    protected static $cookie_key = '';
+    protected static string $cookie_key = '';
     /** @var int Default number of line items to display in listings */
-    protected static $default_listings_length = null;
+    protected static int $default_listings_length;
     /** @var string Item label to insert into listings content. */
-    protected static $listings_label = '';
+    protected static string $listings_label = '';
     /** @var string String to add to parameter names to make them specific to the current type of listings. */
-    protected static $key_prefix = '';
+    protected static string $key_prefix = '';
     /** @var string Name of table storing listings content. */
-    protected static $table_name = '';
+    protected static string $table_name = '';
 
     /**
      * class constructor
@@ -57,10 +57,10 @@ class FilterCollectionProperties extends AppContentBase
     function __construct ()
     {
         parent::__construct();
-        $this->page = new IntegerContentFilter("Page", $this->getLocalKey($this::PAGE_PARAM), null, null, $this::getCookieKey());
-        $this->listings_length = new IntegerContentFilter("Page length", $this->getLocalKey($this::LISTINGS_LENGTH_PARAM), $this::getDefaultListingsLength(), null, $this::getCookieKey());
-        $this->next = new StringContentFilter("Next", $this->getLocalKey($this::NEXT_OPERATION_PARAM), '', 16, $this::getCookieKey());
-        $this->display_listings = new BooleanContentFilter("Display listings", $this->getLocalKey($this::FILTER_PARAM), false, null, $this::getCookieKey());
+        $this->page = new IntegerContentFilter("Page", $this->getLocalKey($this::PAGE_KEY), null, null, $this::getCookieKey());
+        $this->listings_length = new IntegerContentFilter("Page length", $this->getLocalKey($this::LISTINGS_LENGTH_KEY), $this::getDefaultListingsLength(), null, $this::getCookieKey());
+        $this->next = new StringContentFilter("Next", $this->getLocalKey($this::NEXT_OPERATION_KEY), '', 16, $this::getCookieKey());
+        $this->display_listings = new BooleanContentFilter("Display listings", $this->getLocalKey($this::FILTER_KEY), false, null, $this::getCookieKey());
         $this->referer_uri = '';
     }
 

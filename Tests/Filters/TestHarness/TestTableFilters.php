@@ -12,7 +12,7 @@ use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 class TestTableFilters extends ContentFilters
 {
     /** @var int */
-    protected static $default_listings_length = 20;
+    protected static int $default_listings_length = 20;
     protected static ?int $content_type_id = TestTable::CONTENT_TYPE_ID;
 
 	public StringContentFilter $name;

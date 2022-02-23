@@ -1,7 +1,11 @@
 <?php
 namespace Littled\Tests\Keyword;
 
+use Exception;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Keyword\Keyword;
 use PHPUnit\Framework\TestCase;
 
@@ -16,15 +20,16 @@ class KeywordTest extends TestCase
 	const TEST_TYPE_ID = 4; /* type = "sketchbooks" */
 
 	/** @var Keyword Test keyword object. */
-	public $obj;
+	public Keyword $obj;
 	/** @var MySQLConnection Database connection. */
-	public $conn;
+	public MySQLConnection $conn;
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public static function setUpBeforeClass()
-	{
+	 * @throws InvalidQueryException|Exception
+     */
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
 		$query = "INSERT INTO `keyword` (`term`,`parent_id`,`type_id`) VALUES (".
 			"'".KeywordTest::TEST_KEYWORD_TERM."',".KeywordTest::TEST_PARENT_ID.",".KeywordTest::TEST_TYPE_ID.")";
 		$conn = new MySQLConnection();
@@ -32,22 +37,27 @@ class KeywordTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public static function tearDownAfterClass()
-	{
+	 * @throws InvalidQueryException|Exception
+     */
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
 		$query = "DELETE FROM `keyword` WHERE term LIKE '".KeywordTest::TEST_KEYWORD_TERM."%'";
 		$conn = new MySQLConnection();
 		$conn->query($query);
 	}
 
-	public function setUp()
-	{
+    protected function setUp(): void
+    {
+        parent::setUp();
 		$this->obj = new Keyword('', null, null);
 		$this->conn = new MySQLConnection();
 	}
 
-	public function getKeywordCount()
+    /**
+     * @throws Exception
+     */
+    public function getKeywordCount()
 	{
 		$query = "SELECT COUNT(1) AS `record_count` FROM `keyword`";
 		$data = $this->conn->fetchRecords($query);
@@ -63,10 +73,9 @@ class KeywordTest extends TestCase
 	}
 
 	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     */
 	public function testExists()
 	{
 		$this->obj->term->setInputValue(KeywordTest::TEST_KEYWORD_TERM);
@@ -115,11 +124,11 @@ class KeywordTest extends TestCase
 		$this->assertTrue($this->obj->hasData());
 	}
 
-	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function testSaveWithDefaultValue()
 	{
 		$prev_count = $this->getKeywordCount();
@@ -130,11 +139,11 @@ class KeywordTest extends TestCase
 		$this->assertEquals($prev_count, $new_count);
 	}
 
-	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function testSaveDuplicateValue()
 	{
 		$obj = new Keyword(KeywordTest::TEST_KEYWORD_TERM, KeywordTest::TEST_PARENT_ID, KeywordTest::TEST_TYPE_ID);
@@ -146,11 +155,11 @@ class KeywordTest extends TestCase
 		$this->assertEquals($prev_count, $new_count);
 	}
 
-	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function testSave()
 	{
 		$obj = new Keyword(KeywordTest::TEST_KEYWORD_TERM . " testSave()", KeywordTest::TEST_PARENT_ID, KeywordTest::TEST_TYPE_ID);
@@ -170,11 +179,11 @@ class KeywordTest extends TestCase
 		$this->assertEquals(null, $obj->parent_id->value);
 	}
 
-	/**
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
 	public function testDelete()
 	{
 		$obj = new Keyword(KeywordTest::TEST_KEYWORD_TERM . " testDelete()", KeywordTest::TEST_PARENT_ID, KeywordTest::TEST_TYPE_ID);

@@ -180,11 +180,11 @@ class AjaxPage extends MySQLConnection
 			/* use only POST, not GET */
 			$src = &$_POST;
 		}
-		if (Validation::collectBooleanRequestVar(LittledGlobals::P_COMMIT, null, $src)===true) {
+		if (Validation::collectBooleanRequestVar(LittledGlobals::COMMIT_KEY, null, $src)===true) {
 			$this->action = self::COMMIT_ACTION;
 			return($this);
 		}
-		if (Validation::collectBooleanRequestVar(LittledGlobals::P_CANCEL, null, $src)===true) {
+		if (Validation::collectBooleanRequestVar(LittledGlobals::CANCEL_KEY, null, $src)===true) {
 			$this->action = self::CANCEL_ACTION;
 			return($this);
 		}

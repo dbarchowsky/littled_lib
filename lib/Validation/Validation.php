@@ -248,14 +248,14 @@ class Validation
 	 */
 	public static function getPageAction(): string
 	{
-		$action = trim(filter_input(INPUT_POST, LittledGlobals::P_COMMIT, FILTER_UNSAFE_RAW));
+		$action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, FILTER_UNSAFE_RAW));
 		if (strlen($action) > 0) {
-			$action = LittledGlobals::P_COMMIT;
+			$action = LittledGlobals::COMMIT_KEY;
 		}
 		else {
-			$action = trim(filter_input(INPUT_POST, LittledGlobals::P_CANCEL, FILTER_UNSAFE_RAW));
+			$action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, FILTER_UNSAFE_RAW));
 			if (strlen($action) > 0) {
-				$action = LittledGlobals::P_CANCEL;
+				$action = LittledGlobals::CANCEL_KEY;
 			}
 		}
 		return $action;

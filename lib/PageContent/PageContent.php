@@ -74,8 +74,8 @@ class PageContent extends MySQLConnection
     public function collectEditAction( $src=null )
     {
 		$keys = array(
-			LittledGlobals::P_CANCEL => self::CANCEL_ACTION,
-	        LittledGlobals::P_COMMIT => self::COMMIT_ACTION);
+			LittledGlobals::CANCEL_KEY => self::CANCEL_ACTION,
+	        LittledGlobals::COMMIT_KEY => self::COMMIT_ACTION);
         if (null===$src) {
             $src = $_POST;
         }

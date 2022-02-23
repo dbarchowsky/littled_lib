@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Filters;
 
+use Littled\App\LittledGlobals;
 use Littled\Database\DBUtils;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
@@ -71,14 +72,13 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Extract values for listings filters from form data and query string.
-	 * @param bool $save_filters (optional) If set to TRUE, save all filter values in session variables.
+	 * @param bool $save_filters (Optional) If set to TRUE, save all filter values in session variables.
+     * @param array $excluded_properties (Optional) A list of keys to exclude from collection.
      * @throws NotImplementedException
 	 */
-	public function collectFilterValues(bool $save_filters=true)
+	public function collectFilterValues(bool $save_filters=true, array $excluded_properties=[])
 	{
-		$excluded_properties = array("displayListings");
-
-		$this->referer_uri = Validation::collectRequestVar($this::REFERRING_URL_PARAM);
+		$this->referer_uri = Validation::collectRequestVar(LittledGlobals::REFERER_KEY);
 
 		foreach ($this as $key => $filter) {
 			if (($filter instanceof ContentFilter) && (!in_array($key, $excluded_properties))) {
@@ -323,9 +323,7 @@ class FilterCollection extends FilterCollectionProperties
 	 */
 	public function retrieveListings(): array
 	{
-        $this->connectToDatabase();
         $args = $this->formatListingsQuery();
-
         $data = call_user_func_array([$this, 'fetchRecords'], $args);
 
         // If the query is a procedure that calculates record count, retrieve that total record count

@@ -16,9 +16,9 @@ use Littled\PageContent\SiteSection\ListingsKeywords;
 
 class AlbumFilters extends ContentFilters
 {
-	protected static $cookie_key = 'alb';
+	protected static string $cookie_key = 'alb';
 	/** @var int */
-	protected static $default_listings_length = 20;
+	protected static ?int $default_listings_length = 20;
 	
 	const RELEASED_AFTER_KEY = "fara";
 	const RELEASED_BEFORE_KEY = "farb";
@@ -53,7 +53,7 @@ class AlbumFilters extends ContentFilters
 	{
 		parent::__construct();
 
-		$this->keyword          = new StringContentFilter   ("keyword", Keyword::FILTER_PARAM, '', 50, static::getCookieKey());
+		$this->keyword          = new StringContentFilter   ("keyword", Keyword::FILTER_KEY, '', 50, static::getCookieKey());
 		$this->title            = new StringContentFilter   ("title", "fati", '', 50, static::getCookieKey());
 		$this->date             = new StringContentFilter   ("date", "fadt", '', 20, static::getCookieKey());
 		$this->access           = new StringContentFilter   ("access", "faac", '', 20, static::getCookieKey());

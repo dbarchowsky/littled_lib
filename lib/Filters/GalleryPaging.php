@@ -33,7 +33,7 @@ class GalleryPaging extends FilterCollection
 	/** @var string Book filter variable name. */
 	const BOOK_PARAM = "b";
 	/** @var string Page filter variable name. */
-	const PAGE_PARAM = "p";
+	const PAGE_KEY = "p";
 	/** @var string Menu filter variable name. */
 	const MENU_PARAM = "m";
 	/** @var int Number of records to display in front-end listings. */
@@ -44,7 +44,7 @@ class GalleryPaging extends FilterCollection
 	/** @var int Page content type id as defined in site_section table to be defined in derived classes. */
 	public static $page_content_type_id = null;
 	/** @var string Label to be used to describe records in listings content. */
-	public static $listings_label = "";
+	public static string $listings_label = "";
 
 	public function DEFAULT_PAGE_LEN () { return($this::$frontend_page_length); }
 
@@ -59,7 +59,7 @@ class GalleryPaging extends FilterCollection
 		$this->contentTypeID = $content_type_id;
 		$this->pageContentTypeID = $page_content_type_id;
 		$this->book_id = new IntegerContentFilter("book", $this::BOOK_PARAM, null, null, $this::COOKIE_NAME);
-		$this->page_id = new IntegerContentFilter("page", $this::PAGE_PARAM, null, null, $this::COOKIE_NAME);
+		$this->page_id = new IntegerContentFilter("page", $this::PAGE_KEY, null, null, $this::COOKIE_NAME);
 		$this->menu_page = new IntegerContentFilter("menu", $this::MENU_PARAM, null, null, $this::COOKIE_NAME);
 		$this->ref = new StringContentFilter("referer", "ref", '', 200, $this::COOKIE_NAME);
 	}

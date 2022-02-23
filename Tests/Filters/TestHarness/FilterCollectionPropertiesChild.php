@@ -1,19 +1,14 @@
 <?php
 
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\Filters\TestHarness;
 
 use Littled\Filters\FilterCollectionProperties;
 
 class FilterCollectionPropertiesChild extends FilterCollectionProperties
 {
-    /** @var string */
-    protected static $cookie_key = '';
-    /** @var int */
-    protected static $default_listings_length = 50;
-    /** @var string */
-    protected static $listings_label = 'child';
-    /** @var string */
-    protected static $key_prefix = '';
-    /** @var string */
-    protected static $table_name = 'child_table';
+    protected static string $cookie_key = '';
+    protected static int $default_listings_length = 50;
+    protected static string $listings_label = 'child';
+    protected static string $key_prefix = '';
+    protected static string $table_name = 'child_table';
 }

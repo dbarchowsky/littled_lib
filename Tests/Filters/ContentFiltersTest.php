@@ -4,8 +4,8 @@ require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
-use Littled\Tests\Filters\Samples\ContentFiltersProcedureChild;
-use Littled\Tests\Filters\Samples\ContentFiltersChild;
+use Littled\Tests\Filters\TestHarness\ContentFiltersProcedureChild;
+use Littled\Tests\Filters\TestHarness\ContentFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

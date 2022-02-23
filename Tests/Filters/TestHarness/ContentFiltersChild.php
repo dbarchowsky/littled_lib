@@ -1,21 +1,16 @@
 <?php
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\Filters\TestHarness;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 
 class ContentFiltersChild extends ContentFilters
 {
-    /** @var int */
     protected static ?int $content_type_id = 1; /* articles */
-    /** @var string */
-    protected static $table_name='article';
-    /** @var int */
-    protected static $default_listings_length = 20;
-    /** @var string */
-    protected static $key_prefix = '';
-    /** @var string */
-    protected static $cookie_key = '';
+    protected static string $table_name='article';
+    protected static int $default_listings_length = 20;
+    protected static string $key_prefix = '';
+    protected static string $cookie_key = '';
 
     /**
      * @return string[]

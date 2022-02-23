@@ -4,7 +4,7 @@ require_once (realpath(dirname(__FILE__)).'/../bootstrap.php');
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\FilterCollectionProperties;
-use Littled\Tests\Filters\Samples\FilterCollectionPropertiesChild;
+use Littled\Tests\Filters\TestHarness\FilterCollectionPropertiesChild;
 use PHPUnit\Framework\TestCase;
 
 class FilterCollectionPropertiesTest extends TestCase
@@ -61,7 +61,7 @@ class FilterCollectionPropertiesTest extends TestCase
      */
     function testDefaultListingsLengthUnset()
     {
-        $this->expectExceptionMessageMatches('/Default listings length value not set.*FilterCollectionProperties/');
+        $this->expectExceptionMessageMatches('/\$default_listings_length must not be accessed before/i');
         FilterCollectionProperties::getDefaultListingsLength();
     }
 
