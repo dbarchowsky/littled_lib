@@ -1,5 +1,8 @@
 {
     "name": "dbarchowsky/littled",
+    "require": {
+        "php": ">=7.4"
+    },
     "autoload": {
         "psr-4": {
             "Littled\\": "lib/",
