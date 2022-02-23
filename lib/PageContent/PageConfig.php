@@ -44,7 +44,7 @@ class PageConfig
 	 */
 	public static function addBreadcrumb(string $label, string $url='', string $dom_id='', string $css_class='')
 	{
-		if (!is_object(static::$breadcrumbs)) {
+		if (!isset(static::$breadcrumbs)) {
 			static::$breadcrumbs = new Breadcrumbs();
 		}
 		static::$breadcrumbs->addNode($label, $url, $dom_id, $css_class);
@@ -81,7 +81,7 @@ class PageConfig
         string $dom_id='',
         string $attributes='')
 	{
-		if (!is_object(static::$utilityLinks)) {
+		if (!isset(static::$utilityLinks)) {
 			static::$utilityLinks = new NavigationMenu();
 		}
 		static::$utilityLinks->addNode($label, $url, $title, $target, $level, $dom_id, $attributes);
@@ -148,7 +148,7 @@ class PageConfig
 	 */
 	public static function getBreadcrumbs(): ?Breadcrumbs
 	{
-		return(static::$breadcrumbs);
+		return(isset(static::$breadcrumbs)?(static::$breadcrumbs):(null));
 	}
 
 	/**
@@ -157,7 +157,7 @@ class PageConfig
 	 */
 	public static function getContentCSSClass(): string
 	{
-		return(static::$contentCSSClass);
+		return(isset(static::$contentCSSClass)?(static::$contentCSSClass):(''));
 	}
 
 	/**
@@ -251,7 +251,7 @@ class PageConfig
 	 */
 	public static function metadata()
 	{
-		if (!is_object(static::$metadata)) {
+		if (!isset(static::$metadata)) {
 			static::$metadata = new PageMetadata();
 		}
 	}
@@ -429,7 +429,7 @@ class PageConfig
 	 */
 	public static function updateBreadcrumb(string $label, string $url)
 	{
-		if (null === static::$breadcrumbs) {
+		if (!isset(static::$breadcrumbs)) {
 			return;
 		}
 		$node = static::$breadcrumbs->find($label);
