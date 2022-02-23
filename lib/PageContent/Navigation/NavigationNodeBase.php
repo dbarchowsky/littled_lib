@@ -12,17 +12,19 @@ class NavigationNodeBase
 	protected static string $node_template_path = '';
 
 	/** @var string CSS class to apply to the node. */
-	public string $css_class;
+	public string $css_class='';
 	/** @var string DOM id for the node element */
-	public string $dom_id;
+	public string $dom_id='';
 	/** @var string Node label to display on the page. */
-	public string $label;
+	public string $label='';
 	/** @var NavigationNodeBase Link to next node in the menu. */
 	public NavigationNodeBase $next_node;
 	/** @var NavigationNodeBase Link to previous node in the menu. */
 	public NavigationNodeBase $prev_node;
 	/** @var string URL that the node links to */
-	public string $url;
+	public string $url='';
+	/** @var string Extra attributes to add to the node HTML tag, e.g. "data-id" */
+	public string $attributes='';
 
 	/**
 	 * Class constructor

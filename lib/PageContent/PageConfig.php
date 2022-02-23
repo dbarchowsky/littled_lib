@@ -28,8 +28,8 @@ class PageConfig
 	public static array $preloads = array();
 	/** @var PageMetadata Site metadata */
 	protected static PageMetadata $metadata;
-	/** @var string Status message passed from one page to another */
-	protected static string $status;
+	/** @var ?string Status message passed from one page to another */
+	protected static ?string $status;
 	/** @var NavigationMenu Page utility links list. */
 	protected static NavigationMenu $utilityLinks;
 	/** @var Breadcrumbs Page breadcrumb list. */
@@ -353,7 +353,7 @@ class PageConfig
 	 */
 	public static function setLinkAttributes(string $attributes)
 	{
-		if (!is_object(static::$utilityLinks)) {
+		if (!isset(static::$utilityLinks)) {
 			return;
 		}
 		static::$utilityLinks->last->attributes = $attributes;
