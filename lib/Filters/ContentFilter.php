@@ -66,6 +66,23 @@ class ContentFilter
 		}
 	}
 
+    /**
+     * Assign value property using value stored in a cookie.
+     * @return void
+     */
+    public function collectValueFromCookie()
+    {
+        if ($this->cookieKey && isset($_COOKIE[$this->cookieKey])) {
+            $ar = explode('|', $_COOKIE[$this->cookieKey]);
+            if (array_key_exists($this->key, $ar)) {
+                $this->value = $ar[$this->key];
+            }
+        }
+        elseif (isset($_COOKIE[$this->key])) {
+            $this->value = $_COOKIE[$this->key];
+        }
+    }
+
 	/**
 	 * collects filter value from request variables (GET or POST).
 	 */
@@ -87,22 +104,26 @@ class ContentFilter
 			return;
 		}
 
-		if (isset($_SESSION[$this->key])) {
-			$this->value = trim(''.$_SESSION[$this->key]);
-			return;
-		}
+        $this->collectValueFromSession();
+        if ($this->value) {
+            return;
+        }
 
-		if ($read_cookies && $this->cookieKey) {
-			if (isset($_COOKIE[$this->cookieKey])) {
-				$ar = explode('|', $_COOKIE[$this->cookieKey]);
-				if (array_key_exists($this->key, $ar)) {
-					$this->value = $ar[$this->key];
-				}
-			} elseif (isset($_COOKIE[$this->key])) {
-				$this->value = $_COOKIE[$this->key];
-			}
-		}
+        if ($read_cookies) {
+            $this->collectValueFromCookie();
+        }
 	}
+
+    /**
+     * Assigns value property using value stored in session variable.
+     * @return void
+     */
+    public function collectValueFromSession()
+    {
+        if (isset($_SESSION[$this->key])) {
+            $this->value = trim(''.$_SESSION[$this->key]);
+        }
+    }
 
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.

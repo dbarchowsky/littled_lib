@@ -18,10 +18,11 @@ class BooleanContentFilter extends ContentFilter
 	 */
 	public function collectValue(bool $read_cookies=true)
 	{
-		parent::collectValue($read_cookies);
-		if ($this->value) {
-			$this->value = Validation::parseBoolean($this->value);
-		}
+		$this->value = Validation::collectBooleanRequestVar($this->key);
+        if ($this->value!==null) {
+            return;
+        }
+        parent::collectValue($read_cookies);
 	}
 
 	/**
