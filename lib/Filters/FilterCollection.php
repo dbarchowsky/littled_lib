@@ -78,7 +78,8 @@ class FilterCollection extends FilterCollectionProperties
 	 */
 	public function collectFilterValues(bool $save_filters=true, array $excluded_properties=[])
 	{
-		$this->referer_uri = Validation::collectRequestVar(LittledGlobals::REFERER_KEY);
+        $ref = Validation::collectStringRequestVar(LittledGlobals::REFERER_KEY);
+		$this->referer_uri = (($ref===null)?(''):($ref));
 
 		foreach ($this as $key => $filter) {
 			if (($filter instanceof ContentFilter) && (!in_array($key, $excluded_properties))) {

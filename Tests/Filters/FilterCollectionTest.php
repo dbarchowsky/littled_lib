@@ -1,9 +1,11 @@
 <?php
 namespace Littled\Tests\Filters;
 
+use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\NotImplementedException;
 use Littled\Tests\Filters\TestHarness\FilterCollectionChild;
 use Littled\Tests\Filters\TestHarness\FilterCollectionChildWithProcedure;
 use PHPUnit\Framework\TestCase;
@@ -53,6 +55,20 @@ class FilterCollectionTest extends TestCase
         $conn->query('DE'.'LETE FROM `'.self::TEST_TABLE.'` WHERE `name` LIKE \'%'.self::TEST_RECORD_LABEL.'%\'');
         $conn->closeDatabaseConnection();
         unset($conn);
+    }
+
+    /**
+     * @throws NotImplementedException
+     */
+    function testCollectFilterValues_ReferringURI()
+    {
+        $o = new FilterCollectionChild();
+        $o->collectFilterValues();
+        $this->assertEquals('', $o->referer_uri);
+
+        $_POST[LittledGlobals::REFERER_KEY] = 'https://localhost';
+        $o->collectFilterValues();
+        $this->assertEquals('https://localhost', $o->referer_uri);
     }
 
     function testFormatListingsQueryNotImplemented()
