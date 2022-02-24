@@ -1,27 +1,15 @@
 <?php
 namespace Littled\Log;
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\PageContent\ContentUtils;
+use Littled\PageContent\PageContent;
 use DateTime;
 use Exception;
-use Littled\Exception\ConfigurationUndefinedException;
+use Throwable;
 
 class Debug
 {
-	/**
-	 * Utility routine that should be easier to spot in code than a simple call
-	 * to PHP's built-in exit() routine. 
-	 * @param string $debug_msg (Optional) Error message to display before bailing.
-	 * @param bool $display_line_number (Optional) flag to display/suppress the line number in the debug output. Default value is TRUE.
-	 * @param bool $display_method_name (Optional) flag to display/suppress the current method name in the debug output. Default value is FALSE.
-	 */
-	public static function stopScript(string $debug_msg='', bool $display_line_number=true, bool $display_method_name=false )
-	{
-		if ($debug_msg) {
-			Debug::output($debug_msg, $display_line_number, $display_method_name);
-		}
-		exit;
-	}
-
 	/**
 	 * Generates log file name based on the current date and time.
 	 * @return string Log filename.
@@ -33,7 +21,19 @@ class Debug
 		return ($date->format('Y-m-d-H-i-s').".log");
 	}
 
-	/**
+    /**
+     * Returns the current method name with its class without the path.
+     * @return string
+     * @deprecated Use Log::getShortMethodName() instead.
+     */
+    public static function getShortMethodName(): string
+    {
+        $debug = debug_backtrace();
+        $class_path = explode('\\', $debug[1]['class']);
+        return end($class_path)."::".$debug[1]['function'];
+    }
+
+    /**
 	 * Prints out json encoded version of a variable.
 	 * @param mixed $var Variable to inspect
 	 */
@@ -43,17 +43,6 @@ class Debug
 		print (json_encode($var));
 		exit;
 	}
-
-    /**
-     * Returns the current method name with its class without the path.
-     * @return string
-     */
-    public static function getShortMethodName(): string
-    {
-        $debug = debug_backtrace();
-        $class_path = explode('\\', $debug[1]['class']);
-        return end($class_path)."::".$debug[1]['function'];
-    }
 
 	/**
 	 * Wrapper for PHP var_dump() routine that places it between preformatted text tags.
@@ -160,7 +149,22 @@ class Debug
 		}
 	}
 
-	/**
+    /**
+     * Utility routine that should be easier to spot in code than a simple call
+     * to PHP's built-in exit() routine.
+     * @param string $debug_msg (Optional) Error message to display before bailing.
+     * @param bool $display_line_number (Optional) flag to display/suppress the line number in the debug output. Default value is TRUE.
+     * @param bool $display_method_name (Optional) flag to display/suppress the current method name in the debug output. Default value is FALSE.
+     */
+    public static function stopScript(string $debug_msg='', bool $display_line_number=true, bool $display_method_name=false )
+    {
+        if ($debug_msg) {
+            Debug::output($debug_msg, $display_line_number, $display_method_name);
+        }
+        exit;
+    }
+
+    /**
 	 * Prints the value corresponding to the key in the session collection.
 	 * @param string $key Key of the session variable to inspect.
 	 */
