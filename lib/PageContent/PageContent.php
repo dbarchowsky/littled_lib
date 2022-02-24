@@ -127,7 +127,7 @@ class PageContent extends MySQLConnection
      */
     public function getLabel(): string
     {
-        if (!isset($this->content)) {
+        if (isset($this->content)) {
             return $this->content->getLabel();
         }
         return '';
