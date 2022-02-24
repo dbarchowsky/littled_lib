@@ -11,9 +11,9 @@ class SketchbookTestHarness extends SectionContent
     /** @var string */
     protected static $table_name='album';
     /** @var int */
-    protected static $content_type_id = self::CONTENT_TYPE_ID;
+    protected static int $content_type_id = self::CONTENT_TYPE_ID;
     /** @var KeywordTestHarness[] */
-    public $keyword_list;
+    public array $keyword_list;
 
     function __construct(int $id = null, int $content_type_id = null)
     {

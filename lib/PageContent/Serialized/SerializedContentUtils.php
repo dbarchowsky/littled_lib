@@ -20,18 +20,18 @@ use Exception;
 class SerializedContentUtils extends AppContentBase
 {
     /** @var string Path to CMS template dir */
-    protected static $common_cms_template_path;
+    protected static string $common_cms_template_path;
 
-	/** @var array Container for validation error messages. */
-	public $validationErrors;
+	/** @var string[] Container for validation error messages. */
+	public array $validationErrors=[];
 	/** @var string Error message returned when invalid form data is encountered. */
-	public $validationMessage;
+	public string $validationMessage='';
 	/** @var int */
-	protected static $content_type_id = null;
+	protected static int $content_type_id;
 	/** @var string Path to cache template. */
-	protected static $cache_template = '';
+	protected static string $cache_template = '';
 	/** @var string Path to rendered cache file to use on site front-end. */
-	protected static $output_cache_file = '';
+	protected static string $output_cache_file = '';
 
     /**
      * SerializedContentUtils constructor.
@@ -231,7 +231,7 @@ class SerializedContentUtils extends AppContentBase
 	 */
 	public static function getContentTypeId(): ?int
 	{
-		if (null === static::$content_type_id) {
+		if (!isset(static::$content_type_id)) {
             throw new ConfigurationUndefinedException('Content type not set.');
         }
         return static::$content_type_id;

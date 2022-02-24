@@ -28,9 +28,9 @@ class ContentPropertiesTest extends TestCase
 	const TEST_IMAGE_LABEL = 'pic';
 
 	/** @var ContentProperties Test SiteSection object. */
-	public $obj;
+	public ContentProperties $obj;
 	/** @var MySQLConnection database connection */
-	public $conn;
+	public MySQLConnection $conn;
 
     /**
      * @return void

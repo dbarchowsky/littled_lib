@@ -22,22 +22,22 @@ use Littled\Utility\LittledUtility;
 class ContentTemplate extends SerializedContent
 {
 	/** @var int Value of this record in the site section table. */
-	protected static $content_type_id = 33;
+	protected static int $content_type_id = 33;
 	/** @var string */
 	protected static $table_name = "content_template";
 
 	/** @var StringTextField Template name. */
-	public $name;
+	public StringTextField $name;
 	/** @var IntegerInput Content type id. */
-	public $content_id;
-	/** @var string Root directory of the content type, as specified in the parent site_section table. */
-	public $template_dir;
+	public IntegerInput $content_id;
+	/** @var StringTextField Root directory of the content type, as specified in the parent site_section table. */
+	public StringTextField $template_dir;
 	/** @var StringTextField Relative path to the content template. */
-	public $path;
+	public StringTextField $path;
 	/** @var StringSelect Location of the template, e.g. local vs. shared. */
-	public $location;
+	public StringSelect $location;
 	/** @var IntegerInput Pointer to $site_section_id property */
-	public $parentID;
+	public IntegerInput $parentID;
 
 	/**
 	 * ContentTemplate constructor.

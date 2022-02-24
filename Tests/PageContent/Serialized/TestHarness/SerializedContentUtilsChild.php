@@ -7,13 +7,13 @@ use Littled\Request\StringTextField;
 class SerializedContentUtilsChild extends SerializedContentChild
 {
     /** @var string */
-    protected static $cache_template = "/path/to/templates/child-cache-template.php";
+    protected static string $cache_template = "/path/to/templates/child-cache-template.php";
     /** @var int */
-    protected static $content_type_id = 10; /* sketchbook page */
+    protected static int $content_type_id = 10; /* sketchbook page */
     /** @var StringTextField */
-    public $cu_field;
+    public StringTextField $cu_field;
 	/** @var TestTable[] Array of linked SerializedContent records */
-	public $child_array=[];
+	public array $child_array=[];
 
     public function __construct()
     {

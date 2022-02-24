@@ -17,20 +17,20 @@ class TestTable extends SerializedContent
     /** @var int */
     public const CONTENT_TYPE_ID = 6037;
     /** @var int */
-    protected static $content_type_id = self::CONTENT_TYPE_ID;
+    protected static int $content_type_id = self::CONTENT_TYPE_ID;
     /** @var string */
 	protected static $table_name = 'test_table';
 
 	/** @var StringInput */
-	public $name;
+	public StringInput $name;
 	/** @var IntegerInput */
-	public $int_col;
+	public IntegerInput $int_col;
 	/** @var BooleanInput */
-	public $bool_col;
+	public BooleanInput $bool_col;
 	/** @var DateInput */
-	public $date;
+	public DateInput $date;
 	/** @var IntegerInput */
-	public $slot;
+	public IntegerInput $slot;
 
 	/**
 	 * Class constructor.
@@ -51,9 +51,12 @@ class TestTable extends SerializedContent
 		$this->slot = new IntegerInput('Slot', 'slot', false, $slot);
 	}
 
-    /**
-     * @inheritDoc
-     */
+	/**
+	 * @param array $used_keys
+	 * @return array
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 */
     public function formatDatabaseColumnListPublic(array $used_keys = []): array
     {
         return parent::formatDatabaseColumnList($used_keys);

@@ -9,17 +9,16 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\PageContent\SiteSection\SectionContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
 {
-	/** @var SectionContent Test SectionContent object. */
-	public $obj;
+	/** @var SectionContentTestHarness Test SectionContent object. */
+	public SectionContentTestHarness $obj;
 	/** @var MySQLConnection Test database connection. */
-	public $conn;
+	public MySQLConnection $conn;
     /** @var int */
     protected const CONTENT_TEMPLATE_CONTENT_TYPE_ID = 33; /* "Content Template" record in site_section table */
 
@@ -116,19 +115,20 @@ class SectionContentTest extends TestCase
 	}
 
 	/**
-	 * @throws ConfigurationUndefinedException
+	 * @return void
 	 * @throws ConnectionException
+	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-     * @throws RecordNotFoundException
+	 * @throws RecordNotFoundException
 	 */
 	public function testRetrieveSectionPropertiesUsingDefaultValue()
 	{
 		try {
 			$this->obj->retrieveSectionProperties();
 		}
-		catch(ContentValidationException $ex) {
-			$this->assertStringContainsString("Cannot retrieve section properties.", $ex->getMessage());
+		catch(ConfigurationUndefinedException $ex) {
+			$this->assertMatchesRegularExpression("/content type not set/i", $ex->getMessage());
 		}
 	}
 

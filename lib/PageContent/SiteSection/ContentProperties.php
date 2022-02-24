@@ -30,62 +30,62 @@ class ContentProperties extends SerializedContent
 	/** @var string Name of the table holding site section data. */
 	const DEFAULT_TABLE_NAME = 'site_section';
 	/** @var int */
-	protected static $content_type_id = self::SECTION_ID;
+	protected static int $content_type_id = self::SECTION_ID;
 	/** @var string */
 	protected static $table_name = 'site_section';
 
 	/** @var StringTextField Name of the content. */
-	public $name;
+	public StringTextField $name;
     /** @var StringTextField Name of the content. */
-    public $slug;
+    public StringTextField $slug;
 	/** @var StringTextField Root directory for section content. */
-	public $root_dir;
+	public StringTextField $root_dir;
 	/** @var StringTextField Target path for image uploads. */
-	public $image_path;
+	public StringTextField $image_path;
 	/** @var StringTextField Subdirectory for section content. */
-	public $sub_dir;
+	public StringTextField $sub_dir;
 	/** @var StringTextField Label used when displaying images as a group on the front-end. */
-	public $image_label;
+	public StringTextField $image_label;
     /**
      * @todo consider replacing hard-coded image dimension fields with a new table linked to this one
      * with separate records for each image spec.
      */
 	/** @var IntegerTextField Target width of full-resolution images. */
-	public $width;
+	public IntegerTextField $width;
 	/** @var IntegerTextField Target height of full-resolution images. */
-	public $height;
+	public IntegerTextField $height;
 	/** @var IntegerTextField Target width of medium-sized thumbnail images. */
-	public $med_width;
+	public IntegerTextField $med_width;
 	/** @var IntegerTextField Target height of medium-sized thumbnail images. */
-	public $med_height;
+	public IntegerTextField $med_height;
 	/** @var BooleanCheckbox Flag indicating that miniature thumbnail versions of images are to be generated when uploading and editing images. */
-	public $save_mini;
+	public BooleanCheckbox $save_mini;
 	/** @var IntegerTextField Target width of the smallest image set. */
-	public $mini_width;
+	public IntegerTextField $mini_width;
 	/** @var IntegerTextField Target height of the smallest image set. */
-	public $mini_height;
+	public IntegerTextField $mini_height;
 	/** @var StringSelect Image format, e.g. jpeg, png, etc. */
-	public $format;
+	public StringSelect $format;
 	/** @var StringTextField Parameter prefix to use for this content type. */
-	public $param_prefix;
+	public StringTextField $param_prefix;
 	/** @var StringTextField Content able name. */
-	public $table;
+	public StringTextField $table;
 	/** @var IntegerSelect Record id of parent content type record in site_section table. */
-	public $parent_id;
+	public IntegerSelect $parent_id;
 	/** @var BooleanCheckbox Flag indicating that this section's content gets cached. */
-	public $is_cached;
+	public BooleanCheckbox $is_cached;
 	/** @var BooleanCheckbox Flag indicating to use gallery thumbnails. */
-	public $gallery_thumbnail;
+	public BooleanCheckbox $gallery_thumbnail;
 	/** @var string Name of the argument used to pass the record id to and from pages and scripts. Stored in the section_operations table. */
-	public $id_key = '';
+	public string $id_key = '';
 	/** @var string Parent content type name. */
-	public $parent = '';
+	public string $parent = '';
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
-	public $label='';
+	public string $label='';
 	/** @var ContentTemplate[] Array of templates used to render the section's content. */
-	public $templates=[];
+	public array $templates=[];
 	/** @var ContentRoute[] Array of templates used to render the section's content. */
-	public $routes=[];
+	public array $routes=[];
 
 	/**
 	 * SiteSection constructor.
@@ -314,8 +314,12 @@ class ContentProperties extends SerializedContent
 		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		$this->resetExtraProperties();
 		if (count($data) > 0) {
-			$this->id_key = $data[0]->id_param;
-			$this->parent = $data[0]->parent;
+			if ($data[0]->id_param !== null) {
+				$this->id_key = $data[0]->id_param;
+			}
+			if ($data[0]->parent !== null) {
+				$this->parent = $data[0]->parent;
+			}
 			$this->label = $data[0]->label;
 		}
 		$this->readRoutes();

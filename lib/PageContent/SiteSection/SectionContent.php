@@ -19,7 +19,7 @@ use Exception;
 abstract class SectionContent extends SerializedContent
 {
 	/** @var ContentProperties Site section properties. */
-	public $content_properties;
+	public ContentProperties $content_properties;
 
 	/**
 	 * SectionContent constructor.
@@ -73,7 +73,7 @@ abstract class SectionContent extends SerializedContent
 		return $this->content_properties->id->value;
 	}
 
-    /**
+	/**
      * Content label getter.
      * @return string
      */
@@ -100,12 +100,10 @@ abstract class SectionContent extends SerializedContent
 	public function getListingsTemplatePath(): string
 	{
         $listings_tokens = array('listings', 'cms-listings');
-        if ($this->content_properties instanceof ContentProperties) {
-            foreach ($listings_tokens as $token) {
-                $template = $this->content_properties->getContentTemplateByName($token);
-                if ($template instanceof ContentTemplate) {
-                    return $template->formatFullPath();
-                }
+        foreach ($listings_tokens as $token) {
+            $template = $this->content_properties->getContentTemplateByName($token);
+            if ($template instanceof ContentTemplate) {
+                return $template->formatFullPath();
             }
         }
         return '';
@@ -165,7 +163,7 @@ abstract class SectionContent extends SerializedContent
 	public function retrieveSectionProperties()
 	{
 		if ($this->content_properties->id->value===null || $this->content_properties->id->value < 1) {
-			throw new ContentValidationException("Cannot retrieve section properties. Content site section not specified within ".get_class($this).".");
+			$this->content_properties->id->value = static::getContentTypeId();
 		}
 		$this->content_properties->read();
 	}

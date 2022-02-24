@@ -9,16 +9,16 @@ use Littled\Request\URLTextField;
 class ContentRoute extends SerializedContent
 {
 	/** @var int Value of this record in the site section table. */
-	protected static $content_type_id = 34;
+	protected static int $content_type_id = 34;
 	/** @var string */
 	protected static $table_name = "content_route";
 
 	/** @var IntegerSelect */
-	public $site_section_id;
+	public IntegerSelect $site_section_id;
 	/** @var StringTextField */
-	public $operation;
+	public StringTextField $operation;
 	/** @var URLTextField */
-	public $url;
+	public URLTextField $url;
 
 	/**
 	 * Class constructor
