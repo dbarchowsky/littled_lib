@@ -21,9 +21,9 @@ class PageContent extends MySQLConnection
     /** @var string Token representing the current action to take on the page. */
     public string $edit_action='';
     /** @var SectionContent Page content. */
-    public SectionContent $content;
+    public $content;
     /** @var ContentFilters Content filters. */
-    public ContentFilters $filters;
+    public $filters;
     /** @var string @var */
     public string $label = '';
     /** @var string Query string to attach to page links. */
