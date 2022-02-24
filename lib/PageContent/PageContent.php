@@ -19,21 +19,24 @@ use Littled\Validation\Validation;
 class PageContent extends MySQLConnection
 {
     /** @var string Token representing the current action to take on the page. */
-    public $edit_action='';
+    public string $edit_action='';
     /** @var SectionContent Page content. */
-    public $content;
+    public SectionContent $content;
     /** @var ContentFilters Content filters. */
-    public $filters;
+    public ContentFilters $filters;
     /** @var string @var */
-    public $label = '';
+    public string $label = '';
     /** @var string Query string to attach to page links. */
-    protected $query_string = '';
-    /** @var string Query string containing variables defining page state. */
-    public $qs = '';
+    protected string $query_string = '';
+    /**
+     * @deprecated Use $query_string property instead.
+     * @var string Query string containing variables defining page state.
+     */
+    public string $qs = '';
 	/** @var string URL to use for redirects. */
-	public $redirect_url = '';
+	public string $redirect_url = '';
 	/** @var string Path to template file. */
-	public $template_path = '';
+	public string $template_path = '';
 
 	const CANCEL_ACTION = "cancel";
 	const COMMIT_ACTION = "commit";
@@ -81,9 +84,9 @@ class PageContent extends MySQLConnection
         }
 		foreach ($keys as $key => $value) {
 			if (array_key_exists($key, $src)) {
-				$this->edit_action = filter_var($src[$key], FILTER_SANITIZE_STRING);
+				$this->edit_action = filter_var($src[$key], FILTER_UNSAFE_RAW);
 			}
-			if (0===$this->edit_action|| '0'===$this->edit_action) {
+			if (!isset($this->edit_action) || '0'===$this->edit_action) {
 				$this->edit_action = '';
 				continue;
 			}
@@ -113,8 +116,8 @@ class PageContent extends MySQLConnection
      */
     public function formatPageStateQueryString(): string
     {
-        $this->qs = $this->filters->formatQueryString();
-		return $this->qs;
+        $this->query_string = $this->filters->formatQueryString();
+		return $this->query_string;
     }
 
     /**
@@ -123,7 +126,7 @@ class PageContent extends MySQLConnection
      */
     public function getLabel(): string
     {
-        if ($this->content instanceof SectionContent) {
+        if (!isset($this->content)) {
             return $this->content->getLabel();
         }
         return '';
@@ -135,7 +138,7 @@ class PageContent extends MySQLConnection
 	 */
 	public function getContentLabel(): string
 	{
-		if ($this->content instanceof SectionContent) {
+		if (isset($this->content)) {
 			return $this->content->getContentLabel();
 		}
 		return '';
@@ -182,7 +185,7 @@ class PageContent extends MySQLConnection
             }
         }
         if (count($qs_vars) > 0) {
-            $this->qs = '?'.implode('&', $qs_vars);
+            $this->query_string = '?'.implode('&', $qs_vars);
         }
     }
 
@@ -206,7 +209,7 @@ class PageContent extends MySQLConnection
 	 */
 	public function resetPageVariables()
 	{
-		$this->qs = '';
+		$this->query_string = '';
 	}
 
     /**
