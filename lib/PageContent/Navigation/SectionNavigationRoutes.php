@@ -34,7 +34,8 @@ class SectionNavigationRoutes
      */
     public static function getDetailsRouteBase(): string
     {
-        return explode('/', static::$details_route)[0];
+        $arr = array_values(array_filter(explode('/', static::$details_route)));
+        return ((count($arr) > 0)?($arr[0]):(''));
     }
 
 	/**
@@ -70,7 +71,8 @@ class SectionNavigationRoutes
      */
     public static function getListingsRouteBase(): string
     {
-        return explode('/', static::$listings_route)[0];
+        $arr = array_values(array_filter(explode('/', static::$listings_route)));
+        return ((count($arr) > 0)?($arr[0]):(''));
     }
 
     /**
