@@ -39,6 +39,20 @@ class BooleanContentFilter extends ContentFilter
 		if ($this->value===false || $this->value===0) {
 			return('0');
 		}
-		return ('null');
+		return ('NULL');
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function formatQueryString(): string
+    {
+        if ($this->value===true || $this->value===1) {
+            return $this->key.'=1';
+        }
+        if ($this->value===false || $this->value===0) {
+            return $this->key.'=0';
+        }
+        return '';
+    }
 }

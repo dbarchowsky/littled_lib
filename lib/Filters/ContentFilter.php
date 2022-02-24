@@ -152,10 +152,19 @@ class ContentFilter
 	 */
 	function formatQueryString( ): string
 	{
-		if (strlen($this->value)>0) {
-			return("$this->key=".urlencode($this->value));
-		}
-		return ('');
+        if ($this->value===null) {
+            return '';
+        }
+        if ($this->value===true) {
+            return $this->key.'=1';
+        }
+        if ($this->value===false) {
+            return $this->key.'=0';
+        }
+        if (strlen($this->value) < 1) {
+            return '';
+        }
+        return $this->key.'='.urlencode($this->value);
 	}
 
 	/**

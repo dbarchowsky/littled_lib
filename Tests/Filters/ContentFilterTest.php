@@ -30,6 +30,19 @@ class ContentFilterTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::formatQueryStringTestProvider()
+     * @param string $expected
+     * @param $value
+     * @return void
+     */
+    function testFormatQueryString(string $expected, $value)
+    {
+        $o = new ContentFilter('Label', 'key');
+        $o->value = $value;
+        $this->assertEquals($expected, $o->formatQueryString());
+    }
+
+    /**
      * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::escapeSQLTestProvider()
      * @return void
      * @throws Exception

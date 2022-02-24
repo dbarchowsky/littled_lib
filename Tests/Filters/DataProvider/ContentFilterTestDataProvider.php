@@ -30,6 +30,23 @@ class ContentFilterTestDataProvider
         );
     }
 
+    public static function formatQueryStringTestProvider(): array
+    {
+        return array(
+            array('', null),
+            array('', ''),
+            array('key=1', '1'),
+            array('key=86', '86'),
+            array('key=1', 1),
+            array('key=845', 845),
+            array('key=-12', -12),
+            array('key=my+test', 'my test'),
+            array('key=my+%26test', 'my &test'),
+            array('key=1', true),
+            array('key=0', false),
+        );
+    }
+
     public static function safeValueTestProvider(): array
     {
         return array(

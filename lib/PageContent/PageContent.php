@@ -7,6 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
+use Littled\Log\Log;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -119,6 +120,15 @@ class PageContent extends MySQLConnection
     {
         $this->query_string = $this->filters->formatQueryString();
 		return $this->query_string;
+    }
+
+    /**
+     * Returns URI of details page with filter
+     * @throws NotImplementedException
+     */
+    public function getDetailsURI(?int $record_id=null): string
+    {
+        throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
     }
 
     /**

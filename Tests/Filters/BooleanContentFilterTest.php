@@ -10,10 +10,11 @@ use mysqli;
 class BooleanContentFilterTest extends TestCase
 {
     /**
+     * @dataProvider \Littled\Tests\Filters\DataProvider\BooleanContentFilterTestDataProvider::escapeSQLTestProvider()
      * @return void
      * @throws Exception
      */
-	public function testEscapeSQL()
+	public function testEscapeSQL(string $expected, $value, string $msg='')
 	{
         if (!defined('MYSQL_HOST') ||
             !defined('MYSQL_USER') ||
@@ -24,29 +25,21 @@ class BooleanContentFilterTest extends TestCase
         }
 		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
 
-		/* test null value */
-		$cf = new BooleanContentFilter('Test Filter', 'p_test', null);
-		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals('null', $escaped);
-
-		/* test integer value */
-		$cf->value = 1;
-		$escaped_2 = $cf->escapeSQL($mysqli);
-		$this->assertEquals('1', $escaped_2);
-
-		/* test integer value */
-		$cf->value = 0;
-		$escaped_3 = $cf->escapeSQL($mysqli);
-		$this->assertEquals('0', $escaped_3);
-
-		/* test true value */
-		$cf->value = true;
-		$escaped_4 = $cf->escapeSQL($mysqli);
-		$this->assertEquals('1', $escaped_4);
-
-		/* test false value */
-		$cf->value = false;
-		$escaped_5 = $cf->escapeSQL($mysqli);
-		$this->assertEquals('0', $escaped_5);
+		$cf = new BooleanContentFilter('Test Filter', 'p_test');
+        $cf->value = $value;
+		$this->assertEquals($expected, $cf->escapeSQL($mysqli), $msg);
 	}
+
+    /**
+     * @dataProvider \Littled\Tests\Filters\DataProvider\BooleanContentFilterTestDataProvider::formatQueryStringTestProvider()
+     * @param string $expected
+     * @param $value
+     * @return void
+     */
+    function testFormatQueryString(string $expected, $value, $msg)
+    {
+        $o = new BooleanContentFilter('Label', 'key');
+        $o->value = $value;
+        $this->assertEquals($expected, $o->formatQueryString(), $msg);
+    }
 }
