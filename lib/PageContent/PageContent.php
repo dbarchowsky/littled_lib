@@ -48,6 +48,7 @@ class PageContent extends MySQLConnection
     function __construct()
     {
         parent::__construct();
+        $this->qs = &$this->query_string;
         return $this;
     }
 
