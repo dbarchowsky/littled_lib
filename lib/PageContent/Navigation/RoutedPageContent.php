@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Navigation;
 
 use Exception;
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
@@ -10,6 +11,7 @@ use Littled\Filters\ContentFilters;
 use Littled\Filters\FilterCollection;
 use Littled\Log\Log;
 use Littled\PageContent\PageContent;
+use Littled\PageContent\SiteSection\SectionContent;
 
 class RoutedPageContent extends PageContent
 {
@@ -28,6 +30,23 @@ class RoutedPageContent extends PageContent
 
     /** @var SectionNavigationRoutes Section navigation routes. */
     public SectionNavigationRoutes $routes;
+
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    public function checkAndCommitUpdates()
+    {
+        if (LittledGlobals::COMMIT_KEY === $this->edit_action) {
+            // save any edits made on a page
+            $this->updateRecord();
+        }
+        if ( $this->content instanceof SectionContent &&
+            false === $this->content->hasValidationErrors() &&
+            in_array($this->edit_action, [PageContent::COMMIT_ACTION, PageContent::CANCEL_ACTION])) {
+            // load page selected to be the next page after editing and saving a record
+            $page = $this->getUpdateResponsePage();
+        }
+    }
 
     /**
      * Parses route components to fetch record id and action values. Route is expected to be in the format of
