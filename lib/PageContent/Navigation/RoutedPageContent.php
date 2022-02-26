@@ -3,6 +3,7 @@ namespace Littled\PageContent\Navigation;
 
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
@@ -268,5 +269,31 @@ class RoutedPageContent extends PageContent
     public static function setRoutesClassName(string $routes_class)
     {
         static::$routes_class = $routes_class;
+    }
+
+    /**
+     * Save content edited within a page.
+     * @return void
+     */
+    public function updateRecord()
+    {
+        $this->content->collectRequestData();
+
+        try {
+            $this->content->validateInput();
+        }
+        catch(ContentValidationException $e) { /* continue */ }
+
+        if ($this->content->hasValidationErrors()) {
+            $this->content->unshiftValidationError('Problems were found in the information entered.');
+            return;
+        }
+
+        try {
+            $this->content->save();
+        }
+        catch(Exception $e) {
+            $this->content->addValidationError($e->getMessage());
+        }
     }
 }
