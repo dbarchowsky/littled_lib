@@ -44,8 +44,8 @@ class UserLogin extends UserAccount
 		$this->uname = &$this->login;
 		$this->username = &$this->login;
 
-		$this->password_confirm->isDatabaseField = false;
-		$this->new_password->isDatabaseField = false;
+		$this->password_confirm->is_database_field = false;
+		$this->new_password->is_database_field = false;
 	}
 
 	/**

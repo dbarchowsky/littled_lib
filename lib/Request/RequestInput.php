@@ -18,61 +18,61 @@ use mysqli;
 class RequestInput
 {
     /** @var string Path to form input templates. */
-    protected static $template_base_path = '';
+    protected static string $template_base_path = '';
     /** @var string Input template filename. */
-    protected static $template_filename = 'hidden-input.php';
+    protected static string $template_filename = 'hidden-input.php';
     /** @var string Form input element filename. */
-    protected static $input_template_filename = '';
+    protected static string $input_template_filename = '';
     /** @var string Required field indicator string. */
-    protected static $required_field_indicator = ' (*)';
+    protected static string $required_field_indicator = ' (*)';
     /** @var string Error indicator CSS class. */
-    protected static $error_class = 'form-error';
+    protected static string $error_class = 'form-error';
     /** @var string */
-    protected static $input_error_css_class = 'input-error';
+    protected static string $input_error_css_class = 'input-error';
 
 	/** @var string Name of CSS class to be used when displaying the form input. */
-	public $cssClass='';
+	public string $container_css_class='form-cell';
 	/** @var string Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
-	public $contentType;
+	public string $content_type='text';
 	/**
 	 * @var boolean If FALSE this property will be passed over when retrieving or saving its value from or to the
 	 * database. Default value is TRUE.
 	 */
-	public $isDatabaseField;
+	public bool $is_database_field=true;
 	/**
 	 * @var string Name to use to override the default name of the column in the database holding the value linked to
 	 * this property. The default value is the name of the property in the parent class.
 	 */
-	public $columnName;
+	public string $column_name='';
 	/** @var bool Flag indicating that the object value should not be assigned from request variable values. */
-	public $bypassCollectPostData;
+	public bool $bypass_collect_request_data=false;
 
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
 	 * when rendering the input. If TRUE, a placeholder attribute will be added
 	 * (to text fields), using the object's "label" property value as its value.
 	 */
-	public $displayPlaceholder;
+	public bool $display_placeholder=false;
 	/** @var boolean Flag indicating that an error was detected with the value supplied for this form data. */
-	public $hasErrors;
+	public bool $has_errors=false;
 	/** @var string If an error was detected with the value of a form data, a description of the error will be stored in this property. */
-	public $error;
-	/** @var int When supplying an array of values for a single key, the  value can be used to sort them. */
-	public $index;
+	public string $error='';
+	/** @var string|int|null When supplying an array of values for a single key, the  value can be used to sort them. */
+	public $index=null;
 	/** @var string Label to display where descriptions of the input are needed. */
-	public $label;
+	public string $label='';
 	/** @var string  Name of script argument. Name of key in query string or form data. */
-	public $key;
+	public string $key='';
 	/** @var string CSS class identifier. */
-	public $class;
+	public string $input_css_class='';
 	/** @var bool Set to TRUE if a value for this form data is required. */
-	public $required;
+	public bool $required=false;
 	/** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textbox inputs. */
-	public $sizeLimit;
+	public int $size_limit=0;
 	/** @var mixed Value of the script argument. Value collected from form data. */
 	public $value;
 	/** @var string If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
-	public $width;
+	public string $width='';
 
 	/**
 	 * class constructor
@@ -93,19 +93,10 @@ class RequestInput
 	{
 		$this->label              = $label;
 		$this->key                = $key;
-		$this->setInputValue($value);
-		$this->sizeLimit          = $size_limit;
+		$this->size_limit         = $size_limit;
 		$this->required           = $required;
 		$this->index              = $index;
-		$this->hasErrors          = false;
-		$this->class              = "";
-		$this->width              = "";
-		$this->error              = "";
-		$this->isDatabaseField    = true;
-		$this->columnName         = "";
-		$this->displayPlaceholder = false;
-		$this->contentType        = "text";
-		$this->bypassCollectPostData = false;
+        $this->setInputValue($value);
 	}
 
 	/**
@@ -170,13 +161,21 @@ class RequestInput
 
     /**
      * Formats the css class attribute string to be injected into markup of the input's container element.
-     * @param string $css_class
+     * @param string $css_class (Optional) An additional CSS class to apply to the element in addition to the CSS class stored in the object.
+     * @param callable|null $css_callback (Optional) Routine to use to fetch the class from the input object that will be applied to the element. The markup element is either the input element itself or its container. Defaults to applying the input elements css class.
      * @return string
      */
-    public function formatClassAttributeMarkup(string $css_class=''): string
+    public function formatClassAttributeMarkup(string $css_class='', ?callable $css_callback=null): string
     {
-        $error_class = (($this->hasErrors)?(static::$input_error_css_class):(''));
-        $classes = trim(implode(' ', array_filter(array($this->cssClass, $css_class, $error_class))));
+        if ($css_callback===null) {
+            $css_callback = array($this, 'getInputCssClass');
+        }
+        $base_class = call_user_func($css_callback);
+        $error_class = '';
+        if ($this->has_errors) {
+            $error_class = (($css_callback[1]==='getInputCssClass')?(static::getInputErrorClass()):(static::getErrorClass()));
+        }
+        $classes = trim(implode(' ', array_filter(array($base_class, $css_class, $error_class))));
         return (($classes)?(" class=\"$classes\""):(''));
     }
 
@@ -187,7 +186,7 @@ class RequestInput
 	 */
 	public function formatErrorLabel(): string
 	{
-		return (ucfirst(strtolower(''.$this->label)));
+		return (ucfirst(strtolower($this->label)));
 	}
 
     /**
@@ -207,7 +206,7 @@ class RequestInput
 	 */
 	public function formatLabelMarkup( string $label ): string
 	{
-		if (strlen($label) > 0 && $this->displayPlaceholder===false) {
+		if (strlen($label) > 0 && $this->display_placeholder===false) {
 			return (ContentUtils::loadTemplateContent(static::$template_base_path."form-input-label.php", array(
 				'label' => $label,
 				'input' => &$this
@@ -234,6 +233,15 @@ class RequestInput
         return ("".$this->value);
     }
 
+    /**
+     * Container CSS class getter.
+     * @return string
+     */
+    public function getContainerCssClass(): string
+    {
+        return $this->container_css_class;
+    }
+
 	/**
 	 * Error css class getter.
 	 * @return string Current error css class value.
@@ -243,7 +251,25 @@ class RequestInput
 		return (static::$error_class);
 	}
 
-	/**
+    /**
+     * Error CSS class getter for the container element.
+     * @return string
+     */
+    public function getInputCssClass(): string
+    {
+        return $this->input_css_class;
+    }
+
+    /**
+     * Error CSS class getter for the input element.
+     * @return string Current error css class value.
+     */
+    public static function getInputErrorClass(): string
+    {
+        return (static::$input_error_css_class);
+    }
+
+    /**
 	 * Returns the filename of the template used to render just the input element.
 	 * @return string Form input template filename.
 	 */
@@ -311,7 +337,7 @@ class RequestInput
 	 */
 	public function ignoreRequestData()
 	{
-		$this->bypassCollectPostData = true;
+		$this->bypass_collect_request_data = true;
 	}
 
 	/**
@@ -320,7 +346,7 @@ class RequestInput
 	 */
 	public function isBypassingRequestData(): bool
 	{
-		return ($this->bypassCollectPostData===true);
+		return ($this->bypass_collect_request_data===true);
 	}
 
 	/**
@@ -445,6 +471,16 @@ class RequestInput
         $this->required = true;
     }
 
+    /**
+     * Container CSS class setter.
+     * @param string $class
+     * @return void
+     */
+    public function setContainerCSSClass(string $class)
+    {
+        $this->container_css_class = $class;
+    }
+
 	/**
 	 * Error css class setter.
 	 * @param string $css_class CSS class name.
@@ -453,6 +489,16 @@ class RequestInput
 	{
 		static::$error_class = $css_class;
 	}
+
+    /**
+     * Input CSS class setter.
+     * @param string $class
+     * @return void
+     */
+    public function setInputCSSClass(string $class)
+    {
+        $this->input_css_class = $class;
+    }
 
 	/**
 	 * Form input element template filename setter.
@@ -526,7 +572,7 @@ class RequestInput
      */
     public function clearValidationErrors()
     {
-        $this->hasErrors = false;
+        $this->has_errors = false;
         $this->error = '';
     }
 
@@ -537,7 +583,7 @@ class RequestInput
 	 */
 	protected function throwValidationError( string $err )
 	{
-		$this->hasErrors = true;
+		$this->has_errors = true;
 		$this->error = $err;
 		throw new ContentValidationException($this->error);
 	}

@@ -14,11 +14,11 @@ class DateInput extends StringInput
     /** @property int */
     public const DEFAULT_SIZE_LIMIT = 20;
     /** @var string */
-    protected static $input_template_filename = 'date-text-input.php';
+    protected static string $input_template_filename = 'date-text-input.php';
     /** @var string */
-    protected static $template_filename = 'date-text-field.php';
+    protected static string $template_filename = 'date-text-field.php';
     /** @var string */
-    public $format = 'Y-m-d H:i:00';
+    public string $format = 'Y-m-d H:i:00';
 
 	/**
 	 * DateInput constructor.
@@ -169,8 +169,8 @@ class DateInput extends StringInput
         if (false === $this->required && (null === $this->value || strlen($this->value) < 1)) {
             return;
         }
-        if (strlen($this->value) > $this->sizeLimit) {
-            throw new ContentValidationException("$this->label is limited to $this->sizeLimit character".(($this->sizeLimit!=1)?("s"):("")).".");
+        if (strlen($this->value) > $this->size_limit) {
+            throw new ContentValidationException("$this->label is limited to $this->size_limit character".(($this->size_limit!=1)?("s"):("")).".");
         }
         $this->setDateValue();
     }

@@ -39,7 +39,7 @@ class StringInputTestData
 		if ('[use default]' !== $value) {
 			$this->obj->setInputValue($value);
 		}
-        $this->obj->displayPlaceholder = $display_placeholder;
+        $this->obj->display_placeholder = $display_placeholder;
         $this->value = $value;
         $this->label_override = $label_override;
         $this->css_class = $css_class;

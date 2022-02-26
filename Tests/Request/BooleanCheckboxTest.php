@@ -42,8 +42,11 @@ class BooleanCheckboxTest extends TestCase
      */
     function testRender(BooleanInputTestData $data)
     {
-        $this->expectOutputRegex($data->expected_regex);
+        ob_start();
         $data->obj->render($data->label_override, $data->class_override);
+        $markup = ob_get_contents();
+        ob_end_clean();
+        $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
 
 	public function testTemplatePath()

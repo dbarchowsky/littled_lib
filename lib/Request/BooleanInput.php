@@ -5,14 +5,10 @@ use Littled\Exception\ContentValidationException;
 use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 
-/**
- * Class BooleanInput
- * @package Littled\Request
- */
 class BooleanInput extends RequestInput
 {
 	/** @var string */
-	protected static $template_filename = 'hidden-input.php';
+	protected static string $template_filename = 'hidden-input.php';
 
 	/**
 	 * Clears the data container value.

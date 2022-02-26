@@ -12,6 +12,9 @@ use Littled\PageContent\ContentUtils;
  */
 class DateTextField extends DateInput
 {
+    /** @var string Defaults to "datepicker" in order to bind graphical calendar widget */
+    public string $input_css_class='datepicker';
+
     /**
      * Returns a formatted string value that can be inserted into front-facing form fields.
      * @param string $date_format (Optional) Format to apply to the date value.

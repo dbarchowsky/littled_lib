@@ -36,7 +36,7 @@ class StringInputTest extends TestCase
 		$this->assertEquals("key", $obj->key);
 		$this->assertFalse($obj->required);
 		$this->assertEquals("test value", $obj->value);
-		$this->assertEquals(200, $obj->sizeLimit);
+		$this->assertEquals(200, $obj->size_limit);
 		$this->assertEquals(4, $obj->index);
 	}
 
@@ -64,7 +64,7 @@ class StringInputTest extends TestCase
      */
     function testRenderInput(StringInputTestData $data)
     {
-        $data->obj->cssClass = $data->css_class;
+        $data->obj->input_class_class = $data->css_class;
         $this->expectOutputRegex($data->expected_regex);
         $data->obj->renderInput($data->label_override);
     }

@@ -5,20 +5,16 @@ namespace Littled\Request;
 use Exception;
 use Littled\PageContent\ContentUtils;
 
-/**
- * Class StringSelect
- * @package Littled\Request
- */
 class StringSelect extends StringInput
 {
 	/** @var string */
-	protected static $input_template_filename = 'string-select-input.php';
+	protected static string $input_template_filename = 'string-select-input.php';
 	/** @var string */
-	protected static $template_filename = 'string-select-field.php';
+	protected static string $template_filename = 'string-select-field.php';
 	/** @var bool */
-	public $allow_multiple = false;
-	/** @var int */
-	public $options_length = null;
+	public bool $allow_multiple = false;
+	/** @var ?int */
+	public ?int $options_length = null;
 
 	/**
 	 * Allow multiple setter. If set to true, multiple choices can be selected from the drop down options.

@@ -56,12 +56,12 @@ class SocialXPostAlbum extends Album
 	 */
 	function read( $read_images=true, $read_image_keywords=false )
 	{
-		$this->create_date->isDatabaseField = true;
-		$this->mod_date->isDatabaseField = true;
-		$this->flickr_id->isDatabaseField = true;
-		$this->wp_id->isDatabaseField = true;
-		$this->twitter_id->isDatabaseField = true;
-		$this->short_url->isDatabaseField = true;
+		$this->create_date->is_database_field = true;
+		$this->mod_date->is_database_field = true;
+		$this->flickr_id->is_database_field = true;
+		$this->wp_id->is_database_field = true;
+		$this->twitter_id->is_database_field = true;
+		$this->short_url->is_database_field = true;
 
 		parent::read($read_images, $read_image_keywords);
 	}
@@ -84,12 +84,12 @@ class SocialXPostAlbum extends Album
 	 */
 	function save ( $save_thumbnail=true, $update_cache=true )
 	{
-		$this->create_date->isDatabaseField = false;
-		$this->mod_date->isDatabaseField = false;
-		$this->flickr_id->isDatabaseField = false;
-		$this->wp_id->isDatabaseField = false;
-		$this->twitter_id->isDatabaseField = false;
-		$this->short_url->isDatabaseField = false;
+		$this->create_date->is_database_field = false;
+		$this->mod_date->is_database_field = false;
+		$this->flickr_id->is_database_field = false;
+		$this->wp_id->is_database_field = false;
+		$this->twitter_id->is_database_field = false;
+		$this->short_url->is_database_field = false;
 
 		return(parent::save($save_thumbnail, $update_cache));
 	}

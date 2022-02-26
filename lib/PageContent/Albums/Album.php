@@ -103,7 +103,7 @@ class Album extends KeywordSectionContent
 		$this->title = new StringTextField("Title", self::TITLE_PARAM, false, "", 100);
 		$this->slug = new StringTextField("Slug", 'AlbumSlug', true, "", 50);
 		$this->description = new StringTextarea("Description", self::DESCR_PARAM, false, "", 4000);
-		$this->description->class = "mce-editor";
+		$this->description->input_css_class = "mce-editor";
 		$this->date = new StringTextField("Display date", "abdt", false, "", 50);
 		$this->create_date = new DateInput("Create date", "abcd", false, "");
 		$this->mod_date = new DateInput("Modified date", "abmd", false, "");
@@ -176,7 +176,7 @@ class Album extends KeywordSectionContent
 	 */
 	public function collectRequestData ($src=null )
 	{
-		$this->section_id->bypassCollectPostData = true;
+		$this->section_id->bypass_collect_request_data = true;
 		parent::collectRequestData($src);
 		$this->gallery->collectFromInput($src);
 		if ($this->title->value && $this->slug->value=="") {
@@ -281,9 +281,9 @@ class Album extends KeywordSectionContent
 		/* remove non-alphanumeric characters */
 		$this->slug->value = preg_replace('/[^A-Za-z0-9\-]/', '', $this->slug->value);
 
-		if (strlen($this->slug->value) > $this->slug->sizeLimit) {
+		if (strlen($this->slug->value) > $this->slug->size_limit) {
 			/* avoid overruns */
-			$this->slug->value = substr($this->slug->value, 0, $this->slug->sizeLimit);
+			$this->slug->value = substr($this->slug->value, 0, $this->slug->size_limit);
 		}
 	}
 
@@ -306,7 +306,7 @@ class Album extends KeywordSectionContent
 				$valid_slug = true;
 			}
 			catch(Exception $e) {
-				if (strlen("$slug_base-$index") > $this->slug->sizeLimit) {
+				if (strlen("$slug_base-$index") > $this->slug->size_limit) {
 					/* avoid overruns */
 					$slug_base = substr($slug_base, -1 * (strlen("-$index")));
 				}
@@ -598,8 +598,8 @@ class Album extends KeywordSectionContent
 		$status = "";
 		$is_new = ($this->id->value===null);
 
-		$this->create_date->isDatabaseField = false;
-		$this->mod_date->isDatabaseField = false;
+		$this->create_date->is_database_field = false;
+		$this->mod_date->is_database_field = false;
 		parent::save();
 
 		if ($this->content_properties->table->value=="album" ||

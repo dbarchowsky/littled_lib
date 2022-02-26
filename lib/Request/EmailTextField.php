@@ -11,9 +11,9 @@ use Littled\Validation\Validation;
 class EmailTextField extends StringTextField
 {
 	/** @var string Form input element template filename */
-	protected static $input_template_filename = 'email-input.php';
+	protected static string $input_template_filename = 'email-input.php';
 	/** @var string Form element template filename */
-	protected static $template_filename = 'email-field.php';
+	protected static string $template_filename = 'email-field.php';
 
 	/**
 	 * {@inheritDoc}

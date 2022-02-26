@@ -3,7 +3,6 @@
 namespace Littled\Tests\Request\DataProvider;
 
 use Littled\Request\DateInput;
-use Littled\Request\DateTextField;
 
 class DateInputTestDataProvider
 {
@@ -39,54 +38,58 @@ class DateInputTestDataProvider
     public static function renderTestProvider(): array
     {
         return array(
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, false, ''),
+            array(new DateTextFieldTestData(
                 '/<input.* value=\"\"/i',
-                '', '',
-                'no value; input\'s value attribute has no value'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, false, '04/15/2022'),
+                'add default values')),
+            array(new DateTextFieldTestData(
                 '/<input.* value=\"2022-04-15\"/i',
-                '', '',
-                'value set; input\'s value attribute set to value'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, false, 'Jan 29, 2022'),
+                'date value to MM/DD/YYYY',
+                '04/15/2022')),
+            array(new DateTextFieldTestData(
                 '/<input.* value=\"2022-01-29\"/i',
-                '', '',
-                'value set to plain english value; input\'s value attribute set to standardized value'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, false, ''),
-                '/<label.*>'.DateFormatTestData::DEFAULT_LABEL.'<\/label>/i',
-                '', '',
-                'field not required; required indicator not displayed'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, true, ''),
-                '/<label.*>'.DateFormatTestData::DEFAULT_LABEL.preg_quote(DateInput::getRequiredIndicator()).'<\/label>/i',
-                '', '',
-                'field is required; required indicator displayed'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY),
-                "/<label for=\"".DateFormatTestData::DEFAULT_KEY."\"(.|\\n)*<input.* name=\"".DateFormatTestData::DEFAULT_KEY."\".* id=\"".DateFormatTestData::DEFAULT_KEY."\"/i",
-                '', '',
-                'index value not set, label for attribute value'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, false, '', 50, 1),
-                "/<label for=\"".DateFormatTestData::DEFAULT_KEY."-1\"(.|\\n)*<input.* name=\"".DateFormatTestData::DEFAULT_KEY."\[\]\".* id=\"".DateFormatTestData::DEFAULT_KEY."-1\"/i",
-                '', '',
-                'index value set, label for attribute value'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY),
+                'date in Mon DD, YYYY format',
+                'Jan 29, 2022')),
+            array(new DateTextFieldTestData(
+                '/<label.*>'.DateTextFieldTestData::TEST_INPUT_LABEL.'<\/label>/i',
+                'field not required confirming required indicator is not displayed',
+                '', false)),
+            array(new DateTextFieldTestData(
+                '/<label.*>'.DateTextFieldTestData::TEST_INPUT_LABEL.preg_quote(DateInput::getRequiredIndicator()).'<\/label>/i',
+                'field is required; confirming the required indicator is displayed',
+                '', true)),
+            array(new DateTextFieldTestData(
+                "/<label for=\"".DateTextFieldTestData::TEST_INPUT_KEY."\"(.|\\n)*<input.* name=\"".DateTextFieldTestData::TEST_INPUT_KEY."\".* id=\"".DateTextFieldTestData::TEST_INPUT_KEY."\"/i",
+                'index value not set, confirm label element\'s "for" attribute value',
+                '', false, null)),
+            array(new DateTextFieldTestData(
+                "/<label for=\"".DateTextFieldTestData::TEST_INPUT_KEY."-50\"(.|\\n)*<input.* name=\"".DateTextFieldTestData::TEST_INPUT_KEY."\[\]\".* id=\"".DateTextFieldTestData::TEST_INPUT_KEY."-50\"/i",
+                'index value set, confirm label element\'s "for" attribute value',
+                1, false, 50)),
+            array(new DateTextFieldTestData(
                 '/<label.*>My Label<\/label>/i',
-                'My Label', '',
-                'override label'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY),
-                '/<label.*>'.DateFormatTestData::DEFAULT_LABEL.'<\/label>/i',
-                '', '',
-                'using internal label value'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY, false, ''),
-                '/<div.* class=\"my-class\".*><input /i',
-                '', 'my-class',
-                'override css class'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY),
-                '/<div><input /i',
-                '', '',
-                'no css class specified'],
-            [new DateTextField(DateFormatTestData::DEFAULT_LABEL, DateFormatTestData::DEFAULT_KEY),
+                'override label',
+                '', false, null, '', '', '', 'My Label')),
+            array(new DateTextFieldTestData(
+                '/<label.*>'.DateTextFieldTestData::TEST_INPUT_LABEL.'<\/label>/i',
+                'confirming internal default label value')),
+            array(new DateTextFieldTestData(
+                '/<div class=\"my-custom-class\">\s*<label.*>\s*<div><input type=\"date\" class=\"datepicker\"/',
+                'override container css class',
+                '', false, null, '', '', 'my-custom-class')),
+            array(new DateTextFieldTestData(
+                '/<div>\s*<label.*>\s*<div><input /',
+                'no css class specified')),
+            array(new DateTextFieldTestData(
+                '/<div>\s*<label.*>\s*<div><input type=\"date\" class=\"my-input-class\"/',
+                'input class set',
+            '', false, null, 'my-input-class')),
+            array(new DateTextFieldTestData(
+                '/<div class=\"my-container-class\">\s*<label.*>\s*<div><input type=\"date\" class=\"my-input-class\"/',
+                'input & container class set',
+                '', false, null, 'my-input-class', 'my-container-class')),
+            array(new DateTextFieldTestData(
                 '/<input.* maxlength=\"'.DateInput::DEFAULT_SIZE_LIMIT.'\"/i',
-                '', '',
-                'size limit value'],
+                'size limit value')),
         );
     }
 

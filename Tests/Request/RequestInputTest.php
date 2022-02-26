@@ -41,12 +41,12 @@ class RequestInputTest extends TestCase
 
     public function testClearValidationErrors()
     {
-        $this->obj->hasErrors = true;
+        $this->obj->has_errors = true;
         $this->obj->error = 'Some error message.';
-        $this->assertTrue($this->obj->hasErrors);
+        $this->assertTrue($this->obj->has_errors);
 
         $this->obj->clearValidationErrors();
-        $this->assertFalse($this->obj->hasErrors);
+        $this->assertFalse($this->obj->has_errors);
         $this->assertEquals('', $this->obj->error);
     }
 
@@ -58,7 +58,7 @@ class RequestInputTest extends TestCase
 
 	public function testEscapeSQL()
 	{
-		$this->assertEquals("null", $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
+		$this->assertEquals("NULL", $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
 
 		$this->obj->value = '';
 		$this->assertEquals("''", $this->obj->escapeSQL($this->mysqli), "Empty string");
@@ -75,22 +75,34 @@ class RequestInputTest extends TestCase
      * @param bool $has_error
      * @return void
      */
-    function testFormatClassAttribute(string $expected, string $css_class='', string $class_override='', bool $has_error=false)
+    function testFormatClassAttribute(string $expected, string $css_class='', string $class_override='', bool $has_error=false, string $element='default')
     {
         $o = new RequestInput(RequestInputTestDataProvider::TEST_LABEL, RequestInputTestDataProvider::TEST_KEY);
-        $o->cssClass = $css_class;
+        if ($element==='default' || $element==='input') {
+            $o->setInputCSSClass($css_class);
+        }
+        else {
+            $o->setContainerCSSClass($css_class);
+        }
         if ($has_error) {
             $o->error = 'Request input error';
-            $o->hasErrors = true;
+            $o->has_errors = true;
         }
-        $this->assertEquals($expected, $o->formatClassAttributeMarkup($class_override));
+        switch ($element) {
+            case 'input':
+                $this->assertEquals($expected, $o->formatClassAttributeMarkup($class_override, [$o, 'getInputCssClass']));
+                break;
+            case 'container':
+                $this->assertEquals($expected, $o->formatClassAttributeMarkup($class_override, [$o, 'getContainerCssClass']));
+                break;
+            default:
+                $this->assertEquals($expected, $o->formatClassAttributeMarkup($class_override));
+                break;
+        }
     }
 
 	public function testFormatErrorLabel()
 	{
-		$this->obj->label = null;
-		$this->assertEquals('', $this->obj->formatErrorLabel());
-
 		$this->obj->label = '';
 		$this->assertEquals('', $this->obj->formatErrorLabel());
 

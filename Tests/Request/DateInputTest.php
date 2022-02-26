@@ -8,15 +8,16 @@ use Littled\Request\DateInput;
 use Littled\Request\DateTextField;
 use Littled\Request\RequestInput;
 use Littled\Tests\Request\DataProvider\DateFormatTestData;
+use Littled\Tests\Request\DataProvider\DateTextFieldTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
 class DateInputTest extends ContentValidationTestCase
 {
 	/** @var DateInput Test DateInput object. */
-	public $obj;
+	public DateInput $obj;
 	/** @var MySQLConnection Test database connection. */
-	public $conn;
+	public MySQLConnection $conn;
 
     protected function setUp(): void
     {
@@ -108,16 +109,16 @@ class DateInputTest extends ContentValidationTestCase
 
 	/**
 	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::renderTestProvider()
-	 * @param DateTextField $o
-	 * @param string|null $expected
-	 * @param string $label
-	 * @param string $css_class
+	 * @param DateTextFieldTestData $data
 	 * @return void
 	 */
-	function testRender(DateTextField $o, ?string $expected='', string $label='', string $css_class='')
+	function testRender(DateTextFieldTestData $data)
 	{
-		$this->expectOutputRegex($expected);
-		$o->render($label, $css_class);
+        ob_start();
+		$data->obj->render($data->label_override, $data->css_override);
+        $markup = ob_get_contents();
+        ob_end_clean();
+        $this->assertMatchesRegularExpression($data->expected, $markup, $data->msg);
 	}
 
 	/**
@@ -170,10 +171,10 @@ class DateInputTest extends ContentValidationTestCase
 
 	public function testValidateValueSize()
 	{
-		$str = str_repeat("a", $this->obj->sizeLimit + 1);
+		$str = str_repeat("a", $this->obj->size_limit + 1);
 		$this->obj->value = $str;
 		$this->assertContentValidationException($this->obj);
-		$pattern = "/{$this->obj->label} is limited to {$this->obj->sizeLimit} characters/i";
+		$pattern = "/{$this->obj->label} is limited to {$this->obj->size_limit} characters/i";
 		$this->assertMatchesRegularExpression($pattern, $this->obj->error);
 		$this->obj->clearValidationErrors();
 	}

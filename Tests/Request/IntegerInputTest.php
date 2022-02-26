@@ -48,7 +48,7 @@ class IntegerInputTest extends TestCase
 		try {
 			$o->validate();
 			$this->assertEquals('Validated input value.', 'Validated input value.');
-			$this->assertFalse($o->hasErrors);
+			$this->assertFalse($o->has_errors);
 		}
 		catch (ContentValidationException $ex) {
 			$this->assertEquals('', 'Caught content validate exception: '.$ex->getMessage());
@@ -271,8 +271,11 @@ class IntegerInputTest extends TestCase
      */
     function testRender(IntegerInputTestData $data)
     {
-        $this->expectOutputRegex($data->expected_regex);
-        $data->obj->render($data->css_class, $data->label_override);
+        ob_start();
+        $data->obj->render($data->label_override, $data->css_override);
+        $markup = ob_get_contents();
+        ob_end_clean();
+        $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
 
     /**
@@ -282,9 +285,11 @@ class IntegerInputTest extends TestCase
      */
     function testRenderInput(IntegerInputTestData $data)
     {
-        $data->obj->cssClass = $data->css_class;
-        $this->expectOutputRegex($data->expected_regex);
+        ob_start();
         $data->obj->renderInput($data->label_override);
+        $markup = ob_get_contents();
+        ob_end_clean();
+        $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
 
     public function testSafeValue()

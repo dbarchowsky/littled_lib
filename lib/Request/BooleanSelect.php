@@ -5,16 +5,12 @@ namespace Littled\Request;
 use Exception;
 use Littled\PageContent\ContentUtils;
 
-/**
- * Class BooleanSelect
- * @package Littled\Request
- */
 class BooleanSelect extends BooleanInput
 {
     /** @var string Form element template filename */
-    public static $template_filename = 'string-select-field.php';
+    public static string $template_filename = 'string-select-field.php';
     /** @var string Form input element template filename */
-    public static $input_template_filename = 'string-select-input.php';
+    public static string $input_template_filename = 'string-select-input.php';
 
     /**
      * Returns input size attribute markup to inject into template.

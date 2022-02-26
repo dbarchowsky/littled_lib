@@ -121,12 +121,12 @@ class ImageLink extends KeywordSectionContent
 		$this->content_properties->id->key = $param_prefix.$this::vars['content_type'];
 		$this->type_id = &$this->content_properties->id;
 		$this->randomize = new StringInput("Randomize filename", $this::vars['randomize_filename'], false, false);
-		$this->randomize->isDatabaseField = false;
+		$this->randomize->is_database_field = false;
 
 		$this->isFirstPage = new BooleanInput("Is first page", "ifp", false, false);
 		$this->isLastPage = new BooleanInput("Is last page", "ilp", false, false);
-		$this->isFirstPage->isDatabaseField = false;
-		$this->isLastPage->isDatabaseField = false;
+		$this->isFirstPage->is_database_field = false;
+		$this->isLastPage->is_database_field = false;
 	}
 
 	/**

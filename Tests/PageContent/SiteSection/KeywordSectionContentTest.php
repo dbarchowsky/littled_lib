@@ -108,7 +108,7 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertNull($this->obj->content_properties->id->value);
 		$this->assertEquals('', $this->obj->keywordInput->value);
 		$this->assertEquals('kwte', $this->obj->keywordInput->key);
-		$this->assertFalse($this->obj->keywordInput->isDatabaseField);
+		$this->assertFalse($this->obj->keywordInput->is_database_field);
 		$this->assertTrue(is_array($this->obj->keywords));
 		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());

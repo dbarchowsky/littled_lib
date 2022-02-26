@@ -269,8 +269,8 @@ class SerializedContentUtils extends AppContentBase
 			/** @var RequestInput $item */
 			if ($this->isInput($key, $item, $used_keys)) {
 				/* store value retrieved from database */
-				if ($item->columnName) {
-					$custom_key = $item->columnName;
+				if ($item->column_name) {
+					$custom_key = $item->column_name;
 					$item->setInputValue($row->$custom_key);
 				}
 				elseif(property_exists($row, $key)) {
@@ -295,7 +295,7 @@ class SerializedContentUtils extends AppContentBase
 		$is_input = (($item instanceof RequestInput) &&
 			($key != "id") &&
 			($key != "index") &&
-			($item->isDatabaseField==true));
+			($item->is_database_field==true));
 		if ($is_input) {
 			/* Check if this item has already been used as in input property.
 			 * This prevents references used as aliases of existing properties

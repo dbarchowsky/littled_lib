@@ -61,10 +61,10 @@ class AlbumViewer extends SocialXPostAlbum
 
 		/* storage for albums's content type name used by ajax scripts to specify "category" in Google Analytics calls */
 		$this->albumType = new StringInput("Album Type", "abtp", "", 50, false);
-		$this->albumType->isDatabaseField = false;
+		$this->albumType->is_database_field = false;
 		$this->albumType->value = &$this->content_properties->name->value;
 
-		$this->direction->isDatabaseField = false;
+		$this->direction->is_database_field = false;
 
 		/* make space for two pages */
 		$this->gallery->list = array();

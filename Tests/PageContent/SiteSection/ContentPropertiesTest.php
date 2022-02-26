@@ -424,7 +424,7 @@ class ContentPropertiesTest extends TestCase
 		$this->assertEquals(self::UNIT_TEST_IDENTIFIER, $this->obj->name->value);
 		$this->assertEquals('path/to/section/', $this->obj->root_dir->value);
 		$this->assertEquals('path/to/images/', $this->obj->image_path->value);
-		$this->assertEquals(255, $this->obj->image_path->sizeLimit);
+		$this->assertEquals(255, $this->obj->image_path->size_limit);
 		$this->assertEquals('sub/dir/', $this->obj->sub_dir->value);
 		$this->assertEquals('pic', $this->obj->image_label->value);
 		$this->assertEquals(2048, $this->obj->width->value);

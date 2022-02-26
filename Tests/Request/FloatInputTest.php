@@ -90,8 +90,11 @@ class FloatInputTest extends ContentValidationTestCase
      */
     function testRender(FloatInputTestData $data)
     {
-        $this->expectOutputRegex($data->expected_regex);
-        $data->obj->render($data->css_class, $data->label_override);
+        ob_start();
+        $data->obj->render($data->label_override, $data->css_override);
+        $markup = ob_get_contents();
+        ob_end_clean();
+        $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
 
     /**
@@ -101,9 +104,11 @@ class FloatInputTest extends ContentValidationTestCase
      */
     function testRenderInput(FloatInputTestData $data)
     {
-        $data->obj->cssClass = $data->css_class;
-        $this->expectOutputRegex($data->expected_regex);
-        $data->obj->renderInput($data->label_override);
+        ob_start();
+        $data->obj->renderInput($data->label_override, $data->css_override);
+        $markup = ob_get_contents();
+        ob_end_clean();
+        $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
 
     /**
@@ -131,79 +136,79 @@ class FloatInputTest extends ContentValidationTestCase
 		/* not required, default value (null) */
 		$o->required = false;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* not required, empty string value */
 		$o->required = false;
 		$o->value = '';
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* not required, valid integer value of 1 */
 		$o->required = false;
 		$o->value = 1;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* not required, valid integer value */
 		$o->required = false;
 		$o->value = 765;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, valid integer value of 1 */
 		$o->required = true;
 		$o->value = 1;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, valid integer value of 1 */
 		$o->required = true;
 		$o->value = 0;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, valid integer value */
 		$o->required = true;
 		$o->value = 5248;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* not required, null value */
 		$o->required = false;
 		$o->value = null;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '1';
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '0';
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, integer string */
 		$o->required = true;
 		$o->value = '8356';
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, float value */
 		$o->required = true;
 		$o->value = 99.06;
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 
 		/* required, float string */
 		$o->required = true;
 		$o->value = '99.06';
 		$o->validate();
-		$this->assertFalse($o->hasErrors);
+		$this->assertFalse($o->has_errors);
 	}
 
 	/**

@@ -112,7 +112,7 @@ class BooleanInputTest extends ContentValidationTestCase
         // setInputValue() should convert the string into a boolean value
         $this->o->setInputValue($this->o->value);
         $this->o->validate();
-        $this->assertFalse($this->o->hasErrors);
+        $this->assertFalse($this->o->has_errors);
     }
 
 
@@ -127,7 +127,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		$data->obj->value = $data->value;
 		if (false===$data->expected) {
 			$data->obj->validate();
-			$this->assertFalse($data->obj->hasErrors);
+			$this->assertFalse($data->obj->has_errors);
 		}
 		else {
 			$this->assertContentValidationException($data->obj);
@@ -143,7 +143,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		$o = new BooleanInput("Test", "test");
 		$o->required = true;
 		$o->validate();
-		$this->assertTrue($o->hasErrors);
+		$this->assertTrue($o->has_errors);
 	}
 
 	/**
@@ -156,7 +156,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		$o->required = true;
 		$o->value = null;
 		$o->validate();
-		$this->assertTrue($o->hasErrors);
+		$this->assertTrue($o->has_errors);
 	}
 
 	/**
@@ -169,7 +169,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		$o->required = true;
 		$o->value = 'true';
 		$o->validate();
-		$this->assertTrue($o->hasErrors);
+		$this->assertTrue($o->has_errors);
 	}
 
 	/**
@@ -182,7 +182,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		$o->required = false;
 		$o->value = 'true';
 		$o->validate();
-		$this->assertTrue($o->hasErrors);
+		$this->assertTrue($o->has_errors);
 	}
 
 	/**

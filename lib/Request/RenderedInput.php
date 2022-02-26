@@ -19,9 +19,6 @@ class RenderedInput extends RequestInput
 		if (!$label) {
 			$label=$this->label;
 		}
-		if (!$css_class) {
-			$css_class = $this->cssClass;
-		}
 		ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), array(
 			'input' => &$this,
 			'label' => $label,

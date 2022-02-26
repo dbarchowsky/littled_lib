@@ -18,6 +18,8 @@ class RequestInputTestDataProvider
             [' class="my-class input-error"', 'my-class', '', true],
             [' class="input-error"', '', '', true],
             [' class="my-class custom-class input-error"', 'my-class', 'custom-class', true],
+            [' class="my-class"', 'my-class', '', false, 'input'],
+            [' class="my-container-class"', 'my-container-class', '', false, 'container'],
         );
     }
 }

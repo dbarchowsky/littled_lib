@@ -4,23 +4,19 @@ namespace Littled\Request;
 use mysqli;
 use Littled\Validation\Validation;
 
-/**
- * Class FloatInput
- * @package Littled\Request
- */
 class FloatInput extends RenderedInput
 {
 	/** @var string Form input element template filename */
-	protected static $input_template_filename = 'string-text-input.php';
+	protected static string $input_template_filename = 'string-text-input.php';
 	/** @var string */
-	protected static $template_filename = 'string-text-field.php';
+	protected static string $template_filename = 'string-text-field.php';
     /** @var int */
     const DEFAULT_DATA_SIZE = 16;
 
     public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
-        $this->contentType = 'number';
+        $this->content_type = 'number';
     }
 
     /**
@@ -30,7 +26,7 @@ class FloatInput extends RenderedInput
 	 */
 	public function collectRequestData(?array $src = null, ?string $key=null)
 	{
-		if ($this->bypassCollectPostData===true) {
+		if ($this->bypass_collect_request_data===true) {
 			return;
 		}
 		$this->value = Validation::collectNumericRequestVar((($key)?:($this->key)), null, $src);

@@ -29,7 +29,7 @@ class PasswordReset extends UserAccount
 	{
 		parent::__construct($id);
 		$this->new_password = new StringPasswordField("New Password", "sunp", false, "", 256);
-		$this->new_password->isDatabaseField = false;
+		$this->new_password->is_database_field = false;
 	}
 
 	/**

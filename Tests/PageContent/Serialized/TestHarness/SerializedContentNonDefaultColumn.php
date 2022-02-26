@@ -14,7 +14,7 @@ class SerializedContentNonDefaultColumn extends SerializedContentNameTestHarness
     {
         parent::__construct();
         $this->nonDefaultCol = new StringTextField('Non-default column', 'pnfc', true, null, 50);
-        $this->nonDefaultCol->columnName = 'non_default';
+        $this->nonDefaultCol->column_name = 'non_default';
     }
 
     public function hasData(): bool

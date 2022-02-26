@@ -10,9 +10,9 @@ use Littled\Validation\Validation;
 class StringInput extends RenderedInput
 {
     /** @var string Form input element template filename */
-    protected static $input_template_filename = 'string-text-input.php';
+    protected static string $input_template_filename = 'string-text-input.php';
     /** @var string */
-    protected static $template_filename = 'string-text-field.php';
+    protected static string $template_filename = 'string-text-field.php';
 
     /**
 	 * {@inheritDoc}
@@ -30,7 +30,7 @@ class StringInput extends RenderedInput
 	 */
 	public function collectRequestData (?array $src=null, ?int $filters=null, ?string $key=null)
 	{
-		if (true===$this->bypassCollectPostData) {
+		if (true===$this->bypass_collect_request_data) {
 			return;
 		}
         $key = $key ?: $this->key;
@@ -61,8 +61,8 @@ class StringInput extends RenderedInput
 			if (strlen(trim($this->value)) < 1) {
 				$this->throwValidationError($this->formatErrorLabel()." is required.");
 			}
-			if (strlen($this->value) > $this->sizeLimit) {
-				$this->throwValidationError($this->formatErrorLabel()." is limited to $this->sizeLimit characters.");
+			if (strlen($this->value) > $this->size_limit) {
+				$this->throwValidationError($this->formatErrorLabel()." is limited to $this->size_limit characters.");
 			}
 		}
 	}

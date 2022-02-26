@@ -43,7 +43,7 @@ class EmailTextFieldTest extends TestCase
 		$this->assertEquals("key", $obj->key);
 		$this->assertFalse($obj->required);
 		$this->assertEquals("dbarchowsky@gmail.com", $obj->value);
-		$this->assertEquals(200, $obj->sizeLimit);
+		$this->assertEquals(200, $obj->size_limit);
 		$this->assertEquals(4, $obj->index);
 	}
 
@@ -64,7 +64,7 @@ class EmailTextFieldTest extends TestCase
 	{
 		$this->obj->required = false;
 		$this->obj->validate();
-        $this->assertFalse($this->obj->hasErrors);
+        $this->assertFalse($this->obj->has_errors);
 	}
 
 	public function testValidateDefaultValue()

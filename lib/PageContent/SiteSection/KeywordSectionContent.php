@@ -46,7 +46,7 @@ abstract class KeywordSectionContent extends SectionContent
 
 		$this->keywordInput = new StringTextarea("Keywords", "{$keyword_param}te", false, '', 1000, null);
 
-		$this->keywordInput->isDatabaseField = false;
+		$this->keywordInput->is_database_field = false;
 	}
 
 	/**

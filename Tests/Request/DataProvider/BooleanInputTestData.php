@@ -14,27 +14,38 @@ class BooleanInputTestData
 	/** @var mixed */
 	public $expected;
 	/** @var string */
-	public $expected_regex;
+	public string $expected_regex;
 	/** @var BooleanCheckbox */
-	public $obj;
+	public BooleanCheckbox $obj;
 	/** @var mixed */
 	public $value;
     /** @var string */
-    public $label_override;
+    public string $label_override;
     /** @var string */
-    public $class_override;
+    public string $class_override;
+    public string $msg;
 
-	public function __construct($expected, string $expected_regex, $value, $required=false, bool $has_errors=false, string $label_override='', string $css_class='', string $class_override='')
+	public function __construct(
+               $expected,
+        string $expected_regex,
+               $value,
+               $required=false,
+        bool   $has_errors=false,
+        string $label_override='',
+        string $input_css_class='',
+        string $container_css_class='',
+        string $class_override='',
+        string $msg='')
 	{
 		$this->expected = $expected;
 		$this->expected_regex = $expected_regex;
+        $this->msg = $msg;
 		$this->obj = new BooleanCheckbox(self::DEFAULT_LABEL, self::DEFAULT_KEY, $required);
 		$this->obj->setInputValue($value);
 		$this->value = $value;
-        if ($css_class) {
-            $this->obj->cssClass = $css_class;
-        }
-        $this->obj->hasErrors = $has_errors;
+        $this->obj->setInputCSSClass($input_css_class);
+        $this->obj->setContainerCSSClass($container_css_class);
+        $this->obj->has_errors = $has_errors;
         $this->class_override = $class_override;
         $this->label_override = $label_override;
 	}

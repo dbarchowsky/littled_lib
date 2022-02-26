@@ -479,8 +479,8 @@ class AddressTest extends ContentValidationTestCase
         $address = new Address();
         $this->assertInstanceOf('Littled\Request\IntegerInput', $address->id);
         $this->assertInstanceOf('Littled\Request\StringTextField', $address->state);
-        $this->assertEquals(AddressTest::TEST_ADDRESS2_SIZE, $address->address2->sizeLimit);
-        $this->assertEquals(AddressTest::TEST_URL_SIZE, $address->url->sizeLimit);
+        $this->assertEquals(AddressTest::TEST_ADDRESS2_SIZE, $address->address2->size_limit);
+        $this->assertEquals(AddressTest::TEST_URL_SIZE, $address->url->size_limit);
     }
 
     /**

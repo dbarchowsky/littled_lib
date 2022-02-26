@@ -62,8 +62,8 @@ class ContentTemplate extends SerializedContent
 		$this->location = new StringSelect("Location", "templateLocation", false, $location, 20);
 
 		/* non-default column names in database table */
-		$this->template_dir->isDatabaseField = false;
-		$this->content_id->columnName = 'site_section_id';
+		$this->template_dir->is_database_field = false;
+		$this->content_id->column_name = 'site_section_id';
 
 		/* pointer to site section id for the benefit of editing these
 		 * records in the CMS */
