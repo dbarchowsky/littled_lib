@@ -2271,7 +2271,8 @@ if (typeof LITTLED === "undefined") {
 			content_type: 'tid', 	/* matches LittledGlobals::CONTENT_TYPE_KEY */
 			page: 'p',
 			operation: 'op',
-			csrf: 'csrf'
+			csrf: 'csrf',
+			uri: 'uri'
 		},
 		dom: {
 			/* start using these over the top-level settings */
@@ -2288,7 +2289,24 @@ if (typeof LITTLED === "undefined") {
 
 	let methods = {
 
-        bindListingsHandlers: function (options) {
+		bindEditHandlers: function() {
+			return this.each(function() {
+
+				$('input[type=text],input[type=number]', $(this))
+					.off('keyup', methods.testKeyedEntry)
+					.off('keypress', methods.testKeyedEntry)
+					.off('commit', methods.saveEdit)
+					.on('keyup', methods.testKeyedEntry)		/* for escape key */
+					.on('keypress', methods.testKeyedEntry)		/* for enter key */
+					.on('commit', methods.saveEdit);
+
+				$('select', $(this))
+					.off('change', methods.saveEdit)
+					.on('change', methods.saveEdit);
+			});
+		},
+
+		bindListingsHandlers: function (options) {
 
 			let lclSettings = $.extend(true, {}, settings, options || {});
 
@@ -2308,7 +2326,7 @@ if (typeof LITTLED === "undefined") {
 				.off('click', '.page-btn', methods.gotoPage)
 				.on('click', '.page-btn', options, methods.gotoPage)
 
-				/* non-anchor elements that link to details pages */
+				/* non-anchor elements that link to a record's details page */
 				.off('click', '.details-cell', methods.gotoDetailsPage)
 				.on('click', '.details-cell', options, methods.gotoDetailsPage)
 
@@ -2338,16 +2356,22 @@ if (typeof LITTLED === "undefined") {
                 $('.trash-btn', $(this)).iconButton('trash');
             });
         },
-		
-		listingsUpdateCB: function( evt ) {
-			$(this).listings('bindListingsHandlers', (evt.data || {}));
+
+		/**
+		 * Extract values from the event object that will override the global settings within an event handler.
+		 * @param {Event} evt
+		 * @param {object} options
+		 * @returns {object}
+		 */
+		configureLocalizedSettings: function(evt, options={}) {
+			if (evt) {
+				evt.preventDefault();
+			}
+			return ($.extend(true, {}, settings, evt.data || {}, options));
 		},
 
         editCell: function( evt ) {
-
-			evt.preventDefault();
-			let lclSettings = $.extend(true, {}, settings, evt.data || {});
-
+			let lclSettings = methods.configureLocalizedSettings(evt);
             let $p = $(this).parent();
 			let op = $(this).data(lclSettings.keys.operation);
 			let fd = {t: $(this).data('t')};
@@ -2382,23 +2406,6 @@ if (typeof LITTLED === "undefined") {
             });
         },
 
-        bindEditHandlers: function() {
-			return this.each(function() {
-
-				$('input[type=text],input[type=number]', $(this))
-				.off('keyup', methods.testKeyedEntry)
-				.off('keypress', methods.testKeyedEntry)
-				.off('commit', methods.saveEdit)
-				.on('keyup', methods.testKeyedEntry)		/* for escape key */
-				.on('keypress', methods.testKeyedEntry)		/* for enter key */
-				.on('commit', methods.saveEdit);
-
-				$('select', $(this))
-				.off('change', methods.saveEdit)
-				.on('change', methods.saveEdit);
-			});
-        },
-		
 		testKeyedEntry: function(evt) {
 
             let id = $(this).data('id');
@@ -2472,7 +2479,7 @@ if (typeof LITTLED === "undefined") {
         },
 		
 		getInlineURL: function(op, options) {
-			let lclSettings = $.extend({}, settings, options || {});
+			let lclSettings = methods.configureLocalizedSettings(null, options)
 			let url;
             switch (op) {
                 case 'name':
@@ -2499,11 +2506,13 @@ if (typeof LITTLED === "undefined") {
 			return (url);
 		},
 
+		listingsUpdateCB: function( evt ) {
+			$(this).listings('bindListingsHandlers', (evt.data || {}));
+		},
+
 		saveDate: function(evt, dateText, inst) {
 
-			let options = evt.data || {};
-			let lclSettings = $.extend(true, {}, settings, options);
-
+			let lclSettings = methods.configureLocalizedSettings(evt);
             let $f = $(this).parents('form:first');
             $.post(
 				$.littled.getRelativePath() + settings.date_url,
@@ -2521,7 +2530,7 @@ if (typeof LITTLED === "undefined") {
 
 		updateListingsContent: function(data) {
 
-			let lclSettings = $.extend(true, {}, settings, data.settings || {});
+			let lclSettings = methods.configureLocalizedSettings(null, data.settings);
 
 			if (data.error) {
 				$(lclSettings.dom.error_container).littled('displayError', data.error);
@@ -2564,9 +2573,7 @@ if (typeof LITTLED === "undefined") {
 		 */
         gotoPage: function( evt ) {
 
-			evt.preventDefault();
-			let options = evt.data || {};
-			let lclSettings = $.extend(true, {}, settings, options);
+			let lclSettings = methods.configureLocalizedSettings(evt);
 
 			/* clear any status messages */
 			$(lclSettings.dom.status_container).fadeOut('fast');
@@ -2632,28 +2639,24 @@ if (typeof LITTLED === "undefined") {
         },
 
 		/**
-		 * Handler for non-anchor element typically within listings that can 
-		 * lead to the details page for that record.
+		 * Handler for non-anchor element typically within listings that will redirect to a record's details page.
 		 * @param {Event} evt
 		 * @returns {undefined}
 		 */
 		gotoDetailsPage: function(evt) {
-			evt.preventDefault();
-			let lclSettings = $.extend(true, {}, settings, evt.data || {});
+			let lclSettings = methods.configureLocalizedSettings(evt);
 			let id = $(this).data(lclSettings.keys.record_id);
 			if (!id) {
 				$(this).closest(lclSettings.dom.error_container)
 				.littled('displayError', 'A record id was not provided.');
 				return;
 			}
-			if (lclSettings.uris.record_details==='') {
-				$(this).closest(lclSettings.dom.error_container)
-				.littled('displayError', 'An URI was not provided.');
-				return;
+			let route = $(this).data(lclSettings.keys.uri);
+			let filters_qs = $(lclSettings.dom.filters_form).serialize();
+			if (filters_qs) {
+				route = route+'?'+filters_qs;
 			}
-			window.location = lclSettings.uris.record_details +
-                '?'+lclSettings.keys.record_id+'='+id +
-                '&' + $(lclSettings.dom.filters_form).serialize();
+			window.location = route;
 		},
 
 		/**
@@ -2665,7 +2668,7 @@ if (typeof LITTLED === "undefined") {
 		 * @returns {undefined}
 		 */
 		updateNavigationValue: function( key, value, options ) {
-			let lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = methods.configureLocalizedSettings(null, options);
 			let new_url,
 				src_url = window.location.href,
 				re = new RegExp("([?|&])" + key + "=.*?(&|$)","i");
