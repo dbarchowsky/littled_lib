@@ -27,23 +27,23 @@ use stdClass;
 class Gallery extends MySQLConnection
 {
 	/** @var ContentProperties Section properties. */
-	public $content_properties;
-	/** @var integer Parent record id. */
-	public $parent_id;
+	public ContentProperties $content_properties;
+	/** @var ?int Parent record id. */
+	public ?int $parent_id;
 	/** @var string Label for inserting into page content. */
-	public $label;
+	public string $label;
 	/** @var ImageLink[] List of image_link_class objects representing the images in the gallery */
-	public $list;
+	public array $list;
 	/** @var ImageLink Thumbnail record. */
-	public $tn;
+	public ImageLink $tn;
 	/** @var IntegerInput Pointer to the thumbnail id object for convenience. */
-	public $tn_id;
+	public IntegerInput $tn_id;
 	/** @var IntegerInput to the content type id object for convenience. */
-	public $type_id;
+	public IntegerInput $type_id;
 	/** @var integer Current number of images in the gallery. */
-	public $image_count;
+	public int $image_count;
 	/** @var string[] List of errors found in object property values. */
-	public $validation_errors;
+	public array $validation_errors;
 
 
 	/**
@@ -55,8 +55,7 @@ class Gallery extends MySQLConnection
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	function __construct (int $content_type_id, ?int $parent_type_id=null )
 	{
@@ -116,8 +115,7 @@ class Gallery extends MySQLConnection
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function collectFromInput ( $section_id=null, $src=null )
 	{
@@ -219,6 +217,18 @@ class Gallery extends MySQLConnection
 		return (count($this->list)." ".strtolower($this->content_properties->image_label->value).((count($this->list)!=1)?("s"):("")));
 	}
 
+    /**
+     * Return the label describing this filter's content type.
+     * @return string
+     */
+    public function getContentLabel(): string
+    {
+        if (isset($this->content_properties)) {
+            return $this->content_properties->getContentLabel();
+        }
+        return '';
+    }
+
 	/**
 	 * Content type id getter.
 	 * @return int|null The id of the objects content type.
@@ -235,7 +245,7 @@ class Gallery extends MySQLConnection
 	 */
 	public function getImageCount( $access="" ): int
 	{
-		if (is_array($this->list)) {
+		if (isset($this->list)) {
 			return count($this->list);
 		}
 		elseif ($this->image_count >= 0) {
@@ -383,8 +393,7 @@ class Gallery extends MySQLConnection
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 */
 	public function retrieveSectionProperties()
 	{

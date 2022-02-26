@@ -47,6 +47,18 @@ class ContentFilters extends FilterCollection
 		$this->ajax_properties->retrieveContentProperties();
 	}
 
+    /**
+     * Return the label describing this filter's content type.
+     * @return string
+     */
+    public function getContentLabel(): string
+    {
+        if (isset($this->content_properties)) {
+            return $this->content_properties->getContentLabel();
+        }
+        return '';
+    }
+
 	/**
 	 * Content type id getter.
 	 * @return int
