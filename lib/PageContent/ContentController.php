@@ -91,6 +91,14 @@ abstract class ContentController
     }
 
     /**
+     * Returns a route for a given site section and operation combination.
+     * @param int $site_section_id Record id of the site section to look up.
+     * @param string $operation Operation to look up.
+     * @return string
+     */
+    abstract public static function getNavigationRoute(int $site_section_id, string $operation): string;
+
+    /**
      * Default action is to load content property values from the database. This method can instead be overridden to
      * perform different actions depending on content type. E.g. replace the default action with a switch statement
      * evaluating the content type id value.
