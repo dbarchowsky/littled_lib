@@ -9,9 +9,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\ContentFilters;
-use Littled\Log\Debug;
+use Littled\Log\Log;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\PageContent\SiteSection\SectionContent;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
@@ -114,7 +113,7 @@ abstract class ContentController
     public static function retrieveContentDataByType(SerializedContent $content)
     {
         if (1 > $content->id->value) {
-            throw new ConfigurationUndefinedException("[".Debug::getShortMethodName()."] A record was not specified for retrieval.");
+            throw new ConfigurationUndefinedException("[".Log::getShortMethodName()."] A record was not specified for retrieval.");
         }
         $content->read();
     }
