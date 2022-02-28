@@ -24,9 +24,15 @@ abstract class ContentController
     const OPERATION_EDIT            = 'edit';
 
     /**
-     * @throws NotImplementedException|InvalidValueException
+     * Returns a navigation route for a given SiteSection page type and operation.
+     * @param RoutedPageContent $class
+     * @param string $operation
+     * @param int|null $record_id
+     * @return string
+     * @throws InvalidValueException
+     * @throws NotImplementedException
      */
-    protected static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id=null)
+    protected static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id=null): string
     {
         switch ($operation) {
             case self::OPERATION_LISTINGS;
