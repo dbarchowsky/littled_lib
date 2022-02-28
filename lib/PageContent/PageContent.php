@@ -161,7 +161,7 @@ class PageContent extends MySQLConnection
      */
     public function getRecordId(): ?int
     {
-        if ($this->content->id->value) {
+        if (isset($this->content) && $this->content->id->value) {
             return $this->content->id->value;
         }
         return null;
