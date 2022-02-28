@@ -6,10 +6,12 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
+use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Exception;
 use ReflectionClass;
@@ -17,6 +19,30 @@ use ReflectionException;
 
 abstract class ContentController
 {
+    const OPERATION_LISTINGS        = 'listings';
+    const OPERATION_DETAILS         = 'details';
+    const OPERATION_EDIT            = 'edit';
+
+    /**
+     * @throws NotImplementedException|InvalidValueException
+     */
+    protected static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id=null)
+    {
+        switch ($operation) {
+            case self::OPERATION_LISTINGS;
+                return call_user_func([$class, 'getListingsURI']);
+            case self::OPERATION_DETAILS;
+                if ($record_id===null || $record_id < 1) {
+                    throw new InvalidValueException('Record id not provided.');
+                }
+                return call_user_func_array([$class, 'getDetailsURI'], array($record_id));
+            case self::OPERATION_EDIT:
+                return call_user_func_array([$class, 'getEditURI'], array($record_id));
+            default:
+                throw new NotImplementedException('Unrecognized operation.');
+        }
+    }
+
     /**
      * Sets the filters object to the appropriate type based on the value of $content_id.
      * @param int $content_id Content type to match with filter type.
