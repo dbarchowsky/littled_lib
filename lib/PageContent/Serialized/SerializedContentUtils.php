@@ -186,13 +186,14 @@ class SerializedContentUtils extends AppContentBase
         $this->connectToDatabase();
 		$fields = array();
 		foreach ($this as $key => $item) {
+            /** @var RequestInput $item */
 			if ($this->isInput($key, $item, $used_keys)) {
-				if ($item->isDatabaseField===false) {
+				if ($item->is_database_field===false) {
 					continue;
 				}
 				/* format column name and value for SQL statement */
-				if ($item->columnName) {
-					$fields[$item->columnName] = $item->escapeSQL($this->mysqli);
+				if ($item->column_name) {
+					$fields[$item->column_name] = $item->escapeSQL($this->mysqli);
 				} else {
 					$fields[$key] = $item->escapeSQl($this->mysqli);
 				}
