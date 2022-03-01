@@ -40,6 +40,8 @@ class LittledGlobals
     const PARENT_ID_KEY = 'pid';
 	/** @var string Request variable name containing referring URLs. */
 	const REFERER_KEY = 'ref';
+    /** @var string */
+    const OPERATION_KEY = 'op';
 
 	/**
 	 * Gets app domain name.
