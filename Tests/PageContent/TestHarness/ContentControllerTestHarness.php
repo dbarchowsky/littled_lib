@@ -43,4 +43,15 @@ class ContentControllerTestHarness extends ContentController
     {
         return 'Abstract method placeholder.';
     }
+
+    /**
+     * @param int $site_section_id
+     * @param string $operation
+     * @param int|null $record_id
+     * @return string
+     */
+    public static function getNavigationRoute(int $site_section_id, string $operation, ?int $record_id = null): string
+    {
+        return 'Abstract method placeholder';
+    }
 }
