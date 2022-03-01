@@ -103,15 +103,6 @@ class RoutedPageContent extends PageContent
     }
 
     /**
-     * Filters class name setter.
-     * @return string
-     */
-    public static function getFiltersClassName(): string
-    {
-        return static::$filters_class;
-    }
-
-    /**
      * Default template path getter.
      * @return string
      */
@@ -127,6 +118,9 @@ class RoutedPageContent extends PageContent
      */
     public function getDetailsURI(?int $record_id=null): string
     {
+        if (!isset($this->routes)) {
+            return '';
+        }
         $record_id = $record_id ?: $this->getRecordId();
         if ($record_id) {
             return rtrim($this->routes::getDetailsRoute(), '/') . "/$record_id";
@@ -176,11 +170,23 @@ class RoutedPageContent extends PageContent
     }
 
     /**
+     * Filters class name setter.
+     * @return string
+     */
+    public static function getFiltersClassName(): string
+    {
+        return static::$filters_class;
+    }
+
+    /**
      * Returns listings uri with current filter values added on as get variables.
      * @return string
      */
     public function getListingsURI(): string
     {
+        if (!isset($this->routes)) {
+            return '';
+        }
         return $this->routes::getListingsRoute();
     }
 
