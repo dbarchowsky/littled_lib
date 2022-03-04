@@ -68,7 +68,7 @@
 
 		bindListingsHandlers: function (options) {
 
-			let lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.littled.configureLocalizedSettings(null, options);
 
 			return this.each(function() {
 
@@ -117,21 +117,8 @@
             });
         },
 
-		/**
-		 * Extract values from the event object that will override the global settings within an event handler.
-		 * @param {Event} evt
-		 * @param {object} options
-		 * @returns {object}
-		 */
-		configureLocalizedSettings: function(evt, options={}) {
-			if (evt) {
-				evt.preventDefault();
-			}
-			return ($.extend(true, {}, settings, evt.data || {}, options));
-		},
-
         editCell: function( evt ) {
-			let lclSettings = methods.configureLocalizedSettings(evt);
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
             let $p = $(this).parent();
 			let op = $(this).data(lclSettings.keys.operation);
 			let fd = {t: $(this).data('t')};
@@ -166,80 +153,8 @@
             });
         },
 
-		testKeyedEntry: function(evt) {
-
-            let id = $(this).data('id');
-            let t = $(this).data('t');
-            let op = $(this).data('op');
-			let $p = $(this).closest('.inline-edit-cell').parent();
-
-            let kp = ((window.event) ? (window.event.keyCode) : (evt.which));
-            switch (kp) {
-
-                case 13:
-
-                    /* save on enter key */
-					evt.preventDefault();
-                    $(this).trigger('commit');
-                    break;
-
-                case 27:
-
-                    /* cancel on escape key */
-					evt.preventDefault();
-					let url = methods.getInlineURL(op);
-                    $.post(url,
-                        {id: id, t: t, op: op, cancel: 1},
-                        function(data) {
-							if (data.error) {
-								$(settings.dom.error_container).littled('displayError', data.error);
-								return;
-							}
-							$p.html($.littled.htmldecode(data.content));
-                        },
-                        'json'
-                    )
-                        .fail(function(xhr) {
-                            $(settings.dom.error_container).littled('ajaxError', xhr);
-                        });
-
-                    break;
-                default:
-                    /* continue with all other keys */
-            }
-        },
-
-        saveEdit: function(options) {
-
-			let lclSettings = $.extend({}, settings, options || {});
-            let op = $(this).data('op');
-            let $f = $(this).closest('form');
-			let $p = $(this).closest('.inline-edit-cell').parent();
-            let url = methods.getInlineURL(op, options);
-
-            $.ajax({
-                type: 'post',
-                url: url,
-                data: $f.serializeObject(),
-                dataType: 'json',
-                success: function(data) {
-					if (data.error) {
-						$(lclSettings.dom.error_container).littled('displayError', data.error);
-						return;
-					}
-					$p.html($.littled.htmldecode(data.content));
-					$('.inline-edit-cell', $p)
-					.off('dblclick', methods.editCell)
-					.on('dblclick', methods.editCell);
-				},
-                error: function(xhr) {
-					$(lclSettings.dom.error_container).littled('ajaxError', xhr);
-				}
-            });
-        },
-		
 		getInlineURL: function(op, options) {
-			let lclSettings = methods.configureLocalizedSettings(null, options)
+			let lclSettings = $.littled.configureLocalizedSettings(null, options)
 			let url;
             switch (op) {
                 case 'name':
@@ -266,52 +181,6 @@
 			return (url);
 		},
 
-		listingsUpdateCB: function( evt ) {
-			$(this).listings('bindListingsHandlers', (evt.data || {}));
-		},
-
-		saveDate: function(evt, dateText, inst) {
-
-			let lclSettings = methods.configureLocalizedSettings(evt);
-            let $f = $(this).parents('form:first');
-            $.post(
-				$.littled.getRelativePath() + settings.date_url,
-                $f.serializeObject(),
-                function(data) {
-					data.settings = options;
-					$(lclSettings.dom.listings_container).listings('updateListingsContent', data);
-				},
-				'json'
-			)
-			.fail(function(xhr) {
-				$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
-            });
-        },
-
-		updateListingsContent: function(data) {
-
-			let lclSettings = methods.configureLocalizedSettings(null, data.settings);
-
-			if (data.error) {
-				$(lclSettings.dom.error_container).littled('displayError', data.error);
-				return;
-			}
-
-			let selector = lclSettings.dom.listings_container || data.container_id;
-			let $e = $(selector);
-			if ($e.length > 0 ) {
-				$e
-				.html($.littled.htmldecode(data.content))
-				.triggerHandler('contentUpdate');
-			}
-			else {
-				if (lclSettings.displayWarnings === true) {
-					$(lclSettings.dom.error_container).littled('displayError', 'Content container not found: "'+selector+'"');
-				}
-			}
-			$(lclSettings.dom.status_container).littled('displayStatus', data.status);
-		},
-
         getListingsURI: function(data) {
             if (data.ajax_listings_uri) {
                 return data.ajax_listings_uri;
@@ -326,85 +195,12 @@
         },
 
 		/**
-		 * Handler for button elements that navigate to different pages within
-		 * the listings.
-		 * @param {Event} evt
-		 * @returns {undefined}
-		 */
-        gotoPage: function( evt ) {
-
-			let lclSettings = methods.configureLocalizedSettings(evt);
-
-			/* clear any status messages */
-			$(lclSettings.dom.status_container).fadeOut('fast');
-			
-			/* pointer to element within listings that stores the content type
-			 * id and parent id values
-			 */
-			let $l = $(lclSettings.dom.listings_container);
-
-			/* retrieve active listings filters */
-			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
-			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
-			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type.toLowerCase());
-			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id.toLowerCase());
-
-			/* retrieve operations uris for this content type */
-			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
-
-                let listings_uri = '';
-				if (data.error) {
-					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
-					return;
-				} else {
-                    listings_uri = methods.getListingsURI(data);
-                    if (listings_uri==='') {
-                        $(lclSettings.dom.page_error_container).littled('displayError', "Listings route not found.");
-                        return;
-                    }
-				}
-
-				/* make request to listings ajax script for this content type 
-				 * to retrieve the updated listings content
-				 */
-				$.post(
-					listings_uri,
-					fd,
-					function(data2) {
-						
-						if (data2.error) {
-							$(lclSettings.dom.page_error_container).littled('displayError', data2.error);
-							return;
-						}
-						
-						/* refresh listings content and trigger handler that will
-						 * re-bind the jQuery handlers within the listings.
-						 */
-						$(lclSettings.dom.listings_container)
-						.littled('displayAjaxResult', data2)
-						.triggerHandler('contentUpdate');
-				
-						/* update page value in query string.
-						 * NB this might have to happen instead in the filters 
-						 * form in the future.
-						 */
-						methods.updateNavigationValue(lclSettings.keys.page, fd[lclSettings.keys.page], options);
-					},
-					'json'
-				)
-				.fail(function(xhr) {
-					$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
-				});
-			});
-        },
-
-		/**
 		 * Handler for non-anchor element typically within listings that will redirect to a record's details page.
 		 * @param {Event} evt
 		 * @returns {undefined}
 		 */
 		gotoDetailsPage: function(evt) {
-			let lclSettings = methods.configureLocalizedSettings(evt);
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
 			let id = $(this).data(lclSettings.keys.record_id);
 			if (!id) {
 				$(this).closest(lclSettings.dom.error_container)
@@ -420,6 +216,197 @@
 		},
 
 		/**
+		 * Handler for button elements that navigate to different pages within
+		 * the listings.
+		 * @param {Event} evt
+		 * @returns {undefined}
+		 */
+		gotoPage: function( evt ) {
+
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
+
+			/* clear any status messages */
+			$(lclSettings.dom.status_container).fadeOut('fast');
+
+			/* pointer to element within listings that stores the content type
+			 * id and parent id values
+			 */
+			let $l = $(lclSettings.dom.listings_container);
+
+			/* retrieve active listings filters */
+			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
+			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
+			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type.toLowerCase());
+			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id.toLowerCase());
+
+			/* retrieve operations uris for this content type */
+			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
+
+				let listings_uri = '';
+				if (data.error) {
+					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
+					return;
+				} else {
+					listings_uri = methods.getListingsURI(data);
+					if (listings_uri==='') {
+						$(lclSettings.dom.page_error_container).littled('displayError', "Listings route not found.");
+						return;
+					}
+				}
+
+				/* make request to listings ajax script for this content type
+				 * to retrieve the updated listings content
+				 */
+				$.post(
+					listings_uri,
+					fd,
+					function(data2) {
+
+						if (data2.error) {
+							$(lclSettings.dom.page_error_container).littled('displayError', data2.error);
+							return;
+						}
+
+						/* refresh listings content and trigger handler that will
+						 * re-bind the jQuery handlers within the listings.
+						 */
+						$(lclSettings.dom.listings_container)
+							.littled('displayAjaxResult', data2)
+							.triggerHandler('contentUpdate');
+
+						/* update page value in query string.
+						 * NB this might have to happen instead in the filters
+						 * form in the future.
+						 */
+						methods.updateNavigationValue(lclSettings.keys.page, fd[lclSettings.keys.page], options);
+					},
+					'json'
+				)
+					.fail(function(xhr) {
+						$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
+					});
+			});
+		},
+
+		saveDate: function(evt, dateText, inst) {
+
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
+			let $f = $(this).parents('form:first');
+			$.post(
+				$.littled.getRelativePath() + settings.date_url,
+				$f.serializeObject(),
+				function(data) {
+					data.settings = options;
+					$(lclSettings.dom.listings_container).listings('updateListingsContent', data);
+				},
+				'json'
+			)
+				.fail(function(xhr) {
+					$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
+				});
+		},
+
+		listingsUpdateCB: function( evt ) {
+			$(this).listings('bindListingsHandlers', (evt.data || {}));
+		},
+
+		saveEdit: function(options) {
+
+			let lclSettings = $.extend({}, settings, options || {});
+			let op = $(this).data('op');
+			let $f = $(this).closest('form');
+			let $p = $(this).closest('.inline-edit-cell').parent();
+			let url = methods.getInlineURL(op, options);
+
+			$.ajax({
+				type: 'post',
+				url: url,
+				data: $f.serializeObject(),
+				dataType: 'json',
+				success: function(data) {
+					if (data.error) {
+						$(lclSettings.dom.error_container).littled('displayError', data.error);
+						return;
+					}
+					$p.html($.littled.htmldecode(data.content));
+					$('.inline-edit-cell', $p)
+						.off('dblclick', methods.editCell)
+						.on('dblclick', methods.editCell);
+				},
+				error: function(xhr) {
+					$(lclSettings.dom.error_container).littled('ajaxError', xhr);
+				}
+			});
+		},
+
+		testKeyedEntry: function(evt) {
+
+			let id = $(this).data('id');
+			let t = $(this).data('t');
+			let op = $(this).data('op');
+			let $p = $(this).closest('.inline-edit-cell').parent();
+
+			let kp = ((window.event) ? (window.event.keyCode) : (evt.which));
+			switch (kp) {
+
+				case 13:
+
+					/* save on enter key */
+					evt.preventDefault();
+					$(this).trigger('commit');
+					break;
+
+				case 27:
+
+					/* cancel on escape key */
+					evt.preventDefault();
+					let url = methods.getInlineURL(op);
+					$.post(url,
+						{id: id, t: t, op: op, cancel: 1},
+						function(data) {
+							if (data.error) {
+								$(settings.dom.error_container).littled('displayError', data.error);
+								return;
+							}
+							$p.html($.littled.htmldecode(data.content));
+						},
+						'json'
+					)
+						.fail(function(xhr) {
+							$(settings.dom.error_container).littled('ajaxError', xhr);
+						});
+
+					break;
+				default:
+				/* continue with all other keys */
+			}
+		},
+
+		updateListingsContent: function(data) {
+
+			let lclSettings = $.littled.configureLocalizedSettings(null, data.settings);
+
+			if (data.error) {
+				$(lclSettings.dom.error_container).littled('displayError', data.error);
+				return;
+			}
+
+			let selector = lclSettings.dom.listings_container || data.container_id;
+			let $e = $(selector);
+			if ($e.length > 0 ) {
+				$e
+					.html($.littled.htmldecode(data.content))
+					.triggerHandler('contentUpdate');
+			}
+			else {
+				if (lclSettings.displayWarnings === true) {
+					$(lclSettings.dom.error_container).littled('displayError', 'Content container not found: "'+selector+'"');
+				}
+			}
+			$(lclSettings.dom.status_container).littled('displayStatus', data.status);
+		},
+
+		/**
 		 * Updates a key/value pair in the query string, esp. the current page
 		 * value.
 		 * @param {string} key Key to update in the query string.
@@ -428,7 +415,7 @@
 		 * @returns {undefined}
 		 */
 		updateNavigationValue: function( key, value, options ) {
-			let lclSettings = methods.configureLocalizedSettings(null, options);
+			let lclSettings = $.littled.configureLocalizedSettings(null, options);
 			let new_url,
 				src_url = window.location.href,
 				re = new RegExp("([?|&])" + key + "=.*?(&|$)","i");

@@ -1,648 +1,26 @@
-if (typeof LITTLED === "undefined") {
-
-	LITTLED = {
-
-		script_root: '/vendor/littled_cms/ajax/',
-		edit_url: '',
-		delete_url: '',
-		view_url: '',
-		cache_url: '',
-		id_param: 'id',
-		progress_html: '<div class="dialog-in-process"></div>',
-		debug: false,
-
-		/**
-		 * Initialize any of the object properties through associative array passed as argument.
-		 */
-		init: function(a) {
-			if (a !== undefined) {
-				for (let i in a) {
-					this[i] = a[i];
-				}
-			}
-		},
-
-
-		/**
-		 * @deprecated Use $.littled('ajaxError') instead.
-		 */
-		ajaxError: function(xhr) {
-			let $d = $('#globalDialog');
-			if ($d.length > 0 && $d.is(':visible')) {
-				$d.littled('ajaxError', xhr);
-			}
-		},
-
-
-		/**
-		 * @deprecated Use $.littled('displayStatus') instead.
-		 */
-		displayStatus: function(statusMsg) {
-			if (statusMsg && $('#status-container').length) {
-				$('#status-container').html(LITTLED.htmldecode(statusMsg).replace(/\n/g, '<br />\n'));
-				$('#status-container:hidden').fadeIn('slow');
-			}
-		},
-
-
-		doLookup: function() {
-
-			let f = document.getElementById('dialog-edit-form');
-			if (!f.url.value) {
-				alert('url not set!');
-				return false;
-			}
-
-			LITTLED.displayProcessWheel();
-
-			$('#dialog-edit-form').ajaxSubmit({
-				url: f.url.value,
-				type: 'post',
-				dataType: 'json',
-				success: LITTLED.onLoadFormSuccess,
-				error: LITTLED.ajaxError
-			});
-			returnfalse;
-		},
-
-		/**
-		 * @deprecated Use $.littled.updateCache() in its place.
-		 * @returns {mixed}
-		 */
-		updateCache: function() {
-			$.littled.updateCache();
-		},
-
-		getParentObject: function(pid) {
-			let $p;
-			if (pid === undefined) {
-				$p = $('body');
-			} 
-			else if (typeof (pid) == 'object') {
-				$p = pid;
-			} 
-			else {
-				$p = $(pid);
-				if ($p.length < 1) {
-					$p = $('body');
-				}
-			}
-			return ($p);
-		},
-
-		oc: function(a) {
-			let o = {};
-			for (let i = 0; i < a.length; i++) {
-				o[a[i]] = '';
-			}
-			return (o);
-		},
-
-
-		ptq: function(q, arExclude) {
-			/* parse the query */
-			let x = q.replace(/;/g, '&').split('&'), i, name, t;
-			/* q changes from string version of query to object */
-			for (q = {}, i = 0; i < x.length; i++) {
-				t = x[i].split('=', 2);
-				name = unescape(t[0]);
-				if (arExclude !== undefined && arExclude.length >= 0 && (name in LITTLED.oc(arExclude))) {
-					name = '';
-				}
-				if (name !== '') {
-					if (!q[name]) {
-						if (t.length > 1) {
-							q[name] = unescape(t[1]);
-						}
-					}
-				}
-			}
-			return q;
-		},
-
-		/**
-		 * @deprecated Use $.littled.getQueryArray() instead.
-		 */
-		getQueryArray: function(arAppend, arExclude) {
-			let e = ['id', 'msg'];
-			if (arExclude !== undefined && arExclude.length >= 0) {
-				e = e.concat(arExclude);
-			}
-			let q = LITTLED.ptq(document.location.search.substring(1).replace(/\+/g, ' '), e);
-			for (let i in q) {
-				if (q[i] === '') {
-					delete q[i];
-				}
-			}
-			if (arAppend !== undefined && typeof (arAppend) == 'object') {
-				for (i in arAppend) {
-					q[i] = arAppend[i];
-				}
-			}
-			return q;
-		},
-
-
-		getParameterByName: function(key) {
-			key = key.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-			let regexS = "[\\?&]" + key + "=([^&#]*)";
-			let regex = new RegExp(regexS);
-			let results = regex.exec(window.location.href);
-			if (results == null) {
-				return ("");
-			} else {
-				return (decodeURIComponent(results[1].replace(/\+/g, " ")));
-			}
-		},
-
-		isObjectEmpty: function(obj) {
-			for (let prop in obj) {
-				if (Object.prototype.hasOwnProperty.call(obj, prop)) {
-					return false;
-				}
-			}
-			return true;
-		},
-
-		setCookie: function(name, value, days) {
-			let expires = '';
-			if (days) {
-				let date = new Date();
-				date.setTime(date.getTime() + (days*24*60*60*1000));
-				expires = "; expires=" + date.toUTCString();
-			}
-			if (value) {
-				value.encodeURIComponent(value)
-			}
-			document.cookie = name + '=' + (value || '') + expires + '; path=/';
-		},
-
-		/**
-		 * @deprecated Use $.littled.getDomain() instead.
-		 */
-        getDomain: function() {
-            return ((window.document.domain === undefined) ? (window.document.hostname) : (window.document.domain));
-        },
-
-        /**
-		 * @deprecated Use $.littled('bindImageRollovers') instead.
-		 * Image rollovers assigned to any image with "ro" class. 
-		 * Rollover image naming convention: filename.ext > filename-over.ext
-		 */
-        bindImageRollovers: function() {
-            $('img.ro').hover(
-                function() {
-                    $(this).attr('src', $(this).attr('src').replace(/\.([^.]+)$/, '-over.$1'));
-                },
-                function() {
-                    $(this).attr('src', $(this).attr('src').replace(/-over\.([^.]+)$/, '.$1'));
-                }
-            );
-        },
-
-		/**
-		 * @deprecated Use the postContentUpdateCB property of $.formDialog() instead.
-		 */
-        edit_cb: function(data) {
-            LITTLED.onEditSuccess(data);
-        },
-
-        /**
-         * @deprecated Use $.formDialog('onOperationSuccess') instead.
-         * @param {object} data
-         * @returns {*}
-         */
-        onEditSuccess: function(data) {
-
-            LITTLED.clearDialogMsg();
-
-            if (data.error) {
-                return(LITTLED.displayError(data.error.replace('/\n/mg', '<br />\n'), 'dialog-error-container'));
-            }
-
-            if (data.container_id) {
-                let $e = $('#' + data.container_id);
-                if ($e.length < 1) {
-                    $e = $('#listings-container');
-                }
-            } else {
-                $e = $('#listings-container');
-            }
-
-            if ($e.length) {
-                $e.html(LITTLED.htmldecode(data.content));
-                LITTLED.setSortables();
-            }
-            LITTLED.displayStatus(data.status);
-            LITTLED.dismissDialog();
-			return false;
-        },
-
-		/**
-		 * @deprecated Use jQuery $.trigger('contentUpdate') instead and target the element to be updated.
-		 */ 
-        setSortables: function() {
-            /* hook for pages to define routine for when a sortable list's contents are refreshed */
-        },
-
-		/**
-		 * @deprecated Use the 'postContentUpdateCB' proprety of $.formDialog() instead.
-         * @param {object} data
-         * @returns {*}
-         */
-        onContentUpdate: function(data) {
-            if (data.error) {
-                return(LITTLED.displayError(LITTLED.htmldecode(data.error)));
-            }
-            $('#' + data.container_id).html(LITTLED.htmldecode(data.content));
-			return false;
-        },
-
-
-		/**
-		 * @deprecated Use $.littled('displayAjaxResult') instead.
-         * @param {object} data
-         * @returns {boolean}
-         */
-        displayAjaxResult: function(data) {
-            if (data.error) {
-				let $e = null;
-                if (undefined !== data.container_id && '' !== data.container_id) {
-                    $e = $('#' + data.container_id);
-                    $e.html('<div class="error">' + data.error.replace(/\n/mg, '<br />') + '</div>');
-                } else if ($('#error-container').length) {
-                    $e = $('#error-container');
-                    $e.html(data.error.replace(/\n/mg, '<br />'));
-                } else {
-                    alert(data.error);
-                    return false;
-                }
-                $e.show();
-                return false;
-            }
-
-            $('#' + data.container_id).html(LITTLED.htmldecode(data.content));
-            $('#' + data.container_id).show();
-			return false;
-        },
-
-        /**
-		 * @deprecated Use $.formDialog('getContentOperations') instead.
-		 */ 
-        onLoadFormSuccess: function(data) {
-
-            LITTLED.clearDialogMsg();
-
-            if (data.error) {
-                return(LITTLED.displayError(data.error));
-            }
-
-            /* load dialog with form as content */
-            $('#global-modal-content').html(LITTLED.htmldecode(data.content));
-            $('#globalDialog').dialog({
-                title: data.label,
-                minWidth: 360,
-                width: 'auto',
-                height: 'auto',
-                modal: true
-            });
-			$('#globalDialog .datepicker').datepicker();
-            $('#globalDialog .dlg-commit-btn').button().on('click', LITTLED.commitOp);
-            $('#globalDialog .dlg-cancel-btn').button().on('click', LITTLED.cancel);
-			return false;
-        },
-
-        /**
-		 * @deprecated Use $.formDialog('commitOperation') instead.
-		 */
-        commitOp: function() {
-
-            let tid = $(this).data('tid');
-            let op = $(this).data('op');
-
-            if (!tid) { 
-				return(LITTLED.displayError('Content type not specified.'));
-			}
-            if (!op) { 
-				return(LITTLED.displayError('Operation not specified.'));
-			}
-
-            LITTLED.execSectionOp(tid, function(data1) {
-
-                if (data1.error) {
-                    return(LITTLED.displayError(data1.error, 'dialog-error-container'));
-                }
-
-                let uri = '';
-                switch (op) {
-                    case 'edit':
-                        uri = data1.edit_uri;
-                        break;
-                    case 'delete':
-                        uri = data1.delete_uri;
-                        break;
-                    default:
-                        LITTLED.displayError('Unhandled operation.');
-                        return false;
-                }
-
-                if (uri === '') {
-                    alert('Handler not set.');
-                    return false;
-                }
-				uri = $.littled.addProtocolAndDomain(uri);
-
-                /* LITTLED.displayProcessWheel(); */
-
-                $('#dialog-edit-form').ajaxSubmit({
-                    url: uri,
-                    type: 'post',
-                    dataType: 'json',
-                    success: LITTLED.edit_cb,
-                    error: LITTLED.ajaxError
-                });
-				return false;
-            });
-			return false;
-        },
-
-		/**
-		 * @deprecated Use $.formDialog('dismiss') instead.
-		 * @param {int} id
-		 */
-        cancel: function(id) {
-            if (typeof LITTLED.Video !== "undefined") {
-                LITTLED.Video.unhideFLV(id);
-            }
-            LITTLED.dismissDialog();
-        },
-
-		/**
-		 * @deprecated Use $.formDialog('display') instead.
-		 */
-        initDialog: function() {
-
-            if (typeof LITTLED.Video !== "undefined") {
-                LITTLED.Video.hideFLV();
-            }
-
-            $('#dialog-bg').height($(document).height());
-            $('#dialog-bg').width($(document).width());
-            let y = $(document).scrollTop();
-            $('#dialog-bg').offset({top: y, left: 0});
-            $('#dialog-bg').show();
-
-            $('#dialog-error-container').hide();
-            $('#dialog-status-container').hide();
-            $('#dialog-form-container').html(LITTLED.progress_html);
-            $('#dialog-container').show();
-            LITTLED.center($('#dialog-container'));
-        },
-
-		/**
-		 * @deprecated Use $.formDialog('close') instead.
-		 */
-        dismissDialog: function() {
-
-            if (typeof LITTLED.Video !== "undefined") {
-                LITTLED.Video.unhideFLV();
-            }
-
-            $('#globalDialog').dialog('close');
-        },
-
-		/**
-		 * @deprecated Use $.formDialog('clearMessages') instead.
-		 */
-        clearDialogMsg: function() {
-            $('#dialog-status-container').hide();
-            $('#dialog-error-container').hide();
-        },
-
-        /**
-		 * @deprecated Use $.littled('retrieveContentOperations') instead.
-		 * 
-        * First makes an AJAX call to get section operations based on the value of tid. 
-        * Then executes callback function cb.
-        * @param {int} tid section id used to retrieve section settings.
-        * @param {function} cb callback used to execute as "success" handler after the section's properties have been successfully retrieved.
-        */
-        execSectionOp: function(tid, cb) {
-
-            /* ajax call to get script properties */
-            $.ajax({
-                type: 'get',
-                url: LITTLED.script_root + 'utils/script-properties.php',
-                dataType: 'json',
-                data: {tid: tid},
-                success: cb,
-                error: LITTLED.ajaxError
-            });
-        },
-
-		/**
-		 * @deprecated Use $.formDialog('getOperationURI') instead.
-		 * @param {string} op
-		 * @param {object} data
-		 */
-		getOperationURI: function(op, data) {
-			switch (op) {
-				case 'edit':
-					return(data.edit_uri);
-				case 'delete':
-					return(data.delete_uri);
-				case 'view':
-					return(data.details_uri);
-				default:
-					return('');
-			}
-		},
-
-		/**
-		 * @deprecated Use $.littled('displayProcessWheel') instead.
-		 * @param {string} _form_id
-		 */
-		displayProcessWheel: function(_form_id) {
-            if (_form_id === undefined) {_form_id = 'dialog';}
-            $('#' + _form_id + '-error-container').html('');
-            $('#' + _form_id + '-error-container').hide();
-            $('#' + _form_id + '-status-container').html(LITTLED.progress_html);
-            $('#' + _form_id + '-status-container').show();
-        },
-
-		/**
-		 * @deprecated Use jQuery instead.
-		 * @param {domElement} $e
-		 */
-        center: function($e) {
-            let yOffset = $(document).scrollTop() + ($(window).height() / 2) - ($e.height() / 2);
-            let xOffset = ($(window).width() / 2) - ($e.width() / 2);
-            $e.offset({top: yOffset, left: xOffset});
-        },
-
-		/**
-		 * @deprecated Use $.littled('formatQueryString') instead.
-		 */
-        formatQueryString: function() {
-            let q = document.location.search.toString();
-            q = q.replace(/^[\?]/, '&');
-            q = q.replace(new RegExp('&(id|msg|' + LITTLED.id_param + ')=.*?&'), '&');
-            q = q.replace(new RegExp('&(id|msg|' + LITTLED.id_param + ')=.*$'), '');
-            q = q.replace(/^[\?&]/, '');
-            return (q);
-        },
-
-		/**
-		 * @deprecated Use $.littled.htmldecode() instead.
-		 * @param {string} html
-		 */
-		htmldecode: function(html) {
-            if (html === undefined) {
-                return ("");
-            }
-            return (html.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"'));
-        },
-
-		/**
-		 * @deprecated Use $.littled('displayError') instead.
-		 * @param {string} err
-		 * @param {string} eid
-		 */
-        displayError: function(err, eid) {
-
-            let $e = ((eid !== undefined && eid) ? ($('#' + eid)) : ($('#error-container')));
-            if ($e.length) {
-				$e.littled('displayError', err);
-            }
-			return false;
-        },
-
-		/**
-		 * @deprecated Use $.littled('dismissError') instead.
-		 * @param {string} eid
-		 */
-        dismissError: function(eid) {
-            let $e = ((eid !== undefined && eid) ? ($('#' + eid)) : ($('#error-container')));
-            if ($e.length && $e.is(':visible')) {
-                $e.slideToggle('slow');
-            }
-        },
-
-		/**
-		 * @deprecated Use $.littled('displayError') instead.
-		 * @param {string} err
-		 * @param {domElement} p
-		 */
-		dialogError: function(err, p) {
-			let $e = $('#' + ((p !== undefined && p) ? (p) : ('dialog')) + '-status-container');
-			if ($e.length < 1) {$e = $('#status-container');}
-			if ($e.attr('id') === 'dialog-status-container' && $('#dialog-container').is(':hidden')) {
-				$e = $('#status-container');
-			}
-			if ($e.length) {$e.hide();}
-
-			$e = $('#' + ((p !== undefined && p) ? (p) : ('dialog')) + '-error-container');
-			if ($e.length < 1) {$e = $('#error-container');}
-			if ($e.attr('id') === 'dialog-error-container' && $('#dialog-container').is(':hidden')) {
-				$e = $('#error-container');
-			}
-
-			if ($e.length) {
-				$e.html(err.replace(/\n/mg, '<br />'));
-				if (!p) {
-					$e.html($e.html() + ' <input class="smtext" type="button" value="close" onclick="LITTLED.cancel()" />');
-				}
-				$e.show();
-				let z = parseInt($e.parent().css('z-index'));
-				if (z > 0) {
-					LITTLED.center($e.parent());
-				}
-			}
-		},
-
-        /*
-		 * @deprecated Use $.textboxMessage() instead.
-         * Set up textboxes to contain label inside textbox, with the text being cleared on focus 
-         * and restored on blur if nothing has been entered in its place.
-         */
-        bindInlineTB: function() {
-            $('input.tbi').each(function() {
-                if ($(this).val() === '') {
-                    $(this).val($(this).data('init'));
-                }
-            });
-			$('input.tbi')
-			.on('focus', function() {
-                if ($(this).val() === $(this).data('init')) {
-                    $(this).val('');
-                }
-            })
-            .on('blur', function() {
-                if ($(this).val() === '') {
-                    $(this).val($(this).data('init'));
-                }
-            });
-        },
-
-        /*
-		 * @deprecated Use $.textboxMessage() instead.
-		 * @param {domElement} $e
-		 * @param {string} label
-		 */
-        setInputLabel: function($e, label) {
-
-            if ($e.length < 1) {return;}
-
-            $e
-            .focus(function() {
-                if ($(this).val() === label) {
-                    $(this).val('');
-                    $(this).removeClass('dimtext');
-                }
-            })
-            .blur(function() {
-                if ($(this).val() === '') {
-                    $(this).val(label);
-                    $(this).addClass('dimtext');
-                }
-            });
-            if (!$e.val()) {
-                $e.val(label);
-                $e.addClass('dimtext');
-            }
-        },
-
-		/**
-		 * @deprecated Use LITTLED.ajaxError() instead.
-		 * @param {json} data
-		 */
-        onHTTPFailure: function(data) {
-            /*** DEPRECATED ***/
-            LITTLED.ajaxError(data);
-        }
-    };
-}
-
 /*
- * jQuery added functionality
+ * jQuery added functionality $.littled library
  */
 (function($) {
 
 	let settings = {
-		errorContainer: '.alert-error',
-		statusContainer: '.alert-info',
-		csrfSelector: '#csrf-token',
-		progress_markup: '<div class="dialog-in-process"></div>',
+		errorContainer: 			'.alert-error',
+		statusContainer: 			'.alert-info',
+		csrfSelector: 				'#csrf-token',
+		progress_markup: 			'<div class="dialog-in-process"></div>',
 		ajax: {
-		    script_path: '/vendor/dbarchowsky/littled_cms/ajax/',
-			content_operations_uri: 'utils/script-properties.php'
+		    script_path: 			'/vendor/dbarchowsky/littled_cms/ajax/',
+			content_operations_uri: 'utils/script-properties.php',
+			routes_uri:				'utils/routes.php'
 		},
 		dom: {
-			page_error_container: '.alert-error:first'
+			page_error_container: 	'.alert-error:first'
 		},
 		keys: {
-			content_type_id: 'tid', /* matches LittledGlobals::CONTENT_TYPE_KEY */
-			csrf: 'csrf'
+			id:						'id',	/* matches LittledGlobals::ID_KEY 			*/
+			content_type_id: 		'tid', 	/* matches LittledGlobals::CONTENT_TYPE_KEY */
+			operation:				'op',
+			csrf: 					'csrf'	/* matches LittledGlobals::CSRF_KEY			*/
 		}
 	};
 
@@ -704,6 +82,19 @@ if (typeof LITTLED === "undefined") {
 	};
 
 	$.littled = {
+
+		/**
+		 * Extract values from the event object that will override the global settings within an event handler.
+		 * @param {Event} evt
+		 * @param {object} options
+		 * @returns {object}
+		 */
+		configureLocalizedSettings: function(evt, options={}) {
+			if (evt) {
+				evt.preventDefault();
+			}
+			return ($.extend(true, {}, settings, evt.data || {}, options));
+		},
 
 		getDomain: function() {
 			return ((window.document.domain === undefined) ? (window.document.hostname) : (window.document.domain));
@@ -797,13 +188,42 @@ if (typeof LITTLED === "undefined") {
         },
 
 		/**
+		 * Retrieves the route matching operation and content_type_id. Inserts record_id into the route if appropriate.
+		 * @param {string} operation
+		 * @param {int} content_type_id
+		 * @param {int} record_id
+		 * @param {object} options
+		 * @returns {string}
+		 */
+		retrieveRoute: function(operation, content_type_id, record_id, options)
+		{
+			let lclSettings = $.littled.configureLocalizedSettings(null, options);
+			let post_data = {};
+			post_data[lclSettings.keys.operation] = operation;
+			post_data[lclSettings.keys.content_type_id] = content_type_id;
+			post_data[lclSettings.keys.id] = record_id;
+
+			fetch(lclSettings.ajax.routes_uri, {
+					method: 'post',
+					body: JSON.stringify(post_data)
+				}
+			).then(response => response.json()
+			).then(response => {
+				if (response.error) {
+					throw Error(response.error);
+				}
+				return response.route;
+			}).catch(e => $(lclSettings.errorContainer).littled('displayError', e.message));
+		},
+
+		/**
 		 * Calls ajax to retrieve URL of caching script, then makes ajax
 		 * call to that scirpt, thereby updating the content cache. 
 		 * - TODO: Add property to library 'settings' property that will 
 		 * store the caching script url. Then apply that setting when binding 
 		 * handlers after a page is loaded. (i.e. remove $.retrieveContentOperations()
 		 * call & thereby reduce ajax calls.)
-		 * @param {eventObject} evt
+		 * @param {event} evt
 		 * @returns {undefined}
 		 */
 		updateCache: function( evt ) {
@@ -2308,7 +1728,7 @@ if (typeof LITTLED === "undefined") {
 
 		bindListingsHandlers: function (options) {
 
-			let lclSettings = $.extend(true, {}, settings, options || {});
+			let lclSettings = $.littled.configureLocalizedSettings(null, options);
 
 			return this.each(function() {
 
@@ -2357,21 +1777,8 @@ if (typeof LITTLED === "undefined") {
             });
         },
 
-		/**
-		 * Extract values from the event object that will override the global settings within an event handler.
-		 * @param {Event} evt
-		 * @param {object} options
-		 * @returns {object}
-		 */
-		configureLocalizedSettings: function(evt, options={}) {
-			if (evt) {
-				evt.preventDefault();
-			}
-			return ($.extend(true, {}, settings, evt.data || {}, options));
-		},
-
         editCell: function( evt ) {
-			let lclSettings = methods.configureLocalizedSettings(evt);
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
             let $p = $(this).parent();
 			let op = $(this).data(lclSettings.keys.operation);
 			let fd = {t: $(this).data('t')};
@@ -2406,80 +1813,8 @@ if (typeof LITTLED === "undefined") {
             });
         },
 
-		testKeyedEntry: function(evt) {
-
-            let id = $(this).data('id');
-            let t = $(this).data('t');
-            let op = $(this).data('op');
-			let $p = $(this).closest('.inline-edit-cell').parent();
-
-            let kp = ((window.event) ? (window.event.keyCode) : (evt.which));
-            switch (kp) {
-
-                case 13:
-
-                    /* save on enter key */
-					evt.preventDefault();
-                    $(this).trigger('commit');
-                    break;
-
-                case 27:
-
-                    /* cancel on escape key */
-					evt.preventDefault();
-					let url = methods.getInlineURL(op);
-                    $.post(url,
-                        {id: id, t: t, op: op, cancel: 1},
-                        function(data) {
-							if (data.error) {
-								$(settings.dom.error_container).littled('displayError', data.error);
-								return;
-							}
-							$p.html($.littled.htmldecode(data.content));
-                        },
-                        'json'
-                    )
-                        .fail(function(xhr) {
-                            $(settings.dom.error_container).littled('ajaxError', xhr);
-                        });
-
-                    break;
-                default:
-                    /* continue with all other keys */
-            }
-        },
-
-        saveEdit: function(options) {
-
-			let lclSettings = $.extend({}, settings, options || {});
-            let op = $(this).data('op');
-            let $f = $(this).closest('form');
-			let $p = $(this).closest('.inline-edit-cell').parent();
-            let url = methods.getInlineURL(op, options);
-
-            $.ajax({
-                type: 'post',
-                url: url,
-                data: $f.serializeObject(),
-                dataType: 'json',
-                success: function(data) {
-					if (data.error) {
-						$(lclSettings.dom.error_container).littled('displayError', data.error);
-						return;
-					}
-					$p.html($.littled.htmldecode(data.content));
-					$('.inline-edit-cell', $p)
-					.off('dblclick', methods.editCell)
-					.on('dblclick', methods.editCell);
-				},
-                error: function(xhr) {
-					$(lclSettings.dom.error_container).littled('ajaxError', xhr);
-				}
-            });
-        },
-		
 		getInlineURL: function(op, options) {
-			let lclSettings = methods.configureLocalizedSettings(null, options)
+			let lclSettings = $.littled.configureLocalizedSettings(null, options)
 			let url;
             switch (op) {
                 case 'name':
@@ -2506,52 +1841,6 @@ if (typeof LITTLED === "undefined") {
 			return (url);
 		},
 
-		listingsUpdateCB: function( evt ) {
-			$(this).listings('bindListingsHandlers', (evt.data || {}));
-		},
-
-		saveDate: function(evt, dateText, inst) {
-
-			let lclSettings = methods.configureLocalizedSettings(evt);
-            let $f = $(this).parents('form:first');
-            $.post(
-				$.littled.getRelativePath() + settings.date_url,
-                $f.serializeObject(),
-                function(data) {
-					data.settings = options;
-					$(lclSettings.dom.listings_container).listings('updateListingsContent', data);
-				},
-				'json'
-			)
-			.fail(function(xhr) {
-				$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
-            });
-        },
-
-		updateListingsContent: function(data) {
-
-			let lclSettings = methods.configureLocalizedSettings(null, data.settings);
-
-			if (data.error) {
-				$(lclSettings.dom.error_container).littled('displayError', data.error);
-				return;
-			}
-
-			let selector = lclSettings.dom.listings_container || data.container_id;
-			let $e = $(selector);
-			if ($e.length > 0 ) {
-				$e
-				.html($.littled.htmldecode(data.content))
-				.triggerHandler('contentUpdate');
-			}
-			else {
-				if (lclSettings.displayWarnings === true) {
-					$(lclSettings.dom.error_container).littled('displayError', 'Content container not found: "'+selector+'"');
-				}
-			}
-			$(lclSettings.dom.status_container).littled('displayStatus', data.status);
-		},
-
         getListingsURI: function(data) {
             if (data.ajax_listings_uri) {
                 return data.ajax_listings_uri;
@@ -2566,85 +1855,12 @@ if (typeof LITTLED === "undefined") {
         },
 
 		/**
-		 * Handler for button elements that navigate to different pages within
-		 * the listings.
-		 * @param {Event} evt
-		 * @returns {undefined}
-		 */
-        gotoPage: function( evt ) {
-
-			let lclSettings = methods.configureLocalizedSettings(evt);
-
-			/* clear any status messages */
-			$(lclSettings.dom.status_container).fadeOut('fast');
-			
-			/* pointer to element within listings that stores the content type
-			 * id and parent id values
-			 */
-			let $l = $(lclSettings.dom.listings_container);
-
-			/* retrieve active listings filters */
-			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
-			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
-			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type.toLowerCase());
-			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id.toLowerCase());
-
-			/* retrieve operations uris for this content type */
-			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
-
-                let listings_uri = '';
-				if (data.error) {
-					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
-					return;
-				} else {
-                    listings_uri = methods.getListingsURI(data);
-                    if (listings_uri==='') {
-                        $(lclSettings.dom.page_error_container).littled('displayError', "Listings route not found.");
-                        return;
-                    }
-				}
-
-				/* make request to listings ajax script for this content type 
-				 * to retrieve the updated listings content
-				 */
-				$.post(
-					listings_uri,
-					fd,
-					function(data2) {
-						
-						if (data2.error) {
-							$(lclSettings.dom.page_error_container).littled('displayError', data2.error);
-							return;
-						}
-						
-						/* refresh listings content and trigger handler that will
-						 * re-bind the jQuery handlers within the listings.
-						 */
-						$(lclSettings.dom.listings_container)
-						.littled('displayAjaxResult', data2)
-						.triggerHandler('contentUpdate');
-				
-						/* update page value in query string.
-						 * NB this might have to happen instead in the filters 
-						 * form in the future.
-						 */
-						methods.updateNavigationValue(lclSettings.keys.page, fd[lclSettings.keys.page], options);
-					},
-					'json'
-				)
-				.fail(function(xhr) {
-					$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
-				});
-			});
-        },
-
-		/**
 		 * Handler for non-anchor element typically within listings that will redirect to a record's details page.
 		 * @param {Event} evt
 		 * @returns {undefined}
 		 */
 		gotoDetailsPage: function(evt) {
-			let lclSettings = methods.configureLocalizedSettings(evt);
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
 			let id = $(this).data(lclSettings.keys.record_id);
 			if (!id) {
 				$(this).closest(lclSettings.dom.error_container)
@@ -2660,6 +1876,197 @@ if (typeof LITTLED === "undefined") {
 		},
 
 		/**
+		 * Handler for button elements that navigate to different pages within
+		 * the listings.
+		 * @param {Event} evt
+		 * @returns {undefined}
+		 */
+		gotoPage: function( evt ) {
+
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
+
+			/* clear any status messages */
+			$(lclSettings.dom.status_container).fadeOut('fast');
+
+			/* pointer to element within listings that stores the content type
+			 * id and parent id values
+			 */
+			let $l = $(lclSettings.dom.listings_container);
+
+			/* retrieve active listings filters */
+			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
+			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
+			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type.toLowerCase());
+			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id.toLowerCase());
+
+			/* retrieve operations uris for this content type */
+			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
+
+				let listings_uri = '';
+				if (data.error) {
+					$(lclSettings.dom.page_error_container).littled('displayError', data.error);
+					return;
+				} else {
+					listings_uri = methods.getListingsURI(data);
+					if (listings_uri==='') {
+						$(lclSettings.dom.page_error_container).littled('displayError', "Listings route not found.");
+						return;
+					}
+				}
+
+				/* make request to listings ajax script for this content type
+				 * to retrieve the updated listings content
+				 */
+				$.post(
+					listings_uri,
+					fd,
+					function(data2) {
+
+						if (data2.error) {
+							$(lclSettings.dom.page_error_container).littled('displayError', data2.error);
+							return;
+						}
+
+						/* refresh listings content and trigger handler that will
+						 * re-bind the jQuery handlers within the listings.
+						 */
+						$(lclSettings.dom.listings_container)
+							.littled('displayAjaxResult', data2)
+							.triggerHandler('contentUpdate');
+
+						/* update page value in query string.
+						 * NB this might have to happen instead in the filters
+						 * form in the future.
+						 */
+						methods.updateNavigationValue(lclSettings.keys.page, fd[lclSettings.keys.page], options);
+					},
+					'json'
+				)
+					.fail(function(xhr) {
+						$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
+					});
+			});
+		},
+
+		saveDate: function(evt, dateText, inst) {
+
+			let lclSettings = $.littled.configureLocalizedSettings(evt);
+			let $f = $(this).parents('form:first');
+			$.post(
+				$.littled.getRelativePath() + settings.date_url,
+				$f.serializeObject(),
+				function(data) {
+					data.settings = options;
+					$(lclSettings.dom.listings_container).listings('updateListingsContent', data);
+				},
+				'json'
+			)
+				.fail(function(xhr) {
+					$(lclSettings.dom.page_error_container).littled('ajaxError', xhr);
+				});
+		},
+
+		listingsUpdateCB: function( evt ) {
+			$(this).listings('bindListingsHandlers', (evt.data || {}));
+		},
+
+		saveEdit: function(options) {
+
+			let lclSettings = $.extend({}, settings, options || {});
+			let op = $(this).data('op');
+			let $f = $(this).closest('form');
+			let $p = $(this).closest('.inline-edit-cell').parent();
+			let url = methods.getInlineURL(op, options);
+
+			$.ajax({
+				type: 'post',
+				url: url,
+				data: $f.serializeObject(),
+				dataType: 'json',
+				success: function(data) {
+					if (data.error) {
+						$(lclSettings.dom.error_container).littled('displayError', data.error);
+						return;
+					}
+					$p.html($.littled.htmldecode(data.content));
+					$('.inline-edit-cell', $p)
+						.off('dblclick', methods.editCell)
+						.on('dblclick', methods.editCell);
+				},
+				error: function(xhr) {
+					$(lclSettings.dom.error_container).littled('ajaxError', xhr);
+				}
+			});
+		},
+
+		testKeyedEntry: function(evt) {
+
+			let id = $(this).data('id');
+			let t = $(this).data('t');
+			let op = $(this).data('op');
+			let $p = $(this).closest('.inline-edit-cell').parent();
+
+			let kp = ((window.event) ? (window.event.keyCode) : (evt.which));
+			switch (kp) {
+
+				case 13:
+
+					/* save on enter key */
+					evt.preventDefault();
+					$(this).trigger('commit');
+					break;
+
+				case 27:
+
+					/* cancel on escape key */
+					evt.preventDefault();
+					let url = methods.getInlineURL(op);
+					$.post(url,
+						{id: id, t: t, op: op, cancel: 1},
+						function(data) {
+							if (data.error) {
+								$(settings.dom.error_container).littled('displayError', data.error);
+								return;
+							}
+							$p.html($.littled.htmldecode(data.content));
+						},
+						'json'
+					)
+						.fail(function(xhr) {
+							$(settings.dom.error_container).littled('ajaxError', xhr);
+						});
+
+					break;
+				default:
+				/* continue with all other keys */
+			}
+		},
+
+		updateListingsContent: function(data) {
+
+			let lclSettings = $.littled.configureLocalizedSettings(null, data.settings);
+
+			if (data.error) {
+				$(lclSettings.dom.error_container).littled('displayError', data.error);
+				return;
+			}
+
+			let selector = lclSettings.dom.listings_container || data.container_id;
+			let $e = $(selector);
+			if ($e.length > 0 ) {
+				$e
+					.html($.littled.htmldecode(data.content))
+					.triggerHandler('contentUpdate');
+			}
+			else {
+				if (lclSettings.displayWarnings === true) {
+					$(lclSettings.dom.error_container).littled('displayError', 'Content container not found: "'+selector+'"');
+				}
+			}
+			$(lclSettings.dom.status_container).littled('displayStatus', data.status);
+		},
+
+		/**
 		 * Updates a key/value pair in the query string, esp. the current page
 		 * value.
 		 * @param {string} key Key to update in the query string.
@@ -2668,7 +2075,7 @@ if (typeof LITTLED === "undefined") {
 		 * @returns {undefined}
 		 */
 		updateNavigationValue: function( key, value, options ) {
-			let lclSettings = methods.configureLocalizedSettings(null, options);
+			let lclSettings = $.littled.configureLocalizedSettings(null, options);
 			let new_url,
 				src_url = window.location.href,
 				re = new RegExp("([?|&])" + key + "=.*?(&|$)","i");
