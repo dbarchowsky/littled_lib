@@ -34,6 +34,10 @@
 			csrf: 'csrf',
 			uri: 'uri'
 		},
+		operations: {
+			listings: 		'listings',
+			details: 		'details'
+		},
 		dom: {
 			/* start using these over the top-level settings */
 			listings_container: '.listings',
@@ -201,18 +205,15 @@
 		 */
 		gotoDetailsPage: function(evt) {
 			let lclSettings = $.littled.configureLocalizedSettings(evt);
+			let tid = $(this).data(lclSettings.keys.content_type);
 			let id = $(this).data(lclSettings.keys.record_id);
+			if (!tid) {
+				throw Error('A content type was not provided.');
+			}
 			if (!id) {
-				$(this).closest(lclSettings.dom.error_container)
-				.littled('displayError', 'A record id was not provided.');
-				return;
+				throw Error('A record id was not provided.');
 			}
-			let route = $(this).data(lclSettings.keys.uri);
-			let filters_qs = $(lclSettings.dom.filters_form).serialize();
-			if (filters_qs) {
-				route = route+'?'+filters_qs;
-			}
-			window.location = route;
+			window.location = $.littled.retrieveRoute(lclSettings.operations.details, tid, id);
 		},
 
 		/**

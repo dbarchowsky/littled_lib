@@ -83,6 +83,10 @@
 
 	$.littled = {
 
+		addProtocolAndDomain: function(path) {
+			return (location.protocol + '//' + $.littled.getDomain() + path);
+		},
+
 		/**
 		 * Extract values from the event object that will override the global settings within an event handler.
 		 * @param {Event} evt
@@ -113,10 +117,6 @@
 			return (path);
 		},
 
-		addProtocolAndDomain: function(path) {
-			return (location.protocol + '//' + $.littled.getDomain() + path);
-		},
-
 		htmldecode: function(html) {
 			if (html === undefined) {
 				return ("");
@@ -126,6 +126,16 @@
 		
 		htmlentities: function( html ) {
 			return String(html).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		},
+
+		getEventOptions: function(evt, options) {
+			let lclSettings = options || {};
+			if (evt.hasOwnProperty('data')) {
+				if (evt.data !== undefined && evt.data.hasOwnProperty('options')) {
+					$.extend(lclSettings, evt.data.options);
+				}
+			}
+			return (lclSettings);
 		},
 
 		getQueryArray: function(arAppend, arExclude) {
@@ -145,16 +155,6 @@
 				}
 			}
 			return q;
-		},
-
-		getEventOptions: function(evt, options) {
-			let lclSettings = options || {};
-			if (evt.hasOwnProperty('data')) {
-				if (evt.data !== undefined && evt.data.hasOwnProperty('options')) {
-					$.extend(lclSettings, evt.data.options);
-				}
-			}
-			return (lclSettings);
 		},
 
         /**
@@ -195,7 +195,7 @@
 		 * @param {object} options
 		 * @returns {string}
 		 */
-		retrieveRoute: function(operation, content_type_id, record_id, options)
+		retrieveRoute: function(operation, content_type_id, record_id, options={})
 		{
 			let lclSettings = $.littled.configureLocalizedSettings(null, options);
 			let post_data = {};
