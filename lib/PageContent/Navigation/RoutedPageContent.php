@@ -34,18 +34,20 @@ class RoutedPageContent extends PageContent
     /**
      * @throws ConfigurationUndefinedException
      */
-    public function checkAndCommitUpdates()
+    public function checkAndCommitUpdates(): ?RoutedPageContent
     {
         if (LittledGlobals::COMMIT_KEY === $this->edit_action) {
             // save any edits made on a page
             $this->updateRecord();
         }
+        $page = null;
         if ( $this->content instanceof SectionContent &&
             false === $this->content->hasValidationErrors() &&
             in_array($this->edit_action, [PageContent::COMMIT_ACTION, PageContent::CANCEL_ACTION])) {
             // load page selected to be the next page after editing and saving a record
             $page = $this->getUpdateResponsePage();
         }
+        return $page;
     }
 
     /**
