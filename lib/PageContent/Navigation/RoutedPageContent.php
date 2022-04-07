@@ -36,11 +36,11 @@ class RoutedPageContent extends PageContent
      */
     public function checkAndCommitUpdates(): ?RoutedPageContent
     {
+        $page = $this;
         if (LittledGlobals::COMMIT_KEY === $this->edit_action) {
             // save any edits made on a page
             $this->updateRecord();
         }
-        $page = null;
         if ( $this->content instanceof SectionContent &&
             false === $this->content->hasValidationErrors() &&
             in_array($this->edit_action, [PageContent::COMMIT_ACTION, PageContent::CANCEL_ACTION])) {
