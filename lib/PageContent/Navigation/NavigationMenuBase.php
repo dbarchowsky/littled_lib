@@ -38,18 +38,18 @@ class NavigationMenuBase
 		while(isset($this->last)) {
 			$node = null;
 			if (isset($this->last->prev_node) && is_object($this->last->prev_node)) {
-				$node = &$this->last->prev_node;
+				$node = $this->last->prev_node;
 			}
 			unset($this->last);
 			if (is_object($node)) {
-				$this->last = &$node;
+				$this->last = $node;
 			}
 		}
 		unset($this->first);
 	}
 
 	/**
-	 * removes the last node from the chain
+     * @deprecated Use popNode() instead.
 	 */
 	function dropLast ( )
 	{
@@ -75,22 +75,22 @@ class NavigationMenuBase
 		return (static::$menu_template_path);
 	}
 
-	/**
-	 * Returns the current menu node count.
-	 * @return int
-	 */
-	public function getNodeCount(): int
-	{
-		$n = 0;
-		if (isset($this->first)) {
-			$node = $this->first;
-			while($node) {
-				$n++;
-				$node = ((isset($node->next_node))?($node->next_node):(null));
-			}
-		}
-		return $n;
-	}
+    /**
+     * Returns the current number of nodes in the breadcrumb menu.
+     * @return int
+     */
+    public function getNodeCount(): int
+    {
+        $count = 0;
+        if (isset($this->first)) {
+            $node = $this->first;
+            while($node) {
+                $count++;
+                $node = ((isset($node->next_node))?($node->next_node):(null));
+            }
+        }
+        return $count;
+    }
 
 	/**
 	 * @return string Returns the type set for the navigation menu nodes.
@@ -126,7 +126,59 @@ class NavigationMenuBase
 		$this->last = $node;
 	}
 
-	/**
+    /**
+     * Pops last node off the breadcrumb list.
+     * @return void
+     */
+    public function popNode()
+    {
+        if (!isset($this->first)) {
+            // no nodes currently in the list; nothing to do
+            return;
+        }
+        if ($this->last === $this->first) {
+            // only one node in the list; delete it
+            unset($this->first);
+            unset($this->last);
+            return;
+        }
+        $node = $this->last;
+        if (isset($node->prev_node)) {
+            if ($node->prev_node===$this->first) {
+                // two nodes on the list; the link to a previous node should not be set anymore
+                $this->last = $this->first;
+                unset($this->first->next_node);
+            }
+            else {
+                // two or more nodes will remain; make sure link to previous node is maintained
+                $this->last = $node->prev_node;
+                unset($this->last->next_node);
+            }
+        }
+        // destroy what was the last node in the list
+        unset($node);
+    }
+
+    /**
+     * Pops n nodes off the end of the breadcrumb list
+     * @param int $count Number of nodes to remove.
+     * @return void
+     */
+    public function popNodes(int $count)
+    {
+        if (!isset($this->first)) {
+            return;
+        }
+        $node = $this->last;
+        $i = 0;
+        while($node && $i < $count) {
+            $this->popNode();
+            $node = ((isset($this->last))?($this->last):(null));
+            $i++;
+        }
+    }
+
+    /**
 	 * Outputs navigation menu markup.
 	 * @throws ResourceNotFoundException
 	 */
