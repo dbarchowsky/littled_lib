@@ -54,20 +54,20 @@ class RoutedPageContent extends PageContent
      * Parses route components to fetch record id and action values. Route is expected to be in the format of
      * $route[0] > record_id, $route[1] > action
      * @param array $route
-     * @return array
+     * @return RouteAction
      */
-    public static function collectActionFromRoute(array $route): array
+    public static function collectActionFromRoute(array $route): RouteAction
     {
-        $action = array('action' => '');
-        $action['record_id'] = static::collectRecordIdFromRoute($route);
-        if (null===$action['record_id']) {
+        $action = new RouteAction();
+        $action->record_id = static::collectRecordIdFromRoute($route);
+        if (null===$action->record_id) {
             if (count($route) > 1 && preg_match('/^[a-zA-Z\-_]*$/', $route[1])) {
-                $action['action'] = $route[1];
+                $action->token = $route[1];
             }
         }
         else {
             if (count($route) > 2) {
-                $action['action'] = $route[2];
+                $action->token = $route[2];
             }
         }
         return $action;
