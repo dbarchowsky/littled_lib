@@ -104,6 +104,16 @@ class PageConfig
 	}
 
     /**
+     * Remove all links from all navigation menus.
+     * @return void
+     */
+    public static function clearNavigation()
+    {
+        static::clearBreadcrumbs();
+        static::clearUtilityLinks();
+    }
+
+    /**
      * Clears all previously registered stylesheets.
      */
     public static function clearPreloads( )
