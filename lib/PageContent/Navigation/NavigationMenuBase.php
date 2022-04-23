@@ -20,6 +20,14 @@ class NavigationMenuBase
 	/** @var string CSS class to apply to the breadcrumb menu parent element */
 	public string $css_class='';
 
+    /**
+     * Class constructor.
+     */
+    function __construct()
+    {
+        /** placeholder */
+    }
+
 	/**
 	 * Adds menu item to navigation menu and sets its properties.
 	 * @param string $label
