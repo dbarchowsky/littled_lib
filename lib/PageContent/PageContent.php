@@ -126,7 +126,7 @@ class PageContent extends MySQLConnection
      * Returns URI of details page with filter
      * @throws NotImplementedException
      */
-    public function getDetailsURI(?int $record_id=null): string
+    public static function getDetailsURI(?int $record_id=null): string
     {
         throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
     }
