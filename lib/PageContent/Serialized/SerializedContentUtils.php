@@ -163,7 +163,7 @@ class SerializedContentUtils extends AppContentBase
 	{
 		foreach ($src as $key => $val) {
 			if (property_exists($this, $key)) {
-				if ($this->$key instanceof RequestInput) {
+				if (isset($this->$key) && $this->$key instanceof RequestInput) {
 					$this->$key->setInputValue($val);
 				}
 				elseif (!is_object($this->$key)) {
