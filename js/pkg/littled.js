@@ -97,7 +97,7 @@
 			if (evt) {
 				evt.preventDefault();
 			}
-			return ($.extend(true, {}, settings, evt.data || {}, options));
+			return ($.extend(true, {}, settings, (evt && evt.data) || {}, options));
 		},
 
 		getDomain: function() {
