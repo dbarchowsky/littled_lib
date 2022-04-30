@@ -1939,7 +1939,7 @@
 						 * NB this might have to happen instead in the filters
 						 * form in the future.
 						 */
-						methods.updateNavigationValue(lclSettings.keys.page, fd[lclSettings.keys.page], options);
+						methods.updateNavigationValue(lclSettings.keys.page, fd[lclSettings.keys.page], lclSettings);
 					},
 					'json'
 				)
