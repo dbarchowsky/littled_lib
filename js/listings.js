@@ -28,7 +28,7 @@
 		keys: {
 			record_id: 'id',		/* matches LittledGlobals::ID_KEY			*/
 			parent_id: 'pid',		/* matches LittleGlobals::PARENT_ID_KEY 	*/
-			content_type: 'tid', 	/* matches LittledGlobals::CONTENT_TYPE_KEY */
+			content_type_id: 'tid', 	/* matches LittledGlobals::CONTENT_TYPE_KEY */
 			page: 'p',
 			operation: 'op',
 			csrf: 'csrf',
@@ -205,7 +205,7 @@
 		 */
 		gotoDetailsPage: function(evt) {
 			let lclSettings = $.littled.configureLocalizedSettings(evt);
-			let tid = $(this).data(lclSettings.keys.content_type);
+			let tid = $(this).data(lclSettings.keys.content_type_id);
 			let id = $(this).data(lclSettings.keys.record_id);
 			if (!tid) {
 				throw Error('A content type was not provided.');
@@ -237,11 +237,11 @@
 			/* retrieve active listings filters */
 			let fd = $(lclSettings.dom.filters_form).littled('collectFormDataWithCSRF', evt.data||{});
 			fd[lclSettings.keys.page] = $(this).data(lclSettings.keys.page);
-			fd[lclSettings.keys.content_type] = $('table:first', $l).data(lclSettings.keys.content_type.toLowerCase());
+			fd[lclSettings.keys.content_type_id] = $('table:first', $l).data(lclSettings.keys.content_type_id.toLowerCase());
 			fd[lclSettings.keys.parent_id] = $('table:first', $l).data(lclSettings.keys.parent_id.toLowerCase());
 
 			/* retrieve operations uris for this content type */
-			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type], function(data) {
+			$.littled.retrieveContentOperations(fd[lclSettings.keys.content_type_id], function(data) {
 
 				let listings_uri = '';
 				if (data.error) {
