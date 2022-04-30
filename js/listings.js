@@ -224,7 +224,7 @@
 		 */
 		gotoPage: function( evt ) {
 
-			let lclSettings = $.littled.configureLocalizedSettings(evt, lclSettings);
+			let lclSettings = $.littled.configureLocalizedSettings(evt, settings);
 
 			/* clear any status messages */
 			$(lclSettings.dom.status_container).fadeOut('fast');
