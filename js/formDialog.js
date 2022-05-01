@@ -298,7 +298,6 @@
 			}
 
 			/* update page content */
-			data.settings = options;
 			if (typeof(lclSettings.callbacks.update_content) === 'function') {
 				lclSettings.callbacks.update_content.apply(this, Array.prototype.slice.call(arguments));
 			}
