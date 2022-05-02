@@ -25,11 +25,12 @@ class BreadcrumbsTest extends TestCase
     }
 
     /**
+     * Run this test first to insure default template path value.
      * @throws ConfigurationUndefinedException
      */
     function testSetBreadcrumbsTemplatePath()
     {
-		$original = Breadcrumbs::getBreadcrumbsTemplatePath();
+        $original = Breadcrumbs::getBreadcrumbsTemplatePath();
 
         // test default value
         $this->assertEquals('', Breadcrumbs::getBreadcrumbsTemplatePath());
@@ -37,9 +38,36 @@ class BreadcrumbsTest extends TestCase
         // test assigned template value
         Breadcrumbs::setBreadcrumbsTemplatePath(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH);
         $this->assertEquals(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH, Breadcrumbs::getBreadcrumbsTemplatePath());
-	    $this->assertEquals(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH, Breadcrumbs::getMenuTemplatePath());
+        $this->assertEquals(LittledGlobals::getLocalTemplatesPath().self::TEMPLATE_PATH, Breadcrumbs::getMenuTemplatePath());
 
-		Breadcrumbs::setBreadcrumbsTemplatePath($original);
+        Breadcrumbs::setBreadcrumbsTemplatePath($original);
+    }
+
+    function testClearNodes()
+    {
+        $o = new Breadcrumbs();
+
+        // call with no breadcrumb nodes
+        $o->clearNodes();
+        $this->assertEquals(0, $o->getNodeCount());
+        $this->assertFalse(isset($o->first));
+        $this->assertFalse(isset($o->last));
+
+        // call with one node
+        $o->addNode('test 1a');
+        $o->clearNodes();
+        $this->assertEquals(0, $o->getNodeCount());
+        $this->assertFalse(isset($o->first));
+        $this->assertFalse(isset($o->last));
+
+        // call with multiple nodes
+        $o->addNode('test 1b');
+        $o->addNode('test 2b');
+        $o->addNode('test 2c');
+        $o->clearNodes();
+        $this->assertEquals(0, $o->getNodeCount());
+        $this->assertFalse(isset($o->first));
+        $this->assertFalse(isset($o->last));
     }
 
 	function testFind()
