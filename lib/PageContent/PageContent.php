@@ -22,9 +22,9 @@ class PageContent extends MySQLConnection
     /** @var string Token representing the current action to take on the page. */
     public string $edit_action='';
     /** @var SectionContent Page content. */
-    public $content;
+    public SectionContent $content;
     /** @var ContentFilters Content filters. */
-    public $filters;
+    public ContentFilters $filters;
     /** @var string @var */
     public string $label = '';
     /** @var string Query string to attach to page links. */
@@ -123,10 +123,10 @@ class PageContent extends MySQLConnection
     }
 
     /**
-     * Returns URI of details page with filter
+     * Returns URI of the page containing record details with filter
      * @throws NotImplementedException
      */
-    public static function getDetailsURI(?int $record_id=null): string
+    public function getDetailsURI(?int $record_id=null): string
     {
         throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
     }
