@@ -337,8 +337,9 @@ class AjaxPage extends MySQLConnection
 	public function loadTemplateContent()
 	{
 		$context = array(
-			'content' => $this->content,
-			'filters' => $this->filters
+			'page' => &$this,
+			'content' => &$this->content,
+			'filters' => &$this->filters
 		);
 		if ($this->filters instanceof ContentFilters) {
 			$context['qs'] = $this->filters->formatQueryString();
@@ -405,6 +406,7 @@ class AjaxPage extends MySQLConnection
         $template = $this->newTemplateInstance();
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
         $this->json->loadContentFromTemplate($template->formatFullPath(), array(
+			'page' => &$this,
             'content' => &$this->content,
             'filters' => &$this->filters
         ));
