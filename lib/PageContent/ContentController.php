@@ -130,6 +130,15 @@ abstract class ContentController
      */
     abstract public static function getNavigationRoute(int $site_section_id, string $operation, ?int $record_id=null): string;
 
+	/**
+	 * Returns the name of the PageContent class matching the content type id passed to the method.
+	 * Classes implementing this routine will return the values depending on the value of $content_id.
+	 * @param int $content_id Content type to match with filter type.
+	 * @returns string
+	 * @throws Exception
+	 */
+	abstract public static function getPageContentClass(int $content_id): string;
+
     /**
      * Default action is to load content property values from the database. This method can instead be overridden to
      * perform different actions depending on content type. E.g. replace the default action with a switch statement
