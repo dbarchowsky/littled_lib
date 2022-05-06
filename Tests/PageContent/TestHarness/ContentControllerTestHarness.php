@@ -2,6 +2,7 @@
 
 namespace Littled\Tests\PageContent\TestHarness;
 
+use Exception;
 use Littled\PageContent\ContentController;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -54,4 +55,14 @@ class ContentControllerTestHarness extends ContentController
     {
         return 'Abstract method placeholder';
     }
+
+	public static function getPageContentClass(int $content_id): string
+	{
+		switch($content_id) {
+			case AjaxPageTest::TEST_CONTENT_TYPE_ID:
+				return 'Littled\Tests\PageContent\TestHarness\PageContentChild';
+			default:
+				return 'TestContentClassString';
+		}
+	}
 }

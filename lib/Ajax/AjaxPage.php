@@ -3,6 +3,7 @@ namespace Littled\Ajax;
 
 use Exception;
 use Littled\Filters\ContentFilters;
+use Littled\PageContent\PageContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
@@ -337,7 +338,7 @@ class AjaxPage extends MySQLConnection
 	public function loadTemplateContent()
 	{
 		$context = array(
-			'page' => &$this,
+			'page' => $this->newPageContentInstance(),
 			'content' => &$this->content,
 			'filters' => &$this->filters
 		);
@@ -381,6 +382,17 @@ class AjaxPage extends MySQLConnection
         return new ContentProperties($record_id);
     }
 
+	/**
+	 * Returns instance of a PageContent class used to render front-end content.
+	 * @return PageContent
+	 * @throws ConfigurationUndefinedException
+	 */
+	protected function newPageContentInstance(): PageContent
+	{
+		$page_content_class = call_user_func_array([static::getControllerClass(), 'getPageContentClass'], array($this->getContentTypeId()));
+		return new $page_content_class();
+	}
+
     /**
      * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the AjaxPage class's methods.
      * @param int|null $record_id
@@ -406,7 +418,7 @@ class AjaxPage extends MySQLConnection
         $template = $this->newTemplateInstance();
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
         $this->json->loadContentFromTemplate($template->formatFullPath(), array(
-			'page' => &$this,
+			'page' => $this->newPageContentInstance(),
             'content' => &$this->content,
             'filters' => &$this->filters
         ));

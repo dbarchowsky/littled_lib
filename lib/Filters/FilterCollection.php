@@ -64,7 +64,7 @@ class FilterCollection extends FilterCollectionProperties
 		$this->display_listings->collectValue(false);
 		if ($this->display_listings->value===null) {
 			$str_value = Validation::collectRequestVar($this->display_listings->key);
-			if (strtolower($str_value)=="filter") {
+			if (strtolower(''.$str_value)=="filter") {
 				$this->display_listings->value = true;
 			}
 		}
