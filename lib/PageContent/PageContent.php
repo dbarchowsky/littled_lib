@@ -13,9 +13,7 @@ use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
 /**
- * Class PageContentBase
  * Intended as a base utility class for managing and rendering content for different types of pages.
- * @package Littled\Content
  */
 class PageContent extends MySQLConnection
 {
