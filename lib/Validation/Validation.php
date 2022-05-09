@@ -85,6 +85,20 @@ class Validation
 	}
 
 	/**
+	 * Checks if the user has provided consent to store cookie data. Returns result as TRUE/FALSE.
+	 * @return bool Flag indicating that prior consent was found.
+	 */
+	public function checkForCookieConsent(): bool
+	{
+		if (isset($_COOKIE) &&
+			isset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY])) {
+			/** Cookie key can only be set with user's consent. */
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Returns TRUE/FALSE depending on the value of the requested input variable.
 	 * @param string $key Input variable name in either GET  or POST data.
 	 * @param int|null $index (Optional) index of the element to test, if the variable is an array.

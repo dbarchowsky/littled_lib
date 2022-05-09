@@ -26,6 +26,8 @@ class LittledGlobals
     const COMMIT_KEY = 'commit';
 	/** @var string Key of the content type id request variable. */
 	const CONTENT_TYPE_KEY = 'tid';
+	/** @var string Cookie variable containing value of flag indicating the user's consent to collecting cookie data  */
+	const COOKIE_CONSENT_KEY = 'hasCookieConsent';
 	/** @var string Key of request variable used to pass CSRF tokens. */
 	const CSRF_TOKEN_KEY = 'csrf';
 	/** @var string Key of request variable used to pass error messages. */
