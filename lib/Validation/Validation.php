@@ -88,7 +88,7 @@ class Validation
 	 * Checks if the user has provided consent to store cookie data. Returns result as TRUE/FALSE.
 	 * @return bool Flag indicating that prior consent was found.
 	 */
-	public function checkForCookieConsent(): bool
+	public static function checkForCookieConsent(): bool
 	{
 		if (isset($_COOKIE) &&
 			isset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY])) {
