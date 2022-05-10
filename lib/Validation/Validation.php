@@ -445,25 +445,44 @@ class Validation
 	 */
 	public static function validateCSRF( ?stdClass $data=null ): bool
 	{
-		if (!array_key_exists(LittledGlobals::CSRF_SESSION_KEY, $_SESSION)) {
+		// Session must contain the master token value
+		if (!array_key_exists(LittledGlobals::CSRF_SESSION_KEY, $_SESSION) ||
+			$_SESSION[LittledGlobals::CSRF_SESSION_KEY]==='') {
 			return false;
 		}
+
 		if ($data) {
+			// Collect from local data if it exists. Local data has precedence over any other source.
 			if (!property_exists($data, LittledGlobals::CSRF_TOKEN_KEY)) {
 				return false;
 			}
-			$csrf = trim(filter_var($data->{LittledGlobals::CSRF_TOKEN_KEY}, FILTER_UNSAFE_RAW));
+			return Validation::testCSRFValue($data->{LittledGlobals::CSRF_TOKEN_KEY});
 		}
-		else {
-			if (!array_key_exists(LittledGlobals::CSRF_TOKEN_KEY, $_POST)) {
-				return false;
-			}
-			$csrf = trim(filter_var($_POST[LittledGlobals::CSRF_TOKEN_KEY], FILTER_UNSAFE_RAW));
+		$csrf = '';
+		if (array_key_exists(LittledGlobals::CSRF_HEADER_KEY, $_SERVER)) {
+			// Test any tokens detected in request header data
+			// Continue to search other locations if no token is stored in request headers.
+	        $csrf = $_SERVER[LittledGlobals::CSRF_HEADER_KEY];
 		}
-		if (''===$csrf) {
+		if ($csrf === '' && isset($_POST) && array_key_exists(LittledGlobals::CSRF_TOKEN_KEY, $_POST)) {
+			// Test any tokens detected in POST data.
+			$csrf = $_POST[LittledGlobals::CSRF_TOKEN_KEY];
+		}
+		return Validation::testCSRFValue($csrf);
+	}
+
+	/**
+	 * Tests a CSRF token stored in a string variable against the CSRF token currently stored in Session data.
+	 * @param string $csrf CSRF token value to test.
+	 * @return bool TRUE if the CSRF token matches the token stored in session data.
+	 */
+	protected static function testCSRFValue(string $csrf): bool
+	{
+		if ($csrf==='') {
 			return false;
 		}
-		return ($_SESSION[LittledGlobals::CSRF_SESSION_KEY]===$csrf);
+		$csrf = trim(filter_var($csrf, FILTER_UNSAFE_RAW));
+		return ($csrf===$_SESSION[LittledGlobals::CSRF_SESSION_KEY]);
 	}
 
 	/**

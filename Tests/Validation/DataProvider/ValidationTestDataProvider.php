@@ -111,28 +111,79 @@ class ValidationTestDataProvider
 	public static function validateCSRFTestProvider(): array
 	{
 		return array(
-			array(false, [], [], null),
-			array(false, [], array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()), null),
+			array('No stored CSRF value; no CSRF data', false, [], [], null),
+			array('No CSRF value in session',
+				false, [], array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()), null),
 			array(
+				'Empty CSRF value in session',
+				false,
+				array(LittledGlobals::CSRF_SESSION_KEY => ''),
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken())
+			),
+			array(
+				'Valid CSRF value in POST data',
 				true,
 				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()),
-				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()),
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				null),
 			array(
+				'Valid CSRF value in SESSION data',
 				true,
 				[],
-				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()),
-				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken())),
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				(object)array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken())),
 			array(
+				'Invalid CSRF value in POST data',
 				false,
 				array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus_value'),
-				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()),
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				null),
 			array(
+				'Invalid CSRF value in local data',
 				false,
 				[],
-				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()),
-				array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus_value')),
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				(object)array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus_value')),
+			array(
+				'Empty token value in headers',
+				false,
+				[],
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				null,
+				array(LittledGlobals::CSRF_HEADER_KEY => '')
+			),
+			array(
+				'Invalid token value in headers',
+				false,
+				[],
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				null,
+				array(LittledGlobals::CSRF_HEADER_KEY => 'bogus_value')
+			),
+			array(
+				'Valid token in headers; No POST or local data',
+				true,
+				[],
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				null,
+				array(LittledGlobals::CSRF_HEADER_KEY => AppBase::getCSRFToken())
+			),
+			array(
+				'Valid token in headers; Invalid POST token',
+				true,
+				array(LittledGlobals::CSRF_TOKEN_KEY => 'BOGUS'),
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				null,
+				array(LittledGlobals::CSRF_HEADER_KEY => AppBase::getCSRFToken())
+			),
+			array(
+				'Valid token in headers; Invalid local token',
+				false,
+				[],
+				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				(object)array(LittledGlobals::CSRF_TOKEN_KEY => 'BOGUS'),
+				array(LittledGlobals::CSRF_HEADER_KEY => AppBase::getCSRFToken())
+			),
 		);
 	}
 

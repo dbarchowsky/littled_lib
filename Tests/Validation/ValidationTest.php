@@ -92,21 +92,33 @@ class ValidationTest extends TestCase
 
 	/**
 	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::validateCSRFTestProvider()
+	 * @param string $description
 	 * @param bool $expected
 	 * @param array $post_data
 	 * @param array $session_data
 	 * @param stdClass|null $user_data
+	 * @param array|null $header_data
 	 * @return void
 	 */
-	function validateCSRFTest(bool $expected, array $post_data, array $session_data, ?stdClass $user_data)
+	function testValidateCSRF(string $description, bool $expected, array $post_data, array $session_data, ?stdClass $user_data=null, ?array $header_data=null)
 	{
 		$_POST = $post_data;
 		$_SESSION = $session_data;
+		if (is_array($header_data)) {
+			foreach ($header_data as $key => $value) {
+				$_SERVER[$key] = $value;
+			}
+		}
 		if ($expected) {
-			$this->assertTrue(Validation::validateCSRF($user_data));
+			$this->assertTrue(Validation::validateCSRF($user_data), $description);
 		}
 		else {
-			$this->assertFalse(Validation::validateCSRF($user_data));
+			$this->assertFalse(Validation::validateCSRF($user_data), $description);
+		}
+		if (is_array($header_data)) {
+			foreach (array_keys($header_data) as $key) {
+				unset($_SERVER[$key]);
+			}
 		}
 	}
 

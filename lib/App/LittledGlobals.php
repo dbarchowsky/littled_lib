@@ -19,6 +19,8 @@ class LittledGlobals
 
 	/** @var string Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY = 'csrfToken';
+    /** @var string Name of request header transmitting csrf token. */
+    const CSRF_HEADER_KEY = 'CSRF-Token';
 
     /** @var string Request variable name to cancel operations. */
     const CANCEL_KEY = 'cancel';
