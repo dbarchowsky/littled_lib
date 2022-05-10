@@ -41,15 +41,12 @@ class AppBase
     }
 
     /**
-	 * Generate CSRF token and store it in a session variable.
-	 * A token is not generated if one already exists for the session.
+	 * Generate string to use as CSRF token.
+     * @return string CSRF token value.
 	 */
-	public static function generateCSRFToken()
+	public static function generateCSRFToken(): string
 	{
-		if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
-			$_SESSION[LittledGlobals::CSRF_SESSION_KEY] = base64_encode(openssl_random_pseudo_bytes(32));
-		}
-		// $_SESSION[CSRF_AJAX_PARAM] = '12345abcde';
+        return base64_encode(openssl_random_pseudo_bytes(32));
 	}
 
     /**
@@ -83,7 +80,7 @@ class AppBase
 	public static function getCSRFToken(): ?string
 	{
 		if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
-			AppBase::generateCSRFToken();
+			AppBase::storeCSRFToken();
 		}
 		return $_SESSION[LittledGlobals::CSRF_SESSION_KEY];
 	}
@@ -139,7 +136,20 @@ class AppBase
         static::$error_page_url = $url;
     }
 
-	/**
+    /**
+     * Generate CSRF token and store it in a session variable.
+     * A token is not generated if one already exists for the session.
+     * @return void
+     */
+    public static function storeCSRFToken()
+    {
+        if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
+            $_SESSION[LittledGlobals::CSRF_SESSION_KEY] = AppBase::generateCSRFToken();
+        }
+        // $_SESSION[CSRF_AJAX_PARAM] = '12345abcde';
+    }
+
+    /**
 	 * @deprecated Use /Littled/Log/Debug::output() instead.
 	 * Print debug message including information about the location of the call to debugmsg() and the type of the object being worked on.
 	 * @param string $error_msg Message to print.
