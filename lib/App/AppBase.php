@@ -11,9 +11,9 @@ use Littled\Validation\Validation;
 class AppBase
 {
     /** @var string */
-    protected static $error_key = 'err';
+    protected static string $error_key = 'err';
     /** @var string */
-    protected static $error_page_url = '/error.php';
+    protected static string $error_page_url = '/error.php';
 
     /**
      * Class constructor
@@ -76,11 +76,12 @@ class AppBase
 
     /**
 	 * Returns the CSRF token for this session.
+     * @param bool $ignore_consent Optional flag allowing calling function to ignore any preferences found for respecting cookie consent.
 	 * @return string|null
 	 */
-	public static function getCSRFToken(): ?string
+	public static function getCSRFToken(bool $ignore_consent=false): ?string
 	{
-		if (Validation::checkForCookieConsent()===false) {
+		if ($ignore_consent===false && Validation::checkForCookieConsent()===false) {
 			// avoid accessing session variables before getting consent for storing cookie data
 			return '';
 		}
@@ -161,7 +162,7 @@ class AppBase
 	 */
 	public function debugmsg( string $error_msg )
 	{
-		if (defined('SUPPRESS_DEBUG') && SUPPRESS_DEBUG==true) {
+		if (defined('SUPPRESS_DEBUG') && SUPPRESS_DEBUG===true) {
 			return;
 		}
 		print "<div class=\"debug\"><span class=\"formerror\">*** DEBUG *** </span>";
