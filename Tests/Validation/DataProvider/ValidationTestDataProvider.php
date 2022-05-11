@@ -110,6 +110,7 @@ class ValidationTestDataProvider
 
 	public static function validateCSRFTestProvider(): array
 	{
+		$header_key = 'HTTP_'.LittledGlobals::CSRF_HEADER_KEY;
 		return array(
 			array('No stored CSRF value; no CSRF data', false, [], [], null),
 			array('No CSRF value in session',
@@ -150,7 +151,7 @@ class ValidationTestDataProvider
 				[],
 				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				null,
-				array(LittledGlobals::CSRF_HEADER_KEY => '')
+				array($header_key => '')
 			),
 			array(
 				'Invalid token value in headers',
@@ -158,7 +159,7 @@ class ValidationTestDataProvider
 				[],
 				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				null,
-				array(LittledGlobals::CSRF_HEADER_KEY => 'bogus_value')
+				array($header_key => 'bogus_value')
 			),
 			array(
 				'Valid token in headers; No POST or local data',
@@ -166,7 +167,7 @@ class ValidationTestDataProvider
 				[],
 				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				null,
-				array(LittledGlobals::CSRF_HEADER_KEY => AppBase::getCSRFToken())
+				array($header_key => AppBase::getCSRFToken())
 			),
 			array(
 				'Valid token in headers; Invalid POST token',
@@ -174,7 +175,7 @@ class ValidationTestDataProvider
 				array(LittledGlobals::CSRF_TOKEN_KEY => 'BOGUS'),
 				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				null,
-				array(LittledGlobals::CSRF_HEADER_KEY => AppBase::getCSRFToken())
+				array($header_key => AppBase::getCSRFToken())
 			),
 			array(
 				'Valid token in headers; Invalid local token',
@@ -182,7 +183,7 @@ class ValidationTestDataProvider
 				[],
 				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
 				(object)array(LittledGlobals::CSRF_TOKEN_KEY => 'BOGUS'),
-				array(LittledGlobals::CSRF_HEADER_KEY => AppBase::getCSRFToken())
+				array($header_key => AppBase::getCSRFToken())
 			),
 		);
 	}
