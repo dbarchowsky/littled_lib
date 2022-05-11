@@ -3,6 +3,7 @@ namespace Littled\App;
 
 use Littled\Request\RequestInput;
 use Exception;
+use Littled\Validation\Validation;
 
 /**
  * Base class of a web app containing global utility functions for the app.
@@ -79,6 +80,10 @@ class AppBase
 	 */
 	public static function getCSRFToken(): ?string
 	{
+		if (Validation::checkForCookieConsent()===false) {
+			// avoid accessing session variables before getting consent for storing cookie data
+			return '';
+		}
 		if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
 			AppBase::storeCSRFToken();
 		}
