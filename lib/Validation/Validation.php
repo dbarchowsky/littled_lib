@@ -465,10 +465,6 @@ class Validation
 			// Continue to search other locations if no token is stored in request headers.
 	        $csrf = $_SERVER[$header_key];
 		}
-		if ($csrf === '' && isset($_POST) && array_key_exists(LittledGlobals::CSRF_TOKEN_KEY, $_POST)) {
-			// Test any tokens detected in POST data.
-			$csrf = $_POST[LittledGlobals::CSRF_TOKEN_KEY];
-		}
 		return Validation::testCSRFValue($csrf);
 	}
 

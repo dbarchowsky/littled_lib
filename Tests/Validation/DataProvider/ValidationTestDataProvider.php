@@ -111,80 +111,88 @@ class ValidationTestDataProvider
 	public static function validateCSRFTestProvider(): array
 	{
 		$header_key = 'HTTP_'.LittledGlobals::CSRF_HEADER_KEY;
+		$valid_header_data = array($header_key => AppBase::getCSRFToken(true));
+		$valid_post_data = array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken(true));
+		$valid_session_data = array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken(true));
+		$valid_user_data = (object)array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken(true));
+		$invalid_header_data = array($header_key => 'bogus value');
+		$invalid_post_data = array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus_value');
+		$invalid_user_data = (object)array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus value');
 		return array(
 			array('No stored CSRF value; no CSRF data', false, [], [], null),
 			array('No CSRF value in session',
-				false, [], array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()), null),
+				false, [], $valid_session_data, null),
 			array(
-				'Empty CSRF value in session',
+				'Empty CSRF value in POST data',
 				false,
 				array(LittledGlobals::CSRF_SESSION_KEY => ''),
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken())
-			),
+				$valid_session_data),
 			array(
-				'Valid CSRF value in POST data',
-				true,
-				array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken()),
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				'Valid CSRF value in POST data (POST data is ignored)',
+				false,
+				$valid_post_data,
+				$valid_session_data,
 				null),
 			array(
-				'Valid CSRF value in SESSION data',
+				'Valid CSRF value in user data',
 				true,
 				[],
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
-				(object)array(LittledGlobals::CSRF_TOKEN_KEY => AppBase::getCSRFToken())),
+				$valid_session_data,
+				$valid_user_data),
 			array(
 				'Invalid CSRF value in POST data',
 				false,
-				array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus_value'),
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				$invalid_post_data,
+				$valid_session_data,
 				null),
 			array(
 				'Invalid CSRF value in local data',
 				false,
 				[],
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
-				(object)array(LittledGlobals::CSRF_TOKEN_KEY => 'bogus_value')),
+				$valid_session_data,
+				$invalid_user_data),
 			array(
 				'Empty token value in headers',
 				false,
 				[],
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				$valid_session_data,
 				null,
-				array($header_key => '')
-			),
+				array($header_key => '')),
 			array(
 				'Invalid token value in headers',
 				false,
 				[],
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				$valid_session_data,
 				null,
-				array($header_key => 'bogus_value')
-			),
+				$invalid_header_data),
+			array(
+				'Invalid token value in headers; Valid token in POST data. (POST data is ignored)',
+				false,
+				$valid_post_data,
+				$valid_session_data,
+				null,
+				$invalid_header_data),
 			array(
 				'Valid token in headers; No POST or local data',
 				true,
 				[],
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				$valid_session_data,
 				null,
-				array($header_key => AppBase::getCSRFToken())
-			),
+				$valid_header_data),
 			array(
 				'Valid token in headers; Invalid POST token',
 				true,
-				array(LittledGlobals::CSRF_TOKEN_KEY => 'BOGUS'),
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
+				$invalid_post_data,
+				$valid_session_data,
 				null,
-				array($header_key => AppBase::getCSRFToken())
-			),
+				$valid_header_data),
 			array(
 				'Valid token in headers; Invalid local token',
 				false,
 				[],
-				array(LittledGlobals::CSRF_SESSION_KEY => AppBase::getCSRFToken()),
-				(object)array(LittledGlobals::CSRF_TOKEN_KEY => 'BOGUS'),
-				array($header_key => AppBase::getCSRFToken())
-			),
+				$valid_session_data,
+				$invalid_user_data,
+				$valid_header_data)
 		);
 	}
 
