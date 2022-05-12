@@ -73,6 +73,62 @@ class PageConfigTest extends TestCase
         $this->assertCount(1, $preloads);
     }
 
+	function testRegisterScript()
+	{
+		$local_path = '/path/to/my/app.js';
+		$remote_url = 'https://google.com/somelibrary.js';
+
+		// confirm initial state
+		$this->assertCount(0, PageConfig::$scripts);
+
+		// test add local script
+		PageConfig::registerScript($local_path);
+		$this->assertCount(1, PageConfig::$scripts);
+		$this->assertEquals($local_path, PageConfig::$scripts[0]);
+
+		// test add duplicate script
+		PageConfig::registerScript($local_path);
+		$this->assertCount(1, PageConfig::$scripts);
+		$this->assertEquals($local_path, PageConfig::$scripts[0]);
+
+		// test add remote script
+		PageConfig::registerScript($remote_url);
+		$this->assertCount(2, PageConfig::$scripts);
+		$this->assertEquals($local_path, PageConfig::$scripts[0]);
+		$this->assertEquals($remote_url, PageConfig::$scripts[1]);
+
+		// cleanup
+		PageConfig::$scripts = [];
+	}
+
+	function testRegisterStylesheet()
+	{
+		$local_path = '/path/to/local/app.css';
+		$remote_url = 'https://google.com/somefont.css';
+
+		// confirm initial state
+		$this->assertCount(0, PageConfig::$stylesheets);
+
+		// test add local script
+		PageConfig::registerStylesheet($local_path);
+		$this->assertCount(1, PageConfig::$stylesheets);
+		$this->assertEquals($local_path, PageConfig::$stylesheets[0]);
+
+		// test add duplicate script
+		PageConfig::registerStylesheet($local_path);
+		$this->assertCount(1, PageConfig::$stylesheets);
+		$this->assertEquals($local_path, PageConfig::$stylesheets[0]);
+
+		// test add remote script
+		PageConfig::registerStylesheet($remote_url);
+		$this->assertCount(2, PageConfig::$stylesheets);
+		$this->assertEquals($local_path, PageConfig::$stylesheets[0]);
+		$this->assertEquals($remote_url, PageConfig::$stylesheets[1]);
+
+		// cleanup
+		PageConfig::$stylesheets = [];
+	}
+
 	function testUpdateBreadcrumb()
 	{
 		$new_url = "https://localhost/newurl";

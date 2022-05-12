@@ -287,7 +287,9 @@ class PageConfig
 	 */
 	public static function registerScript(string $src)
 	{
-		static::$scripts[] = $src;
+		if (!in_array($src, static::$scripts)) {
+			static::$scripts[] = $src;
+		}
 	}
 
 	/**
@@ -296,7 +298,9 @@ class PageConfig
 	 */
 	public static function registerStylesheet(string $src)
 	{
-		static::$stylesheets[] = $src;
+		if (!in_array($src, static::$stylesheets)) {
+			static::$stylesheets[] = $src;
+		}
 	}
 
 	/**
