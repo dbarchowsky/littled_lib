@@ -161,7 +161,7 @@ class AppBase
                     if (session_id()=='') {
                         session_start();
                     }
-                    $_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY] = '1';
+                    setcookie(LittledGlobals::COOKIE_CONSENT_KEY, '1', time()+(60*60*24*90));
                 }
             }
             catch (Exception $e) {
