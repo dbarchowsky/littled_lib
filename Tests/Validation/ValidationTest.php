@@ -2,6 +2,7 @@
 namespace Littled\Tests\Validation;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
@@ -14,6 +15,46 @@ use stdClass;
 
 class ValidationTest extends TestCase
 {
+    public function testCheckForCookieConsent()
+    {
+        if (isset($_COOKIE)) {
+            unset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY]);
+        }
+        if (isset($_SESSION)) {
+            unset($_SESSION[LittledGlobals::COOKIE_CONSENT_KEY]);
+        }
+        $this->assertFalse(Validation::checkForCookieConsent());
+
+        $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = false;
+        $this->assertFalse(Validation::checkForCookieConsent());
+
+        $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = true;
+        $this->assertTrue(Validation::checkForCookieConsent());
+
+        $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = '1';
+        $this->assertFalse(Validation::checkForCookieConsent());
+
+        $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = '4';
+        $this->assertFalse(Validation::checkForCookieConsent());
+
+        unset($_SESSION[LittledGlobals::COOKIE_CONSENT_KEY]);
+
+        $_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY] = false;
+        $this->assertFalse(Validation::checkForCookieConsent());
+
+        $_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY] = true;
+        $this->assertTrue(Validation::checkForCookieConsent());
+
+        $_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY] = '1';
+        $this->assertTrue(Validation::checkForCookieConsent());
+
+        $_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY] = '4';
+        $this->assertTrue(Validation::checkForCookieConsent());
+
+        unset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY]);
+        $this->assertFalse(Validation::checkForCookieConsent());
+    }
+
 	/**
 	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::collectIntegerArrayRequestVarTestProvider()
 	 * @param array $expected

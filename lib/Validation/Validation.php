@@ -7,7 +7,6 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
 use stdClass;
-use function PHPUnit\Framework\isEmpty;
 
 /**
  * Class Validation
@@ -98,8 +97,12 @@ class Validation
 	 */
 	public static function checkForCookieConsent(): bool
 	{
-		if (isset($_COOKIE) &&
-			isset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY])) {
+		if ((isset($_COOKIE) &&
+			    !empty($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY])) ||
+            (isset($_SESSION) &&
+                array_key_exists(LittledGlobals::COOKIE_CONSENT_KEY, $_SESSION) &&
+                $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY]===true)
+            ) {
 			/** Cookie key can only be set with user's consent. */
 			return true;
 		}
