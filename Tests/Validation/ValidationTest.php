@@ -3,7 +3,10 @@ namespace Littled\Tests\Validation;
 require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidRequestException;
+use Littled\Exception\InvalidValueException;
 use Littled\Tests\Request\DataProvider\IntegerInputTestData;
+use Littled\Tests\Validation\DataProvider\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -38,6 +41,85 @@ class ValidationTest extends TestCase
     public function testCollectIntegerRequestVar($expected, $value, string $msg='')
     {
         $this->assertEquals($expected, Validation::collectIntegerRequestVar('testKey', null, array('testKey' => $value)), $msg);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::getClientIPTestProvider()
+     * @param bool $expected
+     * @param string $ip
+     * @param string $key
+     * @param string $msg
+     * @param string $ip2
+     * @param string $key2
+     * @return void
+     */
+    public function testGetClientIP(bool $expected, string $ip, string $key, string $msg='', string $ip2='', string $key2='')
+    {
+        ValidationTest::clearServerIPValues();
+        $_SERVER[$key] = $ip;
+        if ($ip2 && $key2) {
+            $_SERVER[$key2] = $ip2;
+        }
+        if ($expected) {
+            $this->assertEquals($ip, ValidationTestHarness::publicGetClientIP());
+        }
+        else {
+            $this->assertEquals('', ValidationTestHarness::publicGetClientIP());
+        }
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::getClientLocationTestProvider()
+     * @param ?array $expected
+     * @param string $ip
+     * @param string $key
+     * @param string $msg
+     * @param string $ip2
+     * @param string $key2
+     * @return void
+     * @throws InvalidValueException
+     */
+    public function testGetClientLocation(?array $expected, string $ip, string $key, string $msg='', string $ip2='', string $key2='')
+    {
+        $test_ip = ValidationTest::setUpIPTest($ip, $key, $ip2, $key2);
+        if (is_array($expected) && count($expected) > 0) {
+            $location_data = Validation::getClientLocation($test_ip);
+            foreach($expected as $key => $value) {
+                if ($key !== 'is_eu') {
+                    $this->assertEquals($value, $location_data[$key], $msg);
+                }
+            }
+        }
+        else {
+            // testing invalid ip value
+            $this->expectException(InvalidValueException::class);
+            Validation::getClientLocation($test_ip);
+        }
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::getClientLocationTestProvider()
+     * @param ?array $expected
+     * @param string $ip
+     * @param string $key
+     * @param string $msg
+     * @param string $ip2
+     * @param string $key2
+     * @return void
+     * @throws InvalidRequestException
+     * @throws InvalidValueException
+     */
+    public function testIsEUClient(?array $expected, string $ip, string $key, string $msg='', string $ip2='', string $key2='')
+    {
+        $test_ip = ValidationTest::setUpIPTest($ip, $key, $ip2, $key2);
+        if (is_array($expected) && count($expected) > 0) {
+            $this->assertEquals($expected['is_eu'], Validation::isEUClient($test_ip), $msg);
+        }
+        else {
+            // testing invalid ip value
+            $this->expectException(InvalidValueException::class);
+            Validation::isEUClient($test_ip);
+        }
     }
 
     /**
@@ -139,4 +221,40 @@ class ValidationTest extends TestCase
 		$d = Validation::validateDateString($date_string);
 		$this->assertEquals($expected, $d->format('Y-m-d'), "$format format");
 	}
+
+    /**
+     * Clears any residual IP data stored in Server variables.
+     * @return void
+     */
+    protected static function clearServerIPValues()
+    {
+        if (!empty($_SERVER['REMOTE_ADDR'])) {
+            $_SERVER['REMOTE_ADDR'] = '';
+        }
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = '';
+        }
+        if (!empty($_SERVER['HTTP_CLIENT_ID'])) {
+            $_SERVER['HTTP_CLIENT_ID'] = '';
+        }
+    }
+
+    protected static function setUpIPTest($ip, $key, $ip2, $key2): string
+    {
+        ValidationTest::clearServerIPValues();
+        $test_ip = '';
+        if (in_array($key, ['HTTP_CLIENT_ID','HTTP_X_FORWARDED_FOR','REMOTE_ADDR'])) {
+            // Set a server variable to mock the desired header value.
+            $_SERVER[$key] = $ip;
+        }
+        else {
+            // Test the ip address directly when $key doesn't match a valid header.
+            $test_ip = $ip;
+        }
+        if ($ip2 && $key2) {
+            // Secondary header value to the precedence of header variables used to extract location.
+            $_SERVER[$key2] = $ip2;
+        }
+        return $test_ip;
+    }
 }

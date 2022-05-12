@@ -22,6 +22,53 @@ class ValidationTestDataProvider
 		);
 	}
 
+    public static function getClientIPTestProvider(): array
+    {
+        return array(
+            [true, '66.214.248.106', 'REMOTE_ADDR', 'Valid REMOTE_ADDR ip'],
+            [true, '66.214.248.106', 'HTTP_CLIENT_ID', 'Valid HTTP_CLIENT_ID ip'],
+            [true, '66.214.248.106', 'HTTP_X_FORWARDED_FOR', 'Valid HTTP_X_FORWARDED_FOR ip'],
+            [false, 'not an ip', 'REMOTE_ADDR', 'Invalid REMOTE_ADDR ip'],
+            [false, 'not an ip', 'HTTP_CLIENT_ID', 'Invalid HTTP_CLIENT_ID ip'],
+            [false, 'not an ip', 'HTTP_X_FORWARDED_FOR', 'Invalid HTTP_X_FORWARDED_FOR ip'],
+            [false, 'not an ip', 'HTTP_X_FORWARDED_FOR', 'Invalid HTTP_X_FORWARDED_FOR ip'],
+            [true, '66.214.248.106', 'HTTP_CLIENT_ID', 'HTTP_CLIENT_ID overrides REMOTE_ADDR', '66.214.248.106', 'REMOTE_ADDR'],
+        );
+    }
+
+    public static function getClientLocationTestProvider(): array
+    {
+        $US_expected = array('geoplugin_countryCode' => 'US', 'is_eu' => false);
+        $CA_expected = array('geoplugin_countryCode' => 'CA', 'is_eu' => false);
+        $NL_expected = array('geoplugin_countryCode' => 'NL', 'is_eu' => true);
+        $DE_expected = array('geoplugin_countryCode' => 'DE', 'is_eu' => true);
+        $FR_expected = array('geoplugin_countryCode' => 'FR', 'is_eu' => true);
+        $ES_expected = array('geoplugin_countryCode' => 'ES', 'is_eu' => true);
+        $GB_expected = array('geoplugin_countryCode' => 'GB', 'is_eu' => false);
+        $SG_expected = array('geoplugin_countryCode' => 'SG', 'is_eu' => false);
+        $JP_expected = array('geoplugin_countryCode' => 'JP', 'is_eu' => false);
+        $IN_expected = array('geoplugin_countryCode' => 'IN', 'is_eu' => false);
+        $RU_expected = array('geoplugin_countryCode' => 'RU', 'is_eu' => false);
+        return array(
+            [$US_expected, '66.214.248.106', 'REMOTE_ADDR', 'Valid REMOTE_ADDR ip'],
+            [$US_expected, '66.214.248.106', 'HTTP_CLIENT_ID', 'Valid HTTP_CLIENT_ID ip'],
+            [$US_expected, '66.214.248.106', 'HTTP_X_FORWARDED_FOR', 'Valid HTTP_X_FORWARDED_FOR ip'],
+            [$US_expected, '66.214.248.106', 'user', 'Valid local ip'],
+            [null, 'not an ip', 'REMOTE_ADDR', 'Invalid REMOTE_ADDR ip'],
+            [$US_expected, '66.214.248.106', 'HTTP_CLIENT_ID', 'HTTP_CLIENT_ID overrides REMOTE_ADDR', '176.31.84.249', 'REMOTE_ADDR'],
+            [$CA_expected, '184.107.126.165', 'REMOTE_ADDR', 'Canada IP'],
+            [$NL_expected, '95.142.107.181', 'REMOTE_ADDR', 'Netherlands IP'],
+            [$DE_expected, '195.201.213.247', 'REMOTE_ADDR', 'Germany IP'],
+            [$FR_expected, '176.31.84.249', 'REMOTE_ADDR', 'France IP'],
+            [$ES_expected, '195.12.50.155', 'REMOTE_ADDR', 'Spain IP'],
+            [$GB_expected, '5.152.197.179', 'REMOTE_ADDR', 'England IP'],
+            [$SG_expected, '8.134.33.121', 'REMOTE_ADDR', 'China IP'],
+            [$JP_expected, '110.50.243.6', 'REMOTE_ADDR', 'Japan IP'],
+            [$IN_expected, '103.159.84.142', 'REMOTE_ADDR', 'India IP'],
+            [$RU_expected, '95.31.18.119', 'REMOTE_ADDR', 'Russia IP'],
+        );
+    }
+
     public static function parseIntegerTestProvider(): array
     {
         return array(

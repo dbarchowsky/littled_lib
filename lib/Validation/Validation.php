@@ -4,7 +4,10 @@ namespace Littled\Validation;
 use DateTime;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidRequestException;
+use Littled\Exception\InvalidValueException;
 use stdClass;
+use function PHPUnit\Framework\isEmpty;
 
 /**
  * Class Validation
@@ -13,6 +16,11 @@ use stdClass;
  */
 class Validation
 {
+    protected static string $geo_lookup_api_address = 'http'.'://www.geoplugin.net/json.gp?ip=';
+    /** @var string[] $eu_countries */
+    protected static array $eu_countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
+        "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"];
+
 	/**
 	 * Retrieves any valid integer values passed as request parameters.
 	 * @param int $input_type Token representing input type, e.g. INPUT_GET or INPUT_POST
@@ -274,6 +282,76 @@ class Validation
 		}
 		return $action;
 	}
+
+    /**
+     * Get IP address of website visitor for the purposes of inspecting their location
+     * @return string IP address
+     */
+    protected static function getClientIP(): string
+    {
+        if (array_key_exists('HTTP_CLIENT_ID', $_SERVER) &&
+            filter_var($_SERVER['HTTP_CLIENT_ID'], FILTER_VALIDATE_IP)) {
+            return filter_var($_SERVER['HTTP_CLIENT_ID'], FILTER_VALIDATE_IP);
+        }
+        if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) &&
+            filter_var(@$_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP)) {
+            return filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP);
+        }
+        if (array_key_exists('REMOTE_ADDR', $_SERVER) &&
+            filter_var(@$_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP)) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+        return '';
+    }
+
+    /**
+     * Get location properties of client IP.
+     * @param string $ip (Optional) IP address to inspect.
+     * @return array Location data
+     * @throws InvalidValueException
+     */
+    public static function getClientLocation(string $ip=''): array
+    {
+        // Validate client IP
+        if (!$ip || filter_var($ip, FILTER_VALIDATE_IP)===false) {
+            $ip = Validation::getClientIP();
+        }
+        if (!$ip) {
+            throw new InvalidValueException("Could not determine client IP.");
+        }
+
+        // API that will return IPs location properties.
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, static::$geo_lookup_api_address.$ip);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        $response = curl_exec($ch); // string
+        curl_close($ch);
+
+        // lookup country in API response
+        $ip_data = json_decode($response,true);
+        return str_replace('&quot;', '"', $ip_data);
+    }
+
+    /**
+     * Tests if client is located in the European Union based on their IP.
+     * @param string $ip (Optional) explicit IP value to test.
+     * @return bool True if the client request is determined to be originating in the EU.
+     * @throws InvalidValueException
+     * @throws InvalidRequestException
+     */
+    public static function isEUClient(string $ip=''): bool
+    {
+        $data = Validation::getClientLocation($ip);
+        $cc = '';
+        if ($data && !empty($data['geoplugin_countryCode'])) {
+            $cc = $data['geoplugin_countryCode'];
+        }
+        if (!$cc) {
+            throw new InvalidRequestException("Could not determine client location.");
+        }
+        return (in_array($cc, static::$eu_countries));
+    }
 
 	/**
 	 * Tests if string value represents an integer value.
