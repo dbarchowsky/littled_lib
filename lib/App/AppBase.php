@@ -143,6 +143,34 @@ class AppBase
     }
 
     /**
+     * Starts session for app if one does not already exist.
+     * Tests client request headers to determine if the client request originates in the EU.
+     * Sets cookie consent values depending on whether the client request originated in the EU or not.
+     * @return void
+     */
+    public static function startSessionTestingForEU()
+    {
+        if (Validation::checkForCookieConsent()===true) {
+            if (session_id() == "") {
+                session_start();
+            }
+        }
+        else {
+            try {
+                if (Validation::isEUClient()===false) {
+                    if (session_id()=='') {
+                        session_start();
+                    }
+                    $_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY] = '1';
+                }
+            }
+            catch (Exception $e) {
+                /** ignore errors but don't set cookie consent */
+            }
+        }
+    }
+
+    /**
      * Generate CSRF token and store it in a session variable.
      * A token is not generated if one already exists for the session.
      * @return void
