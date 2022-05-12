@@ -162,6 +162,7 @@ class AppBase
                         session_start();
                     }
                     setcookie(LittledGlobals::COOKIE_CONSENT_KEY, '1', time()+(60*60*24*90));
+                    $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = true;
                 }
             }
             catch (Exception $e) {
