@@ -15,14 +15,15 @@ abstract class APIRoute extends JSONResponse
 
 	/**
 	 * Collect request data from the client.
+	 * @param bool $bypass_csrf Optional flag to override CSRF validation. Default value is FALSE.
 	 */
-    public function collectRequestData()
+    public function collectRequestData(bool $bypass_csrf=false)
     {
 		$json = file_get_contents('php://input');
 		$this->request_data = json_decode($json);
 
         /** prevent cross-site attacks */
-        if (!Validation::validateCSRF()) {
+        if (!$bypass_csrf && !Validation::validateCSRF()) {
             $this->returnError("Invalid request.");
         }
     }
