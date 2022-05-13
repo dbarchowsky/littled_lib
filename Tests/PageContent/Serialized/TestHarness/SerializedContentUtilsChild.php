@@ -14,6 +14,8 @@ class SerializedContentUtilsChild extends SerializedContentChild
     public StringTextField $cu_field;
 	/** @var TestTable[] Array of linked SerializedContent records */
 	public array $child_array=[];
+	/** @var string Property that will be unset during tests */
+	public string $unassigned;
 
     public function __construct()
     {

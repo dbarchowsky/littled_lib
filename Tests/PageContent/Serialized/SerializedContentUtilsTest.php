@@ -219,9 +219,10 @@ class SerializedContentUtilsTest extends TestCase
 		$src = array('id' => 22,
 			'vc_col1' => 'foo',
 			'int_col' => 482,
-			'invalid_key' => 'some arbitrary value',
+			'nonexistent_property' => 'some arbitrary value',
 			'vc_col2' => 'biz',
-			'bool_col' => false);
+			'bool_col' => false,
+			'unassigned' => 'some value');
 		$dst->fill($src);
 		$this->assertEquals(22, $dst->id->value);
 		$this->assertEquals('foo', $dst->vc_col1->value);
@@ -242,7 +243,13 @@ class SerializedContentUtilsTest extends TestCase
 
     /**
      * @dataProvider \Littled\Tests\PageContent\Serialized\DataProvider\SerializedContentUtilsTestDataProvider::formatDatabaseColumnList()
-     */
+	 * @param array $expected
+	 * @param TestTable $o
+	 * @param string $msg
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 */
     public function testFormatDatabaseColumnList(array $expected, TestTable $o, string $msg='')
     {
         $fields = $o->formatDatabaseColumnListPublic();

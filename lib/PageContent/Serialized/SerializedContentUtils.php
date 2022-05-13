@@ -162,7 +162,7 @@ class SerializedContentUtils extends AppContentBase
 	public function fill($src)
 	{
 		foreach ($src as $key => $val) {
-			if (property_exists($this, $key)) {
+			if (property_exists(get_class($this), $key)) {
                 if (isset($this->$key)===false) {
                     return;
                 }
