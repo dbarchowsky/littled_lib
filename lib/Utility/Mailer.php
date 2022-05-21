@@ -99,11 +99,7 @@ class Mailer
             $sText = preg_replace("/<td>/", "\t", $sText);
             $sMsg = strip_tags($sText)."\r\n";
         }
-
         $to = $this->to_address;
-
-        /* suppress PHP errors and warnings (if the SMTP server can't send the message) */
-        set_error_handler(array($this, "mail_error"));
 
         /* send the email */
         $this->clearErrors();
