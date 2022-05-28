@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Utility;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;

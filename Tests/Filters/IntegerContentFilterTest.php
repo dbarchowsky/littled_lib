@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Filters;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Filters\IntegerContentFilter;
 use PHPUnit\Framework\TestCase;

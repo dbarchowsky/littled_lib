@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Log;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Exception;
 use Littled\Log\Debug;

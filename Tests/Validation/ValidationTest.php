@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Validation;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;

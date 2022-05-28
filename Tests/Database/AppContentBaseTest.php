@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Database;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Database\AppContentBase;
 use PHPUnit\Framework\TestCase;

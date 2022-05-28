@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\App;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\App\AppBase;
 use Exception;
