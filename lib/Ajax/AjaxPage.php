@@ -21,7 +21,6 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
-use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Request\IntegerInput;
@@ -51,8 +50,8 @@ class AjaxPage extends MySQLConnection
 
 	/** @var string String indicating the action to be taken on the page. */
 	public string $action='';
-	/** @var SectionContent Content article. */
-	public SectionContent $content;
+	/** @var mixed Content article. */
+	public $content;
 	/** @var ContentProperties Content properties. */
 	public ContentProperties $content_properties;
 	/** @var FilterCollection Content filters. */
