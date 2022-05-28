@@ -11,6 +11,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 use PHPUnit\Framework\TestCase;
@@ -135,6 +136,34 @@ class AjaxPageTest extends TestCase
         $ap->collectAndLoadJsonContent();
         $this->assertMatchesRegularExpression('/^\s*<div class=\"dialog delete-confirmation\"/', $ap->json->content->value);
     }
+
+	/**
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ResourceNotFoundException
+	 */
+	function testLoadTemplateContent()
+	{
+		$ap = new AjaxPage();
+		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+		$ap->operation->setInputValue('delete');
+		$ap->retrieveContentProperties();
+
+		// retrieve record content from database
+		$ap->content = call_user_func_array([$ap::getControllerClass(), 'getContentObject'], array($ap->getContentTypeId()));
+		$ap->content->id->setInputValue(self::TEST_RECORD_ID);
+
+		ob_start();
+		$ap->loadTemplateContent();
+		$content = ob_flush();
+		ob_end_clean();
+
+		self::assertMatchesRegularExpression('/some shit/i', $content);
+	}
 
     /**
      * @throws ContentValidationException
