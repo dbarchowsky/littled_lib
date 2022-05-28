@@ -99,6 +99,7 @@ class ContentTemplate extends SerializedContent
             }
             switch ($this->location->value) {
                 case 'local':
+	            case 'local-cms':
                     $template_dir = LittledGlobals::getLocalTemplatesPath();
                     break;
                 default:

@@ -341,8 +341,11 @@ class AjaxPage extends MySQLConnection
 		$context = array(
 			'page' => $this->newPageContentInstance(),
 			'content' => &$this->content,
-			'filters' => &$this->filters
+			'filters' => null
 		);
+		if (isset($this->filters)) {
+			$context['filters'] = &$this->filters;
+		}
 		if ($this->filters instanceof ContentFilters) {
 			$context['qs'] = $this->filters->formatQueryString();
 		}
