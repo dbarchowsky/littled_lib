@@ -345,9 +345,9 @@ class AjaxPage extends MySQLConnection
 		);
 		if (isset($this->filters)) {
 			$context['filters'] = &$this->filters;
-		}
-		if ($this->filters instanceof ContentFilters) {
-			$context['qs'] = $this->filters->formatQueryString();
+			if ($this->filters instanceof ContentFilters) {
+				$context['qs'] = $this->filters->formatQueryString();
+			}
 		}
 		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $context);
 	}
