@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Ajax;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Ajax\ContentAjaxProperties;
 use PHPUnit\Framework\TestCase;

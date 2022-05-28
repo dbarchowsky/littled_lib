@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Ajax;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Exception;
 use Littled\Ajax\AjaxPage;
@@ -157,12 +156,9 @@ class AjaxPageTest extends TestCase
 		$ap->content = call_user_func_array([$ap::getControllerClass(), 'getContentObject'], array($ap->getContentTypeId()));
 		$ap->content->id->setInputValue(self::TEST_RECORD_ID);
 
-		ob_start();
 		$ap->loadTemplateContent();
-		$content = ob_flush();
-		ob_end_clean();
-
-		self::assertMatchesRegularExpression('/some shit/i', $content);
+		$pattern = '/<div class=\"dialog delete-confirmation\"(.|\n)*the record will be permanently deleted/i';
+		self::assertMatchesRegularExpression($pattern, $ap->json->content->value);
 	}
 
     /**
