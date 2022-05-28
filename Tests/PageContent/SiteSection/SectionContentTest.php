@@ -10,6 +10,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
@@ -99,37 +100,6 @@ class SectionContentTest extends TestCase
 		}
         // this value comes from database record
         $this->assertEquals(self::CONTENT_TEMPLATE_CONTENT_TYPE_ID, $this->obj->getContentPropertyId());
-	}
-
-	public function testGetContentTypeIDUsingDatabaseValue()
-	{
-		/*
-		 * Throws error because SECTION_ID constant is not defined for SectionContent, only for inherited classes.
-		 */
-		try {
-			$this->obj->getContentTypeId();
-		}
-		catch(ConfigurationUndefinedException $ex) {
-			$this->assertMatchesRegularExpression('/content type not set/i', $ex->getMessage());
-		}
-	}
-
-	/**
-	 * @return void
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
-	 * @throws RecordNotFoundException
-	 */
-	public function testRetrieveSectionPropertiesUsingDefaultValue()
-	{
-		try {
-			$this->obj->retrieveSectionProperties();
-		}
-		catch(ConfigurationUndefinedException $ex) {
-			$this->assertMatchesRegularExpression("/content type not set/i", $ex->getMessage());
-		}
 	}
 
 	/**

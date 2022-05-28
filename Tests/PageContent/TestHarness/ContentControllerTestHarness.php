@@ -17,7 +17,7 @@ class ContentControllerTestHarness extends ContentController
     {
         switch($content_id) {
             case AjaxPageTest::TEST_CONTENT_TYPE_ID:
-                return 'Littled\Tests\PageContent\Serialized\TestHarness\TestTable';
+                return 'Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness';
             default:
                 return 'TestContentClassString';
         }

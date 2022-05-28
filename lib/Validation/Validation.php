@@ -69,6 +69,9 @@ class Validation
 				$value = $arr[$index];
 			}
 		}
+		else if ($filter==FILTER_UNSAFE_RAW) {
+			$value = strip_tags($src[$key]);
+		}
 		else {
 			$value = filter_var($src[$key], $filter);
 		}

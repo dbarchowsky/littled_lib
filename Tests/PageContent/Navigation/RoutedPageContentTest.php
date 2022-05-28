@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\PageContent\Navigation;
 
+use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\Filters\TestHarness\TestTableFilters;
 use Littled\Tests\PageContent\Navigation\TestHarness\RoutedPageContentTestHarness;
@@ -22,10 +23,8 @@ class RoutedPageContentTest extends TestCase
     function testCollectActionsFromRoute(string $expected_action, ?int $expected_record_id, array $route)
     {
         $action = RoutedPageContent::collectActionFromRoute($route);
-        $this->assertArrayHasKey('action', $action);
-        $this->assertArrayHasKey('record_id', $action);
-        $this->assertEquals($expected_action, $action['action'], static::formatRouteMessage($route));
-        $this->assertEquals($expected_record_id, $action['record_id'], static::formatRouteMessage($route));
+        $this->assertEquals($expected_action, $action->token, static::formatRouteMessage($route));
+        $this->assertEquals($expected_record_id, $action->record_id, static::formatRouteMessage($route));
     }
 
     /**
@@ -39,7 +38,10 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals($expected, RoutedPageContent::collectRecordIdFromRoute($route), static::formatRouteMessage($route));
     }
 
-    function testGetDetailsURI()
+	/**
+	 * @throws InvalidTypeException
+	 */
+	function testGetDetailsURI()
     {
         $record_id = 123;
         $o = new RoutedPageContentTestHarness();
@@ -50,11 +52,14 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals('/unicorn/123', $o->getDetailsURI());
     }
 
-    function testGetEditURIWithFilters()
+	/**
+	 * @throws InvalidTypeException
+	 */
+	function testGetEditURIWithFilters()
     {
         $o = new RoutedPageContentTestHarness();
         $o::setFiltersClassName(TestTableFilters::class);
-        $o::setContentClassName(TestTable::class);
+        $o::setContentClassName(SectionContentTestHarness::class);
         $o::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
         $o->instantiateProperties();
         $o->filters->display_listings->value = true;
@@ -84,7 +89,10 @@ class RoutedPageContentTest extends TestCase
         $this->assertDoesNotMatchRegularExpression($pattern, $uri);
     }
 
-    function testGetEditURIWithoutRecordId()
+	/**
+	 * @throws InvalidTypeException
+	 */
+	function testGetEditURIWithoutRecordId()
     {
         $o = new RoutedPageContentTestHarness();
         $o::setContentClassName(SectionContentTestHarness::class);
@@ -99,7 +107,10 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals($expected, $o->getEditURI(539));
     }
 
-    function testGetEditURIWithRecordId()
+	/**
+	 * @throws InvalidTypeException
+	 */
+	function testGetEditURIWithRecordId()
     {
         $record_id = 123;
         $o = new RoutedPageContentTestHarness();

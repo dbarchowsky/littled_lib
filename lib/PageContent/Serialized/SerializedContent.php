@@ -15,11 +15,11 @@ use Exception;
 abstract class SerializedContent extends SerializedContentValidation
 {
 	/** @var IntegerInput Record id. */
-	public $id;
-	/** @var boolean Flag to skip filling object values from input variables (GET or POST). */
-	public $bypassCollectFromInput = false;
+	public IntegerInput $id;
+	/** @var bool Flag to skip filling object values from input variables (GET or POST). */
+	public bool $bypassCollectFromInput = false;
     /** @var string */
-    protected static $table_name='';
+    protected static string $table_name='';
 
 	/**
 	 * @throws NotImplementedException
@@ -171,7 +171,7 @@ abstract class SerializedContent extends SerializedContentValidation
     /**
      * Returns query string, type string, and values to be inserted into the query. The query
      * will insert a new record or update an existing record depending on the value of object's id
-     * property. If the id property is null, a new record is inserted. IF the proeprty value matches
+     * property. If the id property is null, a new record is inserted. IF the property value matches
      * a record in the database, that record is updated.
      * @return array|null
      */
@@ -274,16 +274,12 @@ abstract class SerializedContent extends SerializedContentValidation
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException Record id not set.
-	 * @throws InvalidTypeException Record id is not an instance of IntegerInput.
 	 * @throws RecordNotFoundException Requested record not available.
 	 * @throws NotImplementedException
 	 */
 	public function read ()
 	{
-		if ($this->id instanceof IntegerInput === false) {
-			throw new InvalidTypeException("Record id not in expected format.");
-		}
-		if ($this->id->value===null || $this->id->value<0) {
+		if ($this->id->value===null || $this->id->value<1) {
 			throw new ContentValidationException("Record id not set.");
 		}
 

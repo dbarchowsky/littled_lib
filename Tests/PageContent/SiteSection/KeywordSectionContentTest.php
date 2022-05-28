@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\PageContent\SiteSection;
-require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 
 use Exception;
@@ -27,9 +26,9 @@ class KeywordSectionContentTest extends TestCase
 	/** @var int Test parent record id that is safe for testing deletion operations. */
 	const TEST_PARENT_ID_FOR_READ = 889988;
 	/** @var KeywordSectionContent test KeywordSectionContent object */
-	public $obj;
+	public KeywordSectionContent $obj;
 	/** @var MySQLConnection database connection */
-	public $conn;
+	public MySQLConnection $conn;
 
 	/**
 	 * @throws Exception
@@ -227,15 +226,13 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertContains('foo', $keywords);
 		$this->assertContains('0', $keywords);
 		$this->assertContains('625', $keywords);
-		$this->assertContains("[before script]alert('what');[after script]", $keywords);
+		$this->assertContains("[before script]alert(&#039;what&#039;);[after script]", $keywords);
 		$this->assertContains('dah', $keywords);
 	}
 
 	/**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
      */
 	public function testDelete()
 	{
@@ -259,13 +256,12 @@ class KeywordSectionContentTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
 	 * @throws InvalidQueryException
+	 * @throws Exception
 	 */
 	public function testDeleteKeywords()
 	{
-        $keyword_count = $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID);
+        $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID);
 
         // Attempting to delete keywords without specifying their parent record or content type.
 		try {
@@ -424,9 +420,6 @@ class KeywordSectionContentTest extends TestCase
 
     /**
      * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
      * @throws Exception
      */
 	public function testSaveKeywords()

@@ -8,13 +8,13 @@ use Littled\Request\StringInput;
 class SerializedContentTitleTestHarness extends SerializedContentTestHarness
 {
     /** @var StringInput Title property */
-    public $title;
+    public StringInput $title;
     /** @var StringInput Test string property */
-    public $vc_col;
+    public StringInput $vc_col;
     /** @var IntegerInput Test integer property */
-    public $int_col;
+    public IntegerInput $int_col;
     /** @var string */
-    protected static $table_name = 'sc_title_temp_unit_test';
+    protected static string $table_name = 'sc_title_temp_unit_test';
 
     public function __construct()
     {

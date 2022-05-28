@@ -9,7 +9,7 @@ use Littled\Request\StringInput;
 class KeywordTestHarness extends SerializedContent
 {
     /** @var string */
-    protected static $table_name='keyword';
+    protected static string $table_name='keyword';
     /** @var StringInput */
     public $term;
     /** @var IntegerInput */

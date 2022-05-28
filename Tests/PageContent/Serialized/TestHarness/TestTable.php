@@ -19,7 +19,7 @@ class TestTable extends SerializedContent
     /** @var int */
     protected static int $content_type_id = self::CONTENT_TYPE_ID;
     /** @var string */
-	protected static $table_name = 'test_table';
+	protected static string $table_name = 'test_table';
 
 	/** @var StringInput */
 	public StringInput $name;

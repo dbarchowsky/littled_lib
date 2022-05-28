@@ -32,7 +32,7 @@ class ContentProperties extends SerializedContent
 	/** @var int */
 	protected static int $content_type_id = self::SECTION_ID;
 	/** @var string */
-	protected static $table_name = 'site_section';
+	protected static string $table_name = 'site_section';
 
 	/** @var StringTextField Name of the content. */
 	public StringTextField $name;

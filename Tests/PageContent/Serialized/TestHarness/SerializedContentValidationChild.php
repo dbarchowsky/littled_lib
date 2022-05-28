@@ -13,10 +13,10 @@ use Littled\Request\StringInput;
  */
 class SerializedContentValidationChild extends SerializedContentValidation
 {
-	public $vc_col1;
-	public $vc_col2;
-	public $int_col;
-	public $bool_col;
+	public StringInput $vc_col1;
+	public StringInput $vc_col2;
+	public IntegerInput $int_col;
+	public BooleanInput $bool_col;
 
 	/**
 	 * SerializedContentUtilsChild constructor.

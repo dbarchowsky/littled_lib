@@ -7,8 +7,8 @@ use Littled\Request\StringTextField;
 class SerializedContentNonDefaultColumn extends SerializedContentNameTestHarness
 {
     /** @var StringTextField Column to use to test non-default column names */
-    public $nonDefaultCol;
-    protected static $table_name = 'sc_column_temp_unit_test';
+    public StringTextField $nonDefaultCol;
+    protected static string $table_name = 'sc_column_temp_unit_test';
 
     public function __construct()
     {

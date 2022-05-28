@@ -24,7 +24,7 @@ class ContentTemplate extends SerializedContent
 	/** @var int Value of this record in the site section table. */
 	protected static int $content_type_id = 33;
 	/** @var string */
-	protected static $table_name = "content_template";
+	protected static string $table_name = "content_template";
 
 	/** @var StringTextField Template name. */
 	public StringTextField $name;

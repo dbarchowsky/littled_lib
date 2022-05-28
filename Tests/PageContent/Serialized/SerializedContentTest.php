@@ -382,7 +382,6 @@ class SerializedContentTest extends TestCase
 	 * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-     * @throws InvalidTypeException
 	 */
     public function testRead()
     {
@@ -445,13 +444,14 @@ class SerializedContentTest extends TestCase
 	public function testReadInvalidObject()
 	{
 		$obj = new SerializedContentChild();
-		$obj->id = 563;
+		$obj->id->setInputValue(563);
 		try {
 			$obj->read();
 		}
-		catch(InvalidTypeException $ex) {
-			$this->assertEquals("Record id not in expected format.", $ex->getMessage());
+		catch(RecordNotFoundException $e) {
+			$this->assertMatchesRegularExpression('/record could not be found/', $e->getMessage());
 		}
+		$this->assertEmpty($obj->vc_col1->value);
 	}
 
 	/**

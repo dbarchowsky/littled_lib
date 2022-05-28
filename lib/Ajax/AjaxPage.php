@@ -3,13 +3,13 @@ namespace Littled\Ajax;
 
 use Exception;
 use Littled\Filters\ContentFilters;
+use Littled\Log\Log;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Request\StringInput;
 use Throwable;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
-use Littled\Log\Debug;
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -34,13 +34,13 @@ use Littled\PageContent\SiteSection\ContentProperties;
 class AjaxPage extends MySQLConnection
 {
     /** @var string Name of class to use to cache content. */
-    protected static $cache_class = ContentCache::class;
+    protected static string $cache_class = ContentCache::class;
     /** @var string Name of class to use as content controller. */
-    protected static $controller_class = ContentController::class;
+    protected static string $controller_class = ContentController::class;
 	/** @var string Path to directory containing template files */
-	protected static $template_path = '';
+	protected static string $template_path = '';
     /** @var string Name of the default template to use in derived classes to generate markup. */
-    protected static $default_template_name = '';
+    protected static string $default_template_name = '';
 
 	/** @var string */
 	const COMMIT_ACTION = 'commit';
@@ -50,23 +50,23 @@ class AjaxPage extends MySQLConnection
     const TEMPLATE_TOKEN_KEY = 'templateToken';
 
 	/** @var string String indicating the action to be taken on the page. */
-	public $action='';
+	public string $action='';
 	/** @var SectionContent Content article. */
-	public $content;
+	public SectionContent $content;
 	/** @var ContentProperties Content properties. */
-	public $content_properties;
+	public ContentProperties $content_properties;
 	/** @var FilterCollection Content filters. */
-	public $filters;
+	public FilterCollection $filters;
 	/** @var JSONRecordResponse JSON response object. */
-	public $json;
+	public JSONRecordResponse $json;
 	/** @var IntegerInput Content record id. */
-	public $record_id;
+	public IntegerInput $record_id;
     /** @var StringInput Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
-    public $operation;
-	/** @var ContentTemplate Current content template properties. */
-	public $template=null;
-	/** @var ContentRoute Current content route properties. */
-	public $route=null;
+    public StringInput $operation;
+	/** @var ?ContentTemplate Current content template properties. */
+	public ?ContentTemplate $template;
+	/** @var ?ContentRoute Current content route properties. */
+	public ?ContentRoute $route;
 
 	/**
 	 * Class constructor.
@@ -84,8 +84,6 @@ class AjaxPage extends MySQLConnection
 
 		$this->content_properties = $this->newContentPropertiesInstance();
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
-		$this->template = null;
-		$this->filters = null; /* set in derived classes */
 		$this->action = "";
 	}
 
@@ -114,7 +112,7 @@ class AjaxPage extends MySQLConnection
 		}
 
 		/** retrieve filters object if needed */
-		if (!is_object($this->filters)) {
+		if (!isset($this->filters)) {
 			$this->filters = call_user_func_array([static::getControllerClass(), 'getContentFiltersObject'], array($this->getContentTypeId()));
 		}
 		$this->loadContentAndFiltersData();
@@ -148,13 +146,17 @@ class AjaxPage extends MySQLConnection
      */
     public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY )
     {
-        $this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
+		if (!$this->content_properties->id->value) {
+			$this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
+		}
         if ($this->content_properties->id->value === null) {
             throw new ContentValidationException("Content type not specified.");
         }
         $this->content_properties->read();
 
-        $this->operation->collectRequestData();
+		if (!$this->operation->value) {
+			$this->operation->collectRequestData();
+		}
         if (!$this->operation->value) {
             $this->operation->value = static::getDefaultTemplateName();
         }
@@ -285,10 +287,10 @@ class AjaxPage extends MySQLConnection
 	 */
 	public function getFullTemplatePath(): string
 	{
-		if (''===static::$template_path) {
+		if (static::$template_path==='') {
 			throw new ConfigurationUndefinedException("Content template location is not set.");
 		}
-		if (!$this->template instanceof ContentTemplate) {
+		if (!isset($this->template)) {
 			throw new ConfigurationUndefinedException("Content template is not set.");
 		}
 		return static::$template_path.$this->template->path->value;
@@ -581,7 +583,7 @@ class AjaxPage extends MySQLConnection
 	{
 		$o = new $class_name;
 		if(!$o instanceof ContentController) {
-			throw new InvalidTypeException(Debug::getShortMethodName().' Invalid controller type. ');
+			throw new InvalidTypeException(Log::getShortMethodName().' Invalid controller type. ');
 		}
 		unset($o);
 		static::$controller_class = $class_name;
@@ -604,10 +606,10 @@ class AjaxPage extends MySQLConnection
 	public function setInternalContentTypeValue(): bool
 	{
 		if ($this->content_properties->id->value>1) {
-			return (true);
+			return true;
 		}
-		if (!$this->content instanceof SectionContent) {
-			return (false);
+		if (!isset($this->content)) {
+			return false;
 		}
 		$this->content_properties->id->value = $this->content->getRecordId();
 		return ($this->content_properties->id->value>0);

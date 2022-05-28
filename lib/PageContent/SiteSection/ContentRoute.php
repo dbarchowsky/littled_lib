@@ -11,7 +11,7 @@ class ContentRoute extends SerializedContent
 	/** @var int Value of this record in the site section table. */
 	protected static int $content_type_id = 34;
 	/** @var string */
-	protected static $table_name = "content_route";
+	protected static string $table_name = "content_route";
 
 	/** @var IntegerSelect */
 	public IntegerSelect $site_section_id;

@@ -2,8 +2,6 @@
 
 namespace Littled\Tests\PageContent\Serialized\TestHarness;
 
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Request\BooleanInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
@@ -11,23 +9,23 @@ use Littled\Request\StringInput;
 class SerializedContentChild extends SerializedContentTestHarness
 {
     /** @var StringInput Test string input property */
-    public $vc_col1;
+    public StringInput $vc_col1;
     /** @var StringInput Test string input property */
-    public $vc_col2;
+    public StringInput $vc_col2;
     /** @var IntegerInput Test integer input property */
-    public $int_col;
+    public IntegerInput $int_col;
     /** @var BooleanInput Test boolean input property */
-    public $bool_col;
+    public BooleanInput $bool_col;
     /** @var mixed Test plain mixed variable value property */
     public $prop1;
     /** @var mixed Another test plain mixed variable value property */
     public $prop2;
     /** @var array Test array container */
-    public $array_container;
+    public array $array_container=[];
     /** @var SerializedContentChild */
-    public $child = null;
+    public SerializedContentChild $child;
     /** @var string */
-    protected static $table_name = 'sc_child_temp_unit_test';
+    protected static string $table_name = 'sc_child_temp_unit_test';
 
     public function __construct()
     {

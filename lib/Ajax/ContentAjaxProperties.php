@@ -18,10 +18,10 @@ use Littled\Request\StringTextField;
 class ContentAjaxProperties extends SerializedContent
 {
 	/** @var string */
-	protected static $table_name = 'section_operations';
+	protected static string $table_name = 'section_operations';
 
 	/** @var IntegerInput Record id. */
-	public $id;
+	public IntegerInput $id;
 	/**
 	 * @var IntegerSelect Site section/content type identifier.
 	 * TODO Rename this property to $content_type_id, which requires changing the name of the corresponding field

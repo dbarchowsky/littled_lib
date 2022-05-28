@@ -5,7 +5,6 @@ namespace Littled\PageContent;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -148,7 +147,6 @@ abstract class ContentController
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
