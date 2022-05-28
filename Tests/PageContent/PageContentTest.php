@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\PageContent;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;

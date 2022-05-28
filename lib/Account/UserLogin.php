@@ -20,31 +20,17 @@ class UserLogin extends UserAccount
 {
 	/** @var string */
 	protected static string $login_uri='';
-	/** @var string Name of variable holding username value for authentication purposes. */
-	const USERNAME_KEY = "sulg";
 
 	/** @var StringTextField Pointer to username/login property. */
 	public StringTextField $login;
 	/** @var StringPasswordField Password confirmation for registration and account updates. */
-	public StringPasswordField $password_confirm;
-	/** @var StringPasswordField $new_password Container for new password form input. */
 	public StringPasswordField $new_password;
-	/* @var StringTextField Alias for $login class property */
-	public StringTextField $uname;
-	/** @var StringTextField */
-	public StringTextField $username;
 
 	function __construct($id = null)
 	{
 		parent::__construct($id);
-		$this->login = new StringTextField("Username", self::USERNAME_KEY, true, "", 50);
-		$this->password_confirm = new StringPasswordField("Confirm Password", "pwdConfirm", true, "", 256);
+		$this->login = &$this->username;
 		$this->new_password = new StringPasswordField('New Password', 'newPswd', false, '', 50);
-
-		$this->uname = &$this->login;
-		$this->username = &$this->login;
-
-		$this->password_confirm->is_database_field = false;
 		$this->new_password->is_database_field = false;
 	}
 
@@ -171,7 +157,7 @@ class UserLogin extends UserAccount
 	 * @throws ContentValidationException
 	 * @throws Exception
 	 */
-	public function validateUserName()
+	public function validateUsername(): void
 	{
 		$query = "SEL"."ECT id FROM `".static::getTableName()."` WHERE (`login` = ?)";
 		$types_str = 's';

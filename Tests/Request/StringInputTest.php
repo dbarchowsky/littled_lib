@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Request;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Tests\Request\DataProvider\StringInputTestData;
 use PHPUnit\Framework\TestCase;

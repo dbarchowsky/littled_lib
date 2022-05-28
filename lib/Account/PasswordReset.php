@@ -6,21 +6,22 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageUtils;
-use \Exception;
+use Exception;
 use Littled\Request\StringPasswordField;
-use \mail_class;
+use Littled\Utility\Mailer;
 
 class PasswordReset extends UserAccount
 {
 	/** @var string Modify account URI */
-	protected static $modifyAccountURI = '';
+	protected static string $modifyAccountURI = '';
 	/** @var string Path to template for reset password email content. */
-	protected static $resetPasswordEmailTemplate = '';
+	protected static string $resetPasswordEmailTemplate = '';
 
 	/** @var StringPasswordField New password. */
-	public $new_password;
+	public StringPasswordField $new_password;
 
 	/**
 	 * {@inheritDoc}
@@ -70,8 +71,7 @@ class PasswordReset extends UserAccount
 
 	/**
 	 * Resets password to string of random characters.
-	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidQueryException
+	 * @throws ConfigurationUndefinedException|NotImplementedException
 	 */
 	public function resetPassword ( )
 	{
@@ -81,7 +81,7 @@ class PasswordReset extends UserAccount
 		}
 
 		$this->password->value = PageUtils::generateRandomFilename(12, false);
-		$query = "UPDATE ".self::TABLE_NAME()." SET ".
+		$query = "UPDATE ".self::getTableName()." SET ".
 			"`password` = PASSWORD('{$this->password->value}') ".
 			"WHERE id = {$this->id->value}";
 		$this->query($query);
@@ -121,7 +121,7 @@ class PasswordReset extends UserAccount
 		$body = str_replace("[[password]]", $this->password->value, $body);
 		$body = str_replace("[[account url]]", self::getAccountActivationuri(), $body);
 
-		$mail = new mail_class(
+		$mail = new Mailer(
 			$this->sender_name,
 			self::getContactEmail(),
 			$this->contact_info->formatContactName(),
@@ -132,7 +132,7 @@ class PasswordReset extends UserAccount
 		$mail->send();
 
 		/* update the login object with the encrypted password */
-		$query = "SEL"."ECT `password` FROM ".self::TABLE_NAME()." WHERE id = {$this->id->value}";
+		$query = "SEL"."ECT `password` FROM ".self::getTableName()." WHERE id = {$this->id->value}";
 		$rs = $this->fetchRecords($query);
 		if (count($rs) > 0)
 		{
@@ -173,7 +173,7 @@ class PasswordReset extends UserAccount
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
+	 * @throws Exception
 	 */
 	public function validateInput($exclude_properties=[])
 	{

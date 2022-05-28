@@ -9,7 +9,7 @@ use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 
 /**
- * Implements abstract methods of SectionContent to allow objects in unit tests.
+ * Implements abstract methods of SectionContent to allow objects in unit Tests.
  *
  */
 class SectionContentTestHarness extends SectionContent

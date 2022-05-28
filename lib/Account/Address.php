@@ -5,7 +5,6 @@ namespace Littled\Account;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -29,22 +28,20 @@ use Exception;
 class Address extends SerializedContent
 {
     /** @var string */
-    protected static $table_name = 'address';
+    protected static string $table_name = 'address';
 
     /** @var string Google maps api key */
-    protected static $gmap_api_key;
-    /** @var string */
-    protected static $address_data_template = 'forms/data/address_class_data.php';
-    /** @var string */
-    protected static $street_address_data_template = 'forms/data/street_address_form_data.php';
+    protected static string $gmap_api_key;
+    protected static string $address_data_template = 'forms/data/address_class_data.php';
+    protected static string $street_address_data_template = 'forms/data/street_address_form_data.php';
 
-	const ID_KEY = "adid";
-	const LOCATION_KEY = "adlo";
+	public const ID_KEY = "adid";
+	public const LOCATION_KEY = "adlo";
 
 	// possible values for formatting address data into strings
-	const FORMAT_ADDRESS_ONE_LINE   = 'one_line';
-	const FORMAT_ADDRESS_HTML       = 'html';
-	const FORMAT_ADDRESS_GOOGLE     = 'google';
+	public const FORMAT_ADDRESS_ONE_LINE   = 'one_line';
+	public const FORMAT_ADDRESS_HTML       = 'html';
+	public const FORMAT_ADDRESS_GOOGLE     = 'google';
 
     /**
      * Inserts Google Maps key into URL to use to access Google Maps.
@@ -52,57 +49,39 @@ class Address extends SerializedContent
      */
 	public static function GOOGLE_MAPS_URI(): string
     {
+		if (!isset(static::$gmap_api_key)) {
+			return '';
+		}
         return ("https://maps.googleapis.com/maps/api/geocode/xml?key=".static::$gmap_api_key."&address=");
     }
 
 	/** @var IntegerInput Address record id. */
-	public $id;
-	/** @var StringSelect */
-	public $salutation;
-	/** @var StringTextField */
-	public $first_name;
-	/** @var StringTextField */
-	public $last_name;
-	/** @var StringTextField */
-	public $location;
-	/** @var StringTextField */
-	public $company;
-	/** @var StringTextField */
-	public $address1;
-	/** @var StringTextField */
-	public $address2;
-	/** @var StringTextField */
-	public $city;
-	/** @var IntegerSelect */
-	public $state_id;
-	/** @var StringTextField */
-	public $state;
-	/** @var StringTextField */
-	public $zip;
-	/** @var StringTextField */
-	public $country;
-	/** @var PhoneNumberTextField */
-	public $home_phone;
-	/** @var PhoneNumberTextField */
-	public $work_phone;
-    /** @var PhoneNumberTextField */
-    public $fax;
-    /** @var PhoneNumberTextField */
-    public $mobile_phone;
-	/** @var EmailTextField */
-	public $email;
-    /** @var StringTextField */
-    public $title;
-	/** @var StringTextField */
-	public $url;
-	/** @var FloatTextField */
-	public $latitude;
-	/** @var FloatTextField */
-	public $longitude;
+	public IntegerInput $id;
+	public StringSelect $salutation;
+	public StringTextField $first_name;
+	public StringTextField $last_name;
+	public StringTextField $location;
+	public StringTextField $company;
+	public StringTextField $address1;
+	public StringTextField $address2;
+	public StringTextField $city;
+	public IntegerSelect $state_id;
+	public StringTextField $state;
+	public StringTextField $zip;
+	public StringTextField $country;
+	public PhoneNumberTextField $home_phone;
+	public PhoneNumberTextField $work_phone;
+    public PhoneNumberTextField $fax;
+    public PhoneNumberTextField $mobile_phone;
+	public EmailTextField $email;
+    public StringTextField $title;
+	public StringTextField $url;
+	public FloatTextField $latitude;
+	public FloatTextField $longitude;
 	/** @var string Abbreviated state name. */
-	public $state_abbrev;
+	public string $state_abbrev;
 	/** @var string Combined first and last name. */
-	public $fullname;
+	public string $fullname;
 
 	/**
 	 * Class constructor.
@@ -181,7 +160,7 @@ class Address extends SerializedContent
 	 */
 	public function formatCity(): string
 	{
-		$state = ($this->state_abbrev!==null && $this->state_abbrev!='') ? $this->state_abbrev : $this->state->safeValue();
+		$state = ($this->state_abbrev!='') ? $this->state_abbrev : $this->state->safeValue();
 		$city_parts = array_filter(array(trim($this->city->safeValue()),
 			trim($state),
 			trim($this->country->safeValue())));
@@ -232,14 +211,14 @@ class Address extends SerializedContent
     public function formatHTMLAddress(bool $include_name=false): string
     {
         $parts = array();
-        if ($include_name==true) {
+        if ($include_name===true) {
         	$parts[] = $this->formatFullName();
         	$parts[] = trim('' . $this->company->value);
         }
         $parts[] = trim(''.$this->address1->value);
         $parts[] = trim(''.$this->address2->value);
 
-        if ($this->state_id->value>0 && !$this->state) {
+        if ($this->state_id->value>0) {
             try {
                 $this->readStateProperties();
             }
@@ -350,7 +329,7 @@ class Address extends SerializedContent
      * Returns current Google Maps API key value.
      * @return string Current Google Maps API key value
      */
-    public function getGMapAPIKey(): string
+    public static function getGMapAPIKey(): string
     {
         return static::$gmap_api_key;
     }
@@ -361,13 +340,14 @@ class Address extends SerializedContent
 	 */
 	public function hasAddressData(): bool
 	{
-		$data = substr($this->address1->value,0,1).
-			substr($this->address2->value,0,1).
-			substr($this->city->value,0,1).
-			substr($this->state->value,0,1).
+		$st = ($this->state_id->value==null || $this->state_id->value<1)?(''):(''.$this->state_id->value);
+		$data = substr(''.$this->address1->value,0,1).
+			substr(''.$this->address2->value,0,1).
+			substr(''.$this->city->value,0,1).
+			substr(''.$this->state->value,0,1).
 			substr($this->state_abbrev,0,1).
-			(string)(($this->state_id->value<1)?(''):($this->state_id->value)).
-			substr($this->zip->value,0,1);
+			$st.
+			substr(''.$this->zip->value,0,1);
 		return (strlen($data) > 0);
 	}
 
@@ -444,7 +424,7 @@ class Address extends SerializedContent
         $this->longitude->value = "0";
         $this->latitude->value = "0";
 
-        if (!$this->state) {
+        if ($this->state->value=='') {
             $this->readStateProperties();
         }
         $address = $this->city->value.", ".$this->state->value;
@@ -514,7 +494,6 @@ class Address extends SerializedContent
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws Exception
@@ -580,7 +559,7 @@ class Address extends SerializedContent
      * Sets Google Maps API key property value.
      * @param string $key Google Maps API key value.
      */
-	public function setGMapAPIKey(string $key)
+	public static function setGMapAPIKey(string $key)
     {
         static::$gmap_api_key = $key;
     }

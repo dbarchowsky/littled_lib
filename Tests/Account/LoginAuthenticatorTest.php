@@ -11,11 +11,11 @@ class LoginAuthenticatorTest extends TestCase
 	/** @var string User name value that already exists in the site_user table. */
 	const TEST_EXISTING_USER_NAME = 'video8';
 	/** @var string Path to collect user account test harness page. */
-	const TEST_HARNESS_COLLECT_PATH = 'tests/collect/account';
+	const TEST_HARNESS_COLLECT_PATH = 'Tests/collect/account';
 
 	/** @var LoginAuthenticator Test object. */
-	protected $obj;
-	protected static $test_uri;
+	protected LoginAuthenticator $obj;
+	protected static string $test_uri;
 
 	public function setUp(): void
 	{
@@ -26,7 +26,7 @@ class LoginAuthenticatorTest extends TestCase
 
 	public function testSetLoginURI()
 	{
-		self::assertNull($this->obj->getLoginURI());
+		$this->assertEmpty($this->obj->getLoginURI());
 		$this->obj->setLoginURI(static::$test_uri);
 		self::assertEquals(static::$test_uri, $this->obj->getLoginURI());
 	}

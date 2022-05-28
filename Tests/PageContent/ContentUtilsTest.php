@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\PageContent;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
@@ -10,9 +9,9 @@ use PHPUnit\Framework\TestCase;
 class ContentUtilsTest extends TestCase
 {
     /** @var string */
-    protected const STATIC_TEMPLATE_PATH = APP_BASE_DIR.'tests/assets/templates/page-content-test-static.php';
+    protected const STATIC_TEMPLATE_PATH = APP_BASE_DIR.'Tests/assets/templates/page-content-test-static.php';
     /** @var string */
-    protected const DYNAMIC_TEMPLATE_PATH = APP_BASE_DIR.'tests/assets/templates/page-content-test-variable.php';
+    protected const DYNAMIC_TEMPLATE_PATH = APP_BASE_DIR.'Tests/assets/templates/page-content-test-variable.php';
 
     /**
      * @throws ResourceNotFoundException

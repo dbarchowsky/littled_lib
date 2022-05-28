@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Tests\Request;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
-require_once(APP_BASE_DIR . "/tests/Base/DatabaseTestCase.php");
+require_once(APP_BASE_DIR . "/Tests/Base/DatabaseTestCase.php");
 
 use Littled\Database\MySQLConnection;
 use Littled\Tests\Request\DataProvider\RequestInputTestDataProvider;

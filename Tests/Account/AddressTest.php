@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Account;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Account\Address;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -18,7 +17,7 @@ use Exception;
 
 /**
  * Class AddressTest
- * Unit tests for Littled\Account\Address
+ * Unit Tests for Littled\Account\Address
  * @package Littled\Tests\Account
  */
 class AddressTest extends ContentValidationTestCase
@@ -405,8 +404,15 @@ class AddressTest extends ContentValidationTestCase
 	    $this->assertEquals('Dr', $this->address->formatFullName());
     }
 
-    public function testGoogleMapsURI()
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function testGoogleMapsURI()
     {
+		if (!defined('GMAP_KEY')) {
+			throw new ConfigurationUndefinedException("GMAP_KEY is not defined.");
+		}
+		Address::setGMapAPIKey(GMAP_KEY);
     	$this->assertMatchesRegularExpression('/\?key=.*&address/', Address::GOOGLE_MAPS_URI());
     }
 
@@ -417,10 +423,10 @@ class AddressTest extends ContentValidationTestCase
 	public function testHasAddressData(AddressTestData $data)
 	{
 		if ($data->expected===true) {
-			$this->assertTrue($data->obj->hasAddressData());
+			$this->assertTrue($data->obj->hasAddressData(), $data->msg);
 		}
 		else {
-			$this->assertFalse($data->obj->hasAddressData());
+			$this->assertFalse($data->obj->hasAddressData(), $data->msg);
 		}
 	}
 

@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Request;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
@@ -43,7 +42,7 @@ class StringTextFieldTest extends TestCase
 		// make sure the new value is different from the default
 		$this->assertNotEquals($new_filename, $default);
 
-        // reset these in case they have been modified in the course of running previous unit tests
+        // reset these in case they have been modified in the course of running previous unit Tests
         RequestInput::setTemplateFilename('hidden-input.php');
         StringInput::setTemplateFilename('text-field-input.php');
 

@@ -1,36 +1,38 @@
 <?php
-
 namespace Littled\Tests\Account;
 
-
+use Littled\Tests\Account\TestHarness\UserAccountTestHarness;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Littled\Account\UserAccount;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ContentValidationException;
-use Littled\Request\RequestInput;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\ResourceNotFoundException;
+use Littled\Tests\Account\DataProvider\UserAccountTestData;
 use PHPUnit\Framework\TestCase;
 
 class UserAccountTest extends TestCase
 {
-	/** @var string User name value that already exists in the site_user table. */
+	/** @var string Username value that already exists in the site_user table. */
 	const TEST_EXISTING_USER_NAME = 'video8';
 	/** @var string Path to collect user account test harness page. */
-	const TEST_HARNESS_COLLECT_PATH = 'tests/collect/account';
+	const TEST_HARNESS_COLLECT_PATH = 'Tests/collect/account';
 
 	/** @var UserAccount Test object. */
-	public $obj;
+	public UserAccount $obj;
 
 	public function setUp(): void
 	{
 		parent::setUp();
-		$this->obj = new UserAccount();
+		$this->obj = new UserAccountTestHarness();
 	}
 
 	/**
 	 * @param UserAccount $account UserAccount object containing data to send to collection test harness page.
 	 * @return array Test harness response as json object.
+	 * @throws GuzzleException
 	 */
-	protected function sendCollectTestHarnessRequest($account)
+	protected function sendCollectTestHarnessRequest(UserAccount $account): array
 	{
 		$data = $account->arrayEncode();
 		$client = new Client(['base_uri' => TEST_HARNESS_BASE_URI]);
@@ -43,7 +45,7 @@ class UserAccountTest extends TestCase
 
 	public function testConstruct()
 	{
-		$obj = new UserAccount();
+		$obj = new UserAccountTestHarness();
 		self::assertNull($obj->id->value);
 		self::assertEquals('', $obj->uname->value);
 		self::assertEquals('', $obj->username->value);
@@ -57,7 +59,7 @@ class UserAccountTest extends TestCase
 		self::assertEquals('', $obj->contact_info->email->value);
 
 		self::assertTrue($obj->password->is_database_field);
-		self::assertFalse($obj->password_confirm->isDatabaseField);
+		self::assertFalse($obj->password_confirm->is_database_field);
 		self::assertFalse($obj->contact_info->first_name->required);
 		self::assertTrue($obj->contact_info->email->required);
 		self::assertFalse($obj->contact_info->address1->required);
@@ -66,17 +68,20 @@ class UserAccountTest extends TestCase
 	public function testAccountActivationURI ()
 	{
 		self::expectException(ConfigurationUndefinedException::class);
-		$uri = UserAccount::getAccountActivationuri();
+		UserAccount::getAccountActivationuri();
 
 		UserAccount::setAccountActivationURI('https://foobar.com/biz/bash/');
 		self::assertEquals('https://foobar.com/biz/bash', UserAccount::getAccountActivationuri());
 
-		$obj = new UserAccount();
+		$obj = new UserAccountTestHarness();
 		self::assertEquals('https://foobar.com/biz/bash', $this->obj->getAccountActivationuri());
 		self::assertEquals('https://foobar.com/biz/bash', $obj->getAccountActivationuri());
 	}
 
-	public function testCollectFromInput()
+	/**
+	 * @throws GuzzleException
+	 */
+	public function __disabled_testCollectFromInput()
 	{
 		$result = $this->sendCollectTestHarnessRequest($this->obj);
 		$data = $result['data'];
@@ -86,12 +91,12 @@ class UserAccountTest extends TestCase
 	public function testContactEmail()
 	{
 		self::expectException(ConfigurationUndefinedException::class);
-		$email = UserAccount::getContactEmail();
+		UserAccount::getContactEmail();
 
 		UserAccount::setContactEmail('dbarchowsky@gmail.com');
 		self::assertEquals('dbarchowsky@gmail.com', UserAccount::getContactEmail());
 
-		$obj2 = new UserAccount();
+		$obj2 = new UserAccountTestHarness();
 		self::assertEquals('dbarchowsky@gmail.com', $obj2->getContactEmail());
 
 		$obj2->setContactEmail('damienjay@gmail.com');
@@ -112,53 +117,37 @@ class UserAccountTest extends TestCase
 		self::assertEquals(45, $this->obj->contact_id->value);
 	}
 
+	/**
+	 * @dataProvider \Littled\Tests\Account\DataProvider\UserAccountDataProvider::hasDataTestProvider()
+	 * @return void
+	 */
+	public function testHasData(UserAccountTestData $data)
+	{
+		if ($data->expected===true) {
+			$this->assertTrue($data->obj->hasData(), $data->msg);
+		}
+		else {
+			$this->assertFalse($data->obj->hasData(), $data->msg);
+		}
+	}
+
 	public function testHasDataDefaultValues()
 	{
 		self::assertFalse($this->obj->hasData());
 	}
 
-	public function testHasDataWithUserName()
-	{
-		$this->obj->username->value = 'username';
-		self::assertTrue($this->obj->hasData());
-	}
-
-	public function testHasDataWithPassword()
-	{
-		$this->obj->password->value = 'secret';
-		self::assertTrue($this->obj->hasData());
-	}
-
-	public function testHasDataWithRecordId()
-	{
-		$this->obj->id->value = 9999999;
-		self::assertTrue($this->obj->hasData());
-	}
-
-	public function testHasDataWithNonEssentialProperty()
-	{
-		$this->obj->password_confirm->value = 'secret';
-		self::assertFalse($this->obj->hasData());
-	}
-
-	public function testHasDataWithMultiplePropertyValues()
-	{
-		$this->obj->id->value = 989898;
-		$this->obj->username->value = 'user1235';
-		$this->obj->password->value = 'secret1';
-		$this->obj->password_confirm->value = 'secret2';
-		self::assertTrue($this->obj->hasData());
-	}
-
+	/**
+	 * @throws ResourceNotFoundException
+	 */
 	public function testRegistrationNoticeEmailTemplate ()
 	{
 		self::expectException(ConfigurationUndefinedException::class);
-		$uri = UserAccount::getRegistrationNoticeEmailTemplate();
+		UserAccount::getRegistrationNoticeEmailTemplate();
 
 		UserAccount::setRegistrationNoticeEmailTemplate('/path/to/registration/template');
 		self::assertEquals('/path/to/registration/template', UserAccount::getRegistrationNoticeEmailTemplate());
 
-		$obj = new UserAccount();
+		$obj = new UserAccountTestHarness();
 		self::assertEquals('/path/to/registration/template', $this->obj->getRegistrationNoticeEmailTemplate());
 		self::assertEquals('/path/to/registration/template', $obj->getRegistrationNoticeEmailTemplate());
 
@@ -167,50 +156,11 @@ class UserAccountTest extends TestCase
 		self::assertEquals('/new/path/to/registration/template', UserAccount::getRegistrationNoticeEmailTemplate());
 	}
 
+	/**
+	 * @throws NotImplementedException
+	 */
 	public function testTableName()
 	{
-		self::assertEquals('site_user', UserAccount::TABLE_NAME);
-		self::assertEquals('site_user', UserAccount::TABLE_NAME());
-	}
-
-	public function testValidateUserNameDefaultValue()
-	{
-		try
-		{
-			$this->obj->validateUserName();
-			self::assertEquals('Exception not thrown.', 'Exception not thrown.');
-		}
-		catch(ContentValidationException $ex)
-		{
-			self::assertEquals('', $ex->getMessage());
-		}
-	}
-
-	public function testValidateUserNameValidUserName()
-	{
-		$this->obj->username->value = 'newuser';
-		try
-		{
-			$this->obj->validateUserName();
-			self::assertEquals('Exception not thrown.', 'Exception not thrown.');
-		}
-		catch(ContentValidationException $ex)
-		{
-			self::assertEquals('', $ex->getMessage());
-		}
-	}
-
-	public function testValidateUserNameExistingUserName()
-	{
-		$this->obj->username->value = self::TEST_EXISTING_USER_NAME;
-		try
-		{
-			$this->obj->validateUserName();
-			self::assertEquals('', 'Exception not thrown.');
-		}
-		catch(ContentValidationException $ex)
-		{
-			self::assertEquals('User name already exists.', $ex->getMessage());
-		}
+		self::assertEquals('site_user', UserAccount::getTableName());
 	}
 }

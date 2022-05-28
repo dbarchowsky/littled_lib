@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\PageContent\Metadata;
-require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\PageContent\Metadata\PageMetadata;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +19,7 @@ class PageMetadataTest extends TestCase
 
     public function testKeywords()
     {
-        $test_array = array('testing', 'tests', 'development', 'websites');
+        $test_array = array('testing', 'Tests', 'development', 'websites');
         $pm = new PageMetadata();
         $pm->setKeywords($test_array);
         $this->assertSame($test_array, $pm->getKeywords());

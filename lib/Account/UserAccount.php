@@ -9,22 +9,22 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringPasswordField;
-use Littled\Social\Mailer;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringTextField;
 use Exception;
+use Littled\Utility\Mailer;
 
 /**
  * Class UserAccount
  * @package Littled\Account
  */
-class UserAccount extends SerializedContent
+abstract class UserAccount extends SerializedContent
 {
 	/** @var int Type of site content represented by user account records, as found in the site_content table. */
 	const SITE_SECTION_ID        = 10;
 	/** @var string */
-	protected static $table_name = 'site_user';
+	protected static string $table_name = 'site_user';
 	/** @var string AES key used to encrypt passwords */
 	protected static string $aes_key='';
 	/** @var int Disabled value. */
@@ -35,6 +35,7 @@ class UserAccount extends SerializedContent
 	const ADMIN_AUTHENTICATION  = 2;
 	/** @var string Name of variable holding record id value. */
 	const ID_KEY                = "suid";
+	const USERNAME_KEY          = "uaUsername";
 	/** @var string Name of variable holding password value for authentication purposes. */
 	const PASSWORD_KEY          = "supw";
 	/** @var string Name of variable holding requested access value. */
@@ -48,16 +49,14 @@ class UserAccount extends SerializedContent
 	protected static string $registration_notice_email_template = '';
 
 	/** @var IntegerInput Account record id. */
-    public $id;
+    public IntegerInput $id;
     /** @var StringTextField Username/login. */
     public StringTextField $uname;
     /** @var StringTextField Pointer to username/login property. */
     public StringTextField $username;
-	/** @var StringPasswordField Pointer to username/login property. */
 	public StringPasswordField $password;
-	/** @var Address */
+	public StringPasswordField $password_confirm;
 	public Address $contact_info;
-	/** @var IntegerSelect  */
 	public IntegerSelect $access;
 	/** @var BooleanCheckbox Flag allowing user account to opt in or out of email contact. */
     public BooleanCheckbox $email_opt_in;
@@ -78,10 +77,14 @@ class UserAccount extends SerializedContent
     {
 	    parent::__construct($id);
 	    $this->id = new IntegerInput("Announcement id", self::ID_KEY, false);
+		$this->uname = new StringTextField("User name", self::USERNAME_KEY, true, '', 50);
+		$this->username = &$this->uname;
 	    $this->contact_info = new Address();
 	    $this->email_opt_in = new BooleanCheckbox("Email Opt-In", "sueo", false, false);
 	    $this->postal_opt_in = new BooleanCheckbox("Snail Mail Opt-In", "suso", false, false);
 	    $this->password = new StringPasswordField("Password", self::PASSWORD_KEY, true, "", 256);
+	    $this->password_confirm = new StringPasswordField("Confirm password", "uaPwdConfirm", false, "", 256);
+		$this->password_confirm->is_database_field = false;
 	    $this->access = new IntegerSelect("Access", self::ACCESS_KEY, true, self::BASIC_AUTHENTICATION);
 
 	    $this->contact_id = &$this->contact_info->id;
@@ -205,7 +208,9 @@ class UserAccount extends SerializedContent
 	 */
 	public function hasData ( ): bool
 	{
-		return ($this->id->value!==null);
+		return (($this->id->value!==null && $this->id->value>0) ||
+			strlen(''.$this->username->value)>0 ||
+			strlen(''.$this->password->value)>0);
 	}
 
 	/**
@@ -269,7 +274,7 @@ class UserAccount extends SerializedContent
 	 * Sets the contact email address for all instances of UserAccount class.
 	 * @param string $email New contact email address.
 	 */
-	public function setContactEmail(string $email)
+	public static function setContactEmail(string $email)
 	{
 		static::$contact_email = $email;
 	}
@@ -325,4 +330,6 @@ class UserAccount extends SerializedContent
 			throw new ContentValidationException("Error validating registration.");
 		}
 	}
+
+	public abstract function validateUsername(): void;
 }

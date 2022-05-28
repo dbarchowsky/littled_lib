@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\Request;
-require_once(realpath(dirname(__FILE__)) . "/../bootstrap.php");
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -20,9 +19,9 @@ class IntegerInputTest extends TestCase
     const MAKE_HTTP_REQUEST = false;
 
 	/** @var string Path to test harness page that collects integer post data using IntegerInput object. */
-	const TEST_HARNESS_COLLECT_PATH = 'tests/collect/integer';
+	const TEST_HARNESS_COLLECT_PATH = 'Tests/collect/integer';
 	/** @var string Path to test harness page that validates integer post data using IntegerInput object. */
-	const TEST_HARNESS_VALIDATE_PATH = 'tests/validate/integer';
+	const TEST_HARNESS_VALIDATE_PATH = 'Tests/validate/integer';
 	/** @var string Name of variable used to pass form data to test harness page. */
 	const TEST_HARNESS_VARIABLE_NAME = 'var';
 

@@ -6,7 +6,7 @@ use Littled\PageContent\Serialized\SerializedContent;
 
 
 /**
- * Implements abstract classes in SerializedContent so the parent class can be used in unit tests.
+ * Implements abstract classes in SerializedContent so the parent class can be used in unit Tests.
  */
 class SerializedContentTestHarness extends SerializedContent
 {

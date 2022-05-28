@@ -10,6 +10,6 @@ class TestTableRoutes extends SectionNavigationRoutes
     protected static string $details_route='/test';
     protected static string $edit_page_class='';
     protected static string $listings_page_class='Littled\Tests\PageContent\RoutedPageConentTestHarness';
-    protected static string $listings_route='/tests';
+    protected static string $listings_route='/Tests';
 
 }

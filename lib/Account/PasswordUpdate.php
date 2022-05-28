@@ -6,6 +6,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
 
 class PasswordUpdate extends UserAccount
 {
@@ -15,15 +16,14 @@ class PasswordUpdate extends UserAccount
 	 * @param array[optional] $exclude_properties Associative list of properties to exclude from validation.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
+	 * @throws ContentValidationException|NotImplementedException
 	 */
 	public function validateInput ($exclude_properties=[])
 	{
 		if ($this->id->value>0 && $this->password->value)
 		{
 			$this->connectToDatabase();
-			$query = "SELECT id FROM ".self::TABLE_NAME()." WHERE (`password` = PASSWORD(".$this->password->escapeSQL($this->mysqli).")) AND (id = {$this->id->value}) ";
+			$query = "SELECT id FROM ".self::getTableName()." WHERE (`password` = PASSWORD(".$this->password->escapeSQL($this->mysqli).")) AND (id = {$this->id->value}) ";
 			$rs = $this->fetchRecords($query);
 			$found_match = (count($rs) > 0);
 

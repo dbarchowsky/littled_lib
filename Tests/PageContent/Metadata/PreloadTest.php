@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\PageContent\Metadata;
-require_once(realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\PageContent\Metadata\Preload;
 use PHPUnit\Framework\TestCase;

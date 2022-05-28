@@ -1,6 +1,5 @@
 <?php
 namespace Littled\Tests\PageContent\Serialized;
-require_once (realpath(dirname(__FILE__)) . "/../../bootstrap.php");
 
 use Littled\Tests\PageContent\Serialized\DataProvider\ReadListTestDataProvider;
 use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentChild;

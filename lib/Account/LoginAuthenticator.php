@@ -22,14 +22,14 @@ class LoginAuthenticator extends UserLogin
     const LOGIN_ACTION = 'login';
 
     /** @var string URI of page containing login authentication form. */
-    protected static $login_uri;
+    protected static string $login_uri='';
 
-    /** @var boolean Flag to allow overrides of login situations. */
-	public $bypass_login;
-	/** @var boolean Flag indicating if the user is currently logged in on the site. */
-	public $logged_in;
+    /** @var bool Flag to allow overrides of login situations. */
+	public bool $bypass_login=false;
+	/** @var bool Flag indicating if the user is currently logged in on the site. */
+	public bool $logged_in=false;
 	/** @var StringInput URI to redirect to after successful login. */
-	public $redirect_uri;
+	public StringInput $redirect_uri;
 
 	/**
 	 * LoginAuthenticator constructor.
@@ -94,9 +94,9 @@ class LoginAuthenticator extends UserLogin
 
 	/**
 	 * Login page URI getter.
-	 * @return ?string Current login page URI value.
+	 * @return string Current login page URI value.
 	 */
-	public function getLoginURI(): ?string
+	public static function getLoginURI(): string
 	{
 		return static::$login_uri;
 	}
@@ -168,7 +168,7 @@ class LoginAuthenticator extends UserLogin
 	 * Login page URI setter.
 	 * @param string $uri Login page URI.
 	 */
-	public function setLoginURI( string $uri )
+	public static function setLoginURI( string $uri )
 	{
 		static::$login_uri = $uri;
 	}
