@@ -12,6 +12,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\SiteSection\ContentTemplate;
+use Littled\Tests\Ajax\DataProvider\AjaxPageLoadTemplateContentTestData;
 use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 use PHPUnit\Framework\TestCase;
 
@@ -32,8 +34,8 @@ class AjaxPageTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        LittledGlobals::setLocalTemplatesPath(APP_BASE_DIR.'/Tests/assets/templates/');
-	    LittledGlobals::setSharedTemplatesPath(APP_BASE_DIR.'/Tests/assets/templates/');
+        LittledGlobals::setLocalTemplatesPath(TEST_TEMPLATES_PATH);
+	    LittledGlobals::setSharedTemplatesPath(TEST_TEMPLATES_PATH);
         AjaxPage::setControllerClass('Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness');
         AjaxPage::setCacheClass('Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness');
     }
@@ -137,6 +139,7 @@ class AjaxPageTest extends TestCase
     }
 
 	/**
+     * @dataProvider \Littled\Tests\Ajax\DataProvider\AjaxPageTestDataProvider::loadTemplateContentTestProvider()
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
@@ -145,20 +148,26 @@ class AjaxPageTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ResourceNotFoundException
 	 */
-	function testLoadTemplateContent()
+	function testLoadTemplateContent(AjaxPageLoadTemplateContentTestData $data)
 	{
 		$ap = new AjaxPage();
-		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
-		$ap->operation->setInputValue('delete');
+		$ap->setContentTypeId($data->content_type_id);
+		$ap->operation->setInputValue($data->operation);
 		$ap->retrieveContentProperties();
 
 		// retrieve record content from database
 		$ap->content = call_user_func_array([$ap::getControllerClass(), 'getContentObject'], array($ap->getContentTypeId()));
 		$ap->content->id->setInputValue(self::TEST_RECORD_ID);
 
-		$ap->loadTemplateContent();
-		$pattern = '/<div class=\"dialog delete-confirmation\"(.|\n)*the record will be permanently deleted/i';
-		self::assertMatchesRegularExpression($pattern, $ap->json->content->value);
+        if (isset($data->template) && $data->template) {
+			$ap->template = new ContentTemplate();
+			$ap->template->location->value = ContentTemplate::getLocalPathToken();
+            $ap->template->path->value = $data->template;
+        }
+		ob_start();
+		$ap->loadTemplateContent($data->context);
+		ob_end_clean();
+		self::assertMatchesRegularExpression($data->pattern, $ap->json->content->value, $data->msg);
 	}
 
     /**

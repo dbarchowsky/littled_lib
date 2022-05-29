@@ -2,6 +2,7 @@
 
 namespace Littled\Tests\Ajax\DataProvider;
 
+use Littled\Tests\Ajax\DataProvider\AjaxPageLoadTemplateContentTestData;
 use Error;
 use Littled\Ajax\AjaxPage;
 use Littled\App\LittledGlobals;
@@ -26,6 +27,22 @@ class AjaxPageTestDataProvider
                     AjaxPage::TEMPLATE_TOKEN_KEY => 'listings'),
                 'Content type id and template token values in POST data'),
             array(null, AjaxPage::getDefaultTemplateName(), [], 'No values present in POST data.'),
+        );
+    }
+
+    public static function loadTemplateContentTestProvider(): array
+    {
+        return array(
+            [new AjaxPageLoadTemplateContentTestData(
+                'Default context and template',
+                '/<div class=\"dialog delete-confirmation\"(.|\n)*the record will be permanently deleted/i'
+            )],
+            [new AjaxPageLoadTemplateContentTestData(
+                'Override context',
+                '/<div class=\"test-container\">(.|\n)*custom context value: test injected value(.|\n)*default context value: undefined(.|\n)*<\/div>/i',
+                array('custom_var' => 'test injected value'),
+                'AjaxPageTest-LoadTemplateContent.php'
+            )],
         );
     }
 

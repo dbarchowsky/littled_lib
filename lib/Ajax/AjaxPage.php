@@ -333,20 +333,23 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
+	 * @param array|null $context Optional array containing data to inject into the template.
 	 * @throws ResourceNotFoundException
 	 * @throws Exception
 	 */
-	public function loadTemplateContent()
+	public function loadTemplateContent(?array $context=null)
 	{
-		$context = array(
-			'page' => $this->newPageContentInstance(),
-			'content' => &$this->content,
-			'filters' => null
-		);
-		if (isset($this->filters)) {
-			$context['filters'] = &$this->filters;
-			if ($this->filters instanceof ContentFilters) {
-				$context['qs'] = $this->filters->formatQueryString();
+		if ($context===null) {
+			$context = array(
+				'page' => $this->newPageContentInstance(),
+				'content' => &$this->content,
+				'filters' => null
+			);
+			if (isset($this->filters)) {
+				$context['filters'] = &$this->filters;
+				if ($this->filters instanceof ContentFilters) {
+					$context['qs'] = $this->filters->formatQueryString();
+				}
 			}
 		}
 		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $context);

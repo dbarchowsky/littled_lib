@@ -25,6 +25,7 @@ class ContentTemplate extends SerializedContent
 	protected static int $content_type_id = 33;
 	/** @var string */
 	protected static string $table_name = "content_template";
+	protected static string $local_path_token = 'local';
 
 	/** @var StringTextField Template name. */
 	public StringTextField $name;
@@ -98,8 +99,7 @@ class ContentTemplate extends SerializedContent
                 return LittledUtility::joinPathParts(array($this->template_dir->value, $this->path->value));
             }
             switch ($this->location->value) {
-                case 'local':
-	            case 'local-cms':
+	            case static::getLocalPathToken():
                     $template_dir = LittledGlobals::getLocalTemplatesPath();
                     break;
                 default:
@@ -116,6 +116,15 @@ class ContentTemplate extends SerializedContent
 	public function generateUpdateQuery(): ?array
 	{
 		return null;
+	}
+
+	/**
+	 * Local path token getter.
+	 * @return string
+	 */
+	public static function getLocalPathToken(): string
+	{
+		return static::$local_path_token;
 	}
 
     /**
