@@ -340,7 +340,7 @@ class AjaxPage extends MySQLConnection
 	public function loadTemplateContent(?array $context=null)
 	{
 		if ($context===null) {
-			$this->setTemplateContext();
+			$context = $this->setTemplateContext();
 		}
 		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $context);
 	}
@@ -612,10 +612,10 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Sets the data to be injected into templates.
-	 * @return void
+	 * @return array
 	 * @throws ConfigurationUndefinedException
 	 */
-	public function setTemplateContext()
+	public function setTemplateContext(): array
 	{
 		$context = array(
 			'page' => $this->newPageContentInstance(),
@@ -628,5 +628,6 @@ class AjaxPage extends MySQLConnection
 				$context['qs'] = $this->filters->formatQueryString();
 			}
 		}
+		return $context;
 	}
 }
