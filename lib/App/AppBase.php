@@ -110,6 +110,15 @@ class AppBase
     }
 
     /**
+     * Gets client request data when it is sent as JSON in request headers.
+     * @return array
+     */
+    public static function getJSONRequestData(): array
+    {
+        return (array)json_decode(file_get_contents('php://input'));
+    }
+
+    /**
 	 * Redirect to the site's error page with error to display on the page.
 	 * @param string $error_msg Error message to inject into the error page template.
 	 * @param string $url (Optional) URL of the global site error page.
