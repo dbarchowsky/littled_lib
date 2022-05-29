@@ -340,17 +340,7 @@ class AjaxPage extends MySQLConnection
 	public function loadTemplateContent(?array $context=null)
 	{
 		if ($context===null) {
-			$context = array(
-				'page' => $this->newPageContentInstance(),
-				'content' => &$this->content,
-				'filters' => null
-			);
-			if (isset($this->filters)) {
-				$context['filters'] = &$this->filters;
-				if ($this->filters instanceof ContentFilters) {
-					$context['qs'] = $this->filters->formatQueryString();
-				}
-			}
+			$this->setTemplateContext();
 		}
 		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $context);
 	}
@@ -618,5 +608,25 @@ class AjaxPage extends MySQLConnection
 		}
 		$this->content_properties->id->value = $this->content->getRecordId();
 		return ($this->content_properties->id->value>0);
+	}
+
+	/**
+	 * Sets the data to be injected into templates.
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function setTemplateContext()
+	{
+		$context = array(
+			'page' => $this->newPageContentInstance(),
+			'content' => &$this->content,
+			'filters' => null
+		);
+		if (isset($this->filters)) {
+			$context['filters'] = &$this->filters;
+			if ($this->filters instanceof ContentFilters) {
+				$context['qs'] = $this->filters->formatQueryString();
+			}
+		}
 	}
 }
