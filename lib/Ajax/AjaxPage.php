@@ -52,6 +52,7 @@ class AjaxPage extends MySQLConnection
 	public string $action='';
 	/** @var mixed Content article. */
 	public $content;
+	protected ?array $context;
 	/** @var ContentProperties Content properties. */
 	public ContentProperties $content_properties;
 	/** @var FilterCollection Content filters. */
@@ -339,10 +340,11 @@ class AjaxPage extends MySQLConnection
 	 */
 	public function loadTemplateContent(?array $context=null)
 	{
-		if ($context===null) {
-			$context = $this->setTemplateContext();
+		$this->context = $context;
+		if ($this->context===null) {
+			$this->setTemplateContext();
 		}
-		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $context);
+		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $this->context);
 	}
 
 	/**
@@ -421,16 +423,21 @@ class AjaxPage extends MySQLConnection
         ));
     }
 
-    /**
+	/**
 	 * Wrapper for json_response_class::load_content_from_template() preserved
 	 * here for legacy reasons. Better to use the json_response_class routine directly.
 	 * @param string $template_path Path to content template to use to generate markup.
-	 * @param array $context Associative array of variables referenced in the template.
+	 * @param ?array $context Associative array of variables referenced in the template.
 	 * @throws ResourceNotFoundException
+	 * @throws ConfigurationUndefinedException
 	 */
-	public function renderToJSON( string $template_path, array $context )
+	public function renderToJSON( string $template_path, ?array $context=null )
 	{
-		$this->json->loadContentFromTemplate($template_path, $context);
+		$this->context = $context;
+		if ($this->context===null) {
+			$this->setTemplateContext();
+		}
+		$this->json->loadContentFromTemplate($template_path, $this->context);
 	}
 
     /**
@@ -612,22 +619,20 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Sets the data to be injected into templates.
-	 * @return array
 	 * @throws ConfigurationUndefinedException
 	 */
-	public function setTemplateContext(): array
+	public function setTemplateContext()
 	{
-		$context = array(
+		$this->context = array(
 			'page' => $this->newPageContentInstance(),
 			'content' => &$this->content,
 			'filters' => null
 		);
 		if (isset($this->filters)) {
-			$context['filters'] = &$this->filters;
+			$this->context['filters'] = &$this->filters;
 			if ($this->filters instanceof ContentFilters) {
-				$context['qs'] = $this->filters->formatQueryString();
+				$this->context['qs'] = $this->filters->formatQueryString();
 			}
 		}
-		return $context;
 	}
 }
