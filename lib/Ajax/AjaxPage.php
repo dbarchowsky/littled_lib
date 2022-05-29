@@ -284,14 +284,15 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * @throws ConfigurationUndefinedException
+	 * @throws Exception
 	 */
 	public function getFullTemplatePath(): string
 	{
-		if (static::$template_path==='') {
-			throw new ConfigurationUndefinedException("Content template location is not set.");
-		}
 		if (!isset($this->template)) {
 			throw new ConfigurationUndefinedException("Content template is not set.");
+		}
+		if (static::$template_path==='') {
+			return $this->template->formatFullPath();
 		}
 		return static::$template_path.$this->template->path->value;
 	}
@@ -344,7 +345,7 @@ class AjaxPage extends MySQLConnection
 		if ($this->context===null) {
 			$this->setTemplateContext();
 		}
-		$this->json->loadContentFromTemplate($this->template->formatFullPath(), $this->context);
+		$this->json->loadContentFromTemplate($this->getFullTemplatePath(), $this->context);
 	}
 
 	/**
