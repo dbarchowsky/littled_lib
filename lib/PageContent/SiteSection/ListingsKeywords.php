@@ -14,8 +14,8 @@ use Littled\Request\IntegerInput;
  */
 class ListingsKeywords extends KeywordSectionContent
 {
-	/** @var IntegerInput Id of the current record being displayed. */
-	public $id;
+	/** @var IntegerInput The id of the current record being displayed. */
+	public IntegerInput $id;
 
 	/**
 	 * ListingsKeywords constructor.
