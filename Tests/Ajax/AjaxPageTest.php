@@ -242,18 +242,19 @@ class AjaxPageTest extends TestCase
      * @dataProvider \Littled\Tests\Ajax\DataProvider\AjaxPageTestDataProvider::setCacheClassTestProvider()
      * @param string $expected
      * @param string $class_name
+     * @param string $msg
      * @return void
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
      */
-    function testSetCacheClass(string $expected, string $class_name)
+    function testSetCacheClass(string $expected, string $class_name, string $msg='')
     {
         if ($expected) {
             $this->expectException($expected);
         }
         AjaxPage::setCacheClass($class_name);
         if (!$expected) {
-            $this->assertEquals($class_name, AjaxPage::getCacheClass());
+            $this->assertEquals($class_name, AjaxPage::getCacheClass(), $msg);
         }
     }
 

@@ -49,10 +49,10 @@ class AjaxPageTestDataProvider
     public static function setCacheClassTestProvider(): array
     {
         return array(
-            ['', '\Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness'],
-            ['', 'Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness'],
-            [Error::class, '\Littled\PageContent\Cache\ContentCache'],
-            [InvalidTypeException::class, '\Littled\PageContent\PageConfig'],
+            ['', '\Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness', 'ContentCacheTestHarness fully qualified'],
+            ['', 'Littled\Tests\PageContent\Cache\TestHarness\ContentCacheTestHarness', 'ContentCacheTestHarness not fully qualified'],
+            ['', '\Littled\PageContent\Cache\ContentCache', 'ContentCache (parent class) does not throw InvalidTypeException'],
+            [InvalidTypeException::class, '\Littled\PageContent\PageConfig', 'PageConfig throws InvalidTypeException'],
         );
     }
 
@@ -61,7 +61,7 @@ class AjaxPageTestDataProvider
         return array(
             ['', '\Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness'],
             ['', 'Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness'],
-            [Error::class, '\Littled\PageContent\ContentController'],
+            ['', '\Littled\PageContent\ContentController'],
             [InvalidTypeException::class, '\Littled\PageContent\PageConfig'],
         );
     }

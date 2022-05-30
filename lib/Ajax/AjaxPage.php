@@ -558,11 +558,9 @@ class AjaxPage extends MySQLConnection
      */
     public static function setCacheClass(string $class_name)
     {
-        $o = new $class_name;
-        if(!$o instanceof ContentCache) {
+        if(!is_a($class_name, ContentCache::class, true)) {
             throw new InvalidTypeException("\"$class_name\" is not a valid content cache type.");
         }
-        unset($o);
         static::$cache_class = $class_name;
     }
 
@@ -584,8 +582,7 @@ class AjaxPage extends MySQLConnection
 	 */
 	public static function setControllerClass(string $class_name)
 	{
-		$o = new $class_name;
-		if(!$o instanceof ContentController) {
+		if(!is_a($class_name, ContentController::class, true)) {
 			throw new InvalidTypeException(Log::getShortMethodName().' Invalid controller type. ');
 		}
 		unset($o);
