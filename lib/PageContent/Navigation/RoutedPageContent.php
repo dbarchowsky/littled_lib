@@ -41,7 +41,7 @@ class RoutedPageContent extends PageContent
             // save any edits made on a page
             $this->updateRecord();
         }
-        if ( $this->content instanceof SectionContent &&
+        if (isset($this->content) &&
             false === $this->content->hasValidationErrors() &&
             in_array($this->edit_action, [PageContent::COMMIT_ACTION, PageContent::CANCEL_ACTION])) {
             // load page selected to be the next page after editing and saving a record
@@ -261,7 +261,7 @@ class RoutedPageContent extends PageContent
      */
     protected function loadFilters()
     {
-        if (!$this->filters instanceof FilterCollection) {
+        if (!isset($this->filters)) {
             return;
         }
         $this->filters->collectFilterValues();
