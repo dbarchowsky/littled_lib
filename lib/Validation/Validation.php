@@ -56,7 +56,6 @@ class Validation
 	 */
 	protected static function _parseInput( int $filter, string $key, ?int $index=null, ?array $src=null )
 	{
-		$value = null;
 		if ($src===null) {
 			$src = array_merge($_GET, $_POST);
 		}
@@ -66,16 +65,19 @@ class Validation
 		if ($index!==null) {
 			$arr = filter_var($src[$key], $filter, FILTER_REQUIRE_ARRAY);
 			if (is_array($arr) && count($arr) >= ($index-1)) {
-				$value = $arr[$index];
+				return $arr[$index];
 			}
 		}
-		else if ($filter==FILTER_UNSAFE_RAW) {
-			$value = strip_tags($src[$key]);
-		}
+        else if ($filter==FILTER_FLAG_NONE) {
+            return $src[$key];
+        }
+        else if ($filter==FILTER_UNSAFE_RAW) {
+            return strip_tags($src[$key]);
+        }
 		else {
-			$value = filter_var($src[$key], $filter);
+			return filter_var($src[$key], $filter);
 		}
-		return ($value);
+        return '';
 	}
 
 	/**
@@ -520,6 +522,20 @@ class Validation
 	{
 		return Validation::collectNumericRequestVar($key, $index, $src);
 	}
+
+    /**
+     * Strips HTML tags from request variable value.
+     * @param string $key
+     * @param array $whitelist_tags
+     * @param int|null $index
+     * @param array|null $src
+     * @return string
+     */
+    public static function stripTags(string $key, array $whitelist_tags=[], ?int $index=null, ?array $src=null): string
+    {
+		$value = Validation::_parseInput(FILTER_FLAG_NONE, $key, $index, $src);
+        return strip_tags(''.$value, $whitelist_tags);
+    }
 
 	/**
 	 * Check for valid CSRF token.

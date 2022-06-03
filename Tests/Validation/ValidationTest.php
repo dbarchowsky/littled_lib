@@ -1,11 +1,11 @@
 <?php
 namespace Littled\Tests\Validation;
 
+use Exception;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
-use Littled\Tests\Request\DataProvider\IntegerInputTestData;
 use Littled\Tests\Validation\DataProvider\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
@@ -211,6 +211,27 @@ class ValidationTest extends TestCase
 	{
         $this->assertEquals($expected, Validation::parseInteger($value), $msg);
 	}
+
+    /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::stripTagsTestProvider()
+     * @return void
+     * @throws Exception
+     */
+    function testStripTags(string $expected, string $key, string $src, array $whitelist_tags, string $collection='', string $msg='')
+    {
+        $data = null;
+        switch ($collection) {
+            case 'POST':
+                $_POST[$key] = $src;
+                break;
+            case 'REQUEST':
+                $_REQUEST[$key] = $src;
+                break;
+            default:
+                $data = array($key => $src);
+        }
+        self::assertMatchesRegularExpression($expected, Validation::stripTags($key, $whitelist_tags, null, $data), $msg);
+    }
 
 	/**
 	 * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::validateCSRFTestProvider()

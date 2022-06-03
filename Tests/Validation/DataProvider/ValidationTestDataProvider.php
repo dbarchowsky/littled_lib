@@ -258,4 +258,20 @@ class ValidationTestDataProvider
 			array('', ContentValidationException::class, 'February 08, 87', 'invalid date'),
 		);
 	}
+
+    public static function stripTagsTestProvider(): array
+    {
+        return array(
+            array('/^$/', '', '', [], 'no data'),
+            array('/^this is the original source$/', 'p1', 'this is the original source', [], '', 'nothing to strip'),
+            array('/^this is the original sourcediv content$/', 'p1', '<p>this is the original source</p><div>div content</div>', [], '', 'strip all tags'),
+            array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], '', 'p tag whitelisted'),
+            array('/^this is the original source<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['div'], '', 'div tag whitelisted'),
+            array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'POST', 'reading from POST data'),
+            array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'REQUEST', 'reading from REQUEST data'),
+            array('/^<p>this is the original source<\/p><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><im'. 'g src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'div'], '', 'strip img tag'),
+            array('/^<p>this is the original source<\/p><img.*\/><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'img', 'div'], '', 'allow img tag'),
+            array('/^<p>this is the original source<\/p><img.*\/>alert.*\)<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><script>alert("hello there!")</script><div>div content</div>', ['p', 'img', 'div'], '', 'strip script tag'),
+        );
+    }
 }
