@@ -2,7 +2,10 @@
 namespace Littled\PageContent;
 
 
+use Exception;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -10,34 +13,19 @@ use Littled\Exception\RecordNotFoundException;
 class PageController extends MySQLConnection
 {
 	/** @var string Original URL before any RewriteRules */
-	public $original_uri;
+	public string $original_uri='';
 	/** @var string Section slug as extracted from the original url */
-	public $section_slug;
+	public string $section_slug='';
 	/** @var string Album slug as extracted from the original url */
-	public $album_slug;
-	/** @var integer Site section id matching the section slug value and record in the site_section table */
-	public $section_id;
-	/** @var integer Album id matching the section slug value, album slug value, and record in the album table */
-	public $album_id;
+	public string $album_slug='';
+	/** @var int|null Site section id matching the section slug value and record in the site_section table */
+	public ?int $section_id=null;
+	/** @var int|null Album id matching the section slug value, album slug value, and record of the album table */
+	public ?int $album_id=null;
 	/** @var string Name of the table storing the album slug. */
-	public $table;
+	public string $table='';
 	/** @var string Path to the content's root directory, relative to the web root. */
-	public $section_base_path;
-
-	/**
-	 * Class constructor
-	 */
-	function __construct()
-	{
-		parent::__construct();
-		$this->section_id = null;
-		$this->album_id = null;
-		$this->original_uri = "";
-		$this->section_slug = "";
-		$this->album_slug = "";
-		$this->table = "";
-		$this->section_base_path = "";
-	}
+	public string $section_base_path='';
 
 	/**
 	 * Retrieves album properties (album slug & id) using the referring uri.
@@ -47,11 +35,10 @@ class PageController extends MySQLConnection
 	 * @param array $exclude List of paths that will not trigger a redirect.
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function collectAlbumProperties( $exclude )
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     */
+	public function collectAlbumProperties( array $exclude=[] )
 	{
 		$this->collectAlbumSlug($exclude);
 		if ($this->section_slug && $this->album_slug) {
@@ -66,7 +53,7 @@ class PageController extends MySQLConnection
 	 * Extracts an album slug from the current request URI.
 	 * @param array $exclude List of paths that will not trigger a redirect.
 	 */
-	public function collectAlbumSlug( $exclude )
+	public function collectAlbumSlug( array $exclude=[] )
 	{
 		$this->collectOriginalURI();
 		$uri_filter = array($this, 'uri_filter');
@@ -97,10 +84,10 @@ class PageController extends MySQLConnection
 	 * Redirects to the requested URI.
 	 * @param string $uri URI to redirect to.
 	 */
-	public function doRedirect( $uri )
+	public function doRedirect( string $uri )
 	{
 		/* redirect to the requested page */
-		header("Location: {$uri}\n\n");
+		header("Location: $uri\n\n");
 		exit;
 	}
 
@@ -109,29 +96,29 @@ class PageController extends MySQLConnection
 	 * @return string Album details URI.
 	 * @throws NotImplementedException
 	 */
-	public function formatAlbumURI ()
+	public function formatAlbumURI (): string
 	{
 		/** TODO Uncomment the return statement when AlbumViewer class is available. */
 		throw new NotImplementedException("PageController::formatAlbumURI not implemented.");
 		/* return("{$this->section_base_path}?".AlbumViewer::BOOK_PARAM."={$this->album_id}"); */
 	}
 
-	/**
-	 * Looks up album record using the slug value.
-	 * - Stores album record id in the object's $album_id property.
-	 * @param string[optional] $slug Sets the object's internal $album_slug property
-	 * to this value if provided. If not provided the current $album_slug value
-	 * is used to look up the album record.
-	 * @param int[optional] $section_id Content type id used to search album records.
-	 * If a value is not provided, then the object's internal "section_id" property
-	 * value is used to lookup the album content type.
-	 * @throws ContentValidationException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function lookupAlbumProperties( $slug='', $section_id=null )
+    /**
+     * Looks up album record using the slug value.
+     * - Stores album record id in the object's $album_id property.
+     * @param string $slug (Optional) Sets the object's internal $album_slug property
+     * to this value if provided. If not provided the current $album_slug value
+     * is used to look up the album record.
+     * @param int|null $section_id (Optional) Content type id used to search album records.
+     * If a value is not provided, then the object's internal "section_id" property
+     * value is used to look up the album content type.
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+	public function lookupAlbumProperties( string $slug='', ?int $section_id=null )
 	{
 		if ($section_id > 0) {
 			$this->section_id = $section_id;
@@ -145,9 +132,9 @@ class PageController extends MySQLConnection
 
 		$this->connectToDatabase();
 		$escaped_slug = $this->escapeSQLValue($this->album_slug);
-		$query = "SEL"."ECT `id` FROM `{$this->table}` WHERE (`slug` LIKE '{$escaped_slug}')";
+		$query = "SEL"."ECT `id` FROM `$this->table` WHERE (`slug` LIKE '$escaped_slug')";
 		if ($this->columnExists('section_id', $this->table)) {
-			$query .= "AND (section_id = {$this->section_id})";
+			$query .= "AND (section_id = $this->section_id)";
 		}
 
 		$data = $this->fetchRecords($query);
@@ -157,21 +144,21 @@ class PageController extends MySQLConnection
 		$this->album_id = $data[0]->id;
 	}
 
-	/**
-	 * Looks up matching site section records using the $slug value.
-	 * - Returns path to the site section content on the server.
-	 * - Stores the site section record id in the object's "section_id" property.
-	 * - Stores the path to the section base directory in the object's $section_base_path property.
-	 * @param string[optional] $slug Sets the object's internal $section_slug
-	 * property and uses it to look up the site section record. If not provided,
-	 * the current value of the object's $section_slug property will be used.
-	 * @throws ContentValidationException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function lookupSectionProperties( $slug='' )
+    /**
+     * Looks up matching site section records using the $slug value.
+     * - Returns path to the site section content on the server.
+     * - Stores the site section record id in the object's "section_id" property.
+     * - Stores the path to the section base directory in the object's $section_base_path property.
+     * @param string $slug (Optional) Sets the object's internal $section_slug
+     * property and uses it to look up the site section record. If not provided,
+     * the current value of the object's $section_slug property will be used.
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws Exception
+     */
+	public function lookupSectionProperties( string $slug='' )
 	{
 		if ($slug) {
 			$this->section_slug = $slug;
@@ -210,7 +197,7 @@ class PageController extends MySQLConnection
 	 * relative to the web root.
 	 * @param string $subdirectory (Optional) subdirectory name.
 	 */
-	public function setSectionBasePath( $base_path, $subdirectory='' )
+	public function setSectionBasePath(string $base_path, string $subdirectory='' )
 	{
 		$this->section_base_path = "";
 		if ($base_path) {
@@ -227,16 +214,15 @@ class PageController extends MySQLConnection
 	 * - Redirect to either the section or the page within the section using the
 	 * section and page slugs.
 	 * @param array $exclude Array of values representing the URL of the
-	 * current page. These values are matched against the orininal url value and
+	 * current page. These values are matched against the original url value and
 	 * if they don't match a redirect to the requested content will be attempted.
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+     * @throws NotImplementedException
 	 */
-	public function testForRedirect( $exclude )
+	public function testForRedirect( array $exclude=[] )
 	{
 		$this->collectAlbumProperties($exclude);
 		if ($this->section_base_path && $this->album_id > 0) {
@@ -255,12 +241,13 @@ class PageController extends MySQLConnection
 
 	/**
 	 * Tests the object's "original_uri" property value against a string to
-	 * see if they match. Test is case-insenstive. Intended to be used as a
+	 * see if they match. Test is case-insensitive. Intended to be used as a
 	 * callback for PHP's built-in array_filter() routine.
 	 * @param string $value String to test against the original uri value.
 	 * @return boolean TRUE/FALSE if the value matches the original uri value.
 	 */
-	protected function testURIMatch($value) {
+	protected function testURIMatch(string $value): bool
+    {
 		return ($this->original_uri == strtolower($value));
 	}
 }

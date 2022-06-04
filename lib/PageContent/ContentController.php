@@ -135,6 +135,7 @@ abstract class ContentController
 	 * @param int $content_id Content type to match with filter type.
 	 * @returns string
 	 * @throws Exception
+     * @deprecated Use getContentClass() instead
 	 */
 	abstract public static function getPageContentClass(int $content_id): string;
 
