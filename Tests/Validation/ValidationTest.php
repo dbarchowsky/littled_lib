@@ -14,6 +14,8 @@ use stdClass;
 
 class ValidationTest extends TestCase
 {
+    protected const AJAX_INPUT_SOURCE = APP_BASE_DIR.'Tests/Validation/DataProvider/test-ajax-data.dat';
+
     public function testCheckForCookieConsent()
     {
         if (isset($_COOKIE)) {
@@ -69,6 +71,7 @@ class ValidationTest extends TestCase
 		for($i=0; $i<count($expected); $i++) {
 			$this->assertEquals($expected[$i], $result[$i], "key: $key");
 		}
+        unset($_POST[$key]);
 	}
 
 	/**
@@ -176,6 +179,21 @@ class ValidationTest extends TestCase
         }
     }
 
+    function testGetDefaultInputSource()
+    {
+        $this->assertCount(0, ValidationTestHarness::getDefaultInputSource());
+
+        $_POST['key1'] = 'my test value';
+        $src = ValidationTestHarness::getDefaultInputSource();
+        $this->assertEquals('my test value', $src['key1']);
+        unset($_POST['key1']);
+
+        ValidationTestHarness::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+        $src = ValidationTestHarness::getDefaultInputSource();
+        $this->assertEquals('value two', $src['keyTwo']);
+        ValidationTestHarness::setAjaxInputStream('php://input');
+    }
+
     /**
      * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::isIntegerTestProvider()
      * @param $expected
@@ -217,7 +235,7 @@ class ValidationTest extends TestCase
 
     function testParseInput_AjaxData()
     {
-        Validation::setAjaxInputStream(APP_BASE_DIR.'Tests/Validation/DataProvider/test-ajax-data.dat');
+        Validation::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
         $this->assertEquals('value1', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key1'));
         $this->assertEquals('value two', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'keyTwo'));
         $this->assertEquals(null, ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'NonexistentKey'));
@@ -298,6 +316,8 @@ class ValidationTest extends TestCase
 				unset($_SERVER[$key]);
 			}
 		}
+        $_POST = [];
+        $_SESSION = [];
 	}
 
 	/**

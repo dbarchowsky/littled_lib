@@ -58,17 +58,10 @@ class Validation
 	protected static function _parseInput( int $filter, string $key, ?int $index=null, ?array $src=null )
 	{
 		if ($src===null) {
-			$src = array_merge($_GET, $_POST);
-		}
+            $src = static::getDefaultInputSource();
+ 		}
 		if (!array_key_exists($key, $src)) {
-            $json = file_get_contents(static::$ajax_input_stream);
-            if (!$json) {
-                return null;
-            }
-            $src = (array)json_decode($json);
-            if (!array_key_exists($key, $src)) {
-                return null;
-            }
+            return null;
 		}
 		if ($index!==null) {
 			$arr = filter_var($src[$key], $filter, FILTER_REQUIRE_ARRAY);
@@ -165,9 +158,7 @@ class Validation
 	 */
 	public static function collectIntegerArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-		if (null===$src) {
-			$src = array_merge($_GET, $_POST);
-		}
+        $src = static::getDefaultInputSource();
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -350,6 +341,25 @@ class Validation
         // lookup country in API response
         $ip_data = json_decode($response,true);
         return str_replace('&quot;', '"', $ip_data);
+    }
+
+    /**
+     * Gets default input source. Either POST or REQUEST or Ajax client data.
+     * @return array
+     */
+    protected static function getDefaultInputSource(): array
+    {
+        // first return either REQUEST or POST data collections
+        $src = array_merge($_GET, $_POST);
+        if (count($src)>0) {
+            return $src;
+        }
+        // fall back to Ajax request client data
+        $json = file_get_contents(static::$ajax_input_stream);
+        if (!$json) {
+            return [];
+        }
+        return (array)json_decode($json);
     }
 
     /**
