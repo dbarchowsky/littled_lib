@@ -19,6 +19,7 @@ class Validation
     /** @var string[] $eu_countries */
     protected static array $eu_countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
         "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"];
+    protected static string $ajax_input_stream = 'php://input';
 
 	/**
 	 * Retrieves any valid integer values passed as request parameters.
@@ -60,7 +61,14 @@ class Validation
 			$src = array_merge($_GET, $_POST);
 		}
 		if (!array_key_exists($key, $src)) {
-			return null;
+            $json = file_get_contents(static::$ajax_input_stream);
+            if (!$json) {
+                return null;
+            }
+            $src = (array)json_decode($json);
+            if (!array_key_exists($key, $src)) {
+                return null;
+            }
 		}
 		if ($index!==null) {
 			$arr = filter_var($src[$key], $filter, FILTER_REQUIRE_ARRAY);
@@ -73,6 +81,12 @@ class Validation
         }
         else if ($filter==FILTER_UNSAFE_RAW) {
             return strip_tags($src[$key]);
+        }
+        else if ($filter===FILTER_VALIDATE_FLOAT) {
+            if($src[$key]===true || $src[$key]===false) {
+                return null;
+            }
+            return filter_var($src[$key], $filter);
         }
 		else {
 			return filter_var($src[$key], $filter);
@@ -179,9 +193,6 @@ class Validation
 	 */
 	public static function collectIntegerRequestVar(string $key, ?int $index=null, ?array $src=null): ?int
 	{
-        if (null !== $src && key_exists($key, $src) && (true===$src[$key] || false===$src[$key])) {
-            return null;
-        }
 		$value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
 		return Validation::parseInteger($value);
 	}
@@ -522,6 +533,16 @@ class Validation
 	{
 		return Validation::collectNumericRequestVar($key, $index, $src);
 	}
+
+    /**
+     * Ajax input stream setter
+     * @param string $input_stream
+     * @return void
+     */
+    public static function setAjaxInputStream(string $input_stream)
+    {
+        static::$ajax_input_stream = $input_stream;
+    }
 
     /**
      * Strips HTML tags from request variable value.

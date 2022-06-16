@@ -84,6 +84,20 @@ class ValidationTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseIntegerTestProvider()
+     * @param $expected
+     * @param $value
+     * @param string $msg
+     * @return void
+     */
+    public function testCollectIntegerRequestVar_PostData($expected, $value, string $msg='')
+    {
+        $_POST['testKey'] = $value;
+        $this->assertEquals($expected, Validation::collectIntegerRequestVar('testKey'), $msg);
+        unset($_POST['testKey']);
+    }
+
+    /**
      * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::getClientIPTestProvider()
      * @param bool $expected
      * @param string $ip
@@ -189,7 +203,28 @@ class ValidationTest extends TestCase
 		}
 	}
 
-	/**
+    function testParseInput_PostData()
+    {
+        $_POST['key1'] = 'value1';
+        $_POST['key2'] = 'value two';
+
+        $this->assertEquals('value1', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key1'));
+        $this->assertEquals('value two', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key2'));
+        $this->assertEquals(null, ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'NonexistentKey'));
+        unset($_POST['key1']);
+        unset($_POST['key2']);
+    }
+
+    function testParseInput_AjaxData()
+    {
+        Validation::setAjaxInputStream(APP_BASE_DIR.'Tests/Validation/DataProvider/test-ajax-data.dat');
+        $this->assertEquals('value1', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key1'));
+        $this->assertEquals('value two', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'keyTwo'));
+        $this->assertEquals(null, ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'NonexistentKey'));
+        Validation::setAjaxInputStream('php://input');
+    }
+
+    /**
      * @dataProvider \Littled\Tests\Validation\DataProvider\ValidationTestDataProvider::parseNumericTestProvider()
      * @param $expected
      * @param $value
