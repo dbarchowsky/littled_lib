@@ -30,6 +30,21 @@ class AjaxPageTestDataProvider
         );
     }
 
+    public static function collectPageActionTestProvider(): array
+    {
+        $custom_data = [];
+        $custom_data[LittledGlobals::COMMIT_KEY] = true;
+        return array(
+            array(AjaxPage::COMMIT_ACTION, 'post', LittledGlobals::COMMIT_KEY, true, null, 'POST commit key'),
+            array(AjaxPage::CANCEL_ACTION, 'post', LittledGlobals::CANCEL_KEY, true, null, 'POST cancel key'),
+            array('', 'post', 'randomKey', true, null, 'POST invalid key'),
+            array('', 'post', LittledGlobals::COMMIT_KEY, 45, null, 'POST commit key with non-true value'),
+            array('', 'post', LittledGlobals::COMMIT_KEY, false, null, 'POST commit key set to false'),
+            array(AjaxPage::COMMIT_ACTION, 'ajax', '', '', null, 'Ajax mock data'),
+            array(AjaxPage::COMMIT_ACTION, 'custom', '', '', $custom_data, 'custom data'),
+        );
+    }
+
     public static function loadTemplateContentTestProvider(): array
     {
         return array(

@@ -40,6 +40,8 @@ class AjaxPage extends MySQLConnection
 	protected static string $template_path = '';
     /** @var string Name of the default template to use in derived classes to generate markup. */
     protected static string $default_template_name = '';
+    /** @var string Input stream of Ajax client requests */
+    protected static string $ajax_input_stream = 'php://input';
 
 	/** @var string */
 	const COMMIT_ACTION = 'commit';
@@ -181,7 +183,14 @@ class AjaxPage extends MySQLConnection
 	{
 		if ($src===null) {
 			/* use only POST, not GET */
-			$src = &$_POST;
+			$src = $_POST;
+            if (!is_array($src) || count($src) < 1) {
+                $json = file_get_contents(static::$ajax_input_stream);
+                if (!$json) {
+                    return $this;
+                }
+                $src = (array)json_decode($json);
+            }
 		}
 		if (Validation::collectBooleanRequestVar(LittledGlobals::COMMIT_KEY, null, $src)===true) {
 			$this->action = self::COMMIT_ACTION;
@@ -597,6 +606,16 @@ class AjaxPage extends MySQLConnection
     public static function setDefaultTemplateName(string $name)
     {
         static::$default_template_name = $name;
+    }
+
+    /**
+     * Ajax input stream setter.
+     * @param string $ajax_input_stream
+     * @return void
+     */
+    public static function setAjaxInputStream(string $ajax_input_stream)
+    {
+        static::$ajax_input_stream = $ajax_input_stream;
     }
 
 	/**

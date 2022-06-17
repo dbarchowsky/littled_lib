@@ -27,6 +27,7 @@ class AjaxPageTest extends TestCase
     public const TEST_RECORD_ID = 2023;
 	/** @var string */
 	public const TEST_RECORD_NAME = 'fixed test record';
+    protected const AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/Ajax/DataProvider/AjaxPage_collectPageAction.dat";
 
     /**
      * @throws InvalidTypeException
@@ -188,11 +189,11 @@ class AjaxPageTest extends TestCase
 		$ap->operation->value = 'listings';
 		$ap->lookupRoute();
 		$this->assertEquals('listings', $ap->route->operation->value);
-		$this->assertEquals('/ajax/utils/listings.php', $ap->route->url->value);
+		$this->assertEquals('/vendor/dbarchowsky/littled_cms/ajax/utils/listings.php', $ap->route->url->value);
 
 		$ap->lookupRoute('delete');
 		$this->assertEquals('delete', $ap->route->operation->value);
-		$this->assertEquals('/ajax/utils/delete-record.php', $ap->route->url->value);
+		$this->assertEquals('/vendor/dbarchowsky/littled_cms/ajax/utils/delete-record.php', $ap->route->url->value);
 	}
 
 	/**
@@ -255,6 +256,46 @@ class AjaxPageTest extends TestCase
         AjaxPage::setCacheClass($class_name);
         if (!$expected) {
             $this->assertEquals($class_name, AjaxPage::getCacheClass(), $msg);
+        }
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Ajax\DataProvider\AjaxPageTestDataProvider::collectPageActionTestProvider()
+     * @param string $expected
+     * @param string $source
+     * @param string $key
+     * @param $value
+     * @param ?array $data
+     * @param string $msg
+     * @return void
+     */
+    function testCollectPageAction(string $expected, string $source, string $key='', $value=null, ?array $data=null, string $msg='')
+    {
+        $o = new AjaxPage();
+
+        switch($source) {
+            case 'post':
+                $_POST[$key] = $value;
+                break;
+            case 'ajax':
+                AjaxPage::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+                break;
+            default:
+                break;
+        }
+
+        $o->collectPageAction($data);
+        $this->assertEquals($expected, $o->action, $msg);
+
+        switch($source) {
+            case 'post':
+                unset($_POST[$key]);
+                break;
+            case 'ajax':
+                AjaxPage::setAjaxInputStream('php://input');
+                break;
+            default:
+                break;
         }
     }
 

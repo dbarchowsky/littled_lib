@@ -132,7 +132,7 @@ class Validation
 	{
 		$value = null;
 		if ($src===null) {
-			$src = array_merge($_GET, $_POST);
+			$src = static::getDefaultInputSource();
 		}
 		if (!isset($src[$key])) {
 			return null;

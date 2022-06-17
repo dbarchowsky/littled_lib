@@ -27,8 +27,8 @@ class ContentAjaxPropertiesTest extends TestCase
 		$this->assertContains('delete', $operations);
 
 		$urls = array_map(function($i) { return $i->url->value;}, $cap->routes);
-		$this->assertContains('/ajax/utils/listings.php', $urls);
-		$this->assertContains('/ajax/utils/delete-record.php', $urls);
+		$this->assertContains('/vendor/dbarchowsky/littled_cms/ajax/utils/listings.php', $urls);
+		$this->assertContains('/vendor/dbarchowsky/littled_cms/ajax/utils/delete-record.php', $urls);
 
 		$record_ids = array_map(function($i) { return $i->id->value;}, $cap->routes);
 		$this->assertContains(2, $record_ids);
