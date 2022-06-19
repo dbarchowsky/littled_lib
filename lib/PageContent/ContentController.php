@@ -145,7 +145,7 @@ abstract class ContentController
      * @param string $view Token specifying the view of the content, e.g. "listings", "details", "edit"
      * @return string
      */
-    abstract public static function getRoutedPageContent(int $content_id, string $view): string;
+    abstract public static function getRoutedPageContentClass(int $content_id, string $view): string;
 
     /**
      * Default action is to load content property values from the database. This method can instead be overridden to
