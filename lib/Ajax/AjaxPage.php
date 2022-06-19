@@ -398,7 +398,7 @@ class AjaxPage extends MySQLConnection
 	 */
 	protected function newPageContentInstance(): PageContent
 	{
-		$page_content_class = call_user_func_array([static::getControllerClass(), 'getPageContentClass'], array($this->getContentTypeId()));
+		$page_content_class = call_user_func_array([static::getControllerClass(), 'getRoutedPageContentClass'], array($this->getContentTypeId(), $this->action));
 		return new $page_content_class();
 	}
 
