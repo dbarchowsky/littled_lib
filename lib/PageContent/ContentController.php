@@ -135,9 +135,17 @@ abstract class ContentController
 	 * @param int $content_id Content type to match with filter type.
 	 * @returns string
 	 * @throws Exception
-     * @deprecated Use getContentClass() instead
+     * @deprecated Use getRoutedPageContent() instead
 	 */
 	abstract public static function getPageContentClass(int $content_id): string;
+
+    /**
+     * Returns the name of a RoutedPageContent class matching the content type id and view token.
+     * @param int $content_id Content type record id indicating the content type of the page.
+     * @param string $view Token specifying the view of the content, e.g. "listings", "details", "edit"
+     * @return string
+     */
+    abstract public static function getRoutedPageContent(int $content_id, string $view): string;
 
     /**
      * Default action is to load content property values from the database. This method can instead be overridden to
