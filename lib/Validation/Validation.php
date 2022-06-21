@@ -210,9 +210,7 @@ class Validation
 	 */
 	public static function collectNumericArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-		if ($src===null) {
-			$src = array_merge($_GET, $_POST);
-		}
+        $src = static::getDefaultInputSource();
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -234,9 +232,7 @@ class Validation
 	 */
 	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
 	{
-        if (!is_array($src)) {
-            $src = array_merge($_POST, $_GET);
-        }
+        $src = static::getDefaultInputSource();
         if (!array_key_exists($key, $src)) {
             return null;
         }
@@ -262,9 +258,6 @@ class Validation
 	 */
 	public static function collectStringRequestVar( string $key, int $filter=FILTER_UNSAFE_RAW, ?int $index=null, ?array $src=null ): ?string
 	{
-		if ($src===null) {
-			$src = array_merge($_GET, $_POST);
-		}
 		$value = Validation::_parseInput($filter, $key, $index, $src);
 		if (!$value && isset($_SESSION[$key]) && strlen(trim($_SESSION[$key])) > 0) {
 			$value = trim($_SESSION[$key]);
