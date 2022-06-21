@@ -14,7 +14,7 @@ BEGIN
     PREPARE STMT FROM
         'SELECT SQL_CALC_FOUND_ROWS
              t.`id`,
-             t.`name`
+             t.`name` as `title`
          FROM `test_table` t, (SELECT @row:=-1) r
          WHERE (NULLIF(?, '''') IS NULL OR t.`name` LIKE CONCAT(''%'',?,''%''))
          ORDER BY IFNULL(t.`slot`,999999), IFNULL(t.`date`,''1980-01-01'') DESC, t.`id` DESC
