@@ -2,10 +2,14 @@
 namespace Littled\Tests\App;
 
 use Littled\App\AppBase;
+use PHPUnit\Framework\TestCase;
 use Exception;
 
-class AppBaseTest extends \PHPUnit\Framework\TestCase
+
+class AppBaseTest extends TestCase
 {
+    protected const AJAX_INPUT_SOURCE = APP_BASE_DIR.'Tests/Validation/DataProvider/test-ajax-data.dat';
+
     /**
      * @return void
      * @throws Exception
@@ -23,6 +27,46 @@ class AppBaseTest extends \PHPUnit\Framework\TestCase
 
         $id_4 = AppBase::generateUniqueToken(30);
         $this->assertNotEquals($id_1, $id_4);
+    }
+
+    function testGetRequestDataWithGet()
+    {
+        $this->assertCount(0, $_GET, 'REQUEST data is empty');
+        $this->assertCount(0, AppBase::getRequestData(), 'getRequestData() returns nothing');
+
+        $_GET = ['getKey1' => 'value one', 'getKey2' => 'value two'];
+        $this->assertArrayHasKey('getKey2', AppBase::getRequestData());
+
+        $this->assertCount(0, AppBase::getRequestData($_POST), 'ignoring POST data');
+        $_GET = [];
+    }
+
+    function testGetRequestDataWithJSON()
+    {
+        // confirm default conditions
+        $this->assertCount(0, AppBase::getRequestData(), 'default data');
+
+        AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+        $this->assertArrayHasKey('jsonKey', AppBase::getRequestData(), 'JSON request data');
+
+        $_POST = ['firstKey' => 'first value', 'postKey' => 'post value', 'foo' => 'bar'];
+        $this->assertArrayHasKey('postKey', AppBase::getRequestData(), 'POST data overrides JSON data');
+
+        // cleanup
+        AppBase::setAjaxInputStream('php://input');
+        $_POST = [];
+    }
+
+    function testGetRequestDataWithPost()
+    {
+        $this->assertCount(0, $_POST, 'POST data is empty');
+        $this->assertCount(0, AppBase::getRequestData(), 'getRequestData() returns nothing');
+
+        $_POST = ['k1' => 'value one', 'k2' => 'value two'];
+        $this->assertArrayHasKey('k2', AppBase::getRequestData());
+
+        $this->assertCount(0, AppBase::getRequestData($_GET), 'ignoring GET data');
+        $_POST = [];
     }
 
     public function testSetErrorKey()

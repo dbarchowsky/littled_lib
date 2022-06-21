@@ -14,6 +14,8 @@ class AppBase
     protected static string $error_key = 'err';
     /** @var string */
     protected static string $error_page_url = '/error.php';
+    /** @var string Default stream for AJAX request data */
+    protected static string $ajax_input_stream = 'php://input';
 
     /**
      * Class constructor
@@ -115,7 +117,24 @@ class AppBase
      */
     public static function getJSONRequestData(): array
     {
-        return (array)json_decode(file_get_contents('php://input'));
+        return (array)json_decode(file_get_contents(static::$ajax_input_stream));
+    }
+
+    /**
+     * Gets client request data from either POST variables, GET variables, or AJAX JSON data.
+     * @param array|null $src (Optional) Specify either $_POST or $_GET with this parameter to exclude the other from
+     * the data that can be returned.
+     * @return array
+     */
+    public static function getRequestData(?array $src=null): array
+    {
+        if ($src===null) {
+            $src = array_merge($_POST, $_GET);
+        }
+        if (count($src) < 1) {
+            $src = self::getJSONRequestData();
+        }
+        return $src;
     }
 
     /**
@@ -130,6 +149,16 @@ class AppBase
         $key = $key ?: AppBase::getErrorKey();
 		header("Location: $url?$key=".urlencode($error_msg));
 	}
+
+    /**
+     * Ajax input stream setter
+     * @param string $input_stream
+     * @return void
+     */
+    public static function setAjaxInputStream(string $input_stream)
+    {
+        static::$ajax_input_stream = $input_stream;
+    }
 
     /**
      * Error key setter.
