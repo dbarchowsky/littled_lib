@@ -15,6 +15,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Ajax\ContentAjaxProperties;
 use Exception;
+use Littled\Request\StringInput;
 
 abstract class SectionContent extends SerializedContent
 {
@@ -32,6 +33,22 @@ abstract class SectionContent extends SerializedContent
 		$this->content_properties = new ContentProperties($content_type_id);
 		$this->content_properties->id->label = "Content type";
 		$this->content_properties->id->required = true;
+	}
+
+	/**
+	 * Cludge work-around for hosting providers with mod_security
+	 * enabled. This assumes that JavaScript base-64 encodes the form data
+	 * before the form data is submitted.
+	 * @return void
+	 */
+	public function base64DecodeInput()
+	{
+		foreach($this as $key => $item) {
+			if (($item instanceof StringInput) &&
+				strlen($item->value) > 0) {
+				$item->value = base64_decode(strip_tags($item->value));
+			}
+		}
 	}
 
 	/**

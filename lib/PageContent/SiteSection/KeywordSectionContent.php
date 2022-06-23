@@ -67,6 +67,15 @@ abstract class KeywordSectionContent extends SectionContent
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function base64DecodeInput()
+	{
+		parent::base64DecodeInput();
+		$this->collectKeywordInput();
+	}
+
+	/**
 	 * Clears and resets internal keyword values.
 	 */
 	public function clearKeywordData(): void
