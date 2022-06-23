@@ -27,6 +27,8 @@ abstract class KeywordSectionContent extends SectionContent
 	protected static string $keywordCellTemplate = '';
 	/** @var string Path to keyword list template file. */
 	protected static string $keywordListTemplate = '';
+	/* keyword category id */
+	protected static int $keyword_category_id;
 
 	/**
 	 * KeywordSectionContent constructor.
@@ -231,6 +233,19 @@ abstract class KeywordSectionContent extends SectionContent
         return array();
     }
 
+	/**
+	 * Keyword category id getter.
+	 * @return int The id of the keyword category.
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getKeywordCategoryId(): int
+	{
+		if (!isset(static::$keyword_category_id)) {
+			throw new ConfigurationUndefinedException('Keyword category not specified.');
+		}
+		return static::$keyword_category_id;
+	}
+
     /**
      * Returns path to keywords container template.
      * @return string Path to keywords container template.
@@ -353,6 +368,16 @@ abstract class KeywordSectionContent extends SectionContent
             $keyword->parent_id->value = $this->id->value;
 			$keyword->save();
 		}
+	}
+
+	/**
+	 * Keyword category id setter.
+	 * @param int $id
+	 * @return void
+	 */
+	public static function setKeywordCategoryId(int $id)
+	{
+		static::$keyword_category_id = $id;
 	}
 
 	/**
