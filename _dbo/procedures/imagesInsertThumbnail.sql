@@ -1,10 +1,10 @@
-DROP PROCEDURE IF EXISTS `imagesInsertThumbnail`;
 DELIMITER $$
-CREATE PROCEDURE `imagesInsertThumbnail`(
-  IN p_path VARCHAR(255),
-  IN p_width INT,
-  IN p_height INT,
-  IN p_alt VARCHAR(255)
+
+CREATE OR REPLACE PROCEDURE `imagesInsertThumbnail`(
+    IN p_path VARCHAR(255),
+    IN p_width INT,
+    IN p_height INT,
+    IN p_alt VARCHAR(255)
 )
   BEGIN
 
@@ -20,6 +20,4 @@ CREATE PROCEDURE `imagesInsertThumbnail`(
         p_alt
     );
 
-  END$$
-
-DELIMITER ;
+END $$

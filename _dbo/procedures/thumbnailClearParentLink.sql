@@ -1,10 +1,10 @@
-DROP PROCEDURE IF EXISTS `thumbnailUnsetParentLink`;
 DELIMITER $$
-CREATE PROCEDURE `thumbnailUnsetParentLink`(
-  IN p_table VARCHAR(127),
-  IN p_parent_id INT
+
+CREATE OR REPLACE PROCEDURE `thumbnailUnsetParentLink`(
+    IN p_table VARCHAR(127),
+    IN p_parent_id INT
 )
-  BEGIN
+BEGIN
 
     SET @table_name = p_table;
     SET @parent_id = p_parent_id;
@@ -16,5 +16,4 @@ CREATE PROCEDURE `thumbnailUnsetParentLink`(
       @parent_id;
     DEALLOCATE PREPARE STMT;
 
-  END$$
-DELIMITER ;
+END $$

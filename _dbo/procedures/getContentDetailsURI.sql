@@ -1,20 +1,19 @@
-DROP PROCEDURE IF EXISTS `getContentDetailsURI`;
 DELIMITER $$
-CREATE PROCEDURE `getContentDetailsURI`(
-  IN p_section_id INT
+
+CREATE OR REPLACE PROCEDURE `getContentDetailsURI`(
+    IN p_section_id INT
 )
-  BEGIN
+BEGIN
 
-  SET @section_id = p_section_id;
+SET @section_id = p_section_id;
 
-  PREPARE STMT FROM
-  'SELECT details_uri
-   FROM section_operations
-   WHERE section_id = ?';
+    PREPARE STMT FROM
+        'SELECT details_uri
+        FROM section_operations
+        WHERE section_id = ?';
 
     EXECUTE STMT USING
-      @section_id;
+        @section_id;
     DEALLOCATE PREPARE STMT;
 
-  END$$
-DELIMITER ;
+END $$

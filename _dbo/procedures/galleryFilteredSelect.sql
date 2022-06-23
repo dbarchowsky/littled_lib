@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `galleryFilteredSelect`;
 DELIMITER $$
-CREATE PROCEDURE `galleryFilteredSelect`(
+
+CREATE OR REPLACE PROCEDURE `galleryFilteredSelect`(
   IN p_page INT,
   IN p_page_length INT,
   IN p_type_id INT,

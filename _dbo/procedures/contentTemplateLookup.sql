@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `contentTemplateLookup`;
 DELIMITER $$
-CREATE PROCEDURE `contentTemplateLookup`(
+
+CREATE OR REPLACE PROCEDURE `contentTemplateLookup`(
     IN      p_content_type_id       INT,
     IN      p_template_name         VARCHAR(45)
 )
@@ -17,5 +17,4 @@ BEGIN
     WHERE (t.`site_section_id` = p_content_type_id)
     AND (t.`name` = p_template_name);
 
-END
-$$
+END $$

@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `siteSectionExtraPropertiesSelect`;
 DELIMITER $$
-CREATE PROCEDURE `siteSectionExtraPropertiesSelect`(
+
+CREATE OR REPLACE PROCEDURE `siteSectionExtraPropertiesSelect`(
     IN      p_id        INT
 )
 BEGIN
