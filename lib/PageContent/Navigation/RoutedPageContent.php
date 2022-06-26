@@ -21,12 +21,10 @@ class RoutedPageContent extends PageContent
     protected static string $filters_class='';
     /** @var string Routes class for section navigation */
     protected static string $routes_class='';
-    /** @var string */
     protected static string $add_token = 'add';
-    /** @var string */
     protected static string $edit_token = 'edit';
-    /** @var string */
     protected static string $default_template_path='';
+	protected static bool $requires_login = false;
 
     /** @var SectionNavigationRoutes Section navigation routes. */
     public SectionNavigationRoutes $routes;
@@ -268,6 +266,15 @@ class RoutedPageContent extends PageContent
         $this->formatPageStateQueryString();
     }
 
+	/**
+	 * Requires login getter.
+	 * @return bool
+	 */
+	public static function requiresLogin(): bool
+	{
+		return static::$requires_login;
+	}
+
     /**
      * Content class name setter.
      * @param string $class
@@ -287,6 +294,16 @@ class RoutedPageContent extends PageContent
     {
         static::$filters_class = $class;
     }
+
+	/**
+	 * Requires login setter.
+	 * @param bool $requires_login
+	 * @return void
+	 */
+	public static function setRequiresLogin(bool $requires_login)
+	{
+		static::$requires_login = $requires_login;
+	}
 
     /**
      * Navigation routes class setter.

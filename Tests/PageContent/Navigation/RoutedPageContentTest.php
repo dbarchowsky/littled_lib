@@ -125,6 +125,22 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals($expected, $o->getEditURI(765));
     }
 
+	function testRequiresLogin()
+	{
+		$o = new RoutedPageContent();
+
+		// default setting
+		$this->assertFalse($o::requiresLogin());
+
+		// set to true
+		$o::setRequiresLogin(true);
+		$this->assertTrue($o::requiresLogin());
+
+		// set to false
+		$o::setRequiresLogin(false);
+		$this->assertFalse($o::requiresLogin());
+	}
+
     protected static function formatRouteMessage(array $route): string
     {
         return "route: \"".implode("/", $route)."\"";
