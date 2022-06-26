@@ -2,6 +2,8 @@
 namespace Littled\PageContent\Navigation;
 
 use Exception;
+use Littled\Account\LoginAuthenticator;
+use Littled\Account\UserAccount;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -24,10 +26,23 @@ class RoutedPageContent extends PageContent
     protected static string $add_token = 'add';
     protected static string $edit_token = 'edit';
     protected static string $default_template_path='';
-	protected static bool $requires_login = false;
+	protected static int $access_level;
 
     /** @var SectionNavigationRoutes Section navigation routes. */
     public SectionNavigationRoutes $routes;
+
+	/**
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function verifyLogin()
+	{
+		if (static::getAccessLevel() > 0) {
+			$login = new LoginAuthenticator();
+			$login->requireLogin(static::getAccessLevel());
+			unset($login);
+		}
+	}
 
     /**
      * @throws ConfigurationUndefinedException
@@ -84,7 +99,16 @@ class RoutedPageContent extends PageContent
         return null;
     }
 
-    /**
+	/**
+	 * Access level getter.
+	 * @return ?int
+	 */
+	public static function getAccessLevel(): ?int
+	{
+		return ((isset(static::$access_level)?(static::$access_level):(null)));
+	}
+
+	/**
      * Add token getter.
      * @return string
      */
@@ -267,15 +291,16 @@ class RoutedPageContent extends PageContent
     }
 
 	/**
-	 * Requires login getter.
-	 * @return bool
+	 * Access level setter.
+	 * @param int $access_level
+	 * @return void
 	 */
-	public static function requiresLogin(): bool
+	public static function setAccessLevel(int $access_level)
 	{
-		return static::$requires_login;
+		static::$access_level = $access_level;
 	}
 
-    /**
+	/**
      * Content class name setter.
      * @param string $class
      * @return void
@@ -294,16 +319,6 @@ class RoutedPageContent extends PageContent
     {
         static::$filters_class = $class;
     }
-
-	/**
-	 * Requires login setter.
-	 * @param bool $requires_login
-	 * @return void
-	 */
-	public static function setRequiresLogin(bool $requires_login)
-	{
-		static::$requires_login = $requires_login;
-	}
 
     /**
      * Navigation routes class setter.
