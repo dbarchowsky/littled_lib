@@ -28,7 +28,17 @@ class RoutedPageContent extends PageContent
     protected static string $default_template_path='';
 	protected static int $access_level;
 
-    /** @var SectionNavigationRoutes Section navigation routes. */
+	/**
+	 * @inheritDoc
+	 * @throws ConfigurationUndefinedException
+	 */
+	function __construct()
+	{
+		parent::__construct();
+		$this->verifyLogin();
+	}
+
+	/** @var SectionNavigationRoutes Section navigation routes. */
     public SectionNavigationRoutes $routes;
 
 	/**
