@@ -9,6 +9,30 @@ use Littled\Tests\Filters\TestHarness\TestTableFilters;
 
 class FilterCollectionTestDataProvider
 {
+	public static function collectDisplayListingsSettingsWithAutoload(): array
+	{
+		return array(
+			array(true, 'default', null, 'Default value.'),
+			array(true, 'cookie', null, 'Ignoring cookie values.'),
+			array(true, 'post', '1', 'With valid boolean TRUE value in POST data.'),
+			array(false, 'post', '0', 'With valid boolean FALSE value in POST data.'),
+			array(true, 'post', 'filter', 'With valid string filter value in POST data.'),
+			array(true, 'post', 'foo', 'With invalid string value in POST data.'),
+		);
+	}
+
+	public static function collectDisplayListingsSettingsWithDefault(): array
+	{
+		return array(
+			array(null, 'default', null, 'Default value.'),
+			array(null, 'cookie', null, 'Ignoring cookie values.'),
+			array(true, 'post', '1', 'With valid boolean TRUE value in POST data.'),
+			array(false, 'post', '0', 'With valid boolean FALSE value in POST data.'),
+			array(true, 'post', 'filter', 'With valid string filter value in POST data.'),
+			array(null, 'post', 'foo', 'With invalid string value in POST data.'),
+		);
+	}
+
 	/**
 	 * @throws Exception
 	 */
