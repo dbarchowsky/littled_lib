@@ -20,3 +20,21 @@ CREATE OR REPLACE TABLE section_operations
 )
     ENGINE=InnoDB
     CHARSET=latin1;
+
+ALTER TABLE section_operations ADD ajax_listings_uri varchar(255) NULL AFTER `listings_uri`;
+
+SELECT CONCAT(
+               'UPDATE `section_operations` SET `ajax_listings_uri` = ''',
+               ajax_listings_uri,
+               ''' WHERE `id` = ',
+               CAST(id AS INTEGER),
+               ';'
+           ) as  `query`
+from section_operations
+where nullif(ajax_listings_uri,'') is not null;
+
+ALTER TABLE section_operations ADD listings_template varchar(255) NULL AFTER `keywords_uri`;
+ALTER TABLE section_operations ADD keywords_template varchar(255) NULL AFTER `listings_template`;
+
+ALTER TABLE section_operations DROP COLUMN IF EXISTS listings_template;
+ALTER TABLE section_operations DROP COLUMN IF EXISTS keywords_template;

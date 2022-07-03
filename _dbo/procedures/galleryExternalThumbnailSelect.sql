@@ -1,8 +1,8 @@
-DROP PROCEDURE IF EXISTS `galleryExternalThumbnailSelect`;
 DELIMITER $$
-CREATE PROCEDURE `galleryExternalThumbnailSelect`(
-  IN p_parent_id INT,
-  IN p_content_type_id INT
+
+CREATE OR REPLACE PROCEDURE `galleryExternalThumbnailSelect`(
+    IN p_parent_id INT,
+    IN p_content_type_id INT
 )
   BEGIN
 

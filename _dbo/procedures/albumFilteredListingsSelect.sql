@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `albumFilteredListingsSelect`;
 DELIMITER $$
-CREATE PROCEDURE `albumFilteredListingsSelect`(
+
+CREATE OR REPLACE PROCEDURE `albumFilteredListingsSelect`(
   IN p_page INT,
   IN p_page_length INT,
   IN p_album_id INT,
@@ -105,6 +105,6 @@ CREATE PROCEDURE `albumFilteredListingsSelect`(
 
     SELECT FOUND_ROWS() INTO total_matches;
 
-  END $$
+END $$
 
 DELIMITER ;

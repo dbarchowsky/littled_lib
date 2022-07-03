@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS `imageLinkUpdateKeywords`;
 DELIMITER $$
-CREATE PROCEDURE `imageLinkUpdateKeywords`(
-  IN p_id INT
+
+CREATE OR REPLACE PROCEDURE `imageLinkUpdateKeywords`(
+    IN p_id INT
 )
 BEGIN
 
@@ -14,6 +14,4 @@ BEGIN
     )
   WHERE (il.id = p_id);
 
-END$$
-
-DELIMITER ;
+END $$

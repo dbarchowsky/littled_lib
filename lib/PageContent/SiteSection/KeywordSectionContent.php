@@ -28,6 +28,8 @@ abstract class KeywordSectionContent extends SectionContent
 	/** @var string Path to keyword list template file. */
 	protected static string $keywordListTemplate = '';
     protected static string $keyword_key = 'kw';
+	/* keyword category id */
+	protected static int $keyword_category_id;
 
 	/**
 	 * KeywordSectionContent constructor.
@@ -61,6 +63,15 @@ abstract class KeywordSectionContent extends SectionContent
             throw new Exception('Could not add keyword. Content type not set.');
         }
 		$this->keywords[] = new Keyword($term, $this->id->value, $this->content_properties->id->value);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function base64DecodeInput()
+	{
+		parent::base64DecodeInput();
+		$this->collectKeywordInput();
 	}
 
 	/**
@@ -230,6 +241,19 @@ abstract class KeywordSectionContent extends SectionContent
         return array();
     }
 
+	/**
+	 * Keyword category id getter.
+	 * @return int The id of the keyword category.
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getKeywordCategoryId(): int
+	{
+		if (!isset(static::$keyword_category_id)) {
+			throw new ConfigurationUndefinedException('Keyword category not specified.');
+		}
+		return static::$keyword_category_id;
+	}
+
     /**
      * Keyword key getter.
      * @return string
@@ -372,6 +396,16 @@ abstract class KeywordSectionContent extends SectionContent
     {
         static::$keyword_key = $key;
     }
+
+	/**
+	 * Keyword category id setter.
+	 * @param int $id
+	 * @return void
+	 */
+	public static function setKeywordCategoryId(int $id)
+	{
+		static::$keyword_category_id = $id;
+	}
 
 	/**
 	 * Sets the class's keyword cell template path property.

@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\PageContent\Navigation;
 
+use Littled\Account\UserAccount;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\Filters\TestHarness\TestTableFilters;
@@ -124,6 +125,18 @@ class RoutedPageContentTest extends TestCase
         $expected = SectionNavigationRoutesTestHarness::getDetailsRoute().'/765/'.RoutedPageContentTestHarness::getEditToken();
         $this->assertEquals($expected, $o->getEditURI(765));
     }
+
+	function testGetAccessLevel()
+	{
+		$o = new RoutedPageContent();
+
+		// default setting
+		$this->assertNull($o::getAccessLevel());
+
+		// set to a value
+		$o::setAccessLevel(UserAccount::BASIC_AUTHENTICATION);
+		$this->assertEquals(UserAccount::BASIC_AUTHENTICATION, $o::getAccessLevel());
+	}
 
     protected static function formatRouteMessage(array $route): string
     {

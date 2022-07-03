@@ -19,6 +19,7 @@ class FilterCollection extends FilterCollectionProperties
 {
     /** @var string */
     protected const RECORD_COUNT_ARG = '@total_matches';
+	protected static bool $autoload_default=false;
 
 	/**
 	 * Calculate the total number of pages for the listings based on the total number of records and the length of the pages.
@@ -67,6 +68,9 @@ class FilterCollection extends FilterCollectionProperties
 			if (strtolower(''.$str_value)=="filter") {
 				$this->display_listings->value = true;
 			}
+		}
+		if ($this->getAutoloadDefault()===true && $this->display_listings->value===null) {
+			$this->display_listings->value = true;
 		}
 	}
 
@@ -163,6 +167,15 @@ class FilterCollection extends FilterCollectionProperties
 	protected function formatTitleSearchQuery(): array
 	{
 		return array('', '', null);
+	}
+
+	/**
+	 * Autoload listings setting getter.
+	 * @return bool
+	 */
+	public function getAutoloadDefault(): bool
+	{
+		return static::$autoload_default;
 	}
 
     /**
@@ -423,5 +436,15 @@ class FilterCollection extends FilterCollectionProperties
 		}
 		$this->getProcedurePageCount();
 		return $data;
+	}
+
+	/**
+	 * Autoload listings setting setter.
+	 * @param bool $autoload
+	 * @return void
+	 */
+	public static function setAutoloadDefault(bool $autoload)
+	{
+		static::$autoload_default = $autoload;
 	}
 }

@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `albumSocialFilteredListingsSelect`;
 DELIMITER $$
-CREATE PROCEDURE `albumSocialFilteredListingsSelect`(
+
+CREATE OR REPLACE PROCEDURE `albumSocialFilteredListingsSelect`(
   IN p_page INT,
   IN p_page_length INT,
   IN p_album_id INT,

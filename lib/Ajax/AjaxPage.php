@@ -156,8 +156,10 @@ class AjaxPage extends MySQLConnection
         }
         $this->content_properties->read();
 
-		if (!$this->operation->value) {
-			$this->operation->collectRequestData();
+		$saved = $this->operation->value;
+		$this->operation->collectRequestData();
+		if(!$this->operation->value) {
+			$this->operation->value = $saved;
 		}
         if (!$this->operation->value) {
             $this->operation->value = static::getDefaultTemplateName();

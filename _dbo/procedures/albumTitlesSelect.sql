@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `albumTitlesSelect`;
 DELIMITER $$
-CREATE PROCEDURE `albumTitlesSelect`(
+
+CREATE OR REPLACE PROCEDURE `albumTitlesSelect`(
   IN p_page INT,
   IN p_page_length INT,
   IN p_keyword VARCHAR(120),

@@ -1,14 +1,12 @@
-DROP PROCEDURE IF EXISTS `siteSectionThumbnailTableSelect`;
 DELIMITER $$
-CREATE PROCEDURE `siteSectionThumbnailTableSelect`(
-  IN p_content_type_id INT
+CREATE OR REPLACE PROCEDURE `siteSectionThumbnailTableSelect`(
+    IN p_content_type_id INT
 )
-  BEGIN
+BEGIN
 
     SELECT s.`table`
     FROM `site_section` s
     WHERE s.`id` = p_content_type_id
     AND IFNULL(s.`gallery_thumbnail`,0) = 0;
 
-  END$$
-DELIMITER ;
+END $$

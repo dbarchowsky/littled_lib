@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `siteSectionPropertiesSelect`;
 DELIMITER $$
-CREATE PROCEDURE `siteSectionPropertiesSelect`(
+
+CREATE OR REPLACE PROCEDURE `siteSectionPropertiesSelect`(
     IN      p_section_id        INT
 )
 BEGIN
@@ -19,8 +19,6 @@ BEGIN
          cache_uri,
          sorting_uri,
          keywords_uri,
-         listings_template,
-         keywords_template,
          is_sortable,
          comments
     FROM section_operations

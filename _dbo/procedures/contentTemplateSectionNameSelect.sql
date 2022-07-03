@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `contentTemplateSectionNameSelect`;
 DELIMITER $$
-CREATE PROCEDURE `contentTemplateSectionNameSelect`(
+
+CREATE OR REPLACE PROCEDURE `contentTemplateSectionNameSelect`(
     IN      p_content_type_id       INT,
     IN      p_template_name         VARCHAR(45)
 )

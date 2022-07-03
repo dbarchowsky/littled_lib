@@ -1,12 +1,12 @@
-DROP PROCEDURE IF EXISTS `thumbnailUpdateParentWithImageLink`;
 DELIMITER $$
-CREATE PROCEDURE `thumbnailUpdateParentWithImageLink`(
-  IN p_table VARCHAR(127),
-  IN p_parent_id INT,
-  IN p_image_link_id INT,
-  IN p_content_type_id INT
+
+CREATE OR REPLACE PROCEDURE `thumbnailUpdateParentWithImageLink`(
+    IN p_table VARCHAR(127),
+    IN p_parent_id INT,
+    IN p_image_link_id INT,
+    IN p_content_type_id INT
 )
-  BEGIN
+BEGIN
 
     SET @table_name = p_table;
     SET @parent_id = p_parent_id;
@@ -34,5 +34,4 @@ CREATE PROCEDURE `thumbnailUpdateParentWithImageLink`(
       @content_type_id;
     DEALLOCATE PREPARE STMT;
 
-  END$$
-DELIMITER ;
+END $$

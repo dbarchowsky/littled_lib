@@ -19,10 +19,11 @@ class BooleanContentFilter extends ContentFilter
 	public function collectValue(bool $read_cookies=true)
 	{
 		$this->value = Validation::collectBooleanRequestVar($this->key);
-        if ($this->value!==null) {
-            return;
-        }
-        parent::collectValue($read_cookies);
+		// Not sure why this was put in here. Consider removing.
+        // if ($this->value!==null) {
+        //    return;
+        // }
+        // parent::collectValue($read_cookies);
 	}
 
 	/**

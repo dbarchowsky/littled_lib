@@ -1,6 +1,6 @@
-DROP PROCEDURE IF EXISTS `contentRouteListingsSelect`;
 DELIMITER $$
-CREATE PROCEDURE `contentRouteListingsSelect`(
+
+CREATE OR REPLACE PROCEDURE `contentRouteListingsSelect`(
     IN      p_page              INT,
     IN      p_page_length       INT,
     IN      p_site_section_id   INT,
@@ -36,6 +36,4 @@ BEGIN
 
     SELECT FOUND_ROWS() INTO total_matches;
 
-END$$
-
-DELIMITER ;
+END $$

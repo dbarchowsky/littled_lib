@@ -6,6 +6,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\NotImplementedException;
+use Littled\Tests\Filters\TestHarness\FilterCollectionAutoloadChild;
 use Littled\Tests\Filters\TestHarness\FilterCollectionChild;
 use Littled\Tests\Filters\TestHarness\FilterCollectionChildWithProcedure;
 use PHPUnit\Framework\TestCase;
@@ -56,6 +57,67 @@ class FilterCollectionTest extends TestCase
         $conn->closeDatabaseConnection();
         unset($conn);
     }
+
+	function testAutoloadDefault()
+	{
+		// confirm default value
+		$fc = new FilterCollectionChild();
+		$this->assertFalse($fc->getAutoloadDefault());
+
+		// confirm setting autoload listings to TRUE
+		$fc->setAutoloadDefault(true);
+		$this->assertTrue($fc->getAutoloadDefault());
+
+		// confirm setting autoload listings to FALSE
+		$fc->setAutoloadDefault(false);
+		$this->assertFalse($fc->getAutoloadDefault());
+	}
+
+	function __testCollectDisplayListingsSettings(FilterCollectionChild $filters, ?bool $expected, string $collection, $value=null, string $msg='')
+	{
+		switch($collection) {
+			case 'cookie':
+				$_COOKIE[$filters->display_listings->key] = $value;
+				break;
+			case 'post':
+				$_POST[$filters->display_listings->key] = $value;
+				break;
+			default:
+				break;
+		}
+		$filters->collectDisplayListingsSetting();
+		$this->assertEquals($expected, $filters->display_listings->value, $msg);
+
+		// clean up
+		$_POST = [];
+		$_COOKIE = [];
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
+	 * @param ?bool $expected
+	 * @param string $collection
+	 * @param $value
+	 * @param string $msg
+	 * @return void
+	 */
+	function testCollectDisplayListingsSettingsWithAutoload(?bool $expected, string $collection, $value=null, string $msg='')
+	{
+		$this->__testCollectDisplayListingsSettings(new FilterCollectionAutoloadChild(), $expected, $collection, $value, $msg);
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
+	 * @param ?bool $expected
+	 * @param string $collection
+	 * @param $value
+	 * @param string $msg
+	 * @return void
+	 */
+	function testCollectDisplayListingsSettingsWithDefault(?bool $expected, string $collection, $value=null, string $msg='')
+	{
+		$this->__testCollectDisplayListingsSettings(new FilterCollectionChild(), $expected, $collection, $value, $msg);
+	}
 
     /**
      * @throws NotImplementedException

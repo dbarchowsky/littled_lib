@@ -28,7 +28,16 @@ class FilterCollectionChild extends FilterCollection
         $this->date_before = new DateContentFilter('date before', 'dateBefore', '', null, $this::getCookieKey());
     }
 
-    /**
+	/**
+	 * @inheritDoc
+	 * Make this public for test classes.
+	 */
+	public function collectDisplayListingsSetting()
+	{
+		parent::collectDisplayListingsSetting();
+	}
+
+	/**
      * @return array
      */
     public function formatListingsQueryTest(): array

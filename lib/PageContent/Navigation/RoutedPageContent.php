@@ -2,6 +2,8 @@
 namespace Littled\PageContent\Navigation;
 
 use Exception;
+use Littled\Account\LoginAuthenticator;
+use Littled\Account\UserAccount;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -21,15 +23,36 @@ class RoutedPageContent extends PageContent
     protected static string $filters_class='';
     /** @var string Routes class for section navigation */
     protected static string $routes_class='';
-    /** @var string */
     protected static string $add_token = 'add';
-    /** @var string */
     protected static string $edit_token = 'edit';
-    /** @var string */
     protected static string $default_template_path='';
+	protected static int $access_level;
 
-    /** @var SectionNavigationRoutes Section navigation routes. */
+	/**
+	 * @inheritDoc
+	 * @throws ConfigurationUndefinedException
+	 */
+	function __construct()
+	{
+		parent::__construct();
+		$this->verifyLogin();
+	}
+
+	/** @var SectionNavigationRoutes Section navigation routes. */
     public SectionNavigationRoutes $routes;
+
+	/**
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 */
+	public function verifyLogin()
+	{
+		if (static::getAccessLevel() > 0) {
+			$login = new LoginAuthenticator();
+			$login->requireLogin(static::getAccessLevel());
+			unset($login);
+		}
+	}
 
     /**
      * @throws ConfigurationUndefinedException
@@ -86,7 +109,16 @@ class RoutedPageContent extends PageContent
         return null;
     }
 
-    /**
+	/**
+	 * Access level getter.
+	 * @return ?int
+	 */
+	public static function getAccessLevel(): ?int
+	{
+		return ((isset(static::$access_level)?(static::$access_level):(null)));
+	}
+
+	/**
      * Add token getter.
      * @return string
      */
@@ -268,7 +300,17 @@ class RoutedPageContent extends PageContent
         $this->formatPageStateQueryString();
     }
 
-    /**
+	/**
+	 * Access level setter.
+	 * @param int $access_level
+	 * @return void
+	 */
+	public static function setAccessLevel(int $access_level)
+	{
+		static::$access_level = $access_level;
+	}
+
+	/**
      * Content class name setter.
      * @param string $class
      * @return void
