@@ -27,24 +27,23 @@ abstract class KeywordSectionContent extends SectionContent
 	protected static string $keywordCellTemplate = '';
 	/** @var string Path to keyword list template file. */
 	protected static string $keywordListTemplate = '';
+    protected static string $keyword_key = 'kw';
 
 	/**
 	 * KeywordSectionContent constructor.
 	 * @param int|null[optional] $id ID value representing this object's record in the database. Defaults to NULL.
 	 * @param int|null[optional] $content_type_id ID of this object's content type. Defaults to NULL.
-	 * @param string[optional] $keyword_param Name of the variable containing comma-delimited keywords collected from HTML forms.
 	 */
-	function __construct($id = null, $content_type_id = null, $keyword_param='kw')
+	function __construct($id = null, $content_type_id = null)
 	{
 		parent::__construct($id, $content_type_id);
 
-		if ($keyword_param != 'kw') {
-			$this->content_properties->id->key = $keyword_param.$this->content_properties->id->key;
-		}
+        $this->content_properties->id->key = static::$keyword_key.$this->content_properties->id->key;
+
 		/* Suppress generalized error messages related to the content type properties */
 		$this->content_properties->validationMessage = '';
 
-		$this->keywordInput = new StringTextarea("Keywords", "{$keyword_param}te", false, '', 1000, null);
+		$this->keywordInput = new StringTextarea("Keywords", static::$keyword_key."Text", false, '', 1000, null);
 
 		$this->keywordInput->is_database_field = false;
 	}
@@ -232,6 +231,15 @@ abstract class KeywordSectionContent extends SectionContent
     }
 
     /**
+     * Keyword key getter.
+     * @return string
+     */
+    public function getKeywordKey(): string
+    {
+        return static::$keyword_key;
+    }
+
+    /**
      * Returns path to keywords container template.
      * @return string Path to keywords container template.
      */
@@ -354,6 +362,16 @@ abstract class KeywordSectionContent extends SectionContent
 			$keyword->save();
 		}
 	}
+
+    /**
+     * Keyword key setter.
+     * @param string $key
+     * @return void
+     */
+    public static function setKeywordKey(string $key)
+    {
+        static::$keyword_key = $key;
+    }
 
 	/**
 	 * Sets the class's keyword cell template path property.

@@ -13,6 +13,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
+use Littled\Tests\PageContent\SiteSection\TestHarness\KeywordSectionContentNonDefaultKey;
 use Littled\Tests\PageContent\SiteSection\TestHarness\KeywordSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
@@ -106,7 +107,7 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertNull($this->obj->id->value);
 		$this->assertNull($this->obj->content_properties->id->value);
 		$this->assertEquals('', $this->obj->keywordInput->value);
-		$this->assertEquals('kwte', $this->obj->keywordInput->key);
+		$this->assertEquals('kwText', $this->obj->keywordInput->key);
 		$this->assertFalse($this->obj->keywordInput->is_database_field);
 		$this->assertTrue(is_array($this->obj->keywords));
 		$this->assertCount(0, $this->obj->keywords);
@@ -115,10 +116,10 @@ class KeywordSectionContentTest extends TestCase
 
 	public function testConstructorPassedValues()
 	{
-		$obj = new KeywordSectionContentTestHarness(83, 629, 'biz');
+		$obj = new KeywordSectionContentTestHarness(83, 629);
 		$this->assertEquals(83, $obj->id->value);
 		$this->assertEquals(629, $obj->content_properties->id->value);
-		$this->assertEquals('bizte', $obj->keywordInput->key);
+		$this->assertEquals('kwText', $obj->keywordInput->key);
 	}
 
     /**
@@ -448,6 +449,17 @@ class KeywordSectionContentTest extends TestCase
 		$this->obj->addKeyword('test new term');
 
         $this->obj->saveKeywords();
+    }
+
+    function testSetKeywordKey()
+    {
+        $o = new KeywordSectionContentTestHarness();
+        $this->assertEquals('kw', $o->getKeywordKey());
+        $this->assertEquals('kwText', $o->keywordInput->key);
+
+        $c = new KeywordSectionContentNonDefaultKey();
+        $this->assertEquals('ckw', $c->getKeywordKey());
+        $this->assertEquals('ckwText', $c->keywordInput->key);
     }
 
     /**

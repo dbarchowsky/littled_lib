@@ -30,9 +30,9 @@ class InlineKeywordInput extends KeywordSectionContent
 	 * @param int|null[optional] $content_type_id Content type identifier.
 	 * @param string[optional] $keyword_param Name of the request variable that passes in keyword content.
 	 */
-	function __construct($id = null, $content_type_id = null, $keyword_param = 'kw')
+	function __construct($id = null, $content_type_id = null, $keyword_key = 'kw')
 	{
-		parent::__construct($id, $content_type_id, $keyword_param);
+		parent::__construct($id, $content_type_id, $keyword_key);
 		$this->id = new IntegerInput("Record ID", Keyword::PARENT_KEY, true, null);
 		$this->content_properties->id->key = Keyword::TYPE_KEY;
 	}
