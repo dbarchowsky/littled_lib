@@ -258,7 +258,7 @@ abstract class KeywordSectionContent extends SectionContent
      * Keyword key getter.
      * @return string
      */
-    public function getKeywordKey(): string
+    public static function getKeywordKey(): string
     {
         return static::$keyword_key;
     }
@@ -387,16 +387,6 @@ abstract class KeywordSectionContent extends SectionContent
 		}
 	}
 
-    /**
-     * Keyword key setter.
-     * @param string $key
-     * @return void
-     */
-    public static function setKeywordKey(string $key)
-    {
-        static::$keyword_key = $key;
-    }
-
 	/**
 	 * Keyword category id setter.
 	 * @param int $id
@@ -407,7 +397,17 @@ abstract class KeywordSectionContent extends SectionContent
 		static::$keyword_category_id = $id;
 	}
 
-	/**
+    /**
+     * Keyword key setter.
+     * @param string $key
+     * @return void
+     */
+    public static function setKeywordKey(string $key)
+    {
+        static::$keyword_key = $key;
+    }
+
+    /**
 	 * Sets the class's keyword cell template path property.
 	 * @param string $path Path to template file.
 	 */
