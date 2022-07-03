@@ -137,7 +137,7 @@ class FilterCollection extends FilterCollectionProperties
 
     /**
      * Returns a query string containing name/value pairs for each filter that currently holds a value.
-     * @param ?array $exclude (Optional) Array containing the names of parameters that should not be included in the query string.
+     * @param string[]|null $exclude (Optional) Array containing the names of parameters that should not be included in the query string.
      * @return string Query string containing filters
      */
     public function formatQueryString (?array $exclude=null ): string

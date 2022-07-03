@@ -99,11 +99,12 @@ class PageContent extends MySQLConnection
 
 	/**
 	 * Formats and stores query string from current filter property values.
+     * @param string[]|null $exclude
 	 * @return string
 	 */
-	public function formatQueryString(): string
+	public function formatQueryString(?array $exclude=null): string
 	{
-		$this->query_string = $this->filters->formatQueryString();
+		$this->query_string = $this->filters->formatQueryString($exclude);
 		return $this->query_string;
 	}
 
@@ -118,6 +119,18 @@ class PageContent extends MySQLConnection
     {
         $this->query_string = $this->filters->formatQueryString();
 		return $this->query_string;
+    }
+
+    /**
+     * Content label getter.
+     * @return string
+     */
+    public function getContentLabel(): string
+    {
+        if (isset($this->content)) {
+            return $this->content->getContentLabel();
+        }
+        return '';
     }
 
     /**
@@ -141,17 +154,14 @@ class PageContent extends MySQLConnection
         return '';
     }
 
-	/**
-	 * Content label getter.
-	 * @return string
-	 */
-	public function getContentLabel(): string
-	{
-		if (isset($this->content)) {
-			return $this->content->getContentLabel();
-		}
-		return '';
-	}
+    /**
+     * Query string getter
+     * @return string
+     */
+    public function getQueryString(): string
+    {
+        return $this->query_string;
+    }
 
     /**
      * Record id getter.

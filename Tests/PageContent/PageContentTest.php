@@ -2,9 +2,11 @@
 namespace Littled\Tests\PageContent;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\Tests\PageContent\TestHarness\PageContentChild;
+use Littled\Tests\PageContent\TestHarness\PageContentWithFiltersTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -42,6 +44,43 @@ class PageContentTest extends TestCase
 		$this->assertEquals($expected, $o->edit_action);
 	}
 
+    /**
+     * @throws NotImplementedException
+     */
+    function testFormatQueryString()
+    {
+        $o = new PageContentWithFiltersTestHarness();
+
+        $_POST['intFilter'] = 64;
+        $_POST['name'] = 'testValue';
+        $_POST['boolFilter'] = true;
+        $_POST['dateBefore'] = '2022-07-02';
+        $o->filters->collectFilterValues();
+
+        // confirm return value
+        $query_string = $o->formatQueryString();
+        $parts = explode('&', $query_string);
+        $this->assertContains('intFilter=64', $parts);
+        $this->assertContains('name=testValue', $parts);
+        $this->assertContains('dateBefore=07%2F02%2F2022', $parts);
+        $this->assertNotContains('dateAfter=', $parts);
+
+        // confirm internal property value
+        $parts = explode('&', $o->getQueryString());
+        $this->assertContains('intFilter=64', $parts);
+        $this->assertContains('name=testValue', $parts);
+        $this->assertContains('dateBefore=07%2F02%2F2022', $parts);
+        $this->assertNotContains('dateAfter=', $parts);
+
+        // confirm exclude filters
+        $parts = explode('&', $o->formatQueryString(['name', 'intFilter']));
+        $this->assertNotContains('intFilter=64', $parts);
+        $this->assertNotContains('name=testValue', $parts);
+        $this->assertContains('dateBefore=07%2F02%2F2022', $parts);
+        $this->assertNotContains('dateAfter=', $parts);
+        $_POST = [];
+    }
+
 	function testGetContentLabel()
 	{
 		$o = new PageContentChild();
@@ -62,6 +101,24 @@ class PageContentTest extends TestCase
         $o = new PageContentChild();
         $o->content->id->value = $record_id;
         $this->assertEquals($expected, $o->getRecordId());
+    }
+
+    /**
+     * @throws NotImplementedException
+     */
+    function testGetQueryString()
+    {
+        $o = new PageContentWithFiltersTestHarness();
+        $this->assertEquals('', $o->getQueryString());
+
+        $_POST['intFilter'] = 849;
+        $_POST['name'] = 'this is a test';
+        $o->filters->collectFilterValues();
+
+        $o->formatQueryString();
+        $this->assertMatchesRegularExpression('/&name=this\+is\+a\+test&intFilter=849$/', $o->getQueryString());
+
+        $_POST = [];
     }
 
     /**
