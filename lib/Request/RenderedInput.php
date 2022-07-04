@@ -14,16 +14,17 @@ class RenderedInput extends RequestInput
 	 * string will cause the label to not be rendered at all.
 	 * @param string $css_class (Optional) CSS class name(s) to apply to the input container.
 	 */
-	public function render( string $label='', string $css_class='' )
+	public function render( string $label='', string $css_class='', array $context=[])
 	{
 		if (!$label) {
 			$label=$this->label;
 		}
-		ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), array(
-			'input' => &$this,
-			'label' => $label,
-			'css_class' => $css_class
-		));
+        $context = array_merge($context, array(
+            'input' => &$this,
+            'label' => $label,
+            'css_class' => $css_class
+        ));
+		ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), $context);
 	}
 
 	/**

@@ -2,11 +2,14 @@
 namespace Littled\Request\Inline;
 
 
+use Exception;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException as InvalidQueryExceptionAlias;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
+use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 
 
@@ -14,22 +17,22 @@ use Littled\Request\StringInput;
  * Class InlineInput
  * @package Littled\Request\Inline
  */
-class InlineInput extends SerializedContent
+abstract class InlineInput extends SerializedContent
 {
 	/** @var IntegerInput Parent record id. */
-	public $parent_id;
+	public IntegerInput $parent_id;
 	/** @var StringInput Name of table in database that stores the value that is being updated. */
-	public $table;
+	public StringInput $table;
 	/** @var StringInput Operation to be performed, e.g. "edit", "delete", etc. */
-	public $op;
+	public StringInput $op;
 	/** @var array Property values to validate after changes are made in an HTML form. */
-	public $validateProperties;
+	public array $validateProperties;
 	/** @var array Array of validation errors. */
-	public $validationErrors;
-	/** @var string Possible column names. */
-	public $columnNameOptions;
+	public array $validationErrors=[];
+	/** @var string[] Possible column names. */
+	public array $columnNameOptions=[];
 	/** @var string Name of column holding date value. */
-	public $columnName;
+	public string $columnName='';
 
 	/**
 	 * InlineInput constructor.
@@ -41,9 +44,6 @@ class InlineInput extends SerializedContent
 		$this->table = new StringInput("Table", "t", true, "", 200);
 		$this->op = new StringInput("Operation", "op", true, "", 20);
 		$this->validateProperties = array('parent_id', 'table');
-		$this->validationErrors = array();
-		$this->columnNameOptions = array();
-		$this->columnName = "";
 	}
 
 	/**
@@ -51,9 +51,9 @@ class InlineInput extends SerializedContent
 	 * @param string $table_name
 	 * @return bool
 	 * @throws NotImplementedException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function columnExists($column_name, $table_name = '')
+	 * @throws InvalidQueryExceptionAlias|Exception
+     */
+	public function columnExists(string $column_name, string $table_name = ''): bool
 	{
 		if ('' === $table_name) {
 			$table_name = $this->table->value;
@@ -65,24 +65,18 @@ class InlineInput extends SerializedContent
 	 * Placeholder for method that formats SQL query string to use to retrieve specific field values from the database.
 	 * @throws NotImplementedException
 	 */
-	protected function formatSelectQuery()
-	{
-		throw new NotImplementedException(get_class($this)."::formatSelectQuery() not implemented.");
-	}
+	abstract protected function formatSelectQuery(): array;
 
 	/**
 	 * Placeholder for method that formats SQL query string to use to update specific field values stored in the database.
 	 * @throws NotImplementedException
 	 */
-	protected function formatUpdateQuery()
-	{
-		throw new NotImplementedException(get_class($this)."::formatUpdateQuery() not implemented.");
-	}
+	abstract protected function formatUpdateQuery(): array;
 
 	/**
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
+	 * @throws InvalidQueryExceptionAlias
 	 */
 	protected function getColumnName()
 	{
@@ -95,36 +89,38 @@ class InlineInput extends SerializedContent
 		throw new RecordNotFoundException("No matching columns were found.");
 	}
 
-	/**
-	 * Retrieves data from database used to fill inline HTML forms.
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+    /**
+     * Retrieves data from database used to fill inline HTML forms.
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     * @throws InvalidQueryExceptionAlias
+     * @throws Exception
+     */
 	public function read()
 	{
 		if (count($this->columnNameOptions) > 0) {
 			$this->getColumnName();
 		}
-		$data = $this->fetchRecords($this->formatSelectQuery());
+		$data = call_user_func_array([$this, 'fetchRecords'], $this->formatSelectQuery());
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Record not found.");
 		}
 		return($data);
 	}
 
-	/**
-	 * Commits changes made to specific field values through inline HTML forms.
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
+    /**
+     * Commits changes made to specific field values through inline HTML forms.
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     * @throws InvalidQueryExceptionAlias
+     * @throws Exception
+     */
 	public function save()
 	{
 		if (count($this->columnNameOptions) > 0) {
 			$this->getColumnName();
 		}
-		$this->query($this->formatUpdateQuery());
+        call_user_func_array([$this, 'query'], $this->formatUpdateQuery());
 	}
 
 	/**
@@ -135,12 +131,12 @@ class InlineInput extends SerializedContent
 	{
 		foreach($this->validateProperties as $key) {
 			try {
-				/** @var \Littled\Request\RequestInput $property  */
+				/** @var RequestInput $property  */
 				$property = $this->$key;
 				$property->validate();
 			}
 			catch(ContentValidationException $ex) {
-				array_push($this->validationErrors, $ex->getMessage());
+				$this->validationErrors[] = $ex->getMessage();
 			}
 		}
 		if (count($this->validationErrors) > 0) {

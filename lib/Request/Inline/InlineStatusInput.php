@@ -1,52 +1,55 @@
 <?php
 namespace Littled\Request\Inline;
 
-
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Request\BooleanInput;
 
-/**
- * Class InlineStatusInput
- * Handles inline editing of "status" values for content records, e.g. "disabled" vs "enabled".
- * @package Littled\Request\Inline
- */
+
 class InlineStatusInput extends InlineInput
 {
-	public $status;
+	public BooleanInput $status;
 
 	function __construct()
 	{
 		parent::__construct();
 		$this->status = new BooleanInput("Status", "sid", true, null);
-		array_push($this->validateProperties,'status');
+		$this->validateProperties[] = 'status';
 	}
 
 	/**
-	 * @return string SQL query to use to retrieve access values.
+	 * @inheritDoc
 	 */
-	protected function formatSelectQuery()
+	protected function formatSelectQuery(): array
 	{
-		return("SEL"."ECT `enabled` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
+        $query = "SEL"."ECT `enabled` FROM `{$this->table->value}` WHERE id = ?";
+		return array($query, 'i' &$this->parent_id->value);
 	}
 
 	/**
-	 * @return string SQL query to use to update access values.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @inheritDoc
 	 */
-	protected function formatUpdateQuery()
+	protected function formatUpdateQuery(): array
 	{
-		$this->connectToDatabase();
-		return("UPD"."ATE `{$this->table->value}` ".
-			"SET `enabled` = ".$this->status->escapeSQL($this->mysqli)." ".
-			"WHERE id = {$this->parent_id->value}");
+        return $this->generateUpdateQuery();
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        $query = "UPD"."ATE `{$this->table->value}` SET `enabled` = ? WHERE id = ?";
+        return array($query, 'ii', &$this->status->value, &$this->parent_id->value);
+    }
 
 	/**
 	 * Retrieves the access value and stores it in the object properties.
 	 * @return void
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
 	{

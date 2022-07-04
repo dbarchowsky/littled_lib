@@ -1,17 +1,15 @@
 <?php
 namespace Littled\Request\Inline;
 
-
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 
-/**
- * Class InlinePageInput
- * Handles inline editing of "page number" values for content records that are a part of a series.
- * @package Littled\Request\Inline
- */
+
 class InlinePageInput extends InlineInput
 {
-	public $page;
+	public IntegerInput $page;
 
 	function __construct()
 	{
@@ -20,32 +18,37 @@ class InlinePageInput extends InlineInput
 	}
 
 	/**
-	 * @return string SQL query to use to retrieve access values.
+	 * @inheritDoc
 	 */
-	protected function formatSelectQuery()
+	protected function formatSelectQuery(): array
 	{
-		return("SEL"."ECT `page_number` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
+        $query = "SEL"."ECT `page_number` FROM `{$this->table->value}` WHERE id = ?";
+		return array($query, 'i', &$this->parent_id->value);
 	}
 
 	/**
-	 * @return string SQL query to use to update access values.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @inheritDoc
 	 */
-	protected function formatUpdateQuery()
+	protected function formatUpdateQuery(): array
 	{
-		$this->connectToDatabase();
-		return("UPD"."ATE `{$this->table->value}` ".
-			"SET `page_number` = ".$this->page->escapeSQL($this->mysqli)." ".
-			"WHERE id = {$this->parent_id->value}");
+        return $this->generateUpdateQuery();
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        $query = "UPD"."ATE `{$this->table->value}` SET `page_number` = ? WHERE id = ?";
+        return array($query, 'ii', &$this->page->value, &$this->parent_id->value);
+    }
 
 	/**
 	 * Retrieves the access value and stores it in the object properties.
 	 * @return void
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
 	{

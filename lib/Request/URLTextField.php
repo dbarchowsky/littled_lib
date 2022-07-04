@@ -20,7 +20,7 @@ class URLTextField extends StringTextField
 	 * @param int[optional] $size_limit Size limit of the field in the form element and in the database.
 	 * @param int|null[optional] $index Indicates that there are multiple values entered for this property.
 	 */
-	function __construct($label, $param, $required = false, $value = null, $size_limit = 255, $index = null)
+	function __construct(string $label, string $param, bool $required = false, ?string $value = null, int $size_limit = 255, int $index = null)
 	{
 		parent::__construct($label, $param, $required, $value, $size_limit, $index);
 	}
@@ -28,7 +28,7 @@ class URLTextField extends StringTextField
 	/**
 	 * {@inheritDoc}
 	 */
-	public function render( string $label='',  string $css_class='' )
+	public function render( string $label='',  string $css_class='', array $context=[])
 	{
 		/** TODO mark the form input as having type="url" */
 		parent::render($label, $css_class);

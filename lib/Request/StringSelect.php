@@ -2,9 +2,6 @@
 namespace Littled\Request;
 
 
-use Exception;
-use Littled\PageContent\ContentUtils;
-
 class StringSelect extends StringInput
 {
 	/** @var string */
@@ -17,7 +14,7 @@ class StringSelect extends StringInput
 	public ?int $options_length = null;
 
 	/**
-	 * Allow multiple setter. If set to true, multiple choices can be selected from the drop down options.
+	 * Allow multiple setter. If set to true, multiple choices can be selected from the drop-down options.
 	 * @return void
 	 */
 	public function allowMultiple()
@@ -46,18 +43,12 @@ class StringSelect extends StringInput
     /**
      * {@inheritDoc}
      */
-    public function render(string $label='', string $css_class='', array $options=[])
+    public function render(string $label='', string $css_class='', array $context=[])
     {
-	    try {
-		    ContentUtils::renderTemplate(static::getTemplatePath(),
-			    array('input' => $this,
-				    'label' => $label,
-				    'css_class' => $css_class,
-				    'options' => $options));
-	    }
-	    catch(Exception $e) {
-		    ContentUtils::printError($e->getMessage());
-	    }
+        if (!array_key_exists('options', $context)) {
+            $context = array('options' => $context);
+        }
+        parent::render($label, $css_class, $context);
     }
 
 	/**

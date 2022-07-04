@@ -1,52 +1,51 @@
 <?php
 namespace Littled\Request\Inline;
 
-
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Request\StringSelect;
+
 
 /**
  * Class InlineAccessInput
  * Handles inline editing of "access" values for content records, e.g. "public", "private", etc.
  * @package Littled\Request\Inline
  */
-class InlineAccessInput extends InlineInput
+abstract class InlineAccessInput extends InlineInput
 {
-	public $access;
+	public StringSelect $access;
 
 	function __construct()
 	{
 		parent::__construct();
 		$this->access = new StringSelect("Access", "aid", true, "", 20);
-		array_push($this->validateProperties,'op');
+		$this->validateProperties[] = 'op';
 	}
 
 	/**
-	 * @return string SQL query to use to retrieve access values.
+	 * @inheritDoc
 	 */
-	protected function formatSelectQuery()
+	protected function formatSelectQuery(): array
 	{
-		return("SEL"."ECT `access` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
+		return array("SEL"."ECT `access` FROM `{$this->table->value}` WHERE id = ?", 'i', &$this->parent_id->value);
 	}
 
 	/**
-	 * @return string SQL query to use to update access values.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @inheritDoc
 	 */
-	protected function formatUpdateQuery()
+	protected function formatUpdateQuery(): array
 	{
-		$this->connectToDatabase();
-		return("UPD"."ATE `{$this->table->value}` ".
-			"SET access = ".$this->access->escapeSQL($this->mysqli)." ".
-			"WHERE id = {$this->parent_id->value}");
+        $query = "UPD"."ATE `{$this->table->value}`  SET access = ? WHERE id = ?";
+		return array ($query, 'si', &$this->access->value, &$this->parent_id->value);
 	}
 
 	/**
 	 * Retrieves the access value and stores it in the object properties.
 	 * @return void
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
 	{

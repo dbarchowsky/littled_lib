@@ -1,52 +1,55 @@
 <?php
 namespace Littled\Request\Inline;
 
-
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 
-/**
- * Class InlineSlotInput
- * Handles inline editing of "slot" values for content records that are a part of a series.
- * @package Littled\Request\Inline
- */
+
 class InlineSlotInput extends InlineInput
 {
-	public $slot;
+	public IntegerInput $slot;
 
 	function __construct()
 	{
 		parent::__construct();
 		$this->slot = new IntegerInput("Slot", "slt", true, null);
-		array_push($this->validateProperties,'slot');
+		$this->validateProperties[] = 'slot';
 	}
 
 	/**
-	 * @return string SQL query to use to retrieve access values.
+	 * @inheritDoc
 	 */
-	protected function formatSelectQuery()
+	protected function formatSelectQuery(): array
 	{
-		return("SEL"."ECT `slot` FROM `{$this->table->value}` WHERE id = {$this->parent_id->value}");
+        $query = "SEL"."ECT `slot` FROM `{$this->table->value}` WHERE id = ?";
+		return array($query, 'i', &$this->parent_id->value);
 	}
 
 	/**
-	 * @return string SQL query to use to update access values.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @inheritDoc
 	 */
-	protected function formatUpdateQuery()
+	protected function formatUpdateQuery(): array
 	{
-		$this->connectToDatabase();
-		return("UPD"."ATE `{$this->table->value}` ".
-			"SET `slot` = ".$this->slot->escapeSQL($this->mysqli)." ".
-			"WHERE id = {$this->parent_id->value}");
+        return $this->generateUpdateQuery();
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        $query = "UPD"."ATE `{$this->table->value}` SET `slot` = ? WHERE id = ?";
+        return array($query, 'ii', &$this->slot->value, &$this->parent_id->value);
+    }
 
 	/**
 	 * Retrieves the access value and stores it in the object properties.
 	 * @return void
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
 	{

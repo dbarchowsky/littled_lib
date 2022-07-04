@@ -182,7 +182,8 @@ SQL;
 			}
 			$status .= "The new order of the {$this->contentProperties->label} records has been saved. \n";
 
-			$status .= ContentCache::updateCache($this->contentProperties, $this->parentID);
+            // updateCache() in class ContentCache is abstract. Figure out the appropriate way to handle this before uncommenting.
+			// $status .= ContentCache::updateCache($this->contentProperties, $this->parentID);
 		}
 		catch(\Exception $ex) {
 			throw new OperationAbortedException("Error updating position of record #".((is_array($this->IDList) && count($this->IDList)<$i)?($this->IDList[$i]):("unavailable")).": ".$ex->getMessage());

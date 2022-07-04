@@ -45,7 +45,7 @@ class WYSIWYGTextarea extends StringTextarea
     /**
      * @inheritDoc
      */
-    function render(string $label = '', string $css_class = '')
+    function render(string $label = '', string $css_class = '', array $context=[])
     {
         $this->setInputCSSClass(static::$editor_css_class);
         parent::render($label, $css_class);

@@ -1,18 +1,15 @@
 <?php
 namespace Littled\Request\Inline;
 
-
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\DateTextField;
 
-/**
- * Class InlineDateInput
- * @package Littled\Request\Inline
- */
+
 class InlineDateInput extends InlineInput
 {
-	/** @var DateTextField Date value */
-	public $date;
+	public DateTextField $date;
 
 	/**
 	 * InlineDateInput constructor.
@@ -22,47 +19,54 @@ class InlineDateInput extends InlineInput
 	{
 		parent::__construct();
 		$this->date = new DateTextField("Date", "d", true, date("n/j/Y"));
-		array_push($this->validateProperties,'op');
+		$this->validateProperties[] = 'op';
 		$this->columnNameOptions = array_merge(array("release_date", "post_date", "posted_date", "date"), $column_names);
 	}
 
 	/**
-	 * @return string Select SQL query
-	 * @throws RecordNotFoundException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 */
-	protected function formatSelectQuery()
+	 * @inheritDoc
+     * @throws InvalidQueryException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+	protected function formatSelectQuery(): array
 	{
 		$this->getColumnName();
-		return ("SEL"."ECT DATE_FORMAT(`{$this->columnName}`,'%m/%d/%Y') AS `date` ".
-			"FROM `{$this->table->value}` ".
-			"WHERE id = {$this->parent_id->value}");
+        $query = "SEL"."ECT DATE_FORMAT(`$this->columnName`,'%m/%d/%Y') AS `date` ".
+            "FROM `{$this->table->value}` ".
+            "WHERE id = ?";
+		return array ($query, 'i', &$this->parent_id->value);
 	}
 
-	/**
-	 * @return string
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 */
-	protected function formatUpdateQuery()
-	{
-		$this->connectToDatabase();
-		return("UPD"."ATE `{$this->table->value}` ".
-			"SET `{$this->columnName}` = ".$this->date->escapeSQL($this->mysqli)." ".
-			"WHERE id = {$this->parent_id->value}");
-	}
+    /**
+     * @inheritDoc
+     */
+    protected function formatUpdateQuery(): array
+    {
+        return $this->generateUpdateQuery();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        $query = "UPD"."ATE `{$this->table->value}` ".
+            "SET `$this->columnName` = ".$this->date->escapeSQL($this->mysqli)." ".
+            "WHERE id = ?";
+        return array($query, 'i', &$this->parent_id->value);
+    }
 
 	/**
 	 * Retrieves the access value and stores it in the object properties.
 	 * @return void
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
+	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function read()
-	{
-		$data = parent::read();
-		$this->date->value = $data[0]->date;
-	}
+    {
+        $data = parent::read();
+        $this->date->value = $data[0]->date;
+    }
 }
