@@ -20,10 +20,35 @@ class DateContentFilterTest extends TestCase
     }
 
     /**
-     * @return void
-     * @throws Exception
+     * @dataProvider \Littled\Tests\Filters\DataProvider\DateContentFilterTestDataProvider::collectValueTestProvider()
+     * @param ?string $value
+     * @param ?string $expected
+     * @param string $msg
      */
-	public function testEscapeSQL()
+    function testCollectValue(?string $value, ?string $expected, string $msg='')
+    {
+        $o = new DateContentFilter('Test Date Filter', 'dateFilter');
+
+        if ($value !== null) {
+            $_POST[$o->key] = $value;
+        }
+        $o->collectValue();
+        if ($expected === null) {
+            $this->assertNull($o->value, $msg);
+        }
+        else {
+            $this->assertEquals($expected, $o->value, $msg);
+        }
+        $_POST = [];
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\Filters\DataProvider\DateContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @param $value
+     * @param ?string $expected
+     * @param string $msg
+     */
+	public function testEscapeSQL($value, ?string $expected, $msg='')
 	{
         if (!defined('MYSQL_HOST') ||
             !defined('MYSQL_USER') ||
@@ -36,32 +61,10 @@ class DateContentFilterTest extends TestCase
 
 		/* test null value */
 		$cf = new DateContentFilter('Test Filter', 'p_test', null, 50);
+        if ($value !== null) {
+            $cf->value = $value;
+        }
 		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals('NULL', $escaped);
-
-		/* test empty string */
-		$cf->value = '';
-		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals('NULL', $escaped);
-
-		/* test valid date string */
-		$cf->value = '6/15/2016';
-		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals("'2016-06-15'", $escaped);
-
-		/* test invalid date string */
-		$cf->value = 'fdfjdlfadlfdslfjdl';
-		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals('NULL', $escaped);
-
-		/* test integer value */
-		$cf->value = 45;
-		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals('NULL', $escaped);
-
-		/* test bool value */
-		$cf->value = true;
-		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals('NULL', $escaped);
+		$this->assertEquals($expected, $escaped);
 	}
 }
