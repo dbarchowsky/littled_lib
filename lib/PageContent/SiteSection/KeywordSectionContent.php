@@ -33,8 +33,8 @@ abstract class KeywordSectionContent extends SectionContent
 
 	/**
 	 * KeywordSectionContent constructor.
-	 * @param int|null[optional] $id ID value representing this object's record in the database. Defaults to NULL.
-	 * @param int|null[optional] $content_type_id ID of this object's content type. Defaults to NULL.
+	 * @param ?int $id ID Optional value representing this object's record in the database. Defaults to NULL.
+	 * @param ?int $content_type_id Optional ID of this object's content type. Defaults to NULL.
 	 */
 	function __construct($id = null, $content_type_id = null)
 	{
@@ -196,14 +196,14 @@ abstract class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Formats a comma-delimited string out of the object's keywords.
-	 * @param bool[optional] $fetch_from_database If TRUE return keywords from database. If FALSE return keyword terms
+	 * @param bool $fetch_from_database Optional. If TRUE return keywords from database. If FALSE return keyword terms. Default value is TRUE.
 	 * stored in the object properties. Defaults to TRUE.
 	 * @return string Comma-delimited string containing all the current keywords associated with this record.
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
      */
-	public function formatKeywordList($fetch_from_database=true): string
+	public function formatKeywordList(bool $fetch_from_database=true): string
 	{
 		if ($fetch_from_database && $this->hasData()) {
 			$this->readKeywords();
@@ -283,14 +283,14 @@ abstract class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Returns an array containing just the keyword terms as strings for each keyword linked to the record in the database.
-	 * @param bool[optional] $fetch_from_database If TRUE return keywords from database. If FALSE return keyword terms
+	 * @param bool $fetch_from_database Optional. If TRUE return keywords from database. If FALSE return keyword terms. Default value is TRUE.
 	 * stored in the object properties. Defaults to TRUE.
 	 * @return array List of keyword terms currently linked to the record in the database.
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
      */
-	public function getKeywordTermsArray( $fetch_from_database=true ): array
+	public function getKeywordTermsArray( bool $fetch_from_database=true ): array
 	{
 		if ($fetch_from_database && $this->hasData()) {
 			$this->readKeywords();
