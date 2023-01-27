@@ -33,9 +33,9 @@ abstract class SerializedContent extends SerializedContentValidation
 
 	/**
 	 * SerializedContent constructor.
-	 * @param integer[optional] $id Initial value to assign to the object's id property.
+	 * @param ?int $id Optional initial value to assign to the object's id property.
 	 */
-	function __construct($id=null)
+	function __construct(?int $id=null)
 	{
 		parent::__construct();
 		$this->id = new IntegerInput('id', 'id', false, $id);
@@ -250,12 +250,12 @@ abstract class SerializedContent extends SerializedContentValidation
 	 * Retrieves the name of the record represented by the provided id value.
 	 * @param string $table Name of the table containing the records.
 	 * @param int $id ID value of the record.
-	 * @param string[optional] $field Column name containing the value to retrieve. Defaults to "name".
-	 * @param string[optional] $id_field Column name containing the id value to retrieve. Defaults to "id".
+	 * @param string $field Optional column name containing the value to retrieve. Defaults to "name".
+	 * @param string $id_field Optional column name containing the id value to retrieve. Defaults to "id".
 	 * @throws InvalidQueryException|Exception SQL error raised running insert query.
 	 * @return string|null Retrieved value.
 	 */
-	public function getTypeName(string $table, int $id, $field="name", $id_field="id" ): ?string
+	public function getTypeName(string $table, int $id, string $field="name", string $id_field="id" ): ?string
 	{
 		if ($id<1) {
 			return null;
@@ -399,7 +399,7 @@ abstract class SerializedContent extends SerializedContentValidation
 
 	/**
 	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
-     * @param string (Optional) Informational message to prepend to error message thrown when a valid parent id is not found.
+     * @param string $msg Optional informational message to prepend to error message thrown when a valid parent id is not found.
 	 * @throws ContentValidationException
 	 */
 	protected function testForParentID(string $msg='')
