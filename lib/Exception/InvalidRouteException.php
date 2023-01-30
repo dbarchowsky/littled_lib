@@ -4,10 +4,9 @@ namespace Littled\Exception;
 use Exception;
 
 /**
- * Class InvalidTypeException
- * @package Littled\Exception
+ * Exceptions thrown in cases of invalid route values.
  */
-class InvalidRequestException extends Exception
+class InvalidRouteException extends Exception
 {
 	/**
 	 * InvalidTypeException constructor.
