@@ -14,6 +14,7 @@ use Littled\Filters\FilterCollection;
 use Littled\Log\Log;
 use Littled\PageContent\PageContent;
 use Littled\PageContent\SiteSection\SectionContent;
+use Littled\Utility\LittledUtility;
 
 class RoutedPageContent extends PageContent
 {
@@ -25,7 +26,8 @@ class RoutedPageContent extends PageContent
     protected static string $routes_class='';
     protected static string $add_token = 'add';
     protected static string $edit_token = 'edit';
-    protected static string $default_template_path='';
+	protected static string $template_dir='';
+	protected static string $template_filename='';
 	protected static int $access_level;
 
 	/**
@@ -137,15 +139,33 @@ class RoutedPageContent extends PageContent
     }
 
     /**
-     * Default template path getter.
+     * Template directory path getter.
      * @return string
      */
-    public static function getDefaultTemplatePath(): string
+    public static function getTemplateDir(): string
     {
-        return static::$default_template_path;
+        return static::$template_dir;
     }
 
-    /**
+	/**
+	 * Template directory path getter.
+	 * @return string
+	 */
+	public static function getTemplateFilename(): string
+	{
+		return static::$template_filename;
+	}
+
+	/**
+	 * Template full path getter.
+	 * @return string
+	 */
+	public static function getTemplateFullPath(): string
+	{
+		return LittledUtility::joinPaths(static::$template_dir, static::$template_filename);
+	}
+
+	/**
      * Details uri getter.
      * @param ?int $record_id
      * @return string
@@ -339,6 +359,26 @@ class RoutedPageContent extends PageContent
     {
         static::$routes_class = $routes_class;
     }
+
+	/**
+	 * Template directory path setter.
+	 * @param string $path
+	 * @return void
+	 */
+	public static function setTemplateDir(string $path)
+	{
+		static::$template_dir = $path;
+	}
+
+	/**
+	 * Template filename setter.
+	 * @param string $filename
+	 * @return void
+	 */
+	public static function setTemplateFilename(string $filename)
+	{
+		static::$template_filename = $filename;
+	}
 
     /**
      * Save content edited within a page.

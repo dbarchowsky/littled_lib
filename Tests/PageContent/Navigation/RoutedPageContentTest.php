@@ -7,13 +7,16 @@ use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\Filters\TestHarness\TestTableFilters;
 use Littled\Tests\PageContent\Navigation\TestHarness\RoutedPageContentTestHarness;
 use Littled\Tests\PageContent\Navigation\TestHarness\SectionNavigationRoutesTestHarness;
-use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 use Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
+use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 
 
 class RoutedPageContentTest extends TestCase
 {
+	const TEST_TEMPLATE_DIR = '/path/to/templates/';
+	const TEST_TEMPLATE_FILENAME = 'my-template.txt';
+
     /**
      * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\RoutedPageContentTestDataProvider::collectActionFromRouteTestProvider()
      * @param string $expected_action
@@ -136,6 +139,43 @@ class RoutedPageContentTest extends TestCase
 		// set to a value
 		$o::setAccessLevel(UserAccount::BASIC_AUTHENTICATION);
 		$this->assertEquals(UserAccount::BASIC_AUTHENTICATION, $o::getAccessLevel());
+	}
+
+	function testGetTemplateDir()
+	{
+		$this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTestHarness::getTemplateDir());
+	}
+
+	function testGetTemplateFilename()
+	{
+		$this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_FILENAME, RoutedPageContentTestHarness::getTemplateFilename());
+	}
+
+	function testGetTemplateFullPath()
+	{
+		$this->assertEquals( LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
+	}
+
+	function testSetTemplateDir()
+	{
+		$new_dir_path = '/new/path/to/templates';
+		RoutedPageContentTestHarness::setTemplateDir($new_dir_path);
+		$this->assertEquals($new_dir_path, RoutedPageContentTestHarness::getTemplateDir());
+		$this->assertEquals(LittledUtility::joinPaths($new_dir_path, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
+
+		// reset
+		RoutedPageContentTestHarness::setTemplateDir(RoutedPageContentTest::TEST_TEMPLATE_DIR);
+	}
+
+	function testSetTemplateFilename()
+	{
+		$new_filename = '/new-template.txt';
+		RoutedPageContentTestHarness::setTemplateFilename($new_filename);
+		$this->assertEquals($new_filename, RoutedPageContentTestHarness::getTemplateFilename());
+		$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
+
+		// reset
+		RoutedPageContentTestHarness::setTemplateFilename(RoutedPageContentTest::TEST_TEMPLATE_FILENAME);
 	}
 
     protected static function formatRouteMessage(array $route): string
