@@ -1,7 +1,9 @@
 <?php
 namespace Littled\Tests\PageContent\Navigation;
 
+use Exception;
 use Littled\Account\UserAccount;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\Filters\TestHarness\TestTableFilters;
@@ -153,18 +155,14 @@ class RoutedPageContentTest extends TestCase
 
 	function testGetTemplateFullPath()
 	{
-		$this->assertEquals( LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
-	}
-
-	function testSetTemplateDir()
-	{
-		$new_dir_path = '/new/path/to/templates';
-		RoutedPageContentTestHarness::setTemplateDir($new_dir_path);
-		$this->assertEquals($new_dir_path, RoutedPageContentTestHarness::getTemplateDir());
-		$this->assertEquals(LittledUtility::joinPaths($new_dir_path, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
-
-		// reset
-		RoutedPageContentTestHarness::setTemplateDir(RoutedPageContentTest::TEST_TEMPLATE_DIR);
+		try {
+			$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
+		}
+		catch(Exception $e) {
+			$this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
+		}
+		RoutedPageContentTestHarness::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
+		$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
 	}
 
 	function testSetTemplateFilename()

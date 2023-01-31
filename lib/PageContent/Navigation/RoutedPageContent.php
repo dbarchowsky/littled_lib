@@ -23,7 +23,6 @@ class RoutedPageContent extends PageContent
     protected static string $routes_class='';
     protected static string $add_token = 'add';
     protected static string $edit_token = 'edit';
-	protected static string $template_dir='';
 	protected static string $template_filename='';
 	protected static int $access_level;
 
@@ -135,33 +134,6 @@ class RoutedPageContent extends PageContent
         return static::$content_class;
     }
 
-    /**
-     * Template directory path getter.
-     * @return string
-     */
-    public static function getTemplateDir(): string
-    {
-        return static::$template_dir;
-    }
-
-	/**
-	 * Template directory path getter.
-	 * @return string
-	 */
-	public static function getTemplateFilename(): string
-	{
-		return static::$template_filename;
-	}
-
-	/**
-	 * Template full path getter.
-	 * @return string
-	 */
-	public static function getTemplateFullPath(): string
-	{
-		return LittledUtility::joinPaths(static::$template_dir, static::$template_filename);
-	}
-
 	/**
      * Details uri getter.
      * @param ?int $record_id
@@ -259,7 +231,40 @@ class RoutedPageContent extends PageContent
         return static::$routes_class;
     }
 
-    /**
+	/**
+	 * Template directory path getter.
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getTemplateDir(): string
+	{
+		$routes_class = static::getValidatedRoutesClass('getTemplateDir');
+		/** @var SectionNavigationRoutes $routes_class */
+		return $routes_class::getTemplateDir();
+	}
+
+	/**
+	 * Template directory path getter.
+	 * @return string
+	 */
+	public static function getTemplateFilename(): string
+	{
+		return static::$template_filename;
+	}
+
+	/**
+	 * Template full path getter.
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getTemplateFullPath(): string
+	{
+		$routes_class = static::getValidatedRoutesClass('getTemplateDir');
+		/** @var SectionNavigationRoutes $routes_class */
+		return LittledUtility::joinPaths($routes_class::getTemplateDir(), static::$template_filename);
+	}
+
+	/**
      * Sets the page template to load after updating a database record.
      * @return RoutedPageContent
      * @throws ConfigurationUndefinedException
@@ -276,6 +281,26 @@ class RoutedPageContent extends PageContent
         }
         return $this;
     }
+
+	/**
+	 * Validates that the $routes_class property value is currently set to an appropriate class type before returning
+	 * the name of the routes class.
+	 * @param string $method Optional method name. If present, the class will be checked to make sure that the method
+	 * exists within the class.
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 */
+	public static function getValidatedRoutesClass(string $method=''): string
+	{
+		$routes_class = static::$routes_class;
+		if (!class_exists($routes_class)) {
+			throw new ConfigurationUndefinedException('Invalid route object');
+		}
+		if ($method && !method_exists($routes_class, $method)) {
+			throw new ConfigurationUndefinedException('Invalid interface.');
+		}
+		return $routes_class;
+	}
 
     /**
      * Instantiates filters and routes objects for the class.
