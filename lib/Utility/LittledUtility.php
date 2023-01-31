@@ -19,6 +19,20 @@ class LittledUtility
 		return '';
 	}
 
+	/**
+	 * Joins variable length list of strings into a single filesystem path strong. Unlink LittledUtility::joinPathParts(),
+	 * it will not add a leading slash to the path if it isn't present in the first string passed to the method.
+	 * @return string
+	 */
+	public static function joinPaths(): string
+	{
+		$paths = array();
+		foreach (func_get_args() as $arg) {
+			if ($arg !== '') { $paths[] = $arg; }
+		}
+		return preg_replace('#/+#','/',join('/', $paths));
+	}
+
     /**
      * Strips levels off a filesystem path.
      * @param string $path Path to edit.

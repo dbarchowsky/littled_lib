@@ -18,11 +18,23 @@ class LittledUtilityTest extends TestCase
 		$this->assertEquals($expected, LittledUtility::joinPathParts($parts));
 	}
 
+	/**
+	 * @dataProvider \Littled\Tests\Utility\DataProvider\LittledUtilityTestDataProvider::joinPathsTestProvider()
+	 * @param string $expected
+	 * @param array $parts
+	 * @return void
+	 */
+	function testJoinPaths(string $expected, array $parts)
+	{
+		$this->assertEquals($expected, call_user_func_array(array('\Littled\Utility\LittledUtility', 'joinPaths'), $parts));
+	}
+
     /**
      * @dataProvider \Littled\Tests\Utility\DataProvider\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
      * @param string $expected
      * @param string $path
      * @param int $levels
+     * @param string $msg
      * @return void
      */
     function testStripPathLevels(string $expected, string $path, int $levels, string $msg='')

@@ -29,6 +29,22 @@ class LittledUtilityTestDataProvider
 		);
 	}
 
+	public static function joinPathsTestProvider(): array
+	{
+		return array(
+			array('', array('', '')),
+			array('/', array('', '/')),
+			array('/a', array('/', 'a')),
+			array('/a', array('/', '/a')),
+			array('abc/def', array('abc', 'def')),
+			array('abc/def', array('abc', '/def')),
+			array('/abc/def', array('/abc', 'def')),
+			array('foo.jpg', array('', 'foo.jpg')),
+			array('dir/0/a.jpg', array('dir', '0', 'a.jpg')),
+		);
+	}
+
+
     public static function stripPathLevelsTestProvider(): array
     {
         return array(
