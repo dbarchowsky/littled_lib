@@ -9,7 +9,7 @@ class SectionNavigationRoutes
 	protected static string $edit_page_class='';
 	protected static string $listings_page_class='';
 	protected static string $listings_route='';
-    protected static string $template_path='';
+    protected static string $template_dir='';
 
 	/**
 	 * Details page class name getter
@@ -80,9 +80,9 @@ class SectionNavigationRoutes
      * Template path getter.
      * @return void
      */
-    public static function getTemplatePath(): string
+    public static function getTemplateDir(): string
     {
-        return static::$template_path;
+        return static::$template_dir;
     }
 
     /**
@@ -110,8 +110,8 @@ class SectionNavigationRoutes
      * @param string $path
      * @return void
      */
-    public static function setTemplatePath(string $path)
+    public static function setTemplateDir(string $path)
     {
-        static::$template_path = $path;
+        static::$template_dir = $path;
     }
 }
