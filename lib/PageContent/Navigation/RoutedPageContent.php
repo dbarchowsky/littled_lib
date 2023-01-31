@@ -3,17 +3,14 @@ namespace Littled\PageContent\Navigation;
 
 use Exception;
 use Littled\Account\LoginAuthenticator;
-use Littled\Account\UserAccount;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
-use Littled\Filters\FilterCollection;
 use Littled\Log\Log;
 use Littled\PageContent\PageContent;
-use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Utility\LittledUtility;
 
 class RoutedPageContent extends PageContent
@@ -270,8 +267,7 @@ class RoutedPageContent extends PageContent
     public function getUpdateResponsePage(): RoutedPageContent
     {
         /** placeholder for child classes */
-        if ($this->filters instanceof ContentFilters &&
-            ContentFilters::NEXT_OP_PREVIOUS === $this->filters->next->value) {
+        if (ContentFilters::NEXT_OP_PREVIOUS === $this->filters->next->value) {
             if ($this->filters->referer_uri) {
                 $this->formatQueryString();
                 header("Location: {$this->filters->referer_uri}$this->query_string");
