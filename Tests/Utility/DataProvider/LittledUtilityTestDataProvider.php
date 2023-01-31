@@ -40,6 +40,7 @@ class LittledUtilityTestDataProvider
 			array('abc/def', array('abc', '/def')),
 			array('/abc/def', array('/abc', 'def')),
 			array('/abc/def', array('/abc/', '/def')),
+			array('abc/def/', array('abc', 'def/')),
 			array('foo.jpg', array('', 'foo.jpg')),
 			array('dir/0/a.jpg', array('dir', '0', 'a.jpg')),
 		);
