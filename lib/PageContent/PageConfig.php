@@ -5,7 +5,7 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Log\Debug;
+use Littled\Log\Log;
 use Littled\PageContent\Metadata\Preload;
 use Littled\Validation\Validation;
 use Littled\PageContent\Metadata\PageMetadata;
@@ -31,7 +31,7 @@ class PageConfig
 	/** @var PageMetadata Site metadata */
 	protected static PageMetadata $metadata;
 	/** @var ?string Status message passed from one page to another */
-	protected static string $status='';
+	protected static ?string $status='';
 	/** @var NavigationMenu Page utility links list. */
 	protected static NavigationMenu $utilityLinks;
 	/** @var Breadcrumbs Page breadcrumb list. */
@@ -345,7 +345,7 @@ class PageConfig
 	public static function setBreadcrumbsClass(string $class)
 	{
 		if (!class_exists($class)) {
-			throw new InvalidTypeException(Debug::getShortMethodName()." \"$class\" is an invalid type.");
+			throw new InvalidTypeException(Log::getShortMethodName()." \"$class\" is an invalid type.");
 		}
 		static::$breadcrumbs_class = $class;
 	}
@@ -423,7 +423,7 @@ class PageConfig
 	public static function setNavigationMenuClass(string $class)
 	{
 		if (!class_exists($class)) {
-			throw new InvalidTypeException(Debug::getShortMethodName()." \"$class\" is an invalid type.");
+			throw new InvalidTypeException(Log::getShortMethodName()." \"$class\" is an invalid type.");
 		}
 		static::$navigation_menu_class = $class;
 	}
