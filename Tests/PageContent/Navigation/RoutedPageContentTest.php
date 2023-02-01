@@ -143,6 +143,9 @@ class RoutedPageContentTest extends TestCase
 		$this->assertEquals(UserAccount::BASIC_AUTHENTICATION, $o::getAccessLevel());
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	function testGetTemplateDir()
 	{
 		$this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTestHarness::getTemplateDir());
@@ -153,6 +156,9 @@ class RoutedPageContentTest extends TestCase
 		$this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_FILENAME, RoutedPageContentTestHarness::getTemplateFilename());
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	function testGetTemplateFullPath()
 	{
 		try {
@@ -165,11 +171,65 @@ class RoutedPageContentTest extends TestCase
 		$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
+	function testGetValidatedRoutesClass()
+	{
+		// Tests unassigned routes class
+		try {
+			RoutedPageContent::getValidatedRoutesClass();
+		}
+		catch(Exception $e) {
+			$this->assertEquals('Invalid route object in Littled\PageContent\Navigation\RoutedPageContent.', $e->getMessage());
+		}
+
+		// Tests unassigned routes class in child class
+		try {
+			RoutedPageContentTestHarness::getValidatedRoutesClass();
+		}
+		catch(Exception $e) {
+			$this->assertEquals('Invalid route object in Littled\Tests\PageContent\Navigation\TestHarness\RoutedPageContentTestHarness.', $e->getMessage());
+		}
+
+		// tests class after assigning routes class
+		$routes_class = SectionNavigationRoutesTestHarness::class;
+		RoutedPageContentTestHarness::setRoutesClassName($routes_class);
+		$this->assertEquals($routes_class, RoutedPageContentTestHarness::getValidatedRoutesClass());
+
+		// Tests non-existent method
+		try {
+			RoutedPageContentTestHarness::getValidatedRoutesClass('nonExistentMethod');
+		}
+		catch (Exception $e) {
+			$this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
+			$this->assertStringStartsWith('Invalid interface', $e->getMessage());
+		}
+
+		// Tests valid existing method
+		$this->assertEquals($routes_class, RoutedPageContentTestHarness::getValidatedRoutesClass('methodAvailableForTestPurposes'));
+
+		// Reset routes class name
+		RoutedPageContentTestHarness::setRoutesClassName('');
+	}
+
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	function testSetTemplateFilename()
 	{
 		$new_filename = '/new-template.txt';
 		RoutedPageContentTestHarness::setTemplateFilename($new_filename);
 		$this->assertEquals($new_filename, RoutedPageContentTestHarness::getTemplateFilename());
+
+		try {
+			$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
+		}
+		catch(ConfigurationUndefinedException $e) {
+			$this->assertStringStartsWith('Invalid route object', $e->getMessage());
+		}
+
+		RoutedPageContentTestHarness::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
 		$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
 
 		// reset

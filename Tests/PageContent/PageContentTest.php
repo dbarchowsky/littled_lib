@@ -12,8 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class PageContentTest extends TestCase
 {
-    /** @var PageContent */
-    public $obj;
+    public PageContent $obj;
     /** @var string */
     protected const STATIC_TEMPLATE_PATH = '../assets/templates/page-content-test-static.php';
     /** @var string */

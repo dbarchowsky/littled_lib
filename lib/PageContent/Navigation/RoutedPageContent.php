@@ -294,7 +294,7 @@ class RoutedPageContent extends PageContent
 	{
 		$routes_class = static::$routes_class;
 		if (!class_exists($routes_class)) {
-			throw new ConfigurationUndefinedException('Invalid route object');
+			throw new ConfigurationUndefinedException('Invalid route object in '.get_called_class().'.');
 		}
 		if ($method && !method_exists($routes_class, $method)) {
 			throw new ConfigurationUndefinedException('Invalid interface.');
