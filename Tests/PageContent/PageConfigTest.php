@@ -61,6 +61,11 @@ class PageConfigTest extends TestCase
 		$this->assertEquals($css_class, PageConfig::getContentCSSClass(), 'Content CSS class assignment');
 	}
 
+    public function testGetPageConfig()
+    {
+        $this->assertEquals('', PageConfig::getPageStatus());
+    }
+
     public function testGetPreloads()
     {
         // test default state

@@ -221,7 +221,7 @@ class PageConfig
 	 */
 	public static function getPageStatus(): string
 	{
-		return((is_null(static::$status))?(''):(static::$status));
+		return((!isset(static::$status) || is_null(static::$status))?(''):(static::$status));
 	}
 
 	/**
