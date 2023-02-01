@@ -31,7 +31,7 @@ class PageConfig
 	/** @var PageMetadata Site metadata */
 	protected static PageMetadata $metadata;
 	/** @var ?string Status message passed from one page to another */
-	protected static ?string $status=null;
+	protected static string $status='';
 	/** @var NavigationMenu Page utility links list. */
 	protected static NavigationMenu $utilityLinks;
 	/** @var Breadcrumbs Page breadcrumb list. */
@@ -221,7 +221,7 @@ class PageConfig
 	 */
 	public static function getPageStatus(): string
 	{
-		return((is_null(static::$status))?(''):(static::$status));
+		return static::$status;
 	}
 
 	/**
