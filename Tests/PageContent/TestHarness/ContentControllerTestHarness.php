@@ -2,8 +2,8 @@
 
 namespace Littled\Tests\PageContent\TestHarness;
 
-use Exception;
 use Littled\PageContent\ContentController;
+use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\Ajax\AjaxPageTest;
@@ -42,7 +42,7 @@ class ContentControllerTestHarness extends ContentController
      */
     protected static function getPostEditTemplatePath(SerializedContent $content): string
     {
-        return 'Abstract method placeholder.';
+        return 'Abstract method placeholder. Content type '.get_class($content);
     }
 
     /**
@@ -64,5 +64,11 @@ class ContentControllerTestHarness extends ContentController
 			default:
 				return 'TestContentClassString';
 		}
+	}
+
+	public static function getRoutedPageInstance(array $route_parts): RoutedPageContent
+	{
+		// TODO: Implement getRoutedPageInstance() method.
+		return new RoutedPageContent();
 	}
 }

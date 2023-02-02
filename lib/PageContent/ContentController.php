@@ -140,12 +140,12 @@ abstract class ContentController
 	abstract public static function getPageContentClass(int $content_id): string;
 
     /**
-     * Returns the name of a RoutedPageContent class matching the content type id and view token.
-     * @param int $content_id Content type record id indicating the content type of the page.
-     * @param string $view Token specifying the view of the content, e.g. "listings", "details", "edit"
-     * @return string
+     * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by
+     * the $route_parts argument.
+     * @param array $route_parts The route that has been requested, exploded into its parts.
+     * @return RoutedPageContent
      */
-    abstract public static function getRoutedPageContentClass(int $content_id, string $view): string;
+    abstract public static function getRoutedPageInstance(array $route_parts): RoutedPageContent;
 
     /**
      * Default action is to load content property values from the database. This method can instead be overridden to
