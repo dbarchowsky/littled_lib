@@ -51,6 +51,12 @@ class PageConfigTest extends TestCase
         $this->assertCount(0, $preloads);
     }
 
+    public function testCollectPageStatus()
+    {
+        PageConfig::collectPageStatus();
+        $this->assertEquals('', PageConfig::getPageStatus());
+    }
+
 	public function testContentCSSClass()
 	{
 		$css_class = 'test-class';

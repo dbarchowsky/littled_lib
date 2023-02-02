@@ -30,8 +30,8 @@ class PageConfig
 	public static array $preloads = array();
 	/** @var PageMetadata Site metadata */
 	protected static PageMetadata $metadata;
-	/** @var ?string Status message passed from one page to another */
-	protected static ?string $status='';
+	/** @var string Status message passed from one page to another */
+	protected static string $status='';
 	/** @var NavigationMenu Page utility links list. */
 	protected static NavigationMenu $utilityLinks;
 	/** @var Breadcrumbs Page breadcrumb list. */
@@ -152,7 +152,7 @@ class PageConfig
 	 */
 	public static function collectPageStatus( )
 	{
-		static::$status = Validation::collectStringRequestVar(LittledGlobals::INFO_MESSAGE_KEY);
+		static::$status = ''.Validation::collectStringRequestVar(LittledGlobals::INFO_MESSAGE_KEY);
 		if(isset($_SESSION[LittledGlobals::INFO_MESSAGE_KEY])) {
 			unset($_SESSION[LittledGlobals::INFO_MESSAGE_KEY]);
 		}
