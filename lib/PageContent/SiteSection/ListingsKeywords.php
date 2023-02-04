@@ -7,13 +7,13 @@ use Littled\Request\IntegerInput;
 
 /**
  * Class ListingsKeywords
- * @property IntegerInput $id The ide of the current record being displayed.
  * Extends KeywordSectionContent by providing a "record id" property to be used to retrieve keywords attached
  * to a particular record in the database. Intended to be used as a helper class for retrieving keywords while
  * rendering listings.
  */
 class ListingsKeywords extends KeywordSectionContent
 {
+    /** @var IntegerInput $id The ide of the current record being displayed. */
 	public IntegerInput $id;
 
 	/**
