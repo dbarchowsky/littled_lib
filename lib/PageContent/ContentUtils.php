@@ -12,40 +12,19 @@ class ContentUtils
     /**
      * Inserts data into a template file and stores the resulting content in the object's $content property.
      * @param string $template_path Path to content template file.
-     * @param array|null $context Array containing data to insert into the template.
+     * @param ?array $context Array containing data to insert into the template.
      * @return string Markup with content inserted into it.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
      */
-    public static function loadTemplateContent(string $template_path, array $context=null ): string
+    public static function loadTemplateContent(string $template_path, ?array $context=null ): string
     {
-        if (substr($template_path, 0, 1) == '/') {
-            if ($_SERVER['DOCUMENT_ROOT']) {
-                if (strpos($template_path, $_SERVER['DOCUMENT_ROOT']) !== 0) {
-                    $template_path = rtrim($_SERVER['DOCUMENT_ROOT'], '/').$template_path;
-                }
-            }
-        }
-        if (!file_exists($template_path)) {
-            if ($template_path) {
-                throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
-            }
-            else {
-                throw new ResourceNotFoundException("Template not found.");
-            }
-        }
-        if (is_array($context)) {
-            foreach($context as $key => $val) {
-                ${$key} = $val;
-            }
-        }
         ob_start();
 		try {
-			include($template_path);
+			ContentUtils::renderTemplate($template_path, $context);
 			$markup = ob_get_contents();
 		} finally {
 			ob_end_clean();
 		}
-
         return ($markup);
     }
 
