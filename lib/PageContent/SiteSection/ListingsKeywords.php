@@ -1,9 +1,9 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
-
 use Littled\App\LittledGlobals;
 use Littled\Request\IntegerInput;
+
 
 /**
  * Class ListingsKeywords
@@ -19,11 +19,11 @@ class ListingsKeywords extends KeywordSectionContent
 
 	/**
 	 * ListingsKeywords constructor.
-	 * @param int $id The article's id.
+	 * @param ?int $id The article's id.
 	 * @param int $content_type_id This article's content type identifier.
-	 * @param string[optional] $kw_param Keyword request variable name.
+	 * @param string $keyword_key Optional key for the term's request variable.
 	 */
-	public function __construct($id, $content_type_id, $keyword_key = "kw")
+	public function __construct(?int $id, int $content_type_id, string $keyword_key = "kw")
 	{
 		parent::__construct($id, $content_type_id, $keyword_key);
 		$this->id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false, $id);
