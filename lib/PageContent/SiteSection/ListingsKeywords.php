@@ -18,14 +18,11 @@ class ListingsKeywords extends KeywordSectionContent
 	public IntegerInput $id;
 
 	/**
-	 * ListingsKeywords constructor.
-	 * @param ?int $id The article's id.
-	 * @param int $content_type_id This article's content type identifier.
-	 * @param string $keyword_key Optional key for the term's request variable.
+	 * @inheritDoc
 	 */
-	public function __construct(?int $id, int $content_type_id, string $keyword_key = "kw")
+	public function __construct(?int $id, int $content_type_id)
 	{
-		parent::__construct($id, $content_type_id, $keyword_key);
+		parent::__construct($id, $content_type_id);
 		$this->id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false, $id);
 	}
 }
