@@ -28,6 +28,17 @@ class FilterCollectionChild extends FilterCollection
         $this->date_before = new DateContentFilter('date before', 'dateBefore', '', null, $this::getCookieKey());
     }
 
+    /**
+     * Public interface for protected method calculateRecordOffset()
+     * @param int $record_id
+     * @param $data
+     * @return ?int
+     */
+    public function publicCalculateRecordOffset(int $record_id, $data): ?int
+    {
+        return $this->calculateRecordOffset($record_id, $data);
+    }
+
 	/**
 	 * @inheritDoc
 	 * Make this public for test classes.

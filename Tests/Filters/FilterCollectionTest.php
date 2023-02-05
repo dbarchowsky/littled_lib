@@ -53,7 +53,7 @@ class FilterCollectionTest extends TestCase
     {
         parent::tearDown();
         $conn = new MySQLConnection();
-        $conn->query('DE'.'LETE FROM `'.self::TEST_TABLE.'` WHERE `name` LIKE \'%'.self::TEST_RECORD_LABEL.'%\'');
+        $conn->query('DEL'.'ETE FROM `'.self::TEST_TABLE.'` WHERE `name` LIKE \'%'.self::TEST_RECORD_LABEL.'%\'');
         $conn->closeDatabaseConnection();
         unset($conn);
     }

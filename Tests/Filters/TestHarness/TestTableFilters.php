@@ -1,15 +1,14 @@
 <?php
-
 namespace Littled\Tests\Filters\TestHarness;
 
 use Littled\Filters\BooleanContentFilter;
-use Littled\Filters\ContentFilters;
 use Littled\Filters\DateContentFilter;
 use Littled\Filters\IntegerContentFilter;
 use Littled\Filters\StringContentFilter;
 use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
 
-class TestTableFilters extends ContentFilters
+
+class TestTableFilters extends FilterCollectionChild
 {
     /** @var int */
     protected static int $default_listings_length = 20;
@@ -38,7 +37,7 @@ class TestTableFilters extends ContentFilters
 			'iisiiss',
 			&$this->page->value,
 			&$this->listings_length->value,
-			&$this->name->value,
+			&$this->name_filter->value,
 			&$this->int_filter->value,
 			&$this->bool_filter->value,
 			&$this->date_after->value,

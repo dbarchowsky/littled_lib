@@ -11,9 +11,7 @@ use Exception;
 
 
 /**
- * Class filter_collection_class
- * Filter collection base class, inherits from db_connection_class
- * @package Littled\Filters
+ * Filter collection base class used to filter listings records on listings pages.
  */
 class FilterCollection extends FilterCollectionProperties
 {
@@ -23,11 +21,11 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Calculate the total number of pages for the listings based on the total number of records and the length of the pages.
-	 * @param int[optional] $rec_count Total number of records.
-	 * @param int[optional] $page_len Number of records displayed on the individual pages.
+	 * @param ?int $rec_count Optional total number of records.
+	 * @param ?int $page_len Optional number of records displayed on the individual pages.
 	 * @return int Total number of pages in the listings.
 	 */
-	public function calcPageCount($rec_count=null, $page_len=null): int
+	public function calcPageCount(?int $rec_count=null, ?int $page_len=null): int
 	{
 		if ($rec_count===null) {
 			$rec_count = $this->record_count;
@@ -52,6 +50,30 @@ class FilterCollection extends FilterCollectionProperties
         }
 		return (($this->page->value-1)*$this->listings_length->value);
 	}
+
+    /**
+     * Returns the offset from a given record from the first record in the complete listings matching the current filter values.
+     * @param int $record_id Record id of the current record in the listings.
+     * @param array $data Listings data from the current page in the listings.
+     * @return ?int
+     */
+    protected function calculateRecordOffset(int $record_id, array $data): ?int
+    {
+        // calculate the index of the record preceding the current record
+        $offset = 1;
+        $record_found = false;
+        foreach ($data as $row) {
+            if ($row->id === $record_id) {
+                $record_found = true;
+                break;
+            }
+            $offset++;
+        }
+        if (!$record_found) {
+            return null;
+        }
+        return $this->calcRecordPosition() + $offset;
+    }
 
 	/**
 	 * Specialized routine for collection the "display listings" setting.
@@ -365,59 +387,42 @@ class FilterCollection extends FilterCollectionProperties
 		$this->previous_record_id = null;
 		$this->next_record_id = null;
 
-		// retrieve the current page of listings in order to look up the current record's position
-		$data = $this->retrieveListings();
-		if (count($data) < 1) {
-			// no matching records found
-			return;
-		}
+        // retrieve current page of listings containing the record currently being viewed
+        $data = $this->retrieveListings();
+        if (count($data) < 1) {
+            // no matching records found
+            return;
+        }
 
-		$index = null;
-		foreach ($data as $row) {
-			if ($row->id === $record_id) {
-				$index = (int)$row->index;
-				break;
-			}
-		}
-		if ($index===null) {
-			return;
-		}
+        // offset of the current record from the first record in the complete listings matching the filter values
+        $offset = $this->calculateRecordOffset($record_id, $data);
+        if ($offset===null) {
+            return;
+        }
 
-		if ($index===0) {
-			/**
-			 * Current location is the first record in the page of listings.
-			 * Load the previous page of listings to get the previous record id in the sequence.
-			 */
-			$this->next_record_id = ((count($data)>1) ? ($data[$index+1]->id) : (null));
-			if ($this->page->value > 1) {
-				$this->page->value--;
-				$data = $this->retrieveListings();
-				if (count($data) > 0) {
-					$this->previous_record_id = end($data)->id;
-				}
-				$this->page->value++;
-			}
-		}
-		elseif ($index===count($data)-1) {
-			/**
-			 * Current location is the last record in the page of listings.
-			 * Load the next page of listings to get the next record id in the sequence.
-			 */
-			$this->previous_record_id = $data[$index-1]->id;
-			if ($this->page->value<$this->page_count) {
-				$this->page->value++;
-				$data = $this->retrieveListings();
-				if (count($data) > 0) {
-					$this->next_record_id = $data[0]->id;
-				}
-				$this->page->value--;
-			}
-		}
-		else {
-			// current location has neighbors on both sides within this record set
-			$this->previous_record_id = $data[$index-1]->id;
-			$this->next_record_id = $data[$index+1]->id;
-		}
+        // save original settings
+        $original_listings_length = $this->listings_length->value;
+        $original_page = $this->page->value;
+
+        // settings for retrieving total number of records
+        // fetch two records if the current record is the first record in the listings
+        if ($offset===0) {
+            // current record is the first record in the entire set of listings
+            $this->listings_length->value = 2;
+            $this->page->value = 1;
+        }
+        else {
+            $this->listings_length->value = 3;
+            // make the previous record the first record in results of the next query
+            $this->page->value = floor(($offset - 1) / $this->listings_length->value);
+        }
+
+        // retrieve previous, current, and next records
+        $this->setNeighborIdsFromListingsData($this->retrieveListings(), $offset);
+
+        // restore original listings settings
+        $this->listings_length->value = $original_listings_length;
+        $this->page->value = $original_page;
 	}
 
 	/**
@@ -447,4 +452,27 @@ class FilterCollection extends FilterCollectionProperties
 	{
 		static::$autoload_default = $autoload;
 	}
+
+    /**
+     * Extract neighboring record id values from listings data and assign those values to the object's neighbor id property values.
+     * @param array $data Listings data
+     * @param int $offset Offset of the current record from the first record in all records matching the current filters
+     * @return void
+     */
+    protected function setNeighborIdsFromListingsData(array $data, int $offset)
+    {
+        if ($offset > 0) {
+            if (count($data) > 1) {
+                $this->next_record_id = $data[1]->id;
+            }
+        }
+        else {
+            if (count($data) > 0) {
+                $this->previous_record_id = $data[0]->id;
+            }
+            if (count($data) > 2) {
+                $this->next_record_id = $data[2]->id;
+            }
+        }
+    }
 }

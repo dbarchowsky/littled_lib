@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\Filters;
 
+use Littled\Tests\DataProvider\Filters\RetrieveNeighborIdsTestData;
 use Littled\Tests\Filters\TestHarness\FilterCollectionChildWithQuery;
 use Littled\Tests\Filters\TestHarness\TestTableFilters;
 use PHPUnit\Framework\TestCase;
@@ -10,7 +11,18 @@ class FilterCollectionRetrievalTest extends TestCase
 {
 	public const TEST_LISTINGS_LENGTH = 5;
 
-	/**
+    /**
+     * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
+     * @return void
+     * @throws Exception
+     */
+    function testCalculateRecordOffset(RetrieveNeighborIdsTestData $data)
+    {
+        $listings_data = $data->filters->retrieveListings();
+        $this->assertEquals($data->expected->offset, $data->filters->publicCalculateRecordOffset($data->record_id, $listings_data), $data->msg);
+    }
+
+    /**
 	 * @throws Exception
 	 */
 	function testSearchTitles()
@@ -68,18 +80,15 @@ class FilterCollectionRetrievalTest extends TestCase
         $this->assertCount(0, $data);
     }
 
-	/**
-	 * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
-	 * @throws Exception
-	 */
-	function testRetrieveNeighborIds(?int $expected_prev_id, ?int $expected_next_id, int $record_id, int $page, string $msg)
-	{
-		$f = new TestTableFilters();
-		$f->page->value = $page;
-		$f->listings_length->value = self::TEST_LISTINGS_LENGTH;
-
-		$f->retrieveNeighborIds($record_id);
-		$this->assertEquals($expected_prev_id, $f->previous_record_id, $msg.', previous id');
-		$this->assertEquals($expected_next_id, $f->next_record_id, $msg.', next id');
-	}
+    /**
+     * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
+     * @return void
+     * @throws Exception
+     */
+    function testRetrieveNeighborIds(RetrieveNeighborIdsTestData $data)
+    {
+        $data->filters->retrieveNeighborIds($data->record_id);
+        $this->assertEquals($data->expected->previous_record_id, $data->expected->previous_record_id, $data->msg);
+        $this->assertEquals($data->expected->next_record_id, $data->expected->next_record_id, $data->msg);
+    }
 }
