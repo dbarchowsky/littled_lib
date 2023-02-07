@@ -6,11 +6,10 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\PageContent\SiteSection\DataProvider\ContentTemplateTestDataProvider;
+use Littled\Tests\DataProvider\PageContent\SiteSection\ContentTemplateTestDataProvider;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -22,11 +21,10 @@ class ContentTemplateTest extends TestCase
     const TEST_CONTENT_TYPE_ID = 6037;    /** "Content Template" record in site_section table */
 
 	/** @var ContentTemplate Test ContentTemplate object. */
-	public $obj;
-	/** @var MySQLConnection Test database connection. */
-	public $conn;
+	public ContentTemplate $obj;
+	public MySQLConnection $conn;
 	/** @var int ID of test content template record for reading. */
-	public $test_record_id;
+	public int $test_record_id;
 
 	/**
      * @throws NotImplementedException|Exception
@@ -134,7 +132,7 @@ class ContentTemplateTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\SiteSection\DataProvider\ContentTemplateTestDataProvider::formatFullPathTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentTemplateTestDataProvider::formatFullPathTestProvider()
      * @return void
      * @throws Exception
      */
@@ -271,7 +269,6 @@ class ContentTemplateTest extends TestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws RecordNotFoundException
      * @throws Exception
      */

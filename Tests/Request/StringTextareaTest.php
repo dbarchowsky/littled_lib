@@ -2,13 +2,17 @@
 namespace Littled\Tests\Request;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Request\StringTextarea;
-use Littled\Tests\Request\DataProvider\StringTextareaTestDataProvider;
+use Littled\Tests\DataProvider\Request\StringTextareaTestDataProvider;
 use PHPUnit\Framework\TestCase;
 
 
 class StringTextareaTest extends TestCase
 {
+    /**
+     * @throws ConfigurationUndefinedException
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -17,7 +21,7 @@ class StringTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\StringTextareaTestDataProvider::renderInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringTextareaTestDataProvider::renderInputTestProvider()
      * @param StringTextareaTestDataProvider $data
      * @return void
      */
@@ -33,7 +37,7 @@ class StringTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\StringTextareaTestDataProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringTextareaTestDataProvider::renderTestProvider()
      * @param StringTextareaTestDataProvider $data
      * @return void
      */

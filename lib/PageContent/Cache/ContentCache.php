@@ -5,29 +5,21 @@ use Littled\Ajax\AjaxPage;
 use Littled\Ajax\JSONRecordResponse;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\Exception\ResourceNotFoundException;
-use Littled\Filters\ContentFilters;
 use Littled\Filters\FilterCollection;
-use Littled\Log\Debug;
+use Littled\Log\Log;
 use Littled\PageContent\ContentController;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
 use Exception;
-use ReflectionClass;
+
 
 /**
  * Updates site cache after content updates.
  */
 abstract class ContentCache extends MySQLConnection
 {
-    /** @var string */
-    protected static $controller_class = ContentController::class;
+    protected static string $controller_class = ContentController::class;
 
     /**
 	 * class constructor
@@ -83,7 +75,7 @@ abstract class ContentCache extends MySQLConnection
     {
         $o = new $class_name;
         if (!$o instanceof ContentController) {
-            throw new InvalidTypeException(Debug::getShortMethodName().' invalid controller class '.$class_name.'.');
+            throw new InvalidTypeException(Log::getShortMethodName().' invalid controller class '.$class_name.'.');
         }
         unset($o);
         static::$controller_class = $class_name;

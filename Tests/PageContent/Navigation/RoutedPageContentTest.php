@@ -6,10 +6,10 @@ use Littled\Account\UserAccount;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\RoutedPageContent;
-use Littled\Tests\Filters\TestHarness\TestTableFilters;
-use Littled\Tests\PageContent\Navigation\TestHarness\RoutedPageContentTestHarness;
-use Littled\Tests\PageContent\Navigation\TestHarness\SectionNavigationRoutesTestHarness;
-use Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
+use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
+use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 
@@ -20,7 +20,7 @@ class RoutedPageContentTest extends TestCase
 	const TEST_TEMPLATE_FILENAME = 'my-template.txt';
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\RoutedPageContentTestDataProvider::collectActionFromRouteTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectActionFromRouteTestProvider()
      * @param string $expected_action
      * @param int|null $expected_record_id
      * @param array $route
@@ -34,7 +34,7 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\RoutedPageContentTestDataProvider::collectRecordIdFromRouteTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectRecordIdFromRouteTestProvider()
      * @param int|null $expected
      * @param array $route
      * @return void
@@ -64,7 +64,7 @@ class RoutedPageContentTest extends TestCase
 	function testGetEditURIWithFilters()
     {
         $o = new RoutedPageContentTestHarness();
-        $o::setFiltersClassName(TestTableFilters::class);
+        $o::setFiltersClassName(ContentFiltersChild::class);
         $o::setContentClassName(SectionContentTestHarness::class);
         $o::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
         $o->instantiateProperties();
@@ -189,7 +189,7 @@ class RoutedPageContentTest extends TestCase
 			RoutedPageContentTestHarness::getValidatedRoutesClass();
 		}
 		catch(Exception $e) {
-			$this->assertEquals('Invalid route object in Littled\Tests\PageContent\Navigation\TestHarness\RoutedPageContentTestHarness.', $e->getMessage());
+			$this->assertEquals('Invalid route object in Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness.', $e->getMessage());
 		}
 
 		// tests class after assigning routes class

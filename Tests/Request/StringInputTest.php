@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Tests\Request;
 
-use Littled\Tests\Request\DataProvider\StringInputTestData;
+use Littled\Tests\DataProvider\Request\StringInputTestData;
 use PHPUnit\Framework\TestCase;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
@@ -13,8 +13,7 @@ use Littled\Request\StringInput;
  */
 class StringInputTest extends TestCase
 {
-	/** @var StringInput Test DateInput object. */
-	public $obj;
+	public StringInput $obj;
 
     protected function setUp(): void
     {
@@ -46,7 +45,7 @@ class StringInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::renderTestProvider()
      * @param StringInputTestData $data
      * @return void
      */
@@ -57,20 +56,20 @@ class StringInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::renderInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::renderInputTestProvider()
      * @param StringInputTestData $data
      * @return void
      */
     function testRenderInput(StringInputTestData $data)
     {
-        $data->obj->input_class_class = $data->css_class;
+        $data->obj->input_css_class = $data->css_class;
         $this->expectOutputRegex($data->expected_regex);
         $data->obj->renderInput($data->label_override);
     }
 
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\StringInputTestDataProvider::setInputValueTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::setInputValueTestProvider()
      * @param StringInputTestData $data
      * @return void
      */

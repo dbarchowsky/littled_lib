@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 class ContentConversionTest extends TestCase
 {
 	/**
-	 * @dataProvider \Littled\Tests\Validation\DataProvider\ContentConversionTestDataProvider::formatIndexMarkupProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Validation\ContentConversionTestDataProvider::formatIndexMarkupProvider()
 	 * @param string $expected
 	 * @param mixed $index
 	 * @return void

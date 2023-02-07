@@ -170,7 +170,7 @@ class PageController extends MySQLConnection
 		/* test if the slug matches any existing site sections */
 		$query = "SELECT `id`,`table`,`root_dir`,`sub_dir` FROM `site_section` WHERE `slug` LIKE ".$this->escapeSQLValue($this->section_slug);
 		$data = $this->fetchRecords($query);
-		if (count($data) < 0) {
+		if (count($data) < 1) {
 			throw new RecordNotFoundException("Error retrieving content properties.");
 		}
 		$this->section_id = $data[0]->id;

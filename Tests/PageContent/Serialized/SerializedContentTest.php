@@ -1,11 +1,11 @@
 <?php
 namespace Littled\Tests\PageContent\Serialized;
 
-use Littled\Tests\PageContent\Serialized\DataProvider\ReadListTestDataProvider;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentChild;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentNameTestHarness;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentTitleTestHarness;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentNonDefaultColumn;
+use Littled\Tests\DataProvider\PageContent\Serialized\ReadListTestDataProvider;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentNameTestHarness;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentNonDefaultColumn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -15,16 +15,14 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Tests\PageContent\Serialized\TestHarness\SketchbookTestHarness;
+use Littled\Tests\TestHarness\PageContent\Serialized\SketchbookTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
 class SerializedContentTest extends TestCase
 {
-	/** @var SerializedContent Test object. */
-	public $obj;
-	/** @var MySQLConnection Database connection. */
-	public $conn;
+	public SerializedContent $obj;
+	public MySQLConnection $conn;
 
 	/**
 	 * @throws NotImplementedException Table name is not set in inherited classes.
@@ -407,7 +405,7 @@ class SerializedContentTest extends TestCase
      * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-     * @throws InvalidTypeException|NotImplementedException
+     * @throws NotImplementedException
      */
     public function testReadNonExistentRecord()
     {
@@ -421,7 +419,7 @@ class SerializedContentTest extends TestCase
      * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-     * @throws InvalidTypeException|NotImplementedException
+     * @throws NotImplementedException
      */
 	public function testReadNullID()
 	{
@@ -436,7 +434,6 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-     * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException|NotImplementedException
      */
@@ -467,7 +464,7 @@ class SerializedContentTest extends TestCase
 	        return($o->vc_col->value);
 	    };
 	    $obj = new SerializedContentChild();
-    	$obj->readList('array_container', 'Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentTitleTestHarness', $query);
+    	$obj->readList('array_container', 'Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness', $query);
     	$this->assertGreaterThan(0, count($obj->array_container));
     	$this->assertContains('test one', array_map($title_cb, $obj->array_container));
 	    $this->assertContains('test four', array_map($title_cb, $obj->array_container));
@@ -476,7 +473,7 @@ class SerializedContentTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\Serialized\DataProvider\ReadListTestDataProvider::readListProvider
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\ReadListTestDataProvider::readListProvider
      * @return void
      * @throws InvalidTypeException
      * @throws NotImplementedException|ConfigurationUndefinedException
@@ -496,7 +493,6 @@ class SerializedContentTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-     * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */

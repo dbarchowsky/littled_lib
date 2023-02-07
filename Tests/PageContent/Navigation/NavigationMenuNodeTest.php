@@ -3,7 +3,7 @@ namespace Littled\Tests\PageContent\Navigation;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Tests\PageContent\Navigation\DataProvider\NavigationMenuNodeTestData;
+use Littled\Tests\DataProvider\PageContent\Navigation\NavigationMenuNodeTestData;
 use PHPUnit\Framework\TestCase;
 
 class NavigationMenuNodeTest extends TestCase
@@ -16,7 +16,7 @@ class NavigationMenuNodeTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\NavigationMenuNodeTestDataProvider::renderTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\NavigationMenuNodeTestDataProvider::renderTestProvider()
 	 * @param NavigationMenuNodeTestData $data
 	 * @return void
 	 * @throws ResourceNotFoundException

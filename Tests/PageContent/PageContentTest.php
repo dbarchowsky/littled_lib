@@ -5,8 +5,9 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
-use Littled\Tests\PageContent\TestHarness\PageContentChild;
-use Littled\Tests\PageContent\TestHarness\PageContentWithFiltersTestHarness;
+use Littled\Tests\TestHarness\PageContent\PageContentChild;
+use Littled\Tests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
+use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 
 
@@ -14,9 +15,9 @@ class PageContentTest extends TestCase
 {
     public PageContent $obj;
     /** @var string */
-    protected const STATIC_TEMPLATE_PATH = '../assets/templates/page-content-test-static.php';
+    protected const STATIC_TEMPLATE_PATH = 'assets/templates/page-content-test-static.php';
     /** @var string */
-    protected const DYNAMIC_TEMPLATE_PATH = '../assets/templates/page-content-test-variable.php';
+    protected const DYNAMIC_TEMPLATE_PATH = 'assets/templates/page-content-test-variable.php';
 
     protected function setUp(): void
     {
@@ -30,8 +31,13 @@ class PageContentTest extends TestCase
 		$this->obj->closeDatabaseConnection();
 	}
 
+    protected static function getDynamicTemplatePath(): string
+    {
+        return LittledUtility::joinPaths(APP_BASE_DIR, 'Tests', self::DYNAMIC_TEMPLATE_PATH);
+    }
+
 	/**
-	 * @dataProvider \Littled\Tests\PageContent\DataProvider\PageContentTestDataProvider::collectEditActionTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentTestDataProvider::collectEditActionTestProvider()
 	 * @param string $expected
 	 * @param array $data
 	 * @return void
@@ -90,7 +96,7 @@ class PageContentTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\DataProvider\PageContentTestDataProvider::getRecordIdProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentTestDataProvider::getRecordIdProvider()
      * @param int|null $record_id
      * @param int|null $expected
      * @return void
@@ -139,7 +145,7 @@ class PageContentTest extends TestCase
      */
     public function testRender()
     {
-        $this->obj->setTemplatePath(PageContentTest::DYNAMIC_TEMPLATE_PATH);
+        $this->obj->setTemplatePath($this::getDynamicTemplatePath());
         $this->expectOutputRegex('/This is test template content\./');
         $this->obj->render(array('test_var' => ''));
     }
@@ -156,7 +162,7 @@ class PageContentTest extends TestCase
 
         $o = new PageContentChild();
         $o->injected_text = $inject_test;
-        $o->setTemplatePath(PageContentTest::DYNAMIC_TEMPLATE_PATH);
+        $o->setTemplatePath($this::getDynamicTemplatePath());
 
         $this->expectOutputRegex($pattern);
         $o->sendResponse();

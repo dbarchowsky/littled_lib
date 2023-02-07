@@ -8,13 +8,13 @@ use Littled\PageContent\ContentUtils;
 class Preload
 {
 	/** @var string Tag type of the preload element */
-	public $tag;
+	public string $tag;
 	/** @var string Value to insert into the "rel" attribute of the element */
-	public $rel;
+	public string $rel;
 	/** @var string Value to insert into the "href" attribute of the element */
-	public $url;
+	public string $url;
 	/** @var array Extra attributes to attach to the element */
-	public $extra_attributes;
+	public array $extra_attributes;
 
 	/**
 	 * @param string $tag
@@ -36,7 +36,7 @@ class Preload
      */
     public function render()
     {
-        if (''===$this->tag || null===$this->tag) {
+        if (''===$this->tag) {
             ContentUtils::printError('Missing required metadata tag.');
             return;
         }

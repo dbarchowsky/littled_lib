@@ -99,7 +99,7 @@ class BooleanInput extends RequestInput
 
 	/**
 	 * Assigns a value to the object. Checks that passed value is boolean.
-	 * @param bool $value Value to assign.
+	 * @param ?bool $value Value to assign.
 	 */
 	public function setInputValue ($value)
 	{

@@ -20,7 +20,7 @@ class DateContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\DateContentFilterTestDataProvider::collectValueTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\DateContentFilterTestDataProvider::collectValueTestProvider()
      * @param ?string $value
      * @param ?string $expected
      * @param string $msg
@@ -43,12 +43,13 @@ class DateContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\DateContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\DateContentFilterTestDataProvider::escapeSQLTestProvider()
      * @param $value
      * @param ?string $expected
      * @param string $msg
+     * @throws Exception
      */
-	public function testEscapeSQL($value, ?string $expected, $msg='')
+	public function testEscapeSQL($value, ?string $expected, string $msg='')
 	{
         if (!defined('MYSQL_HOST') ||
             !defined('MYSQL_USER') ||
@@ -65,6 +66,6 @@ class DateContentFilterTest extends TestCase
             $cf->value = $value;
         }
 		$escaped = $cf->escapeSQL($mysqli);
-		$this->assertEquals($expected, $escaped);
+		$this->assertEquals($expected, $escaped, $msg);
 	}
 }

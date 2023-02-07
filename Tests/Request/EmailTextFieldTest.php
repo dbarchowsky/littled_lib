@@ -17,10 +17,8 @@ class EmailTextFieldTest extends TestCase
 	const MISSING_EMAIL_VALIDATION_MSG = 'Test email is required.';
 	const INVALID_EMAIL_VALIDATION_MSG = 'Test email is not in a recognized email format.';
 
-	/** @var EmailTextField Test EmailTextField object. */
-	public $obj;
-	/** @var MySQLConnection Test database connection. */
-	public $conn;
+	public EmailTextField $obj;
+	public MySQLConnection $conn;
 
 	public function setUp() : void
 	{
@@ -58,7 +56,10 @@ class EmailTextFieldTest extends TestCase
 		$this->assertEquals($text_template_path, StringTextField::getTemplateFilename());
 	}
 
-	public function testValidateNotRequired()
+    /**
+     * @throws ContentValidationException
+     */
+    public function testValidateNotRequired()
 	{
 		$this->obj->required = false;
 		$this->obj->validate();

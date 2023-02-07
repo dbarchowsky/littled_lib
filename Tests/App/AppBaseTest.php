@@ -8,7 +8,7 @@ use Exception;
 
 class AppBaseTest extends TestCase
 {
-    protected const AJAX_INPUT_SOURCE = APP_BASE_DIR.'Tests/Validation/DataProvider/test-ajax-data.dat';
+    protected const AJAX_INPUT_SOURCE = APP_BASE_DIR.'Tests/DataProvider/Validation/test-ajax-data.dat';
 
     /**
      * @return void

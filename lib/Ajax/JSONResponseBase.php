@@ -3,8 +3,7 @@ namespace Littled\Ajax;
 
 class JSONResponseBase
 {
-    /** @var string */
-    public $key;
+    public string $key;
 
     /**
      * @param string $key

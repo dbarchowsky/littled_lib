@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Tests\PageContent\SiteSection;
 
-
 use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -13,8 +12,8 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
-use Littled\Tests\PageContent\SiteSection\TestHarness\KeywordSectionContentNonDefaultKey;
-use Littled\Tests\PageContent\SiteSection\TestHarness\KeywordSectionContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentNonDefaultKey;
+use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 

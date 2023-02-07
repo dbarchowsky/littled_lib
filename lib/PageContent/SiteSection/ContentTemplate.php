@@ -7,7 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Log\Debug;
+use Littled\Log\Log;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringSelect;
@@ -142,17 +142,17 @@ class ContentTemplate extends SerializedContent
         $operation = $operation ?: $this->name->value;
 
         if ($content_type_id===null || $content_type_id < 1) {
-            throw new ConfigurationUndefinedException('['.Debug::getShortMethodName().'] Content type not provided.');
+            throw new ConfigurationUndefinedException('['.Log::getShortMethodName().'] Content type not provided.');
         }
         if (!$operation) {
-            throw new ConfigurationUndefinedException('['.Debug::getShortMethodName().'] Operation not provided.');
+            throw new ConfigurationUndefinedException('['.Log::getShortMethodName().'] Operation not provided.');
         }
         $data = $this->fetchRecords('CALL contentTemplateLookup(?,?)',
             'is',
             $content_type_id,
             $operation);
         if (count($data) < 1) {
-            throw new RecordNotFoundException('['.Debug::getShortMethodName().'] '.ucfirst($this->name->value).' template not found.');
+            throw new RecordNotFoundException('['.Log::getShortMethodName().'] '.ucfirst($this->name->value).' template not found.');
         }
         $this->id->value = $data[0]->id;
         $this->path->value = $data[0]->template_path;

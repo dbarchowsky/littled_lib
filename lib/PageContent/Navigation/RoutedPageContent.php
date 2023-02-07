@@ -21,6 +21,8 @@ class RoutedPageContent extends PageContent
     protected static string $filters_class='';
     /** @var string Routes class for section navigation */
     protected static string $routes_class='';
+    /** @var SectionNavigationRoutes Section navigation routes. */
+    public SectionNavigationRoutes $routes;
     protected static string $add_token = 'add';
     protected static string $edit_token = 'edit';
 	protected static string $template_filename='';
@@ -35,9 +37,6 @@ class RoutedPageContent extends PageContent
 		parent::__construct();
 		$this->verifyLogin();
 	}
-
-	/** @var SectionNavigationRoutes Section navigation routes. */
-    public SectionNavigationRoutes $routes;
 
 	/**
 	 * @return void

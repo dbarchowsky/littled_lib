@@ -9,12 +9,12 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
-use Littled\PageContent\SiteSection\SectionContent;
-use Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
 {
+    public const TEST_RECORD_ID = 2207; /* from table `test_table` */
 	/** @var SectionContentTestHarness Test SectionContent object. */
 	public SectionContentTestHarness $obj;
 	/** @var MySQLConnection Test database connection. */

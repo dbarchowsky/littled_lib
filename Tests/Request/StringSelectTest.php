@@ -2,8 +2,7 @@
 namespace Littled\Tests\Request;
 
 use Littled\Request\RequestInput;
-use Littled\Request\StringSelect;
-use Littled\Tests\Request\DataProvider\StringSelectTestData;
+use Littled\Tests\DataProvider\Request\StringSelectTestData;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,7 +18,7 @@ class StringSelectTest extends TestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\StringSelectTestDataProvider::renderTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\StringSelectTestDataProvider::renderTestProvider()
 	 * @param StringSelectTestData $data
 	 * @return void
 	 */

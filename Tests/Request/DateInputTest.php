@@ -6,8 +6,8 @@ use Littled\Exception\ContentValidationException;
 use Littled\Request\DateInput;
 use Littled\Request\DateTextField;
 use Littled\Request\RequestInput;
-use Littled\Tests\Request\DataProvider\DateFormatTestData;
-use Littled\Tests\Request\DataProvider\DateTextFieldTestData;
+use Littled\Tests\DataProvider\Request\DateFormatTestData;
+use Littled\Tests\DataProvider\Request\DateTextFieldTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
@@ -40,18 +40,30 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::escapeSQLProvider
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::escapeSQLProvider
 	 * @throws Exception
 	 */
-	public function testEscapeSQL(?string $date_string, ?string $expected)
+	public function testEscapeSQL(DateFormatTestData $data)
 	{
 		$this->conn->connectToDatabase();
-		$this->obj->setInputValue($date_string);
-		$this->assertEquals($expected, $this->obj->escapeSQL($this->conn->getMysqli()));
+        if ($data->expected_exception_class) {
+            try {
+                $this->obj->setInputValue($data->date_string);
+            }
+            catch(Exception $e) {
+                $this->assertInstanceOf($data->expected_exception_class, $e, $data->msg);
+                $this->assertMatchesRegularExpression($data->expected_exception, $e->getMessage(), $data->msg);
+            }
+            $this->assertEquals(false, true, 'Expected exception $data->expected_exception_class not thrown. '.$data->msg);
+        }
+        else {
+            $this->obj->setInputValue($data->date_string);
+            $this->assertEquals($data->expected, $this->obj->escapeSQL($this->conn->getMysqli()), $data->msg);
+        }
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::formatDateValueProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::formatDateValueProvider()
 	 * @param string|null $date_string
 	 * @param string|null $format
 	 * @param string|null $expected
@@ -72,7 +84,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::formatDateValueUsingInvalidDateProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::formatDateValueUsingInvalidDateProvider()
 	 * @param string|null $date_string
 	 * @param string|null $format
 	 * @param string|null $expected
@@ -88,7 +100,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::formatDateValueProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::formatDateValueProvider()
 	 * @param string|null $date_string
 	 * @param string|null $format
 	 * @param string|null $expected
@@ -107,7 +119,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::renderTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::renderTestProvider()
 	 * @param DateTextFieldTestData $data
 	 * @return void
 	 */
@@ -121,7 +133,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::setInputValueProvider
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::setInputValueProvider
 	 * @param string|null $date_string
 	 * @param string|null $expected
 	 * @return void
@@ -140,7 +152,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::validateMissingDateValueProvider
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::validateMissingDateValueProvider
 	 * @param string|null $date_string
 	 * @param string|null $expected
 	 * @return void
@@ -157,7 +169,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::validateValidValuesProvider
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::validateValidValuesProvider
 	 * @throws ContentValidationException
 	 */
 	public function testValidateValidValues(?string $date_string, ?string $expected)
@@ -179,7 +191,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\DateInputTestDataProvider::validateInvalidDateFormatsProvider
+	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::validateInvalidDateFormatsProvider
 	 * @param string|null $date_string
 	 * @param string|null $expected
 	 * @return void

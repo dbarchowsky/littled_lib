@@ -2,6 +2,7 @@
 namespace Littled\Tests\PageContent;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Metadata\MetadataElement;
 use Littled\PageContent\PageConfig;
 use Littled\PageContent\Metadata\Preload;
@@ -202,6 +203,9 @@ class PageConfigTest extends TestCase
 		$this->assertEquals("/path/to/b.js", PageConfig::$scripts[3], "Last added is last in list");
 	}
 
+    /**
+     * @throws InvalidValueException
+     */
     public function testAddPageMetadata()
     {
         PageConfig::addPageMetadata('name', 'test', 'test value');

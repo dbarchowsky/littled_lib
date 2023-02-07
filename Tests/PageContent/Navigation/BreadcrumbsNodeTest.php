@@ -2,8 +2,9 @@
 namespace Littled\Tests\PageContent\Navigation;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Tests\PageContent\Navigation\DataProvider\BreadcrumbsNodeTestData;
+use Littled\Tests\DataProvider\PageContent\Navigation\BreadcrumbsNodeTestData;
 use PHPUnit\Framework\TestCase;
 
 class BreadcrumbsNodeTest extends TestCase
@@ -15,12 +16,13 @@ class BreadcrumbsNodeTest extends TestCase
 		LittledGlobals::setSharedTemplatesPath(LITTLED_TEMPLATE_DIR);
 	}
 
-	/**
-	 * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\BreadcrumbsNodeTestDataProvider::renderTestProvider()
-	 * @param BreadcrumbsNodeTestData $data
-	 * @return void
-	 * @throws ResourceNotFoundException
-	 */
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\BreadcrumbsNodeTestDataProvider::renderTestProvider()
+     * @param BreadcrumbsNodeTestData $data
+     * @return void
+     * @throws ResourceNotFoundException
+     * @throws ConfigurationUndefinedException
+     */
 	function testRender(BreadcrumbsNodeTestData $data)
 	{
 		$this->expectOutputRegex($data->expected);

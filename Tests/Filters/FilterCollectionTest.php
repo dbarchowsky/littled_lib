@@ -6,9 +6,9 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\NotImplementedException;
-use Littled\Tests\Filters\TestHarness\FilterCollectionAutoloadChild;
-use Littled\Tests\Filters\TestHarness\FilterCollectionChild;
-use Littled\Tests\Filters\TestHarness\FilterCollectionChildWithProcedure;
+use Littled\Tests\TestHarness\Filters\FilterCollectionAutoloadChild;
+use Littled\Tests\TestHarness\Filters\FilterCollectionChild;
+use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithProcedure;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -94,7 +94,7 @@ class FilterCollectionTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
 	 * @param ?bool $expected
 	 * @param string $collection
 	 * @param $value
@@ -107,7 +107,7 @@ class FilterCollectionTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
 	 * @param ?bool $expected
 	 * @param string $collection
 	 * @param $value

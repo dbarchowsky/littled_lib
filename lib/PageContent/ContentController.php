@@ -5,6 +5,7 @@ namespace Littled\PageContent;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -140,12 +141,27 @@ abstract class ContentController
 	abstract public static function getPageContentClass(int $content_id): string;
 
     /**
-     * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by
-     * the $route_parts argument.
+     * Returns the name of a RoutedPageContent class appropriate to serve a response matching the requested route represented by the $route_parts argument.
+     * @param array $route_parts The route that has been requested, exploded into its parts.
+     * @return string The name of the matching RoutedPageContent class.
+     * @throws InvalidTypeException
+     */
+    abstract public static function getRoutedPageContentClass(array $route_parts): string;
+
+    /**
+     * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by the $route_parts argument.
      * @param array $route_parts The route that has been requested, exploded into its parts.
      * @return RoutedPageContent
+     * @throws InvalidTypeException
      */
-    abstract public static function getRoutedPageInstance(array $route_parts): RoutedPageContent;
+    public static function getRoutedPageInstance(array $route_parts): RoutedPageContent
+    {
+        $class = static::getRoutedPageContentClass($route_parts);
+        if (!class_exists($class)) {
+            throw new InvalidTypeException("Invalid routed page content class: \"".basename($class)."\".");
+        }
+        return new $class();
+    }
 
     /**
      * Default action is to load content property values from the database. This method can instead be overridden to

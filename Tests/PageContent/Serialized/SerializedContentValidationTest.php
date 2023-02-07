@@ -2,16 +2,14 @@
 namespace Littled\Tests\PageContent\Serialized;
 
 use Littled\Exception\ContentValidationException;
-use Littled\PageContent\Serialized\SerializedContentUtils;
 use Littled\PageContent\Serialized\SerializedContentValidation;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentValidationChild;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentValidationChild;
 use PHPUnit\Framework\TestCase;
 
 
 class SerializedContentValidationTest extends TestCase
 {
-	/** @var SerializedContentValidationChild Test object. */
-	public $obj;
+	public SerializedContentValidationChild $obj;
 
 	public function setUp(): void
 	{

@@ -6,14 +6,11 @@ use Littled\Exception\InvalidValueException;
 
 class MetadataElement
 {
-    /** @var string */
-    protected $type;
-    /** @var string */
-    public $name;
-    /** @var string */
-    public $content;
+    protected string    $type;
+    public string       $name;
+    public string       $content;
     /** @var array */
-    protected const valid_types = array('name', 'http-equiv', 'charset', 'itemprop');
+    protected const     valid_types = array('name', 'http-equiv', 'charset', 'itemprop');
 
     /**
      * @param string $type

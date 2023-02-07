@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class LoginAuthenticatorTest extends TestCase
 {
-	/** @var string User name value that already exists in the site_user table. */
+	/** @var string Username value that already exists in the site_user table. */
 	const TEST_EXISTING_USER_NAME = 'video8';
 	/** @var string Path to collect user account test harness page. */
 	const TEST_HARNESS_COLLECT_PATH = 'Tests/collect/account';

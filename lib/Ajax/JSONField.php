@@ -43,7 +43,7 @@ class JSONField
 
 	/**
 	 * Adds the current key/value pair to the supplied array.
-	 * @param array $data Array containing full set of JSON key/value pairs to be passed back to the requestee.
+	 * @param array $data Array containing full set of JSON key/value pairs to be passed back to the client.
 	 */
 	public function formatJSON( array &$data )
 	{
@@ -61,7 +61,7 @@ class JSONField
 			$val = array_map($func, $val);
 		}
 		if ($this->format==JSONField::FORMAT_CURRENCY && is_numeric($val)) {
-			$val = ''.number_format($val, 2);
+			$val = number_format($val, 2);
 		}
 		$data[$this->name] = $val;
 	}

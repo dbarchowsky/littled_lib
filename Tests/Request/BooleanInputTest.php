@@ -4,7 +4,7 @@ namespace Littled\Tests\Request;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Tests\Request\DataProvider\BooleanInputTestData;
+use Littled\Tests\DataProvider\Request\BooleanInputTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use mysqli;
 use Littled\Request\RequestInput;
@@ -13,13 +13,14 @@ use Littled\Exception\ContentValidationException;
 
 class BooleanInputTest extends ContentValidationTestCase
 {
-    /** @var BooleanInput */
-    public $o;
-	/** @var MySQLConnection */
-	public $conn;
-	/** @var mysqli */
-	public $mysqli;
+    public BooleanInput $o;
+	public MySQLConnection $conn;
+	public mysqli $mysqli;
 
+    /**
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,9 +39,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	 * @param string|null $name
 	 * @param array $data
 	 * @param mixed $dataName
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 */
+     */
     public function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -49,7 +48,7 @@ class BooleanInputTest extends ContentValidationTestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::escapeSQLProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::escapeSQLProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -62,7 +61,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::formatValueMarkupProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::formatValueMarkupProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -86,7 +85,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::saveInFormProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::saveInFormProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -116,7 +115,7 @@ class BooleanInputTest extends ContentValidationTestCase
 
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::setValidateProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::setValidateProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 * @throws ContentValidationException
@@ -185,7 +184,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\BooleanInputTestDataProvider::setInputValueProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::setInputValueProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */

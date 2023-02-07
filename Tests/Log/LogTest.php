@@ -9,7 +9,7 @@ use Throwable;
 class LogTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\Log\DataProvider\LogTestDataProvider::displayExceptionMessageTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Log\LogTestDataProvider::displayExceptionMessageTestProvider()
      * @param string $expected
      * @param bool $throw_exception
      * @param bool $is_verbose

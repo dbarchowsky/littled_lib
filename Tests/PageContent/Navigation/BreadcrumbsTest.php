@@ -5,7 +5,7 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Navigation\Breadcrumbs;
-use Littled\Tests\PageContent\Navigation\DataProvider\BreadcrumbsTestData;
+use Littled\Tests\DataProvider\PageContent\Navigation\BreadcrumbsTestData;
 use PHPUnit\Framework\TestCase;
 
 class BreadcrumbsTest extends TestCase
@@ -179,7 +179,7 @@ class BreadcrumbsTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\Navigation\DataProvider\BreadcrumbsTestDataProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\BreadcrumbsTestDataProvider::renderTestProvider()
      * @param BreadcrumbsTestData $data
      * @return void
      * @throws ResourceNotFoundException|ConfigurationUndefinedException

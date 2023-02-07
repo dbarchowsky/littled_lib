@@ -2,7 +2,7 @@
 namespace Littled\Tests\Request;
 
 use Littled\Request\RequestInput;
-use Littled\Tests\Request\DataProvider\IntegerSelectTestData;
+use Littled\Tests\DataProvider\Request\IntegerSelectTestData;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -18,7 +18,7 @@ class IntegerSelectTest extends TestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\IntegerSelectTestDataProvider::renderTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\IntegerSelectTestDataProvider::renderTestProvider()
 	 * @param IntegerSelectTestData $data
 	 * @return void
 	 */

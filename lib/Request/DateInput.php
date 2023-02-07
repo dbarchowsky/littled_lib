@@ -6,18 +6,14 @@ use mysqli;
 use Littled\Exception\ContentValidationException;
 
 /**
- * Class DateInput
- * @package Littled\Request
+ * Date inputs base class.
  */
 class DateInput extends StringInput
 {
     /** @property int */
     public const DEFAULT_SIZE_LIMIT = 20;
-    /** @var string */
     protected static string $input_template_filename = 'date-text-input.php';
-    /** @var string */
     protected static string $template_filename = 'date-text-field.php';
-    /** @var string */
     public string $format = 'Y-m-d H:i:00';
 
 	/**
@@ -57,17 +53,17 @@ class DateInput extends StringInput
 	/**
 	 * Returns a string to use to save the object's value to a database record.
 	 * @param mysqli $mysqli Database connection to use for its escape_string() routine.
-	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
+	 * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 */
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
         if ($this->value==='') {
-            return ("NULL");
+            return ('NULL');
         }
         $ts = strtotime($this->value);
         if ($ts !== false) {
-            $date_string = date("Y-m-d H:i:s",$ts);
+            $date_string = date('Y-m-d H:i:s',$ts);
         }
         else {
             $date = DateTime::createFromFormat('d/m/Y', $this->value);
@@ -142,7 +138,7 @@ class DateInput extends StringInput
 
 	/**
 	 * Assigns a value to the object after parsing the value in order to be in a workable format.
-	 * @param string $value Value to assign to the object.
+	 * @param ?string $value Value to assign to the object.
 	 * @param string $date_format (Optional) date format to apply to the date value. Default value is 'Y-m-d'.
 	 */
 	public function setInputValue($value, string $date_format='Y-m-d')

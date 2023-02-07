@@ -6,7 +6,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -131,7 +130,6 @@ abstract class SectionContent extends SerializedContent
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws RecordNotFoundException
 	 * @throws NotImplementedException
 	 */
@@ -174,7 +172,6 @@ abstract class SectionContent extends SerializedContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
      * @throws RecordNotFoundException
 	 */
 	public function retrieveSectionProperties()
@@ -190,7 +187,6 @@ abstract class SectionContent extends SerializedContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */

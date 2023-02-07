@@ -1,10 +1,11 @@
 <?php
-namespace Filters;
+namespace Littled\Tests\Filters;
 
-
+use PHPUnit\Framework\TestCase;
 use Littled\Filters\IntegerArrayContentFilter;
 
-class IntegerArrayContentFilterTest extends \PHPUnit\Framework\TestCase
+
+class IntegerArrayContentFilterTest extends TestCase
 {
 	function testFormatValuesString()
 	{

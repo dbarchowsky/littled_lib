@@ -1,14 +1,14 @@
 <?php
 namespace Littled\Tests\Account;
 
-use Littled\Tests\Account\TestHarness\UserAccountTestHarness;
+use Littled\Tests\TestHarness\Account\UserAccountTestHarness;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Littled\Account\UserAccount;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Tests\Account\DataProvider\UserAccountTestData;
+use Littled\Tests\DataProvider\Account\UserAccountTestData;
 use PHPUnit\Framework\TestCase;
 
 class UserAccountTest extends TestCase
@@ -118,7 +118,7 @@ class UserAccountTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Account\DataProvider\UserAccountDataProvider::hasDataTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Account\UserAccountDataProvider::hasDataTestProvider()
 	 * @return void
 	 */
 	public function testHasData(UserAccountTestData $data)

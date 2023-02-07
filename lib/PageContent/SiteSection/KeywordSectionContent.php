@@ -8,7 +8,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -322,7 +321,6 @@ abstract class KeywordSectionContent extends SectionContent
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -362,7 +360,6 @@ abstract class KeywordSectionContent extends SectionContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */

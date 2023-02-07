@@ -4,7 +4,7 @@ namespace Littled\Tests\Filters;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilter;
 use Littled\Request\RequestInput;
-use Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider;
+use Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider;
 use PHPUnit\Framework\TestCase;
 use mysqli;
 use Exception;
@@ -12,8 +12,11 @@ use Exception;
 class ContentFilterTest extends TestCase
 {
     /** @var mysqli */
-    protected $mysqli;
+    protected mysqli $mysqli;
 
+    /**
+     * @throws Exception
+     */
     function __construct(?string $name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
@@ -29,7 +32,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::formatQueryStringTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider()
      * @param string $expected
      * @param $value
      * @return void
@@ -42,7 +45,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider()
      * @return void
      * @throws Exception
      */
@@ -55,7 +58,7 @@ class ContentFilterTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::saveInFormTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::saveInFormTestProvider()
 	 * @param ContentFilterTestDataProvider $data
 	 * @return void
 	 * @throws ResourceNotFoundException
@@ -70,7 +73,7 @@ class ContentFilterTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\ContentFilterTestDataProvider::safeValueTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::safeValueTestProvider()
      * @return void
      * @throws Exception
      */

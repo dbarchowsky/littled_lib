@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 class PreloadTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\PageContent\Metadata\DataProvider\PreloadTestDataProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Metadata\PreloadTestDataProvider::renderTestProvider()
      * @param Preload $o
      * @param string $expected
      * @return void

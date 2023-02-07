@@ -1,9 +1,7 @@
 <?php
 namespace Littled\Tests\Filters;
 
-use Littled\Database\MySQLConnection;
-use Littled\Filters\SocialGalleryFilters;
-use Littled\Tests\Filters\TestHarness\SocialGalleryFiltersChild;
+use Littled\Tests\TestHarness\Filters\SocialGalleryFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

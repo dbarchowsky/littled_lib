@@ -27,11 +27,6 @@ class PageContent extends MySQLConnection
     public string $label = '';
     /** @var string Query string to attach to page links. */
     protected string $query_string = '';
-    /**
-     * @deprecated Use $query_string property instead.
-     * @var string Query string containing variables defining page state.
-     */
-    public string $qs = '';
 	/** @var string URL to use for redirects. */
 	public string $redirect_url = '';
 	/** @var string Path to template file. */
@@ -47,7 +42,6 @@ class PageContent extends MySQLConnection
     function __construct()
     {
         parent::__construct();
-        $this->qs = &$this->query_string;
         return $this;
     }
 
@@ -71,10 +65,10 @@ class PageContent extends MySQLConnection
 
     /**
      * @todo Consider moving this method to dedicated cms page content class
-     * @param array|null[optional] $src Array of variables to use in place of POST data.
+     * @param array|null $src Optional array of variables to use in place of POST data.
      * Sets the value of the object's $action property based on action variables in POST data.
      */
-    public function collectEditAction( $src=null )
+    public function collectEditAction( ?array $src=null )
     {
 		$keys = array(
 			LittledGlobals::CANCEL_KEY => self::CANCEL_ACTION,

@@ -2,7 +2,7 @@
 
 namespace Littled\Tests\DataProvider\Filters;
 
-use Littled\Tests\Filters\TestHarness\TestTableFilters;
+use Littled\Tests\TestHarness\Filters\TestTableFilters;
 
 class RetrieveNeighborIdsTestData
 {

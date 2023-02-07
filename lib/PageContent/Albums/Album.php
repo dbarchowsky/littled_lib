@@ -93,12 +93,11 @@ class Album extends KeywordSectionContent
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	function __construct (int $content_type_id, int $images_content_type_id, ?int $id=null)
     {
-		parent::__construct($id, $content_type_id, "abkw");
+		parent::__construct($id, $content_type_id);
 		$this->id = new IntegerInput("Gallery ID", self::ID_PARAM, false, $id);
 		$this->title = new StringTextField("Title", self::TITLE_PARAM, false, "", 100);
 		$this->slug = new StringTextField("Slug", 'AlbumSlug', true, "", 50);
@@ -510,7 +509,7 @@ class Album extends KeywordSectionContent
 	 */
 	public function read (bool $read_images=true, bool $read_image_keywords=false)
 	{
-		if ($this->check_access==true) {
+		if ($this->check_access) {
 			$query = "SEL"."ECT COUNT(1) AS `count` FROM `".static::getTableName()."` WHERE id = ? AND `access` NOT IN ('public')";
 			$data = $this->fetchRecords($query, 'i', $this->id->value);
 			$is_protected = ($data[0]->count > 0);
@@ -542,7 +541,7 @@ class Album extends KeywordSectionContent
 		}
 
 		$this->gallery->parent_id = $this->id->value;
-		if ($read_images==true) {
+		if ($read_images) {
 			$this->gallery->read($read_image_keywords);
 		}
 		else {

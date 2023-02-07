@@ -1,9 +1,9 @@
 DELIMITER $$
 
 CREATE OR REPLACE PROCEDURE `contentRouteSelect`(
-    IN p_id INT,
-    IN p_site_section_id INT,
-    IN p_operation VARCHAR(45)
+    IN p_id                 INT,
+    IN p_site_section_id    INT,
+    IN p_operation          VARCHAR(45)
 )
 BEGIN
 
@@ -11,6 +11,7 @@ BEGIN
         r.`id`,
         r.site_section_id,
         r.`operation`,
+        r.`route`,
         r.`url`
     FROM `content_route` r
     WHERE (p_id IS NULL OR r.`id` = p_id)

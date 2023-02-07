@@ -1,6 +1,7 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
+use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
@@ -8,16 +9,27 @@ use Littled\Request\URLTextField;
 
 class ContentRoute extends SerializedContent
 {
+    /** @var string Token representing operation property */
+    const PROPERTY_TOKEN_OPERATION      = 'operation';
+    /** @var string Token representing route property */
+    const PROPERTY_TOKEN_ROUTE          = 'route';
+    /** @var string Token representing route property in array format */
+    const PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
+    /** @var string Token representing url property */
+    const PROPERTY_TOKEN_URL            = 'url';
+
 	/** @var int Value of this record in the site section table. */
 	protected static int $content_type_id = 34;
 	/** @var string */
 	protected static string $table_name = "content_route";
 
-	/** @var IntegerSelect */
+	/** @var IntegerSelect Record id representing the site content. Corresponds to table `site_section`. */
 	public IntegerSelect $site_section_id;
-	/** @var StringTextField */
+	/** @var StringTextField Token representing the action taken on the content, e.g. 'listings', 'details', or 'edit'. */
 	public StringTextField $operation;
-	/** @var URLTextField */
+    /** @var StringTextField The route on the site to this content. */
+    public StringTextField $route;
+	/** @var URLTextField The URL used to retrieve and refresh content. */
 	public URLTextField $url;
 
 	/**
@@ -25,9 +37,10 @@ class ContentRoute extends SerializedContent
 	 * @param int|null $id
 	 * @param int|null $route_content_type_id
 	 * @param string $operation
+     * @param string $route
 	 * @param string $url
 	 */
-	public function __construct(?int $id = null, ?int $route_content_type_id=null, string $operation='', string $url='')
+	public function __construct(?int $id = null, ?int $route_content_type_id=null, string $operation='', string $route='', string $url='')
 	{
 		parent::__construct($id);
 
@@ -35,7 +48,8 @@ class ContentRoute extends SerializedContent
 		$this->id->key = 'routeId';
 		$this->id->required = false;
 		$this->site_section_id = new IntegerSelect('Site Section', 'routeSectionId', true, $route_content_type_id);
-		$this->operation = new StringTextField('Name', 'routeName', true, $operation, 45);
+		$this->operation = new StringTextField('Name', 'routeOp', true, $operation, 45);
+        $this->route = new StringTextField('Route', 'routePath', false, $route, 255);
 		$this->url = new URLTextField('URL', 'routeURL', true, $url, 256);
 	}
 
@@ -44,18 +58,41 @@ class ContentRoute extends SerializedContent
 	 */
 	public function generateUpdateQuery(): ?array
 	{
-		return array('CALL contentRouteUpdate(@record_id,?,?,?)',
-			'iss',
+		return array('CALL contentRouteUpdate(@record_id,?,?,?,?)',
+			'isss',
 			&$this->site_section_id->value,
 			&$this->operation->value,
+            &$this->route->value,
 			&$this->url->value);
 	}
+
+    /**
+     * Returns the values of the RequestInput properties.
+     * @param string $property
+     * @return mixed The value of the requested property.
+     * @throws InvalidValueException
+     */
+    public function getPropertyValue(string $property)
+    {
+        switch($property) {
+            case self::PROPERTY_TOKEN_OPERATION:
+                return $this->operation->value;
+            case self::PROPERTY_TOKEN_ROUTE:
+                return $this->route->value;
+            case self::PROPERTY_TOKEN_ROUTE_AS_ARRAY:
+                return explode('/', trim(''.$this->route->value, '/'));
+            case self::PROPERTY_TOKEN_URL:
+                return $this->url->value;
+            default:
+                throw new InvalidValueException('Invalid property token.');
+        }
+    }
 
 	/**
 	 * @inheritDoc
 	 */
 	public function hasData(): bool
 	{
-		return ($this->id->value > 0 || $this->url->value || $this->operation->value);
+		return ($this->id->value > 0 || $this->url->value || $this->operation->value || $this->route->value);
 	}
 }

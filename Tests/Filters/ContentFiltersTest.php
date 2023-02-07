@@ -3,8 +3,8 @@ namespace Littled\Tests\Filters;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
-use Littled\Tests\Filters\TestHarness\ContentFiltersProcedureChild;
-use Littled\Tests\Filters\TestHarness\ContentFiltersChild;
+use Littled\Tests\TestHarness\Filters\ContentFiltersProcedureChild;
+use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

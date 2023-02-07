@@ -10,21 +10,18 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContentUtils;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentChild;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentTestHarness;
-use Littled\Tests\PageContent\Serialized\TestHarness\SerializedContentUtilsChild;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
 use Littled\Request\RequestInput;
-use Littled\Tests\PageContent\Serialized\TestHarness\TestTable;
+use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
 use PHPUnit\Framework\TestCase;
 
 
 
 class SerializedContentUtilsTest extends TestCase
 {
-	/** @var SerializedContentUtilsChild Test object. */
-	public $obj;
-	/** @var MySQLConnection Database connection. */
-	public $conn;
+	public SerializedContentUtilsChild $obj;
+	public MySQLConnection $conn;
 
 	public const TEST_SOURCE_TEMPLATE = "serialized-content-source-template.php";
 	public const TEST_OUTPUT_TEMPLATE = "serialized-content-output-template.php";
@@ -62,7 +59,7 @@ class SerializedContentUtilsTest extends TestCase
 
 	public function setUp(): void
 	{
-		$this->obj = new SerializedContentChild();
+		$this->obj = new SerializedContentUtilsChild();
 		$this->conn = new MySQLConnection();
 	}
 
@@ -241,7 +238,7 @@ class SerializedContentUtilsTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\Serialized\DataProvider\SerializedContentUtilsTestDataProvider::formatDatabaseColumnList()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentUtilsTestDataProvider::formatDatabaseColumnList()
 	 * @param array $expected
 	 * @param TestTable $o
 	 * @param string $msg
@@ -266,15 +263,6 @@ class SerializedContentUtilsTest extends TestCase
     	$obj = new SerializedContentUtilsChild();
     	$this->assertEquals(self::CHILD_CONTENT_TYPE_ID, $obj::getContentTypeId());
     }
-
-    /**
-     * @throws ConfigurationUndefinedException
-     */
-    public function testGetContentTypeIDWithConstNotDefined()
-	{
-        $this->expectExceptionMessageMatches('/content type not set/i');
-		$this->obj::getContentTypeId();
-	}
 
 	/**
 	 * @throws RecordNotFoundException

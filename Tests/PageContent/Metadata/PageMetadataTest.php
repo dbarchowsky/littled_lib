@@ -1,11 +1,15 @@
 <?php
 namespace Littled\Tests\PageContent\Metadata;
 
+use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Metadata\PageMetadata;
 use PHPUnit\Framework\TestCase;
 
 class PageMetadataTest extends TestCase
 {
+    /**
+     * @throws InvalidValueException
+     */
     public function testAddPageMetadata()
     {
         $pm = new PageMetadata();

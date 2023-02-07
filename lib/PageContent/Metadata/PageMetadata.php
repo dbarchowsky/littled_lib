@@ -11,17 +11,17 @@ use Littled\Exception\InvalidValueException;
 class PageMetadata
 {
     /** @var string Core name for the site. */
-    public $site_label = "";
+    public string $site_label = "";
     /** @var string Page title suitable for displaying in the page content. */
-    public $title = "";
+    public string $title = "";
 	/** @var MetadataElement Page description inserted into the page metadata for SEO. */
-	protected $description;
+	protected MetadataElement $description;
 	/** @var MetadataElement List of keywords to be inserted into the page metadata for SEO. */
-	protected $keywords = array();
-	/** @var MetadataElement Metadata title displayed in the browser title bar for SEO. */
-	protected $meta_title = "";
+	protected MetadataElement $keywords;
+	/** @var MetadataElement $meta_title Metadata title displayed in the browser title bar for SEO. */
+	protected MetadataElement $meta_title;
     /** @var array Array of MetadataElement objects used to inject abstract metadata elements into a page */
-    public $extras = array();
+    public array $extras = array();
 
     /**
      *

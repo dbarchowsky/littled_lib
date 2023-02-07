@@ -2,8 +2,8 @@
 namespace Littled\Tests\Filters;
 
 use Littled\Tests\DataProvider\Filters\RetrieveNeighborIdsTestData;
-use Littled\Tests\Filters\TestHarness\FilterCollectionChildWithQuery;
-use Littled\Tests\Filters\TestHarness\TestTableFilters;
+use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithQuery;
+use Littled\Tests\TestHarness\Filters\TestTableFilters;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -12,7 +12,7 @@ class FilterCollectionRetrievalTest extends TestCase
 	public const TEST_LISTINGS_LENGTH = 5;
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
      * @return void
      * @throws Exception
      */
@@ -81,7 +81,7 @@ class FilterCollectionRetrievalTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
      * @return void
      * @throws Exception
      */

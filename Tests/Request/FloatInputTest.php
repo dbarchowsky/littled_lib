@@ -7,16 +7,14 @@ use Littled\Exception\ConnectionException;
 use Littled\Request\FloatInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
-use Littled\Tests\Request\DataProvider\FloatInputTestData;
+use Littled\Tests\DataProvider\Request\FloatInputTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use mysqli;
 
 class FloatInputTest extends ContentValidationTestCase
 {
-    /** @var MySQLConnection */
-    public $conn;
-    /** @var mysqli */
-    public $mysqli;
+    public MySQLConnection $conn;
+    public mysqli $mysqli;
 
 	/**
 	 * @throws ConnectionException
@@ -43,7 +41,7 @@ class FloatInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::collectRequestDataTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::collectRequestDataTestProvider()
 	 * @param $expected
 	 * @param $value
 	 * @return void
@@ -68,7 +66,7 @@ class FloatInputTest extends ContentValidationTestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::escapeSQLTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */
@@ -83,7 +81,7 @@ class FloatInputTest extends ContentValidationTestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::renderTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */
@@ -97,21 +95,21 @@ class FloatInputTest extends ContentValidationTestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::renderInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::renderInputTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */
     function testRenderInput(FloatInputTestData $data)
     {
         ob_start();
-        $data->obj->renderInput($data->label_override, $data->css_override);
+        $data->obj->renderInput($data->label_override);
         $markup = ob_get_contents();
         ob_end_clean();
         $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\FloatInputTestDataProvider::setInputValueTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::setInputValueTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */

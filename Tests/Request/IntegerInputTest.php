@@ -3,18 +3,16 @@ namespace Littled\Tests\Request;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Littled\Database\MySQLConnection;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
-use Littled\Tests\Request\DataProvider\IntegerInputTestData;
+use Littled\Tests\DataProvider\Request\IntegerInputTestData;
 use PHPUnit\Framework\TestCase;
 use mysqli;
 
 class IntegerInputTest extends TestCase
 {
-    /** @var IntegerInput */
-    public $obj;
+    public IntegerInput $obj;
     /** @var bool */
     const MAKE_HTTP_REQUEST = false;
 
@@ -29,11 +27,6 @@ class IntegerInputTest extends TestCase
     {
         parent::setUp();
         RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
     }
 
     public function __construct(?string $name = null, array $data = [], $dataName = '')
@@ -98,7 +91,7 @@ class IntegerInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::collectRequestDataTestProvider()
      * @param $expected
      * @param $value
      * @return void
@@ -249,7 +242,7 @@ class IntegerInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::escapeSQLTestProvider()
      * @param $expected
      * @param $value
      * @param mysqli $mysqli
@@ -264,7 +257,7 @@ class IntegerInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::renderTestProvider()
      * @param IntegerInputTestData $data
      * @return void
      */
@@ -278,7 +271,7 @@ class IntegerInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::renderInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::renderInputTestProvider()
      * @param IntegerInputTestData $data
      * @return void
      */
@@ -310,19 +303,19 @@ class IntegerInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\IntegerInputTestDataProvider::setInputValueTestProvider()
-     * @param $expected
-     * @param $value
+     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::setInputValueTestProvider()
+     * @param ?int $expected
+     * @param mixed $value
      * @param string $msg
      * @return void
      */
-    public function testSetInputValue($expected, $value, string $msg='')
+    public function testSetInputValue(?int $expected, $value, string $msg='')
     {
         $o = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
         if ('[use default]' !== $value) {
             $o->setInputValue($value);
         }
-        $this->assertEquals($expected, $o->value);
+        $this->assertEquals($expected, $o->value, $msg);
     }
 
     /**

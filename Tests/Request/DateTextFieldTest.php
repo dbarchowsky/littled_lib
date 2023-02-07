@@ -11,10 +11,8 @@ use PHPUnit\Framework\TestCase;
  */
 class DateTextFieldTest extends TestCase
 {
-    /** @var DateTextField Test DateTextField object. */
-    public $obj;
-    /** @var MySQLConnection Test database connection. */
-    public $conn;
+    public DateTextField $obj;
+    public MySQLConnection $conn;
 
     protected function setUp(): void
     {

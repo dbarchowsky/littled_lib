@@ -3,7 +3,6 @@ namespace Littled\Tests\Request;
 
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
-use Littled\Database\MySQLConnection;
 use Littled\Request\URLTextField;
 
 
@@ -13,8 +12,7 @@ use Littled\Request\URLTextField;
  */
 class URLTextFieldTest extends TestCase
 {
-	/** @var URLTextField Test DateInput object. */
-	public $obj;
+	public URLTextField $obj;
 
     function __construct()
 	{
@@ -27,7 +25,7 @@ class URLTextFieldTest extends TestCase
 	 */
 	public function testValidateValidURL()
 	{
-		$url = "http://www.littledamien.com";
+		$url = "https://www.littledamien.com";
 		$this->obj->setInputValue($url);
 		$this->obj->validate();
 		$this->assertEquals($url, $this->obj->value);

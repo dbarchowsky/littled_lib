@@ -2,7 +2,7 @@
 namespace Littled\Tests\PageContent\Navigation;
 
 use Littled\PageContent\Navigation\SectionNavigationRoutes;
-use Littled\Tests\PageContent\Navigation\TestHarness\SectionNavigationRoutesTestHarness;
+use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
 use PHPUnit\Framework\TestCase;
 
 

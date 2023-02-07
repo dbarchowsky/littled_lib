@@ -125,8 +125,6 @@ class KeywordTest extends TestCase
 	}
 
     /**
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws Exception
      */
 	public function testSaveWithDefaultValue()
@@ -140,8 +138,6 @@ class KeywordTest extends TestCase
 	}
 
     /**
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws Exception
      */
 	public function testSaveDuplicateValue()
@@ -156,8 +152,6 @@ class KeywordTest extends TestCase
 	}
 
     /**
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws Exception
      */
 	public function testSave()

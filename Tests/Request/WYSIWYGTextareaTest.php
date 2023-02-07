@@ -32,7 +32,7 @@ class WYSIWYGTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\WYSIWYGTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\WYSIWYGTestDataProvider::collectRequestDataTestProvider()
      * @param string $expected
      * @param string $key
      * @param string $src
@@ -60,7 +60,7 @@ class WYSIWYGTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\WYSIWYGTestDataProvider::renderInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\WYSIWYGTestDataProvider::renderInputTestProvider()
      * @param string $expected
      * @param string $editor_class
      * @param string $msg
@@ -80,7 +80,7 @@ class WYSIWYGTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\WYSIWYGTestDataProvider::setInputCSSClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\WYSIWYGTestDataProvider::setInputCSSClassTestProvider()
      * @param string $expected
      * @param string $editor_class
      * @param string $msg

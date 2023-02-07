@@ -1,11 +1,12 @@
 <?php
-
 namespace Littled\Tests\PageContent\SiteSection;
 
+use PHPUnit\Framework\TestCase;
 use Littled\App\LittledGlobals;
 use Littled\PageContent\SiteSection\ListingsKeywords;
 
-class ListingsKeywordsTest extends \PHPUnit\Framework\TestCase
+
+class ListingsKeywordsTest extends TestCase
 {
     function testConstructor()
     {

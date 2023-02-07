@@ -2,6 +2,7 @@
 namespace Littled\Ajax;
 
 use Exception;
+use Littled\Exception\InvalidValueException;
 use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
 use Littled\PageContent\PageContent;
@@ -32,6 +33,13 @@ use Littled\PageContent\SiteSection\ContentProperties;
  */
 class AjaxPage extends MySQLConnection
 {
+    /** @var string */
+    const COMMIT_ACTION = 'commit';
+    /** @var string */
+    const CANCEL_ACTION = 'cancel';
+    /** @var string */
+    const TEMPLATE_TOKEN_KEY = 'templateToken';
+
     /** @var string Name of class to use to cache content. */
     protected static string $cache_class = ContentCache::class;
     /** @var string Name of class to use as content controller. */
@@ -43,32 +51,25 @@ class AjaxPage extends MySQLConnection
     /** @var string Input stream of Ajax client requests */
     protected static string $ajax_input_stream = 'php://input';
 
-	/** @var string */
-	const COMMIT_ACTION = 'commit';
-	/** @var string */
-	const CANCEL_ACTION = 'cancel';
-    /** @var string */
-    const TEMPLATE_TOKEN_KEY = 'templateToken';
-
 	/** @var string String indicating the action to be taken on the page. */
-	public string $action='';
+	public string               $action='';
 	/** @var mixed Content article. */
-	public $content;
-	protected ?array $context;
+	public                      $content;
+	protected ?array            $context;
 	/** @var ContentProperties Content properties. */
-	public ContentProperties $content_properties;
+	public ContentProperties    $content_properties;
 	/** @var FilterCollection Content filters. */
-	public FilterCollection $filters;
+	public FilterCollection     $filters;
 	/** @var JSONRecordResponse JSON response object. */
-	public JSONRecordResponse $json;
+	public JSONRecordResponse   $json;
 	/** @var IntegerInput Content record id. */
-	public IntegerInput $record_id;
+	public IntegerInput         $record_id;
     /** @var StringInput Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
-    public StringInput $operation;
+    public StringInput          $operation;
 	/** @var ?ContentTemplate Current content template properties. */
-	public ?ContentTemplate $template;
+	public ?ContentTemplate     $template;
 	/** @var ?ContentRoute Current content route properties. */
-	public ?ContentRoute $route;
+	public ?ContentRoute        $route;
 
 	/**
 	 * Class constructor.
@@ -125,9 +126,9 @@ class AjaxPage extends MySQLConnection
 	 * Convenience routine that will collect the content id from POST
 	 * data using first the content object's internal id parameter, and then if
 	 * that value is unavailable, a default id parameter ("id").
-	 * @param array|null[optional] $src Array of variables to use instead of POST data.
+	 * @param ?array $src Optional array of variables to use instead of POST data.
 	 */
-	public function collectContentID( $src=null )
+	public function collectContentID( ?array $src=null )
 	{
 		$this->content->id->collectRequestData($src);
 		if ($this->content->id->value===null && $this->content->id->key != LittledGlobals::ID_KEY) {
@@ -143,7 +144,6 @@ class AjaxPage extends MySQLConnection
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws RecordNotFoundException
      */
     public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY )
@@ -178,10 +178,10 @@ class AjaxPage extends MySQLConnection
 
     /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
-	 * @param array|null[optional] $src Optional array of variables to use instead of POST data.
+	 * @param ?array $src Optional array of variables to use instead of POST data.
 	 * @return AjaxPage
 	 */
-	public function collectPageAction( $src=null ): AjaxPage
+	public function collectPageAction( ?array $src=null ): AjaxPage
 	{
 		if ($src===null) {
 			/* use only POST, not GET */
@@ -310,17 +310,17 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.
-	 * @param array[optional] $src Array of variables to use instead of POST data.
+	 * @param ?array $src Optional array of variables to use instead of POST data.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 */
-	public function initializeContentObject( $src=null )
+	public function initializeContentObject( ?array $src=null )
 	{
 		if ($src===null) {
 			$src = &$_POST;
 		}
 		/* get object type from POST data */
-		$class_name = Validation::collectStringRequestVar('class', null, $src);
+		$class_name = Validation::collectStringRequestVar('class', FILTER_UNSAFE_RAW, null, $src);
 		if (!$class_name) {
 			throw new ContentValidationException("Content type not provided.");
 		}
@@ -396,11 +396,20 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Returns instance of a PageContent class used to render front-end content.
 	 * @return PageContent
-	 * @throws ConfigurationUndefinedException
-	 */
+	 * @throws ConfigurationUndefinedException|InvalidValueException
+     */
 	protected function newPageContentInstance(): PageContent
 	{
-		$page_content_class = call_user_func_array([static::getControllerClass(), 'getRoutedPageContentClass'], array($this->getContentTypeId(), $this->action));
+        if (!isset($this->content)) {
+            throw new ConfigurationUndefinedException('Content class not loaded.');
+        }
+        if (!isset($this->content->content_properties)) {
+            throw new ConfigurationUndefinedException('Content properties not loaded.');
+        }
+        /** @var ContentProperties $p */
+        $p = &$this->content->content_properties;
+        $route_parts = $p->getContentRouteByOperation('listings')->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
+		$page_content_class = call_user_func([static::getControllerClass(), 'getRoutedPageContentClass'], $route_parts);
 		return new $page_content_class();
 	}
 
@@ -441,8 +450,8 @@ class AjaxPage extends MySQLConnection
 	 * @param string $template_path Path to content template to use to generate markup.
 	 * @param ?array $context Associative array of variables referenced in the template.
 	 * @throws ResourceNotFoundException
-	 * @throws ConfigurationUndefinedException
-	 */
+	 * @throws ConfigurationUndefinedException|InvalidValueException
+     */
 	public function renderToJSON( string $template_path, ?array $context=null )
 	{
 		$this->context = $context;
@@ -490,7 +499,6 @@ class AjaxPage extends MySQLConnection
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws RecordNotFoundException
 	 */
 	public function retrieveContentProperties(?int $content_type_id=null)
@@ -566,9 +574,13 @@ class AjaxPage extends MySQLConnection
      * @param string $class_name Name of class to use to cache ajax content. Must be derived from \Littled\PageContent\Cache\ContentCache
      * @return void
      * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
      */
     public static function setCacheClass(string $class_name)
     {
+        if($class_name === ContentCache::class) {
+            throw new ConfigurationUndefinedException('Cache type must inherit from base cache type.');
+        }
         if(!is_a($class_name, ContentCache::class, true)) {
             throw new InvalidTypeException("\"$class_name\" is not a valid content cache type.");
         }
@@ -585,14 +597,18 @@ class AjaxPage extends MySQLConnection
         $this->content_properties->id->setInputValue($content_id);
     }
 
-	/**
-	 * Content cache class setter.
-	 * @param string $class_name Name of class to use as content controller. Must be derived from \Littled\PageContent\ContentController
-	 * @return void
-	 * @throws InvalidTypeException
-	 */
+    /**
+     * Content cache class setter.
+     * @param string $class_name Name of class to use as content controller. Must be derived from \Littled\PageContent\ContentController
+     * @return void
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     */
 	public static function setControllerClass(string $class_name)
 	{
+        if ($class_name===ContentController::class) {
+            throw new ConfigurationUndefinedException('Controller type must be derived from base controller type.');
+        }
 		if(!is_a($class_name, ContentController::class, true)) {
 			throw new InvalidTypeException(Log::getShortMethodName().' Invalid controller type. ');
 		}
@@ -612,12 +628,12 @@ class AjaxPage extends MySQLConnection
 
     /**
      * Ajax input stream setter.
-     * @param string $ajax_input_stream
+     * @param string $stream
      * @return void
      */
-    public static function setAjaxInputStream(string $ajax_input_stream)
+    public static function setAjaxInputStream(string $stream)
     {
-        static::$ajax_input_stream = $ajax_input_stream;
+        static::$ajax_input_stream = $stream;
     }
 
 	/**
@@ -638,8 +654,8 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Sets the data to be injected into templates.
-	 * @throws ConfigurationUndefinedException
-	 */
+	 * @throws ConfigurationUndefinedException|InvalidValueException
+     */
 	public function setTemplateContext()
 	{
 		$this->context = array(

@@ -321,10 +321,10 @@ class SerializedContentUtils extends AppContentBase
 
 	/**
 	 * Return the form data members of the object as a JSON string.
-	 * @param array[optional] $exclude_keys Array of property names to exclude from the encoding.
+	 * @param ?array $exclude_keys Array of property names to exclude from the encoding.
 	 * @return string JSON-encoded name/value pairs extracted from the object.
 	 */
-	public function jsonEncode ($exclude_keys=null): string
+	public function jsonEncode (?array $exclude_keys=null): string
 	{
 		return (json_encode($this->arrayEncode($exclude_keys)));
 	}
@@ -400,13 +400,13 @@ class SerializedContentUtils extends AppContentBase
 
 	/**
 	 * Loads content from a template file. Writes the parsed content to a separate file.
-	 * @param array[optional] $context Array containing name/value pairs representing variable names and values to insert into the source template at $src_path;
-	 * @param string|null[optional] $cache_template Path to content template. If not supplied, the internal $cache_template value will be used.
-	 * @param string|null[optional] $output_cache_file Path to cache file. If not supplied, the internal $output_cache_file value will be used.
+	 * @param ?array $context Array containing name/value pairs representing variable names and values to insert into the source template at $src_path;
+	 * @param ?string $cache_template Path to content template. If not supplied, the internal $cache_template value will be used.
+	 * @param ?string $output_cache_file Path to cache file. If not supplied, the internal $output_cache_file value will be used.
 	 * @throws ResourceNotFoundException Cache template not found.
 	 * @throws Exception File error.
 	 */
-	function updateCacheFile ($context=null, $cache_template=null, $output_cache_file=null)
+	function updateCacheFile (?array $context=null, ?string $cache_template=null, ?string $output_cache_file=null)
 	{
 		if ($cache_template===null) {
 			$cache_template = static::$cache_template;

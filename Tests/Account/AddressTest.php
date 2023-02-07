@@ -5,13 +5,12 @@ use Littled\Account\Address;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
-use Littled\Tests\Account\DataProvider\AddressTestData;
+use Littled\Tests\DataProvider\Account\AddressTestData;
 use Littled\Tests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
@@ -32,8 +31,7 @@ class AddressTest extends ContentValidationTestCase
     const TEST_STATE_ABBREV_VALUE = 'OR';
     const TEST_STATE_ID = 9; /* California */
 
-    /** @var Address $address */
-    public $address;
+    public Address $address;
 
     public function setUp(): void
     {
@@ -48,7 +46,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws Exception
      */
@@ -62,7 +59,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws RecordNotFoundException
@@ -91,7 +87,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws InvalidValueException
      * @throws ContentValidationException
@@ -172,7 +167,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ConnectionException
      * @throws NotImplementedException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws RecordNotFoundException
@@ -221,7 +215,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      */
     public function testFormatGoogleAddress()
@@ -278,7 +271,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws RecordNotFoundException
@@ -417,7 +409,7 @@ class AddressTest extends ContentValidationTestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\Account\DataProvider\AddressTestDataProvider::hasAddressDataTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Account\AddressTestDataProvider::hasAddressDataTestProvider()
 	 * @return void
 	 */
 	public function testHasAddressData(AddressTestData $data)
@@ -494,7 +486,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws Exception
      * @todo Test against database that contains a 'zips' table.
@@ -515,8 +506,6 @@ class AddressTest extends ContentValidationTestCase
     {
         $md_state_id = 27;
         $ca_state_id = 9;
-
-        $this->address->id->setInputValue(null);
 
         $this->address->state->setInputValue('md');
         $this->assertEquals($md_state_id, $this->address->lookupStateByName());
@@ -542,7 +531,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws ConnectionException
      * @throws NotImplementedException
-     * @throws InvalidTypeException
      * @throws ResourceNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
@@ -578,7 +566,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -596,7 +583,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ContentValidationException
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      */
     public function testReadNonexistentRecord()
@@ -646,7 +632,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws RecordNotFoundException
      * @throws ContentValidationException
@@ -686,7 +671,6 @@ class AddressTest extends ContentValidationTestCase
     /**
      * @throws NotImplementedException
      * @throws ConnectionException
-     * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws RecordNotFoundException
@@ -694,9 +678,6 @@ class AddressTest extends ContentValidationTestCase
      */
     public function testSaveNewRecord()
     {
-		$query = "SELECT MAX(`id`) AS `max_id` FROM `address`;";
-		$result = $this->address->fetchRecords($query);
-
     	$this->address->first_name->value = 'Damien';
     	$this->address->last_name->value = 'Barchowsky';
     	$this->address->address1->value = '122 N Rose St';
@@ -817,7 +798,6 @@ class AddressTest extends ContentValidationTestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws Exception

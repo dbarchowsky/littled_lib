@@ -78,10 +78,10 @@ class RequestInput
 	 * class constructor
 	 * @param string $label Input label
 	 * @param string $key value of the name attribute of the input
-	 * @param boolean[optional] $required Flag indicating if this form data is required. Defaults to FALSE.
-	 * @param mixed[optional] $value Initial value of the input. Defaults to NULL.
-	 * @param int $size_limit[optional] Maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
-	 * @param ?int $index[optional] Index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
+	 * @param bool $required Optional flag indicating if this form data is required. Defaults to FALSE.
+	 * @param mixed $value Optional initial value of the input. Defaults to NULL.
+	 * @param int $size_limit Optional maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
+	 * @param ?int $index Optional index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
 	 */
 	function __construct (
 		string $label,

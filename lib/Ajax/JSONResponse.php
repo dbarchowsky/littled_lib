@@ -8,9 +8,9 @@ namespace Littled\Ajax;
 class JSONResponse extends JSONResponseBase
 {
     /** @var JSONField Operation results message. */
-    public $status;
+    public JSONField $status;
     /** @var JSONField Error message. */
-    public $error;
+    public JSONField $error;
 
 	/**
 	 * Class constructor.

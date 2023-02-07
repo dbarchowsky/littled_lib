@@ -2,7 +2,7 @@
 namespace Littled\Tests\Filters;
 
 use Littled\Filters\GalleryFilters;
-use Littled\Tests\Filters\TestHarness\GalleryFiltersChild;
+use Littled\Tests\TestHarness\Filters\GalleryFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -12,7 +12,7 @@ class GalleryFiltersTest extends TestCase
 	const DETAILS_URI = '/_ajax/images/image_details.php';
 
 	/** @var GalleryFilters Filters object used to retrieve gallery listings data. */
-	public $filters;
+	public GalleryFilters $filters;
 
 	/**
 	 * @throws Exception

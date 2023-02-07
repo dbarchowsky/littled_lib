@@ -9,7 +9,7 @@ use mysqli;
 class BooleanContentFilterTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\BooleanContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\BooleanContentFilterTestDataProvider::escapeSQLTestProvider()
      * @return void
      * @throws Exception
      */
@@ -30,9 +30,10 @@ class BooleanContentFilterTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Filters\DataProvider\BooleanContentFilterTestDataProvider::formatQueryStringTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\BooleanContentFilterTestDataProvider::formatQueryStringTestProvider()
      * @param string $expected
      * @param $value
+     * @param $msg
      * @return void
      */
     function testFormatQueryString(string $expected, $value, $msg)

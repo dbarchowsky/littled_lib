@@ -6,7 +6,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -254,12 +253,19 @@ class ContentProperties extends SerializedContent
      * @param int|null $record_id
      * @param int|null $content_type_id
      * @param string $operation
+     * @param string $route
      * @param string $url
      * @return ContentRoute
      */
-    protected function newRouteInstance(?int $record_id=null, ?int $content_type_id=null, string $operation='', string $url=''): ContentRoute
+    protected function newRouteInstance(
+        ?int $record_id=null,
+        ?int $content_type_id=null,
+        string $operation='',
+        string $route='',
+        string $url=''
+    ): ContentRoute
     {
-        return new ContentRoute($record_id, $content_type_id, $operation, $url);
+        return new ContentRoute($record_id, $content_type_id, $operation, $route, $url);
     }
 
     /**
@@ -297,7 +303,6 @@ class ContentProperties extends SerializedContent
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
      * @throws Exception
 	 */
 	public function read(): void
@@ -346,6 +351,7 @@ class ContentProperties extends SerializedContent
 				$row->id,
 				$this->id->value,
 				$row->operation,
+                $row->route,
 				$row->url);
 		}
 	}

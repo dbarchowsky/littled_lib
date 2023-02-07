@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 class LittledUtilityTest extends TestCase
 {
 	/**
-	 * @dataProvider \Littled\Tests\Utility\DataProvider\LittledUtilityTestDataProvider::joinPathPartsTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::joinPathPartsTestProvider()
 	 * @param string $expected
 	 * @param array $parts
 	 * @return void
@@ -19,7 +19,7 @@ class LittledUtilityTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\Utility\DataProvider\LittledUtilityTestDataProvider::joinPathsTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::joinPathsTestProvider()
 	 * @param string $expected
 	 * @param array $parts
 	 * @return void
@@ -30,7 +30,7 @@ class LittledUtilityTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Utility\DataProvider\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
      * @param string $expected
      * @param string $path
      * @param int $levels

@@ -2,7 +2,7 @@
 namespace Littled\Tests\Ajax;
 
 use Littled\Ajax\JSONField;
-use Littled\Tests\Ajax\TestHarness\JSONResponseSample;
+use Littled\Tests\TestHarness\Ajax\JSONResponseSample;
 use PHPUnit\Framework\TestCase;
 
 class JSONFieldTest extends TestCase

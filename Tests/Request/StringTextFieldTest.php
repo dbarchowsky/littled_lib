@@ -13,8 +13,7 @@ use Littled\Request\StringInput;
  */
 class StringTextFieldTest extends TestCase
 {
-	/** @var StringTextField Test DateInput object. */
-	public $obj;
+	public StringTextField $obj;
 
     protected function setUp(): void
     {

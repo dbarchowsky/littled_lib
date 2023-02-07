@@ -27,49 +27,49 @@ class ContentAjaxProperties extends SerializedContent
 	 * TODO Rename this property to $content_type_id, which requires changing the name of the corresponding field
 	 * in the database, and changing any SQL queries that reference that field.
 	 */
-	public $section_id;
+	public IntegerSelect $section_id;
 	/** @var StringTextField Content label. */
-	public $label;
+	public StringTextField $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
-	public $id_param;
+	public StringTextField $id_param;
 	/** @var ContentRoute[] All routes linked to this content type. */
-	public $routes=[];
+	public array $routes=[];
 	/** @var ContentTemplate[] All templates linked to this content type. */
-	public $templates=[];
+	public array $templates=[];
 
     /**
      * @todo consider replacing hard-coded uri fields with a table linked to this one containing separate records for each possible ajax uri. See $routes and $templates property.
      */
 	/** @var StringTextField URI CMS listings URI. */
-	public $listings_uri;
+	public StringTextField $listings_uri;
 	/** @var StringTextField URI of AJAX listings utility script. */
-	public $ajax_listings_uri;
+	public StringTextField $ajax_listings_uri;
 	/** @var StringTextField URI of AJAX record details utility script. */
-	public $details_uri;
+	public StringTextField $details_uri;
 	/** @var StringTextField URI of AJAX record editing utility script. */
-	public $edit_uri;
+	public StringTextField $edit_uri;
 	/** @var StringTextField URI of AJAX record attachments upload utility script. */
-	public $upload_uri;
+	public StringTextField $upload_uri;
 	/** @var StringTextField URI of AJAX record deletion utility script. */
-	public $delete_uri;
+	public StringTextField $delete_uri;
 	/** @var StringTextField URI of AJAX record caching utility script. */
-	public $cache_uri;
+	public StringTextField $cache_uri;
 	/** @var StringTextField URI of AJAX listings sorting utility script. */
-	public $sorting_uri;
+	public StringTextField $sorting_uri;
 	/** @var StringTextField URI of AJAX record keyword management utility script. */
-	public $keywords_uri;
+	public StringTextField $keywords_uri;
 	/** @var StringTextField Path to listings template. */
-    public $listings_template;
+    public StringTextField $listings_template;
 	/** @var StringTextField Path to keywords list template. */
-	public $keywords_template;
+	public StringTextField $keywords_template;
 	/** @var StringTextarea Comments about the content type. */
-	public $comments;
+	public StringTextarea $comments;
 	/** @var BooleanCheckbox Flag indicating that the listings are sortable. */
-	public $is_sortable;
+	public BooleanCheckbox $is_sortable;
 
 	/**
 	 * ContentAjaxProperties constructor.
-	 * @param int|null[optional] $content_type_id Initial content type id value.
+	 * @param ?int $content_type_id Initial content type id value.
 	 */
 	function __construct( ?int $content_type_id=null )
 	{
@@ -150,7 +150,7 @@ class ContentAjaxProperties extends SerializedContent
 		$query = 'CALL contentRouteSelect(?,?,?)';
 		$data = $this->fetchRecords($query, 'iis', $record_id, $this->section_id->value, $operation);
 		foreach($data as $row) {
-			$this->routes[] = new ContentRoute($row->id, $row->site_section_id, $row->operation, $row->url);
+			$this->routes[] = new ContentRoute($row->id, $row->site_section_id, $row->operation, $row->route, $row->url);
 		}
 	}
 

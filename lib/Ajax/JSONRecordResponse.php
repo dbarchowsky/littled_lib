@@ -11,13 +11,13 @@ use Littled\PageContent\ContentUtils;
 class JSONRecordResponse extends JSONResponse
 {
 	/** @var JSONField Record id. */
-	public $id;
+	public JSONField $id;
 	/** @var JSONField Name of the element in the DOM to update. */
-	public $containerID;
+	public JSONField $containerID;
 	/** @var JSONField Page content to be inserted into the DOM. */
-	public $content;
+	public JSONField $content;
 	/** @var JSONField Element label value. */
-	public $label;
+	public JSONField $label;
 
 	/**
 	 * Class constructor.
@@ -35,7 +35,7 @@ class JSONRecordResponse extends JSONResponse
     /**
      * Inserts data into a template file and stores the resulting content in the object's $content property.
      * @param string $template_path Path to content template file.
-     * @param array|null[optional] $context Array containing data to insert into the template.
+     * @param ?array $context Array containing data to insert into the template.
      * @throws ResourceNotFoundException
      */
     public function loadContentFromTemplate( string $template_path, ?array $context=null)

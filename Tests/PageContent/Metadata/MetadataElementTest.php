@@ -15,7 +15,7 @@ class MetadataElementTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\PageContent\Metadata\DataProvider\MetadataElementTestProvider::renderTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Metadata\MetadataElementTestProvider::renderTestProvider()
      * @param MetadataElement $o
      * @param string $expected
      * @return void

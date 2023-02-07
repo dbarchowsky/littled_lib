@@ -3,7 +3,7 @@ namespace Littled\Tests\Filters;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\FilterCollectionProperties;
-use Littled\Tests\Filters\TestHarness\FilterCollectionPropertiesChild;
+use Littled\Tests\TestHarness\Filters\FilterCollectionPropertiesChild;
 use PHPUnit\Framework\TestCase;
 
 class FilterCollectionPropertiesTest extends TestCase

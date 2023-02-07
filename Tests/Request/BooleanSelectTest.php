@@ -3,7 +3,7 @@ namespace Littled\Tests\Request;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Request\RequestInput;
-use Littled\Tests\Request\DataProvider\BooleanSelectTestData;
+use Littled\Tests\DataProvider\Request\BooleanSelectTestData;
 use PHPUnit\Framework\TestCase;
 
 class BooleanSelectTest extends TestCase
@@ -15,7 +15,7 @@ class BooleanSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\BooleanSelectTestDataProvider::renderInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\BooleanSelectTestDataProvider::renderInputTestProvider()
      * @param BooleanSelectTestData $data
      * @return void
      * @throws NotImplementedException

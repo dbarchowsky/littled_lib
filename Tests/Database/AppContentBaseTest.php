@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 class AppContentBaseTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\Database\DataProvider\AppContentBaseTestDataProvider::makePluralTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Database\AppContentBaseTestDataProvider::makePluralTestProvider()
      * @param string $str
      * @param string $expected
      * @return void

@@ -3,7 +3,7 @@ namespace Littled\Tests\Request;
 require_once(APP_BASE_DIR . "/Tests/Base/DatabaseTestCase.php");
 
 use Littled\Database\MySQLConnection;
-use Littled\Tests\Request\DataProvider\RequestInputTestDataProvider;
+use Littled\Tests\DataProvider\Request\RequestInputTestDataProvider;
 use mysqli;
 use Exception;
 use Littled\Request\RequestInput;
@@ -12,12 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 class RequestInputTest extends TestCase
 {
-    /** @var MySQLConnection */
-    public $conn;
-	/** @var mysqli Test database connection. */
-	public $mysqli;
-	/** @var RequestInput Test RequestInput object. */
-	public $obj;
+    public MySQLConnection $conn;
+	public mysqli $mysqli;
+	public RequestInput $obj;
 
 	/**
 	 * @throws Exception
@@ -67,11 +64,12 @@ class RequestInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\Request\DataProvider\RequestInputTestDataProvider::formatClassAttributeTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::formatClassAttributeTestProvider()
      * @param string $expected
      * @param string $css_class
      * @param string $class_override
      * @param bool $has_error
+     * @param string $element
      * @return void
      */
     function testFormatClassAttribute(string $expected, string $css_class='', string $class_override='', bool $has_error=false, string $element='default')

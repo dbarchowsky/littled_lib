@@ -4,15 +4,16 @@ namespace Littled\Tests\PageContent\Cache;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Cache\ContentCache;
+use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
 class ContentCacheTest extends TestCase
 {
-    public const TEST_CONTROLLER_CLASS = 'Littled\Tests\PageContent\TestHarness\ContentControllerTestHarness';
+    public const TEST_CONTROLLER_CLASS = 'Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness';
 
     /**
-     * @throws InvalidTypeException|ConfigurationUndefinedException
+     * @throws InvalidTypeException
      */
     function testSetControllerClassToBaseClass()
     {
@@ -22,13 +23,13 @@ class ContentCacheTest extends TestCase
     }
 
     /**
-     * @throws InvalidTypeException|ConfigurationUndefinedException
+     * @throws InvalidTypeException
      */
     function testSetControllerClassInvalidClass()
     {
         // try to assign the base default controller class
         $this->expectExceptionMessageMatches('/invalid controller class/i');
-        ContentCache::setControllerClass('Littled\Tests\PageContent\SiteSection\TestHarness\SectionContentTestHarness');
+        ContentCache::setControllerClass(SectionContentTestHarness::class);
     }
 
     /**

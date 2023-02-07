@@ -9,3 +9,5 @@ CREATE OR REPLACE TABLE content_route
     CONSTRAINT fk_content_route_site_section
         FOREIGN KEY (site_section_id) REFERENCES site_section(id) ON DELETE CASCADE
 );
+ALTER TABLE content_route
+    ADD COLUMN `route` VARCHAR(255) DEFAULT '' AFTER `operation`;

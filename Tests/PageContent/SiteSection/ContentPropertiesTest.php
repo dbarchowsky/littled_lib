@@ -6,16 +6,17 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\PageContent\SiteSection\DataProvider\ContentTemplateData;
+use Littled\Tests\DataProvider\PageContent\SiteSection\ContentTemplateData;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\Tests\TestHarness\PageContent\SiteSection\ContentPropertiesTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
+
 
 class ContentPropertiesTest extends TestCase
 {
@@ -145,11 +146,14 @@ class ContentPropertiesTest extends TestCase
         $new_id = $data[0]->max_id + 100;
 
         // prepare insert statement
-        $query = "INSERT INTO `content_template` (id, site_section_id, name, path) VALUES (?,?,?,?)";
+        $query = 'INS'.'ERT INTO `content_template` (id, site_section_id, name, path) VALUES (?,?,?,?) '.
+            'ON DUPLICATE KEY UPDATE site_section_id = ?, '.
+            'name = ?, '.
+            'path = ?';
         $mysqli = $conn->getMysqli();
         $stmt = $mysqli->prepare($query);
         $content_type_id = self::TEST_ID_FOR_READ;
-        $stmt->bind_param('iiss', $new_id, $content_type_id, $name, $path);
+        $stmt->bind_param('iississ', $new_id, $content_type_id, $name, $path, $content_type_id, $name, $path);
 
         // execute insert statements
         foreach($template_data as $td) {
@@ -171,6 +175,16 @@ class ContentPropertiesTest extends TestCase
     {
         $query = "DELETE FROM `content_template` WHERE `name` like '%-".self::UNIT_TEST_IDENTIFIER."'";
         $conn->query($query);
+    }
+
+    /**
+     * array_map() callback that returns all the route values currently stored in a ContentProperties object
+     * @param ContentRoute $o
+     * @return mixed
+     */
+    protected static function mapRouteValues(ContentRoute $o)
+    {
+        return $o->route->value;
     }
 
 	/**
@@ -226,7 +240,7 @@ class ContentPropertiesTest extends TestCase
 	{
 		for($i=0; $i<$n; $i++) {
 			$name = self::UNIT_TEST_IDENTIFIER.sprintf(' %02d', $i);
-			$route = new ContentRoute(null, self::TEST_CONTENT_TYPE_ID, $name, 'https://localhost');
+			$route = new ContentRoute(null, self::TEST_CONTENT_TYPE_ID, $name, sprintf('/temp-test%02d', $i), 'https://localhost');
 			$route->save();
 		}
 	}
@@ -328,7 +342,7 @@ class ContentPropertiesTest extends TestCase
      */
 	protected function removeSectionOperations(int $site_section_id)
 	{
-		$query = "DELETE FROM `section_operations` WHERE `section_id` = ?";
+		$query = 'DEL'.'ETE FROM `section_operations` WHERE `section_id` = ?';
 		$this->conn->query($query, 'i', $site_section_id);
 	}
 
@@ -345,7 +359,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
      * @throws RecordNotFoundException
 	 */
 	public function testClearValues()
@@ -377,7 +390,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws ConfigurationUndefinedException
 	 */
 	function testGetContentLabel()
@@ -476,7 +488,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws RecordNotFoundException
 	 */
 	function testGetContentRouteByOperation()
@@ -501,7 +512,6 @@ class ContentPropertiesTest extends TestCase
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws RecordNotFoundException
      */
     function testGetContentTemplateByName()
@@ -523,7 +533,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
@@ -567,6 +576,20 @@ class ContentPropertiesTest extends TestCase
 		$this->assertTrue($obj->hasData());
 	}
 
+    public function testNewRouteInstance()
+    {
+        $record_id = 99;
+        $site_section_id = 1011;
+
+        $obj = new ContentPropertiesTestHarness();
+        $route = $obj->publicNewRouteInstance($record_id, $site_section_id, 'listings', 'my-route', 'https://localhost');
+        $this->assertEquals($record_id, $route->id->value);
+        $this->assertEquals($site_section_id, $route->site_section_id->value);
+        $this->assertEquals('listings', $route->operation->value);
+        $this->assertEquals('my-route', $route->route->value);
+        $this->assertEquals('https://localhost', $route->url->value);
+    }
+
     /**
      * @throws ConfigurationUndefinedException
      * @throws Exception
@@ -594,7 +617,6 @@ class ContentPropertiesTest extends TestCase
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws RecordNotFoundException
      */
     public function testRead()
@@ -621,6 +643,11 @@ class ContentPropertiesTest extends TestCase
 		$original_count = count($cp->routes);
 		$this->assertGreaterThan(0, $original_count);
 
+        // test route values from original data set
+        $routes = array_map([ContentPropertiesTest::class, 'mapRouteValues'], $cp->routes);
+        $this->assertContains('/test/[#]', $routes);
+        $this->assertContains('/tests', $routes);
+
 		$this->addContentRoutes($add_amount);
 
 		$cp->readRoutes();
@@ -630,6 +657,10 @@ class ContentPropertiesTest extends TestCase
 			$expected = self::UNIT_TEST_IDENTIFIER . sprintf(' %02d', $i);
 			$this->assertContains($expected, $names);
 		}
+        // test route values from new records
+        $routes = array_map([ContentPropertiesTest::class, 'mapRouteValues'], $cp->routes);
+        $this->assertContains('/temp-test01', $routes);
+
 		$this->removeContentRoutes($cp);
 	}
 
@@ -662,7 +693,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
      * @throws RecordNotFoundException
 	 */
 	public function testReadWithoutTemplatesOrExtraProperties()
@@ -681,7 +711,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
@@ -704,7 +733,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
      * @throws RecordNotFoundException
 	 */
 	public function testReadWithExtraProperties()
@@ -728,7 +756,6 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */

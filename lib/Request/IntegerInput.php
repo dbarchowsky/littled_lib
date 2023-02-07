@@ -69,7 +69,7 @@ class IntegerInput extends RenderedInput
     }
 
     /**
-	 * @param int $value Value to assign as the value of the object.
+	 * @param ?int $value Value to assign as the value of the object.
 	 */
 	public function setInputValue($value)
 	{
