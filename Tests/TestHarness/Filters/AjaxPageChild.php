@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\TestHarness\Filters;
 
 use DateTime;
 use Littled\Ajax\AjaxPage;
@@ -20,7 +20,6 @@ class AjaxPageChild extends AjaxPage
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws RecordNotFoundException
      */
     function throwError()

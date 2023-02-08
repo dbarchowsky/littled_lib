@@ -8,6 +8,15 @@ use PHPUnit\Framework\TestCase;
 class LittledUtilityTest extends TestCase
 {
 	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::isSubclassTestProvider()
+	 * @return void
+	 */
+	function testIsSubclass($a, string $b, bool $expected)
+	{
+		$this->assertEquals($expected, LittledUtility::isSubclass($a, $b));
+	}
+
+	/**
 	 * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::joinPathPartsTestProvider()
 	 * @param string $expected
 	 * @param array $parts
