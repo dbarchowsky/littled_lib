@@ -152,12 +152,12 @@ class AppBase
 
     /**
      * Ajax input stream setter
-     * @param string $input__input_stream
+     * @param string $input_stream
      * @return void
      */
-    public static function setAjaxInputStream(string $input__input_stream)
+    public static function setAjaxInputStream(string $input_stream)
     {
-        static::$ajax_input_stream = $input__input_stream;
+        static::$ajax_input_stream = $input_stream;
     }
 
     /**
