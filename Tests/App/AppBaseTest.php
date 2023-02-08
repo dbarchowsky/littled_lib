@@ -2,6 +2,7 @@
 namespace Littled\Tests\App;
 
 use Littled\App\AppBase;
+use Littled\Tests\TestHarness\App\AppBaseTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -28,6 +29,12 @@ class AppBaseTest extends TestCase
         $id_4 = AppBase::generateUniqueToken(30);
         $this->assertNotEquals($id_1, $id_4);
     }
+
+	function testGetErrorPageURL()
+	{
+		$this->assertMatchesRegularExpression('/^.*\/error\.php$/', AppBase::getErrorPageURL());
+		$this->assertMatchesRegularExpression('/^\/subclass\/error\/route$/', AppBaseTestHarness::getErrorPageURL());
+	}
 
     function testGetRequestDataWithGet()
     {
@@ -68,6 +75,21 @@ class AppBaseTest extends TestCase
         $this->assertCount(0, AppBase::getRequestData($_GET), 'ignoring GET data');
         $_POST = [];
     }
+
+	/**
+	 * @runInSeparateProcess
+	 * @return void
+	 */
+	public function testRedirectToErrorPage()
+	{
+		AppBase::redirectToErrorPage('Test error message.');
+		$headers = xdebug_get_headers();
+		$this->assertMatchesRegularExpression('/^location:.*error\.php.*test\+error\+message/i', $headers[0]);
+
+		AppBaseTestHarness::redirectToErrorPage('Test error message.');
+		$headers = xdebug_get_headers();
+		$this->assertMatchesRegularExpression('/^location:.*subclass\/error\/route.*test\+error\+message/i', $headers[0]);
+	}
 
     public function testSetErrorKey()
     {

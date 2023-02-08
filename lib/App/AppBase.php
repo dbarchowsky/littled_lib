@@ -145,8 +145,8 @@ class AppBase
 	 */
 	public static function redirectToErrorPage(string $error_msg, string $url='', string $key='')
 	{
-        $url = $url ?: AppBase::getErrorPageURL();
-        $key = $key ?: AppBase::getErrorKey();
+        $url = $url ?: static::getErrorPageURL();
+        $key = $key ?: static::getErrorKey();
 		header("Location: $url?$key=".urlencode($error_msg));
 	}
 
