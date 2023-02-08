@@ -628,12 +628,12 @@ class AjaxPage extends MySQLConnection
 
     /**
      * Ajax input stream setter.
-     * @param string $stream
+     * @param string $input_stream
      * @return void
      */
-    public static function setAjaxInputStream(string $stream)
+    public static function setAjaxInputStream(string $input_stream)
     {
-        static::$ajax_input_stream = $stream;
+        static::$ajax_input_stream = $input_stream;
     }
 
 	/**
