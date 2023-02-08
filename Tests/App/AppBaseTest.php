@@ -36,7 +36,13 @@ class AppBaseTest extends TestCase
 		$this->assertMatchesRegularExpression('/^\/subclass\/error\/route$/', AppBaseTestHarness::getErrorPageURL());
 	}
 
-    function testGetRequestDataWithGet()
+	function testGetErrorKey()
+	{
+		$this->assertEquals('err', AppBase::getErrorKey());
+		$this->assertEquals('subErr', AppBaseTestHarness::getErrorKey());
+	}
+
+	function testGetRequestDataWithGet()
     {
         $this->assertCount(0, $_GET, 'REQUEST data is empty');
         $this->assertCount(0, AppBase::getRequestData(), 'getRequestData() returns nothing');
