@@ -40,10 +40,10 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
 	/**
-	 * returns the current page value translated into the number of records from the beginning of the record set
-	 * @return int number of records from the beginning of the record set of the first record on this page
+	 * Returns the number of records on all the pages preceding the current page in the listings.
+	 * @return int Number of records on all the pages prior to the current page in the listings.
 	 */
-	public function calcRecordPosition(): int
+	public function calculateOffsetToPage(): int
 	{
         if ($this->page->value===null) {
             $this->page->value = 1;
@@ -52,27 +52,27 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
     /**
-     * Returns the offset from a given record from the first record in the complete listings matching the current filter values.
+     * Returns the position of a given record within its page of listings data.
      * @param int $record_id Record id of the current record in the listings.
      * @param array $data Listings data from the current page in the listings.
      * @return ?int
      */
-    protected function calculateRecordOffset(int $record_id, array $data): ?int
+    protected function calculateRecordPositionOnPage(int $record_id, array $data): ?int
     {
         // calculate the index of the record preceding the current record
-        $offset = 1;
-        $record_found = false;
+        $position = 0;
+		$record_found = false;
         foreach ($data as $row) {
+	        $position++;
             if ($row->id === $record_id) {
-                $record_found = true;
+				$record_found=true;
                 break;
             }
-            $offset++;
         }
         if (!$record_found) {
             return null;
         }
-        return $this->calcRecordPosition() + $offset;
+        return $position;
     }
 
 	/**
@@ -395,7 +395,7 @@ class FilterCollection extends FilterCollectionProperties
         }
 
         // offset of the current record from the first record in the complete listings matching the filter values
-        $offset = $this->calculateRecordOffset($record_id, $data);
+        $offset = $this->calculateRecordPositionOnPage($record_id, $data);
         if ($offset===null) {
             return;
         }
@@ -404,8 +404,7 @@ class FilterCollection extends FilterCollectionProperties
         $original_listings_length = $this->listings_length->value;
         $original_page = $this->page->value;
 
-        // settings for retrieving total number of records
-        // fetch two records if the current record is the first record in the listings
+        // settings for retrieving total number of records when fetching results containing previous and next records in the listings
         if ($offset===0) {
             // current record is the first record in the entire set of listings
             $this->listings_length->value = 2;

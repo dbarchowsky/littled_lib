@@ -13,7 +13,7 @@ class FilterCollectionChildWithQuery extends FilterCollectionChild
      */
     protected function formatListingsQuery(): array
     {
-        $first = $this->calcRecordPosition();
+        $first = $this->calculateOffsetToPage();
         $query = "SEL"."ECT a.`id`, a.`name`, a.`int_col`, a.`bool_col`, a.`date`, a.`slot` FROM `test_table` a".
             $this->formatQueryClause().
             " ORDER BY a.`date` DESC, IFNULL(a.`slot`,999999), a.id DESC".

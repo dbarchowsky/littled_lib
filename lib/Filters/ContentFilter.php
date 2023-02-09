@@ -14,15 +14,14 @@ use mysqli;
  */
 class ContentFilter
 {
-	/** @var string */
-	protected static $preserve_value_template = 'filter-preserved-input.php';
+	protected static string $preserve_value_template = 'filter-preserved-input.php';
 
 	/** @var string Key of the cookie element holding the filter value. */
 	public $cookieKey;
 	/** @var string Variable name used to pass along filter values. */
-	public $key;
+	public string $key;
 	/** @var string Label to display on filter form inputs. */
-	public $label;
+	public string $label;
 	/** @var int Size limit of the filter value. */
 	public $size;
 	/** @var mixed|string Filter value. */
@@ -191,9 +190,9 @@ class ContentFilter
      * Same values as 3rd argument to PHP's filter_var() routine.
      * @return string XSS-safe string.
      */
-    public function safeValue( ?int $options=null ): string
+    public function safeValue( ?int $options=ENT_NOQUOTES ): string
     {
-        return htmlspecialchars(strip_tags(''.$this->value), ENT_NOQUOTES);
+        return htmlspecialchars(strip_tags(''.$this->value), $options);
     }
 
 	/**

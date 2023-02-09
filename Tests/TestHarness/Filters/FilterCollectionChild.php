@@ -36,7 +36,7 @@ class FilterCollectionChild extends FilterCollection
      */
     public function publicCalculateRecordOffset(int $record_id, $data): ?int
     {
-        return $this->calculateRecordOffset($record_id, $data);
+        return $this->calculateRecordPositionOnPage($record_id, $data);
     }
 
 	/**
