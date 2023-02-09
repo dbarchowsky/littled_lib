@@ -111,4 +111,36 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
         $this->assertEquals($expected->previous_record_id, $expected->previous_record_id, $msg);
         $this->assertEquals($expected->next_record_id, $expected->next_record_id, $msg);
     }
+
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::setOutOfBoundNeighborIdsTestProvider()
+	 * @param FilterCollectionTestExpectations $expected
+	 * @param int $record_id
+	 * @param int $page
+	 * @param int $listings_length
+	 * @return void
+	 * @throws Exception
+	 */
+	function testSetOutOfBoundNeighborIds(
+		FilterCollectionTestExpectations $expected,
+		int $record_id,
+		int $page,
+		int $listings_length
+	)
+	{
+		$f = new TestTableFilters();
+		$f->page->value = $page;
+		$f->listings_length->value = $listings_length;
+		$data = $f->retrieveListings();
+		$listings_position = $f->calculateOffsetToPage() + $f->publicCalculateRecordOffset($record_id, $data);
+		$page_count = $f->page_count;
+
+		$f->publicSetOutOfBoundNeighborIds($record_id, $listings_position);
+
+		$this->assertEquals($page, $f->page->value);
+		$this->assertEquals($listings_length, $f->listings_length->value);
+		$this->assertEquals($page_count, $f->page_count);
+		$this->assertEquals($expected->previous_record_id, $f->previous_record_id);
+		$this->assertEquals($expected->next_record_id, $f->next_record_id);
+	}
 }

@@ -36,18 +36,46 @@ class FilterCollectionTestData
 		);
 	}
 
+	public function mapSetOutOfBoundsNeighborIdsTestData(): array
+	{
+		return array(
+			$this->expected,
+			$this->record_id,
+			$this->page,
+			$this->listings_length
+		);
+	}
+
 	public static function newInstance(): FilterCollectionTestData
 	{
 		return new FilterCollectionTestData();
 	}
 
-	public function setRetrieveNeighborIdsTestData(int $record_id, ?int $page, ?int $listings_length, string $name_filter='', string $msg=''): FilterCollectionTestData
+	public function setRetrieveNeighborIdsTestData(
+		int $record_id,
+		?int $page,
+		?int $listings_length,
+		string $name_filter='',
+		string $msg=''
+	): FilterCollectionTestData
 	{
 		$this->record_id = $record_id;
 		$this->page = $page;
 		$this->listings_length = $listings_length;
 		$this->name_filter = $name_filter;
 		$this->msg = $msg;
+		return $this;
+	}
+
+	public function setSetOutOfBoundNeighborIdsTestData(
+		int $record_id,
+		int $page,
+		int $listings_length
+	): FilterCollectionTestData
+	{
+		$this->record_id = $record_id;
+		$this->page = $page;
+		$this->listings_length = $listings_length;
 		return $this;
 	}
 

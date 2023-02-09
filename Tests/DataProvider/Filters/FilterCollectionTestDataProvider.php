@@ -98,6 +98,29 @@ class FilterCollectionTestDataProvider
 		);
 	}
 
+	public static function listingsDataContainsNeighborIdsTestProvider(): array
+	{
+		return array(
+			array(true, array(1,2,3,4,5), 1, 1, 10, 1, 5, '1st record, page 1/1'),
+			array(true, array(1,2,3,4,5), 2, 1, 10, 1, 5, '2nd record, page 1/1'),
+			array(true, array(1,2,3,4,5), 4, 1, 10, 1, 5, '2nd to last record, page 1/1'),
+			array(true, array(1,2,3,4,5), 5, 1, 10, 1, 5, 'last record, page 1/1'),
+			array(false, array(1,2,3,4,5), 8, 1, 10, 1, 5, 'out of upper bounds, page 1/1'),
+			array(false, array(1,2,3,4,5), 1, 2, 10, 2, 15, '1st record, page 2/2'),
+			array(true, array(1,2,3,4,5), 2, 2, 10, 2, 15, '2nd record, page 2/2'),
+			array(true, array(1,2,3,4,5), 4, 2, 10, 2, 15, '2nd to last record, page 2/2'),
+			array(true, array(1,2,3,4,5), 5, 2, 10, 2, 15, 'last record, page 2/2'),
+			array(false, array(1,2,3,4,5,6,7,8,9,10), 1, 2, 10, 3, 25, '1st record, page 2/3'),
+			array(true, array(1,2,3,4,5,6,7,8,9,10), 2, 2, 10, 3, 25, '1st record, page 2/3'),
+			array(true, array(1,2,3,4,5,6,7,8,9,10), 9, 2, 10, 3, 25, '2nd to last record, page 2/3'),
+			array(false, array(1,2,3,4,5,6,7,8,9,10), 10, 2, 10, 3, 25, 'last record, page 2/3'),
+			array(true, array(1), 1, 1, 1, 1, 1, '1st record, single page, single listing'),
+			array(false, array(1), 1, 1, 1, 1, 2, '1st record, page 1/2, one record per page'),
+			array(false, array(1), 1, 2, 1, 2, 3, '1st record, page 2/3, one record per page'),
+			array(false, array(1), 1, 3, 1, 3, 3, '1st record, page 3/3, one record per page'),
+		);
+	}
+
     public static function retrieveNeighborIdsTestProvider(): array
     {
         // results are dependent on records returned by procedure testTableListingsSelect
@@ -155,4 +178,34 @@ class FilterCollectionTestDataProvider
 			)
 		);
     }
+
+	public static function setOutOfBoundNeighborIdsTestProvider():array
+	{
+		return array_map(
+			function(FilterCollectionTestData $o) { return $o->mapSetOutOfBoundsNeighborIdsTestData(); },
+			array(
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2205, 2, 5)
+					->setExpectations(null, 0, 2206, 2210),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2023, 1, 5)
+					->setExpectations(null, 0, null, 2204),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2204, 1, 5)
+					->setExpectations(null, 0, 2023, 2211),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2209, 1, 5)
+					->setExpectations(null, 0, 2211, 2206),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2206, 1, 5)
+					->setExpectations(null, 0, 2209, 2205),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2624, 4, 7)
+					->setExpectations(null, 0, 2208, null),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2624, 5, 5)
+					->setExpectations(null, 0, 2208, null),
+			)
+		);
+	}
 }

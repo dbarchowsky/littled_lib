@@ -7,6 +7,7 @@ use Littled\Tests\TestHarness\Filters\FilterCollectionAutoloadChild;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChild;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithProcedure;
 use Exception;
+use Littled\Tests\TestHarness\Filters\TestTableFilters;
 
 class FilterCollectionTest extends FilterCollectionTestBase
 {
@@ -123,4 +124,33 @@ class FilterCollectionTest extends FilterCollectionTestBase
         $this->assertEquals('iisiiss', $args[1]);
         $this->assertNull($args[2]); /* page filter, the first filter value in the list */
     }
+
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::listingsDataContainsNeighborIdsTestProvider()
+	 * @param bool $expected
+	 * @param array $data
+	 * @param int $page_position
+	 * @param int $page
+	 * @param int $listings_length
+	 * @param int $record_count
+	 * @param string $msg
+	 * @return void
+	 */
+	function testListingsDataContainsNeighborIds(
+		bool $expected,
+		array $data,
+		int $page_position,
+		int $page,
+		int $listings_length,
+		int $page_count,
+		int $record_count,
+		string $msg='')
+	{
+		$f = new TestTableFilters();
+		$f->page->value = $page;
+		$f->listings_length->value = $listings_length;
+		$f->page_count = $page_count;
+		$f->record_count = $record_count;
+		$this->assertEquals($expected, $f->publicListingsDataContainsNeighborIds($data, $page_position), $msg);
+	}
 }
