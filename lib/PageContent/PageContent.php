@@ -78,15 +78,12 @@ class PageContent extends MySQLConnection
         }
 		foreach ($keys as $key => $value) {
 			if (array_key_exists($key, $src)) {
-				$this->edit_action = filter_var($src[$key], FILTER_UNSAFE_RAW);
-			}
-			if (!isset($this->edit_action) || '0'===$this->edit_action) {
-				$this->edit_action = '';
-				continue;
-			}
-			if ($this->edit_action) {
-				$this->edit_action = $value;
-				return;
+				$action = filter_var($src[$key], FILTER_UNSAFE_RAW);
+				if ($action && $action !== '0') {
+					// internally, make the action value consistent regardless of how it's set in request data
+					$this->edit_action = $value;
+					return;
+				}
 			}
 		}
     }
