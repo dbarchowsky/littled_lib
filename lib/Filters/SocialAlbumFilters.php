@@ -41,17 +41,14 @@ class SocialAlbumFilters extends AlbumFilters
 	}
 
 	/**
-	 * Returns select portion of SQL statement to retrieve album listings.
-	 * @return string SQL string used to retrieve album listings
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
+	 * @inheritDoc
 	 */
-	protected function formatListingsQuery()
+	protected function formatListingsQuery(bool $calculate_offset=true): array
 	{
-		$this->query_string = parent::formatListingsQuery();
-		if ($this->contentProperties->gallery_thumbnail->value===false) {
-			$this->query_string = str_replace('albumFilteredListingsSelect', 'albumSocialFilteredListingsSelect', $this->query_string);
+		$query = parent::formatListingsQuery($calculate_offset);
+		if ($this->content_properties->gallery_thumbnail->value===false) {
+			$this->query_string = str_replace('albumFilteredListingsSelect', 'albumSocialFilteredListingsSelect', $query[0]);
 		}
-		return ($this->query_string);
+		return $query;
 	}
 }

@@ -1,7 +1,8 @@
 <?php
-namespace Littled\Tests\Filters\Samples;
+namespace Littled\Tests\TestHarness\Filters;
 
 use Littled\Filters\ContentFilters;
+
 
 class ValidContentFilters extends ContentFilters
 {
@@ -9,9 +10,14 @@ class ValidContentFilters extends ContentFilters
 
     public static function CONTENT_TYPE_ID(): int { return self::VALID_CONTENT_TYPE_ID; }
 
-    protected function formatListingsQuery(): string
+	/**
+	 * @@inheritDoc
+	 */
+    protected function formatListingsQuery(bool $calculate_offset=true): array
     {
-        return "CALL shippingRatesListings(1, 10, '', @total_matches);".
-            "SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`;";
+		parent::formatListingsQuery($calculate_offset);
+		$query = "CALL shippingRatesListings(1, 10, '', @total_matches);".
+			"SELECT CAST(@total_matches AS UNSIGNED) as `total_matches`;";
+        return array($query, '');
     }
 }

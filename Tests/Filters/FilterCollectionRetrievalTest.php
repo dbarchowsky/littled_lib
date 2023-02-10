@@ -28,7 +28,7 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
 		$f->listings_length->value = $listings_length;
 	    $f->name_filter->value = $name_filter;
         $data = $f->retrieveListings();
-        $this->assertEquals($expected, $f->publicCalculateRecordOffset($record_id, $data));
+        $this->assertEquals($expected, $f->publicCalculateRecordPositionOnPage($record_id, $data));
     }
 
     /**
@@ -132,10 +132,9 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
 		$f->page->value = $page;
 		$f->listings_length->value = $listings_length;
 		$data = $f->retrieveListings();
-		$listings_position = $f->calculateOffsetToPage() + $f->publicCalculateRecordOffset($record_id, $data);
 		$page_count = $f->page_count;
 
-		$f->publicSetOutOfBoundNeighborIds($record_id, $listings_position);
+		$f->publicSetOutOfBoundNeighborIds($record_id, $f->publicCalculateRecordPositionOnPage($record_id, $data));
 
 		$this->assertEquals($page, $f->page->value);
 		$this->assertEquals($listings_length, $f->listings_length->value);

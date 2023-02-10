@@ -31,12 +31,16 @@ class TestTableContentFiltersTestHarness extends ContentFilters
 		$this->date_before = new DateContentFilter('Date before', 'dateBefore');
 	}
 
-	protected function formatListingsQuery(): array
+	/**
+	 * @inheritDoc
+	 */
+	protected function formatListingsQuery(bool $calculate_offset=true): array
 	{
+		parent::formatListingsQuery($calculate_offset);
 		return array(
 			'CALL testTableListingsSelect (?,?,?,?,?,?,?,@total_matches)',
 			'iisiiss',
-			&$this->page->value,
+			&$this->listings_offset,
 			&$this->listings_length->value,
 			&$this->name_filter->value,
 			&$this->int_filter->value,

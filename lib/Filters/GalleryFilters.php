@@ -80,12 +80,13 @@ class GalleryFilters extends ContentFilters
 	 * {@inheritDoc}
      * @throws NotImplementedException
 	 */
-	public function formatListingsQuery(): array
+	public function formatListingsQuery(bool $calculate_offset=true): array
 	{
+		parent::formatListingsQuery($calculate_offset);
         $content_type_id = $this::getContentTypeId();
 		return array('CALL galleryFilteredSelect (?,?,?,?,?,?,?,?,?,?,@total_matches)',
             'iiiissssis',
-            &$this->page->value,
+            &$this->listings_offset,
             &$this->listings_length->value,
             &$content_type_id,
             &$this->albumId->value,

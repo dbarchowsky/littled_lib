@@ -18,6 +18,8 @@ class FilterCollection extends FilterCollectionProperties
     /** @var string */
     protected const RECORD_COUNT_ARG = '@total_matches';
 	protected static bool $autoload_default=false;
+	/** @var int Value calculated before retrieving listings by multiplying page value by listings length  */
+	protected int $listings_offset;
 
 	/**
 	 * Calculate the total number of pages for the listings based on the total number of records and the length of the pages.
@@ -139,13 +141,17 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Format and return the query string that will retrieve filters listings data.
+	 * @param bool $calculate_offset Optional flag to prevent the offset to the start of the records from being recalculated.
      * @returns array Returns an array where the first element is a sql query followed by an array of variables to bind
      * to the query. See mysqli_statement::bind_param() for specs of the array variables. The 2nd element of the
      * array is a string describing the types of the following values in the array, e.g. 'iissiis' for int, int,
      * string, int, etc.
 	 */
-	protected function formatListingsQuery(): array
+	protected function formatListingsQuery(bool $calculate_offset=true): array
 	{
+		if ($calculate_offset) {
+			$this->listings_offset = $this->getListingsStartOffset();
+		}
 		return array('', '', null);
 	}
 
@@ -207,7 +213,10 @@ class FilterCollection extends FilterCollectionProperties
      */
     public function getListingsStartOffset(): int
     {
-        return (($this->page->value - 1) * $this->listings_length->value) + 1;
+		if ($this->page->value===null) {
+			return 0;
+		}
+        return (($this->page->value - 1) * $this->listings_length->value);
     }
 
     /**
@@ -383,12 +392,13 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Retrieves listings data from database using object's filter values.
+	 * @param bool $calculate_offset Optional flag to prevent the offset to the first record in the listings from being recalculated prior to retrieving the listings records.
 	 * @return array Listings data
      * @throws Exception
 	 */
-	public function retrieveListings(): array
+	public function retrieveListings(bool $calculate_offset=true): array
 	{
-        $args = $this->formatListingsQuery();
+        $args = $this->formatListingsQuery($calculate_offset);
         $data = call_user_func_array([$this, 'fetchRecords'], $args);
 
         // If the query is a procedure that calculates record count, retrieve that total record count
@@ -435,7 +445,7 @@ class FilterCollection extends FilterCollectionProperties
 		}
 
 		// At this point, either the previous or next record exist outside the set of listings representing the current page of listings.
-		$this->setOutOfBoundNeighborIds($record_id, $this->calculateOffsetToPage()+$page_position);
+		$this->setOutOfBoundNeighborIds($record_id, $page_position);
 	}
 
 	/**
@@ -485,11 +495,11 @@ class FilterCollection extends FilterCollectionProperties
 	/**
 	 * Runs a query to retrieve the record ids of the previous and next records in listings when they aren't available in the current set of listings.
 	 * @param int $record_id The record id of the active record.
-	 * @param int $listings_position The position of the active record in the total number of records matching the current filter set.
+	 * @param int $page_position The position of the active record within the active page of listings.
 	 * @return void
 	 * @throws Exception
 	 */
-	protected function setOutOfBoundNeighborIds(int $record_id, int $listings_position)
+	protected function setOutOfBoundNeighborIds(int $record_id, int $page_position)
 	{
 		// Save original settings.
 		$original = array(
@@ -498,20 +508,29 @@ class FilterCollection extends FilterCollectionProperties
 			'page_count' => $this->page_count
 		);
 
-		/**
-		 * Calculate page and page size needed to retrieve previous, current, and next records.
-		 * Base page size is 3 (prev, current & next) but listings are retrieved x to page. The page size needs to be
-		 * adjusted if the starting record (the record prior to the active record) doesn't fall neatly into a page set
-		 * of 3 records. Also, the 2 subtracted from $listings_position represents the offset to the previous record
-		 * plus adjusting from $listings_position as a 1-based index to a 0-based index for the modulus operation.
-		 */
-
-		$this->listings_length->value = 3 + (abs($listings_position-2) % 3);
-		$this->page_count = $this->calcPageCount($this->record_count, $this->listings_length->value);
-		$this->page->value = (int)floor(($listings_position-1) / $this->listings_length->value) + 1;
+		$listings_position = $this->calculateOffsetToPage()+$page_position;
+		if ($page_position === 1 && $this->page->value === 1) {
+			// active record is the first record in the entire set of listings
+			$this->listings_offset = 0;
+			$this->listings_length->value = 2;
+		}
+		elseif ($listings_position === $this->record_count) {
+			// active record is the last record in the entire set of listings
+			// minus one to shift from starting index of 1 to a starting index of 0
+			// minus one again to shift from active record to the record prior to the active record
+			$this->listings_offset = $listings_position-2;
+			$this->listings_length->value = 2;
+		}
+		else {
+			// active record is in the middle of the entire set of listings
+			// minus one to shift from starting index of 1 to a starting index of 0
+			// minus one again to shift from active record to the record prior to the active record
+			$this->listings_offset = $listings_position-2;
+			$this->listings_length->value = 3;
+		}
 
 		// retrieve previous, current, and next records
-		$data = $this->retrieveListings();
+		$data = $this->retrieveListings(false);
 		$page_position = $this->calculateRecordPositionOnPage($record_id, $data);
 		$this->setNeighborIdsFromListingsData($data, $page_position);
 

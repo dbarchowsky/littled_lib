@@ -89,15 +89,15 @@ class AlbumFilters extends ContentFilters
 	}
 
 	/**
-	 * Returns SQL to retrieve album listings.
-	 * @return array SQL string used to retrieve album listings
+	 * @inheritDoc
 	 */
-	protected function formatListingsQuery(): array
+	protected function formatListingsQuery(bool $calculate_offset=true): array
 	{
+		parent::formatListingsQuery($calculate_offset);
 		$album_id = null;
 		return array("CALL albumFilteredListingsSelect(?,?,?,?,?,?,?,?,?,?,?,?,@total_matches)",
 			'iiiisssssis',
-			&$this->page->value,
+			&$this->listings_offset,
 			&$this->listings_length->value,
 			&$album_id,
 			&$this->content_properties->id->value,

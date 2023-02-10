@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `articleListingsSelect`;
 DELIMITER $$
 CREATE PROCEDURE `articleListingsSelect`(
-    IN p_page INT,
+    IN p_offset INT,
     IN p_page_length INT,
     IN p_title_filter VARCHAR(50),
     IN p_text_filter VARCHAR(50),
@@ -19,7 +19,7 @@ BEGIN
     SET @published_after_filter = p_published_after_date;
     SET @published_before_filter = p_published_before_date;
     SET @keyword_filter = p_keyword_filter;
-    CALL udfCalcPageLimits(p_page, p_page_length, @offset, @limit);
+    CALL udfValidatePageOffsets(p_offset, p_page_length, @offset, @limit);
 
     PREPARE STMT FROM
         'SELECT SQL_CALC_FOUND_ROWS

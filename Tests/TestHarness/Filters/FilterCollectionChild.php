@@ -49,10 +49,10 @@ class FilterCollectionChild extends FilterCollection
 	/**
 	 * Public interface for protected method calculateRecordOffset()
 	 * @param int $record_id
-	 * @param $data
+	 * @param array $data
 	 * @return ?int
 	 */
-	public function publicCalculateRecordOffset(int $record_id, $data): ?int
+	public function publicCalculateRecordPositionOnPage(int $record_id, array $data): ?int
 	{
 		return $this->calculateRecordPositionOnPage($record_id, $data);
 	}
@@ -64,12 +64,12 @@ class FilterCollectionChild extends FilterCollection
 
 	/**
 	 * @param int $record_id
-	 * @param int $listings_position
+	 * @param int $page_position
 	 * @return void
 	 * @throws Exception
 	 */
-	public function publicSetOutOfBoundNeighborIds(int $record_id, int $listings_position)
+	public function publicSetOutOfBoundNeighborIds(int $record_id, int $page_position)
 	{
-		$this->setOutOfBoundNeighborIds($record_id, $listings_position);
+		$this->setOutOfBoundNeighborIds($record_id, $page_position);
 	}
 }

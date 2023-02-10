@@ -122,7 +122,8 @@ class FilterCollectionTest extends FilterCollectionTestBase
         $this->assertCount(9, $args);
         $this->assertMatchesRegularExpression('/^CALL testTableListingsSelect\(/', $args[0]);
         $this->assertEquals('iisiiss', $args[1]);
-        $this->assertNull($args[2]); /* page filter, the first filter value in the list */
+		// test that when the page value is NULL it translates to a listings_offset value of 0
+        $this->assertEquals(0, $args[2]);
     }
 
 	/**

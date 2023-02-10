@@ -68,20 +68,20 @@ class FilterCollectionTestDataProvider
 					->setRetrieveNeighborIdsTestData(2213, 3, 5, '')
 					->setExpectations(2),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2217, 3, 5, '')
+					->setRetrieveNeighborIdsTestData(2217, 3, 11, '')
 					->setExpectations(null),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2217, 4, 5, '')
-					->setExpectations(5),
+					->setRetrieveNeighborIdsTestData(2217, 2, 11, '')
+					->setExpectations(11),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2217, 3, 7, '')
-					->setExpectations(6),
+					->setRetrieveNeighborIdsTestData(2217, 4, 6, '')
+					->setExpectations(4),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2624, 5, 5, '')
-					->setExpectations(5),
+					->setRetrieveNeighborIdsTestData(2624, 6, 5, '')
+					->setExpectations(2),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2624, 3, 11, '')
-					->setExpectations(3),
+					->setRetrieveNeighborIdsTestData(2624, 1, 27, '')
+					->setExpectations(27),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2204, 1, 5, '%oo%')
 					->setExpectations(1),
@@ -203,7 +203,7 @@ class FilterCollectionTestDataProvider
 					->setSetOutOfBoundNeighborIdsTestData(2624, 4, 7)
 					->setExpectations(null, 0, 2208, null),
 				FilterCollectionTestData::newInstance()
-					->setSetOutOfBoundNeighborIdsTestData(2624, 5, 5)
+					->setSetOutOfBoundNeighborIdsTestData(2624, 6, 5)
 					->setExpectations(null, 0, 2208, null),
 			)
 		);

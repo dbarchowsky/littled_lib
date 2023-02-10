@@ -43,14 +43,15 @@ class SocialGalleryFilters extends GalleryFilters
     }
 
 	/**
-	 * {@inheritDoc}
+	 * @inheritDoc
 	 */
-	public function formatListingsQuery(): array
+	public function formatListingsQuery(bool $calculate_offset=true): array
 	{
+		parent::formatListingsQuery($calculate_offset);
         $content_id = $this::getContentTypeId();
 		return array('CALL socialGalleryFilteredSelect(?,?,?,?,?,?,?,?,?,?,?,?,?,@total_matches)',
             'iiiissssisiii',
-            &$this->page->value,
+            &$this->listings_offset,
             &$this->listings_length->value,
             &$content_id,
             &$this->albumId->value,
