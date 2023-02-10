@@ -19,13 +19,13 @@ use Littled\Ajax\ContentAjaxProperties;
 abstract class KeywordSectionContent extends SectionContent
 {
 	/** @var StringTextarea Container for keyword form data. */
-	public StringTextarea $keywordInput;
+	public StringTextarea $keyword_input;
 	/** @var Keyword[] Array of Keyword objects. */
 	public array $keywords=[];
 	/** @var string Path to template that renders keyword cells that combine a keyword list with buttons to edit the keywords. */
-	protected static string $keywordCellTemplate = '';
+	protected static string $keyword_cell_template = '';
 	/** @var string Path to keyword list template file. */
-	protected static string $keywordListTemplate = '';
+	protected static string $keyword_list_template = '';
     protected static string $keyword_key = 'kw';
 	/* keyword category id */
 	protected static int $keyword_category_id;
@@ -44,9 +44,9 @@ abstract class KeywordSectionContent extends SectionContent
 		/* Suppress generalized error messages related to the content type properties */
 		$this->content_properties->validationMessage = '';
 
-		$this->keywordInput = new StringTextarea("Keywords", static::$keyword_key."Text", false, '', 1000, null);
+		$this->keyword_input = new StringTextarea("Keywords", static::$keyword_key."Text", false, '', 1000, null);
 
-		$this->keywordInput->is_database_field = false;
+		$this->keyword_input->is_database_field = false;
 	}
 
 	/**
@@ -79,7 +79,7 @@ abstract class KeywordSectionContent extends SectionContent
 	public function clearKeywordData(): void
 	{
 		$this->clearKeywordList();
-		$this->keywordInput->value = "";
+		$this->keyword_input->value = "";
 	}
 
 	/**
@@ -122,11 +122,11 @@ abstract class KeywordSectionContent extends SectionContent
 	public function collectKeywordInput(?array $src=null): void
 	{
 		$this->clearKeywordData();
-		$this->keywordInput->collectRequestData($src);
-		if (!$this->keywordInput->value) {
+		$this->keyword_input->collectRequestData($src);
+		if (!$this->keyword_input->value) {
 			return;
 		}
-		$keywords = $this->extractKeywordTerms($this->keywordInput->value);
+		$keywords = $this->extractKeywordTerms($this->keyword_input->value);
 		foreach($keywords as $term) {
 			$this->keywords[] = new Keyword(trim($term), $this->id->value, $this->content_properties->id->value);
 		}
@@ -268,7 +268,7 @@ abstract class KeywordSectionContent extends SectionContent
      */
 	public static function getKeywordsCellTemplatePath(): string
     {
-        return (static::$keywordCellTemplate);
+        return (static::$keyword_cell_template);
     }
 
     /**
@@ -277,7 +277,7 @@ abstract class KeywordSectionContent extends SectionContent
      */
     public static function getKeywordsListTemplatePath(): string
     {
-        return (static::$keywordListTemplate);
+        return (static::$keyword_list_template);
     }
 
 	/**
@@ -303,7 +303,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 */
 	public function hasKeywordData(): bool
 	{
-		if (strlen(''.$this->keywordInput->value) > 0) {
+		if (strlen(''.$this->keyword_input->value) > 0) {
 			return true;
 		}
         foreach($this->keywords as $keyword) {
@@ -410,7 +410,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 */
 	public static function setKeywordsCellTemplatePath( string $path ): void
 	{
-		static::$keywordCellTemplate = $path;
+		static::$keyword_cell_template = $path;
 	}
 
 	/**
@@ -419,7 +419,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 */
 	public static function setKeywordsListTemplatePath( string $path ): void
 	{
-		static::$keywordListTemplate = $path;
+		static::$keyword_list_template = $path;
 	}
 
 	/**

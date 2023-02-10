@@ -7,7 +7,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
@@ -105,9 +104,9 @@ class KeywordSectionContentTest extends TestCase
 	{
 		$this->assertNull($this->obj->id->value);
 		$this->assertNull($this->obj->content_properties->id->value);
-		$this->assertEquals('', $this->obj->keywordInput->value);
-		$this->assertEquals('kwText', $this->obj->keywordInput->key);
-		$this->assertFalse($this->obj->keywordInput->is_database_field);
+		$this->assertEquals('', $this->obj->keyword_input->value);
+		$this->assertEquals('kwText', $this->obj->keyword_input->key);
+		$this->assertFalse($this->obj->keyword_input->is_database_field);
 		$this->assertTrue(is_array($this->obj->keywords));
 		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());
@@ -118,7 +117,7 @@ class KeywordSectionContentTest extends TestCase
 		$obj = new KeywordSectionContentTestHarness(83, 629);
 		$this->assertEquals(83, $obj->id->value);
 		$this->assertEquals(629, $obj->content_properties->id->value);
-		$this->assertEquals('kwText', $obj->keywordInput->key);
+		$this->assertEquals('kwText', $obj->keyword_input->key);
 	}
 
     /**
@@ -157,12 +156,12 @@ class KeywordSectionContentTest extends TestCase
 
 	public function testClearKeywordData()
 	{
-		$this->obj->keywordInput->value = "foo,bar,biz,bash";
+		$this->obj->keyword_input->value = "foo,bar,biz,bash";
 		$this->obj->keywords = array('foo', 'bar', 'biz', 'bash');
 
 		$this->obj->clearKeywordData();
 
-		$this->assertEquals('', $this->obj->keywordInput->value);
+		$this->assertEquals('', $this->obj->keyword_input->value);
 		$this->assertTrue(is_array($this->obj->keywords));
 		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());
@@ -184,7 +183,7 @@ class KeywordSectionContentTest extends TestCase
 	public function testCollectKeywordInputWhenEmpty()
 	{
 		$this->obj->collectKeywordInput();
-		$this->assertEquals('', $this->obj->keywordInput->value);
+		$this->assertEquals('', $this->obj->keyword_input->value);
 		$this->assertTrue(is_array($this->obj->keywords));
 		$this->assertCount(0, $this->obj->keywords);
 		$this->assertFalse($this->obj->hasKeywordData());
@@ -197,7 +196,7 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function testCollectKeywordInput()
 	{
-		$src = array($this->obj->keywordInput->key => "foo , bar, biz,bash, hhoo,haa dee,didly, dah ");
+		$src = array($this->obj->keyword_input->key => "foo , bar, biz,bash, hhoo,haa dee,didly, dah ");
 		$this->obj->collectKeywordInput($src);
 		$keywords = $this->obj->getKeywordTermsArray(false);
 		$this->assertContains('foo', $keywords);
@@ -219,7 +218,7 @@ class KeywordSectionContentTest extends TestCase
 	{
         $inject_test = "[before script]<script>alert('what');</script>[after script]";
         $key = ",foo , bar, 0,,625,$inject_test, dah ,";
-		$src = array($this->obj->keywordInput->key => $key);
+		$src = array($this->obj->keyword_input->key => $key);
 		$this->obj->collectKeywordInput($src);
 		$keywords = $this->obj->getKeywordTermsArray(false);
 		$this->assertCount(6, $keywords);
@@ -362,16 +361,16 @@ class KeywordSectionContentTest extends TestCase
 	{
 		$this->assertFalse($this->obj->hasKeywordData());
 
-		$this->obj->keywordInput->setInputValue('a');
+		$this->obj->keyword_input->setInputValue('a');
 		$this->assertTrue($this->obj->hasKeywordData());
 
-		$this->obj->keywordInput->setInputValue('0');
+		$this->obj->keyword_input->setInputValue('0');
 		$this->assertTrue($this->obj->hasKeywordData());
 
-		$this->obj->keywordInput->setInputValue(' first, second,,third, last ');
+		$this->obj->keyword_input->setInputValue(' first, second,,third, last ');
 		$this->assertTrue($this->obj->hasKeywordData());
 
-		$this->obj->keywordInput->setInputValue(null);
+		$this->obj->keyword_input->setInputValue(null);
 		$this->assertFalse($this->obj->hasKeywordData());
 
         $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
@@ -394,7 +393,6 @@ class KeywordSectionContentTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws RecordNotFoundException
 	 */
 	public function testSave()
@@ -454,11 +452,11 @@ class KeywordSectionContentTest extends TestCase
     {
         $o = new KeywordSectionContentTestHarness();
         $this->assertEquals('kw', $o->getKeywordKey());
-        $this->assertEquals('kwText', $o->keywordInput->key);
+        $this->assertEquals('kwText', $o->keyword_input->key);
 
         $c = new KeywordSectionContentNonDefaultKey();
         $this->assertEquals('ckw', $c->getKeywordKey());
-        $this->assertEquals('ckwText', $c->keywordInput->key);
+        $this->assertEquals('ckwText', $c->keyword_input->key);
     }
 
     /**
