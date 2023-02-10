@@ -24,7 +24,7 @@ class InlineNameInput extends InlineInput
      */
     protected function formatSelectQuery(): array
     {
-        $query = "SEL"."ECT `$this->columnName` as `name` ".
+        $query = "SEL"."ECT `$this->column_name` as `name` ".
             "FROM `{$this->table->value}` ".
             "WHERE id = ?";
         return array($query, 'i', &$this->parent_id->value);
@@ -44,7 +44,7 @@ class InlineNameInput extends InlineInput
     public function generateUpdateQuery(): ?array
     {
         $query = "UPD"."ATE `{$this->table->value}` ".
-            "SET `$this->columnName` = ? ".
+            "SET `$this->column_name` = ? ".
             "WHERE id = ?";
         return array($query, 'si', &$this->name->value, &$this->parent_id->value);
     }

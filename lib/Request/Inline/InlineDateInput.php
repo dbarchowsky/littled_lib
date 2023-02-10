@@ -32,7 +32,7 @@ class InlineDateInput extends InlineInput
 	protected function formatSelectQuery(): array
 	{
 		$this->getColumnName();
-        $query = "SEL"."ECT DATE_FORMAT(`$this->columnName`,'%m/%d/%Y') AS `date` ".
+        $query = "SEL"."ECT DATE_FORMAT(`$this->column_name`,'%m/%d/%Y') AS `date` ".
             "FROM `{$this->table->value}` ".
             "WHERE id = ?";
 		return array ($query, 'i', &$this->parent_id->value);
@@ -52,7 +52,7 @@ class InlineDateInput extends InlineInput
     public function generateUpdateQuery(): ?array
     {
         $query = "UPD"."ATE `{$this->table->value}` ".
-            "SET `$this->columnName` = ".$this->date->escapeSQL($this->mysqli)." ".
+            "SET `$this->column_name` = ".$this->date->escapeSQL($this->mysqli)." ".
             "WHERE id = ?";
         return array($query, 'i', &$this->parent_id->value);
     }
