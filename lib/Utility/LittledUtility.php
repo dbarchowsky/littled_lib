@@ -18,6 +18,7 @@ class LittledUtility
 	}
 
 	/**
+     * @deprecated Use LittledUtility::joinPaths() instead.
 	 * Joins parts of a filesystem path into a single path.
 	 * @param string[] $parts
 	 * @return string
