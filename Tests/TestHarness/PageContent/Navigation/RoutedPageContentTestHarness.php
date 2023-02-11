@@ -11,6 +11,7 @@ class RoutedPageContentTestHarness extends RoutedPageContent
 	protected static string $template_dir       = RoutedPageContentTest::TEST_TEMPLATE_DIR;
 	protected static string $template_filename  = RoutedPageContentTest::TEST_TEMPLATE_FILENAME;
     protected static string $routes_class       = SectionNavigationRoutesTestHarness::class;
+    protected static string $base_route         = '';
 
     /**
      * @throws InvalidTypeException
@@ -20,6 +21,14 @@ class RoutedPageContentTestHarness extends RoutedPageContent
     {
         parent::__construct();
         $this->instantiateProperties();
+    }
+
+    /**
+     * @return string
+     */
+    public static function getBaseRoute(): string
+    {
+        return static::$base_route;
     }
 
     public function instantiateProperties(?int $record_id=null)

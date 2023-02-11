@@ -9,27 +9,31 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Tests\DataProvider\Ajax\AjaxPageLoadTemplateContentTestData;
+use Littled\Tests\TestHarness\Ajax\AjaxPageTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
 
 class AjaxPageTest extends TestCase
 {
     /** @var int */
-	public const TEST_CONTENT_TYPE_ID = 6037; /* "Test Section" in `site_section` table from littledamien database */
+	public const        TEST_CONTENT_TYPE_ID = 6037; /* "Test Section" in `site_section` table from littledamien database */
     /** @var int */
-    public const TEST_TEMPLATE_CONTENT_TYPE_ID = 31;
+    public const        TEST_TEMPLATE_CONTENT_TYPE_ID = 31;
     /** @var int */
-    public const TEST_RECORD_ID = 2023;
+    public const        TEST_RECORD_ID = 2023;
 	/** @var string */
-	public const TEST_RECORD_NAME = 'fixed test record';
-    protected const AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/Ajax/AjaxPage_collectPageAction.dat";
+	public const        TEST_RECORD_NAME = 'fixed test record';
+    protected const     AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/Ajax/AjaxPage_collectPageAction.dat";
+    public const        LISTINGS_OPERATION_TOKEN = 'listings';
 
     /**
      * @throws InvalidTypeException
@@ -256,6 +260,21 @@ class AjaxPageTest extends TestCase
 
         $ap->lookupTemplate('delete');
         $this->assertEquals('delete', $ap->template->name->value);
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidValueException
+     * @throws InvalidQueryException
+     */
+    function testNewPageContentTemplateInstance()
+    {
+        $ap = new AjaxPageTestHarness();
+        $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
+        $ap->operation->value = self::LISTINGS_OPERATION_TOKEN;
+        $c = $ap->publicNewRoutedPageContentTemplateInstance();
+        $this->assertInstanceOf(TestTableListingsPage::class, $c);
     }
 
 	/**

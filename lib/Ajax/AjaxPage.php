@@ -393,21 +393,21 @@ class AjaxPage extends MySQLConnection
         return new ContentProperties($record_id);
     }
 
-	/**
-	 * Returns instance of a PageContent class used to render front-end content.
-	 * @return PageContent
-	 * @throws ConfigurationUndefinedException|InvalidValueException
+    /**
+     * Returns instance of a PageContent class used to render front-end content.
+     * @return PageContent
+     * @throws ConfigurationUndefinedException|InvalidValueException
+     * @throws InvalidQueryException
      */
-	protected function newPageContentInstance(): PageContent
+	protected function newRoutedPageContentInstance(): PageContent
 	{
-        if (!isset($this->content)) {
-            throw new ConfigurationUndefinedException('Content class not loaded.');
-        }
-        if (!isset($this->content->content_properties)) {
+        if (!isset($this->content_properties)) {
             throw new ConfigurationUndefinedException('Content properties not loaded.');
         }
-        /** @var ContentProperties $p */
-        $p = &$this->content->content_properties;
+        $p = &$this->content_properties;
+        if (!isset($p->routes) || count($p->routes) < 1) {
+            $p->readRoutes();
+        }
         $route_parts = $p->getContentRouteByOperation('listings')->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
 		$page_content_class = call_user_func([static::getControllerClass(), 'getRoutedPageContentClass'], $route_parts);
 		return new $page_content_class();
@@ -438,19 +438,20 @@ class AjaxPage extends MySQLConnection
         $template = $this->newTemplateInstance();
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
         $this->json->loadContentFromTemplate($template->formatFullPath(), array(
-			'page' => $this->newPageContentInstance(),
+			'page' => $this->newRoutedPageContentInstance(),
             'content' => &$this->content,
             'filters' => &$this->filters
         ));
     }
 
-	/**
-	 * Wrapper for json_response_class::load_content_from_template() preserved
-	 * here for legacy reasons. Better to use the json_response_class routine directly.
-	 * @param string $template_path Path to content template to use to generate markup.
-	 * @param ?array $context Associative array of variables referenced in the template.
-	 * @throws ResourceNotFoundException
-	 * @throws ConfigurationUndefinedException|InvalidValueException
+    /**
+     * Wrapper for json_response_class::load_content_from_template() preserved
+     * here for legacy reasons. Better to use the json_response_class routine directly.
+     * @param string $template_path Path to content template to use to generate markup.
+     * @param ?array $context Associative array of variables referenced in the template.
+     * @throws ResourceNotFoundException
+     * @throws ConfigurationUndefinedException|InvalidValueException
+     * @throws InvalidQueryException
      */
 	public function renderToJSON( string $template_path, ?array $context=null )
 	{
@@ -570,6 +571,16 @@ class AjaxPage extends MySQLConnection
 	}
 
     /**
+     * Ajax input stream setter.
+     * @param string $input_stream
+     * @return void
+     */
+    public static function setAjaxInputStream(string $input_stream)
+    {
+        static::$ajax_input_stream = $input_stream;
+    }
+
+    /**
      * Content cache class setter.
      * @param string $class_name Name of class to use to cache ajax content. Must be derived from \Littled\PageContent\Cache\ContentCache
      * @return void
@@ -626,16 +637,6 @@ class AjaxPage extends MySQLConnection
         static::$default_template_name = $name;
     }
 
-    /**
-     * Ajax input stream setter.
-     * @param string $stream
-     * @return void
-     */
-    public static function setAjaxInputStream(string $stream)
-    {
-        static::$ajax_input_stream = $stream;
-    }
-
 	/**
 	 * Ensures that the internal content type id value has been set before its value is accessed.
 	 * @return bool TRUE/FALSE depending on if a valid content type id value could be found.
@@ -654,12 +655,12 @@ class AjaxPage extends MySQLConnection
 
 	/**
 	 * Sets the data to be injected into templates.
-	 * @throws ConfigurationUndefinedException|InvalidValueException
+	 * @throws ConfigurationUndefinedException|InvalidValueException|InvalidQueryException
      */
 	public function setTemplateContext()
 	{
 		$this->context = array(
-			'page' => $this->newPageContentInstance(),
+			'page' => $this->newRoutedPageContentInstance(),
 			'content' => &$this->content,
 			'filters' => null
 		);
