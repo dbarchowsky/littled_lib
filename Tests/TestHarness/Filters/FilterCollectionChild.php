@@ -2,6 +2,7 @@
 
 namespace Littled\Tests\TestHarness\Filters;
 
+use Exception;
 use Littled\Filters\BooleanContentFilter;
 use Littled\Filters\DateContentFilter;
 use Littled\Filters\FilterCollection;
@@ -28,17 +29,6 @@ class FilterCollectionChild extends FilterCollection
         $this->date_before = new DateContentFilter('date before', 'dateBefore', '', null, $this::getCookieKey());
     }
 
-    /**
-     * Public interface for protected method calculateRecordOffset()
-     * @param int $record_id
-     * @param $data
-     * @return ?int
-     */
-    public function publicCalculateRecordOffset(int $record_id, $data): ?int
-    {
-        return $this->calculateRecordOffset($record_id, $data);
-    }
-
 	/**
 	 * @inheritDoc
 	 * Make this public for test classes.
@@ -55,4 +45,31 @@ class FilterCollectionChild extends FilterCollection
     {
         return $this->formatListingsQuery();
     }
+
+	/**
+	 * Public interface for protected method calculateRecordOffset()
+	 * @param int $record_id
+	 * @param array $data
+	 * @return ?int
+	 */
+	public function publicCalculateRecordPositionOnPage(int $record_id, array $data): ?int
+	{
+		return $this->calculateRecordPositionOnPage($record_id, $data);
+	}
+
+	public function publicListingsDataContainsNeighborIds(array $data, int $page_position): bool
+	{
+		return $this->listingsDataContainsNeighborIds($data, $page_position);
+	}
+
+	/**
+	 * @param int $record_id
+	 * @param int $page_position
+	 * @return void
+	 * @throws Exception
+	 */
+	public function publicSetOutOfBoundNeighborIds(int $record_id, int $page_position)
+	{
+		$this->setOutOfBoundNeighborIds($record_id, $page_position);
+	}
 }

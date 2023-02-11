@@ -18,6 +18,8 @@ class FilterCollection extends FilterCollectionProperties
     /** @var string */
     protected const RECORD_COUNT_ARG = '@total_matches';
 	protected static bool $autoload_default=false;
+	/** @var int Value calculated before retrieving listings by multiplying page value by listings length  */
+	protected int $listings_offset;
 
 	/**
 	 * Calculate the total number of pages for the listings based on the total number of records and the length of the pages.
@@ -40,10 +42,10 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
 	/**
-	 * returns the current page value translated into the number of records from the beginning of the record set
-	 * @return int number of records from the beginning of the record set of the first record on this page
+	 * Returns the number of records on all the pages preceding the current page in the listings.
+	 * @return int Number of records on all the pages prior to the current page in the listings.
 	 */
-	public function calcRecordPosition(): int
+	public function calculateOffsetToPage(): int
 	{
         if ($this->page->value===null) {
             $this->page->value = 1;
@@ -52,27 +54,27 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
     /**
-     * Returns the offset from a given record from the first record in the complete listings matching the current filter values.
+     * Returns the position of a given record within its page of listings data.
      * @param int $record_id Record id of the current record in the listings.
      * @param array $data Listings data from the current page in the listings.
      * @return ?int
      */
-    protected function calculateRecordOffset(int $record_id, array $data): ?int
+    protected function calculateRecordPositionOnPage(int $record_id, array $data): ?int
     {
         // calculate the index of the record preceding the current record
-        $offset = 1;
-        $record_found = false;
+        $position = 0;
+		$record_found = false;
         foreach ($data as $row) {
+	        $position++;
             if ($row->id === $record_id) {
-                $record_found = true;
+				$record_found=true;
                 break;
             }
-            $offset++;
         }
         if (!$record_found) {
             return null;
         }
-        return $this->calcRecordPosition() + $offset;
+        return $position;
     }
 
 	/**
@@ -139,13 +141,17 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Format and return the query string that will retrieve filters listings data.
+	 * @param bool $calculate_offset Optional flag to prevent the offset to the start of the records from being recalculated.
      * @returns array Returns an array where the first element is a sql query followed by an array of variables to bind
      * to the query. See mysqli_statement::bind_param() for specs of the array variables. The 2nd element of the
      * array is a string describing the types of the following values in the array, e.g. 'iissiis' for int, int,
      * string, int, etc.
 	 */
-	protected function formatListingsQuery(): array
+	protected function formatListingsQuery(bool $calculate_offset=true): array
 	{
+		if ($calculate_offset) {
+			$this->listings_offset = $this->getListingsStartOffset();
+		}
 		return array('', '', null);
 	}
 
@@ -207,7 +213,10 @@ class FilterCollection extends FilterCollectionProperties
      */
     public function getListingsStartOffset(): int
     {
-        return (($this->page->value - 1) * $this->listings_length->value) + 1;
+		if ($this->page->value===null) {
+			return 0;
+		}
+        return (($this->page->value - 1) * $this->listings_length->value);
     }
 
     /**
@@ -325,6 +334,35 @@ class FilterCollection extends FilterCollectionProperties
 		return(json_encode($o));
 	}
 
+	protected function listingsDataContainsNeighborIds(array $data, int $page_position): bool
+	{
+		if ($page_position > count($data)) {
+			return false;
+		}
+
+		if ($page_position > 1 ) {
+			if ($page_position < $this->listings_length->value) {
+				// record is in the middle of the current page of listings. previous and next record ids are available.
+				return true;
+			}
+			if ($this->page->value == $this->page_count && $page_position === count($data)) {
+				// current record is the last record of the entire set of listings. store previous id & done.
+				return true;
+			}
+		}
+		if ($page_position===1 && $this->page->value===1) {
+			if (count($data) > 1) {
+				// current record is the first record in the entire set of records. store next record id & done.
+				return true;
+			}
+			if (count($data) === 1 && $this->record_count===1) {
+				// there is only one record in the entire set of listings. no previous or next record ids exist.
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Intended to be implemented in inherited classes that have either a $contentOperations or $contentProperties property.
 	 * @return string
@@ -354,12 +392,13 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Retrieves listings data from database using object's filter values.
+	 * @param bool $calculate_offset Optional flag to prevent the offset to the first record in the listings from being recalculated prior to retrieving the listings records.
 	 * @return array Listings data
      * @throws Exception
 	 */
-	public function retrieveListings(): array
+	public function retrieveListings(bool $calculate_offset=true): array
 	{
-        $args = $this->formatListingsQuery();
+        $args = $this->formatListingsQuery($calculate_offset);
         $data = call_user_func_array([$this, 'fetchRecords'], $args);
 
         // If the query is a procedure that calculates record count, retrieve that total record count
@@ -395,34 +434,18 @@ class FilterCollection extends FilterCollectionProperties
         }
 
         // offset of the current record from the first record in the complete listings matching the filter values
-        $offset = $this->calculateRecordOffset($record_id, $data);
-        if ($offset===null) {
+        $page_position = $this->calculateRecordPositionOnPage($record_id, $data);
+        if ($page_position===null) {
             return;
         }
 
-        // save original settings
-        $original_listings_length = $this->listings_length->value;
-        $original_page = $this->page->value;
+		if ($this->listingsDataContainsNeighborIds($data, $page_position)) {
+			$this->setNeighborIdsFromListingsData($data, $page_position);
+			return;
+		}
 
-        // settings for retrieving total number of records
-        // fetch two records if the current record is the first record in the listings
-        if ($offset===0) {
-            // current record is the first record in the entire set of listings
-            $this->listings_length->value = 2;
-            $this->page->value = 1;
-        }
-        else {
-            $this->listings_length->value = 3;
-            // make the previous record the first record in results of the next query
-            $this->page->value = floor(($offset - 1) / $this->listings_length->value);
-        }
-
-        // retrieve previous, current, and next records
-        $this->setNeighborIdsFromListingsData($this->retrieveListings(), $offset);
-
-        // restore original listings settings
-        $this->listings_length->value = $original_listings_length;
-        $this->page->value = $original_page;
+		// At this point, either the previous or next record exist outside the set of listings representing the current page of listings.
+		$this->setOutOfBoundNeighborIds($record_id, $page_position);
 	}
 
 	/**
@@ -456,23 +479,64 @@ class FilterCollection extends FilterCollectionProperties
     /**
      * Extract neighboring record id values from listings data and assign those values to the object's neighbor id property values.
      * @param array $data Listings data
-     * @param int $offset Offset of the current record from the first record in all records matching the current filters
+     * @param int $page_position Position of the current record within the set of listings.
      * @return void
      */
-    protected function setNeighborIdsFromListingsData(array $data, int $offset)
+    protected function setNeighborIdsFromListingsData(array $data, int $page_position)
     {
-        if ($offset > 0) {
-            if (count($data) > 1) {
-                $this->next_record_id = $data[1]->id;
-            }
-        }
-        else {
-            if (count($data) > 0) {
-                $this->previous_record_id = $data[0]->id;
-            }
-            if (count($data) > 2) {
-                $this->next_record_id = $data[2]->id;
-            }
-        }
+		if ($page_position > 1) {
+			$this->previous_record_id = $data[$page_position-2]->id;
+		}
+		if ($page_position < count($data)) {
+			$this->next_record_id = $data[$page_position]->id;
+		}
     }
+
+	/**
+	 * Runs a query to retrieve the record ids of the previous and next records in listings when they aren't available in the current set of listings.
+	 * @param int $record_id The record id of the active record.
+	 * @param int $page_position The position of the active record within the active page of listings.
+	 * @return void
+	 * @throws Exception
+	 */
+	protected function setOutOfBoundNeighborIds(int $record_id, int $page_position)
+	{
+		// Save original settings.
+		$original = array(
+			'page' => $this->page->value,
+			'listings_length' => $this->listings_length->value,
+			'page_count' => $this->page_count
+		);
+
+		$listings_position = $this->calculateOffsetToPage()+$page_position;
+		if ($page_position === 1 && $this->page->value === 1) {
+			// active record is the first record in the entire set of listings
+			$this->listings_offset = 0;
+			$this->listings_length->value = 2;
+		}
+		elseif ($listings_position === $this->record_count) {
+			// active record is the last record in the entire set of listings
+			// minus one to shift from starting index of 1 to a starting index of 0
+			// minus one again to shift from active record to the record prior to the active record
+			$this->listings_offset = $listings_position-2;
+			$this->listings_length->value = 2;
+		}
+		else {
+			// active record is in the middle of the entire set of listings
+			// minus one to shift from starting index of 1 to a starting index of 0
+			// minus one again to shift from active record to the record prior to the active record
+			$this->listings_offset = $listings_position-2;
+			$this->listings_length->value = 3;
+		}
+
+		// retrieve previous, current, and next records
+		$data = $this->retrieveListings(false);
+		$page_position = $this->calculateRecordPositionOnPage($record_id, $data);
+		$this->setNeighborIdsFromListingsData($data, $page_position);
+
+		// restore original listings settings
+		$this->page->value = $original['page'];
+		$this->listings_length->value = $original['listings_length'];
+		$this->page_count = $original['page_count'];
+	}
 }

@@ -4,12 +4,16 @@ namespace Littled\Tests\TestHarness\Filters;
 
 class FilterCollectionChildWithProcedure extends FilterCollectionChild
 {
-    public function formatListingsQuery(): array
+	/**
+	 * @inheritDoc
+	 */
+    public function formatListingsQuery(bool $calculate_offset=true): array
     {
+		parent::formatListingsQuery($calculate_offset);
         return array(
             'CALL testTableListingsSelect(?,?,?,?,?,?,?,@total_matches)',
             'iisiiss',
-            &$this->page->value,
+            &$this->listings_offset,
             &$this->listings_length->value,
             &$this->name_filter->value,
             &$this->int_filter->value,

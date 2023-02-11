@@ -117,7 +117,7 @@ class Album extends KeywordSectionContent
 		}
 		$this->gallery = new Gallery(static::getPagesContentType(), $this->getRecordId());
 
-		$this->keywordInput->label = "keywords";
+		$this->keyword_input->label = "keywords";
 
 		$this->view_thumbnails = true;
 		$this->check_access = false;

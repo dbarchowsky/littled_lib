@@ -7,18 +7,16 @@ use Littled\Exception\ConnectionException;
 class FilterCollectionChildWithQuery extends FilterCollectionChild
 {
     /**
-     * @return array
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @inheritDoc
      */
-    protected function formatListingsQuery(): array
+    protected function formatListingsQuery(bool $calculate_offset=true): array
     {
-        $first = $this->calcRecordPosition();
+		parent::formatListingsQuery($calculate_offset);
         $query = "SEL"."ECT a.`id`, a.`name`, a.`int_col`, a.`bool_col`, a.`date`, a.`slot` FROM `test_table` a".
             $this->formatQueryClause().
             " ORDER BY a.`date` DESC, IFNULL(a.`slot`,999999), a.id DESC".
-            " LIMIT $first, {$this->listings_length->value}";
-        return array($query);
+            " LIMIT ?, ?";
+        return array($query, 'ii', &$this->listings_offset, &$this->listings_length->value);
     }
 
     /**

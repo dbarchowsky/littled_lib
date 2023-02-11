@@ -1,9 +1,21 @@
-<?php
+<?php /** @noinspection PhpRedundantOptionalArgumentInspection */
+
 namespace Littled\Tests\DataProvider\Filters;
 
 
 class FilterCollectionTestDataProvider
 {
+	public static function calculateOffsetToPageTestProvider(): array
+	{
+		return array(
+			[1, 10, 0],
+			[5, 10, 40],
+			[10, 10, 90],
+			[11, 10, 100],
+			[9, 46, 368],
+		);
+	}
+
 	public static function collectDisplayListingsSettingsWithAutoload(): array
 	{
 		return array(
@@ -28,25 +40,172 @@ class FilterCollectionTestDataProvider
 		);
 	}
 
+	public static function calculateRecordPositionOnPageTestProvider(): array
+	{
+		// results are dependent on records returned by procedure testTableListingsSelect
+		return array_map(
+			function(FilterCollectionTestData $o) { return $o->mapCalculateRecordPositionOnPageTestData(); },
+			array(
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(3025, 3, 5, '')
+					->setExpectations(4),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(3025, 2, 10, '')
+					->setExpectations(4),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2023, 1, 20, '')
+					->setExpectations(1),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2023, 1, 4, '')
+					->setExpectations(1),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2204, 1, 7, '')
+					->setExpectations(2),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2206, 1, 5, '')
+					->setExpectations(5),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2213, 3, 5, '')
+					->setExpectations(2),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2217, 3, 11, '')
+					->setExpectations(null),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2217, 2, 11, '')
+					->setExpectations(11),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2217, 4, 6, '')
+					->setExpectations(4),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2624, 6, 5, '')
+					->setExpectations(2),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2624, 1, 27, '')
+					->setExpectations(27),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2204, 1, 5, '%oo%')
+					->setExpectations(1),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2204, 1, 10, '%oo%')
+					->setExpectations(1),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2213, 2, 4, '%oo%')
+					->setExpectations(1),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2208, 2, 4, '%oo%')
+					->setExpectations(2),
+			)
+		);
+	}
+
+	public static function listingsDataContainsNeighborIdsTestProvider(): array
+	{
+		return array(
+			array(true, array(1,2,3,4,5), 1, 1, 10, 1, 5, '1st record, page 1/1'),
+			array(true, array(1,2,3,4,5), 2, 1, 10, 1, 5, '2nd record, page 1/1'),
+			array(true, array(1,2,3,4,5), 4, 1, 10, 1, 5, '2nd to last record, page 1/1'),
+			array(true, array(1,2,3,4,5), 5, 1, 10, 1, 5, 'last record, page 1/1'),
+			array(false, array(1,2,3,4,5), 8, 1, 10, 1, 5, 'out of upper bounds, page 1/1'),
+			array(false, array(1,2,3,4,5), 1, 2, 10, 2, 15, '1st record, page 2/2'),
+			array(true, array(1,2,3,4,5), 2, 2, 10, 2, 15, '2nd record, page 2/2'),
+			array(true, array(1,2,3,4,5), 4, 2, 10, 2, 15, '2nd to last record, page 2/2'),
+			array(true, array(1,2,3,4,5), 5, 2, 10, 2, 15, 'last record, page 2/2'),
+			array(false, array(1,2,3,4,5,6,7,8,9,10), 1, 2, 10, 3, 25, '1st record, page 2/3'),
+			array(true, array(1,2,3,4,5,6,7,8,9,10), 2, 2, 10, 3, 25, '1st record, page 2/3'),
+			array(true, array(1,2,3,4,5,6,7,8,9,10), 9, 2, 10, 3, 25, '2nd to last record, page 2/3'),
+			array(false, array(1,2,3,4,5,6,7,8,9,10), 10, 2, 10, 3, 25, 'last record, page 2/3'),
+			array(true, array(1), 1, 1, 1, 1, 1, '1st record, single page, single listing'),
+			array(false, array(1), 1, 1, 1, 1, 2, '1st record, page 1/2, one record per page'),
+			array(false, array(1), 1, 2, 1, 2, 3, '1st record, page 2/3, one record per page'),
+			array(false, array(1), 1, 3, 1, 3, 3, '1st record, page 3/3, one record per page'),
+		);
+	}
+
     public static function retrieveNeighborIdsTestProvider(): array
     {
         // results are dependent on records returned by procedure testTableListingsSelect
-        return array(
-            array(new RetrieveNeighborIdsTestData(12, 23, 2583, 2217, 3025, 3, 5, null, '2nd record on page 3 (5 rpp)')),
-            array(new RetrieveNeighborIdsTestData(12, 23, 2583, 2217, 3025, 2, 10, null, '12th record on page 2 (10 rpp))')),
-            array(new RetrieveNeighborIdsTestData(1, 23, null, 2204, 2023, 1, 20, null, '1st record on page 1 (20 rpp)')),
-            array(new RetrieveNeighborIdsTestData(1, 23, null, 2204, 2023, 1, 4, null, '1st record on page 1 (4 rpp)')),
-            array(new RetrieveNeighborIdsTestData(2, 23, 2023, 2211, 2204, 1, 7, null, '2nd record on page 2 (7 rpp)')),
-            array(new RetrieveNeighborIdsTestData(5, 23, 2209, 2205, 2206, 1, 5, null, 'last record on page 1 (5 rpp)')),
-            array(new RetrieveNeighborIdsTestData(10, 23, 2216, 2583, 2213, 2, 5, null, 'last record on page 2 (5 rpp)')),
-            array(new RetrieveNeighborIdsTestData(18, 23, 3025, 2214, 2217, 4, 5, null, '3rd record on page 4 (5 rpp)')),
-            array(new RetrieveNeighborIdsTestData(18, 23, 3025, 2214, 2217, 3, 8, null, '2nd record on page 3 (8 rrp)')),
-            array(new RetrieveNeighborIdsTestData(23, 23, 2208, null, 2624, 5, 5, null, '3rd record on last page (5 rpp)')),
-            array(new RetrieveNeighborIdsTestData(23, 23, 2208, null, 2624, 3, 11, null, '1st record on last page (11 rrp)')),
-            array(new RetrieveNeighborIdsTestData(1, 6, null, 2211, 2204, 1, 5, '%oo%', '1st record on first page of filtered listings (5 rrp)')),
-            array(new RetrieveNeighborIdsTestData(1, 6, null, 2211, 2204, 1, 10, '%oo%', '1st record on first page of filtered listings (10 rrp)')),
-            array(new RetrieveNeighborIdsTestData(5, 6, 2210, 2208, 2213, 2, 4, '%oo%', '1st record on last page of filtered listings (4 rrp)')),
-            array(new RetrieveNeighborIdsTestData(6, 6, 2213, null, 2208, 2, 4, '%oo%', 'last record on last page of filtered listings (4 rrp)')),
-        );
+		return array_map(
+			function(FilterCollectionTestData $o) { return $o->mapRetrieveNeighborIdsTestData(); },
+			array(
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(3025, 3, 5, '')
+					->setExpectations(4, 23, 2583, 6406),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(3025, 2, 10, '')
+					->setExpectations(4, 23, 2583, 6406),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2023, 1, 20, '')
+					->setExpectations(1, 23, null, 2204),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2023, 1, 4, '')
+					->setExpectations(1, 23, null, 2204),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2204, 1, 7, '')
+					->setExpectations(2, 23, 2023, 2211),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2206, 1, 5, '')
+					->setExpectations(5, 23, 2209, 2205),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2213, 3, 5, '')
+					->setExpectations(2, 23, 6010, 2583),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2217, 3, 5, '')
+					->setExpectations(null, 23, 6410, 2214),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2217, 4, 5, '')
+					->setExpectations(5, 23, 6410, 2214),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2217, 3, 7, '')
+					->setExpectations(6, 23, 6410, 2214),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2624, 5, 5, '')
+					->setExpectations(5, 23, 2208, null),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2624, 3, 11, '')
+					->setExpectations(3, 23, 2208, null),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2204, 1, 5, '%oo%')
+					->setExpectations(1, 6, null, 2211),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2204, 1, 10, '%oo%')
+					->setExpectations(1, 6, null, 2211),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2213, 2, 4, '%oo%')
+					->setExpectations(1, 6, 2210, 2208),
+				FilterCollectionTestData::newInstance()
+					->setRetrieveNeighborIdsTestData(2208, 2, 4, '%oo%')
+					->setExpectations(2, 6, 2213, null),
+			)
+		);
     }
+
+	public static function setOutOfBoundNeighborIdsTestProvider():array
+	{
+		return array_map(
+			function(FilterCollectionTestData $o) { return $o->mapSetOutOfBoundsNeighborIdsTestData(); },
+			array(
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2205, 2, 5)
+					->setExpectations(null, 0, 2206, 2210),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2023, 1, 5)
+					->setExpectations(null, 0, null, 2204),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2204, 1, 5)
+					->setExpectations(null, 0, 2023, 2211),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2209, 1, 5)
+					->setExpectations(null, 0, 2211, 2206),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2206, 1, 5)
+					->setExpectations(null, 0, 2209, 2205),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2624, 4, 7)
+					->setExpectations(null, 0, 2208, null),
+				FilterCollectionTestData::newInstance()
+					->setSetOutOfBoundNeighborIdsTestData(2624, 6, 5)
+					->setExpectations(null, 0, 2208, null),
+			)
+		);
+	}
 }

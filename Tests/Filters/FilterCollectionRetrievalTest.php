@@ -1,25 +1,34 @@
 <?php
 namespace Littled\Tests\Filters;
 
-use Littled\Tests\DataProvider\Filters\RetrieveNeighborIdsTestData;
+use Littled\Tests\DataProvider\Filters\FilterCollectionTestExpectations;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithQuery;
 use Littled\Tests\TestHarness\Filters\TestTableFilters;
-use PHPUnit\Framework\TestCase;
 use Exception;
 
-class FilterCollectionRetrievalTest extends TestCase
+/**
+ * Tests for FilterCollection routines that retrieve data.
+ * Inherits from FilterCollectionTest in order to share its setup and tear down routines, specifically routines to
+ * create temporary test records in test_table table.
+ */
+class FilterCollectionRetrievalTest extends FilterCollectionTestBase
 {
 	public const TEST_LISTINGS_LENGTH = 5;
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::calculateRecordPositionOnPageTestProvider()
      * @return void
      * @throws Exception
      */
-    function testCalculateRecordOffset(RetrieveNeighborIdsTestData $data)
+    function testCalculateRecordPositionOnPage(?int $expected, ?int $record_id, ?int $page, ?int $listings_length, string $name_filter='')
     {
-        $listings_data = $data->filters->retrieveListings();
-        $this->assertEquals($data->expected->offset, $data->filters->publicCalculateRecordOffset($data->record_id, $listings_data), $data->msg);
+	    // N.B. take into account that temp records are added to the table as part of the setup for this class
+	    $f = new TestTableFilters();
+		$f->page->value = $page;
+		$f->listings_length->value = $listings_length;
+	    $f->name_filter->value = $name_filter;
+        $data = $f->retrieveListings();
+        $this->assertEquals($expected, $f->publicCalculateRecordPositionOnPage($record_id, $data));
     }
 
     /**
@@ -85,10 +94,52 @@ class FilterCollectionRetrievalTest extends TestCase
      * @return void
      * @throws Exception
      */
-    function testRetrieveNeighborIds(RetrieveNeighborIdsTestData $data)
+	function testRetrieveNeighborIds(
+		FilterCollectionTestExpectations $expected,
+		int $record_id,
+		?int $page,
+		?int $listings_length,
+		string $name_filter='',
+		string $msg=''
+	)
     {
-        $data->filters->retrieveNeighborIds($data->record_id);
-        $this->assertEquals($data->expected->previous_record_id, $data->expected->previous_record_id, $data->msg);
-        $this->assertEquals($data->expected->next_record_id, $data->expected->next_record_id, $data->msg);
+		$f = new TestTableFilters();
+		$f->page->value = $page;
+	    $f->listings_length->value = $listings_length;
+	    $f->name_filter->value = $name_filter;
+        $f->retrieveNeighborIds($record_id);
+        $this->assertEquals($expected->previous_record_id, $expected->previous_record_id, $msg);
+        $this->assertEquals($expected->next_record_id, $expected->next_record_id, $msg);
     }
+
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::setOutOfBoundNeighborIdsTestProvider()
+	 * @param FilterCollectionTestExpectations $expected
+	 * @param int $record_id
+	 * @param int $page
+	 * @param int $listings_length
+	 * @return void
+	 * @throws Exception
+	 */
+	function testSetOutOfBoundNeighborIds(
+		FilterCollectionTestExpectations $expected,
+		int $record_id,
+		int $page,
+		int $listings_length
+	)
+	{
+		$f = new TestTableFilters();
+		$f->page->value = $page;
+		$f->listings_length->value = $listings_length;
+		$data = $f->retrieveListings();
+		$page_count = $f->page_count;
+
+		$f->publicSetOutOfBoundNeighborIds($record_id, $f->publicCalculateRecordPositionOnPage($record_id, $data));
+
+		$this->assertEquals($page, $f->page->value);
+		$this->assertEquals($listings_length, $f->listings_length->value);
+		$this->assertEquals($page_count, $f->page_count);
+		$this->assertEquals($expected->previous_record_id, $f->previous_record_id);
+		$this->assertEquals($expected->next_record_id, $f->next_record_id);
+	}
 }

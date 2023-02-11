@@ -3,8 +3,30 @@
 namespace Littled\Tests\DataProvider\Utility;
 
 
+use Littled\Ajax\AjaxPage;
+use Littled\App\AppBase;
+use Littled\Filters\ContentFilters;
+use Littled\PageContent\PageContent;
+use Littled\Tests\TestHarness\Filters\AjaxPageChild;
+use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+
 class LittledUtilityTestDataProvider
 {
+	public static function isSubclassTestProvider(): array
+	{
+		return array(
+			array(PageContent::class, AppBase::class, true),
+			array(PageContent::class, PageContent::class, true),
+			array(AppBase::class, PageContent::class, false),
+			array(TestTableContentFiltersTestHarness::class, PageContent::class, false),
+			array(PageContent::class, TestTableContentFiltersTestHarness::class, false),
+			array(new AjaxPageChild(), ContentFiltersChild::class, false),
+			array(new AjaxPageChild(), AjaxPage::class, true),
+			array(new AjaxPageChild(), AjaxPageChild::class, true),
+		);
+	}
+
 	public static function joinPathPartsTestProvider(): array
 	{
 		return array(

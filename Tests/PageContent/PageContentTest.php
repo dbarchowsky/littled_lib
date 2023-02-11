@@ -40,11 +40,15 @@ class PageContentTest extends TestCase
 	 * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentTestDataProvider::collectEditActionTestProvider()
 	 * @param string $expected
 	 * @param array $data
+	 * @param string|null $assigned_value
 	 * @return void
 	 */
-	function testCollectEditAction(string $expected, array $data)
+	function testCollectEditAction(string $expected, array $data, ?string $assigned_value)
 	{
 		$o = new PageContent();
+		if ($assigned_value !== null) {
+			$o->edit_action = $assigned_value;
+		}
 		$o->collectEditAction($data);
 		$this->assertEquals($expected, $o->edit_action);
 	}

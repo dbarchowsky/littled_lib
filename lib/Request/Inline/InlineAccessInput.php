@@ -8,11 +8,9 @@ use Littled\Request\StringSelect;
 
 
 /**
- * Class InlineAccessInput
  * Handles inline editing of "access" values for content records, e.g. "public", "private", etc.
- * @package Littled\Request\Inline
  */
-abstract class InlineAccessInput extends InlineInput
+class InlineAccessInput extends InlineInput
 {
 	public StringSelect $access;
 
@@ -38,6 +36,17 @@ abstract class InlineAccessInput extends InlineInput
 	{
         $query = "UPD"."ATE `{$this->table->value}`  SET access = ? WHERE id = ?";
 		return array ($query, 'si', &$this->access->value, &$this->parent_id->value);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function generateUpdateQuery(): ?array
+	{
+		$query = "UPD"."ATE `{$this->table->value}` ".
+			"SET `$this->column_name` = ? ".
+			"WHERE id = ?";
+		return array($query, 'si', &$this->access->value, &$this->parent_id->value);
 	}
 
 	/**

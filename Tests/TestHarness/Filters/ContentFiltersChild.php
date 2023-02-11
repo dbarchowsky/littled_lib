@@ -13,16 +13,16 @@ class ContentFiltersChild extends ContentFilters
     protected static string $cookie_key = '';
 
     /**
-     * @return string[]
-     * @throws NotImplementedException
+     * @inheritDoc
      */
-    protected function formatListingsQuery(): array
+    protected function formatListingsQuery(bool $calculate_offset=true): array
     {
+		parent::formatListingsQuery($calculate_offset);
         return array("SELECT id, title, text, author, source, source_url, ".
             "`date`, caption, slot, enabled, keywords ".
             "FROM `".$this::getTableName()."` ".
             "ORDER BY `date` DESC ".
-            "LIMIT ".$this->listings_length->value);
+            "LIMIT ?", 'i', &$this->listings_length->value);
     }
 
     /**

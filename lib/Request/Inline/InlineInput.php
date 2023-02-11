@@ -32,7 +32,7 @@ abstract class InlineInput extends SerializedContent
 	/** @var string[] Possible column names. */
 	public array $columnNameOptions=[];
 	/** @var string Name of column holding date value. */
-	public string $columnName='';
+	public string $column_name='';
 
 	/**
 	 * InlineInput constructor.
@@ -82,7 +82,7 @@ abstract class InlineInput extends SerializedContent
 	{
 		foreach ($this->columnNameOptions as $column) {
 			if ($this->columnExists($column, $this->table->value)) {
-				$this->columnName = $column;
+				$this->column_name = $column;
 				return;
 			}
 		}

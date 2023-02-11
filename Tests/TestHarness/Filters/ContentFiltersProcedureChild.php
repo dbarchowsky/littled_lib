@@ -35,12 +35,16 @@ class ContentFiltersProcedureChild extends ContentFiltersChild
         $this->keyword = new StringContentFilter('keyword', 'keywordFilter', null, 50);
     }
 
-    protected function formatListingsQuery(): array
+	/**
+	 * @inheritDoc
+	 */
+    protected function formatListingsQuery(bool $calculate_offset=true): array
     {
+		parent::formatListingsQuery($calculate_offset);
         return array(
             "CALL articleListingsSelect(?,?,?,?,?,?,?,?,@total_matches)",
             'iissssss',
-            &$this->page->value,
+            &$this->listings_offset,
             &$this->listings_length->value,
             &$this->title->value,
             &$this->text->value,

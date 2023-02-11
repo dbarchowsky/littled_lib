@@ -145,19 +145,19 @@ class AppBase
 	 */
 	public static function redirectToErrorPage(string $error_msg, string $url='', string $key='')
 	{
-        $url = $url ?: AppBase::getErrorPageURL();
-        $key = $key ?: AppBase::getErrorKey();
+        $url = $url ?: static::getErrorPageURL();
+        $key = $key ?: static::getErrorKey();
 		header("Location: $url?$key=".urlencode($error_msg));
 	}
 
     /**
      * Ajax input stream setter
-     * @param string $input__input_stream
+     * @param string $input_stream
      * @return void
      */
-    public static function setAjaxInputStream(string $input__input_stream)
+    public static function setAjaxInputStream(string $input_stream)
     {
-        static::$ajax_input_stream = $input__input_stream;
+        static::$ajax_input_stream = $input_stream;
     }
 
     /**
