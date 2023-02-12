@@ -146,6 +146,17 @@ class AjaxPageTest extends TestCase
         }
     }
 
+	/**
+	 * @throws RecordNotFoundException
+	 */
+	function testFetchContentTemplate()
+	{
+		$o = new AjaxPageTestHarness();
+		$o->setContentTypeId(TestTable::CONTENT_TYPE_ID);
+		$o->fetchContentTemplate('listings');
+		$this->assertEquals('listings.php', $o->template->path->value);
+	}
+
     /**
 	 * @throws RecordNotFoundException
 	 * @throws ContentValidationException

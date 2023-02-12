@@ -230,6 +230,29 @@ class AjaxPage extends PageContentBase
 		$this->json->returnError($ex->getMessage());
 	}
 
+	/**
+	 * Fetches the properties of the template matching the object's content type and the name of the template passed to the method.
+	 * @param string $name
+	 * @return void
+	 * @throws RecordNotFoundException
+	 * @throws Exception
+	 */
+	public function fetchContentTemplate(string $name)
+	{
+		$data = $this->fetchRecords('CALL contentTemplateLookup(?,?)', 'is', $this->content_properties->id->value, $name);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException("Content template \"$name\" not found.");
+		}
+		$this->template = new ContentTemplate(
+			$data[0]->id,
+			$this->getContentTypeId(),
+			$data[0]->name,
+			$data[0]->base_path,
+			$data[0]->template_path,
+			$data[0]->location
+		);
+	}
+
     /**
      * Cache class name getter.
      * @return string
