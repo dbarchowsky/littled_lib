@@ -671,7 +671,7 @@ class AjaxPage extends PageContentBase
 	public function setTemplateContext()
 	{
 		$this->context = array(
-			'page' => $this->newRoutedPageContentInstance(),
+			'page_data' => $this->newRoutedPageContentInstance(),
 			'content' => &$this->content,
 			'filters' => null
 		);
