@@ -8,6 +8,8 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableDetailsPage;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
 
 class ContentControllerTest extends TestCase
@@ -31,13 +33,13 @@ class ContentControllerTest extends TestCase
         // condition that exists within ContentControllerTestHarness::getRoutedPageContentClass()
         $route = array('test');
         $this->assertEquals(
-            RoutedPageContentTestHarness::class,
+            TestTableDetailsPage::class,
             call_user_func([ContentControllerTestHarness::class, 'getRoutedPageContentClass'], $route));
 
         // condition that exists within ContentControllerTestHarness::getRoutedPageContentClass()
         $route = array('tests');
         $this->assertEquals(
-            RoutedPageContentTestHarness::class,
+            TestTableListingsPage::class,
             call_user_func([ContentControllerTestHarness::class, 'getRoutedPageContentClass'], $route));
 
         // condition that does not exist within ContentControllerTestHarness::getRoutedPageContentClass()

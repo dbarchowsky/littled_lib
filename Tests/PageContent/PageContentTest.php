@@ -175,10 +175,10 @@ class PageContentTest extends TestCase
     public function testSetTemplatePath()
     {
         $test_template_path = '/path/to/template.php';
-        $this->assertEquals('', $this->obj->template_path);
+        $this->assertEquals('', $this->obj->getTemplatePath());
 
         $this->obj->setTemplatePath($test_template_path);
-        $this->assertEquals($test_template_path, $this->obj->template_path);
+        $this->assertEquals($test_template_path, $this->obj->getTemplatePath());
     }
 
     /**

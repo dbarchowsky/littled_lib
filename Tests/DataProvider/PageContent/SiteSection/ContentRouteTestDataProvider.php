@@ -35,10 +35,10 @@ class ContentRouteTestDataProvider
     {
         return array_map(function(ContentRouteTestData $o) { return $o->mapFetchRecordTestData(); }, array(
                 ContentRouteTestData::newInstance()
-                    ->setExpectations(null, 6037, 'details', '/^\/test\/\[#\]$/', '/.*details.php$/')
+                    ->setExpectations(null, 6037, 'details', '/^\/test\/\[#\]$/', '/^$/')
                     ->setInputRecordId(61),
                 ContentRouteTestData::newInstance()
-                    ->setExpectations(null, 3, 'listings', '/^$/', '/.*listings.php$/')
+                    ->setExpectations(null, 3, 'listings', '/^\/movies$/', '/^\/api\/listings$/')
                     ->setInputRecordId(8),
             )
         );

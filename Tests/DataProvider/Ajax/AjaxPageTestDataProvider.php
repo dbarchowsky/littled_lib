@@ -85,4 +85,12 @@ class AjaxPageTestDataProvider
             [InvalidTypeException::class, PageConfig::class],
         );
     }
+
+    public static function lookupRouteTestProvider(): array
+    {
+        return array(
+            array('listings', '/^\/api\/listings$/'),
+            array('delete', '/^\/api\/\[#]\/delete$/'),
+        );
+    }
 }

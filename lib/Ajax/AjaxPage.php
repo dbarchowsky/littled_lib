@@ -2,51 +2,46 @@
 namespace Littled\Ajax;
 
 use Exception;
-use Littled\Exception\InvalidValueException;
-use Littled\Filters\ContentFilters;
-use Littled\Log\Log;
-use Littled\PageContent\PageContent;
-use Littled\PageContent\SiteSection\ContentRoute;
-use Littled\Request\StringInput;
 use Throwable;
-use Littled\PageContent\Cache\ContentCache;
-use Littled\PageContent\ContentController;
 use Littled\App\LittledGlobals;
-use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Filters\FilterCollection;
-use Littled\Validation\Validation;
+use Littled\Log\Log;
+use Littled\PageContent\PageContent;
+use Littled\PageContent\PageContentBase;
+use Littled\PageContent\SiteSection\ContentRoute;
+use Littled\PageContent\Cache\ContentCache;
+use Littled\PageContent\ContentController;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Request\IntegerInput;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\Request\IntegerInput;
+use Littled\Request\StringInput;
+use Littled\Utility\LittledUtility;
+use Littled\Validation\Validation;
+
 
 /**
  * Class AjaxPage
  * @package Littled\PageContent\Ajax
  */
-class AjaxPage extends MySQLConnection
+class AjaxPage extends PageContentBase
 {
     /** @var string */
-    const COMMIT_ACTION = 'commit';
-    /** @var string */
-    const CANCEL_ACTION = 'cancel';
-    /** @var string */
-    const TEMPLATE_TOKEN_KEY = 'templateToken';
+    public const TEMPLATE_TOKEN_KEY = 'templateToken';
 
     /** @var string Name of class to use to cache content. */
     protected static string $cache_class = ContentCache::class;
     /** @var string Name of class to use as content controller. */
     protected static string $controller_class = ContentController::class;
-	/** @var string Path to directory containing template files */
-	protected static string $template_path = '';
     /** @var string Name of the default template to use in derived classes to generate markup. */
+    protected static string $default_template_dir='';
     protected static string $default_template_name = '';
     /** @var string Input stream of Ajax client requests */
     protected static string $ajax_input_stream = 'php://input';
@@ -58,8 +53,6 @@ class AjaxPage extends MySQLConnection
 	protected ?array            $context;
 	/** @var ContentProperties Content properties. */
 	public ContentProperties    $content_properties;
-	/** @var FilterCollection Content filters. */
-	public FilterCollection     $filters;
 	/** @var JSONRecordResponse JSON response object. */
 	public JSONRecordResponse   $json;
 	/** @var IntegerInput Content record id. */
@@ -284,6 +277,15 @@ class AjaxPage extends MySQLConnection
 		return static::$controller_class;
 	}
 
+    /**
+     * Default token name getter.
+     * @return string
+     */
+    public static function getDefaultTemplateDir(): string
+    {
+        return static::$default_template_dir;
+    }
+
 	/**
      * Default token name getter.
      * @return string
@@ -294,18 +296,19 @@ class AjaxPage extends MySQLConnection
     }
 
 	/**
+     * @inheritDoc
 	 * @throws ConfigurationUndefinedException
 	 * @throws Exception
 	 */
-	public function getFullTemplatePath(): string
+	public function getTemplatePath(): string
 	{
 		if (!isset($this->template)) {
 			throw new ConfigurationUndefinedException("Content template is not set.");
 		}
-		if (static::$template_path==='') {
+		if (!static::getDefaultTemplateDir()) {
 			return $this->template->formatFullPath();
 		}
-		return static::$template_path.$this->template->path->value;
+		return LittledUtility::joinPaths(static::getDefaultTemplateDir(), $this->template->path->value);
 	}
 
 	/**
@@ -356,7 +359,7 @@ class AjaxPage extends MySQLConnection
 		if ($this->context===null) {
 			$this->setTemplateContext();
 		}
-		$this->json->loadContentFromTemplate($this->getFullTemplatePath(), $this->context);
+		$this->json->loadContentFromTemplate($this->getTemplatePath(), $this->context);
 	}
 
 	/**
@@ -447,19 +450,17 @@ class AjaxPage extends MySQLConnection
     /**
      * Wrapper for json_response_class::load_content_from_template() preserved
      * here for legacy reasons. Better to use the json_response_class routine directly.
-     * @param string $template_path Path to content template to use to generate markup.
-     * @param ?array $context Associative array of variables referenced in the template.
      * @throws ResourceNotFoundException
      * @throws ConfigurationUndefinedException|InvalidValueException
      * @throws InvalidQueryException
      */
-	public function renderToJSON( string $template_path, ?array $context=null )
+	public function render(?array $context=null)
 	{
 		$this->context = $context;
 		if ($this->context===null) {
 			$this->setTemplateContext();
 		}
-		$this->json->loadContentFromTemplate($template_path, $this->context);
+		$this->json->loadContentFromTemplate($this->template_path, $this->context);
 	}
 
     /**
@@ -565,7 +566,7 @@ class AjaxPage extends MySQLConnection
 	/**
 	 * Sends out whatever values are currently stored within the object's "json" property as JSON.
 	 */
-	public function sendResponse()
+	public function sendResponse(string $template_path='', ?array $context=null)
 	{
 		$this->json->sendResponse();
 	}
@@ -627,7 +628,17 @@ class AjaxPage extends MySQLConnection
 		static::$controller_class = $class_name;
 	}
 
-	/**
+    /**
+     * Default template directory path setter.
+     * @param string $path
+     * @return void
+     */
+    public static function setDefaultTemplateDir(string $path)
+    {
+        static::$default_template_dir = $path;
+    }
+
+    /**
      * Default template name setter.
      * @param string $name
      * @return void
@@ -666,9 +677,7 @@ class AjaxPage extends MySQLConnection
 		);
 		if (isset($this->filters)) {
 			$this->context['filters'] = &$this->filters;
-			if ($this->filters instanceof ContentFilters) {
-				$this->context['qs'] = $this->filters->formatQueryString();
-			}
+            $this->context['qs'] = $this->filters->formatQueryString();
 		}
 	}
 }

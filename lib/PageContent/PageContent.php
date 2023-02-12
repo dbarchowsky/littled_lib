@@ -2,7 +2,6 @@
 namespace Littled\PageContent;
 
 use Littled\App\LittledGlobals;
-use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
@@ -15,7 +14,7 @@ use Littled\Validation\Validation;
 /**
  * Intended as a base utility class for managing and rendering content for different types of pages.
  */
-class PageContent extends MySQLConnection
+class PageContent extends PageContentBase
 {
     /** @var string Token representing the current action to take on the page. */
     public string $edit_action='';
@@ -29,11 +28,6 @@ class PageContent extends MySQLConnection
     protected string $query_string = '';
 	/** @var string URL to use for redirects. */
 	public string $redirect_url = '';
-	/** @var string Path to template file. */
-	public string $template_path = '';
-
-	const CANCEL_ACTION = "cancel";
-	const COMMIT_ACTION = "commit";
 
     /**
      * class constructor
@@ -71,8 +65,8 @@ class PageContent extends MySQLConnection
     public function collectEditAction( ?array $src=null )
     {
 		$keys = array(
-			LittledGlobals::CANCEL_KEY => self::CANCEL_ACTION,
-	        LittledGlobals::COMMIT_KEY => self::COMMIT_ACTION);
+			LittledGlobals::CANCEL_KEY => PageContentInterface::CANCEL_ACTION,
+	        LittledGlobals::COMMIT_KEY => PageContentInterface::COMMIT_ACTION);
         if (null===$src) {
             $src = $_POST;
         }
@@ -208,10 +202,10 @@ class PageContent extends MySQLConnection
      */
     public function render(?array $context=null)
     {
-        if ($this->template_path==='') {
+        if (static::getTemplatePath()==='') {
             throw new ConfigurationUndefinedException("Page template not configured.");
         }
-        ContentUtils::renderTemplate($this->template_path, $context);
+        ContentUtils::renderTemplate(static::getTemplatePath(), $context);
     }
 
 	/**
@@ -223,13 +217,11 @@ class PageContent extends MySQLConnection
 	}
 
     /**
-     * Inserts data into a template file and renders the result. Alias for class's render() method.
-     * @param ?string $template_path Path to template to render.
-     * @param ?array $context Data to insert into the template.
+     * @inheritDoc
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-    public function sendResponse( ?string $template_path=null, ?array $context=null )
+    public function sendResponse( string $template_path='', ?array $context=null )
     {
         if ($template_path) {
             $this->setTemplatePath($template_path);
@@ -250,14 +242,4 @@ class PageContent extends MySQLConnection
      * Sets page properties.
      */
     public function setPageState() { }
-
-    /**
-     * Template path setter.
-     * @param $path
-     * @return void
-     */
-    public function setTemplatePath($path)
-    {
-        $this->template_path = $path;
-    }
 }

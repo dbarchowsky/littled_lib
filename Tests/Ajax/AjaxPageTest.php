@@ -217,27 +217,24 @@ class AjaxPageTest extends TestCase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::lookupRouteTestProvider()
      * @throws ContentValidationException
      * @throws RecordNotFoundException
      * @throws ConnectionException
      * @throws InvalidQueryException
      * @throws ConfigurationUndefinedException
      */
-    function testLookupRoute()
+    function testLookupRoute(string $operation, string $expected_route)
 	{
 		$ap = new AjaxPage();
 		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
 		$ap->content_properties->read();
 		$this->assertGreaterThan(0, count($ap->content_properties->routes));
 
-		$ap->operation->value = 'listings';
+		$ap->operation->value = $operation;
 		$ap->lookupRoute();
-		$this->assertEquals('listings', $ap->route->operation->value);
-		$this->assertMatchesRegularExpression('/^.*\/ajax\/utils\/listings\.php$/', $ap->route->url->value);
-
-		$ap->lookupRoute('delete');
-		$this->assertEquals('delete', $ap->route->operation->value);
-		$this->assertMatchesRegularExpression('/^.*\/ajax\/utils\/delete-record\.php$/', $ap->route->url->value);
+		$this->assertEquals($operation, $ap->route->operation->value);
+		$this->assertMatchesRegularExpression($expected_route, $ap->route->url->value);
 	}
 
 	/**
