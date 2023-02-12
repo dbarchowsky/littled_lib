@@ -9,7 +9,7 @@ BEGIN
     SELECT
         t.`id`,
         t.`name`,
-        s.`root_dir` AS `base_path`,
+        IFNULL(s.`root_dir`,'') AS `base_path`,
         t.`path` AS `template_path`,
         t.`location`
     FROM `content_template` t
