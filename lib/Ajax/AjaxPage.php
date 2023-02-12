@@ -571,6 +571,17 @@ class AjaxPage extends PageContentBase
 		$this->json->sendResponse();
 	}
 
+	/**
+	 * Send current JSON content value as plain text.
+	 * @param string $response Text to send as a response, if not using value stored in JSON property.
+	 * @return void
+	 */
+	public function sendTextResponse(string $response='')
+	{
+		header("Content-Type: text/plain\n\n");
+		print($response ?: $this->json->content->value);
+	}
+
     /**
      * Ajax input stream setter.
      * @param string $input_stream

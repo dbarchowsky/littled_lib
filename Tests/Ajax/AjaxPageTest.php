@@ -293,6 +293,28 @@ class AjaxPageTest extends TestCase
 		$this->assertEquals(self::TEST_RECORD_NAME, $content->name->value);
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::sendTextResponseTestProvider()
+	 * @param string $expected
+	 * @param string $response
+	 * @param string $override_response
+	 * @return void
+	 */
+	function testSendTextResponse(string $expected, string $response, string $override_response='')
+	{
+		$ap = new AjaxPage();
+		$ap->json->content->value = $response;
+		ob_start();
+		$ap->sendTextResponse($override_response);
+		$response = ob_get_contents();
+		ob_end_flush();
+
+		$headers = xdebug_get_headers();
+		$this->assertMatchesRegularExpression('/^Content-type: text\/plain/', $headers[0]);
+		$this->assertMatchesRegularExpression($expected, $response);
+	}
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::setCacheClassTestProvider()
      * @param string $cache_class

@@ -76,6 +76,15 @@ class AjaxPageTestDataProvider
         );
     }
 
+	public static function sendTextResponseTestProvider(): array
+	{
+		return array(
+			array('/^This is text.*json property\.$/', 'This is text response stored in json property.'),
+			array('/^\<p\>This is html.*json property.\<\/p\>$/', '<p>This is html stored in json property.</p>'),
+			array('/^.*text.*to the method\.$/', 'This is text response passed to the method.'),
+		);
+	}
+
     public static function setControllerClassTestProvider(): array
     {
         return array(
