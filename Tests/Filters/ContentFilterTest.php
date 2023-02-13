@@ -1,10 +1,12 @@
-<?php
+<?php /** @noinspection PhpUndefinedConstantInspection */
+
 namespace Littled\Tests\Filters;
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilter;
 use Littled\Request\RequestInput;
 use Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider;
+use Littled\Tests\TestHarness\Filters\ContentFilterTestHarness;
 use PHPUnit\Framework\TestCase;
 use mysqli;
 use Exception;
@@ -32,7 +34,37 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::collectRequestValueTestProvider()
+     * @param mixed $expected
+     * @param string $key
+     * @param array $get_data
+     * @param array $post_data
+     * @param array|null $override_data
+     * @param string $msg
+     * @return void
+     */
+    function testCollectRequestValue(
+        $expected,
+        string $key,
+        array $get_data=[],
+        array $post_data=[],
+        ?array $override_data=null,
+        string $msg=''
+    )
+    {
+        $f = new ContentFilterTestHarness('Test Filter', $key);
+        $_GET = $get_data;
+        $_POST = $post_data;
+
+        $f->publicCollectRequestValue($override_data);
+        $this->assertEquals($expected, $f->value, $msg);
+
+        // restore state
+        $_GET = $_POST = [];
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider
      * @param string $expected
      * @param $value
      * @return void
@@ -45,7 +77,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider
      * @return void
      * @throws Exception
      */
@@ -58,7 +90,7 @@ class ContentFilterTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::saveInFormTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::saveInFormTestProvider
 	 * @param ContentFilterTestDataProvider $data
 	 * @return void
 	 * @throws ResourceNotFoundException
@@ -73,7 +105,7 @@ class ContentFilterTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::safeValueTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::safeValueTestProvider
      * @return void
      * @throws Exception
      */

@@ -81,11 +81,12 @@ class ContentFilter
     }
 
 	/**
-	 * Collects filter value from request variables (GET or POST).
+	 * Collects filter value from GET or POST request variables by default. Or using $src data, if supplied.
+     * @param ?array $src Request data that will override GET or POST data.
 	 */
-	protected function collectRequestValue()
+	protected function collectRequestValue(?array $src=null)
 	{
-		$value = Validation::collectRequestVar($this->key);
+		$value = Validation::collectRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
 		$this->value = $value ?: $this->value;
 	}
 

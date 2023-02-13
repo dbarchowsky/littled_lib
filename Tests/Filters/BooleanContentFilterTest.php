@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpUndefinedConstantInspection */
+
 namespace Littled\Tests\Filters;
 
 use Littled\Filters\BooleanContentFilter;

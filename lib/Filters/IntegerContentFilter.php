@@ -26,9 +26,9 @@ class IntegerContentFilter extends ContentFilter
     /**
 	 * Collects the filter value from request variables, session variables, or cookie variables, in that order.
 	 */
-	protected function collectRequestValue()
+	protected function collectRequestValue(?array $src=null)
 	{
-		$this->value = Validation::collectIntegerRequestVar($this->key);
+		$this->value = Validation::collectIntegerRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
 	}
 
 	/**

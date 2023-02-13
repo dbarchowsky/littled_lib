@@ -11,25 +11,17 @@ use mysqli;
 class BooleanContentFilter extends ContentFilter
 {
     /**
-	 * Collects the filter value from request variables, session variables, or cookie variables, in that order.
-	 * Insures that the value is converted to a TRUE, FALSE or NULL value.
-	 * @param bool $read_cookies Flag indicating that the cookie collection should be included in the search for a
-	 * filter value.
-	 */
-	public function collectValue(bool $read_cookies=true)
-	{
-		$this->value = Validation::collectBooleanRequestVar($this->key);
-		// Not sure why this was put in here. Consider removing.
-        // if ($this->value!==null) {
-        //    return;
-        // }
-        // parent::collectValue($read_cookies);
-	}
+     * @inheritDoc
+     */
+    protected function collectRequestValue(?array $src = null)
+    {
+        Validation::collectBooleanRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
+    }
 
-	/**
+    /**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param mysqli $mysqli
-	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
+	 * @param bool $include_quotes Optional If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
 	 * @return string Escaped value.
 	 */
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): string

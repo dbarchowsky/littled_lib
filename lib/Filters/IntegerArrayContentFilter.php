@@ -14,11 +14,11 @@ use Littled\Validation\Validation;
 class IntegerArrayContentFilter extends IntegerContentFilter
 {
 	/**
-	 * collects filter value from request variables (GET or POST).
+	 * @inheritDoc
 	 */
-	protected function collectRequestValue()
+	protected function collectRequestValue(?array $src=null)
 	{
-		$this->value = Validation::collectIntegerArrayRequestVar($this->key);
+		$this->value = Validation::collectIntegerArrayRequestVar($this->key, $src);
 	}
 
 	/**
