@@ -12,6 +12,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Tests\Ajax\AjaxPageTest;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
+use Littled\Utility\LittledUtility;
 
 
 class AjaxPageTestDataProvider
@@ -22,16 +23,23 @@ class AjaxPageTestDataProvider
             array(
                 AjaxPageTest::TEST_CONTENT_TYPE_ID,
                 AjaxPage::getDefaultTemplateName(),
-                array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID),
+                array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID), '',
                 'Content type id value present in POST data'),
             array(
                 AjaxPageTest::TEST_CONTENT_TYPE_ID,
                 'listings',
                 array(
                     LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID,
-                    AjaxPage::TEMPLATE_TOKEN_KEY => 'listings'),
+                    AjaxPage::TEMPLATE_TOKEN_KEY => 'listings'), '',
                 'Content type id and template token values in POST data'),
-            array(null, AjaxPage::getDefaultTemplateName(), [], 'No values present in POST data.'),
+            array(null, AjaxPage::getDefaultTemplateName(), [], '', 'No values present in POST data.'),
+            array(
+                3,
+                'ajax_token',
+                array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPpage_collectContentProperties_01.dat'),
+                'Request input defaults to ajax stream over POST data.'
+            ),
         );
     }
 

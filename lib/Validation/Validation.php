@@ -58,7 +58,7 @@ class Validation
 	protected static function _parseInput( int $filter, string $key, ?int $index=null, ?array $src=null )
 	{
 		if ($src===null) {
-            $src = static::publicGetDefaultInputSource();
+            $src = static::getDefaultInputSource();
  		}
 		if (!array_key_exists($key, $src)) {
             return null;
@@ -132,7 +132,7 @@ class Validation
 	{
 		$value = null;
 		if ($src===null) {
-			$src = static::publicGetDefaultInputSource();
+			$src = static::getDefaultInputSource();
 		}
 		if (!isset($src[$key])) {
 			return null;
@@ -158,7 +158,7 @@ class Validation
 	 */
 	public static function collectIntegerArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        $src = static::publicGetDefaultInputSource();
+        $src = static::getDefaultInputSource();
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -210,7 +210,7 @@ class Validation
 	 */
 	public static function collectNumericArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        $src = static::publicGetDefaultInputSource();
+        $src = static::getDefaultInputSource();
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -232,7 +232,7 @@ class Validation
 	 */
 	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
 	{
-        $src = static::publicGetDefaultInputSource();
+        $src = static::getDefaultInputSource();
         if (!array_key_exists($key, $src)) {
             return null;
         }
@@ -265,26 +265,18 @@ class Validation
 		return ($value);
 	}
 
-	/**
-	 * Tests POST data for the current requested action. Returns a token indicating
-	 * the action that can be used in place of testing POST data directly on
-	 * a page.
-	 * @return string
-	 */
-	public static function getPageAction(): string
-	{
-		$action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, FILTER_UNSAFE_RAW));
-		if (strlen($action) > 0) {
-			$action = LittledGlobals::COMMIT_KEY;
-		}
-		else {
-			$action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, FILTER_UNSAFE_RAW));
-			if (strlen($action) > 0) {
-				$action = LittledGlobals::CANCEL_KEY;
-			}
-		}
-		return $action;
-	}
+    /**
+     * Read the AJAX input stream. Convert its contents into an array of variables containing client request variables.
+     * @return array
+     */
+    public static function getAjaxClientRequestData(): array
+    {
+        $json = file_get_contents(static::$ajax_input_stream);
+        if (!$json) {
+            return [];
+        }
+        return (array)json_decode($json);
+    }
 
     /**
      * Get IP address of website visitor for the purposes of inspecting their location
@@ -341,7 +333,7 @@ class Validation
      * @param array $ignore_keys Optional array of keys to ignore in GET or POST data
      * @return array
      */
-    protected static function publicGetDefaultInputSource(array $ignore_keys=[]): array
+    protected static function getDefaultInputSource(array $ignore_keys=[]): array
     {
         // first return either REQUEST or POST data collections
         $src = array_merge($_GET, $_POST);
@@ -352,11 +344,28 @@ class Validation
             return $src;
         }
         // fall back to Ajax request client data
-        $json = file_get_contents(static::$ajax_input_stream);
-        if (!$json) {
-            return [];
+        return static::getAjaxClientRequestData();
+    }
+
+    /**
+     * Tests POST data for the current requested action. Returns a token indicating
+     * the action that can be used in place of testing POST data directly on
+     * a page.
+     * @return string
+     */
+    public static function getPageAction(): string
+    {
+        $action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, FILTER_UNSAFE_RAW));
+        if (strlen($action) > 0) {
+            $action = LittledGlobals::COMMIT_KEY;
         }
-        return (array)json_decode($json);
+        else {
+            $action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, FILTER_UNSAFE_RAW));
+            if (strlen($action) > 0) {
+                $action = LittledGlobals::CANCEL_KEY;
+            }
+        }
+        return $action;
     }
 
     /**
@@ -415,19 +424,6 @@ class Validation
 			strlen($var) > 0
 		);
 	}
-
-    /**
-     * Read the AJAX input stream. Convert its contents into an array of variables containing client request variables.
-     * @return array
-     */
-    public static function getAjaxClientRequestData(): array
-    {
-        $json = file_get_contents(static::$ajax_input_stream);
-        if (!$json) {
-            return [];
-        }
-        return (array)json_decode($json);
-    }
 
 	/**
 	 * Tests value and returns TRUE if it evaluates to some string that equates with a "true" flag.

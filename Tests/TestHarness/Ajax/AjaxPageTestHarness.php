@@ -9,6 +9,11 @@ use Littled\PageContent\PageContent;
 
 class AjaxPageTestHarness extends AjaxPage
 {
+    public static function publicGetAjaxClientRequestData(): ?array
+    {
+        return parent::getAjaxClientRequestData();
+    }
+
     /**
      * @return PageContent
      * @throws ConfigurationUndefinedException

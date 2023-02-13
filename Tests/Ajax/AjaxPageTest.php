@@ -20,6 +20,8 @@ use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
+use Littled\Utility\LittledUtility;
+use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 
 class AjaxPageTest extends TestCase
@@ -82,28 +84,44 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
-	 * @param int|null $expected_content_id
-	 * @param string $expected_template_token
-	 * @param array $post_data
-	 * @param string $msg
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws RecordNotFoundException
-	 */
-    function testCollectContentProperties(?int $expected_content_id, string $expected_template_token, array $post_data, string $msg='')
+     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
+     * @param int|null $expected_content_id
+     * @param string $expected_template_token
+     * @param array $post_data
+     * @param string $ajax_stream
+     * @param string $msg
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws RecordNotFoundException
+     */
+    function testCollectContentProperties(
+        ?int $expected_content_id,
+        string $expected_template_token,
+        array $post_data,
+        string $ajax_stream='',
+        string $msg='' )
     {
+        // setup request data sources
         $_POST = $post_data;
+        if ($ajax_stream) {
+            Validation::setAjaxInputStream($ajax_stream);
+        }
+
         $ap = new AjaxPage();
         if (null===$expected_content_id) {
             $this->expectException(ContentValidationException::class);
         }
         $ap->collectContentProperties();
+
         $this->assertEquals($expected_content_id, $ap->getContentTypeId(), $msg);
         $this->assertEquals($expected_template_token, $ap->operation->value, $msg);
+
+        // restore state
+        $_POST = [];
+        Validation::setAjaxInputStream('php://input');
     }
 
     /**
@@ -156,6 +174,19 @@ class AjaxPageTest extends TestCase
 		$o->fetchContentTemplate('listings');
 		$this->assertEquals('listings.php', $o->template->path->value);
 	}
+
+    function testGetAjaxClientRequestData()
+    {
+        $expected = array("key1"=>"value1","keyTwo"=>"value two","jsonKey"=>"json value");
+        Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data.dat'));
+        $this->assertEquals($expected, AjaxPageTestHarness::publicGetAjaxClientRequestData());
+
+        Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data-empty.dat'));
+        $this->assertEquals(null, AjaxPageTestHarness::publicGetAjaxClientRequestData());
+
+        // restore state
+        Validation::setAjaxInputStream('php://input');
+    }
 
     /**
 	 * @throws RecordNotFoundException

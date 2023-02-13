@@ -8,7 +8,7 @@ class ValidationTestHarness extends Validation
 {
     public static function publicGetDefaultInputSource(array $ignore_keys=[]): array
     {
-        return parent::publicGetDefaultInputSource($ignore_keys);
+        return parent::getDefaultInputSource($ignore_keys);
     }
 
     public static function parseInput_Public( int $filter, string $key, ?int $index=null, ?array $src=null )

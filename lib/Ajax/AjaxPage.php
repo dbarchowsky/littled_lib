@@ -141,8 +141,11 @@ class AjaxPage extends PageContentBase
      */
     public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY )
     {
+        // use ajax request data by default
+        $ajax_rd = AjaxPage::getAjaxClientRequestData();
+
 		if (!$this->content_properties->id->value) {
-			$this->content_properties->id->value = Validation::collectIntegerRequestVar($key);
+			$this->content_properties->id->value = Validation::collectIntegerRequestVar($key, null, $ajax_rd);
 		}
         if ($this->content_properties->id->value === null) {
             throw new ContentValidationException("Content type not specified.");
@@ -150,7 +153,7 @@ class AjaxPage extends PageContentBase
         $this->content_properties->read();
 
 		$saved = $this->operation->value;
-		$this->operation->collectRequestData();
+		$this->operation->collectRequestData($ajax_rd);
 		if(!$this->operation->value) {
 			$this->operation->value = $saved;
 		}
@@ -252,6 +255,22 @@ class AjaxPage extends PageContentBase
 			$data[0]->location
 		);
 	}
+
+    /**
+     * Read the AJAX input stream. Convert its contents into an array of variables containing client request variables.
+     * Returns NULL instead of an empty array if no variables are found in the input stream. The result of this method
+     * can then be used as the default source of request variables for request collection routines that normally default
+     * to using GET and POST data ahead of AJAX input streams.
+     * @return array|null
+     */
+    protected static function getAjaxClientRequestData(): ?array
+    {
+        $data = Validation::getAjaxClientRequestData();
+        if (count($data)===0) {
+            $data = null;
+        }
+        return $data;
+    }
 
     /**
      * Cache class name getter.
