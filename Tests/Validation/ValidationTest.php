@@ -154,6 +154,17 @@ class ValidationTest extends TestCase
         }
     }
 
+    function testGetAjaxClientRequestData()
+    {
+        $expected = array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value");
+        Validation::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+        $data = Validation::getAjaxClientRequestData();
+        $this->assertEquals($expected, $data);
+
+        // restore state
+        Validation::setAjaxInputStream('php://input');
+    }
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getDefaultInputSourceTestProvider()
      * @param array $expected

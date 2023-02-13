@@ -416,6 +416,19 @@ class Validation
 		);
 	}
 
+    /**
+     * Read the AJAX input stream. Convert its contents into an array of variables containing client request variables.
+     * @return array
+     */
+    public static function getAjaxClientRequestData(): array
+    {
+        $json = file_get_contents(static::$ajax_input_stream);
+        if (!$json) {
+            return [];
+        }
+        return (array)json_decode($json);
+    }
+
 	/**
 	 * Tests value and returns TRUE if it evaluates to some string that equates with a "true" flag.
 	 * Returns FALSE only if the value evaluates to some string that equates with a "false" flag.
