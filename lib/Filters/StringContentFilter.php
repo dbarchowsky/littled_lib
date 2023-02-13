@@ -16,7 +16,11 @@ class StringContentFilter extends ContentFilter
      */
     protected function collectRequestValue(?array $src=null)
     {
-        $this->value = Validation::collectStringRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
+        $this->value = Validation::collectStringRequestVar(
+            $this->key,
+            Validation::DEFAULT_REQUEST_FILTER,
+            null,
+            $src);
     }
 
     /**

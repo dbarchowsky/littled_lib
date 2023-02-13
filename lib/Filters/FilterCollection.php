@@ -101,22 +101,30 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Extract values for listings filters from form data and query string.
-	 * @param bool $save_filters (Optional) If set to TRUE, save all filter values in session variables.
-     * @param array $excluded_properties (Optional) A list of keys to exclude from collection.
+	 * @param bool $save_filters Optional. If set to TRUE, save all filter values in session variables.
+     * @param array $excluded_properties Optional list of keys to exclude from collection.
+     * @param ?array $src Optional array containing data to use to extract request client data.
      * @throws NotImplementedException
 	 */
-	public function collectFilterValues(bool $save_filters=true, array $excluded_properties=[])
+	public function collectFilterValues(
+        bool    $save_filters=true,
+        array   $excluded_properties=[],
+        ?array  $src=null )
 	{
-        $ref = Validation::collectStringRequestVar(LittledGlobals::REFERER_KEY);
+        $ref = Validation::collectStringRequestVar(
+            LittledGlobals::REFERER_KEY,
+            Validation::DEFAULT_REQUEST_FILTER,
+            null,
+            $src);
 		$this->referer_uri = (($ref===null)?(''):($ref));
 
 		foreach ($this as $key => $filter) {
 			if (($filter instanceof ContentFilter) && (!in_array($key, $excluded_properties))) {
-				$filter->collectValue();
+				$filter->collectValue(true, $src);
 			}
 		}
 
-		$this->collectDisplayListingsSetting();
+		$this->collectDisplayListingsSetting($src);
 
 		/* save filters values in session */
 		if ($save_filters) {

@@ -3,6 +3,7 @@ namespace Littled\Tests\Filters;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\NotImplementedException;
+use Littled\Filters\ContentFilter;
 use Littled\Tests\TestHarness\Filters\FilterCollectionAutoloadChild;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChild;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithProcedure;
@@ -112,6 +113,42 @@ class FilterCollectionTest extends FilterCollectionTestBase
         $this->assertEquals($expected, $f->display_listings->value, $msg);
 
         // cleanup
+        $_GET = $_POST = [];
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectFilterValuesTestProvider()
+     * @param array $expected
+     * @param array $get_data
+     * @param array $post_data
+     * @param array|null $custom_data
+     * @param bool $save_filters
+     * @param array $ignore_keys
+     * @param string $msg
+     * @return void
+     * @throws NotImplementedException
+     */
+    function testCollectFilterValues(
+        array $expected,
+        array $get_data=[],
+        array $post_data=[],
+        array $custom_data=null,
+        bool $save_filters=true,
+        array $ignore_keys=[],
+        string $msg='')
+    {
+        $_GET = $get_data;
+        $_POST = $post_data;
+
+        $o = new FilterCollectionChild();
+        $o->collectFilterValues($save_filters, $ignore_keys, $custom_data);
+        foreach($expected as $property => $value) {
+            /** @var ContentFilter $p */
+            $p = $o->$property;
+            $this->assertEquals($value, $p->value, $msg);
+        }
+
+        // restore state
         $_GET = $_POST = [];
     }
 

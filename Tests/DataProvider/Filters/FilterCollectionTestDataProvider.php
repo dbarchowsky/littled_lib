@@ -52,6 +52,40 @@ class FilterCollectionTestDataProvider
 		);
 	}
 
+    public static function collectFilterValuesTestProvider(): array
+    {
+        return array(
+            array(
+                array('name_filter' => '', 'bool_filter' => null),
+                [], [], null, true, [],
+                'no data'),
+            array(
+                array('name_filter' => 'foo', 'bool_filter' => null),
+                array('nameFilter' => 'foo'), [], null, true, [],
+                'GET data'),
+            array(
+                array('name_filter' => 'bar', 'bool_filter' => null),
+                [], array('nameFilter' => 'bar'), null, true, [],
+                'POST data'),
+            array(
+                array('name_filter' => 'biz', 'bool_filter' => null),
+                array('nameFilter' => 'foo'), [],
+                array('nameFilter' => 'biz'), true, [],
+                'custom data over GET data'),
+            array(
+                array('name_filter' => 'bash', 'bool_filter' => null),
+                [], array('nameFilter' => 'bar'),
+                array('nameFilter' => 'bash'), true, [],
+                'custom data over POST data'),
+            array(
+                array('name_filter' => 'bash', 'bool_filter' => true),
+                [], array('nameFilter' => 'bar'),
+                array('nameFilter' => 'bash', 'boolFilter' => 1), true, [],
+                'custom data over POST data with multiple values'),
+        );
+    }
+
+
 	public static function calculateRecordPositionOnPageTestProvider(): array
 	{
 		// results are dependent on records returned by procedure testTableListingsSelect
