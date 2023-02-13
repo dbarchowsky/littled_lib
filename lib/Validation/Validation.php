@@ -15,6 +15,7 @@ use stdClass;
  */
 class Validation
 {
+    public const DEFAULT_REQUEST_FILTER = FILTER_UNSAFE_RAW;
     protected static string $geo_lookup_api_address = 'http'.'://www.geoplugin.net/json.gp?ip=';
     /** @var string[] $eu_countries */
     protected static array $eu_countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
@@ -138,13 +139,13 @@ class Validation
 			return null;
 		}
 		if ($index!==null) {
-			$arr = filter_var($src[$key], FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
+			$arr = filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER, FILTER_REQUIRE_ARRAY);
 			if (is_array($arr) && count($arr) >= ($index-1)) {
 				$value = $arr[$index];
 			}
 		}
 		else {
-			$value = trim(filter_var($src[$key], FILTER_UNSAFE_RAW));
+			$value = trim(filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER));
 		}
 
 		return Validation::parseBoolean($value);
@@ -234,7 +235,11 @@ class Validation
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
+	public static function collectRequestVar(
+        string  $key,
+        int     $filter=Validation::DEFAULT_REQUEST_FILTER,
+        ?array  $src=null
+    ): ?string
 	{
         if ($src===null) {
             $src = static::getDefaultInputSource();
@@ -248,7 +253,12 @@ class Validation
 	/**
 	 * @deprecated Use Validation::collectStringRequestVar() instead.
 	 */
-	public static function collectStringInput( string $key, int $filter=FILTER_UNSAFE_RAW, ?int $index=null, ?array $src=null ): ?string
+	public static function collectStringInput(
+        string $key,
+        int $filter=Validation::DEFAULT_REQUEST_FILTER,
+        ?int $index=null,
+        ?array $src=null
+    ): ?string
 	{
 		return Validation::collectStringRequestVar($key, $filter, $index, $src);
 	}
@@ -262,7 +272,12 @@ class Validation
 	 * @return string Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
-	public static function collectStringRequestVar( string $key, int $filter=FILTER_UNSAFE_RAW, ?int $index=null, ?array $src=null ): ?string
+	public static function collectStringRequestVar(
+        string $key,
+        int $filter=Validation::DEFAULT_REQUEST_FILTER,
+        ?int $index=null,
+        ?array $src=null
+    ): ?string
 	{
 		$value = Validation::_parseInput($filter, $key, $index, $src);
 		if (!$value && isset($_SESSION[$key]) && strlen(trim($_SESSION[$key])) > 0) {
@@ -361,12 +376,12 @@ class Validation
      */
     public static function getPageAction(): string
     {
-        $action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, FILTER_UNSAFE_RAW));
+        $action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, Validation::DEFAULT_REQUEST_FILTER));
         if (strlen($action) > 0) {
             $action = LittledGlobals::COMMIT_KEY;
         }
         else {
-            $action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, FILTER_UNSAFE_RAW));
+            $action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, Validation::DEFAULT_REQUEST_FILTER));
             if (strlen($action) > 0) {
                 $action = LittledGlobals::CANCEL_KEY;
             }
@@ -621,7 +636,7 @@ class Validation
 		if ($csrf==='') {
 			return false;
 		}
-		$csrf = trim(filter_var($csrf, FILTER_UNSAFE_RAW));
+		$csrf = trim(filter_var($csrf, Validation::DEFAULT_REQUEST_FILTER));
 		return ($csrf===$_SESSION[LittledGlobals::CSRF_SESSION_KEY]);
 	}
 
