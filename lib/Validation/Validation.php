@@ -158,7 +158,9 @@ class Validation
 	 */
 	public static function collectIntegerArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        $src = static::getDefaultInputSource();
+        if ($src===null) {
+            $src = static::getDefaultInputSource();
+        }
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -205,12 +207,14 @@ class Validation
 	/**
 	 * Converts script argument (query string or form data) to array of numeric values.
 	 * @param string $key Key containing potential numeric values.
-	 * @param array|null[optional] Array of variables to use instead of GET or POST data.
+	 * @param array|null $src Optional array of variables to use instead of GET or POST data.
 	 * @return array|null Returns an array if values are found for the specified key. Null otherwise.
 	 */
 	public static function collectNumericArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        $src = static::getDefaultInputSource();
+        if ($src===null) {
+            $src = static::getDefaultInputSource();
+        }
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -226,13 +230,15 @@ class Validation
 	 * $key.
 	 * @param string $key Key of the variable value to collect.
 	 * @param int $filter Filter token corresponding to the 3rd parameter of PHP's built-in filter_input() routine.
-	 * @param array|null[optional] $src Array to use in place of POST or GET data.
+	 * @param array|null $src Optional array to use in place of POST or GET data.
 	 * @return mixed Value found for the requested key. Returns an empty string
 	 * if none of the collections contain the requested key.
 	 */
 	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
 	{
-        $src = static::getDefaultInputSource();
+        if ($src===null) {
+            $src = static::getDefaultInputSource();
+        }
         if (!array_key_exists($key, $src)) {
             return null;
         }
@@ -329,7 +335,7 @@ class Validation
     }
 
     /**
-     * Gets default input source. Either POST or REQUEST or Ajax client data.
+     * Gets default input source. POST or REQUEST data if present, or Ajax client data.
      * @param array $ignore_keys Optional array of keys to ignore in GET or POST data
      * @return array
      */
