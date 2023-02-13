@@ -7,25 +7,23 @@ use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 use mysqli;
 
-
 /**
- * Class ContentFilter
- * @package BFHHand\Filters
+ * Class for collecting request data used to filter listings content.
  */
 class ContentFilter
 {
 	protected static string $preserve_value_template = 'filter-preserved-input.php';
 
 	/** @var string Key of the cookie element holding the filter value. */
-	public $cookieKey;
+	public          $cookieKey;
 	/** @var string Variable name used to pass along filter values. */
-	public string $key;
+	public string   $key;
 	/** @var string Label to display on filter form inputs. */
-	public string $label;
+	public string   $label;
 	/** @var int Size limit of the filter value. */
-	public $size;
+	public          $size;
 	/** @var mixed|string Filter value. */
-	public $value;
+	public          $value;
 
 	/**
 	 * ContentFilter constructor.
@@ -83,7 +81,7 @@ class ContentFilter
     }
 
 	/**
-	 * collects filter value from request variables (GET or POST).
+	 * Collects filter value from request variables (GET or POST).
 	 */
 	protected function collectRequestValue()
 	{
