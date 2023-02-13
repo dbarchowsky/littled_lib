@@ -92,12 +92,13 @@ class ContentFilter
 
 	/**
 	 * Collects the filter value from request variables, session variables, or cookie variables, in that order.
-	 * @param bool $read_cookies Flag indicating that the cookie collection should be included in the search for a
-	 * filter value.
+	 * @param bool $read_cookies Flag indicating that the cookie collection should be included in the search for a filter value.
+     * @param ?array $src Optional array containing request variables to use to override GET and POST data.
+     * @return void
 	 */
-	public function collectValue(bool $read_cookies=true)
+	public function collectValue( bool $read_cookies=true, ?array $src=null )
 	{
-		$this->collectRequestValue();
+		$this->collectRequestValue($src);
 		if ($this->value) {
 			return;
 		}

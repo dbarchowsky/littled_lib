@@ -21,9 +21,9 @@ class FilterCollectionTestDataProvider
 		return array(
 			array(true, 'default', null, 'Default value.'),
 			array(true, 'cookie', null, 'Ignoring cookie values.'),
-			array(true, 'post', '1', 'With valid boolean TRUE value in POST data.'),
-			array(false, 'post', '0', 'With valid boolean FALSE value in POST data.'),
-			array(true, 'post', 'filter', 'With valid string filter value in POST data.'),
+			array(true, 'post', '1', 'With valid boolean TRUE ("1") value in POST data.'),
+			array(false, 'post', '0', 'With valid boolean FALSE ("0") value in POST data.'),
+			array(true, 'post', 'filter', 'With valid string "filter" value in POST data.'),
 			array(true, 'post', 'foo', 'With invalid string value in POST data.'),
 		);
 	}

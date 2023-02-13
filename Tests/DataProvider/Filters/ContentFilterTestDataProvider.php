@@ -30,6 +30,19 @@ class ContentFilterTestDataProvider
         );
     }
 
+    public function collectValueTestProvider(): array
+    {
+        return array(
+            array(null, 'p', true, [], []),
+            array(12, 'p', true, array('p' => 12), []),
+            array(13, 'p', true, [], array('p' => 13)),
+            array(14, 'p', true, array('n' => 12, 'p' => 14, 'o' => 13), []),
+            array(15, 'p', true, array('n' => 12, 'p' => 15, 'o' => 13), array('a' => 1, 'b' => 2)),
+            array(null, 'p', true, array('n' => 12, 'p' => 16, 'o' => 13), array('a' => 1, 'b' => 2), []),
+            array(17, 'p', true, array('n' => 12, 'p' => 16, 'o' => 13), array('a' => 1, 'b' => 2), array('p' => 17)),
+        );
+    }
+
     public static function escapeSQLTestProvider(): array
     {
         return array(

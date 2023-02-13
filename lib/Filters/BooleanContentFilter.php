@@ -15,7 +15,28 @@ class BooleanContentFilter extends ContentFilter
      */
     protected function collectRequestValue(?array $src = null)
     {
-        Validation::collectBooleanRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
+        $this->value = Validation::collectBooleanRequestVar($this->key, null, $src);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function collectValue( bool $read_cookies=true, ?array $src=null )
+    {
+        $this->collectRequestValue($src);
+        // have to override this test in the parent method because "false" is a valid value in this type of filter
+        if ($this->value===true || $this->value===false) {
+            return;
+        }
+
+        $this->collectValueFromSession();
+        if ($this->value===true || $this->value===false) {
+            return;
+        }
+
+        if ($read_cookies) {
+            $this->collectValueFromCookie();
+        }
     }
 
     /**

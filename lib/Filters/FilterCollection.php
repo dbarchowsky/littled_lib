@@ -86,6 +86,7 @@ class FilterCollection extends FilterCollectionProperties
 	protected function collectDisplayListingsSetting()
 	{
 		/* don't get "display listings" value from cookies */
+        $this->display_listings->value = null;
 		$this->display_listings->collectValue(false);
 		if ($this->display_listings->value===null) {
 			$str_value = Validation::collectRequestVar($this->display_listings->key);

@@ -31,12 +31,11 @@ class DateContentFilter extends StringContentFilter
     }
 
     /**
-	 * Collect date filter value from request variables and assign it as the object's filter value.
-	 * @param bool[optional] $read_cookies
+	 * @inheritDoc
 	 */
-	public function collectValue($read_cookies = true)
+	public function collectValue(bool $read_cookies = true, ?array $src=null)
 	{
-		parent::collectValue($read_cookies);
+		parent::collectValue($read_cookies, $src);
 		if ($this->value) {
 			try {
 				$d = Validation::validateDateString($this->value);

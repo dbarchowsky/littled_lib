@@ -64,6 +64,38 @@ class ContentFilterTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::collectValueTestProvider()
+     * @param $expected
+     * @param string $key
+     * @param bool $read_cookies
+     * @param array $get_data
+     * @param array $post_data
+     * @param array|null $override_data
+     * @param string $msg
+     * @return void
+     */
+    function testCollectValue(
+        $expected,
+        string $key,
+        bool $read_cookies=true,
+        array $get_data=[],
+        array $post_data=[],
+        ?array $override_data=null,
+        string $msg=''
+    )
+    {
+        $f = new ContentFilter('Test Filter', $key);
+        $_GET = $get_data;
+        $_POST = $post_data;
+
+        $f->collectValue($read_cookies, $override_data);
+        $this->assertEquals($expected, $f->value, $msg);
+
+        // restore state
+        $_GET = $_POST = [];
+    }
+
+    /**
      * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider
      * @param string $expected
      * @param $value
