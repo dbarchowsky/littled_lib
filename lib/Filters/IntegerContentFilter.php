@@ -28,7 +28,7 @@ class IntegerContentFilter extends ContentFilter
 	 */
 	protected function collectRequestValue(?array $src=null)
 	{
-		$this->value = Validation::collectIntegerRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
+		$this->value = Validation::collectIntegerRequestVar($this->key, null, $src);
 	}
 
 	/**

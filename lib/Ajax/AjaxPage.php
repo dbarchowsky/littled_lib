@@ -139,7 +139,7 @@ class AjaxPage extends PageContentBase
      * @throws InvalidQueryException
      * @throws RecordNotFoundException
      */
-    public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY )
+    public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY)
     {
         // use ajax request data by default
         $ajax_rd = AjaxPage::getAjaxClientRequestData();
@@ -165,11 +165,12 @@ class AjaxPage extends PageContentBase
 
     /**
      * Fills out filter values from request data.
+     * ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
      * @throws NotImplementedException
      */
-    public function collectFiltersRequestData()
+    public function collectFiltersRequestData( ?array $src=null )
     {
-        $this->filters->collectFilterValues();
+        $this->filters->collectFilterValues(true, [], $src);
     }
 
     /**
