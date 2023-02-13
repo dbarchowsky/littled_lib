@@ -106,6 +106,10 @@ class ValidationTestDataProvider
                 array('gKey' => 'Load data from data file after ignoring all GET variables'), [],
                 LittledUtility::joinPaths(APP_BASE_DIR, 'DataProvider/Validation/test-ajax-data.dat'),
                 array('gKey')),
+            array(array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value"),
+                [], array('pKey' => 'Load data from data file after ignoring all POST variables'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'DataProvider/Validation/test-ajax-data.dat'),
+                array('pKey')),
         );
     }
 
