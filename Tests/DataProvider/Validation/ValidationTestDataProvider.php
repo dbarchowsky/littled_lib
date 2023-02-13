@@ -5,6 +5,7 @@ namespace Littled\Tests\DataProvider\Validation;
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
+use Littled\Utility\LittledUtility;
 
 class ValidationTestDataProvider
 {
@@ -66,6 +67,45 @@ class ValidationTestDataProvider
             [$JP_expected, '110.50.243.6', 'REMOTE_ADDR', 'Japan IP'],
             [$IN_expected, '103.159.84.142', 'REMOTE_ADDR', 'India IP'],
             [$RU_expected, '95.31.18.119', 'REMOTE_ADDR', 'Russia IP'],
+        );
+    }
+
+    public static function getDefaultInputSourceTestProvider(): array
+    {
+        return array(
+            array(array()),
+            array(array('getVar' => 'value 1'), array('getVar' => 'value 1')),
+            array(array('postVar' => 'post 1'), [], array('postVar' => 'post 1')),
+            array(
+                array('gKey' => 'GET merged with POST', 'pKey' => 'POST merged with GET'),
+                array('gKey' => 'GET merged with POST'),
+                array('pKey' => 'POST merged with GET')),
+            array(
+                array('gKey1' => 'foo', 'gKey2' => 'bar', 'pKey1' => 'biz', 'pKey2' => 'bash'),
+                array('gKey1' => 'foo', 'gKey2' => 'bar'),
+                array('pKey1' => 'biz', 'pKey2' => 'bash')),
+            array(
+                array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value"),
+                [], [],
+                LittledUtility::joinPaths(APP_BASE_DIR, 'DataProvider/Validation/test-ajax-data.dat')),
+            array(
+                array("gKey" => "GET request data has precedence over stream data"),
+                array("gKey" => "GET request data has precedence over stream data"), [],
+                LittledUtility::joinPaths(APP_BASE_DIR, 'DataProvider/Validation/test-ajax-data.dat')),
+            array(
+                array("pKey" => "POST request data has precedence over stream data"),
+                [], array("pKey" => "POST request data has precedence over stream data"),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'DataProvider/Validation/test-ajax-data.dat')),
+            array([], array('gKey' => 'ignore gKey'), [], '', array('gKey')),
+            array([], [], array('pKey' => 'ignore POST key'), '', array('pKey')),
+            array(array('okGKey' => 'foo', 'okPKey' => 'biz'),
+                array('okGKey' => 'foo', 'ignoreGKey' => 'bar'),
+                array('okPKey' => 'biz', 'ignorePKey' => 'bash'), '',
+                array('ignoreGKey', 'ignorePKey')),
+            array(array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value"),
+                array('gKey' => 'Load data from data file after ignoring all GET variables'), [],
+                LittledUtility::joinPaths(APP_BASE_DIR, 'DataProvider/Validation/test-ajax-data.dat'),
+                array('gKey')),
         );
     }
 

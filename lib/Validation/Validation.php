@@ -58,7 +58,7 @@ class Validation
 	protected static function _parseInput( int $filter, string $key, ?int $index=null, ?array $src=null )
 	{
 		if ($src===null) {
-            $src = static::getDefaultInputSource();
+            $src = static::publicGetDefaultInputSource();
  		}
 		if (!array_key_exists($key, $src)) {
             return null;
@@ -132,7 +132,7 @@ class Validation
 	{
 		$value = null;
 		if ($src===null) {
-			$src = static::getDefaultInputSource();
+			$src = static::publicGetDefaultInputSource();
 		}
 		if (!isset($src[$key])) {
 			return null;
@@ -158,7 +158,7 @@ class Validation
 	 */
 	public static function collectIntegerArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        $src = static::getDefaultInputSource();
+        $src = static::publicGetDefaultInputSource();
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -210,7 +210,7 @@ class Validation
 	 */
 	public static function collectNumericArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        $src = static::getDefaultInputSource();
+        $src = static::publicGetDefaultInputSource();
 		if (!array_key_exists($key, $src)) {
 			return null;
 		}
@@ -232,7 +232,7 @@ class Validation
 	 */
 	public static function collectRequestVar(string $key, int $filter=FILTER_UNSAFE_RAW, ?array $src=null ): ?string
 	{
-        $src = static::getDefaultInputSource();
+        $src = static::publicGetDefaultInputSource();
         if (!array_key_exists($key, $src)) {
             return null;
         }
@@ -338,12 +338,16 @@ class Validation
 
     /**
      * Gets default input source. Either POST or REQUEST or Ajax client data.
+     * @param array $ignore_keys Optional array of keys to ignore in GET or POST data
      * @return array
      */
-    protected static function getDefaultInputSource(): array
+    protected static function publicGetDefaultInputSource(array $ignore_keys=[]): array
     {
         // first return either REQUEST or POST data collections
         $src = array_merge($_GET, $_POST);
+        foreach($ignore_keys as $key) {
+            unset($src[$key]);
+        }
         if (count($src)>0) {
             return $src;
         }

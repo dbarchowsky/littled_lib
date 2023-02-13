@@ -6,7 +6,7 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
-use Littled\Tests\DataProvider\Validation\ValidationTestHarness;
+use Littled\Tests\TestHarness\Validation\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -155,6 +155,35 @@ class ValidationTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getDefaultInputSourceTestProvider()
+     * @param array $expected
+     * @param array $get_data
+     * @param array $post_data
+     * @param string $input_stream
+     * @param array $ignore_keys
+     * @return void
+     */
+    function testGetDefaultInputSource(
+        array $expected,
+        array $get_data=[],
+        array $post_data=[],
+        string $input_stream='',
+        array $ignore_keys=[] )
+    {
+        $_GET = $get_data;
+        $_POST = $post_data;
+        if ($input_stream) {
+            ValidationTestHarness::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+        }
+
+        $this->assertEquals($expected, ValidationTestHarness::publicGetDefaultInputSource($ignore_keys));
+
+        // restore original state
+        $_GET = $_POST = [];
+        ValidationTestHarness::setAjaxInputStream('php://input');
+    }
+
+    /**
      * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getClientLocationTestProvider()
      * @param ?array $expected
      * @param string $ip
@@ -177,21 +206,6 @@ class ValidationTest extends TestCase
             $this->expectException(InvalidValueException::class);
             Validation::isEUClient($test_ip);
         }
-    }
-
-    function testGetDefaultInputSource()
-    {
-        $this->assertCount(0, ValidationTestHarness::getDefaultInputSource());
-
-        $_POST['key1'] = 'my test value';
-        $src = ValidationTestHarness::getDefaultInputSource();
-        $this->assertEquals('my test value', $src['key1']);
-        unset($_POST['key1']);
-
-        ValidationTestHarness::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
-        $src = ValidationTestHarness::getDefaultInputSource();
-        $this->assertEquals('value two', $src['keyTwo']);
-        ValidationTestHarness::setAjaxInputStream('php://input');
     }
 
     /**

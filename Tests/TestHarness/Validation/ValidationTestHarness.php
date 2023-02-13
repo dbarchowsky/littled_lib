@@ -1,13 +1,14 @@
 <?php
-namespace Littled\Tests\DataProvider\Validation;
+namespace Littled\Tests\TestHarness\Validation;
 
 use Littled\Validation\Validation;
 
+
 class ValidationTestHarness extends Validation
 {
-    public static function getDefaultInputSource(): array
+    public static function publicGetDefaultInputSource(array $ignore_keys=[]): array
     {
-        return parent::getDefaultInputSource();
+        return parent::publicGetDefaultInputSource($ignore_keys);
     }
 
     public static function parseInput_Public( int $filter, string $key, ?int $index=null, ?array $src=null )
