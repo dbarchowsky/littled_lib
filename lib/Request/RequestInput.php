@@ -117,7 +117,7 @@ class RequestInput
 			return;
 		}
 		if (property_exists($data, $this->key)) {
-			$this->value = filter_var($data->{$this->key}, FILTER_SANITIZE_STRING);
+			$this->value = filter_var($data->{$this->key}, FILTER_UNSAFE_RAW);
 		}
 	}
 

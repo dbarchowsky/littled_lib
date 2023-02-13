@@ -59,7 +59,7 @@ class CacheControl
 	 */
 	public function collectInput()
 	{
-		$this->sourceURI = filter_input(INPUT_GET, $this::REFERRER_PARAM, FILTER_SANITIZE_STRING);
+		$this->sourceURI = filter_input(INPUT_GET, $this::REFERRER_PARAM, FILTER_UNSAFE_RAW);
 		if (!$this->sourceURI) {
 			throw new ContentValidationException("Source URI is unavailable.");
 		}

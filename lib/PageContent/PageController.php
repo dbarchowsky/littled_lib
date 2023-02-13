@@ -70,10 +70,10 @@ class PageController extends MySQLConnection
 	public function collectOriginalURI()
 	{
 		/* mod_php */
-		$this->original_uri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_STRING);
+		$this->original_uri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_UNSAFE_RAW);
 		if (!$this->original_uri) {
 			/* CGI/FastCGI */
-			$this->original_uri = filter_input(INPUT_SERVER, 'REDIRECT_URL', FILTER_SANITIZE_STRING);
+			$this->original_uri = filter_input(INPUT_SERVER, 'REDIRECT_URL', FILTER_UNSAFE_RAW);
 		}
 		if (($q_pos = strpos($this->original_uri, '?')) !== false) {
 			$this->original_uri = substr($this->original_uri, 0, $q_pos);

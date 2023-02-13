@@ -73,11 +73,11 @@ class ResortBase extends MySQLConnection
 			$this->retrieveSectionProperties();
 		}
 
-		$this->editDOMID->collectFromInput($src);
+		$this->editDOMID->collectJsonRequestData($src);
 		$this->positionOffset->collectRequestData($src);
 		$position_str = '';
 		if (array_key_exists($this->positionList->key, $src)) {
-			$position_str = trim(filter_var($src[$this->positionList->key], FILTER_SANITIZE_STRING));
+			$position_str = trim(filter_var($src[$this->positionList->key], FILTER_UNSAFE_RAW));
 		}
 		if ($position_str) {
 			$this->positionList->value = json_decode($position_str);
