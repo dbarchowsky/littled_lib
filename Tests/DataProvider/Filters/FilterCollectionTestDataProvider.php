@@ -16,6 +16,18 @@ class FilterCollectionTestDataProvider
 		);
 	}
 
+    public static function collectDisplayListingsSettingTestProvider(): array
+    {
+        return array(
+            array(null, [], [], null, 'no data'),
+            array(true, array('filter' => '1'), [], null, 'GET data'),
+            array(true, [], array('filter' => '1'), null, 'POST data TRUE'),
+            array(false, [], array('filter' => '0'), null, 'POST data FALSE'),
+            array(false, [], array('filter' => '1'), array('filter' => '0'), 'custom request data'),
+            array(true, array('route' => '/some/random/data'), [], array('filter' => '1'), 'custom request data'),
+        );
+    }
+
 	public static function collectDisplayListingsSettingsWithAutoload(): array
 	{
 		return array(

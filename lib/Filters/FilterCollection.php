@@ -80,16 +80,16 @@ class FilterCollection extends FilterCollectionProperties
 	/**
 	 * Specialized routine for collection the "display listings" setting.
 	 * - Don't check cookies for this filter's value.
-	 * - If the input value is set to "filter", set the object's property value
-	 * to TRUE.
+	 * - If the input value is set to "filter", set the object's property value to TRUE.
+     * @param ?array $src Client request data that will override GET and POST data.
 	 */
-	protected function collectDisplayListingsSetting()
+	protected function collectDisplayListingsSetting(?array $src=null)
 	{
 		/* don't get "display listings" value from cookies */
         $this->display_listings->value = null;
-		$this->display_listings->collectValue(false);
+		$this->display_listings->collectValue(false, $src);
 		if ($this->display_listings->value===null) {
-			$str_value = Validation::collectRequestVar($this->display_listings->key);
+			$str_value = Validation::collectRequestVar($this->display_listings->key, Validation::DEFAULT_REQUEST_FILTER, $src);
 			if (strtolower(''.$str_value)=="filter") {
 				$this->display_listings->value = true;
 			}

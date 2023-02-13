@@ -88,6 +88,34 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectDisplayListingsSettingTestProvider()
+     * @param bool|null $expected
+     * @param array $post_data
+     * @param array $get_data
+     * @param array|null $override_data
+     * @param string $msg
+     * @return void
+     */
+    function testCollectDisplayListingsSetting(
+        ?bool $expected,
+        array $post_data=[],
+        array $get_data=[],
+        ?array $override_data=null,
+        string $msg = ''
+    )
+    {
+        $_GET = $get_data;
+        $_POST = $post_data;
+
+        $f = new FilterCollectionChild();
+        $f->collectDisplayListingsSetting($override_data);
+        $this->assertEquals($expected, $f->display_listings->value, $msg);
+
+        // cleanup
+        $_GET = $_POST = [];
+    }
+
+    /**
      * @throws NotImplementedException
      */
     function testCollectFilterValues_ReferringURI()

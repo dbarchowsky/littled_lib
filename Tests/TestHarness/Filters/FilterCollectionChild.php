@@ -33,9 +33,9 @@ class FilterCollectionChild extends FilterCollection
 	 * @inheritDoc
 	 * Make this public for test classes.
 	 */
-	public function collectDisplayListingsSetting()
+	public function collectDisplayListingsSetting(?array $src=null)
 	{
-		parent::collectDisplayListingsSetting();
+		parent::collectDisplayListingsSetting($src);
 	}
 
 	/**
