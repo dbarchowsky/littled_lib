@@ -11,6 +11,7 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\Ajax\AjaxPageTest;
 use Littled\Tests\TestHarness\PageContent\Navigation\TestTableRoutes;
+use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
@@ -27,7 +28,7 @@ class ContentControllerTestHarness extends ContentController
     {
         switch($content_id) {
             case AjaxPageTest::TEST_CONTENT_TYPE_ID:
-                return SectionContentTestHarness::class;
+                return TestTable::class;
             default:
                 return 'TestContentClassString';
         }
