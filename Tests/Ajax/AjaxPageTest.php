@@ -10,12 +10,15 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Tests\DataProvider\Ajax\AjaxPageLoadTemplateContentTestData;
 use Littled\Tests\TestHarness\Ajax\AjaxPageTestHarness;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use Littled\Tests\TestHarness\Filters\TestTableFilters;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
@@ -85,8 +88,7 @@ class AjaxPageTest extends TestCase
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
-     * @param int|null $expected_content_id
-     * @param string $expected_template_token
+     * @param array $expected
      * @param array $post_data
      * @param string $ajax_stream
      * @param string $msg
@@ -98,8 +100,7 @@ class AjaxPageTest extends TestCase
      * @throws RecordNotFoundException
      */
     function testCollectContentProperties(
-        ?int $expected_content_id,
-        string $expected_template_token,
+        array $expected,
         array $post_data,
         string $ajax_stream='',
         string $msg='' )
@@ -111,16 +112,73 @@ class AjaxPageTest extends TestCase
         }
 
         $ap = new AjaxPage();
-        if (null===$expected_content_id) {
+        if (count($expected)==0) {
             $this->expectException(ContentValidationException::class);
         }
         $ap->collectContentProperties();
 
-        $this->assertEquals($expected_content_id, $ap->getContentTypeId(), $msg);
-        $this->assertEquals($expected_template_token, $ap->operation->value, $msg);
+        foreach ($expected as $property => $value) {
+            if ($property=='content_type_id') {
+                $this->assertEquals($value, $ap->getContentTypeId(), $msg);
+            }
+            else {
+                $p = $ap->$property;
+                $this->assertEquals($value, $p->value, $msg);
+            }
+        }
 
         // restore state
         $_POST = [];
+        Validation::setAjaxInputStream('php://input');
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectFiltersRequestDataTestProvider()
+     * @param array $expected
+     * @param array $get_data
+     * @param array $post_data
+     * @param string $ajax_stream
+     * @param string $msg
+     * @return void
+     * @throws NotImplementedException
+     */
+    function testCollectFiltersRequestData(
+        array $expected,
+        array $get_data=[],
+        array $post_data=[],
+        string $ajax_stream='',
+        string $msg=''
+    )
+    {
+        $_GET = $get_data;
+        $_POST = $post_data;
+
+        $ap = new AjaxPageTestHarness();
+        $ap->filters = new TestTableContentFiltersTestHarness();
+        $ajax_data = null;
+        if ($ajax_stream) {
+            Validation::setAjaxInputStream($ajax_stream);
+            $ajax_data = AjaxPageTestHarness::publicGetAjaxClientRequestData();
+        }
+
+        $ap->collectFiltersRequestData($ajax_data);
+
+        if (count($expected) == 0) {
+            $this->assertEquals(null, $ap->getContentTypeId());
+        }
+        else {
+            foreach ($expected as $property => $value) {
+                if ($property == 'content_type_id') {
+                    $this->assertEquals($value, $ap->getContentTypeId(), $msg);
+                } else {
+                    $p = $ap->filters->$property;
+                    $this->assertEquals($value, $p->value, $msg);
+                }
+            }
+        }
+
+        // restore state
+        $_GET = $_POST = [];
         Validation::setAjaxInputStream('php://input');
     }
 

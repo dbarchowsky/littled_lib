@@ -21,25 +21,60 @@ class AjaxPageTestDataProvider
     {
         return array(
             array(
-                AjaxPageTest::TEST_CONTENT_TYPE_ID,
-                AjaxPage::getDefaultTemplateName(),
+                array(
+                    'content_type_id' => AjaxPageTest::TEST_CONTENT_TYPE_ID,
+                    'operation' => AjaxPage::getDefaultTemplateName()),
                 array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID), '',
                 'Content type id value present in POST data'),
             array(
-                AjaxPageTest::TEST_CONTENT_TYPE_ID,
-                'listings',
+                array(
+                    'content_type_id' => AjaxPageTest::TEST_CONTENT_TYPE_ID,
+                    'operation' => 'listings'),
                 array(
                     LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID,
                     AjaxPage::TEMPLATE_TOKEN_KEY => 'listings'), '',
                 'Content type id and template token values in POST data'),
-            array(null, AjaxPage::getDefaultTemplateName(), [], '', 'No values present in POST data.'),
+            array([], [], '', 'No values present in POST data.'),
             array(
-                3,
-                'ajax_token',
+                array(
+                    'content_type_id' => 3,
+                    'operation' => 'ajax_token'),
                 array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPpage_collectContentProperties_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectContentProperties_01.dat'),
                 'Request input defaults to ajax stream over POST data.'
             ),
+        );
+    }
+
+    public static function collectFiltersRequestDataTestProvider(): array
+    {
+        return array(
+            array([], [], [], '', 'no data'),
+            array(array('name_filter' => 'bar'), array('name' => 'bar'), [], '', 'GET data'),
+            array(array('name_filter' => 'biz'), [], array('name' => 'biz'), '', 'POST data'),
+            array(
+                array(
+                    'name_filter' => 'foo',
+                    'int_filter' => 43,
+                    'bool_filter' => true), [], [],
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectFiltersRequestData_01.dat'),
+                'ajax stream'),
+            array(
+                array(
+                    'name_filter' => 'foo',
+                    'int_filter' => 43,
+                    'bool_filter' => true),
+                array('int_filter' => 82), [],
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectFiltersRequestData_01.dat'),
+                'ajax stream overrides GET data'),
+            array(
+                array(
+                    'name_filter' => 'foo',
+                    'int_filter' => 43,
+                    'bool_filter' => true),
+                [], array('int_filter' => 629),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectFiltersRequestData_01.dat'),
+                'ajax stream overrides POST data'),
         );
     }
 
