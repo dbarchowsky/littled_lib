@@ -11,7 +11,7 @@ use Exception;
 
 
 /**
- * Filter collection base class used to filter listings records on listings pages.
+ * Collection of core filters used for navigation, filtering listings records, and preserving the filtering state.
  */
 class FilterCollection extends FilterCollectionProperties
 {

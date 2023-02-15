@@ -12,6 +12,9 @@ use Littled\Request\RequestInput;
 use Littled\Request\IntegerInput;
 use Exception;
 
+/**
+ * Routines for fetching and committing database records.
+ */
 abstract class SerializedContent extends SerializedContentValidation
 {
 	/** @var IntegerInput Record id. */

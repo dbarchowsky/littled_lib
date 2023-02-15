@@ -11,21 +11,44 @@ use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
 use Littled\PageContent\PageContent;
+use Littled\PageContent\PageContentInterface;
 use Littled\Utility\LittledUtility;
 
+
+/**
+ * Extends PageContent to add methods to register and load record classes, filter classes, and routes for a specific content type.
+ */
 class RoutedPageContent extends PageContent
 {
-    /** @var string Content class name */
+    /** @var string SectionContent record class name */
     protected static string $content_class='';
-    /** @var string Filters class name */
+    /** @var string ContentFilters filters class name */
     protected static string $filters_class='';
-    /** @var string Routes class for section navigation */
+    /**
+     * @var string SectionNavigationRoutes routes class name for section navigation
+     * @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place.
+     */
     protected static string $routes_class='';
-    /** @var SectionNavigationRoutes Section navigation routes. */
+    /**
+     * @var SectionNavigationRoutes Section navigation routes.
+     * @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place.
+     */
     public SectionNavigationRoutes $routes;
+	/**
+	 * @var string
+	 * @todo Audit the use of this property. It could potentially be replaced with a "content_route" record in the database dedicated to a route to add new records.
+	 */
     protected static string $add_token = 'add';
+	/**
+	 * @var string
+	 * @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record.
+	 */
     protected static string $edit_token = 'edit';
 	protected static string $template_filename='';
+	/**
+	 * @var int
+	 * @todo Audit this property. Is this not already provided by some higher level class?
+	 */
 	protected static int $access_level;
 
 	/**
@@ -63,7 +86,7 @@ class RoutedPageContent extends PageContent
         }
         if (isset($this->content) &&
             false === $this->content->hasValidationErrors() &&
-            in_array($this->edit_action, [PageContent::COMMIT_ACTION, PageContent::CANCEL_ACTION])) {
+            in_array($this->edit_action, [PageContentInterface::COMMIT_ACTION, PageContentInterface::CANCEL_ACTION])) {
             // load page selected to be the next page after editing and saving a record
             $page = $this->getUpdateResponsePage();
         }

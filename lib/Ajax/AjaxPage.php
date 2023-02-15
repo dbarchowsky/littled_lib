@@ -28,17 +28,17 @@ use Littled\Validation\Validation;
 
 
 /**
- * Class AjaxPage
- * @package Littled\PageContent\Ajax
+ * Extends PageContent to add a JSONRecordResponse property used to convert the page content from the content normally sent as an HTML response to content sent as JSON.
+ * @todo rename APIRoute
  */
 class AjaxPage extends PageContentBase
 {
     /** @var string */
     public const TEMPLATE_TOKEN_KEY = 'templateToken';
 
-    /** @var string Name of class to use to cache content. */
+    /** @var string Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
     protected static string $cache_class = ContentCache::class;
-    /** @var string Name of class to use as content controller. */
+    /** @var string Name a \Littled\PageContent\ContentController class to use as content controller. */
     protected static string $controller_class = ContentController::class;
     /** @var string Name of the default template to use in derived classes to generate markup. */
     protected static string $default_template_dir='';
@@ -48,7 +48,10 @@ class AjaxPage extends PageContentBase
 
 	/** @var string String indicating the action to be taken on the page. */
 	public string               $action='';
-	/** @var mixed Content article. */
+	/**
+	 * @var mixed Content article.
+	 * @todo Audit this property to see if it could be replaced with PageContent::$content
+	 */
 	public                      $content;
 	protected ?array            $context;
 	/** @var ContentProperties Content properties. */

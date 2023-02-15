@@ -16,6 +16,9 @@ use Littled\Ajax\ContentAjaxProperties;
 use Exception;
 use Littled\Request\StringInput;
 
+/**
+ * Extends SerializedContent by adding properties of the serialized content.
+ */
 abstract class SectionContent extends SerializedContent
 {
 	/** @var ContentProperties Site section properties. */

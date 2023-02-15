@@ -7,9 +7,9 @@ use Littled\Ajax\ContentAjaxProperties;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Exception;
 
+
 /**
- * Class ContentFilters
- * @package Littled\Filters
+ * Extends FilterCollection to add properties that provide information about the content being retrieved for listings data.
  */
 class ContentFilters extends FilterCollection
 {

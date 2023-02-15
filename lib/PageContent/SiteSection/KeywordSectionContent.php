@@ -16,15 +16,18 @@ use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
 use Littled\Ajax\ContentAjaxProperties;
 
+/**
+ * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms associated with a content record.
+ */
 abstract class KeywordSectionContent extends SectionContent
 {
-	/** @var StringTextarea Container for keyword form data. */
+	/** @var StringTextarea Container for collecting keyword form data. */
 	public StringTextarea $keyword_input;
-	/** @var Keyword[] Array of Keyword objects. */
+	/** @var Keyword[] List of all keywords linked to the parent record. */
 	public array $keywords=[];
-	/** @var string Path to template that renders keyword cells that combine a keyword list with buttons to edit the keywords. */
+	/** @var string Path to template used to display individual keyword terms on frontend pages */
 	protected static string $keyword_cell_template = '';
-	/** @var string Path to keyword list template file. */
+	/** @var string Path to template used on frontend pages to display all keyword terms linked to the parent record. */
 	protected static string $keyword_list_template = '';
     protected static string $keyword_key = 'kw';
 	/* keyword category id */

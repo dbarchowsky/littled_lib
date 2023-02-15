@@ -15,6 +15,9 @@ use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
 
+/**
+ * @todo Audit to see if this class can be deleted.
+ */
 class ContentAjaxProperties extends SerializedContent
 {
 	/** @var string */

@@ -17,8 +17,7 @@ use Littled\Request\StringTextField;
 use Exception;
 
 /**
- * Class ContentProperties
- * @package Littled\PageContent\SiteSection
+ * Properties of different content types, e.g. content type id, table name, routes, and templates.
  */
 class ContentProperties extends SerializedContent
 {
@@ -35,13 +34,22 @@ class ContentProperties extends SerializedContent
 
 	/** @var StringTextField Name of the content. */
 	public StringTextField $name;
-    /** @var StringTextField Name of the content. */
+    /**
+     * @var StringTextField Name of the content.
+     * @todo Audit the use of this property.
+     */
     public StringTextField $slug;
-	/** @var StringTextField Root directory for section content. */
+	/**
+	 * @var StringTextField Root directory for section content.
+	 * @todo Audit the use of this property now that routes are the principle method for responding to client requests.
+	 */
 	public StringTextField $root_dir;
 	/** @var StringTextField Target path for image uploads. */
 	public StringTextField $image_path;
-	/** @var StringTextField Subdirectory for section content. */
+	/**
+	 * @var StringTextField Subdirectory for section content.
+	 * @todo Audit the use of this property along with $root_dir.
+	 */
 	public StringTextField $sub_dir;
 	/** @var StringTextField Label used when displaying images as a group on the front-end. */
 	public StringTextField $image_label;
@@ -49,27 +57,57 @@ class ContentProperties extends SerializedContent
      * @todo consider replacing hard-coded image dimension fields with a new table linked to this one
      * with separate records for each image spec.
      */
-	/** @var IntegerTextField Target width of full-resolution images. */
+	/**
+	 * @var IntegerTextField Target width of full-resolution images.
+	 * @todo Replace with generic $image_list property
+	 */
 	public IntegerTextField $width;
-	/** @var IntegerTextField Target height of full-resolution images. */
+	/**
+	 * @var IntegerTextField Target height of full-resolution images.
+	 * @todo Replace with generic $image_list property
+	 */
 	public IntegerTextField $height;
-	/** @var IntegerTextField Target width of medium-sized thumbnail images. */
+	/**
+	 * @var IntegerTextField Target width of medium-sized thumbnail images.
+	 * @todo Replace with generic $image_list property
+	 */
 	public IntegerTextField $med_width;
-	/** @var IntegerTextField Target height of medium-sized thumbnail images. */
+	/**
+	 * @var IntegerTextField Target height of medium-sized thumbnail images.
+	 * @todo Replace with generic $image_list property
+	 */
 	public IntegerTextField $med_height;
-	/** @var BooleanCheckbox Flag indicating that miniature thumbnail versions of images are to be generated when uploading and editing images. */
+	/**
+	 * @var BooleanCheckbox Flag indicating that miniature thumbnail versions of images are to be generated when uploading and editing images.
+	 * @todo Replace with generic $image_list property
+	 */
 	public BooleanCheckbox $save_mini;
-	/** @var IntegerTextField Target width of the smallest image set. */
+	/**
+	 * @var IntegerTextField Target width of the smallest image set.
+	 * @todo Replace with generic $image_list property
+	 */
 	public IntegerTextField $mini_width;
-	/** @var IntegerTextField Target height of the smallest image set. */
+	/**
+	 * @var IntegerTextField Target height of the smallest image set.
+	 * @todo Replace with generic $image_list property
+	 */
 	public IntegerTextField $mini_height;
-	/** @var StringSelect Image format, e.g. jpeg, png, etc. */
+	/**
+	 * @var StringSelect Image format, e.g. jpeg, png, etc.
+	 * @todo Replace with generic $image_list property
+	 */
 	public StringSelect $format;
-	/** @var StringTextField Parameter prefix to use for this content type. */
+	/**
+	 * @var StringTextField Parameter prefix to use for this content type.
+	 * @todo Replace with generic $image_list property
+	 */
 	public StringTextField $param_prefix;
-	/** @var StringTextField Content able name. */
+	/**
+	 * @var StringTextField Content able name.
+	 * @todo Audit this field to determine if it should be deprecated. Consider using SerializedContent::$table_name in its place.
+	 */
 	public StringTextField $table;
-	/** @var IntegerSelect Record id of parent content type record in site_section table. */
+	/** @var IntegerSelect Numeric identifier of the content type that is a parent to the principal content type */
 	public IntegerSelect $parent_id;
 	/** @var BooleanCheckbox Flag indicating that this section's content gets cached. */
 	public BooleanCheckbox $is_cached;
@@ -81,9 +119,9 @@ class ContentProperties extends SerializedContent
 	public string $parent = '';
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
 	public string $label='';
-	/** @var ContentTemplate[] Array of templates used to render the section's content. */
+	/** @var ContentTemplate[] List of templates used to render pages displaying record data */
 	public array $templates=[];
-	/** @var ContentRoute[] Array of templates used to render the section's content. */
+	/** @var ContentRoute[] List of routes to pages displaying record data */
 	public array $routes=[];
 
 	/**

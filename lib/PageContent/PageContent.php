@@ -12,7 +12,7 @@ use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
 /**
- * Intended as a base utility class for managing and rendering content for different types of pages.
+ * Handles requests for page content by retrieving data and using it to render content using content templates.
  */
 class PageContent extends PageContentBase
 {
@@ -22,7 +22,10 @@ class PageContent extends PageContentBase
     public SectionContent $content;
     /** @var ContentFilters Content filters. */
     public ContentFilters $filters;
-    /** @var string @var */
+    /**
+     * @var string Label used to identify the content type in content templates.
+     * @todo Audit this property. Consider using $content->content_properties->name or $filters->content_properties->name in its place.
+     */
     public string $label = '';
     /** @var string Query string to attach to page links. */
     protected string $query_string = '';

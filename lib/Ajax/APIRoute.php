@@ -3,6 +3,9 @@ namespace Littled\Ajax;
 
 use Littled\Validation\Validation;
 
+/**
+ * @todo Replace with AjaxPage
+ */
 abstract class APIRoute extends JSONResponse
 {
 	public ?object $request_data;

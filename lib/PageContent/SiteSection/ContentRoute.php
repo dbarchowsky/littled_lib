@@ -7,6 +7,9 @@ use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
 use Littled\Request\URLTextField;
 
+/**
+ * Extends SerializedContent to store and retrieve content route properties.
+ */
 class ContentRoute extends SerializedContent
 {
     /** @var string Token representing operation property */
@@ -29,7 +32,10 @@ class ContentRoute extends SerializedContent
 	public StringTextField $operation;
     /** @var StringTextField The route on the site to this content. */
     public StringTextField $route;
-	/** @var URLTextField The URL used to retrieve and refresh content. */
+	/**
+	 * @var URLTextField The URL used to retrieve and refresh content.
+	 * @todo Rename this property $api_route
+	 */
 	public URLTextField $url;
 
 	/**
