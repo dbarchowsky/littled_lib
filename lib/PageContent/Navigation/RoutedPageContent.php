@@ -360,6 +360,16 @@ class RoutedPageContent extends PageContent
         static::$content_class = $class;
     }
 
+	/**
+	 * Filters property setter.
+	 * @param ContentFilters $filters
+	 * @return void
+	 */
+	public function setFilters(ContentFilters $filters)
+	{
+		$this->filters = $filters;
+	}
+
     /**
      * Filters class name setter.
      * @param string $class

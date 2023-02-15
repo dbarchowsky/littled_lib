@@ -3,9 +3,15 @@ namespace Littled\Tests\PageContent\Navigation;
 
 use Exception;
 use Littled\Account\UserAccount;
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
 use Littled\PageContent\Navigation\RoutedPageContent;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use Littled\Tests\TestHarness\Filters\TestTableFilters;
+use Littled\Tests\TestHarness\PageContent\Navigation\TestTableRoutes;
+use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
@@ -211,6 +217,47 @@ class RoutedPageContentTest extends TestCase
 
 		// Reset routes class name
 		RoutedPageContentTestHarness::setRoutesClassName('');
+	}
+
+	/**
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 */
+	function testSetFilters()
+	{
+		$_POST = array(
+			LittledGlobals::CONTENT_TYPE_KEY => TestTable::CONTENT_TYPE_ID,
+			'name' => 'foo',
+			'dateAfter' => '2023-02-14',
+			'dateBefore' => '2023-02-28',
+			);
+
+		$rpc = new TestTableRoutes();
+		$rpc->instantiateProperties();
+		$this->assertTrue(isset($rpc->filters));
+
+		/** @var TestTableContentFiltersTestHarness $f1 */
+		$f1 = $rpc->filters;
+		$this->assertEquals('', $f1->name_filter->value);
+		$this->assertEquals('', $f1->date_after->value);
+
+		$rpc->loadFilters();
+		$this->assertEquals('foo', $f1->name_filter->value);
+		$this->assertEquals('02/14/2023', $f1->date_after->value);
+		$this->assertEquals('02/28/2023', $f1->date_before->value);
+
+		$new_filters = new TestTableContentFiltersTestHarness();
+		$new_filters->name_filter->value = 'bar';
+		$new_filters->date_after->value = '06/01/2022';
+		$rpc->setFilters($new_filters);
+
+		/** @var TestTableContentFiltersTestHarness $f2 */
+		$f2 = $rpc->filters;
+		$this->assertEquals('bar', $f2->name_filter->value);
+		$this->assertEquals('06/01/2022', $f2->date_after->value);
+		$this->assertEquals('', $f2->date_before->value);
+
+		$_POST = [];
 	}
 
 	/**

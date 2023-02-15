@@ -455,8 +455,8 @@ class AjaxPage extends PageContentBase
             $p->readRoutes();
         }
         $route_parts = $p->getContentRouteByOperation('listings')->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
-		$page_content_class = call_user_func([static::getControllerClass(), 'getRoutedPageContentClass'], $route_parts);
-		return new $page_content_class();
+		$rpc_class = call_user_func([static::getControllerClass(), 'getRoutedPageContentClass'], $route_parts);
+		return new $rpc_class();
 	}
 
     /**
