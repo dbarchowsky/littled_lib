@@ -12,7 +12,6 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Ajax\ContentAjaxProperties;
 use Exception;
 use Littled\Request\StringInput;
 
@@ -147,19 +146,12 @@ abstract class SectionContent extends SerializedContent
 	 * @param FilterCollection $filters Filters to apply to listings content
 	 * @return string Updated listings markup.
 	 * @throws ResourceNotFoundException
-	 * @throws RecordNotFoundException
      * @throws Exception
 	 */
 	public function refreshContentAfterEdit( FilterCollection &$filters ): string
 	{
 		$template = $this->getListingsTemplatePath();
-		if (strlen($template) < 1) {
-			$ao = new ContentAjaxProperties();
-			$ao->section_id->value = $this->content_properties->id->value;
-			$ao->retrieveContentProperties();
-			$template = $ao->listings_template->value;
-		}
-		if (strlen($template) < 1) {
+		if (!$template) {
 			throw new ResourceNotFoundException("Listings template not available.");
 		}
 
