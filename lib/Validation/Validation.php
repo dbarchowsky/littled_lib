@@ -571,6 +571,21 @@ class Validation
 		return Validation::collectNumericRequestVar($key, $index, $src);
 	}
 
+	/**
+	 * Separates a route path into its parts based on backslash delimiters.
+	 * @param string $route
+	 * @return array
+	 */
+	public static function parseRouteParts(string $route): array
+	{
+		/**
+		 * array_values() - reindex the array
+		 * array_filters() - strip empty strings from the result
+		 */
+		return array_map(function($e) { return ((Validation::isInteger($e))?(Validation::parseInteger($e)):($e)); },
+			array_values(array_filter(preg_split('/\//', $route))));
+	}
+
     /**
      * Ajax input stream setter
      * @param string $input_stream
@@ -594,6 +609,20 @@ class Validation
 		$value = Validation::_parseInput(FILTER_FLAG_NONE, $key, $index, $src);
         return strip_tags(''.$value, $whitelist_tags);
     }
+
+	/**
+	 * Tests a CSRF token stored in a string variable against the CSRF token currently stored in Session data.
+	 * @param string $csrf CSRF token value to test.
+	 * @return bool TRUE if the CSRF token matches the token stored in session data.
+	 */
+	protected static function testCSRFValue(string $csrf): bool
+	{
+		if ($csrf==='') {
+			return false;
+		}
+		$csrf = trim(filter_var($csrf, Validation::DEFAULT_REQUEST_FILTER));
+		return ($csrf===$_SESSION[LittledGlobals::CSRF_SESSION_KEY]);
+	}
 
 	/**
 	 * Check for valid CSRF token.
@@ -624,20 +653,6 @@ class Validation
 	        $csrf = $_SERVER[$header_key];
 		}
 		return Validation::testCSRFValue($csrf);
-	}
-
-	/**
-	 * Tests a CSRF token stored in a string variable against the CSRF token currently stored in Session data.
-	 * @param string $csrf CSRF token value to test.
-	 * @return bool TRUE if the CSRF token matches the token stored in session data.
-	 */
-	protected static function testCSRFValue(string $csrf): bool
-	{
-		if ($csrf==='') {
-			return false;
-		}
-		$csrf = trim(filter_var($csrf, Validation::DEFAULT_REQUEST_FILTER));
-		return ($csrf===$_SESSION[LittledGlobals::CSRF_SESSION_KEY]);
 	}
 
 	/**

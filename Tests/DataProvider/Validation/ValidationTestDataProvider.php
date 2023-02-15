@@ -199,6 +199,18 @@ class ValidationTestDataProvider
         );
     }
 
+	public static function parseRoutePartsTestProvider(): array
+	{
+		return array(
+			array([], '', 'empty route'),
+			array([], '/', 'base route'),
+			array(array('top'), '/top', 'top-level route'),
+			array(array('route', 'to'), '/route/to', '2-part route'),
+			array(array('section', '1234', 'view'), '/section/1234/view', 'route containing number; testing value as string'),
+			array(array('section', 1234, 'view'), '/section/1234/view', 'route containing number; testing value as integer'),
+		);
+	}
+
 	public static function validateCSRFTestProvider(): array
 	{
 		$header_key = 'HTTP_'.LittledGlobals::CSRF_HEADER_KEY;

@@ -312,6 +312,18 @@ class ValidationTest extends TestCase
     }
 
 	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseRoutePartsTestProvider()
+	 * @param array $expected
+	 * @param string $route
+	 * @param string $msg
+	 * @return void
+	 */
+	function testParseRouteParts(array $expected, string $route, string $msg='')
+	{
+		$this->assertEquals($expected, Validation::parseRouteParts($route), $msg);
+	}
+
+	/**
 	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::validateCSRFTestProvider()
 	 * @param string $description
 	 * @param bool $expected
