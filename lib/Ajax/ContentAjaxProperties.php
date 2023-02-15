@@ -16,6 +16,7 @@ use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
 
 /**
+ * This class is an interface to the section_operations table which has less and less utility since content_templates and content_routes were introduced.
  * @todo Audit to see if this class can be deleted.
  */
 class ContentAjaxProperties extends SerializedContent
