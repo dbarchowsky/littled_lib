@@ -5,7 +5,7 @@ CREATE OR REPLACE PROCEDURE `contentRouteUpdate`(
     IN      p_site_section_id   INT,
     IN      p_operation         VARCHAR(45),
     IN      p_route             VARCHAR(255),
-    IN      p_url               VARCHAR(256)
+    IN      p_api_route         VARCHAR(256)
 )
 BEGIN
 
@@ -14,19 +14,19 @@ BEGIN
         `site_section_id`,
         `operation`,
         `route`,
-        `url`
+        `api_route`
     ) VALUES (
         p_record_id,
         p_site_section_id,
         p_operation,
         p_route,
-        p_url
+        p_api_route
     )
     ON DUPLICATE KEY UPDATE
         `site_section_id`       = p_site_section_id,
         `operation`             = p_operation,
         `route`                 = p_route,
-        `url`                   = p_url;
+        `api_route`             = p_api_route;
 
     IF p_record_id IS NULL THEN
         SELECT LAST_INSERT_ID() INTO p_record_id;

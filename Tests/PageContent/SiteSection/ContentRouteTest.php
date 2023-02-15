@@ -22,7 +22,7 @@ class ContentRouteTest extends TestCase
 		$this->assertEquals(6037, $cr->site_section_id->value);
 		$this->assertEquals('foo', $cr->operation->value);
         $this->assertEquals('my-route', $cr->route->value);
-        $this->assertEquals('https://localhost', $cr->url->value);
+        $this->assertEquals('https://localhost', $cr->api_route->value);
 	}
 
 	/**
@@ -33,7 +33,7 @@ class ContentRouteTest extends TestCase
 		$cr = new ContentRoute();
 		$this->assertNull($cr->id->value);
 		$this->assertNull($cr->site_section_id->value);
-		$this->assertEmpty($cr->url->value);
+		$this->assertEmpty($cr->api_route->value);
         $this->assertEmpty($cr->operation->value);
         $this->assertEmpty($cr->route->value);
 
@@ -63,7 +63,7 @@ class ContentRouteTest extends TestCase
         $this->assertEquals($expected_site_section_id, $o->site_section_id->value, $msg);
         $this->assertEquals($expected_operation, $o->operation->value, $msg);
         $this->assertMatchesRegularExpression($expected_route, $o->route->value, $msg);
-        $this->assertMatchesRegularExpression($expected_url, $o->url->value, $msg);
+        $this->assertMatchesRegularExpression($expected_url, $o->api_route->value, $msg);
     }
 
     /**

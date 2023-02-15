@@ -32,11 +32,8 @@ class ContentRoute extends SerializedContent
 	public StringTextField $operation;
     /** @var StringTextField The route on the site to this content. */
     public StringTextField $route;
-	/**
-	 * @var URLTextField The URL used to retrieve and refresh content.
-	 * @todo Rename this property $api_route
-	 */
-	public URLTextField $url;
+	/** @var StringTextField The URL used to retrieve and refresh content. */
+	public StringTextField $api_route;
 
 	/**
 	 * Class constructor
@@ -56,7 +53,7 @@ class ContentRoute extends SerializedContent
 		$this->site_section_id = new IntegerSelect('Site Section', 'routeSectionId', true, $route_content_type_id);
 		$this->operation = new StringTextField('Name', 'routeOp', true, $operation, 45);
         $this->route = new StringTextField('Route', 'routePath', false, $route, 255);
-		$this->url = new URLTextField('URL', 'routeURL', true, $url, 256);
+		$this->api_route = new URLTextField('URL', 'routeURL', true, $url, 256);
 	}
 
 	/**
@@ -69,7 +66,7 @@ class ContentRoute extends SerializedContent
 			&$this->site_section_id->value,
 			&$this->operation->value,
             &$this->route->value,
-			&$this->url->value);
+			&$this->api_route->value);
 	}
 
     /**
@@ -88,7 +85,7 @@ class ContentRoute extends SerializedContent
             case self::PROPERTY_TOKEN_ROUTE_AS_ARRAY:
                 return explode('/', trim(''.$this->route->value, '/'));
             case self::PROPERTY_TOKEN_URL:
-                return $this->url->value;
+                return $this->api_route->value;
             default:
                 throw new InvalidValueException('Invalid property token.');
         }
@@ -99,6 +96,6 @@ class ContentRoute extends SerializedContent
 	 */
 	public function hasData(): bool
 	{
-		return ($this->id->value > 0 || $this->url->value || $this->operation->value || $this->route->value);
+		return ($this->id->value > 0 || $this->api_route->value || $this->operation->value || $this->route->value);
 	}
 }

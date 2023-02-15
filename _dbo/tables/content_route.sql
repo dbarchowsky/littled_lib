@@ -11,3 +11,5 @@ CREATE OR REPLACE TABLE content_route
 );
 ALTER TABLE content_route
     ADD COLUMN `route` VARCHAR(255) DEFAULT '' AFTER `operation`;
+ALTER TABLE `content_route`
+    CHANGE COLUMN `url` `api_route` VARCHAR(255);

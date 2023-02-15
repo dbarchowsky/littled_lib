@@ -154,7 +154,7 @@ class ContentAjaxProperties extends SerializedContent
 		$query = 'CALL contentRouteSelect(?,?,?)';
 		$data = $this->fetchRecords($query, 'iis', $record_id, $this->section_id->value, $operation);
 		foreach($data as $row) {
-			$this->routes[] = new ContentRoute($row->id, $row->site_section_id, $row->operation, $row->route, $row->url);
+			$this->routes[] = new ContentRoute($row->id, $row->site_section_id, $row->operation, $row->route, $row->api_route);
 		}
 	}
 

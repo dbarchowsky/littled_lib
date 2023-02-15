@@ -334,7 +334,7 @@ class AjaxPageTest extends TestCase
 		$ap->operation->value = $operation;
 		$ap->lookupRoute();
 		$this->assertEquals($operation, $ap->route->operation->value);
-		$this->assertMatchesRegularExpression($expected_route, $ap->route->url->value);
+		$this->assertMatchesRegularExpression($expected_route, $ap->route->api_route->value);
 	}
 
 	/**

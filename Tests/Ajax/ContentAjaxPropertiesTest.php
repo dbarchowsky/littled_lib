@@ -26,7 +26,7 @@ class ContentAjaxPropertiesTest extends TestCase
 		$this->assertContains('listings', $operations);
 		$this->assertContains('delete', $operations);
 
-		$urls = array_map(function($i) { return $i->url->value;}, $cap->routes);
+		$urls = array_map(function($i) { return $i->api_route->value;}, $cap->routes);
 		$this->assertContains('/api/listings', $urls);
 		$this->assertContains('/api/[#]/delete', $urls);
 

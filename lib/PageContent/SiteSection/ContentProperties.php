@@ -390,7 +390,7 @@ class ContentProperties extends SerializedContent
 				$this->id->value,
 				$row->operation,
                 $row->route,
-				$row->url);
+				$row->api_route);
 		}
 	}
 

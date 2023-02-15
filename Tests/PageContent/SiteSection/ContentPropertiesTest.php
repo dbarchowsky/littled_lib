@@ -587,7 +587,7 @@ class ContentPropertiesTest extends TestCase
         $this->assertEquals($site_section_id, $route->site_section_id->value);
         $this->assertEquals('listings', $route->operation->value);
         $this->assertEquals('my-route', $route->route->value);
-        $this->assertEquals('https://localhost', $route->url->value);
+        $this->assertEquals('https://localhost', $route->api_route->value);
     }
 
     /**

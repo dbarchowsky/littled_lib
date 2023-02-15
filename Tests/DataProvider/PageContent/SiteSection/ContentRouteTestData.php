@@ -144,7 +144,7 @@ class ContentRouteTestData
         $this->obj->site_section_id->setInputValue($site_section_id);
         $this->obj->operation->setInputValue($operation);
         $this->obj->route->setInputValue($route);
-        $this->obj->url->setInputValue($url);
+        $this->obj->api_route->setInputValue($url);
         return $this;
     }
 }
