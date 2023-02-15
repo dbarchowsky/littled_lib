@@ -28,7 +28,7 @@ abstract class UserAccount extends SerializedContent
 	/** @var string AES key used to encrypt passwords */
 	protected static string $aes_key='';
 	/** @var int Disabled value. */
-	const DISABLED              = 0;
+	const AUTHENTICATION_UNRESTRICTED = 0;
 	/** @var int Basic credentials token value. */
 	const BASIC_AUTHENTICATION  = 1;
 	/** @var int Admin credentials token value. */

@@ -18,11 +18,11 @@ class UserLoginTestDataProvider
 	public static function requiresLoginTestProvider(): array
 	{
 		return array(
-			['InvalidCredentialsException', '/not logged in/', '', '', null, UserAccount::DISABLED],
-			['InvalidCredentialsException', '/not logged in/', 'v8', '', null, UserAccount::DISABLED],
-			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', null, UserAccount::DISABLED],
-			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', UserAccount::DISABLED, UserAccount::DISABLED],
-			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', UserAccount::DISABLED, UserAccount::BASIC_AUTHENTICATION],
+			['InvalidCredentialsException', '/not logged in/', '', '', null, UserAccount::AUTHENTICATION_UNRESTRICTED],
+			['InvalidCredentialsException', '/not logged in/', 'v8', '', null, UserAccount::AUTHENTICATION_UNRESTRICTED],
+			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', null, UserAccount::AUTHENTICATION_UNRESTRICTED],
+			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', UserAccount::AUTHENTICATION_UNRESTRICTED, UserAccount::AUTHENTICATION_UNRESTRICTED],
+			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', UserAccount::AUTHENTICATION_UNRESTRICTED, UserAccount::BASIC_AUTHENTICATION],
 			['', '', 'v8', 'v8pass', UserAccount::BASIC_AUTHENTICATION, UserAccount::BASIC_AUTHENTICATION],
 			['InvalidCredentialsException', '/does not have access/', 'v8', 'v8pass', UserAccount::BASIC_AUTHENTICATION, UserAccount::ADMIN_AUTHENTICATION],
 			['', '', 'v8', 'v8pass', UserAccount::ADMIN_AUTHENTICATION, UserAccount::ADMIN_AUTHENTICATION],

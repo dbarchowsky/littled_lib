@@ -53,7 +53,7 @@ class UserLogin extends UserAccount
 		parent::collectFromSession();
 		$this->username->value='';
 		$this->password->value='';
-		$this->access->value=self::DISABLED;
+		$this->access->value=self::AUTHENTICATION_UNRESTRICTED;
 		if (isset($_SESSION[$this->username->key])) {
 			$this->username->value=$_SESSION[$this->username->key];
 		}
@@ -103,7 +103,7 @@ class UserLogin extends UserAccount
 		if ($this->username->value==='' || $this->password->value==='') {
 			throw new InvalidCredentialsException('User is not logged in.');
 		}
-		if ($this->access->value===null || $this->access->value<=UserAccount::DISABLED || $this->access->value < $access_level) {
+		if ($this->access->value===null || $this->access->value<=UserAccount::AUTHENTICATION_UNRESTRICTED || $this->access->value < $access_level) {
 			throw new InvalidCredentialsException('User does not have access.');
 		}
 	}
