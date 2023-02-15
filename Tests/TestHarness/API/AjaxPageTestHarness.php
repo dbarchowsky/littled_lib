@@ -1,11 +1,12 @@
 <?php
-namespace Littled\Tests\TestHarness\Ajax;
+namespace Littled\Tests\TestHarness\API;
 
-use Littled\Ajax\AjaxPage;
+use Littled\API\AjaxPage;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\PageContent\PageContent;
+
 
 class AjaxPageTestHarness extends AjaxPage
 {

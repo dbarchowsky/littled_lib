@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\Tests\TestHarness\PageContent;
 
 use Littled\Exception\InvalidRouteException;
@@ -9,15 +8,13 @@ use Littled\PageContent\ContentController;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
-use Littled\Tests\Ajax\AjaxPageTest;
-use Littled\Tests\TestHarness\PageContent\Navigation\TestTableRoutes;
+use Littled\Tests\API\AjaxPageTest;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
-use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableDetailsPage;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
 use Littled\Utility\LittledUtility;
+
 
 class ContentControllerTestHarness extends ContentController
 {

@@ -1,8 +1,8 @@
 <?php
 namespace Littled\PageContent\Cache;
 
-use Littled\Ajax\AjaxPage;
-use Littled\Ajax\JSONRecordResponse;
+use Littled\API\AjaxPage;
+use Littled\API\JSONRecordResponse;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;

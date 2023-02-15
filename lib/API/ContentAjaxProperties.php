@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Ajax;
+namespace Littled\API;
 
 use Exception;
 use Littled\App\LittledGlobals;

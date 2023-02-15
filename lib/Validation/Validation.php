@@ -350,7 +350,7 @@ class Validation
     }
 
     /**
-     * Gets default input source. POST or REQUEST data if present, or Ajax client data.
+     * Gets default input source. POST or REQUEST data if present, or API client data.
      * @param array $ignore_keys Optional array of keys to ignore in GET or POST data
      * @return array
      */
@@ -364,7 +364,7 @@ class Validation
         if (count($src)>0) {
             return $src;
         }
-        // fall back to Ajax request client data
+        // fall back to API request client data
         return static::getAjaxClientRequestData();
     }
 
@@ -587,7 +587,7 @@ class Validation
 	}
 
     /**
-     * Ajax input stream setter
+     * API input stream setter
      * @param string $input_stream
      * @return void
      */

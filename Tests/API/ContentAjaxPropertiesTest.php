@@ -1,7 +1,7 @@
 <?php
-namespace Littled\Tests\Ajax;
+namespace Littled\Tests\API;
 
-use Littled\Ajax\ContentAjaxProperties;
+use Littled\API\ContentAjaxProperties;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

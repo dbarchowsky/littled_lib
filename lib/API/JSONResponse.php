@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Ajax;
+namespace Littled\API;
 
 /**
  * Class JSONResponse
- * @package Littled\PageContent\Ajax
+ * @package Littled\PageContent\API
  */
 class JSONResponse extends JSONResponseBase
 {

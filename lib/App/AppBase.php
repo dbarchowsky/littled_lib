@@ -151,7 +151,7 @@ class AppBase
 	}
 
     /**
-     * Ajax input stream setter
+     * API input stream setter
      * @param string $input_stream
      * @return void
      */

@@ -94,10 +94,10 @@ class FilterCollectionTestDataProvider
 			array(
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(3025, 3, 5, '')
-					->setExpectations(4),
+					->setExpectations(5),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(3025, 2, 10, '')
-					->setExpectations(4),
+					->setExpectations(5),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2023, 1, 20, '')
 					->setExpectations(1),
@@ -112,22 +112,22 @@ class FilterCollectionTestDataProvider
 					->setExpectations(5),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2213, 3, 5, '')
-					->setExpectations(2),
+					->setExpectations(3),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2217, 3, 11, '')
+					->setRetrieveNeighborIdsTestData(2217, 3, 12, '')
 					->setExpectations(null),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2217, 2, 11, '')
-					->setExpectations(11),
+					->setRetrieveNeighborIdsTestData(2214, 2, 12, '')
+					->setExpectations(12),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2217, 4, 6, '')
-					->setExpectations(4),
+					->setExpectations(5),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2624, 6, 5, '')
-					->setExpectations(2),
+					->setExpectations(3),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2624, 1, 27, '')
-					->setExpectations(27),
+					->setRetrieveNeighborIdsTestData(2624, 1, 28, '')
+					->setExpectations(28),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2204, 1, 5, '%oo%')
 					->setExpectations(1),

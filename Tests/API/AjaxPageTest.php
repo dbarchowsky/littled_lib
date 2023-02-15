@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\Ajax;
+namespace Littled\Tests\API;
 
 use Exception;
-use Littled\Ajax\AjaxPage;
+use Littled\API\AjaxPage;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -15,10 +15,9 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\DataProvider\Ajax\AjaxPageLoadTemplateContentTestData;
-use Littled\Tests\TestHarness\Ajax\AjaxPageTestHarness;
+use Littled\Tests\DataProvider\API\AjaxPageLoadTemplateContentTestData;
+use Littled\Tests\TestHarness\API\AjaxPageTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\Filters\TestTableFilters;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
@@ -26,6 +25,7 @@ use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
+
 
 class AjaxPageTest extends TestCase
 {
@@ -37,7 +37,7 @@ class AjaxPageTest extends TestCase
     public const        TEST_RECORD_ID = 2023;
 	/** @var string */
 	public const        TEST_RECORD_NAME = 'fixed test record';
-    protected const     AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/Ajax/AjaxPage_collectPageAction.dat";
+    protected const     AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/API/AjaxPage_collectPageAction.dat";
     public const        LISTINGS_OPERATION_TOKEN = 'listings';
 
     /**
@@ -87,7 +87,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param array $post_data
      * @param string $ajax_stream
@@ -133,7 +133,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectFiltersRequestDataTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::collectFiltersRequestDataTestProvider()
      * @param array $expected
      * @param array $get_data
      * @param array $post_data
@@ -183,7 +183,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::collectPageActionTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::collectPageActionTestProvider()
      * @param string $expected
      * @param string $source
      * @param string $key
@@ -285,7 +285,7 @@ class AjaxPageTest extends TestCase
     }
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::loadTemplateContentTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::loadTemplateContentTestProvider()
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
@@ -317,7 +317,7 @@ class AjaxPageTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::lookupRouteTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::lookupRouteTestProvider()
      * @throws ContentValidationException
      * @throws RecordNotFoundException
      * @throws ConnectionException
@@ -395,7 +395,7 @@ class AjaxPageTest extends TestCase
 
 	/**
 	 * @runInSeparateProcess
-	 * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::sendTextResponseTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::sendTextResponseTestProvider()
 	 * @param string $expected
 	 * @param string $response
 	 * @param string $override_response
@@ -416,7 +416,7 @@ class AjaxPageTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::setCacheClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::setCacheClassTestProvider()
      * @param string $cache_class
      * @param string $exception_class
      * @param string $msg
@@ -442,7 +442,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Ajax\AjaxPageTestDataProvider::setControllerClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::setControllerClassTestProvider()
      * @param string $expected
      * @param string $class_name
      * @return void

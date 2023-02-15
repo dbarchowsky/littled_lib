@@ -1,16 +1,16 @@
 <?php
+namespace Littled\Tests\TestHarness\API;
 
-namespace Littled\Tests\TestHarness\Ajax;
+use Littled\API\JSONField;
+use Littled\API\JSONResponse;
 
-use Littled\Ajax\JSONField;
-use Littled\Ajax\JSONResponse;
 
 class JSONResponseSample extends JSONResponse
 {
     /** @var JSONField */
-    public $f1;
+    public JSONField $f1;
     /** @var JSONField */
-    public $f2;
+    public JSONField $f2;
 
     function __construct(string $key = '')
     {

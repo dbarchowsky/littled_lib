@@ -3,7 +3,7 @@
 namespace Littled\Tests\TestHarness\Filters;
 
 use DateTime;
-use Littled\Ajax\AjaxPage;
+use Littled\API\AjaxPage;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Ajax;
+namespace Littled\API;
 
 class JSONResponseBase
 {

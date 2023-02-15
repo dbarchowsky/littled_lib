@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Ajax;
+namespace Littled\API;
 
 use Exception;
 use Throwable;
@@ -43,7 +43,7 @@ class AjaxPage extends PageContentBase
     /** @var string Name of the default template to use in derived classes to generate markup. */
     protected static string $default_template_dir='';
     protected static string $default_template_name = '';
-    /** @var string Input stream of Ajax client requests */
+    /** @var string Input stream of API client requests */
     protected static string $ajax_input_stream = 'php://input';
 
 	/** @var string String indicating the action to be taken on the page. */
@@ -629,7 +629,7 @@ class AjaxPage extends PageContentBase
 	}
 
     /**
-     * Ajax input stream setter.
+     * API input stream setter.
      * @param string $input_stream
      * @return void
      */

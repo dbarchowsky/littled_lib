@@ -3,7 +3,7 @@
 namespace Littled\Tests\DataProvider\Utility;
 
 
-use Littled\Ajax\AjaxPage;
+use Littled\API\AjaxPage;
 use Littled\App\AppBase;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\PageContent;

@@ -1,12 +1,12 @@
 <?php
-namespace Littled\Ajax;
+namespace Littled\API;
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
 
 /**
  * Class JSONResponse
- * @package Littled\PageContent\Ajax
+ * @package Littled\PageContent\API
  */
 class JSONRecordResponse extends JSONResponse
 {

@@ -1,10 +1,10 @@
 <?php
-namespace Littled\Ajax;
+namespace Littled\API;
 
 
 /**
  * Class JSONField
- * @package Littled\PageContent\Ajax
+ * @package Littled\PageContent\API
  */
 class JSONField
 {

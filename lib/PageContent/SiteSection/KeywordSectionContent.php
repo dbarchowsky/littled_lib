@@ -14,7 +14,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
-use Littled\Ajax\ContentAjaxProperties;
+use Littled\API\ContentAjaxProperties;
 
 /**
  * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms associated with a content record.

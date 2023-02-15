@@ -3,7 +3,7 @@ namespace Littled\Filters;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
-use Littled\Ajax\ContentAjaxProperties;
+use Littled\API\ContentAjaxProperties;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Exception;
 
@@ -26,7 +26,7 @@ class ContentFilters extends FilterCollection
 
 	/** @var ContentProperties Content properties */
 	public ContentProperties $content_properties;
-	/** @var ContentAjaxProperties Ajax properties */
+	/** @var ContentAjaxProperties API properties */
 	public ContentAjaxProperties $ajax_properties;
 	/** @var ?int */
 	protected static ?int $content_type_id=null;

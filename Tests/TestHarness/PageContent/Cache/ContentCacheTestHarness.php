@@ -1,8 +1,8 @@
 <?php
 namespace Littled\Tests\TestHarness\PageContent\Cache;
 
-use Littled\Ajax\AjaxPage;
-use Littled\Ajax\JSONRecordResponse;
+use Littled\API\AjaxPage;
+use Littled\API\JSONRecordResponse;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\SiteSection\ContentProperties;

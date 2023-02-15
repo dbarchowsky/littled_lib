@@ -1,8 +1,8 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Ajax;
+namespace Littled\Tests\DataProvider\API;
 
-use Littled\Tests\Ajax\AjaxPageTest;
+use Littled\Tests\API\AjaxPageTest;
 
 
 class AjaxPageLoadTemplateContentTestData

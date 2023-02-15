@@ -1,15 +1,15 @@
 <?php
-
-namespace Littled\Tests\DataProvider\Ajax;
+namespace Littled\Tests\DataProvider\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
 use Littled\PageContent\PageConfig;
-use Littled\Ajax\AjaxPage;
+use Littled\API\AjaxPage;
 use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
-use Littled\Tests\Ajax\AjaxPageTest;
+use Littled\PageContent\PageContentInterface;
+use Littled\Tests\API\AjaxPageTest;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Utility\LittledUtility;
@@ -40,7 +40,7 @@ class AjaxPageTestDataProvider
                     'content_type_id' => 3,
                     'operation' => 'ajax_token'),
                 array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectContentProperties_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectContentProperties_01.dat'),
                 'Request input defaults to ajax stream over POST data.'
             ),
         );
@@ -57,7 +57,7 @@ class AjaxPageTestDataProvider
                     'name_filter' => 'foo',
                     'int_filter' => 43,
                     'bool_filter' => true), [], [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectFiltersRequestData_01.dat'),
                 'ajax stream'),
             array(
                 array(
@@ -65,7 +65,7 @@ class AjaxPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 array('int_filter' => 82), [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides GET data'),
             array(
                 array(
@@ -73,7 +73,7 @@ class AjaxPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 [], array('int_filter' => 629),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Ajax/AjaxPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides POST data'),
         );
     }
@@ -83,13 +83,13 @@ class AjaxPageTestDataProvider
         $custom_data = [];
         $custom_data[LittledGlobals::COMMIT_KEY] = true;
         return array(
-            array(AjaxPage::COMMIT_ACTION, 'post', LittledGlobals::COMMIT_KEY, true, null, 'POST commit key'),
-            array(AjaxPage::CANCEL_ACTION, 'post', LittledGlobals::CANCEL_KEY, true, null, 'POST cancel key'),
+            array(PageContentInterface::COMMIT_ACTION, 'post', LittledGlobals::COMMIT_KEY, true, null, 'POST commit key'),
+            array(PageContentInterface::CANCEL_ACTION, 'post', LittledGlobals::CANCEL_KEY, true, null, 'POST cancel key'),
             array('', 'post', 'randomKey', true, null, 'POST invalid key'),
             array('', 'post', LittledGlobals::COMMIT_KEY, 45, null, 'POST commit key with non-true value'),
             array('', 'post', LittledGlobals::COMMIT_KEY, false, null, 'POST commit key set to false'),
-            array(AjaxPage::COMMIT_ACTION, 'ajax', '', '', null, 'Ajax mock data'),
-            array(AjaxPage::COMMIT_ACTION, 'custom', '', '', $custom_data, 'custom data'),
+            array(PageContentInterface::COMMIT_ACTION, 'ajax', '', '', null, 'API mock data'),
+            array(PageContentInterface::COMMIT_ACTION, 'custom', '', '', $custom_data, 'custom data'),
         );
     }
 
