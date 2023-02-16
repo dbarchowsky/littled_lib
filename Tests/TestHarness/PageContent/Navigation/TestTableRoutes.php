@@ -13,12 +13,8 @@ class TestTableRoutes extends RoutedPageContent
 {
 	protected static string $content_class = TestTable::class;
 	protected static string $filters_class = TestTableContentFiltersTestHarness::class;
+	protected static string $routes_class = TestTableSectionNavigationRoutes::class;
 	protected static int $access_level = UserAccount::AUTHENTICATION_UNRESTRICTED;
-    protected static string $details_page_class='';
-    protected static string $details_route='/test';
-    protected static string $edit_page_class='';
-    protected static string $listings_page_class = RoutedPageContentTestHarness::class;
-    protected static string $listings_route='/Tests';
 
 	public function instantiateProperties()
 	{
