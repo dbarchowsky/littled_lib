@@ -14,7 +14,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
-use Littled\API\ContentAjaxProperties;
+use Littled\API\ContentAPIProperties;
 
 /**
  * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms associated with a content record.
@@ -192,7 +192,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 */
 	protected function fetchKeywordListTemplate(): void
 	{
-		$ao = new ContentAjaxProperties($this->content_properties->id->value);
+		$ao = new ContentAPIProperties($this->content_properties->id->value);
 		$ao->retrieveContentProperties();
 		self::setKeywordsListTemplatePath($ao->keywords_template->value);
 	}

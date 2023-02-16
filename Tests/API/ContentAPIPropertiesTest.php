@@ -1,12 +1,12 @@
 <?php
 namespace Littled\Tests\API;
 
-use Littled\API\ContentAjaxProperties;
+use Littled\API\ContentAPIProperties;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
 
-class ContentAjaxPropertiesTest extends TestCase
+class ContentAPIPropertiesTest extends TestCase
 {
 	/** @var int */
 	public const TEST_CONTENT_TYPE_ID = 6037;
@@ -16,7 +16,7 @@ class ContentAjaxPropertiesTest extends TestCase
 	 */
 	function testRetrieveRoutes()
 	{
-		$cap = new ContentAjaxProperties();
+		$cap = new ContentAPIProperties();
 		$cap->section_id->setInputValue(self::TEST_CONTENT_TYPE_ID);
 		$cap->retrieveRoutes();
 
@@ -40,7 +40,7 @@ class ContentAjaxPropertiesTest extends TestCase
 	 */
 	function testRetrieveTemplates()
 	{
-		$cap = new ContentAjaxProperties();
+		$cap = new ContentAPIProperties();
 		$cap->section_id->setInputValue(self::TEST_CONTENT_TYPE_ID);
 		$cap->retrieveTemplates();
 
