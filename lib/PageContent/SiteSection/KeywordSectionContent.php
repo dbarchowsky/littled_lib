@@ -37,10 +37,11 @@ abstract class KeywordSectionContent extends SectionContent
 	 * KeywordSectionContent constructor.
 	 * @param ?int $id ID Optional value representing this object's record in the database. Defaults to NULL.
 	 * @param ?int $content_type_id Optional ID of this object's content type. Defaults to NULL.
+	 * @throws ConfigurationUndefinedException
 	 */
 	function __construct($id = null, $content_type_id = null)
 	{
-		parent::__construct($id, $content_type_id);
+		parent::__construct($id, $content_type_id ?: static::getContentTypeId());
 
         $this->content_properties->id->key = static::$keyword_key.$this->content_properties->id->key;
 

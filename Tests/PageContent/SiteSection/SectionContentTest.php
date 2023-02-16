@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\PageContent\SiteSection;
 
+use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -10,6 +11,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentWithoutTypeTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
@@ -38,9 +40,23 @@ class SectionContentTest extends TestCase
 	public function testConstructorDefaultValues()
 	{
 		$this->assertNull($this->obj->id->value);
-		$this->assertNull($this->obj->content_properties->id->value);
+		$this->assertNotNull($this->obj->content_properties->id->value);
 	}
 
+	public function testConstructorWithUndefinedContentType()
+	{
+		try {
+			new SectionContentWithoutTypeTestHarness();
+			$this->assertEquals(false, true, 'Expected ConfigurationUndefined exception not thrown.');
+		}
+		catch(Exception $e) {
+			$this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
+		}
+	}
+
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	public function testConstructorWithIDs()
 	{
 		$obj = new SectionContentTestHarness(45, 88);
@@ -65,7 +81,7 @@ class SectionContentTest extends TestCase
 
 		$this->assertEquals(82, $this->obj->id->value);
 		/* Site Section data should not be collected & should remain with default values */
-		$this->assertNull($this->obj->content_properties->id->value);
+		$this->assertNotNull($this->obj->content_properties->id->value);
 		$this->assertEquals('', $this->obj->content_properties->name->value);
 		$this->assertNull($this->obj->content_properties->width->value);
 		$this->assertFalse($this->obj->content_properties->save_mini->value);
