@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent\Cache;
 
-use Littled\API\AjaxPage;
+use Littled\API\APIPage;
 use Littled\API\JSONRecordResponse;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -45,11 +45,11 @@ abstract class ContentCache extends MySQLConnection
     /**
      * Returns the path to the template used to render the markup returned to the client and sets
      * any necessary state property values within the $page object.
-     * @param AjaxPage $page Page content object used to return markup to client.
+     * @param APIPage $page Page content object used to return markup to client.
      * @param string $operation Token representing operation being requested by the client.
      * @return string
      */
-    protected abstract static function loadJsonTemplatePath(AjaxPage $page, string $operation ): string;
+    protected abstract static function loadJsonTemplatePath(APIPage $page, string $operation ): string;
 
     /**
      * Tailored for image updates, refreshes page content after performing an (ajax) update to an individual record.

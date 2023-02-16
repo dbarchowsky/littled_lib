@@ -2,7 +2,7 @@
 namespace Littled\Tests\API;
 
 use Exception;
-use Littled\API\AjaxPage;
+use Littled\API\APIPage;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -15,8 +15,8 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\DataProvider\API\AjaxPageLoadTemplateContentTestData;
-use Littled\Tests\TestHarness\API\AjaxPageTestHarness;
+use Littled\Tests\DataProvider\API\APIPageLoadTemplateContentTestData;
+use Littled\Tests\TestHarness\API\APIPageTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
@@ -27,7 +27,7 @@ use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 
 
-class AjaxPageTest extends TestCase
+class APIPageTest extends TestCase
 {
     /** @var int */
 	public const        TEST_CONTENT_TYPE_ID = 6037; /* "Test Section" in `site_section` table from littledamien database */
@@ -37,7 +37,7 @@ class AjaxPageTest extends TestCase
     public const        TEST_RECORD_ID = 2023;
 	/** @var string */
 	public const        TEST_RECORD_NAME = 'fixed test record';
-    protected const     AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/API/AjaxPage_collectPageAction.dat";
+    protected const     AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/API/APIPage_collectPageAction.dat";
     public const        LISTINGS_OPERATION_TOKEN = 'listings';
 
     /**
@@ -49,13 +49,13 @@ class AjaxPageTest extends TestCase
         parent::setUpBeforeClass();
         LittledGlobals::setLocalTemplatesPath(TEST_TEMPLATES_PATH);
 	    LittledGlobals::setSharedTemplatesPath(TEST_TEMPLATES_PATH);
-        AjaxPage::setControllerClass(ContentControllerTestHarness::class);
-        AjaxPage::setCacheClass(ContentCacheTestHarness::class);
+        APIPage::setControllerClass(ContentControllerTestHarness::class);
+        APIPage::setCacheClass(ContentCacheTestHarness::class);
     }
 
     function testConstructor()
     {
-        $ap = new AjaxPage();
+        $ap = new APIPage();
         $this->assertEquals('', $ap->operation->value);
     }
 
@@ -70,7 +70,7 @@ class AjaxPageTest extends TestCase
      */
     function testCollectAndLoadJsonContent()
     {
-        $ap = new AjaxPage();
+        $ap = new APIPage();
 
         // retrieve content properties
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
@@ -87,7 +87,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::collectContentPropertiesTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param array $post_data
      * @param string $ajax_stream
@@ -111,7 +111,7 @@ class AjaxPageTest extends TestCase
             Validation::setAjaxInputStream($ajax_stream);
         }
 
-        $ap = new AjaxPage();
+        $ap = new APIPage();
         if (count($expected)==0) {
             $this->expectException(ContentValidationException::class);
         }
@@ -133,7 +133,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::collectFiltersRequestDataTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::collectFiltersRequestDataTestProvider()
      * @param array $expected
      * @param array $get_data
      * @param array $post_data
@@ -153,12 +153,12 @@ class AjaxPageTest extends TestCase
         $_GET = $get_data;
         $_POST = $post_data;
 
-        $ap = new AjaxPageTestHarness();
+        $ap = new APIPageTestHarness();
         $ap->filters = new TestTableContentFiltersTestHarness();
         $ajax_data = null;
         if ($ajax_stream) {
             Validation::setAjaxInputStream($ajax_stream);
-            $ajax_data = AjaxPageTestHarness::publicGetAjaxClientRequestData();
+            $ajax_data = APIPageTestHarness::publicGetAjaxClientRequestData();
         }
 
         $ap->collectFiltersRequestData($ajax_data);
@@ -183,7 +183,7 @@ class AjaxPageTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::collectPageActionTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::collectPageActionTestProvider()
      * @param string $expected
      * @param string $source
      * @param string $key
@@ -194,14 +194,14 @@ class AjaxPageTest extends TestCase
      */
     function testCollectPageAction(string $expected, string $source, string $key='', $value=null, ?array $data=null, string $msg='')
     {
-        $o = new AjaxPage();
+        $o = new APIPage();
 
         switch($source) {
             case 'post':
                 $_POST[$key] = $value;
                 break;
             case 'ajax':
-                AjaxPage::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+                APIPage::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
                 break;
             default:
                 break;
@@ -215,7 +215,7 @@ class AjaxPageTest extends TestCase
                 unset($_POST[$key]);
                 break;
             case 'ajax':
-                AjaxPage::setAjaxInputStream('php://input');
+                APIPage::setAjaxInputStream('php://input');
                 break;
             default:
                 break;
@@ -227,7 +227,7 @@ class AjaxPageTest extends TestCase
 	 */
 	function testFetchContentTemplate()
 	{
-		$o = new AjaxPageTestHarness();
+		$o = new APIPageTestHarness();
 		$o->setContentTypeId(TestTable::CONTENT_TYPE_ID);
 		$o->fetchContentTemplate('listings');
 		$this->assertEquals('listings.php', $o->template->path->value);
@@ -237,10 +237,10 @@ class AjaxPageTest extends TestCase
     {
         $expected = array("key1"=>"value1","keyTwo"=>"value two","jsonKey"=>"json value");
         Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data.dat'));
-        $this->assertEquals($expected, AjaxPageTestHarness::publicGetAjaxClientRequestData());
+        $this->assertEquals($expected, APIPageTestHarness::publicGetAjaxClientRequestData());
 
         Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data-empty.dat'));
-        $this->assertEquals(null, AjaxPageTestHarness::publicGetAjaxClientRequestData());
+        $this->assertEquals(null, APIPageTestHarness::publicGetAjaxClientRequestData());
 
         // restore state
         Validation::setAjaxInputStream('php://input');
@@ -255,7 +255,7 @@ class AjaxPageTest extends TestCase
 	 */
 	function testGetContentLabel()
 	{
-		$ap = new AjaxPage();
+		$ap = new APIPage();
 		$this->assertEquals('', $ap->getContentLabel());
 
 		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
@@ -270,13 +270,13 @@ class AjaxPageTest extends TestCase
      */
     function testGetContentObject()
     {
-        $content = call_user_func_array([AjaxPage::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
+        $content = call_user_func_array([APIPage::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
         $this->assertInstanceOf(SerializedContent::class, $content);
     }
 
     function testGetContentTypeId()
     {
-        $ap = new AjaxPage();
+        $ap = new APIPage();
         $this->assertNull($ap->getContentTypeId());
 
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
@@ -285,7 +285,7 @@ class AjaxPageTest extends TestCase
     }
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::loadTemplateContentTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::loadTemplateContentTestProvider()
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
@@ -294,9 +294,9 @@ class AjaxPageTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ResourceNotFoundException
 	 */
-	function testLoadTemplateContent(AjaxPageLoadTemplateContentTestData $data)
+	function testLoadTemplateContent(APIPageLoadTemplateContentTestData $data)
 	{
-		$ap = new AjaxPage();
+		$ap = new APIPage();
 		$ap->setContentTypeId($data->content_type_id);
 		$ap->operation->setInputValue($data->operation);
 		$ap->retrieveContentProperties();
@@ -317,7 +317,7 @@ class AjaxPageTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::lookupRouteTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::lookupRouteTestProvider()
      * @throws ContentValidationException
      * @throws RecordNotFoundException
      * @throws ConnectionException
@@ -326,7 +326,7 @@ class AjaxPageTest extends TestCase
      */
     function testLookupRoute(string $operation, string $expected_route)
 	{
-		$ap = new AjaxPage();
+		$ap = new APIPage();
 		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
 		$ap->content_properties->read();
 		$this->assertGreaterThan(0, count($ap->content_properties->routes));
@@ -346,7 +346,7 @@ class AjaxPageTest extends TestCase
 	 */
 	function testLookupTemplate()
     {
-        $ap = new AjaxPage();
+        $ap = new APIPage();
         $ap->setContentTypeId(self::TEST_TEMPLATE_CONTENT_TYPE_ID);
         $ap->content_properties->read();
         $this->assertGreaterThan(0, count($ap->content_properties->templates));
@@ -367,7 +367,7 @@ class AjaxPageTest extends TestCase
      */
     function testNewPageContentTemplateInstance()
     {
-        $ap = new AjaxPageTestHarness();
+        $ap = new APIPageTestHarness();
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
         $ap->operation->value = self::LISTINGS_OPERATION_TOKEN;
         $c = $ap->publicNewRoutedPageContentTemplateInstance();
@@ -383,7 +383,7 @@ class AjaxPageTest extends TestCase
 	 */
 	function testRetrieveContentObjectAndData()
 	{
-		$ap = new AjaxPage();
+		$ap = new APIPage();
 		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
 		$ap->retrieveContentProperties();
 		$ap->record_id->setInputValue(self::TEST_RECORD_ID);
@@ -395,7 +395,7 @@ class AjaxPageTest extends TestCase
 
 	/**
 	 * @runInSeparateProcess
-	 * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::sendTextResponseTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::sendTextResponseTestProvider()
 	 * @param string $expected
 	 * @param string $response
 	 * @param string $override_response
@@ -403,7 +403,7 @@ class AjaxPageTest extends TestCase
 	 */
 	function testSendTextResponse(string $expected, string $response, string $override_response='')
 	{
-		$ap = new AjaxPage();
+		$ap = new APIPage();
 		$ap->json->content->value = $response;
 		ob_start();
 		$ap->sendTextResponse($override_response);
@@ -416,7 +416,7 @@ class AjaxPageTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::setCacheClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::setCacheClassTestProvider()
      * @param string $cache_class
      * @param string $exception_class
      * @param string $msg
@@ -428,7 +428,7 @@ class AjaxPageTest extends TestCase
     {
         if ($exception_class) {
             try {
-                AjaxPage::setCacheClass($cache_class);
+                APIPage::setCacheClass($cache_class);
                 $this->assertEquals(false, true, "Expected exception \"$exception_class\" not thrown.");
             }
             catch(Exception $e) {
@@ -436,13 +436,13 @@ class AjaxPageTest extends TestCase
             }
         }
         else {
-            AjaxPage::setCacheClass($cache_class);
-            $this->assertEquals($cache_class, AjaxPage::getCacheClass(), $msg);
+            APIPage::setCacheClass($cache_class);
+            $this->assertEquals($cache_class, APIPage::getCacheClass(), $msg);
         }
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\AjaxPageTestDataProvider::setControllerClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::setControllerClassTestProvider()
      * @param string $expected
      * @param string $class_name
      * @return void
@@ -454,20 +454,20 @@ class AjaxPageTest extends TestCase
         if ($expected) {
             $this->expectException($expected);
         }
-        AjaxPage::setControllerClass($class_name);
+        APIPage::setControllerClass($class_name);
         if (!$expected) {
-            $this->assertEquals($class_name, AjaxPage::getControllerClass());
+            $this->assertEquals($class_name, APIPage::getControllerClass());
         }
     }
 
     function testSetDefaultTemplateName()
     {
-        $this->assertEquals('', AjaxPage::getDefaultTemplateName());
+        $this->assertEquals('', APIPage::getDefaultTemplateName());
 
-        AjaxPage::setDefaultTemplateName('listings');
-        $this->assertEquals('listings', AjaxPage::getDefaultTemplateName());
+        APIPage::setDefaultTemplateName('listings');
+        $this->assertEquals('listings', APIPage::getDefaultTemplateName());
 
         // return to its original state
-        AjaxPage::setDefaultTemplateName('');
+        APIPage::setDefaultTemplateName('');
     }
 }

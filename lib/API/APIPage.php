@@ -31,7 +31,7 @@ use Littled\Validation\Validation;
  * Extends PageContent to add a JSONRecordResponse property used to convert the page content from the content normally sent as an HTML response to content sent as JSON.
  * @todo rename APIRoute
  */
-class AjaxPage extends PageContentBase
+class APIPage extends PageContentBase
 {
     /** @var string */
     public const TEMPLATE_TOKEN_KEY = 'templateToken';
@@ -145,7 +145,7 @@ class AjaxPage extends PageContentBase
     public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY)
     {
         // use ajax request data by default
-        $ajax_rd = AjaxPage::getAjaxClientRequestData();
+        $ajax_rd = APIPage::getAjaxClientRequestData();
 
 		if (!$this->content_properties->id->value) {
 			$this->content_properties->id->value = Validation::collectIntegerRequestVar($key, null, $ajax_rd);
@@ -179,9 +179,9 @@ class AjaxPage extends PageContentBase
     /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
 	 * @param ?array $src Optional array of variables to use instead of POST data.
-	 * @return AjaxPage
+	 * @return APIPage
 	 */
-	public function collectPageAction( ?array $src=null ): AjaxPage
+	public function collectPageAction( ?array $src=null ): APIPage
 	{
 		if ($src===null) {
 			/* use only POST, not GET */
@@ -433,7 +433,7 @@ class AjaxPage extends PageContentBase
     }
 
     /**
-     * Returns new ContentProperties instance. Can be used in derived classes to provide customized ContentProperties objects to the AjaxPage class's methods.
+     * Returns new ContentProperties instance. Can be used in derived classes to provide customized ContentProperties objects to the APIPage class's methods.
      * @param int|null $record_id Initial content type record id value.
      * @return ContentProperties
      */
@@ -463,7 +463,7 @@ class AjaxPage extends PageContentBase
 	}
 
     /**
-     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the AjaxPage class's methods.
+     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIPage class's methods.
      * @param int|null $record_id
      * @param int|null $content_type_id
      * @param string $operation
