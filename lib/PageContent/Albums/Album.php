@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Albums;
 
-
 use Exception;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -26,24 +25,17 @@ use Littled\PageContent\Images\ImageLink;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 
 /**
- * Class Album
- * @package Littled\PageContent\Albums
+ * SectionContent that is an album of images. Inherits from KeywordSectionContent to support keywords.
  */
 class Album extends KeywordSectionContent
 {
-	/** @var int|null */
-	public static $pages_content_type_id=null;
-
-	/** @var string */
-	public static $albumMetadataTemplate = '';
-	/** @var string */
-	public static $galleryListingsTemplate = '';
-	/** @var string */
-	public static $thumbnailLinkContainerTemplate = '';
-	/** @var string */
-	public static $thumbnailOverlayButtonsTemplate = '';
-	/** @var string */
-	public static $thumbnailUploadTemplate = '';
+    protected static string $table_name = 'album';
+	public static ?int $pages_content_type_id=null;
+	public static string $albumMetadataTemplate = '';
+	public static string $galleryListingsTemplate = '';
+	public static string $thumbnailLinkContainerTemplate = '';
+	public static string $thumbnailOverlayButtonsTemplate = '';
+	public static string $thumbnailUploadTemplate = '';
 
 	/** @var string Id http variable name. */
 	const ID_PARAM = "abid";
@@ -51,37 +43,37 @@ class Album extends KeywordSectionContent
 	const TITLE_PARAM = "abti";
 	/** @var string Description http variable name. */
 	const DESCR_PARAM = "abds";
-	/** @var string Name of table in the database. */
-	const TABLE_NAME = "album";
 
 	/** @var Gallery Album gallery containing images, pages, clips, views, etc. */
-	public $gallery;
+	public Gallery              $gallery;
 	/** @var StringTextField Name/title of the record. */
-	public $title;
+	public StringTextField      $title;
 	/** @var StringTextField Record slug. */
-	public $slug;
+	public StringTextField      $slug;
 	/** @var StringTextarea Album description. */
-	public $description;
+	public StringTextarea       $description;
 	/** @var IntegerInput Token representing the content type of the record. */
-	public $section_id;
+	public IntegerInput         $section_id;
 	/** @var StringTextField Plain english display date for the album. */
-	public $date;
+	public StringTextField      $date;
 	/** @var DateInput Creation date of the album record. */
-	public $create_date;
+	public DateInput            $create_date;
 	/** @var DateInput Last modification date of the album record. */
-	public $mod_date;
+	public DateInput            $mod_date;
 	/** @var IntegerTextField Position of this album record relative to all the others of the same content type. */
-	public $slot;
-	/** @var IntegerTextField Token representing the access-level required to view this album record (disabled, public, private, etc.) */
-	public $access;
+	public IntegerTextField     $slot;
+	/** @var StringSelect Token representing the access-level required to view this album record (disabled, public, private, etc.) */
+	public StringSelect     $access;
 	/** @var DateTextField Date determining when the album record can be viewed publicly.  */
-	public $release_date;
+	public DateTextField        $release_date;
 	/** @var StringSelect Token determining the layout to use to display the album. */
-	public $layout;
-	/** @var boolean $view_thumbnails Flag to control the display of thumbnail images. */
-	public $view_thumbnails;
-	/** @var boolean $check_access Flag to override the $access property value. */
-	public $check_access;
+	public StringSelect         $layout;
+    /** @var ImageFormat[] List of image formats associated with this album. */
+    public array                $image_formats=[];
+	/** @var bool Flag to control the display of thumbnail images. */
+	public bool                 $view_thumbnails;
+	/** @var bool Flag to override the $access property value. */
+	public bool                 $check_access;
 
 	/**
 	 * class constructor
