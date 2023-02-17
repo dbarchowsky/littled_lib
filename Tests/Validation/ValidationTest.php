@@ -246,7 +246,16 @@ class ValidationTest extends TestCase
 		}
 	}
 
-    function testParseInput_PostData()
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::isSubclassTestProvider()
+	 * @return void
+	 */
+	function testIsSubclass($a, string $b, bool $expected)
+	{
+		$this->assertEquals($expected, Validation::isSubclass($a, $b));
+	}
+
+	function testParseInput_PostData()
     {
         $_POST['key1'] = 'value1';
         $_POST['key2'] = 'value two';

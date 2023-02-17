@@ -447,6 +447,20 @@ class Validation
 	}
 
 	/**
+	 * Tests if $b is a subclass of $a. Both parameters can the qualified names of the classes as strings.
+	 * @param $a
+	 * @param string $b
+	 * @return bool
+	 */
+	public static function isSubclass($a, string $b): bool
+	{
+		return (
+			(is_object($a) && get_class($a)==$b) ||
+			($a==$b) ||
+			(is_subclass_of($a, $b)));
+	}
+
+	/**
 	 * Tests value and returns TRUE if it evaluates to some string that equates with a "true" flag.
 	 * Returns FALSE only if the value evaluates to some string that equates with a "false" flag.
 	 * Returns NULL if the value doesn't make sense in a TRUE/FALSE context.

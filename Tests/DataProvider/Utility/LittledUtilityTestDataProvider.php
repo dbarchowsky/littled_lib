@@ -1,32 +1,9 @@
 <?php
-
 namespace Littled\Tests\DataProvider\Utility;
 
 
-use Littled\API\APIPage;
-use Littled\App\AppBase;
-use Littled\Filters\ContentFilters;
-use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\Filters\APIPageChild;
-use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-
 class LittledUtilityTestDataProvider
 {
-	public static function isSubclassTestProvider(): array
-	{
-		return array(
-			array(PageContent::class, AppBase::class, true),
-			array(PageContent::class, PageContent::class, true),
-			array(AppBase::class, PageContent::class, false),
-			array(TestTableContentFiltersTestHarness::class, PageContent::class, false),
-			array(PageContent::class, TestTableContentFiltersTestHarness::class, false),
-			array(new APIPageChild(), ContentFiltersChild::class, false),
-			array(new APIPageChild(), APIPage::class, true),
-			array(new APIPageChild(), APIPageChild::class, true),
-		);
-	}
-
 	public static function joinPathPartsTestProvider(): array
 	{
 		return array(

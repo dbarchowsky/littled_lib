@@ -4,20 +4,6 @@ namespace Littled\Utility;
 class LittledUtility
 {
 	/**
-	 * Tests if $b is a subclass of $a. Both parameters can the qualified names of the classes as strings.
-	 * @param $a
-	 * @param string $b
-	 * @return bool
-	 */
-	public static function isSubclass($a, string $b): bool
-	{
-		return (
-			(is_object($a) && get_class($a)==$b) ||
-			($a==$b) ||
-			(is_subclass_of($a, $b)));
-	}
-
-	/**
      * @deprecated Use LittledUtility::joinPaths() instead.
 	 * Joins parts of a filesystem path into a single path.
 	 * @param string[] $parts
