@@ -52,11 +52,11 @@ class JSONFieldTest extends TestCase
         $this->assertCount(2, $result['object_test']);
 
         $this->assertIsObject($result['object_test'][0]);
-        $this->assertObjectHasAttribute('field_1', $result['object_test'][0]);
+		$this->assertTrue(property_exists($result['object_test'][0], 'field_1'));
         $this->assertEquals('edit one', $result['object_test'][0]->field_1);
 
         $this->assertIsObject($result['object_test'][1]);
-        $this->assertObjectHasAttribute('field_1', $result['object_test'][1]);
+        $this->assertTrue(property_exists($result['object_test'][1], 'field_1'));
         $this->assertEquals('test value one', $result['object_test'][1]->field_1);
         $this->assertEquals('edit two', $result['object_test'][1]->field_2);
     }

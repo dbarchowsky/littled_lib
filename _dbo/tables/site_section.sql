@@ -30,3 +30,16 @@ CREATE OR REPLACE TABLE site_section
 
 ALTER TABLE site_section ADD content_class varchar(255) NULL AFTER `table`;
 ALTER TABLE site_section ADD filters_class varchar(255) NULL AFTER `content_class`;
+
+ALTER TABLE site_section DROP COLUMN image_label;
+ALTER TABLE site_section DROP COLUMN image_path;
+ALTER TABLE site_section DROP COLUMN sub_dir;
+ALTER TABLE site_section DROP COLUMN width;
+ALTER TABLE site_section DROP COLUMN height;
+ALTER TABLE site_section DROP COLUMN med_width;
+ALTER TABLE site_section DROP COLUMN med_height;
+ALTER TABLE site_section DROP COLUMN save_mini;
+ALTER TABLE site_section DROP COLUMN mini_width;
+ALTER TABLE site_section DROP COLUMN mini_height;
+ALTER TABLE site_section DROP COLUMN `format`;
+ALTER TABLE site_section DROP COLUMN param_prefix;

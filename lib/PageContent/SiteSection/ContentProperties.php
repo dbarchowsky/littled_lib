@@ -1,128 +1,60 @@
 <?php
-
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
-use Littled\Request\IntegerTextField;
 use Littled\Request\IntegerSelect;
-use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Exception;
+
 
 /**
  * Properties of different content types, e.g. content type id, table name, routes, and templates.
  */
 class ContentProperties extends SerializedContent
 {
-	/** @var string Variable name that holds the site section id value. */
-	const ID_KEY = 'ssid';
-	/** @var int Record id value representing site section data in the database. */
-	const SECTION_ID = 27;
-	/** @var string Name of the table holding site section data. */
-	const DEFAULT_TABLE_NAME = 'site_section';
-	/** @var int */
-	protected static int $content_type_id = self::SECTION_ID;
-	/** @var string */
-	protected static string $table_name = 'site_section';
+	const                       ID_KEY = 'ssid';
+	protected static int        $content_type_id = 27;
+	protected static string     $table_name = 'site_section';
 
 	/** @var StringTextField Name of the content. */
-	public StringTextField $name;
+	public StringTextField      $name;
     /**
      * @var StringTextField Name of the content.
      * @todo Audit the use of this property.
      */
-    public StringTextField $slug;
+    public StringTextField      $slug;
 	/**
 	 * @var StringTextField Root directory for section content.
 	 * @todo Audit the use of this property now that routes are the principle method for responding to client requests.
 	 */
-	public StringTextField $root_dir;
-	/** @var StringTextField Target path for image uploads. */
-	public StringTextField $image_path;
-	/**
-	 * @var StringTextField Subdirectory for section content.
-	 * @todo Audit the use of this property along with $root_dir.
-	 */
-	public StringTextField $sub_dir;
-	/** @var StringTextField Label used when displaying images as a group on the front-end. */
-	public StringTextField $image_label;
-    /**
-     * @todo consider replacing hard-coded image dimension fields with a new table linked to this one
-     * with separate records for each image spec.
-     */
-	/**
-	 * @var IntegerTextField Target width of full-resolution images.
-	 * @todo Replace with generic $image_list property
-	 */
-	public IntegerTextField $width;
-	/**
-	 * @var IntegerTextField Target height of full-resolution images.
-	 * @todo Replace with generic $image_list property
-	 */
-	public IntegerTextField $height;
-	/**
-	 * @var IntegerTextField Target width of medium-sized thumbnail images.
-	 * @todo Replace with generic $image_list property
-	 */
-	public IntegerTextField $med_width;
-	/**
-	 * @var IntegerTextField Target height of medium-sized thumbnail images.
-	 * @todo Replace with generic $image_list property
-	 */
-	public IntegerTextField $med_height;
-	/**
-	 * @var BooleanCheckbox Flag indicating that miniature thumbnail versions of images are to be generated when uploading and editing images.
-	 * @todo Replace with generic $image_list property
-	 */
-	public BooleanCheckbox $save_mini;
-	/**
-	 * @var IntegerTextField Target width of the smallest image set.
-	 * @todo Replace with generic $image_list property
-	 */
-	public IntegerTextField $mini_width;
-	/**
-	 * @var IntegerTextField Target height of the smallest image set.
-	 * @todo Replace with generic $image_list property
-	 */
-	public IntegerTextField $mini_height;
-	/**
-	 * @var StringSelect Image format, e.g. jpeg, png, etc.
-	 * @todo Replace with generic $image_list property
-	 */
-	public StringSelect $format;
-	/**
-	 * @var StringTextField Parameter prefix to use for this content type.
-	 * @todo Replace with generic $image_list property
-	 */
-	public StringTextField $param_prefix;
+	public StringTextField      $root_dir;
 	/**
 	 * @var StringTextField Content able name.
 	 * @todo Audit this field to determine if it should be deprecated. Consider using SerializedContent::$table_name in its place.
 	 */
-	public StringTextField $table;
+	public StringTextField      $table;
 	/** @var IntegerSelect Numeric identifier of the content type that is a parent to the principal content type */
-	public IntegerSelect $parent_id;
+	public IntegerSelect        $parent_id;
 	/** @var BooleanCheckbox Flag indicating that this section's content gets cached. */
-	public BooleanCheckbox $is_cached;
+	public BooleanCheckbox      $is_cached;
 	/** @var BooleanCheckbox Flag indicating to use gallery thumbnails. */
-	public BooleanCheckbox $gallery_thumbnail;
+	public BooleanCheckbox      $gallery_thumbnail;
 	/** @var string Name of the argument used to pass the record id to and from pages and scripts. Stored in the section_operations table. */
-	public string $id_key = '';
+	public string               $id_key = '';
 	/** @var string Parent content type name. */
-	public string $parent = '';
+	public string               $parent = '';
 	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
-	public string $label='';
+	public string               $label='';
 	/** @var ContentTemplate[] List of templates used to render pages displaying record data */
-	public array $templates=[];
+	public array                $templates=[];
 	/** @var ContentRoute[] List of routes to pages displaying record data */
-	public array $routes=[];
+	public array                $routes=[];
 
 	/**
 	 * SiteSection constructor.
@@ -135,18 +67,6 @@ class ContentProperties extends SerializedContent
 		$this->name = new StringTextField("Name", "ssna", true, '', 50);
         $this->slug = new StringTextField("Slug", "ssSlug", false, '', 50);
 		$this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
-		$this->image_path = new StringTextField("Image directory", "ssdr", false, "", 255);
-		$this->sub_dir = new StringTextField("Thumbnail subdirectory", "ssts", false, "", 100);
-		$this->image_label = new StringTextField("Image label", "ssil", false, "", 100);
-		$this->width = new IntegerTextField("Image width", "ssiw", false, null);
-		$this->height = new IntegerTextField("Image height", "ssih", false, null);
-		$this->med_width = new IntegerTextField("Medium target width", "sstw", false, null);
-		$this->med_height = new IntegerTextField("Medium target height", "ssth", false, null);
-		$this->save_mini = new BooleanCheckbox("Save mini image", "ssmn", false, false);
-		$this->mini_width = new IntegerTextField("Mini target width", "ssmw", false, null);
-		$this->mini_height = new IntegerTextField("Mini target height", "ssmh", false, null);
-		$this->format = new StringSelect("Thumbnail image format", "sstf", false, "");
-		$this->param_prefix = new StringTextField("Image parameter prefix", "sspp", false, "", 20);
 		$this->table = new StringTextField("Table name", "sstb", false, "", 50);
 		$this->parent_id = new IntegerSelect("Parent", "sspi", false, null);
 		$this->is_cached = new BooleanCheckbox("Cache content", "sscc", false, false);
@@ -179,23 +99,11 @@ class ContentProperties extends SerializedContent
 
     public function generateUpdateQuery(): ?array
     {
-        return array('CALL contentPropertiesUpdate(@record_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-            'ssssssiiiiiiisssiii',
+        return array('CALL siteSectionUpdate(@record_id,?,?,?,?,?,?,?)',
+            'ssssiii',
             &$this->name->value,
             &$this->slug->value,
             &$this->root_dir->value,
-            &$this->image_path->value,
-            &$this->sub_dir->value,
-            &$this->image_label->value,
-            &$this->width->value,
-            &$this->height->value,
-            &$this->med_width->value,
-            &$this->med_height->value,
-            &$this->save_mini->value,
-            &$this->mini_width->value,
-            &$this->mini_height->value,
-            &$this->format->value,
-            &$this->param_prefix->value,
             &$this->table->value,
             &$this->parent_id->value,
             &$this->is_cached->value,
@@ -334,37 +242,32 @@ class ContentProperties extends SerializedContent
 	}
 
 	/**
-	 * Retrieves site section data from the database using the value of the object's id property.
-	 * Assign values to the object's properties using data the site section table in the database.
-	 * @throws RecordNotFoundException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-     * @throws Exception
+	 * @inheritDoc
+	 * Overrides parent routine to call procedure to retrieve item properties along with extended item properties.
+	 * @throws Exception
 	 */
 	public function read(): void
 	{
-		parent::read();
-
-        // ensure all fields are in the expected format
-        if (null === $this->save_mini->value) {
-            $this->save_mini->value = false;
-        }
-
-        // retrieve extra properties from database
-		$query = "CALL siteSectionExtraPropertiesSelect(?)";
-		$data = $this->fetchRecords($query, 'i', $this->id->value);
-		$this->resetExtraProperties();
-		if (count($data) > 0) {
-			if ($data[0]->id_param !== null) {
-				$this->id_key = $data[0]->id_param;
-			}
-			if ($data[0]->parent !== null) {
-				$this->parent = $data[0]->parent;
-			}
-			$this->label = $data[0]->label;
+		if ($this->id->value===null || $this->id->value < 1) {
+			throw new ContentValidationException("Record id not provided.");
 		}
+
+		$query = 'CALL siteSectionSelect(?)';
+		$data = $this->fetchRecords($query, 'i', $this->id->value);
+		if (count($data) < 1) {
+			throw new RecordNotFoundException("Requested record not found.");
+		}
+		$this->hydrateFromRecordsetRow($data[0]);
+
+		// extended properties
+		if ($data[0]->id_key !== null) {
+			$this->id_key = $data[0]->id_key;
+		}
+		if ($data[0]->parent !== null) {
+			$this->parent = $data[0]->parent;
+		}
+		$this->label = $data[0]->label;
+
 		$this->readRoutes();
 		$this->readTemplates();
 	}

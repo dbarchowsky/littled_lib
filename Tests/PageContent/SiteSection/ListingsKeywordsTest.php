@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\PageContent\SiteSection;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use PHPUnit\Framework\TestCase;
 use Littled\App\LittledGlobals;
 use Littled\PageContent\SiteSection\ListingsKeywords;
@@ -8,7 +9,10 @@ use Littled\PageContent\SiteSection\ListingsKeywords;
 
 class ListingsKeywordsTest extends TestCase
 {
-    function testConstructor()
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
+	function testConstructor()
     {
         $test_record_id = 43;
         $o = new ListingsKeywords($test_record_id, 3);

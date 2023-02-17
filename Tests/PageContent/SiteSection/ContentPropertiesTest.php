@@ -53,69 +53,44 @@ class ContentPropertiesTest extends TestCase
     {
         $conn = new MySQLConnection();
         $mysqli = $conn->getMysqli();
-        $query = "INSERT INTO `site_section` (".
-            "`id`".
-            ",`name`".
-            ",`slug`".
-            ",`root_dir`".
-            ",`image_path`".
-            ",`sub_dir`".
-            ",`image_label`".
-            ",`width`".
-            ",`height`".
-            ",`med_width`".
-            ",`med_height`".
-            ",`save_mini`".
-            ",`mini_width`".
-            ",`mini_height`".
-            ",`format`".
-            ",`param_prefix`".
-            ",`table`".
-            ",`parent_id`".
-            ",`is_cached`".
-            ",`gallery_thumbnail`".
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        $query = "CALL siteSectionUpdate(?,?,?,?,?,?,?,?)";
+	    $stmt = $mysqli->prepare($query);
+	    $stmt->bind_param('issssiii',
+		    $id,
+		    $name,
+		    $slug,
+		    $root_dir,
+		    $table,
+		    $parent_id,
+		    $is_cached,
+		    $gallery_thumbnail);
 
         $id = ContentPropertiesTest::TEST_ID_FOR_DELETE;
         $name = ContentPropertiesTest::UNIT_TEST_IDENTIFIER;
         $slug = 'unit_test_slug';
         $root_dir = 'path/to/section';
-        $image_path = '';
-        $sub_dir = '';
-        $image_label = ContentPropertiesTest::TEST_IMAGE_LABEL;
-        $width = 2048;
-        $height = 1880;
-        $med_width = null;
-        $med_height = null;
-        $save_mini = false;
-        $mini_width = null;
-        $mini_height = null;
-        $format = 'png';
-        $param_prefix = '';
         $table = 'unit_test';
         $parent_id = null;
         $is_cached = false;
         $gallery_thumbnail = false;
 
-        $stmt = $mysqli->prepare($query);
-        $stmt->bind_param('issssssiiiiiiisssiii',
-            $id, $name, $slug, $root_dir, $image_path, $sub_dir, $image_label, $width, $height,
-            $med_width, $med_height, $save_mini, $mini_width, $mini_height, $format, $param_prefix, $table,
-            $parent_id, $is_cached, $gallery_thumbnail);
         if(!$stmt->execute()) {
             throw new Exception('Error executing query: '.$mysqli->error);
         }
 
+	    $stmt = $mysqli->prepare($query);
+	    $stmt->bind_param('issssiii',
+		    $id,
+		    $name,
+		    $slug,
+		    $root_dir,
+		    $table,
+		    $parent_id,
+		    $is_cached,
+		    $gallery_thumbnail);
+
         $id = ContentPropertiesTest::TEST_ID_FOR_READ;
         $name = ContentPropertiesTest::TEST_CONTENT_LABEL_READING;
-        $image_path = 'path/to/images/';
-        $sub_dir = 'sub/dir/';
-        $med_width = 1024;
-        $med_height = 980;
-        $save_mini = true;
-        $mini_width = 540;
-        $mini_height = 460;
-        $param_prefix = 'ut_';
         $parent_id = ContentPropertiesTest::TEST_ID_FOR_DELETE;
         if(!$stmt->execute()) {
             throw new Exception('Error executing query: '.$mysqli->error);
@@ -273,7 +248,7 @@ class ContentPropertiesTest extends TestCase
 		$query = "INSERT INTO section_operations (".
 			"`section_id`".
 			",`label`".
-			",`id_param`".
+			",`id_key`".
 			") VALUES (?,?,?)";
         $label = self::UNIT_TEST_IDENTIFIER.' content properties';
         $id_key = 'putid';
@@ -290,7 +265,7 @@ class ContentPropertiesTest extends TestCase
 		$query = "CALL siteSectionExtraPropertiesSelect(?)";
 		$data = $this->conn->fetchRecords($query, 'i', $site_section_id);
 		if (count($data) > 0) {
-			return (array($data[0]->id_param, $data[0]->parent, $data[0]->label));
+			return (array($data[0]->id_key, $data[0]->parent, $data[0]->label));
 		}
 		return array('', '', '');
 	}
@@ -355,11 +330,12 @@ class ContentPropertiesTest extends TestCase
     }
 
 	/**
-	 * @throws ContentValidationException
+	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-     * @throws RecordNotFoundException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testClearValues()
 	{
@@ -376,21 +352,19 @@ class ContentPropertiesTest extends TestCase
 	{
 		$this->assertEquals(ContentProperties::ID_KEY, $this->obj->id->key);
 		$this->assertEquals('', $this->obj->name->value);
-		$this->assertNull($this->obj->width->value);
-		$this->assertEquals('', $this->obj->format->value);
 		$this->assertNull($this->obj->parent_id->value);
 		$this->assertTrue(is_array($this->obj->templates));
 		$this->assertFalse($this->obj->is_cached->value);
-		$this->assertFalse($this->obj->save_mini->value);
 		$this->assertFalse($this->obj->gallery_thumbnail->value);
 	}
 
 	/**
-	 * @throws ContentValidationException
-	 * @throws RecordNotFoundException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
+	 * @return void
 	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	function testGetContentLabel()
 	{
@@ -407,25 +381,12 @@ class ContentPropertiesTest extends TestCase
 		$o->id->setInputValue(self::TEST_ID_FOR_READ);
 		$o->read();
 		$this->assertEquals(ContentPropertiesTest::TEST_CONTENT_LABEL_READING, $o->getContentLabel());
-		$this->assertEquals(ContentPropertiesTest::TEST_IMAGE_LABEL, $o->label);
 	}
 
 	public function testInitialize()
 	{
 		$this->obj->name->setInputValue(self::UNIT_TEST_IDENTIFIER);
 		$this->obj->root_dir->setInputValue("path/to/section/");
-		$this->obj->image_path->setInputValue("path/to/images/");
-		$this->obj->sub_dir->setInputValue("sub/dir/");
-		$this->obj->image_label->setInputValue("pic");
-		$this->obj->width->setInputValue(2048);
-		$this->obj->height->setInputValue(1600);
-		$this->obj->med_width->setInputValue(1024);
-		$this->obj->med_height->setInputValue(960);
-		$this->obj->save_mini->setInputValue(true);
-		$this->obj->mini_width->setInputValue(540);
-		$this->obj->mini_height->setInputValue(480);
-		$this->obj->format->setInputValue('png');
-		$this->obj->param_prefix->setInputValue('ut_');
 		$this->obj->table->setInputValue('unit_test');
 		$this->obj->parent_id->setInputValue(142);
 		$this->obj->is_cached->setInputValue(false);
@@ -434,20 +395,6 @@ class ContentPropertiesTest extends TestCase
 		$this->assertNull($this->obj->id->value);
 		$this->assertEquals(self::UNIT_TEST_IDENTIFIER, $this->obj->name->value);
 		$this->assertEquals('path/to/section/', $this->obj->root_dir->value);
-		$this->assertEquals('path/to/images/', $this->obj->image_path->value);
-		$this->assertEquals(255, $this->obj->image_path->size_limit);
-		$this->assertEquals('sub/dir/', $this->obj->sub_dir->value);
-		$this->assertEquals('pic', $this->obj->image_label->value);
-		$this->assertEquals(2048, $this->obj->width->value);
-		$this->assertEquals(1600, $this->obj->height->value);
-		$this->assertEquals(1024, $this->obj->med_width->value);
-		$this->assertEquals(960, $this->obj->med_height->value);
-		$this->assertTrue($this->obj->save_mini->value);
-		$this->assertEquals(540, $this->obj->mini_width->value);
-		$this->assertEquals(480, $this->obj->mini_height->value);
-		$this->assertEquals(480, $this->obj->mini_height->value);
-		$this->assertEquals('png', $this->obj->format->value);
-		$this->assertEquals('ut_', $this->obj->param_prefix->value);
 		$this->assertEquals('unit_test', $this->obj->table->value);
 		$this->assertEquals(142, $this->obj->parent_id->value);
 		$this->assertFalse($this->obj->is_cached->value);
@@ -487,7 +434,7 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
+	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	function testGetContentRouteByOperation()
@@ -507,13 +454,13 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws RecordNotFoundException
-     */
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 */
     function testGetContentTemplateByName()
     {
         $cp = new ContentProperties();
@@ -611,14 +558,14 @@ class ContentPropertiesTest extends TestCase
 		$this->assertEquals('thingies', $this->obj->pluralLabel(2));
 	}
 
-    /**
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws RecordNotFoundException
-     */
+	/**
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 */
     public function testRead()
     {
         $this->obj->id->value = 2;
@@ -689,11 +636,13 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
-	 * @throws ContentValidationException
+	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
+	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-     * @throws RecordNotFoundException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithoutTemplatesOrExtraProperties()
 	{
@@ -729,11 +678,13 @@ class ContentPropertiesTest extends TestCase
 	}
 
 	/**
-	 * @throws ContentValidationException
+	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
+	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-     * @throws RecordNotFoundException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithExtraProperties()
 	{

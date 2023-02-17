@@ -38,3 +38,5 @@ ALTER TABLE section_operations ADD keywords_template varchar(255) NULL AFTER `li
 
 ALTER TABLE section_operations DROP COLUMN IF EXISTS listings_template;
 ALTER TABLE section_operations DROP COLUMN IF EXISTS keywords_template;
+
+ALTER TABLE section_operations CHANGE COLUMN id_param id_key VARCHAR(20) NOT NULL DEFAULT '';

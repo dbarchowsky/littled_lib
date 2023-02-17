@@ -116,18 +116,15 @@ class Album extends KeywordSectionContent
 	}
 
 	/**
-	 * Tries to collect the album id from the following sources: default id
-	 * parameter (GET and POST), derived class's specific id parameter (GET and
-	 * POST), and any slug that may have been used to request the album.
-	 * Throws exception if album id cannot be found.
-	 * @param array[optional] Array of variables to use to fill object properties if not using POST data to fill object property values.
+	 * Tries to collect the album id from the following sources: default id parameter (GET and POST), derived class's
+	 * specific id parameter (GET and POST), and any slug that may have been used to request the album.
+	 * @param ?array $src Array of variables to use to fill object properties if not using POST data to fill object property values.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
 	 */
-	public function collectAlbumID( $src=null )
+	public function collectAlbumID( ?array $src=null )
 	{
 		/* generic id parameter */
 		$this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY);
@@ -156,16 +153,15 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Fill object properties from form input, including the gallery images.
-	 * @param array|null[optional] $src Array of variables to use to fill the object's property values instead of using POST data.
+	 * @param ?array $src Optional array of variables to use to fill the object's property values instead of using POST data.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
 	 */
-	public function collectRequestData ($src=null )
+	public function collectRequestData (?array $src=null )
 	{
 		$this->section_id->bypass_collect_request_data = true;
 		parent::collectRequestData($src);
@@ -176,11 +172,9 @@ class Album extends KeywordSectionContent
 	}
 
 	/**
-	 * Routine to collect input values when evaluating just the slug value
-	 * of the record. Intended for AJAX routines.
+	 * Routine to collect input values when evaluating just the slug value of the record. Intended for AJAX routines.
 	 * Update the $id, $section_id, $title and $slug properties of the object.
-	 * The $section_id property value is set from the object's internal constant
-	 * value and not from data passed to the script.
+	 * The $section_id property value is set from the object's internal constant value and not from data passed to the script.
 	 * @param array|null $src Array of variables to use to fill object property values in place of request variables.
 	 */
 	public function collectSlugInput( ?array $src=null )
@@ -249,7 +243,7 @@ class Album extends KeywordSectionContent
 	/**
 	 * Generate the slug value using the current $title property value, or
 	 * an explicit value passed to the routine with the $slug argument.
-	 * @param string[optional] $slug Explicit value to use as the basis for the
+	 * @param string $slug Optional explicit value to use as the basis for the
 	 * slug value.
 	 */
 	public function formatSlug( string $slug='' )
@@ -327,16 +321,15 @@ class Album extends KeywordSectionContent
 
 	/**
 	 * Retrieves the first page of the album's gallery
-	 * @param bool[optional] $read_keywords If set to true, keywords associated with the image will also be retrieved. defaults to false.
+	 * @param bool $read_keywords Optional flag. If set to true, keywords associated with the image will also be retrieved. defaults to false.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws Exception
 	 */
-	public function getDefaultPage( $read_keywords=false )
+	public function getDefaultPage( bool $read_keywords=false )
 	{
 		$this->testForAlbumID();
 		$query = "CALL albumFirstPageSelect({$this->id->value},{$this->content_properties->id->value})";
@@ -549,7 +542,6 @@ class Album extends KeywordSectionContent
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
 	 * @throws RecordNotFoundException
 	 * @throws Exception
 	 */
@@ -558,8 +550,6 @@ class Album extends KeywordSectionContent
 		$this->gallery->list = array();
 		$this->gallery->list[0] =
 			new ImageLink(
-				$this->gallery->content_properties->image_path->value,
-				$this->gallery->content_properties->param_prefix->value,
 				$this->gallery->content_properties->id->value,
 				$this->id,
 				$page_id);
@@ -628,7 +618,7 @@ class Album extends KeywordSectionContent
 		if (method_exists($this, "updateCacheFile") && $update_cache) {
 			/** TODO set the path to the cache file */
 			try {
-				$this->updateCacheFile('', '');
+				$this->updateCacheFile(null, '');
 				$status .= "The cache file was updated. \n";
 			}
 			catch(Exception $e) {

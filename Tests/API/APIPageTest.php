@@ -247,11 +247,11 @@ class APIPageTest extends TestCase
     }
 
     /**
-	 * @throws RecordNotFoundException
-	 * @throws ContentValidationException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
 	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	function testGetContentLabel()
 	{
@@ -318,12 +318,15 @@ class APIPageTest extends TestCase
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::lookupRouteTestProvider()
-     * @throws ContentValidationException
-     * @throws RecordNotFoundException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws ConfigurationUndefinedException
-     */
+	 * @param string $operation
+	 * @param string $expected_route
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 */
     function testLookupRoute(string $operation, string $expected_route)
 	{
 		$ap = new APIPage();
@@ -338,11 +341,12 @@ class APIPageTest extends TestCase
 	}
 
 	/**
-	 * @throws ContentValidationException
-	 * @throws RecordNotFoundException
+	 * @return void
+	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-     * @throws ConfigurationUndefinedException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	function testLookupTemplate()
     {

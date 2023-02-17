@@ -6,8 +6,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
@@ -83,8 +82,6 @@ class SectionContentTest extends TestCase
 		/* Site Section data should not be collected & should remain with default values */
 		$this->assertNotNull($this->obj->content_properties->id->value);
 		$this->assertEquals('', $this->obj->content_properties->name->value);
-		$this->assertNull($this->obj->content_properties->width->value);
-		$this->assertFalse($this->obj->content_properties->save_mini->value);
 		$this->assertFalse($this->obj->content_properties->is_cached->value);
 	}
 
@@ -118,12 +115,12 @@ class SectionContentTest extends TestCase
 	}
 
 	/**
-	 * @throws ContentValidationException
+	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
-     * @throws RecordNotFoundException
+	 * @throws ContentValidationException
+	 * @throws RecordNotFoundException
+	 * @throws NotImplementedException
 	 */
 	public function testRetrieveContentProperties()
 	{
@@ -131,7 +128,6 @@ class SectionContentTest extends TestCase
 		$this->obj->retrieveSectionProperties();
 		$this->assertEquals("Content Template", $this->obj->content_properties->name->value);
 		$this->assertEquals("/sections/", $this->obj->content_properties->root_dir->value);
-		$this->assertFalse($this->obj->content_properties->save_mini->value);
 		$this->assertEquals("content_template", $this->obj->content_properties->table->value);
 		$this->assertEquals(27, $this->obj->content_properties->parent_id->value);
 	}

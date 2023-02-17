@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Albums;
 
-
 use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -21,8 +20,7 @@ use stdClass;
 
 
 /**
- * Class Gallery
- * @package Littled\PageContent\Albums
+ * A collection of images.
  */
 class Gallery extends MySQLConnection
 {

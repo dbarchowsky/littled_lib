@@ -31,45 +31,45 @@ class ContentAPIProperties extends SerializedContent
 	 * TODO Rename this property to $content_type_id, which requires changing the name of the corresponding field
 	 * in the database, and changing any SQL queries that reference that field.
 	 */
-	public IntegerSelect $section_id;
+	public IntegerSelect        $section_id;
 	/** @var StringTextField Content label. */
-	public StringTextField $label;
+	public StringTextField      $label;
 	/** @var StringTextField Name of the variable used to pass the content type id value. */
-	public StringTextField $id_param;
+	public StringTextField      $id_key;
 	/** @var ContentRoute[] All routes linked to this content type. */
-	public array $routes=[];
+	public array                $routes=[];
 	/** @var ContentTemplate[] All templates linked to this content type. */
-	public array $templates=[];
+	public array                $templates=[];
 
     /**
      * @todo consider replacing hard-coded uri fields with a table linked to this one containing separate records for each possible ajax uri. See $routes and $templates property.
      */
 	/** @var StringTextField URI CMS listings URI. */
-	public StringTextField $listings_uri;
+	public StringTextField      $listings_uri;
 	/** @var StringTextField URI of AJAX listings utility script. */
-	public StringTextField $ajax_listings_uri;
+	public StringTextField      $ajax_listings_uri;
 	/** @var StringTextField URI of AJAX record details utility script. */
-	public StringTextField $details_uri;
+	public StringTextField      $details_uri;
 	/** @var StringTextField URI of AJAX record editing utility script. */
-	public StringTextField $edit_uri;
+	public StringTextField      $edit_uri;
 	/** @var StringTextField URI of AJAX record attachments upload utility script. */
-	public StringTextField $upload_uri;
+	public StringTextField      $upload_uri;
 	/** @var StringTextField URI of AJAX record deletion utility script. */
-	public StringTextField $delete_uri;
+	public StringTextField      $delete_uri;
 	/** @var StringTextField URI of AJAX record caching utility script. */
-	public StringTextField $cache_uri;
+	public StringTextField      $cache_uri;
 	/** @var StringTextField URI of AJAX listings sorting utility script. */
-	public StringTextField $sorting_uri;
+	public StringTextField      $sorting_uri;
 	/** @var StringTextField URI of AJAX record keyword management utility script. */
-	public StringTextField $keywords_uri;
+	public StringTextField      $keywords_uri;
 	/** @var StringTextField Path to listings template. */
-    public StringTextField $listings_template;
+    public StringTextField      $listings_template;
 	/** @var StringTextField Path to keywords list template. */
-	public StringTextField $keywords_template;
+	public StringTextField      $keywords_template;
 	/** @var StringTextarea Comments about the content type. */
-	public StringTextarea $comments;
+	public StringTextarea       $comments;
 	/** @var BooleanCheckbox Flag indicating that the listings are sortable. */
-	public BooleanCheckbox $is_sortable;
+	public BooleanCheckbox      $is_sortable;
 
 	/**
 	 * ContentAPIProperties constructor.
@@ -81,7 +81,7 @@ class ContentAPIProperties extends SerializedContent
 		$this->id = new IntegerInput("Id", "capId", false);
 		$this->section_id = new IntegerSelect("Content type", LittledGlobals::CONTENT_TYPE_KEY, true, $content_type_id);
 		$this->label = new StringTextField("Label", "capLabel", true, '', 50);
-		$this->id_param = new StringTextField("Id parameter name", "capKeyName", true, '', 50);
+		$this->id_key = new StringTextField("Id parameter name", "capKeyName", true, '', 50);
 		$this->listings_uri = new StringTextField("Listings URI", "capListURI", false, '', 255);
 		$this->ajax_listings_uri = new StringTextField("AJAX Listings URI", "ajaxListURI", false, '', 255);
 		$this->details_uri = new StringTextField("Details URI", "capDetailsURI", false, '', 255);
@@ -112,7 +112,7 @@ class ContentAPIProperties extends SerializedContent
 	 */
 	public function hasData(): bool
 	{
-		return ($this->id->value>0 || $this->section_id->value>0 || ($this->label->value) || ($this->id_param->value));
+		return ($this->id->value>0 || $this->section_id->value>0 || ($this->label->value) || ($this->id_key->value));
 	}
 
 	/**
@@ -137,7 +137,7 @@ class ContentAPIProperties extends SerializedContent
 		catch(ContentValidationException $ex) {
 			return;
 		}
-		$this->hydrateFromQuery('CALL siteSectionPropertiesSelect(?)', 'i', $this->section_id->value);
+		$this->hydrateFromQuery('CALL sectionOperationsSelect(?)', 'i', $this->section_id->value);
 		$this->retrieveRoutes();
 		$this->retrieveTemplates();
 	}

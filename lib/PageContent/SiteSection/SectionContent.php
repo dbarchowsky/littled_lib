@@ -5,7 +5,6 @@ namespace Littled\PageContent\SiteSection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -132,7 +131,6 @@ abstract class SectionContent extends SerializedContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
 	 * @throws RecordNotFoundException
 	 * @throws NotImplementedException
 	 */
@@ -164,11 +162,12 @@ abstract class SectionContent extends SerializedContent
 
 	/**
 	 * Retrieves site section properties and stores that data in object properties.
-	 * @throws ContentValidationException
+=	 * @throws ConfigurationUndefinedException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-     * @throws RecordNotFoundException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
 	 */
 	public function retrieveSectionProperties()
 	{
@@ -182,7 +181,6 @@ abstract class SectionContent extends SerializedContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */

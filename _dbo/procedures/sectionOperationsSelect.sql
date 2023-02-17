@@ -1,6 +1,6 @@
 DELIMITER $$
 
-CREATE OR REPLACE PROCEDURE `siteSectionPropertiesSelect`(
+CREATE OR REPLACE PROCEDURE `sectionOperationsSelect`(
     IN      p_section_id        INT
 )
 BEGIN
@@ -9,7 +9,7 @@ BEGIN
          id,
          section_id,
          label,
-         id_param,
+         id_key,
          listings_uri,
          ajax_listings_uri,
          details_uri,
