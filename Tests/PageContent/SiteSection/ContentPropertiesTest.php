@@ -53,25 +53,31 @@ class ContentPropertiesTest extends TestCase
     {
         $conn = new MySQLConnection();
         $mysqli = $conn->getMysqli();
-        $query = "CALL siteSectionUpdate(?,?,?,?,?,?,?,?)";
+        $query = "CALL siteSectionUpdate(?,?,?,?,?,?,?,?,?,?,?)";
 	    $stmt = $mysqli->prepare($query);
-	    $stmt->bind_param('issssiii',
+	    $stmt->bind_param('issssssiiii',
 		    $id,
 		    $name,
+		    $label,
+		    $id_key,
 		    $slug,
 		    $root_dir,
 		    $table,
 		    $parent_id,
 		    $is_cached,
+		    $is_sortable,
 		    $gallery_thumbnail);
 
         $id = ContentPropertiesTest::TEST_ID_FOR_DELETE;
         $name = ContentPropertiesTest::UNIT_TEST_IDENTIFIER;
+	    $label = 'unit test';
+	    $id_key = 'testId';
         $slug = 'unit_test_slug';
         $root_dir = 'path/to/section';
         $table = 'unit_test';
         $parent_id = null;
         $is_cached = false;
+	    $is_sortable = true;
         $gallery_thumbnail = false;
 
         if(!$stmt->execute()) {
@@ -79,14 +85,17 @@ class ContentPropertiesTest extends TestCase
         }
 
 	    $stmt = $mysqli->prepare($query);
-	    $stmt->bind_param('issssiii',
+	    $stmt->bind_param('issssssiiii',
 		    $id,
 		    $name,
+			$label,
+			$id_key,
 		    $slug,
 		    $root_dir,
 		    $table,
 		    $parent_id,
 		    $is_cached,
+			$is_sortable,
 		    $gallery_thumbnail);
 
         $id = ContentPropertiesTest::TEST_ID_FOR_READ;
@@ -281,9 +290,9 @@ class ContentPropertiesTest extends TestCase
 	{
 		$this->assertEquals(self::TEST_ID_FOR_READ, $this->obj->id->value);
 		$this->assertEquals(self::UNIT_TEST_IDENTIFIER." for reading", $this->obj->name->value);
-		$this->assertEquals($id_key, $this->obj->id_key);
+		$this->assertEquals($id_key, $this->obj->id_key->value);
 		$this->assertEquals($parent_name, $this->obj->parent);
-		$this->assertEquals($label, $this->obj->label);
+		$this->assertEquals($label, $this->obj->label->value);
 		$this->assertCount($template_count, $this->obj->templates);
 	}
 
@@ -343,15 +352,17 @@ class ContentPropertiesTest extends TestCase
 		$this->obj->read();
 		$this->obj->clearValues();
 		$this->assertCount(0, $this->obj->templates);
-		$this->assertEquals('', $this->obj->id_key);
+		$this->assertEquals('', $this->obj->label->value);
+		$this->assertEquals('', $this->obj->id_key->value);
 		$this->assertEquals('', $this->obj->parent);
-		$this->assertEquals('', $this->obj->label);
 	}
 
 	public function testDefaultValues()
 	{
 		$this->assertEquals(ContentProperties::ID_KEY, $this->obj->id->key);
 		$this->assertEquals('', $this->obj->name->value);
+		$this->assertEquals('', $this->obj->label->value);
+		$this->assertEquals('', $this->obj->id_key->value);
 		$this->assertNull($this->obj->parent_id->value);
 		$this->assertTrue(is_array($this->obj->templates));
 		$this->assertFalse($this->obj->is_cached->value);
@@ -371,12 +382,12 @@ class ContentPropertiesTest extends TestCase
 		$o = new ContentProperties();
 		$this->assertEquals('', $o->getContentLabel());
 
-		$o->label = 'My Assigned Label';
-		$this->assertEquals('', $o->getContentLabel());
+		$o->label->value = 'My Assigned Label';
+		$this->assertEquals($o->label->value, $o->getContentLabel());
 
-		$o->name->setInputValue('My Assigned Label');
-		$o->label = '';
-		$this->assertEquals('My Assigned Label', $o->getContentLabel());
+		$o->label->setInputValue('');
+		$o->name->value = 'My Assigned Name';
+		$this->assertEquals($o->name->value, $o->getContentLabel());
 
 		$o->id->setInputValue(self::TEST_ID_FOR_READ);
 		$o->read();

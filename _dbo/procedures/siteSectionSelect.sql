@@ -6,11 +6,14 @@ CREATE OR REPLACE PROCEDURE `siteSectionSelect`(
 BEGIN
     SELECT
         ss.`name`,
+        ss.`label`,
+        ss.`id_key`,
         ss.`slug`,
         ss.`root_dir`,
         ss.`table`,
         ss.`parent_id`,
         ss.`is_cached`,
+        ss.`is_sortable`,
         ss.`gallery_thumbnail`,
         so.`id_key`,
         IFNULL(so.`label`, ss.`name`) AS `label`,

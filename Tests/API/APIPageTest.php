@@ -262,7 +262,7 @@ class APIPageTest extends TestCase
 		$this->assertEquals('', $ap->getContentLabel());
 
 		$ap->content_properties->read();
-		$this->assertEquals('Test Section', $ap->getContentLabel());
+		$this->assertEquals('test', $ap->getContentLabel());
 	}
 
     /**

@@ -276,7 +276,9 @@ class SerializedContentUtils extends AppContentBase
 				/* store value retrieved from database */
 				if ($item->column_name) {
 					$custom_key = $item->column_name;
-					$item->setInputValue($row->$custom_key);
+					if (property_exists($row, $custom_key)) {
+						$item->setInputValue($row->$custom_key);
+					}
 				}
 				elseif(property_exists($row, $key)) {
 					$item->setInputValue($row->$key);

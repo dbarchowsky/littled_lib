@@ -97,7 +97,7 @@ abstract class SectionContent extends SerializedContent
      */
     public function getLabel(): string
     {
-        return $this->content_properties->label;
+        return $this->content_properties->label->value;
     }
 
 	/**

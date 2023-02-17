@@ -21,24 +21,23 @@ use Littled\Utility\LittledUtility;
  */
 class ContentTemplate extends SerializedContent
 {
-	/** @var int Value of this record in the site section table. */
-	protected static int $content_type_id = 33;
-	/** @var string */
-	protected static string $table_name = "content_template";
-	protected static string $local_path_token = 'local';
+	/** @var int                Value of this record in the site section table. */
+	protected static int        $content_type_id = 33;
+	protected static string     $table_name = "content_template";
+	protected static string     $local_path_token = 'local';
 
-	/** @var StringTextField Template name. */
-	public StringTextField $name;
-	/** @var IntegerInput Content type id. */
-	public IntegerInput $content_id;
-	/** @var StringTextField Root directory of the content type, as specified in the parent site_section table. */
-	public StringTextField $template_dir;
-	/** @var StringTextField Relative path to the content template. */
-	public StringTextField $path;
-	/** @var StringSelect Location of the template, e.g. local vs. shared. */
-	public StringSelect $location;
-	/** @var IntegerInput Pointer to $site_section_id property */
-	public IntegerInput $parentID;
+	/** @var StringTextField    Template name. */
+	public StringTextField      $name;
+	/** @var IntegerInput       Content type id. */
+	public IntegerInput         $content_id;
+	/** @var StringTextField    Root directory of the content type, as specified in the parent site_section table. */
+	public StringTextField      $template_dir;
+	/** @var StringTextField    Relative path to the content template. */
+	public StringTextField      $path;
+	/** @var StringSelect       Location of the template, e.g. local vs. shared. */
+	public StringSelect         $location;
+	/** @var IntegerInput       Pointer to $site_section_id property */
+	public IntegerInput         $parentID;
 
 	/**
 	 * ContentTemplate constructor.
@@ -96,7 +95,7 @@ class ContentTemplate extends SerializedContent
 		$template_dir = '';
 		if ($this->path->value) {
             if ($this->template_dir->value) {
-                return LittledUtility::joinPathParts(array($this->template_dir->value, $this->path->value));
+                return LittledUtility::joinPaths($this->template_dir->value, $this->path->value);
             }
             switch ($this->location->value) {
 	            case static::getLocalPathToken():
@@ -107,7 +106,7 @@ class ContentTemplate extends SerializedContent
                     break;
             }
 		}
-		return LittledUtility::joinPathParts(array($template_dir, $this->path->value));
+		return LittledUtility::joinPaths($template_dir, $this->path->value);
 	}
 
 	/**

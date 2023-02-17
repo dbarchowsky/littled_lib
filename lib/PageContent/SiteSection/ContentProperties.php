@@ -22,38 +22,40 @@ class ContentProperties extends SerializedContent
 	protected static int        $content_type_id = 27;
 	protected static string     $table_name = 'site_section';
 
-	/** @var StringTextField Name of the content. */
+	/** @var StringTextField    Name of the content. */
 	public StringTextField      $name;
+	/** @var StringTextField    Label to use to describe the content records on the frontend */
+	public StringTextField      $label;
+	/** @var StringTextField    Name of the variable used to make requests for a particular type of content record. */
+	public StringTextField      $id_key;
     /**
-     * @var StringTextField Name of the content.
+     * @var StringTextField     Text token used to identify the content type.
      * @todo Audit the use of this property.
      */
     public StringTextField      $slug;
 	/**
-	 * @var StringTextField Root directory for section content.
+	 * @var StringTextField     Root directory for section content.
 	 * @todo Audit the use of this property now that routes are the principle method for responding to client requests.
 	 */
 	public StringTextField      $root_dir;
 	/**
-	 * @var StringTextField Content able name.
+	 * @var StringTextField     Content able name.
 	 * @todo Audit this field to determine if it should be deprecated. Consider using SerializedContent::$table_name in its place.
 	 */
 	public StringTextField      $table;
-	/** @var IntegerSelect Numeric identifier of the content type that is a parent to the principal content type */
+	/** @var IntegerSelect      Numeric identifier of the content type that is a parent to the principal content type */
 	public IntegerSelect        $parent_id;
-	/** @var BooleanCheckbox Flag indicating that this section's content gets cached. */
+	/** @var BooleanCheckbox    Flag indicating that this section's content gets cached. */
 	public BooleanCheckbox      $is_cached;
-	/** @var BooleanCheckbox Flag indicating to use gallery thumbnails. */
+	/** @var BooleanCheckbox    Flag indicating that the order of the records on listings pages can be manually reorganized. */
+	public BooleanCheckbox      $is_sortable;
+	/** @var BooleanCheckbox    Flag indicating to use gallery thumbnails. */
 	public BooleanCheckbox      $gallery_thumbnail;
-	/** @var string Name of the argument used to pass the record id to and from pages and scripts. Stored in the section_operations table. */
-	public string               $id_key = '';
-	/** @var string Parent content type name. */
+	/** @var string             Parent content type name. */
 	public string               $parent = '';
-	/** @var string Alternate name for the content type explicitly intended to be displayed with form controls. Stored in the section_operations table. */
-	public string               $label='';
-	/** @var ContentTemplate[] List of templates used to render pages displaying record data */
+	/** @var ContentTemplate[]  List of templates used to render pages displaying record data */
 	public array                $templates=[];
-	/** @var ContentRoute[] List of routes to pages displaying record data */
+	/** @var ContentRoute[]     List of routes to pages displaying record data */
 	public array                $routes=[];
 
 	/**
@@ -65,11 +67,14 @@ class ContentProperties extends SerializedContent
 		parent::__construct($id);
 		$this->id->key = ContentProperties::ID_KEY;
 		$this->name = new StringTextField("Name", "ssna", true, '', 50);
+		$this->label = new StringTextField("Label", "ssLabel", false, '', 50);
+		$this->id_key = new StringTextField("Id key", "ssIK", true, '', 20);
         $this->slug = new StringTextField("Slug", "ssSlug", false, '', 50);
 		$this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
 		$this->table = new StringTextField("Table name", "sstb", false, "", 50);
 		$this->parent_id = new IntegerSelect("Parent", "sspi", false, null);
 		$this->is_cached = new BooleanCheckbox("Cache content", "sscc", false, false);
+		$this->is_sortable = new BooleanCheckbox("Is sortable", "ssSort", false, false);
 		$this->gallery_thumbnail = new BooleanCheckbox("Gallery thumbnail", "ssgt", false, false);
 	}
 
@@ -99,14 +104,17 @@ class ContentProperties extends SerializedContent
 
     public function generateUpdateQuery(): ?array
     {
-        return array('CALL siteSectionUpdate(@record_id,?,?,?,?,?,?,?)',
-            'ssssiii',
+        return array('CALL siteSectionUpdate(@record_id,?,?,?,?,?,?,?,?,?,?)',
+            'ssssssiiii',
             &$this->name->value,
+	        &$this->label->value,
+	        &$this->id_key->value,
             &$this->slug->value,
             &$this->root_dir->value,
             &$this->table->value,
             &$this->parent_id->value,
-            &$this->is_cached->value,
+	        &$this->is_cached->value,
+	        &$this->is_sortable->value,
             &$this->gallery_thumbnail->value);
     }
 
@@ -144,7 +152,7 @@ class ContentProperties extends SerializedContent
 	 */
 	public function getContentLabel(): string
 	{
-		return $this->name->value;
+		return $this->label->value ?: $this->name->value;
 	}
 
 	/**
@@ -260,13 +268,9 @@ class ContentProperties extends SerializedContent
 		$this->hydrateFromRecordsetRow($data[0]);
 
 		// extended properties
-		if ($data[0]->id_key !== null) {
-			$this->id_key = $data[0]->id_key;
-		}
 		if ($data[0]->parent !== null) {
 			$this->parent = $data[0]->parent;
 		}
-		$this->label = $data[0]->label;
 
 		$this->readRoutes();
 		$this->readTemplates();
@@ -288,12 +292,11 @@ class ContentProperties extends SerializedContent
 			return;
 		}
 		foreach($data as $row) {
-			$this->routes[] = $this->newRouteInstance(
-				$row->id,
-				$this->id->value,
-				$row->operation,
-                $row->route,
-				$row->api_route);
+			$route = $this->newRouteInstance();
+			$route->id->value = $row->id;
+			$route->site_section_id->value = $this->id->value;
+			$route->hydrateFromRecordsetRow($row);
+			$this->routes[] = $route;
 		}
 	}
 
@@ -313,13 +316,11 @@ class ContentProperties extends SerializedContent
 			// throw new RecordNotFoundException("Error retrieving content templates.");
 		}
 		foreach($data as $row) {
-			$this->templates[] = $this->newTemplateInstance(
-				$row->id,
-				$this->id->value,
-				$row->name,
-				'',
-				$row->path,
-				''.$row->location);
+			$template = $this->newTemplateInstance();
+			$template->id->value = $row->id;
+			$template->content_id->value = $this->id->value;
+			$template->hydrateFromRecordsetRow($row);
+			$this->templates[] = $template;
 		}
 	}
 
@@ -331,8 +332,6 @@ class ContentProperties extends SerializedContent
 	{
 		$this->templates = array();
 		$this->routes = array();
-		$this->id_key = '';
 		$this->parent = '';
-		$this->label = '';
 	}
 }

@@ -4,19 +4,7 @@ CREATE OR REPLACE TABLE site_section
     `name`                VARCHAR(50)                 NOT NULL,
     `slug`                VARCHAR(50)                 NULL,
     `root_dir`            VARCHAR(255)                NULL,
-    `image_path`          VARCHAR(255)                NULL,
-    `sub_dir`             VARCHAR(100)                NULL,
-    `image_label`         VARCHAR(100)                NULL,
-    `width`               INT                         NULL,
-    `height`              INT                         NULL,
-    `med_width`           INT                         NULL,
-    `med_height`          INT                         NULL,
-    `save_mini`           TINYINT(1)                  NULL,
-    `mini_width`          INT                         NULL,
-    `mini_height`         INT                         NULL,
-    `format`              ENUM ('', 'png', 'jpg')     NULL,
-    `param_prefix`        VARCHAR(8)                  NULL,
-    `table`             VARCHAR(50)                 NULL,
+    `table`               VARCHAR(50)                 NULL,
     `content_class`       VARCHAR(255)                NULL,
     `filters_class`       VARCHAR(255)                NULL,
     `parent_id`           INT                         NULL,
@@ -43,3 +31,14 @@ ALTER TABLE site_section DROP COLUMN mini_width;
 ALTER TABLE site_section DROP COLUMN mini_height;
 ALTER TABLE site_section DROP COLUMN `format`;
 ALTER TABLE site_section DROP COLUMN param_prefix;
+
+ALTER TABLE site_section ADD `label` varchar(50) AFTER `name`;
+ALTER TABLE site_section ADD `id_key` varchar(20) DEFAULT '' AFTER `label`;
+ALTER TABLE site_section ADD `is_sortable` bool DEFAULT false AFTER `is_cached`;
+
+UPDATE site_section ss,
+(SELECT section_id, label, id_key, is_sortable from section_operations) as so
+SET ss.label = so.label,
+    ss.id_key = so.id_key,
+    ss.is_sortable = IFNULL(so.is_sortable, false)
+WHERE ss.id = so.section_id;

@@ -90,14 +90,14 @@ class SectionContentTest extends TestCase
 		$o = new SectionContentTestHarness();
 		$this->assertEquals('', $o->getContentLabel());
 
-		$o->content_properties->label = 'my assigned value';
-		$this->assertEquals('', $o->getContentLabel());
-		$this->assertEquals('my assigned value', $o->getLabel());
+		$o->content_properties->name->value = 'my assigned value';
+		$o->content_properties->label->value = '';
+		$this->assertEquals($o->content_properties->name->value, $o->getContentLabel());
+		$this->assertEquals($o->content_properties->label->value, $o->getLabel());
 
-		$o->content_properties->name->setInputValue('my assigned value');
-		$o->content_properties->label = '';
-		$this->assertEquals('my assigned value', $o->getContentLabel());
-		$this->assertEquals('', $o->getLabel());
+		$o->content_properties->label->value = 'my assigned label';
+		$this->assertEquals($o->content_properties->label->value, $o->getContentLabel());
+		$this->assertEquals($o->content_properties->label->value, $o->getLabel());
 	}
 
 	public function testGetContentTypeIdUsingInternalValue()
