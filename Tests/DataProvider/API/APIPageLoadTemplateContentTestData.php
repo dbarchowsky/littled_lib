@@ -2,14 +2,14 @@
 
 namespace Littled\Tests\DataProvider\API;
 
-use Littled\Tests\API\AjaxPageTest;
+use Littled\Tests\API\APIPageTest;
 
 
-class AjaxPageLoadTemplateContentTestData
+class APIPageLoadTemplateContentTestData
 {
-    protected const DEFAULT_CONTENT_TYPE    = AjaxPageTest::TEST_CONTENT_TYPE_ID;
+    protected const DEFAULT_CONTENT_TYPE    = APIPageTest::TEST_CONTENT_TYPE_ID;
     protected const DEFAULT_OPERATION       = 'delete';
-    protected const DEFAULT_RECORD_ID       = AjaxPageTest::TEST_RECORD_ID;
+    protected const DEFAULT_RECORD_ID       = APIPageTest::TEST_RECORD_ID;
 
 	public array        $context;
     public int          $content_type_id ;
@@ -31,9 +31,9 @@ class AjaxPageLoadTemplateContentTestData
         $this->msg              = $msg;
 		$this->pattern          = $pattern;
 		$this->context          = $context;
-        $this->record_id        = $record_id ?? AjaxPageLoadTemplateContentTestData::DEFAULT_RECORD_ID;
+        $this->record_id        = $record_id ?? APIPageLoadTemplateContentTestData::DEFAULT_RECORD_ID;
 		$this->template         = $template;
-        $this->operation        = $operation ?? AjaxPageLoadTemplateContentTestData::DEFAULT_OPERATION;
-        $this->content_type_id  = $content_type_id ?? AjaxPageLoadTemplateContentTestData::DEFAULT_CONTENT_TYPE;
+        $this->operation        = $operation ?? APIPageLoadTemplateContentTestData::DEFAULT_OPERATION;
+        $this->content_type_id  = $content_type_id ?? APIPageLoadTemplateContentTestData::DEFAULT_CONTENT_TYPE;
 	}
 }

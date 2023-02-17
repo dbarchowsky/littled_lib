@@ -3,7 +3,7 @@
 namespace Littled\Tests\TestHarness\Filters;
 
 use DateTime;
-use Littled\API\AjaxPage;
+use Littled\API\APIPage;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -12,7 +12,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 
-class AjaxPageChild extends AjaxPage
+class APIPageChild extends APIPage
 {
     /**
      * @return void

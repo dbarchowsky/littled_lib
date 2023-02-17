@@ -5,42 +5,42 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
 use Littled\PageContent\PageConfig;
-use Littled\API\AjaxPage;
+use Littled\API\APIPage;
 use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\PageContentInterface;
-use Littled\Tests\API\AjaxPageTest;
+use Littled\Tests\API\APIPageTest;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Utility\LittledUtility;
 
 
-class AjaxPageTestDataProvider
+class APIPageTestDataProvider
 {
     public static function collectContentPropertiesTestProvider(): array
     {
         return array(
             array(
                 array(
-                    'content_type_id' => AjaxPageTest::TEST_CONTENT_TYPE_ID,
-                    'operation' => AjaxPage::getDefaultTemplateName()),
-                array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID), '',
+                    'content_type_id' => APIPageTest::TEST_CONTENT_TYPE_ID,
+                    'operation' => APIPage::getDefaultTemplateName()),
+                array(LittledGlobals::CONTENT_TYPE_KEY => APIPageTest::TEST_CONTENT_TYPE_ID), '',
                 'Content type id value present in POST data'),
             array(
                 array(
-                    'content_type_id' => AjaxPageTest::TEST_CONTENT_TYPE_ID,
+                    'content_type_id' => APIPageTest::TEST_CONTENT_TYPE_ID,
                     'operation' => 'listings'),
                 array(
-                    LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID,
-                    AjaxPage::TEMPLATE_TOKEN_KEY => 'listings'), '',
+                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTest::TEST_CONTENT_TYPE_ID,
+                    APIPage::TEMPLATE_TOKEN_KEY => 'listings'), '',
                 'Content type id and template token values in POST data'),
             array([], [], '', 'No values present in POST data.'),
             array(
                 array(
                     'content_type_id' => 3,
                     'operation' => 'ajax_token'),
-                array(LittledGlobals::CONTENT_TYPE_KEY => AjaxPageTest::TEST_CONTENT_TYPE_ID),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectContentProperties_01.dat'),
+                array(LittledGlobals::CONTENT_TYPE_KEY => APIPageTest::TEST_CONTENT_TYPE_ID),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectContentProperties_01.dat'),
                 'Request input defaults to ajax stream over POST data.'
             ),
         );
@@ -57,7 +57,7 @@ class AjaxPageTestDataProvider
                     'name_filter' => 'foo',
                     'int_filter' => 43,
                     'bool_filter' => true), [], [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectFiltersRequestData_01.dat'),
                 'ajax stream'),
             array(
                 array(
@@ -65,7 +65,7 @@ class AjaxPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 array('int_filter' => 82), [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides GET data'),
             array(
                 array(
@@ -73,7 +73,7 @@ class AjaxPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 [], array('int_filter' => 629),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/AjaxPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides POST data'),
         );
     }
@@ -96,15 +96,15 @@ class AjaxPageTestDataProvider
     public static function loadTemplateContentTestProvider(): array
     {
         return array(
-            [new AjaxPageLoadTemplateContentTestData(
+            [new APIPageLoadTemplateContentTestData(
                 'Default context and template',
                 '/<div class=\"dialog delete-confirmation\"(.|\n)*the record will be permanently deleted/i'
             )],
-            [new AjaxPageLoadTemplateContentTestData(
+            [new APIPageLoadTemplateContentTestData(
                 'Override context',
                 '/<div class=\"test-container\">(.|\n)*custom context value: test injected value(.|\n)*default context value: undefined(.|\n)*<\/div>/i',
                 array('custom_var' => 'test injected value'),
-                'AjaxPageTest-LoadTemplateContent.php'
+                'APIPageTest-LoadTemplateContent.php'
             )],
         );
     }

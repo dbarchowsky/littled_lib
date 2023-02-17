@@ -103,7 +103,7 @@ class KeywordSectionContentTest extends TestCase
 	public function testConstructorDefaultValues()
 	{
 		$this->assertNull($this->obj->id->value);
-		$this->assertNull($this->obj->content_properties->id->value);
+		$this->assertNotNull($this->obj->content_properties->id->value);
 		$this->assertEquals('', $this->obj->keyword_input->value);
 		$this->assertEquals('kwText', $this->obj->keyword_input->key);
 		$this->assertFalse($this->obj->keyword_input->is_database_field);
@@ -131,19 +131,13 @@ class KeywordSectionContentTest extends TestCase
 
         try {
             $obj->addKeyword('test new term');
+			$this->assertEquals(false, true, 'Expected exception not thrown.');
         }
         catch(Exception $ex) {
             $this->assertMatchesRegularExpression('/parent record was not provided/i', $ex->getMessage());
         }
 
         $obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
-        try {
-            $obj->addKeyword('test new term');
-        }
-        catch(Exception $ex) {
-            $this->assertMatchesRegularExpression('/content type was not specified/i', $ex->getMessage());
-        }
-
         $obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
 		$obj->addKeyword('test new term');
 		$this->assertCount($prev_count + 1, $obj->keywords);
@@ -334,7 +328,7 @@ class KeywordSectionContentTest extends TestCase
 			$this->obj->formatKeywordList();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. Record not specified.", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/could not perform operation.*parent record .*not provided/i", $ex->getMessage());
 		}
 
 		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
@@ -400,8 +394,9 @@ class KeywordSectionContentTest extends TestCase
 		try {
 			$this->obj->save();
 		}
-		catch (ContentValidationException $ex) {
-			$this->assertEquals("A content type was not specified.", $ex->getMessage());
+		catch (Exception $e) {
+			$this->assertInstanceOf(NotImplementedException::class, $e);
+			$this->assertMatchesRegularExpression("/table name not set/i", $e->getMessage());
 		}
 
 		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
@@ -471,7 +466,6 @@ class KeywordSectionContentTest extends TestCase
 		catch(ContentValidationException $ex) {
 			$this->assertEquals("Errors were found in the content.", $ex->getMessage());
 			$this->assertGreaterThan(0, count($this->obj->validationErrors));
-			$this->assertContains("Content type is required.", $this->obj->validationErrors);
 		}
 
         $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);

@@ -19,7 +19,7 @@ use Littled\Request\StringTextField;
  * This class is an interface to the section_operations table which has less and less utility since content_templates and content_routes were introduced.
  * @todo Audit to see if this class can be deleted.
  */
-class ContentAjaxProperties extends SerializedContent
+class ContentAPIProperties extends SerializedContent
 {
 	/** @var string */
 	protected static string $table_name = 'section_operations';
@@ -72,7 +72,7 @@ class ContentAjaxProperties extends SerializedContent
 	public BooleanCheckbox $is_sortable;
 
 	/**
-	 * ContentAjaxProperties constructor.
+	 * ContentAPIProperties constructor.
 	 * @param ?int $content_type_id Initial content type id value.
 	 */
 	function __construct( ?int $content_type_id=null )
@@ -174,7 +174,7 @@ class ContentAjaxProperties extends SerializedContent
 	}
 
 	/**
-	 * @deprecated Use ContentAjaxProperties::retrieveContentProperties() instead.
+	 * @deprecated Use ContentAPIProperties::retrieveContentProperties() instead.
 	 * Hydrates the object based on its current content id value.
 	 * @throws RecordNotFoundException
 	 */
