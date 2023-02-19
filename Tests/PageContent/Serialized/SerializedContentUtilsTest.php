@@ -13,7 +13,7 @@ use Littled\PageContent\Serialized\SerializedContentUtils;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
 use Littled\Request\RequestInput;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
+use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -240,13 +240,13 @@ class SerializedContentUtilsTest extends TestCase
     /**
      * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentUtilsTestDataProvider::formatDatabaseColumnList()
 	 * @param array $expected
-	 * @param TestTable $o
+	 * @param TestTableSerializedContentTestHarness $o
 	 * @param string $msg
 	 * @return void
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 */
-    public function testFormatDatabaseColumnList(array $expected, TestTable $o, string $msg='')
+    public function testFormatDatabaseColumnList(array $expected, TestTableSerializedContentTestHarness $o, string $msg='')
     {
         $fields = $o->formatDatabaseColumnListPublic();
         foreach ($expected as $key => $value) {
@@ -270,7 +270,7 @@ class SerializedContentUtilsTest extends TestCase
 	 */
 	function testHydrateFromQueryWithArguments()
 	{
-		$o = new TestTable();
+		$o = new TestTableSerializedContentTestHarness();
 		$record_id = self::TEST_RECORD_ID;
 		$query = 'SEL'.'ECT name, int_col, bool_col, date, slot FROM `'.$o::getTableName().'` WHERE ID = ?';
 		$o->hydrateFromQueryPublic($query, 'i', $record_id);
@@ -283,7 +283,7 @@ class SerializedContentUtilsTest extends TestCase
 	 */
 	function testHydrateFromQueryWithoutArguments()
 	{
-		$o = new TestTable();
+		$o = new TestTableSerializedContentTestHarness();
 		$query = 'SEL'.'ECT name, int_col, bool_col, date, slot FROM `'.$o::getTableName().'` WHERE ID = '.self::TEST_RECORD_ID;
 		$o->hydrateFromQueryPublic($query);
 		$this->assertEquals('fixed test record', $o->name->value);

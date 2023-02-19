@@ -113,7 +113,7 @@ abstract class ContentController
             $rc = new ReflectionClass($class);
         }
         catch(ReflectionException $ex) {
-            throw new Exception("Could not create instance of $class.");
+            throw new InvalidTypeException("Could not create instance of $class.");
         }
         /** @var SerializedContent $content */
         $content = $rc->newInstance();

@@ -6,14 +6,14 @@ use Littled\Filters\ContentFilters;
 use Littled\Filters\DateContentFilter;
 use Littled\Filters\IntegerContentFilter;
 use Littled\Filters\StringContentFilter;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
+use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 
 
 class TestTableContentFiltersTestHarness extends ContentFilters
 {
     /** @var int */
     protected static int $default_listings_length = 20;
-    protected static ?int $content_type_id = TestTable::CONTENT_TYPE_ID;
+    protected static ?int $content_type_id = TestTableSerializedContentTestHarness::CONTENT_TYPE_ID;
 
 	public StringContentFilter $name_filter;
 	public IntegerContentFilter $int_filter;

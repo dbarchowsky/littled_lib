@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Database;
+namespace Littled\Tests\TestHarness\Database;
 
 use Littled\Database\DBUtils;
 use PHPUnit\Framework\TestCase;

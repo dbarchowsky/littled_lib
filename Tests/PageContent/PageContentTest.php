@@ -6,6 +6,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
 use Littled\Tests\TestHarness\PageContent\PageContentChild;
+use Littled\Tests\TestHarness\PageContent\PageContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +23,7 @@ class PageContentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->obj = new PageContent();
+        $this->obj = new PageContentTestHarness();
     }
 
 	protected function tearDown(): void
@@ -35,23 +36,6 @@ class PageContentTest extends TestCase
     {
         return LittledUtility::joinPaths(APP_BASE_DIR, 'Tests', self::DYNAMIC_TEMPLATE_PATH);
     }
-
-	/**
-	 * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentTestDataProvider::collectEditActionTestProvider()
-	 * @param string $expected
-	 * @param array $data
-	 * @param string|null $assigned_value
-	 * @return void
-	 */
-	function testCollectEditAction(string $expected, array $data, ?string $assigned_value)
-	{
-		$o = new PageContent();
-		if ($assigned_value !== null) {
-			$o->edit_action = $assigned_value;
-		}
-		$o->collectEditAction($data);
-		$this->assertEquals($expected, $o->edit_action);
-	}
 
     /**
      * @throws NotImplementedException
@@ -98,19 +82,6 @@ class PageContentTest extends TestCase
 		$o->content->content_properties->name->setInputValue('my assigned value');
 		$this->assertEquals('my assigned value', $o->getContentLabel());
 	}
-
-    /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentTestDataProvider::getRecordIdProvider()
-     * @param int|null $record_id
-     * @param int|null $expected
-     * @return void
-     */
-    function testGetRecordId(?int $record_id, ?int $expected)
-    {
-        $o = new PageContentChild();
-        $o->content->id->value = $record_id;
-        $this->assertEquals($expected, $o->getRecordId());
-    }
 
     /**
      * @throws NotImplementedException

@@ -18,38 +18,38 @@ use Littled\Utility\LittledUtility;
 /**
  * Extends PageContent to add methods to register and load record classes, filter classes, and routes for a specific content type.
  */
-class RoutedPageContent extends PageContent
+abstract class RoutedPageContent extends PageContent
 {
-    /** @var string SectionContent record class name */
-    protected static string $content_class='';
-    /** @var string ContentFilters filters class name */
-    protected static string $filters_class='';
+    /** @var string                 SectionContent record class name */
+    protected static string         $content_class='';
+    /** @var string                 ContentFilters filters class name */
+    protected static string         $filters_class='';
     /**
-     * @var string SectionNavigationRoutes routes class name for section navigation
+     * @var string                  SectionNavigationRoutes routes class name for section navigation
      * @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place.
      */
-    protected static string $routes_class='';
+    protected static string         $routes_class='';
     /**
      * @var SectionNavigationRoutes Section navigation routes.
      * @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place.
      */
-    public SectionNavigationRoutes $routes;
+    public SectionNavigationRoutes  $routes;
 	/**
 	 * @var string
 	 * @todo Audit the use of this property. It could potentially be replaced with a "content_route" record in the database dedicated to a route to add new records.
 	 */
-    protected static string $add_token = 'add';
+    protected static string         $add_token = 'add';
 	/**
 	 * @var string
 	 * @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record.
 	 */
-    protected static string $edit_token = 'edit';
-	protected static string $template_filename='';
+    protected static string         $edit_token = 'edit';
+	protected static string         $template_filename='';
 	/**
 	 * @var int
 	 * @todo Audit this property. Is this not already provided by some higher level class?
 	 */
-	protected static int $access_level;
+	protected static int            $access_level;
 
 	/**
 	 * @inheritDoc
@@ -242,6 +242,18 @@ class RoutedPageContent extends PageContent
     public function getListingsURIWithFilters(): string
     {
         return $this->getListingsURI().$this->query_string;
+    }
+
+    /**
+     * Record id getter.
+     * @return int|null
+     */
+    public function getRecordId(): ?int
+    {
+        if (isset($this->content) && $this->content->id->value) {
+            return $this->content->id->value;
+        }
+        return null;
     }
 
     /**

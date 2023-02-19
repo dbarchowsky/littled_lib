@@ -23,4 +23,9 @@ class PageContentChild extends PageContent
             'test_var' => $this->injected_text
         );
     }
+
+    public function setPageState()
+    {
+        // TODO: Implement setPageState() method.
+    }
 }

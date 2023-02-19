@@ -24,4 +24,13 @@ class RoutedPageContentTestDataProvider
             [123, array('base', '123', 'many', 'other', 'parts')],
         );
     }
+
+    public static function getRecordIdProvider(): array
+    {
+        return array(
+            [null, null],
+            [0, null],
+            [45, 45]
+        );
+    }
 }

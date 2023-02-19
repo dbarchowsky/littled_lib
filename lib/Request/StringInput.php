@@ -35,7 +35,7 @@ class StringInput extends RenderedInput
 		}
         $key = $key ?: $this->key;
 		if (null===$filters) {
-            $filters = FILTER_UNSAFE_RAW;
+            $filters = Validation::DEFAULT_REQUEST_FILTER;
 		}
         $this->value = Validation::collectStringRequestVar($key, $filters, $this->index, $src);
 	}

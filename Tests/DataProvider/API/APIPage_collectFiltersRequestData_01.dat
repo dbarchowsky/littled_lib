@@ -1,1 +1,7 @@
-{"name":"foo","intFilter":"43","boolFilter":"true","dateAfter":"2023-02-13"}
+{
+    "tid": 6037,
+    "name": "foo",
+    "intFilter": "43",
+    "boolFilter": "true",
+    "dateAfter": "2023-02-13"
+}

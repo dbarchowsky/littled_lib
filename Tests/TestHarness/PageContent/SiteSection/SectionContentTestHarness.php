@@ -17,7 +17,7 @@ class SectionContentTestHarness extends SectionContent
     protected static int $content_type_id = 6037;
 	public static string $table_name = 'test_table';
 
-	/* properties matching fields in the "TestTable" table */
+	/* properties matching fields in the "TestTableSerializedContentTestHarness" table */
 	public StringInput $name;
 	public IntegerInput $int_col;
 	public BooleanInput $bool_col;

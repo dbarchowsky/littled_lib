@@ -12,7 +12,7 @@ use Littled\Request\DateInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 
-class TestTable extends SerializedContent
+class TestTableSerializedContentTestHarness extends SerializedContent
 {
     /** @var int */
     public const CONTENT_TYPE_ID = 6037;

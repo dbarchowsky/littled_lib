@@ -7,10 +7,10 @@ use Littled\Filters\ContentFilters;
 
 abstract class PageContentBase extends MySQLConnection implements PageContentInterface
 {
-    /** @var string Path to template file. */
-    protected string $template_path = '';
-    /** @var ContentFilters Filters to apply to page content. */
-    public ContentFilters   $filters;
+    /** @var string             Path to template file. */
+    protected string            $template_path = '';
+    /** @var ContentFilters     Filters to apply to page content. */
+    public ContentFilters       $filters;
 
     /**
      * Template path getter.

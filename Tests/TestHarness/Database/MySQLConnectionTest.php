@@ -1,11 +1,11 @@
 <?php
-namespace Littled\Tests\Database;
+namespace Littled\Tests\TestHarness\Database;
 
+use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use PHPUnit\Framework\TestCase;
-use Exception;
 
 class MySQLConnectionTest extends TestCase
 {
@@ -114,8 +114,7 @@ class MySQLConnectionTest extends TestCase
     {
         $content_type_id = 2;
         $c = new MySQLConnection();
-        $query = "SELECT `name`,`root_dir`,`image_path`,`sub_dir`,`image_label`,`width`,`height`,`med_width`,".
-            "`med_height`,`save_mini`,`mini_width`,`mini_height`,`format`,`param_prefix`,`table`,`parent_id`,".
+        $query = "SELECT `name`,`root_dir`,`table`,`parent_id`,".
             "`is_cached`,`gallery_thumbnail` FROM `site_section` WHERE id = ?";
         $data = $c->fetchRecords($query, 'i', $content_type_id);
         $this->assertIsArray($data);

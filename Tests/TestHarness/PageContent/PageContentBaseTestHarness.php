@@ -15,4 +15,16 @@ class PageContentBaseTestHarness extends PageContentBase
     {
         // TODO: Implement render() method.
     }
+
+    public function getTemplateContext(): array
+    {
+        // TODO: Implement getTemplateContext() method.
+        return [];
+    }
+
+    public function getContentLabel(): string
+    {
+        // TODO: Implement getContentLabel() method.
+        return '';
+    }
 }

@@ -8,11 +8,11 @@ use Littled\PageContent\ContentController;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
-use Littled\Tests\API\APIPageTest;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
+use Littled\Tests\API\APIPageTestBase;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableDetailsPage;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use Littled\Utility\LittledUtility;
 
 
@@ -24,8 +24,8 @@ class ContentControllerTestHarness extends ContentController
     public static function getContentClass(int $content_id): string
     {
         switch($content_id) {
-            case APIPageTest::TEST_CONTENT_TYPE_ID:
-                return TestTable::class;
+            case APIPageTestBase::TEST_CONTENT_TYPE_ID:
+                return TestTableSectionContentTestHarness::class;
             default:
                 return 'TestContentClassString';
         }
@@ -37,7 +37,7 @@ class ContentControllerTestHarness extends ContentController
     public static function getContentFiltersClass(int $content_id): string
     {
         switch($content_id) {
-            case APIPageTest::TEST_CONTENT_TYPE_ID:
+            case APIPageTestBase::TEST_CONTENT_TYPE_ID:
                 return TestTableContentFiltersTestHarness::class;
             default:
                 return 'TestContentClassString';
@@ -67,7 +67,7 @@ class ContentControllerTestHarness extends ContentController
 	public static function getPageContentClass(int $content_id): string
 	{
 		switch($content_id) {
-			case APIPageTest::TEST_CONTENT_TYPE_ID:
+			case APIPageTestBase::TEST_CONTENT_TYPE_ID:
 				return 'Littled\Tests\TestHarness\PageContent\PageContentChild';
 			default:
 				return 'TestContentClassString';

@@ -49,6 +49,7 @@ class DateInputTest extends ContentValidationTestCase
         if ($data->expected_exception_class) {
             try {
                 $this->obj->setInputValue($data->date_string);
+                $this->assertEquals(false, true, 'Expected exception not thrown.');
             }
             catch(Exception $e) {
                 $this->assertInstanceOf($data->expected_exception_class, $e, $data->msg);
@@ -58,6 +59,9 @@ class DateInputTest extends ContentValidationTestCase
         }
         else {
             $this->obj->setInputValue($data->date_string);
+            if ($data->date_string===null) {
+                $this->obj->value = null;
+            }
             $this->assertEquals($data->expected, $this->obj->escapeSQL($this->conn->getMysqli()), $data->msg);
         }
 	}

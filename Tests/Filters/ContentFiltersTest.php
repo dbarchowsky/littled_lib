@@ -16,7 +16,7 @@ class ContentFiltersTest extends TestCase
     function testConstruct()
     {
         $cf = new ContentFiltersChild();
-        $this->assertEquals('article', $cf->content_properties->label);
+        $this->assertEquals('article', $cf->content_properties->label->value);
     }
 
     /**

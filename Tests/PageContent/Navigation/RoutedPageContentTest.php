@@ -9,9 +9,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\Filters\TestTableFilters;
 use Littled\Tests\TestHarness\PageContent\Navigation\TestTableRoutes;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTable;
+use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
@@ -139,17 +138,34 @@ class RoutedPageContentTest extends TestCase
 
 	function testGetAccessLevel()
 	{
-		$o = new RoutedPageContent();
+		$o = new RoutedPageContentTestHarness();
+        $original_access = $o::getAccessLevel();
 
 		// default setting
-		$this->assertNull($o::getAccessLevel());
+		$this->assertEquals(UserAccount::AUTHENTICATION_UNRESTRICTED, $o::getAccessLevel());
 
 		// set to a value
 		$o::setAccessLevel(UserAccount::BASIC_AUTHENTICATION);
 		$this->assertEquals(UserAccount::BASIC_AUTHENTICATION, $o::getAccessLevel());
+
+        // restore state
+        $o::setAccessLevel($original_access);
 	}
 
-	/**
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getRecordIdProvider()
+     * @param int|null $record_id
+     * @param int|null $expected
+     * @return void
+     */
+    function testGetRecordId(?int $record_id, ?int $expected)
+    {
+        $o = new RoutedPageContentTestHarness();
+        $o->content->id->value = $record_id;
+        $this->assertEquals($expected, $o->getRecordId());
+    }
+
+    /**
 	 * @throws ConfigurationUndefinedException
 	 */
 	function testGetTemplateDir()
@@ -226,7 +242,7 @@ class RoutedPageContentTest extends TestCase
 	function testSetFilters()
 	{
 		$_POST = array(
-			LittledGlobals::CONTENT_TYPE_KEY => TestTable::CONTENT_TYPE_ID,
+			LittledGlobals::CONTENT_TYPE_KEY => TestTableSerializedContentTestHarness::CONTENT_TYPE_ID,
 			'name' => 'foo',
 			'dateAfter' => '2023-02-14',
 			'dateBefore' => '2023-02-28',

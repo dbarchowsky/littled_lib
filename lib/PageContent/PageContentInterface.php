@@ -1,22 +1,30 @@
 <?php
 namespace Littled\PageContent;
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ResourceNotFoundException;
+
 interface PageContentInterface
 {
     const CANCEL_ACTION = "cancel";
     const COMMIT_ACTION = "commit";
 
     /**
-     * Render the page content using template file.
-     * @param array|null $context
-     * @return void
+     * Template context getter
+     * @return array
      */
-    public function render(?array $context=null);
+    public function getTemplateContext(): array;
 
     /**
-     * Inserts data into a template file and renders the result. Alias for class's render() method.
-     * @param string $template_path Path to template to render.
-     * @param ?array $context Data to insert into the template.
+     * Content label getter
+     * @return string
      */
-    public function sendResponse( string $template_path='', ?array $context=null);
+    public function getContentLabel(): string;
+
+    /**
+     * Injects content into template to generate markup to send as http response matching a client request.
+     * @param string $template_path Optional template path that will override the instance's internal template values.
+     * @param ?array $context Optional data to inject in the template to use in place of instance's internal property values.
+     */
+    public function sendResponse( string $template_path='', ?array $context=null );
 }

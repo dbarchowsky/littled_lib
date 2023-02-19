@@ -2,14 +2,14 @@
 
 namespace Littled\Tests\DataProvider\API;
 
-use Littled\Tests\API\APIPageTest;
+use Littled\Tests\API\APIPageTestBase;
 
 
 class APIPageLoadTemplateContentTestData
 {
-    protected const DEFAULT_CONTENT_TYPE    = APIPageTest::TEST_CONTENT_TYPE_ID;
+    protected const DEFAULT_CONTENT_TYPE    = APIPageTestBase::TEST_CONTENT_TYPE_ID;
     protected const DEFAULT_OPERATION       = 'delete';
-    protected const DEFAULT_RECORD_ID       = APIPageTest::TEST_RECORD_ID;
+    protected const DEFAULT_RECORD_ID       = APIPageTestBase::TEST_RECORD_ID;
 
 	public array        $context;
     public int          $content_type_id ;

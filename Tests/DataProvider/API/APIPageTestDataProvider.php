@@ -9,7 +9,7 @@ use Littled\API\APIPage;
 use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\PageContentInterface;
-use Littled\Tests\API\APIPageTest;
+use Littled\Tests\API\APIPageTestBase;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Utility\LittledUtility;
@@ -17,35 +17,6 @@ use Littled\Utility\LittledUtility;
 
 class APIPageTestDataProvider
 {
-    public static function collectContentPropertiesTestProvider(): array
-    {
-        return array(
-            array(
-                array(
-                    'content_type_id' => APIPageTest::TEST_CONTENT_TYPE_ID,
-                    'operation' => APIPage::getDefaultTemplateName()),
-                array(LittledGlobals::CONTENT_TYPE_KEY => APIPageTest::TEST_CONTENT_TYPE_ID), '',
-                'Content type id value present in POST data'),
-            array(
-                array(
-                    'content_type_id' => APIPageTest::TEST_CONTENT_TYPE_ID,
-                    'operation' => 'listings'),
-                array(
-                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTest::TEST_CONTENT_TYPE_ID,
-                    APIPage::TEMPLATE_TOKEN_KEY => 'listings'), '',
-                'Content type id and template token values in POST data'),
-            array([], [], '', 'No values present in POST data.'),
-            array(
-                array(
-                    'content_type_id' => 3,
-                    'operation' => 'ajax_token'),
-                array(LittledGlobals::CONTENT_TYPE_KEY => APIPageTest::TEST_CONTENT_TYPE_ID),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectContentProperties_01.dat'),
-                'Request input defaults to ajax stream over POST data.'
-            ),
-        );
-    }
-
     public static function collectFiltersRequestDataTestProvider(): array
     {
         return array(
@@ -83,13 +54,13 @@ class APIPageTestDataProvider
         $custom_data = [];
         $custom_data[LittledGlobals::COMMIT_KEY] = true;
         return array(
-            array(PageContentInterface::COMMIT_ACTION, 'post', LittledGlobals::COMMIT_KEY, true, null, 'POST commit key'),
-            array(PageContentInterface::CANCEL_ACTION, 'post', LittledGlobals::CANCEL_KEY, true, null, 'POST cancel key'),
-            array('', 'post', 'randomKey', true, null, 'POST invalid key'),
-            array('', 'post', LittledGlobals::COMMIT_KEY, 45, null, 'POST commit key with non-true value'),
-            array('', 'post', LittledGlobals::COMMIT_KEY, false, null, 'POST commit key set to false'),
-            array(PageContentInterface::COMMIT_ACTION, 'ajax', '', '', null, 'API mock data'),
-            array(PageContentInterface::COMMIT_ACTION, 'custom', '', '', $custom_data, 'custom data'),
+            array(PageContentInterface::COMMIT_ACTION, array(LittledGlobals::COMMIT_KEY => true), '', null, 'POST commit key'),
+            array(PageContentInterface::CANCEL_ACTION, array(LittledGlobals::CANCEL_KEY => true), '', null, 'POST cancel key'),
+            array('', array('randomKey' => true), '', null, 'POST invalid key'),
+            array('', array(LittledGlobals::COMMIT_KEY => 45), '', null, 'POST commit key with non-true value'),
+            array('', array(LittledGlobals::COMMIT_KEY => false), '', null, 'POST commit key set to false'),
+            array(PageContentInterface::COMMIT_ACTION, [], APIPageTestBase::AJAX_INPUT_SOURCE, null, 'API mock data'),
+            array(PageContentInterface::COMMIT_ACTION, [], '', $custom_data, 'custom data'),
         );
     }
 

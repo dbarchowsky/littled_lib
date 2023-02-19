@@ -14,23 +14,23 @@ use Littled\Validation\Validation;
 /**
  * Handles requests for page content by retrieving data and using it to render content using content templates.
  */
-class PageContent extends PageContentBase
+abstract class PageContent extends PageContentBase
 {
-    /** @var string Token representing the current action to take on the page. */
-    public string $edit_action='';
+    /** @var string         Token representing the current action to take on the page. */
+    public string           $edit_action='';
     /** @var SectionContent Page content. */
-    public SectionContent $content;
+    public SectionContent   $content;
     /** @var ContentFilters Content filters. */
-    public ContentFilters $filters;
+    public ContentFilters   $filters;
     /**
-     * @var string Label used to identify the content type in content templates.
+     * @var string          Label used to identify the content type in content templates.
      * @todo Audit this property. Consider using $content->content_properties->name or $filters->content_properties->name in its place.
      */
-    public string $label = '';
-    /** @var string Query string to attach to page links. */
-    protected string $query_string = '';
-	/** @var string URL to use for redirects. */
-	public string $redirect_url = '';
+    public string           $label = '';
+    /** @var string         Query string to attach to page links. */
+    protected string        $query_string = '';
+	/** @var string         URL to use for redirects. */
+	public string           $redirect_url = '';
 
     /**
      * class constructor
@@ -59,31 +59,6 @@ class PageContent extends PageContentBase
 		}
 		return ($this->content->id->value);
 	}
-
-    /**
-     * @todo Consider moving this method to dedicated cms page content class
-     * @param array|null $src Optional array of variables to use in place of POST data.
-     * Sets the value of the object's $action property based on action variables in POST data.
-     */
-    public function collectEditAction( ?array $src=null )
-    {
-		$keys = array(
-			LittledGlobals::CANCEL_KEY => PageContentInterface::CANCEL_ACTION,
-	        LittledGlobals::COMMIT_KEY => PageContentInterface::COMMIT_ACTION);
-        if (null===$src) {
-            $src = $_POST;
-        }
-		foreach ($keys as $key => $value) {
-			if (array_key_exists($key, $src)) {
-				$action = filter_var($src[$key], FILTER_UNSAFE_RAW);
-				if ($action && $action !== '0') {
-					// internally, make the action value consistent regardless of how it's set in request data
-					$this->edit_action = $value;
-					return;
-				}
-			}
-		}
-    }
 
 	/**
 	 * Formats and stores query string from current filter property values.
@@ -122,15 +97,6 @@ class PageContent extends PageContentBase
     }
 
     /**
-     * Returns URI of the page containing record details with filter
-     * @throws NotImplementedException
-     */
-    public function getDetailsURI(?int $record_id=null): string
-    {
-        throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
-    }
-
-    /**
      * Content label getter.
      * @return string
      */
@@ -152,26 +118,11 @@ class PageContent extends PageContentBase
     }
 
     /**
-     * Record id getter.
-     * @return int|null
-     */
-    public function getRecordId(): ?int
-    {
-        if (isset($this->content) && $this->content->id->value) {
-            return $this->content->id->value;
-        }
-        return null;
-    }
-
-    /**
      * Returns array containing the variables and their values to be injected into
      * the template when rendering page content.
      * @return array
      */
-    public function getTemplateContext(): array
-    {
-        return array();
-    }
+    abstract public function getTemplateContext(): array;
 
     /**
      * Sets $qs property value to preserve initial GET variable values.
@@ -220,7 +171,7 @@ class PageContent extends PageContentBase
 	}
 
     /**
-     * @inheritDoc
+     * Injects content into template to generate markup to send as http response matching a client request.
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
@@ -237,12 +188,13 @@ class PageContent extends PageContentBase
      * Sets the error message to display on a page.
      * @param string $error_msg string
      */
-    public function setPageError(string $error_msg ) {
+    public function setPageError(string $error_msg )
+    {
         $this->content->validationErrors[] = $error_msg;
     }
 
     /**
      * Sets page properties.
      */
-    public function setPageState() { }
+    abstract public function setPageState();
 }

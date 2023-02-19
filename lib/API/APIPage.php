@@ -1,6 +1,7 @@
 <?php
 namespace Littled\API;
 
+use Error;
 use Exception;
 use Throwable;
 use Littled\App\LittledGlobals;
@@ -21,7 +22,6 @@ use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\PageContent\SiteSection\ContentProperties;
-use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
@@ -29,42 +29,32 @@ use Littled\Validation\Validation;
 
 /**
  * Extends PageContent to add a JSONRecordResponse property used to convert the page content from the content normally sent as an HTML response to content sent as JSON.
- * @todo rename APIRoute
+ * @todo rename to APIRoute
  */
-class APIPage extends PageContentBase
+abstract class APIPage extends PageContentBase
 {
     /** @var string */
-    public const TEMPLATE_TOKEN_KEY = 'templateToken';
+    public const                TEMPLATE_TOKEN_KEY = 'templateToken';
 
-    /** @var string Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
-    protected static string $cache_class = ContentCache::class;
-    /** @var string Name a \Littled\PageContent\ContentController class to use as content controller. */
-    protected static string $controller_class = ContentController::class;
-    /** @var string Name of the default template to use in derived classes to generate markup. */
-    protected static string $default_template_dir='';
-    protected static string $default_template_name = '';
-    /** @var string Input stream of API client requests */
-    protected static string $ajax_input_stream = 'php://input';
+    /** @var string             Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
+    protected static string     $cache_class = ContentCache::class;
+    /** @var string             Name a \Littled\PageContent\ContentController class to use as content controller. */
+    protected static string     $controller_class = ContentController::class;
+    /** @var string             Name of the default template to use in derived classes to generate markup. */
+    protected static string     $default_template_dir='';
+    protected static string     $default_template_name = '';
+    /** @var string             Input stream of API client requests */
+    protected static string     $ajax_input_stream = 'php://input';
 
-	/** @var string String indicating the action to be taken on the page. */
+	/** @var string             String indicating the action to be taken on the page. */
 	public string               $action='';
-	/**
-	 * @var mixed Content article.
-	 * @todo Audit this property to see if it could be replaced with PageContent::$content
-	 */
-	public                      $content;
-	protected ?array            $context;
-	/** @var ContentProperties Content properties. */
-	public ContentProperties    $content_properties;
 	/** @var JSONRecordResponse JSON response object. */
 	public JSONRecordResponse   $json;
-	/** @var IntegerInput Content record id. */
-	public IntegerInput         $record_id;
-    /** @var StringInput Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
+    /** @var StringInput        Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
     public StringInput          $operation;
-	/** @var ?ContentTemplate Current content template properties. */
+	/** @var ?ContentTemplate   Current content template properties. */
 	public ?ContentTemplate     $template;
-	/** @var ?ContentRoute Current content route properties. */
+	/** @var ?ContentRoute      Current content route properties. */
 	public ?ContentRoute        $route;
 
 	/**
@@ -79,9 +69,7 @@ class APIPage extends PageContentBase
         set_error_handler(array($this, 'errorHandler'));
 
 		$this->json = new JSONRecordResponse();
-		$this->record_id = new IntegerInput("Record id", LittledGlobals::ID_KEY, false);
 
-		$this->content_properties = $this->newContentPropertiesInstance();
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
 		$this->action = "";
 	}
@@ -103,57 +91,35 @@ class APIPage extends PageContentBase
 	 * Inserts content into template and saves resulting markup in page object's "json" property.
 	 * @throws Exception
 	 */
-	public function collectAndLoadJsonContent()
-	{
-		/* retrieve content object if needed */
-		if (!is_object($this->content)) {
-			$this->content = call_user_func_array([static::getControllerClass(), 'getContentObject'], array($this->getContentTypeId()));
-		}
-
-		/** retrieve filters object if needed */
-		if (!isset($this->filters)) {
-			$this->filters = call_user_func_array([static::getControllerClass(), 'getContentFiltersObject'], array($this->getContentTypeId()));
-		}
-		$this->loadContentAndFiltersData();
-		$this->loadTemplateContent();
-	}
-
-	/**
-	 * Convenience routine that will collect the content id from POST
-	 * data using first the content object's internal id parameter, and then if
-	 * that value is unavailable, a default id parameter ("id").
-	 * @param ?array $src Optional array of variables to use instead of POST data.
-	 */
-	public function collectContentID( ?array $src=null )
-	{
-		$this->content->id->collectRequestData($src);
-		if ($this->content->id->value===null && $this->content->id->key != LittledGlobals::ID_KEY) {
-			$this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
-		}
-	}
+	abstract public function collectAndLoadJsonContent();
 
     /**
      * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
-     * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws RecordNotFoundException
-     */
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+	 */
     public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY)
     {
-        // use ajax request data by default
-        $ajax_rd = APIPage::getAjaxClientRequestData();
+	    // use ajax request data by default
+        $ajax_rd = static::getAjaxClientRequestData();
 
-		if (!$this->content_properties->id->value) {
-			$this->content_properties->id->value = Validation::collectIntegerRequestVar($key, null, $ajax_rd);
+		$cp = $this->getContentProperties();
+		if (!$cp->id->value) {
+            $content_type_id = Validation::collectIntegerRequestVar($key, null, $ajax_rd);
+            if ($content_type_id===null) {
+                throw new ContentValidationException("Content type not specified.");
+            }
+			$this->setContentTypeId($content_type_id);
 		}
-        if ($this->content_properties->id->value === null) {
+        if ($this->getContentTypeId() === null) {
             throw new ContentValidationException("Content type not specified.");
         }
-        $this->content_properties->read();
+        $this->getContentProperties()->read();
 
 		$saved = $this->operation->value;
 		$this->operation->collectRequestData($ajax_rd);
@@ -166,15 +132,14 @@ class APIPage extends PageContentBase
         $this->lookupTemplate();
     }
 
-    /**
-     * Fills out filter values from request data.
-     * ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
-     * @throws NotImplementedException
-     */
-    public function collectFiltersRequestData( ?array $src=null )
-    {
-        $this->filters->collectFilterValues(true, [], $src);
-    }
+	/**
+	 * Fills out input values from request data.
+	 * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
+	 */
+	public function collectRequestData( ?array $src=null )
+	{
+		$this->operation->collectRequestData($src);
+	}
 
     /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
@@ -246,7 +211,9 @@ class APIPage extends PageContentBase
 	 */
 	public function fetchContentTemplate(string $name)
 	{
-		$data = $this->fetchRecords('CALL contentTemplateLookup(?,?)', 'is', $this->content_properties->id->value, $name);
+		$query = 'CALL contentTemplateLookup(?,?)';
+		$content_type_id = $this->getContentTypeId();
+		$data = $this->fetchRecords($query, 'is', $content_type_id, $name);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("Content template \"$name\" not found.");
 		}
@@ -295,10 +262,22 @@ class APIPage extends PageContentBase
 	 */
 	public function getContentLabel(): string
 	{
-		if (1 > $this->content_properties->getRecordId()) {
+		$cp = $this->getContentProperties();
+		if (1 > $cp->getRecordId()) {
 			return '';
 		}
-		return $this->content_properties->getContentLabel();
+		return $cp->getContentLabel();
+	}
+
+	/**
+	 * Returns ContentProperties instance from either the content or filters properties of the instance, depending on
+	 * which one has retrieved its content properties from the database. Returns a new ContentProperties instance if
+	 * both content and filters have not yet been retrieved.
+	 * @return ContentProperties
+	 */
+	public function getContentProperties(): ContentProperties
+	{
+		return new ContentProperties();
 	}
 
     /**
@@ -307,7 +286,7 @@ class APIPage extends PageContentBase
      */
     public function getContentTypeId(): ?int
     {
-        return ($this->content_properties->id->value);
+        return $this->getContentProperties()->id->value;
     }
 
 	/**
@@ -341,6 +320,31 @@ class APIPage extends PageContentBase
         return static::$default_template_name;
     }
 
+    /**
+     * Sets the data to be injected into templates.
+     * @throws ConfigurationUndefinedException|InvalidValueException|InvalidQueryException
+     * @throws RecordNotFoundException
+     */
+    public function getTemplateContext(): array
+    {
+        $context = array(
+            'page_data' => $this->newRoutedPageContentInstance(),
+            'content' => null,
+            'filters' => null);
+        if (isset($this->filters)) {
+            return array_merge($context, array(
+                'filters' => &$this->filters,
+                'qs' => $this->filters->formatQueryString()));
+        }
+        return $context;
+    }
+
+	/**
+	 * Test if this instance has content properties currently loaded.
+	 * @return bool
+	 */
+	abstract public function hasContentPropertiesObject(): bool;
+
 	/**
      * @inheritDoc
 	 * @throws ConfigurationUndefinedException
@@ -358,42 +362,6 @@ class APIPage extends PageContentBase
 	}
 
 	/**
-	 * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.
-	 * @param ?array $src Optional array of variables to use instead of POST data.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ContentValidationException
-	 */
-	public function initializeContentObject( ?array $src=null )
-	{
-		if ($src===null) {
-			$src = &$_POST;
-		}
-		/* get object type from POST data */
-		$class_name = Validation::collectStringRequestVar('class', FILTER_UNSAFE_RAW, null, $src);
-		if (!$class_name) {
-			throw new ContentValidationException("Content type not provided.");
-		}
-		if (!class_exists($class_name)) {
-			throw new ConfigurationUndefinedException("Content type not available.");
-		}
-
-		/* instantiate object */
-		$this->content = new $class_name();
-	}
-
-	/**
-     * Collects filter values from request data, and reads the content data from the database.
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws NotImplementedException
-     */
-    public function loadContentAndFiltersData()
-    {
-        $this->collectFiltersRequestData();
-        $this->retrieveContentData();
-    }
-
-	/**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
 	 * @param array|null $context Optional array containing data to inject into the template.
 	 * @throws ResourceNotFoundException
@@ -401,11 +369,7 @@ class APIPage extends PageContentBase
 	 */
 	public function loadTemplateContent(?array $context=null)
 	{
-		$this->context = $context;
-		if ($this->context===null) {
-			$this->setTemplateContext();
-		}
-		$this->json->loadContentFromTemplate($this->getTemplatePath(), $this->context);
+		$this->json->loadContentFromTemplate($this->getTemplatePath(), $context ?: $this->getTemplateContext());
 	}
 
 	/**
@@ -417,7 +381,7 @@ class APIPage extends PageContentBase
 	public function lookupRoute(string $operation='')
 	{
 		$operation = $operation ?: $this->operation->value;
-		$this->route = $this->content_properties->getContentRouteByOperation($operation);
+		$this->route = $this->getContentProperties()->getContentRouteByOperation($operation);
 	}
 
 	/**
@@ -429,7 +393,7 @@ class APIPage extends PageContentBase
     public function lookupTemplate(string $operation='')
     {
         $operation = $operation ?: $this->operation->value;
-        $this->template = $this->content_properties->getContentTemplateByName($operation);
+        $this->template = $this->getContentProperties()->getContentTemplateByName($operation);
     }
 
     /**
@@ -447,17 +411,23 @@ class APIPage extends PageContentBase
      * @return PageContent
      * @throws ConfigurationUndefinedException|InvalidValueException
      * @throws InvalidQueryException
+     * @throws RecordNotFoundException
      */
 	protected function newRoutedPageContentInstance(): PageContent
 	{
-        if (!isset($this->content_properties)) {
-            throw new ConfigurationUndefinedException('Content properties not loaded.');
+        if (!$this->hasContentPropertiesObject()) {
+            throw new ConfigurationUndefinedException('Content properties not available.');
         }
-        $p = &$this->content_properties;
-        if (!isset($p->routes) || count($p->routes) < 1) {
-            $p->readRoutes();
+		$this->getContentProperties()->readRoutes();
+        try {
+            $route_parts = $this
+                ->getContentProperties()
+                ->getContentRouteByOperation('listings')
+                ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
         }
-        $route_parts = $p->getContentRouteByOperation('listings')->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
+        catch(Error $e) {
+            throw new RecordNotFoundException('Content route not found.');
+        }
 		$rpc_class = call_user_func([static::getControllerClass(), 'getRoutedPageContentClass'], $route_parts);
 		return new $rpc_class();
 	}
@@ -486,97 +456,42 @@ class APIPage extends PageContentBase
     {
         $template = $this->newTemplateInstance();
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
-        $this->json->loadContentFromTemplate($template->formatFullPath(), array(
-			'page' => $this->newRoutedPageContentInstance(),
-            'content' => &$this->content,
-            'filters' => &$this->filters
-        ));
-    }
-
-    /**
-     * Wrapper for json_response_class::load_content_from_template() preserved
-     * here for legacy reasons. Better to use the json_response_class routine directly.
-     * @throws ResourceNotFoundException
-     * @throws ConfigurationUndefinedException|InvalidValueException
-     * @throws InvalidQueryException
-     */
-	public function render(?array $context=null)
-	{
-		$this->context = $context;
-		if ($this->context===null) {
-			$this->setTemplateContext();
-		}
-		$this->json->loadContentFromTemplate($this->template_path, $this->context);
-	}
-
-    /**
-     * Retrieves content data from the database
-     * @return void
-     * @throws ConfigurationUndefinedException
-     */
-    public function retrieveContentData()
-    {
-        if(!is_object($this->content)) {
-            return;
-        }
-        if ($this->record_id->value>0) {
-            $this->content->id->value = $this->record_id->value;
-        }
-		if ($this->content->id->value===null || $this->content->id->value < 1) {
-			throw new ConfigurationUndefinedException('A record id was not provided.');
-		}
-        call_user_func_array([$this::getControllerClass(), 'retrieveContentDataByType'], array($this->content));
+        $this->json->loadContentFromTemplate(
+			$template->formatFullPath(),
+            $this->getTemplateContext());
     }
 
 	/**
-	 * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
+	 * Collects filter values from request data, and reads the content data from the database.
 	 * @return void
 	 * @throws ConfigurationUndefinedException
+	 * @throws NotImplementedException
 	 */
-	public function retrieveContentObjectAndData()
-	{
-		$this->content = call_user_func_array([static::getControllerClass(), 'getContentObject'], array($this->getContentTypeId()));
-		$this->retrieveContentData();
-	}
+	abstract public function retrieveContentData();
 
 	/**
 	 * Hydrates the content properties object by retrieving data from the database.
-	 * @param int|null $content_type_id (Optional) The id of the content type. The instance's internal value will be updated with this value if provided.
 	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws RecordNotFoundException
 	 */
 	public function retrieveContentProperties(?int $content_type_id=null)
 	{
-		if (0 < $content_type_id) {
+		if ($content_type_id > 0) {
 			$this->setContentTypeId($content_type_id);
 		}
-		if (1 > $this->getContentTypeId()) {
-			throw new ConfigurationUndefinedException('Content properties could not be retrieved. A content type was not specified.');
-		}
-        // retrieve content properties from databases
-		$this->content_properties->read();
+		$this->retrieveCoreContentProperties();
 
-        // set the active template and route properties if an operation has been specified
-        if ($this->operation->value) {
-            $this->lookupRoute();
-            $this->lookupTemplate();
-        }
+		// set the active template and route properties if an operation has been specified
+		if ($this->operation->value) {
+			$this->lookupRoute();
+			$this->lookupTemplate();
+		}
 	}
 
 	/**
-	 * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
-	 * @throws RecordNotFoundException
-     * @throws ResourceNotFoundException|NotImplementedException
-     */
-	public function retrievePageContent()
-	{
-		$this->filters->collectFilterValues();
-		$this->json->content->value = $this->content->refreshContentAfterEdit($this->filters);
-	}
+	 * Hook for derived classes to fill their respective ContentProperties properties with data.
+	 * @return mixed
+	 */
+	abstract protected function retrieveCoreContentProperties();
 
 	/**
 	 * Retrieve template properties from the database and store them in the page's template property.
@@ -588,15 +503,10 @@ class APIPage extends PageContentBase
 	 */
 	public function retrieveTemplateProperties(string $template_name)
 	{
-		if (!is_object($this->content)) {
-			throw new ConfigurationUndefinedException("Content not set.");
-		}
-		if (!$this->setInternalContentTypeValue()) {
-			throw new ConfigurationUndefinedException("Content properties not available.");
-		}
 		$this->connectToDatabase();
 		$query = "CALL contentTemplateLookup(?,?)";
-		$data = $this->fetchRecords($query, 'is', $this->content_properties->id->value, $template_name);
+		$content_type_id = $this->getContentTypeId();
+		$data = $this->fetchRecords($query, 'is', $content_type_id, $template_name);
 		if (count($data) < 1) {
 			throw new RecordNotFoundException("\"".ucfirst($template_name)."\" template not found.");
 		}
@@ -661,10 +571,7 @@ class APIPage extends PageContentBase
      * @param int $content_id
      * @return void
      */
-    public function setContentTypeId(int $content_id)
-    {
-        $this->content_properties->id->setInputValue($content_id);
-    }
+    abstract public function setContentTypeId(int $content_id);
 
     /**
      * Content cache class setter.
@@ -704,37 +611,4 @@ class APIPage extends PageContentBase
     {
         static::$default_template_name = $name;
     }
-
-	/**
-	 * Ensures that the internal content type id value has been set before its value is accessed.
-	 * @return bool TRUE/FALSE depending on if a valid content type id value could be found.
-	 */
-	public function setInternalContentTypeValue(): bool
-	{
-		if ($this->content_properties->id->value>1) {
-			return true;
-		}
-		if (!isset($this->content)) {
-			return false;
-		}
-		$this->content_properties->id->value = $this->content->getRecordId();
-		return ($this->content_properties->id->value>0);
-	}
-
-	/**
-	 * Sets the data to be injected into templates.
-	 * @throws ConfigurationUndefinedException|InvalidValueException|InvalidQueryException
-     */
-	public function setTemplateContext()
-	{
-		$this->context = array(
-			'page_data' => $this->newRoutedPageContentInstance(),
-			'content' => &$this->content,
-			'filters' => null
-		);
-		if (isset($this->filters)) {
-			$this->context['filters'] = &$this->filters;
-            $this->context['qs'] = $this->filters->formatQueryString();
-		}
-	}
 }

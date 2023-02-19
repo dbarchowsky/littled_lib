@@ -13,4 +13,15 @@ class PageContentWithFiltersTestHarness extends PageContent
         parent::__construct();
         $this->filters = new TestTableContentFiltersTestHarness();
     }
+
+    public function getTemplateContext(): array
+    {
+        // TODO: Implement getTemplateContext() method.
+        return [];
+    }
+
+    public function setPageState()
+    {
+        // TODO: Implement setPageState() method.
+    }
 }

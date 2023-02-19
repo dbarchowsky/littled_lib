@@ -58,21 +58,21 @@ class DateInput extends StringInput
 	 */
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
 	{
-        if ($this->value==='') {
+        $src = ($this->value===null)?(''):($this->value);
+        if ($src==='') {
             return ('NULL');
         }
-        $ts = strtotime($this->value);
+        $ts = strtotime($src);
         if ($ts !== false) {
             $date_string = date('Y-m-d H:i:s',$ts);
         }
         else {
-            $date = DateTime::createFromFormat('d/m/Y', $this->value);
-            if ($date!==false) {
+            $date = DateTime::createFromFormat('d/m/Y', $src);
+            if ($date !== false) {
                 $date_string = $date->format('Y-m-d');
-            }
-            else {
+            } else {
                 /* maybe it's in YYYY-MM-DD format, just send it back whatever it is */
-                $date_string = $this->value;
+                $date_string = $src;
             }
         }
         return((($include_quotes)?("'"):("")).$mysqli->real_escape_string($date_string).(($include_quotes)?("'"):("")));
@@ -90,13 +90,10 @@ class DateInput extends StringInput
         if ('' === $this->value || null === $this->value) {
             return '';
         }
-		$valid = (false !== strtotime($this->value));
-		if (!$valid) {
-			$valid = (DateTime::createFromFormat('d/m/Y', $this->value) !== false);
-		}
-		if (!$valid) {
-			$valid = (DateTime::createFromFormat('Y-m-d', $this->value) !== false);
-		}
+		$valid = (
+            (false !== strtotime($this->value)) ||
+            (DateTime::createFromFormat('d/m/Y', $this->value) !== false) ||
+            (DateTime::createFromFormat('Y-m-d', $this->value) !== false));
 		if (!$valid) {
 			throw new ContentValidationException("$this->label is not in a recognized date format.");
 		}
