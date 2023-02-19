@@ -2,14 +2,14 @@
 
 namespace Littled\Tests\DataProvider\API;
 
-use Littled\Tests\API\APIPageTestBase;
+use Littled\Tests\API\APIRouteTestBase;
 
 
-class APIPageLoadTemplateContentTestData
+class APIRouteLoadTemplateContentTestData
 {
-    protected const DEFAULT_CONTENT_TYPE    = APIPageTestBase::TEST_CONTENT_TYPE_ID;
+    protected const DEFAULT_CONTENT_TYPE    = APIRouteTestBase::TEST_CONTENT_TYPE_ID;
     protected const DEFAULT_OPERATION       = 'delete';
-    protected const DEFAULT_RECORD_ID       = APIPageTestBase::TEST_RECORD_ID;
+    protected const DEFAULT_RECORD_ID       = APIRouteTestBase::TEST_RECORD_ID;
 
 	public array        $context;
     public int          $content_type_id ;
@@ -31,9 +31,9 @@ class APIPageLoadTemplateContentTestData
         $this->msg              = $msg;
 		$this->pattern          = $pattern;
 		$this->context          = $context;
-        $this->record_id        = $record_id ?? APIPageLoadTemplateContentTestData::DEFAULT_RECORD_ID;
+        $this->record_id        = $record_id ?? APIRouteLoadTemplateContentTestData::DEFAULT_RECORD_ID;
 		$this->template         = $template;
-        $this->operation        = $operation ?? APIPageLoadTemplateContentTestData::DEFAULT_OPERATION;
-        $this->content_type_id  = $content_type_id ?? APIPageLoadTemplateContentTestData::DEFAULT_CONTENT_TYPE;
+        $this->operation        = $operation ?? APIRouteLoadTemplateContentTestData::DEFAULT_OPERATION;
+        $this->content_type_id  = $content_type_id ?? APIRouteLoadTemplateContentTestData::DEFAULT_CONTENT_TYPE;
 	}
 }

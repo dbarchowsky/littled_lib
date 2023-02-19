@@ -1,10 +1,10 @@
 <?php
 namespace Littled\Tests\TestHarness\API;
 
-use Littled\API\APIListingsPage;
+use Littled\API\APIListingsRoute;
 
 
-class APIListingsPageTestHarness extends APIListingsPage
+class APIListingsRouteTestHarness extends APIListingsRoute
 {
     public function initializeFiltersObject(?int $content_type_id = null)
     {

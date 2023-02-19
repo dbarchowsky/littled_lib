@@ -11,7 +11,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
 
-class APIListingsPage extends APIPage
+class APIListingsRoute extends APIRoute
 {
 	/**
 	 * @inheritDoc

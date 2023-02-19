@@ -1,14 +1,14 @@
 <?php
 namespace Littled\Tests\TestHarness\API;
 
-use Littled\API\APIPage;
+use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\PageContent\PageContent;
 
 
-class APIPageTestHarness extends APIPage
+class APIRouteTestHarness extends APIRoute
 {
     public static function publicGetAjaxClientRequestData(): ?array
     {

@@ -1,25 +1,25 @@
 <?php
 namespace Littled\Tests\API;
 
-use Littled\API\APIPage;
+use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Tests\TestHarness\API\APIPageTestHarness;
+use Littled\Tests\TestHarness\API\APIRouteTestHarness;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
 
 
-class APIPageTest extends APIPageTestBase
+class APIRouteTest extends APIRouteTestBase
 {
 	function testGetAjaxClientRequestData()
 	{
 		$expected = array("key1"=>"value1","keyTwo"=>"value two","jsonKey"=>"json value");
 		Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data.dat'));
-		$this->assertEquals($expected, APIPageTestHarness::publicGetAjaxClientRequestData());
+		$this->assertEquals($expected, APIRouteTestHarness::publicGetAjaxClientRequestData());
 
 		Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data-empty.dat'));
-		$this->assertEquals(null, APIPageTestHarness::publicGetAjaxClientRequestData());
+		$this->assertEquals(null, APIRouteTestHarness::publicGetAjaxClientRequestData());
 
 		// restore state
 		Validation::setAjaxInputStream('php://input');
@@ -30,14 +30,14 @@ class APIPageTest extends APIPageTestBase
 	 */
 	function testGetContentObject()
 	{
-		$content = call_user_func_array([APIPage::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
+		$content = call_user_func_array([APIRoute::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
 		$this->assertInstanceOf(SerializedContent::class, $content);
 	}
 
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::sendTextResponseTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::sendTextResponseTestProvider()
      * @param string $expected
      * @param string $response
      * @param string $override_response
@@ -45,7 +45,7 @@ class APIPageTest extends APIPageTestBase
      */
     function testSendTextResponse(string $expected, string $response, string $override_response='')
     {
-        $ap = new APIPageTestHarness();
+        $ap = new APIRouteTestHarness();
         $ap->json->content->value = $response;
         ob_start();
         $ap->sendTextResponse($override_response);
@@ -58,7 +58,7 @@ class APIPageTest extends APIPageTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::setCacheClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setCacheClassTestProvider()
      * @param string $cache_class
      * @param string $exception_class
      * @param string $msg
@@ -72,12 +72,12 @@ class APIPageTest extends APIPageTestBase
             $this->expectException($exception_class);
         }
 
-        APIPage::setCacheClass($cache_class);
-        $this->assertEquals($cache_class, APIPage::getCacheClass(), $msg);
+        APIRoute::setCacheClass($cache_class);
+        $this->assertEquals($cache_class, APIRoute::getCacheClass(), $msg);
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::setControllerClassTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setControllerClassTestProvider()
      * @param string $expected
      * @param string $class_name
      * @return void
@@ -89,20 +89,20 @@ class APIPageTest extends APIPageTestBase
         if ($expected) {
             $this->expectException($expected);
         }
-        APIPage::setControllerClass($class_name);
+        APIRoute::setControllerClass($class_name);
         if (!$expected) {
-            $this->assertEquals($class_name, APIPage::getControllerClass());
+            $this->assertEquals($class_name, APIRoute::getControllerClass());
         }
     }
 
     function testSetDefaultTemplateName()
     {
-        $this->assertEquals('', APIPage::getDefaultTemplateName());
+        $this->assertEquals('', APIRoute::getDefaultTemplateName());
 
-        APIPage::setDefaultTemplateName('listings');
-        $this->assertEquals('listings', APIPage::getDefaultTemplateName());
+        APIRoute::setDefaultTemplateName('listings');
+        $this->assertEquals('listings', APIRoute::getDefaultTemplateName());
 
         // return to its original state
-        APIPage::setDefaultTemplateName('');
+        APIRoute::setDefaultTemplateName('');
     }
 }

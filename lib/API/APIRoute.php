@@ -29,9 +29,8 @@ use Littled\Validation\Validation;
 
 /**
  * Extends PageContent to add a JSONRecordResponse property used to convert the page content from the content normally sent as an HTML response to content sent as JSON.
- * @todo rename to APIRoute
  */
-abstract class APIPage extends PageContentBase
+abstract class APIRoute extends PageContentBase
 {
     /** @var string */
     public const                TEMPLATE_TOKEN_KEY = 'templateToken';
@@ -144,9 +143,9 @@ abstract class APIPage extends PageContentBase
     /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
 	 * @param ?array $src Optional array of variables to use instead of POST data.
-	 * @return APIPage
+	 * @return APIRoute
 	 */
-	public function collectPageAction( ?array $src=null ): APIPage
+	public function collectPageAction( ?array $src=null ): APIRoute
 	{
 		if ($src===null) {
 			/* use only POST, not GET */
@@ -397,7 +396,7 @@ abstract class APIPage extends PageContentBase
     }
 
     /**
-     * Returns new ContentProperties instance. Can be used in derived classes to provide customized ContentProperties objects to the APIPage class's methods.
+     * Returns new ContentProperties instance. Can be used in derived classes to provide customized ContentProperties objects to the APIRoute class's methods.
      * @param int|null $record_id Initial content type record id value.
      * @return ContentProperties
      */
@@ -433,7 +432,7 @@ abstract class APIPage extends PageContentBase
 	}
 
     /**
-     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIPage class's methods.
+     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIRoute class's methods.
      * @param int|null $record_id
      * @param int|null $content_type_id
      * @param string $operation

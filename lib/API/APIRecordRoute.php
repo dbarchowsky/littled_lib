@@ -13,7 +13,7 @@ use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
 
 
-class APIRecordPage extends APIPage
+class APIRecordRoute extends APIRoute
 {
 	public SectionContent $content;
 
@@ -136,7 +136,7 @@ class APIRecordPage extends APIPage
 	 */
 	public function retrieveContentObjectAndData()
 	{
-        $ajax_data = APIPage::getAjaxClientRequestData();
+        $ajax_data = APIRoute::getAjaxClientRequestData();
 		$this->initializeContentObject(null, $ajax_data);
         $this->content->id->collectRequestData($ajax_data);
 		$this->retrieveContentData();

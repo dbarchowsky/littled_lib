@@ -2,7 +2,7 @@
 namespace API;
 
 use Exception;
-use Littled\API\APIListingsPage;
+use Littled\API\APIListingsRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -10,23 +10,23 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\API\APIPageTestBase;
-use Littled\Tests\TestHarness\API\APIListingsPageTestHarness;
-use Littled\Tests\TestHarness\API\APIPageTestHarness;
+use Littled\Tests\API\APIRouteTestBase;
+use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
+use Littled\Tests\TestHarness\API\APIRouteTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Validation\Validation;
 
 
-class APIListingsPageTest extends APIPageTestBase
+class APIListingsRouteTest extends APIRouteTestBase
 {
     function testConstructor()
     {
-        $ap = new APIListingsPage();
+        $ap = new APIListingsRoute();
         $this->assertEquals('', $ap->operation->value);
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsPageTestDataProvider::collectContentPropertiesTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param string $expected_exception
      * @param array $post_data
@@ -46,11 +46,11 @@ class APIListingsPageTest extends APIPageTestBase
         string $ajax_stream='',
         string $msg='' )
     {
-        $this->_testCollectContentProperties(new APIListingsPage(), $expected, $expected_exception, $post_data, $ajax_stream, $msg);
+        $this->_testCollectContentProperties(new APIListingsRoute(), $expected, $expected_exception, $post_data, $ajax_stream, $msg);
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsPageTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::collectRequestDataTestProvider()
      * @param array $expected
      * @param string $expected_exception
      * @param array $get_data
@@ -73,11 +73,11 @@ class APIListingsPageTest extends APIPageTestBase
         $_GET = $get_data;
         $_POST = $post_data;
 
-        $ap = new APIListingsPageTestHarness();
+        $ap = new APIListingsRouteTestHarness();
         $ajax_data = null;
         if ($ajax_stream) {
             Validation::setAjaxInputStream($ajax_stream);
-            $ajax_data = APIPageTestHarness::publicGetAjaxClientRequestData();
+            $ajax_data = APIRouteTestHarness::publicGetAjaxClientRequestData();
         }
 
         if ($expected_exception) {
@@ -112,7 +112,7 @@ class APIListingsPageTest extends APIPageTestBase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::collectPageActionTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectPageActionTestProvider()
 	 * @param string $expected
 	 * @param array $post_data
 	 * @param string $ajax_stream
@@ -127,7 +127,7 @@ class APIListingsPageTest extends APIPageTestBase
 		?array $custom_data=null,
 		string $msg='')
 	{
-		parent::_testCollectPageAction(new APIListingsPage(), $expected, $post_data, $ajax_stream, $custom_data, $msg);
+		parent::_testCollectPageAction(new APIListingsRoute(), $expected, $post_data, $ajax_stream, $custom_data, $msg);
 	}
 
     /**
@@ -136,7 +136,7 @@ class APIListingsPageTest extends APIPageTestBase
      */
 	function testFetchContentTemplate()
 	{
-		$o = new APIListingsPageTestHarness();
+		$o = new APIListingsRouteTestHarness();
 		$o->setContentTypeId(TestTableSerializedContentTestHarness::CONTENT_TYPE_ID);
 		$o->fetchContentTemplate('listings');
 		$this->assertEquals('listings.php', $o->template->path->value);
@@ -147,7 +147,7 @@ class APIListingsPageTest extends APIPageTestBase
      */
     function testFetchInvalidContentTemplate()
     {
-        $o = new APIListingsPageTestHarness();
+        $o = new APIListingsRouteTestHarness();
         $o->setContentTypeId(TestTableSerializedContentTestHarness::CONTENT_TYPE_ID);
         try {
             $o->fetchContentTemplate('bogus-token');
@@ -164,16 +164,16 @@ class APIListingsPageTest extends APIPageTestBase
      */
 	function testGetContentLabel()
 	{
-        $this->_testGetContentLabel(new APIListingsPage());
+        $this->_testGetContentLabel(new APIListingsRoute());
 	}
 
     function testGetContentTypeId()
     {
-        $this->_testGetContentTypeId(new APIListingsPage());
+        $this->_testGetContentTypeId(new APIListingsRoute());
     }
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsPageTestDataProvider::loadTemplateContentTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::loadTemplateContentTestProvider()
      * @param string $expected
      * @param array $post_data
      * @param string $template_path
@@ -194,7 +194,7 @@ class APIListingsPageTest extends APIPageTestBase
 	{
         $_POST = $post_data;
 
-		$ap = new APIListingsPage();
+		$ap = new APIListingsRoute();
         $ap->collectRequestData();
 
         if ($template_path) {
@@ -209,7 +209,7 @@ class APIListingsPageTest extends APIPageTestBase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::lookupRouteTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::lookupRouteTestProvider()
      * @param string $operation
      * @param string $expected_route
      * @return void
@@ -221,7 +221,7 @@ class APIListingsPageTest extends APIPageTestBase
      */
     function testLookupRoute(string $operation, string $expected_route)
     {
-        $ap = new APIListingsPageTestHarness();
+        $ap = new APIListingsRouteTestHarness();
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
         $ap->initializeFiltersObject();
         $this->_testLookupRoute($ap, $operation, $expected_route);
@@ -236,7 +236,7 @@ class APIListingsPageTest extends APIPageTestBase
      */
     function testLookupTemplate()
     {
-        $ap = new APIListingsPageTestHarness();
+        $ap = new APIListingsRouteTestHarness();
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
         $ap->initializeFiltersObject();
         $this->_testLookupTemplate($ap);

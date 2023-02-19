@@ -2,8 +2,8 @@
 namespace Littled\Tests\API;
 
 use Exception;
-use Littled\API\APIPage;
-use Littled\API\APIRecordPage;
+use Littled\API\APIRoute;
+use Littled\API\APIRecordRoute;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -14,19 +14,19 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\DataProvider\API\APIPageLoadTemplateContentTestData;
-use Littled\Tests\TestHarness\API\APIPageTestHarness;
-use Littled\Tests\TestHarness\API\APIRecordPageTestHarness;
+use Littled\Tests\DataProvider\API\APIRouteLoadTemplateContentTestData;
+use Littled\Tests\TestHarness\API\APIRouteTestHarness;
+use Littled\Tests\TestHarness\API\APIRecordRouteTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 
 
-class APIRecordPageTest extends APIPageTestBase
+class APIRecordRouteTest extends APIRouteTestBase
 {
     function testConstructor()
     {
-        $ap = new APIRecordPage();
+        $ap = new APIRecordRoute();
         $this->assertEquals('', $ap->operation->value);
     }
 
@@ -38,12 +38,12 @@ class APIRecordPageTest extends APIPageTestBase
     function testCollectAndLoadJsonContent()
     {
 	    $_POST = array(
-		    LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID,
-		    APIPage::TEMPLATE_TOKEN_KEY => 'delete',
-            LittledGlobals::ID_KEY => APIPageTestBase::TEST_RECORD_ID
+		    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
+		    APIRoute::TEMPLATE_TOKEN_KEY => 'delete',
+            LittledGlobals::ID_KEY => APIRouteTestBase::TEST_RECORD_ID
 	    );
 
-	    $ap = new APIRecordPage();
+	    $ap = new APIRecordRoute();
 	    $ap->collectRequestData();
 
 	    // inject record content into template
@@ -55,7 +55,7 @@ class APIRecordPageTest extends APIPageTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRecordPageTestDataProvider::collectContentPropertiesTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRecordRouteTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param string $expected_exception
      * @param array $post_data
@@ -74,11 +74,11 @@ class APIRecordPageTest extends APIPageTestBase
         string $ajax_stream='',
         string $msg='' )
     {
-        $this->_testCollectContentProperties(new APIRecordPage(), $expected, $expected_exception, $post_data, $ajax_stream, $msg);
+        $this->_testCollectContentProperties(new APIRecordRoute(), $expected, $expected_exception, $post_data, $ajax_stream, $msg);
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::collectPageActionTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectPageActionTestProvider()
      * @param string $expected
      * @param array $post_data
      * @param string $ajax_stream
@@ -93,7 +93,7 @@ class APIRecordPageTest extends APIPageTestBase
 		?array $custom_data=null,
 		string $msg='')
     {
-		parent::_testCollectPageAction(new APIRecordPage(), $expected, $post_data, $ajax_stream, $custom_data, $msg);
+		parent::_testCollectPageAction(new APIRecordRoute(), $expected, $post_data, $ajax_stream, $custom_data, $msg);
     }
 
 	/**
@@ -105,10 +105,10 @@ class APIRecordPageTest extends APIPageTestBase
 	{
 		$post_data = array(
 			LittledGlobals::CONTENT_TYPE_KEY => TestTableSerializedContentTestHarness::CONTENT_TYPE_ID,
-			APIPage::TEMPLATE_TOKEN_KEY => 'edit');
+			APIRoute::TEMPLATE_TOKEN_KEY => 'edit');
 		$_POST = $post_data;
 
-		$o = new APIRecordPage();
+		$o = new APIRecordRoute();
 		$o->collectRequestData();
 
 		$this->assertMatchesRegularExpression('/.*edit-test-record\.php$/', $o->template->path->value);
@@ -126,7 +126,7 @@ class APIRecordPageTest extends APIPageTestBase
 	 */
 	function testGetContentLabel()
 	{
-		$ap = new APIRecordPage();
+		$ap = new APIRecordRoute();
 		$this->assertEquals('', $ap->getContentLabel());
 
 		$ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
@@ -142,7 +142,7 @@ class APIRecordPageTest extends APIPageTestBase
      */
     function testGetContentTypeId()
     {
-        $ap = new APIRecordPage();
+        $ap = new APIRecordRoute();
         $this->assertNull($ap->getContentTypeId());
 
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
@@ -150,16 +150,16 @@ class APIRecordPageTest extends APIPageTestBase
     }
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::loadTemplateContentTestProvider()
-     * @param APIPageLoadTemplateContentTestData $data
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::loadTemplateContentTestProvider()
+     * @param APIRouteLoadTemplateContentTestData $data
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws ResourceNotFoundException
      */
-	function testLoadTemplateContent(APIPageLoadTemplateContentTestData $data)
+	function testLoadTemplateContent(APIRouteLoadTemplateContentTestData $data)
 	{
-		$ap = new APIRecordPage();
+		$ap = new APIRecordRoute();
 		$ap->setContentTypeId($data->content_type_id);
 		$ap->operation->setInputValue($data->operation);
 		$ap->retrieveContentProperties();
@@ -178,7 +178,7 @@ class APIRecordPageTest extends APIPageTestBase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIPageTestDataProvider::lookupRouteTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::lookupRouteTestProvider()
 	 * @param string $operation
 	 * @param string $expected_route
 	 * @return void
@@ -190,7 +190,7 @@ class APIRecordPageTest extends APIPageTestBase
 	 */
     function testLookupRoute(string $operation, string $expected_route)
 	{
-        $ap = new APIRecordPage();
+        $ap = new APIRecordRoute();
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
 		$this->_testLookupRoute($ap, $operation, $expected_route);
 	}
@@ -205,7 +205,7 @@ class APIRecordPageTest extends APIPageTestBase
 	 */
 	function testLookupTemplate()
     {
-        $ap = new APIRecordPage();
+        $ap = new APIRecordRoute();
         $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
         $this->_testLookupTemplate($ap);
     }
@@ -219,11 +219,11 @@ class APIRecordPageTest extends APIPageTestBase
 	{
         $_POST = array(
             LittledGlobals::CONTENT_TYPE_KEY => self::TEST_CONTENT_TYPE_ID,
-            APIPage::TEMPLATE_TOKEN_KEY => 'edit',
+            APIRoute::TEMPLATE_TOKEN_KEY => 'edit',
             LittledGlobals::ID_KEY => self::TEST_RECORD_ID
         );
 
-		$ap = new APIRecordPage();
+		$ap = new APIRecordRoute();
 		$ap->retrieveContentObjectAndData();
 		/** @var TestTableSectionContentTestHarness $content */
 		$content = $ap->content;

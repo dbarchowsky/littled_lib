@@ -1,12 +1,12 @@
 <?php
 namespace Littled\Tests\DataProvider\Validation;
 
-use Littled\API\APIPage;
+use Littled\API\APIRoute;
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\API\APIPageTestHarness;
+use Littled\Tests\TestHarness\API\APIRouteTestHarness;
 use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Utility\LittledUtility;
@@ -126,9 +126,9 @@ class ValidationTestDataProvider
 			array(AppBase::class, PageContent::class, false),
 			array(TestTableContentFiltersTestHarness::class, PageContent::class, false),
 			array(PageContent::class, TestTableContentFiltersTestHarness::class, false),
-			array(new APIPageTestHarness(), ContentFiltersChild::class, false),
-			array(new APIPageTestHarness(), APIPage::class, true),
-			array(new APIPageTestHarness(), APIPageTestHarness::class, true),
+			array(new APIRouteTestHarness(), ContentFiltersChild::class, false),
+			array(new APIRouteTestHarness(), APIRoute::class, true),
+			array(new APIRouteTestHarness(), APIRouteTestHarness::class, true),
 		);
 	}
 

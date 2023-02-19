@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Tests\API;
 
-use Littled\API\APIPage;
+use Littled\API\APIRoute;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -15,7 +15,7 @@ use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 
 
-class APIPageTestBase extends TestCase
+class APIRouteTestBase extends TestCase
 {
     /** @var int */
 	public const        TEST_CONTENT_TYPE_ID = 6037; /* "Test Section" in `site_section` table from littledamien database */
@@ -25,7 +25,7 @@ class APIPageTestBase extends TestCase
     public const        TEST_RECORD_ID = 2023;
 	/** @var string */
 	public const        TEST_RECORD_NAME = 'fixed test record';
-    public const        AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/API/APIPage_collectPageAction.dat";
+    public const        AJAX_INPUT_SOURCE = APP_BASE_DIR."Tests/DataProvider/API/APIRoute_collectPageAction.dat";
     public const        LISTINGS_OPERATION_TOKEN = 'listings';
 
     /**
@@ -37,8 +37,8 @@ class APIPageTestBase extends TestCase
         parent::setUpBeforeClass();
         LittledGlobals::setLocalTemplatesPath(TEST_TEMPLATES_PATH);
 	    LittledGlobals::setSharedTemplatesPath(TEST_TEMPLATES_PATH);
-        APIPage::setControllerClass(ContentControllerTestHarness::class);
-        APIPage::setCacheClass(ContentCacheTestHarness::class);
+        APIRoute::setControllerClass(ContentControllerTestHarness::class);
+        APIRoute::setCacheClass(ContentCacheTestHarness::class);
     }
 
     protected static function restoreInputState()
@@ -48,7 +48,7 @@ class APIPageTestBase extends TestCase
     }
 
     /**
-     * @param APIPage $ap
+     * @param APIRoute $ap
      * @param array $expected
      * @param string $expected_exception
      * @param array $post_data
@@ -61,12 +61,12 @@ class APIPageTestBase extends TestCase
      * @throws RecordNotFoundException|NotImplementedException
      */
     function _testCollectContentProperties(
-        APIPage $ap,
-        array $expected,
-        string $expected_exception='',
-        array $post_data=[],
-        string $ajax_stream='',
-        string $msg='' )
+        APIRoute $ap,
+        array    $expected,
+        string   $expected_exception='',
+        array    $post_data=[],
+        string   $ajax_stream='',
+        string   $msg='' )
     {
         // setup request data sources
         $_POST = $post_data;
@@ -95,7 +95,7 @@ class APIPageTestBase extends TestCase
     }
 
     /**
-	 * @param APIPage $o,
+	 * @param APIRoute $o,
 	 * @param string $expected
 	 * @param array $post_data
 	 * @param string $ajax_stream
@@ -104,16 +104,16 @@ class APIPageTestBase extends TestCase
 	 * @return void
 	 */
 	protected function _testCollectPageAction(
-		APIPage $o,
-		string $expected,
-		array $post_data=[],
-		string $ajax_stream='',
-		?array $custom_data=null,
-		string $msg='')
+        APIRoute $o,
+        string   $expected,
+        array    $post_data=[],
+        string   $ajax_stream='',
+        ?array   $custom_data=null,
+        string   $msg='')
 	{
 		$_POST = $post_data;
 		if ($ajax_stream) {
-			APIPage::setAjaxInputStream($ajax_stream);
+			APIRoute::setAjaxInputStream($ajax_stream);
 		}
 
 		$o->collectPageAction($custom_data);
@@ -121,14 +121,14 @@ class APIPageTestBase extends TestCase
 
 		// restore state
 		$_POST = [];
-		APIPage::setAjaxInputStream('php://input');
+		APIRoute::setAjaxInputStream('php://input');
 	}
 
     /**
-     * @param APIPage $ap
+     * @param APIRoute $ap
      * @return void
      */
-    function _testGetContentLabel(APIPage $ap)
+    function _testGetContentLabel(APIRoute $ap)
     {
         $this->assertEquals('', $ap->getContentLabel());
 
@@ -136,7 +136,7 @@ class APIPageTestBase extends TestCase
         $this->assertEquals('test', $ap->getContentLabel());
     }
 
-    function _testGetContentTypeId(APIPage $ap)
+    function _testGetContentTypeId(APIRoute $ap)
     {
         $this->assertNull($ap->getContentTypeId());
 
@@ -145,7 +145,7 @@ class APIPageTestBase extends TestCase
     }
 
     /**
-     * @param APIPage $ap
+     * @param APIRoute $ap
      * @param string $operation
      * @param string $expected_route
      * @return void
@@ -155,7 +155,7 @@ class APIPageTestBase extends TestCase
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    function _testLookupRoute(APIPage $ap, string $operation, string $expected_route)
+    function _testLookupRoute(APIRoute $ap, string $operation, string $expected_route)
     {
         $ap->getContentProperties()->read();
         $this->assertGreaterThan(0, count($ap->getContentProperties()->routes));
@@ -167,7 +167,7 @@ class APIPageTestBase extends TestCase
     }
 
     /**
-     * @param APIPage $ap
+     * @param APIRoute $ap
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -175,7 +175,7 @@ class APIPageTestBase extends TestCase
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    function _testLookupTemplate(APIPage $ap)
+    function _testLookupTemplate(APIRoute $ap)
     {
         $ap->getContentProperties()->read();
         $this->assertGreaterThan(0, count($ap->getContentProperties()->templates));

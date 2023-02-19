@@ -1,7 +1,7 @@
 <?php
 namespace Littled\Tests\TestHarness\PageContent\Cache;
 
-use Littled\API\APIPage;
+use Littled\API\APIRoute;
 use Littled\API\JSONRecordResponse;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\Cache\ContentCache;
@@ -11,7 +11,7 @@ use Littled\PageContent\SiteSection\SectionContent;
 
 class ContentCacheTestHarness extends ContentCache
 {
-    protected static function loadJsonTemplatePath(APIPage $page, string $operation): string
+    protected static function loadJsonTemplatePath(APIRoute $page, string $operation): string
     {
         return 'Abstract method placeholder.';
     }

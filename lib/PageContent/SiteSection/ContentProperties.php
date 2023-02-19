@@ -223,7 +223,7 @@ class ContentProperties extends SerializedContent
     }
 
     /**
-     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIPage class's methods.
+     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIRoute class's methods.
      * @param int|null $record_id
      * @param int|null $content_type_id
      * @param string $operation

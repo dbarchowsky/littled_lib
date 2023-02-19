@@ -2,41 +2,41 @@
 namespace Littled\Tests\DataProvider\API;
 
 
-use Littled\API\APIPage;
+use Littled\API\APIRoute;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
-use Littled\Tests\API\APIPageTestBase;
+use Littled\Tests\API\APIRouteTestBase;
 use Littled\Utility\LittledUtility;
 
-class APIListingsPageTestDataProvider
+class APIListingsRouteTestDataProvider
 {
     public static function collectContentPropertiesTestProvider(): array
     {
         return array(
             array(
                 array(
-                    'content_type_id' => APIPageTestBase::TEST_CONTENT_TYPE_ID,
-                    'operation' => APIPage::getDefaultTemplateName()), '',
-                array(LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID), '',
+                    'content_type_id' => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
+                    'operation' => APIRoute::getDefaultTemplateName()), '',
+                array(LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID), '',
                 'Content type id value present in POST data'),
             array(
                 array(
-                    'content_type_id' => APIPageTestBase::TEST_CONTENT_TYPE_ID,
+                    'content_type_id' => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
                     'operation' => 'listings'), '',
                 array(
-                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID,
-                    APIPage::TEMPLATE_TOKEN_KEY => 'listings'), '',
+                    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
+                    APIRoute::TEMPLATE_TOKEN_KEY => 'listings'), '',
                 'Content type id and template token values in POST data'),
             array([], ContentValidationException::class, [], '', 'No values present in POST data.'),
             array(
                 array(
-                    'content_type_id' => APIPageTestBase::TEST_CONTENT_TYPE_ID,
+                    'content_type_id' => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
                     'operation' => 'listings'), '',
                 array(
                     LittledGlobals::CONTENT_TYPE_KEY => 3,
-                    APIPage::TEMPLATE_TOKEN_KEY => 'bogus-token'),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIListingsPage_collectContentProperties_01.dat'),
+                    APIRoute::TEMPLATE_TOKEN_KEY => 'bogus-token'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIListingsRoute_collectContentProperties_01.dat'),
                 'Request input defaults to ajax stream over POST data.'
             ),
         );
@@ -49,14 +49,14 @@ class APIListingsPageTestDataProvider
             array(
                 array('name_filter' => 'bar'), '',
                 array(
-                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID,
+                    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
                     'name' => 'bar'
                 ), [], '',
                 'GET data'),
             array(
                 array('name_filter' => 'biz'), '',
                 [], array(
-                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID,
+                    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
                     'name' => 'biz'), '',
                 'POST data'),
             array(
@@ -65,7 +65,7 @@ class APIListingsPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 '', [], [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
                 'ajax stream'),
             array(
                 array(
@@ -73,7 +73,7 @@ class APIListingsPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true), '',
                 array('int_filter' => 82), [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides GET data'),
             array(
                 array(
@@ -81,7 +81,7 @@ class APIListingsPageTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 '', [], array('int_filter' => 629),
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIPage_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides POST data'),
         );
     }
@@ -92,8 +92,8 @@ class APIListingsPageTestDataProvider
             array(
                 '/^<div class=\"listings test-listings">[\s\S]*<td>zib zub<\/td>/',
                 array(
-                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID,
-                    APIPage::TEMPLATE_TOKEN_KEY => 'listings'
+                    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
+                    APIRoute::TEMPLATE_TOKEN_KEY => 'listings'
                 ),
                 'content/test_table/listings.php',
                 null,
@@ -101,10 +101,10 @@ class APIListingsPageTestDataProvider
             array(
                 '/^<div class="test-container">[\s\S]*<div>custom context value: foo<\/div>[\s\S]*<div>default context value: <\/div>/',
                 array(
-                    LittledGlobals::CONTENT_TYPE_KEY => APIPageTestBase::TEST_CONTENT_TYPE_ID,
-                    APIPage::TEMPLATE_TOKEN_KEY => 'listings'
+                    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
+                    APIRoute::TEMPLATE_TOKEN_KEY => 'listings'
                 ),
-                'APIPageTest-LoadTemplateContent.php',
+                'APIRouteTest-LoadTemplateContent.php',
                 array('custom_var' => 'foo', 'content' => 'bar'),
                 'custom template & manual template context'
             ),
