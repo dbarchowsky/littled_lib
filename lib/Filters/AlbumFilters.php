@@ -5,8 +5,6 @@ use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -16,37 +14,36 @@ use Littled\PageContent\SiteSection\ListingsKeywords;
 
 class AlbumFilters extends ContentFilters
 {
-	protected static string $cookie_key = 'alb';
-	/** @var int */
-	protected static ?int $default_listings_length = 20;
+	protected static string         $cookie_key = 'alb';
+	protected static int            $default_listings_length = 20;
 	
-	const RELEASED_AFTER_KEY = "fara";
-	const RELEASED_BEFORE_KEY = "farb";
+	const                           RELEASED_AFTER_KEY = "fara";
+	const                           RELEASED_BEFORE_KEY = "farb";
 
-	/** @var StringContentFilter Keyword filter. */
-	public StringContentFilter $keyword;
-	/** @var StringContentFilter Album title filter. */
-	public StringContentFilter $title;
-	/** @var StringContentFilter Name filter. */
-	public StringContentFilter $name;
-	/** @var StringContentFilter Display date filter. */
-	public StringContentFilter $date;
-	/** @var StringContentFilter Access level filter. */
-	public StringContentFilter $access;
-	/** @var StringContentFilter Filters out records with release dates before the value of this property. */
-	public $release_after;
-	/** @var StringContentFilter Filters out records with release dates after the value of this property. */
-	public $release_before;
-	/** @var IntegerContentFilter Slot filter. */
-	public IntegerContentFilter $slot;
-	/** @var GalleryFilters Gallery filters. */
-	public GalleryFilters $gallery;
+	/** @var StringContentFilter    Keyword filter. */
+	public StringContentFilter      $keyword;
+	/** @var StringContentFilter    Album title filter. */
+	public StringContentFilter      $title;
+	/** @var StringContentFilter    Name filter. */
+	public StringContentFilter      $name;
+	/** @var StringContentFilter    Display date filter. */
+	public StringContentFilter      $date;
+	/** @var StringContentFilter    Access level filter. */
+	public StringContentFilter      $access;
+	/** @var StringContentFilter    Filters out records with release dates before the value of this property. */
+	public                          $release_after;
+	/** @var StringContentFilter    Filters out records with release dates after the value of this property. */
+	public                          $release_before;
+	/** @var IntegerContentFilter   Slot filter. */
+	public IntegerContentFilter     $slot;
+	/** @var GalleryFilters         Gallery filters. */
+	public GalleryFilters           $gallery;
 
 	/**
 	 * Class constructor
 	 * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
 	 * @param int $page_content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
-	 * @param int[optional] $default_page_len Length of the pages of listings.
+	 * @param int $default_page_len Optional length of the pages of listings.
 	 * @throws ConfigurationUndefinedException
 	 */
 	function __construct (int $content_type_id, int $page_content_type_id, int $default_page_len=10 )
@@ -69,11 +66,16 @@ class AlbumFilters extends ContentFilters
 
 	/**
 	 * Get filter values from query string and/or form data.
-	 * @param bool[optional] $save_filters
+	 * @param bool $save_filters
+     * @param array $excluded_properties
+     * @param ?array $src
 	 * @return void
 	 * @throws NotImplementedException
 	 */
-	public function collectFilterValues ($save_filters=true )
+	public function collectFilterValues (
+        bool    $save_filters=true,
+        array   $excluded_properties=[],
+        ?array  $src=null )
 	{
 		parent::collectFilterValues($save_filters);
 		if (!isset($this->page->value)) {
@@ -142,25 +144,22 @@ class AlbumFilters extends ContentFilters
 		return ($this->query_string);
 	}
 
-	/**
-	 * Retrieve section properties.
-	 * @param int|null $content_type_id The id of site section to retrieve properties for.
-	 * @throws InvalidQueryException
-	 * @throws RecordNotFoundException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidTypeException
-	 */
+    /**
+     * Retrieve section properties.
+     * @param int|null $content_type_id The id of site section to retrieve properties for.
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     */
 	public function getAjaxProperties (?int $content_type_id=null)
 	{
 		if ($content_type_id > 0) {
 			$this->content_properties->id->value = $content_type_id;
-			$this->ajax_properties->section_id->value = $content_type_id;
 		}
 		if ($this->content_properties->id->value > 0) {
 			$this->content_properties->read();
-			$this->ajax_properties->retrieveContentProperties();
 		}
 	}
 
@@ -234,9 +233,6 @@ class AlbumFilters extends ContentFilters
 	{
 		if ($count===null) {
 			$count = $this->record_count;
-		}
-		if ($this->ajax_properties->label->value) {
-			return($this->ajax_properties->pluralLabel($count));
 		}
 		if ($this->content_properties->label) {
 			return($this->content_properties->pluralLabel($count));

@@ -3,7 +3,6 @@ namespace Littled\Filters;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
-use Littled\API\ContentAPIProperties;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Exception;
 
@@ -24,11 +23,7 @@ class ContentFilters extends FilterCollection
 	/** @var string */
 	public const NEXT_OP_LIST = 'list';
 
-	/** @var ContentProperties Content properties */
 	public ContentProperties $content_properties;
-	/** @var ContentAPIProperties API properties */
-	public ContentAPIProperties $ajax_properties;
-	/** @var ?int */
 	protected static ?int $content_type_id=null;
 
 	/**
@@ -40,11 +35,7 @@ class ContentFilters extends FilterCollection
 	{
 		parent::__construct();
 		$this->content_properties = new ContentProperties(self::getContentTypeId());
-		$this->ajax_properties = new ContentAPIProperties();
-
 		$this->content_properties->read();
-        $this->ajax_properties->section_id->value = $this->getContentTypeId();
-		$this->ajax_properties->retrieveContentProperties();
 	}
 
     /**

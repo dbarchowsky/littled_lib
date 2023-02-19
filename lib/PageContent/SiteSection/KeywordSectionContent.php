@@ -1,37 +1,34 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
-
-// use Littled\Cache\ContentCache;
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
-use Littled\API\ContentAPIProperties;
+
 
 /**
  * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms associated with a content record.
  */
 abstract class KeywordSectionContent extends SectionContent
 {
-	/** @var StringTextarea Container for collecting keyword form data. */
-	public StringTextarea $keyword_input;
-	/** @var Keyword[] List of all keywords linked to the parent record. */
-	public array $keywords=[];
-	/** @var string Path to template used to display individual keyword terms on frontend pages */
-	protected static string $keyword_cell_template = '';
-	/** @var string Path to template used on frontend pages to display all keyword terms linked to the parent record. */
-	protected static string $keyword_list_template = '';
-    protected static string $keyword_key = 'kw';
-	/* keyword category id */
-	protected static int $keyword_category_id;
+	/** @var StringTextarea     Container for collecting keyword form data. */
+	public StringTextarea       $keyword_input;
+	/** @var Keyword[]          List of all keywords linked to the parent record. */
+	public array                $keywords=[];
+	/** @var string             Path to template used to display individual keyword terms on frontend pages */
+	protected static string     $keyword_cell_template = '';
+	/** @var string             Path to template used on frontend pages to display all keyword terms linked to the parent record. */
+	protected static string     $keyword_list_template = '';
+    protected static string     $keyword_key = 'kw';
+	/** @var int                Keyword category record id */
+	protected static int        $keyword_category_id;
 
 	/**
 	 * KeywordSectionContent constructor.
@@ -188,13 +185,13 @@ abstract class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Retrieves the keyword template path from the database and uses the value to set the class's keyword template path property.
-     * @throws RecordNotFoundException
-	 */
+     */
 	protected function fetchKeywordListTemplate(): void
 	{
-		$ao = new ContentAPIProperties($this->content_properties->id->value);
-		$ao->retrieveContentProperties();
-		self::setKeywordsListTemplatePath($ao->keywords_template->value);
+        $t = $this->content_properties->getContentTemplateByName('keyword_list');
+        if ($t) {
+            self::setKeywordsListTemplatePath($t->path->value);
+        }
 	}
 
 	/**
@@ -221,8 +218,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-     * @throws RecordNotFoundException
-	 * @throws ResourceNotFoundException
+     * @throws ResourceNotFoundException
 	 */
 	public function formatKeywordListPageContent(array $context=array()): string
 	{
@@ -324,7 +320,6 @@ abstract class KeywordSectionContent extends SectionContent
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -363,8 +358,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function save()
