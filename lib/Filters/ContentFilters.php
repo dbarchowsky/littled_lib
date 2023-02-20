@@ -2,9 +2,11 @@
 namespace Littled\Filters;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Exception;
+use Littled\Validation\Validation;
 
 
 /**
@@ -28,13 +30,17 @@ class ContentFilters extends FilterCollection
 
 	/**
 	 * ContentFilters constructor.
+     * @param string $properties_class Optional subclass of ContentProperties.
 	 * @throws ConfigurationUndefinedException Database connections properties not set.
 	 * @throws Exception Error retrieving content section properties.
 	 */
-	function __construct()
+	function __construct(string $properties_class=ContentProperties::class)
 	{
 		parent::__construct();
-		$this->content_properties = new ContentProperties(self::getContentTypeId());
+        if(!Validation::isSubclass($properties_class, ContentProperties::class)) {
+            throw new InvalidTypeException('Invalid content properties type.');
+        }
+		$this->content_properties = new $properties_class(self::getContentTypeId());
 		$this->content_properties->read();
 	}
 

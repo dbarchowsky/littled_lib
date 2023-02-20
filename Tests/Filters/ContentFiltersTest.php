@@ -1,10 +1,14 @@
 <?php
 namespace Littled\Tests\Filters;
 
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
+use Littled\Filters\FilterCollection;
+use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Tests\TestHarness\Filters\ContentFiltersProcedureChild;
 use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
+use Littled\Tests\TestHarness\PageContent\SiteSection\ContentPropertiesTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -17,6 +21,16 @@ class ContentFiltersTest extends TestCase
     {
         $cf = new ContentFiltersChild();
         $this->assertEquals('article', $cf->content_properties->label->value);
+        $this->assertEquals(ContentProperties::class, get_class($cf->content_properties));
+    }
+
+    function testConstructUsingContentPropertiesSubclass()
+    {
+        $cf = new ContentFiltersChild(ContentPropertiesTestHarness::class);
+        $this->assertEquals(ContentPropertiesTestHarness::class, get_class($cf->content_properties));
+
+        $this->expectException(InvalidTypeException::class);
+        new ContentFiltersChild(FilterCollection::class);
     }
 
     /**
