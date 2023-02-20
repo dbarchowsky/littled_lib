@@ -447,17 +447,17 @@ class Validation
 	}
 
 	/**
-	 * Tests if $b is a subclass of $a. Both parameters can the qualified names of the classes as strings.
-	 * @param $a
-	 * @param string $b
+	 * Tests if $sub is a subclass of $base. Both parameters can the qualified names of the classes as strings.
+	 * @param $sub
+	 * @param string $base
 	 * @return bool
 	 */
-	public static function isSubclass($a, string $b): bool
+	public static function isSubclass($sub, string $base): bool
 	{
 		return (
-			(is_object($a) && get_class($a)==$b) ||
-			($a==$b) ||
-			(is_subclass_of($a, $b)));
+			(is_object($sub) && get_class($sub)==$base) ||
+			($sub==$base) ||
+			(is_subclass_of($sub, $base)));
 	}
 
 	/**

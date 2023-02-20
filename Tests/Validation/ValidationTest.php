@@ -250,9 +250,9 @@ class ValidationTest extends TestCase
 	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::isSubclassTestProvider()
 	 * @return void
 	 */
-	function testIsSubclass($a, string $b, bool $expected)
+	function testIsSubclass($sub, string $base, bool $expected)
 	{
-		$this->assertEquals($expected, Validation::isSubclass($a, $b));
+		$this->assertEquals($expected, Validation::isSubclass($sub, $base));
 	}
 
 	function testParseInput_PostData()
