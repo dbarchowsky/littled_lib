@@ -63,18 +63,6 @@ class APIListingsRoute extends APIRoute
 	}
 
     /**
-     * Assigns a ContentFilters instance to the $filters property.
-     * @return void
-     * @throws ConfigurationUndefinedException
-     */
-    protected function initializeFiltersObject(?int $content_type_id=null)
-    {
-        $this->filters = call_user_func(
-            [static::getControllerClass(), 'getContentFiltersObject'],
-            $content_type_id ?: $this->getContentTypeId());
-    }
-
-    /**
      * @inheritDoc
      */
     public function retrieveContentData()

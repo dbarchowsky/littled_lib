@@ -131,6 +131,22 @@ abstract class APIRoute extends PageContentBase
         $this->lookupTemplate();
     }
 
+    /**
+     * Assigns filter values from client request data.
+     * @throws NotImplementedException
+     * @throws ConfigurationUndefinedException
+     */
+    public function collectFiltersRequestData(?int $content_type_id=null)
+    {
+        if (!isset($this->filters)) {
+            if (!$content_type_id) {
+                throw new ConfigurationUndefinedException('Content type not provided.');
+            }
+            $this->initializeFiltersObject($content_type_id);
+        }
+        $this->filters->collectFilterValues();
+    }
+
 	/**
 	 * Fills out input values from request data.
 	 * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
@@ -339,12 +355,6 @@ abstract class APIRoute extends PageContentBase
     }
 
 	/**
-	 * Test if this instance has content properties currently loaded.
-	 * @return bool
-	 */
-	abstract public function hasContentPropertiesObject(): bool;
-
-	/**
      * @inheritDoc
 	 * @throws ConfigurationUndefinedException
 	 * @throws Exception
@@ -360,7 +370,25 @@ abstract class APIRoute extends PageContentBase
 		return LittledUtility::joinPaths(static::getDefaultTemplateDir(), $this->template->path->value);
 	}
 
-	/**
+    /**
+     * Test if this instance has content properties currently loaded.
+     * @return bool
+     */
+    abstract public function hasContentPropertiesObject(): bool;
+
+    /**
+     * Assigns a ContentFilters instance to the $filters property.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected function initializeFiltersObject(?int $content_type_id=null)
+    {
+        $this->filters = call_user_func(
+            [static::getControllerClass(), 'getContentFiltersObject'],
+            $content_type_id ?: $this->getContentTypeId());
+    }
+
+    /**
 	 * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
 	 * @param array|null $context Optional array containing data to inject into the template.
 	 * @throws ResourceNotFoundException

@@ -3,6 +3,7 @@ namespace API;
 
 use Exception;
 use Littled\API\APIListingsRoute;
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -13,7 +14,9 @@ use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Tests\API\APIRouteTestBase;
 use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
 use Littled\Tests\TestHarness\API\APIRouteTestHarness;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use Littled\Validation\Validation;
 
 
@@ -24,6 +27,37 @@ class APIListingsRouteTest extends APIRouteTestBase
         $ap = new APIListingsRoute();
         $this->assertEquals('', $ap->operation->value);
     }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+    function testCollectFiltersRequestData()
+    {
+        $_POST = array(
+            LittledGlobals::CONTENT_TYPE_KEY => TestTableSectionContentTestHarness::getContentTypeId(),
+            'name' => 'foo',
+            'dateAfter' => '2023-02-20'
+        );
+
+        $cf = new APIListingsRouteTestHarness();
+        $cf->collectContentProperties();
+        $cf->collectFiltersRequestData();
+
+        /** @var TestTableContentFiltersTestHarness $filters */
+        $filters = $cf->filters;
+        $this->assertEquals(TestTableSectionContentTestHarness::getContentTypeId(), $cf->getContentTypeId());
+        $this->assertEquals('foo', $filters->name_filter->value);
+        $this->assertEquals('02/20/2023', $filters->date_after->value);
+
+        // restore state
+        $_POST = [];
+    }
+
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::collectContentPropertiesTestProvider()

@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\Filters;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
@@ -9,6 +10,7 @@ use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Tests\TestHarness\Filters\ContentFiltersProcedureChild;
 use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use Littled\Tests\TestHarness\PageContent\SiteSection\ContentPropertiesTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
