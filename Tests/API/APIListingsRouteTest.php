@@ -58,7 +58,6 @@ class APIListingsRouteTest extends APIRouteTestBase
         $_POST = [];
     }
 
-
     /**
      * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
@@ -111,7 +110,7 @@ class APIListingsRouteTest extends APIRouteTestBase
         $ajax_data = null;
         if ($ajax_stream) {
             Validation::setAjaxInputStream($ajax_stream);
-            $ajax_data = APIRouteTestHarness::publicGetAjaxClientRequestData();
+            $ajax_data = APIRouteTestHarness::getAjaxClientRequestData();
         }
 
         if ($expected_exception) {
@@ -206,6 +205,19 @@ class APIListingsRouteTest extends APIRouteTestBase
         $this->_testGetContentTypeId(new APIListingsRoute());
     }
 
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws NotImplementedException
+     */
+    function testInitializeFiltersObject()
+    {
+        $r = new APIListingsRouteTestHarness();
+        $r->initializeFiltersObject(APIRouteTestBase::TEST_CONTENT_TYPE_ID);
+        $this->assertEquals(APIRouteTestBase::TEST_CONTENT_TYPE_ID, $r->filters->content_properties->id->value);
+        $this->assertEquals(APIRouteTestBase::TEST_CONTENT_TYPE_ID, $r->filters::getContentTypeId());
+        $this->assertEquals(APIRouteTestBase::TEST_CONTENT_TYPE_ID, $r->getContentProperties()->getRecordId());
+    }
+
 	/**
      * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::loadTemplateContentTestProvider()
      * @param string $expected
@@ -256,8 +268,7 @@ class APIListingsRouteTest extends APIRouteTestBase
     function testLookupRoute(string $operation, string $expected_route)
     {
         $ap = new APIListingsRouteTestHarness();
-        $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
-        $ap->initializeFiltersObject();
+        $ap->initializeFiltersObject(self::TEST_CONTENT_TYPE_ID);
         $this->_testLookupRoute($ap, $operation, $expected_route);
     }
 
@@ -271,8 +282,7 @@ class APIListingsRouteTest extends APIRouteTestBase
     function testLookupTemplate()
     {
         $ap = new APIListingsRouteTestHarness();
-        $ap->setContentTypeId(self::TEST_CONTENT_TYPE_ID);
-        $ap->initializeFiltersObject();
+        $ap->initializeFiltersObject(self::TEST_CONTENT_TYPE_ID);
         $this->_testLookupTemplate($ap);
     }
 }

@@ -5,31 +5,25 @@ use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\PageContent;
 
 
 class APIRouteTestHarness extends APIRoute
 {
-    public static function publicGetAjaxClientRequestData(): ?array
+    public function collectAndLoadJsonContent()
     {
-        return parent::getAjaxClientRequestData();
+        // TODO: Implement collectAndLoadJsonContent() method.
     }
 
     /**
-     * @return PageContent
-     * @throws ConfigurationUndefinedException
-     * @throws InvalidValueException
-     * @throws InvalidQueryException
+     * @inheritDoc
+     * Override parent to provide public interface for tests.
      */
-    public function newRoutedPageContentTemplateInstance(): PageContent
+    public static function getAjaxClientRequestData(): ?array
     {
-        return $this->newRoutedPageContentInstance();
+        return parent::getAjaxClientRequestData();
     }
-
-	public function collectAndLoadJsonContent()
-	{
-		// TODO: Implement collectAndLoadJsonContent() method.
-	}
 
 	public function hasContentPropertiesObject(): bool
 	{
@@ -37,7 +31,27 @@ class APIRouteTestHarness extends APIRoute
         return false;
 	}
 
-	public function retrieveContentData()
+    /**
+     * @inheritDoc
+     * Override parent to provide public interface for tests.
+     */
+    public function initializeFiltersObject(?int $content_type_id = null)
+    {
+        parent::initializeFiltersObject($content_type_id);
+    }
+
+    /**
+     * @return PageContent
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidValueException
+     * @throws InvalidQueryException|RecordNotFoundException
+     */
+    public function newRoutedPageContentTemplateInstance(): PageContent
+    {
+        return $this->newRoutedPageContentInstance();
+    }
+
+    public function retrieveContentData()
 	{
 		// TODO: Implement retrieveContentData() method.
 	}

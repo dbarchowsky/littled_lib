@@ -4,6 +4,8 @@ namespace Littled\Tests\API;
 use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Filters\ContentFilters;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Tests\TestHarness\API\APIRouteTestHarness;
 use Littled\Utility\LittledUtility;
@@ -16,10 +18,10 @@ class APIRouteTest extends APIRouteTestBase
 	{
 		$expected = array("key1"=>"value1","keyTwo"=>"value two","jsonKey"=>"json value");
 		Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data.dat'));
-		$this->assertEquals($expected, APIRouteTestHarness::publicGetAjaxClientRequestData());
+		$this->assertEquals($expected, APIRouteTestHarness::getAjaxClientRequestData());
 
 		Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data-empty.dat'));
-		$this->assertEquals(null, APIRouteTestHarness::publicGetAjaxClientRequestData());
+		$this->assertEquals(null, APIRouteTestHarness::getAjaxClientRequestData());
 
 		// restore state
 		Validation::setAjaxInputStream('php://input');
@@ -33,6 +35,21 @@ class APIRouteTest extends APIRouteTestBase
 		$content = call_user_func_array([APIRoute::getControllerClass(), 'getContentObject'], array(self::TEST_CONTENT_TYPE_ID));
 		$this->assertInstanceOf(SerializedContent::class, $content);
 	}
+
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws NotImplementedException
+     */
+    function testInitializeFiltersObject()
+    {
+        $r = new APIRouteTestHarness();
+        $r->initializeFiltersObject(APIRouteTestBase::TEST_CONTENT_TYPE_ID);
+        $this->assertInstanceOf(ContentFilters::class, $r->filters);
+        $this->assertEquals(APIRouteTestBase::TEST_CONTENT_TYPE_ID, $r->filters->content_properties->id->value);
+        $this->assertEquals(APIRouteTestBase::TEST_CONTENT_TYPE_ID, $r->filters::getContentTypeId());
+        // null because APIRoute::getContentProperties() doesn't check the $filters property like APIListingsRoute::getContentProperties() would
+        $this->assertEquals(null, $r->getContentProperties()->getRecordId());
+    }
 
     /**
      * @runInSeparateProcess

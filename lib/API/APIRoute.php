@@ -388,6 +388,7 @@ abstract class APIRoute extends PageContentBase
         $this->filters = call_user_func(
             [static::getControllerClass(), 'getContentFiltersObject'],
             $content_type_id ?: $this->getContentTypeId());
+        $this->getContentProperties()->setRecordId($content_type_id);
     }
 
     /**
