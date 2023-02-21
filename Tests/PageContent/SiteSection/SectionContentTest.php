@@ -9,8 +9,10 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentWithoutTypeTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase
@@ -85,6 +87,42 @@ class SectionContentTest extends TestCase
 		$this->assertFalse($this->obj->content_properties->is_cached->value);
 	}
 
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws Exception
+     */
+    function testDelete()
+    {
+        $o = new TestTableSectionContentTestHarness();
+        $start_count = static::getRecordCount($o);
+
+        $query = 'SELECT MIN(t1.id + 1) AS next_id '.
+            'FROM '.$o::getTableName().' AS t1 '.
+            'LEFT JOIN '.$o::getTableName().' AS t2 '.
+            'ON t1.id + 1 = t2.id '.
+            'WHERE t2.id IS NULL';
+        $data = $o->fetchRecords($query);
+        if (count($data) < 1) {
+            throw new Exception('Temp id not available.');
+        }
+        $o->id->setInputValue($data[0]->next_id);
+        $o->name->setInputValue('test record');
+        $o->save();
+
+        $add_count = static::getRecordCount($o);
+        $this->assertEquals($start_count+1, $add_count);
+
+        $status = $o->delete();
+        $this->assertMatchesRegularExpression('/successfully deleted '.$o->getContentLabel().'/i', $status);
+
+        $deleted_count = static::getRecordCount($o);
+        $this->assertEquals($start_count, $deleted_count);
+    }
+
 	function testGetContentLabel()
 	{
 		$o = new SectionContentTestHarness();
@@ -131,4 +169,13 @@ class SectionContentTest extends TestCase
 		$this->assertEquals("content_template", $this->obj->content_properties->table->value);
 		$this->assertEquals(27, $this->obj->content_properties->parent_id->value);
 	}
+
+    /**
+     * @throws NotImplementedException
+     */
+    static function getRecordCount(SectionContent $o): int
+    {
+        $data = $o->fetchRecords('SELECT COUNT(1) AS `count` FROM `'.$o::getTableName().'`');
+        return $data[0]->count;
+    }
 }

@@ -27,7 +27,7 @@ class TestTableSectionContentTestHarness extends parentAlias
      * @param string $name Test string field.
      * @param int|null $int_col Test integer value field.
      * @param bool|null $bool_col Test boolean value field.
-     * @param string $date Test date value field.
+     * @param ?string $date Test date value field.
      * @param int|null $slot Place of the record within listings of similar records.
      * @throws ConfigurationUndefinedException
      */
@@ -36,7 +36,7 @@ class TestTableSectionContentTestHarness extends parentAlias
         string $name='',
         ?int $int_col=null,
         ?bool $bool_col=null,
-        string $date='',
+        ?string $date=null,
         ?int $slot=null)
     {
         parent::__construct($id);
@@ -45,5 +45,20 @@ class TestTableSectionContentTestHarness extends parentAlias
         $this->bool_col = new BooleanInput('Boolean column', 'boolCol', false, $bool_col);
         $this->date = new DateInput('Date', 'Date column', false, $date);
         $this->slot = new IntegerInput('Slot', 'slot', false, $slot);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function generateUpdateQuery(): ?array
+    {
+        return array('CALL testTableUpdate(?,?,?,?,?,?)',
+            'isiisi',
+            &$this->id->value,
+            &$this->name->value,
+            &$this->int_col->value,
+            &$this->bool_col->value,
+            &$this->date->value,
+            &$this->slot->value);
     }
 }

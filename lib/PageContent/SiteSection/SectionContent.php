@@ -71,7 +71,7 @@ abstract class SectionContent extends SerializedContent
 	public function delete(): string
 	{
 		parent::delete();
-		return ("Successfully deleted ".strtolower($this->content_properties->name->value)." record.");
+		return ("Successfully deleted ".strtolower($this->getContentLabel())." record.");
 	}
 
     /**
