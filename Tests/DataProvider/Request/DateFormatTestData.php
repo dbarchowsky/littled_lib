@@ -11,7 +11,7 @@ class DateFormatTestData
 
     public ?string $date_string;
     public string $format;
-    public string $expected;
+    public ?string $expected;
     public ?string $expected_exception_class;
     public ?string $expected_exception;
     public string $msg;
@@ -48,5 +48,10 @@ class DateFormatTestData
     function dateStringProvider(): array
     {
         return [$this->date_string, $this->expected, $this->expected_exception_class, $this->expected_exception];
+    }
+
+    function mapSetInputValueData(): array
+    {
+        return array($this->date_string, $this->expected);
     }
 }

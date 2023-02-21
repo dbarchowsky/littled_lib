@@ -146,7 +146,7 @@ class DateInput extends StringInput
 			$this->setDateValue($date_format);
 		}
 		catch(ContentValidationException $ex) {
-			$this->value = '';
+			$this->value = null;
 		}
 	}
 

@@ -99,12 +99,13 @@ class DateInputTestDataProvider
     {
         $m = date('m');
         $d = date('d');
-        return array_map(function(DateFormatTestData $e) { return $e->dateStringProvider(); },  array(
-            new DateFormatTestData('', '', ''),
+        return array_map(function(DateFormatTestData $e) { return $e->mapSetInputValueData(); },  array(
+            new DateFormatTestData(null, '', null),
+            new DateFormatTestData('', '', null),
             new DateFormatTestData('1/1/2018', '', '2018-01-01'),
             new DateFormatTestData('2018-01-01', '', '2018-01-01'),
             new DateFormatTestData('June 13, 1969', '', '1969-06-13'),
-            new DateFormatTestData('dfdfdfd', '', ''),
+            new DateFormatTestData('dfdfdfd', '', null),
             new DateFormatTestData('7269', '', "7269-$m-$d")));
     }
 
