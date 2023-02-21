@@ -136,7 +136,7 @@ class APIRecordRoute extends APIRoute
 	 */
 	public function retrieveContentObjectAndData()
 	{
-        $ajax_data = APIRoute::getAjaxClientRequestData();
+        $ajax_data = static::getAjaxRequestData();
 		$this->initializeContentObject(null, $ajax_data);
         $this->content->id->collectRequestData($ajax_data);
 		$this->retrieveContentData();

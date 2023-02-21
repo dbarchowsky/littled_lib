@@ -30,12 +30,11 @@ class BooleanInput extends RequestInput
 	}
 
 	/**
-	 * Assigns property value from corresponding value in JSON data passed along with a client request.
-	 * @param object $data
+	 * @inheritDoc
 	 */
-	public function collectJsonRequestData(object $data)
+	public function collectAjaxRequestData(object $data)
 	{
-		parent::collectJsonRequestData($data);
+		parent::collectAjaxRequestData($data);
 		$this->value = Validation::parseBoolean($this->value);
 	}
 

@@ -38,13 +38,12 @@ class DateInput extends StringInput
 	}
 
 	/**
-	 * Collects date value from JSON request data.
-	 * @param object $data Data collects containing the date value.
+	 * @inheritDoc
 	 * @throws ContentValidationException
 	 */
-	public function collectJsonRequestData(object $data)
+	public function collectAjaxRequestData(object $data)
 	{
-		parent::collectJsonRequestData($data);
+		parent::collectAjaxRequestData($data);
 		if (strlen("".$this->value)>0) {
 			$this->setDateValue();
 		}

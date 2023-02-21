@@ -42,8 +42,6 @@ abstract class APIRoute extends PageContentBase
     /** @var string             Name of the default template to use in derived classes to generate markup. */
     protected static string     $default_template_dir='';
     protected static string     $default_template_name = '';
-    /** @var string             Input stream of API client requests */
-    protected static string     $ajax_input_stream = 'php://input';
 
 	/** @var string             String indicating the action to be taken on the page. */
 	public string               $action='';
@@ -105,7 +103,7 @@ abstract class APIRoute extends PageContentBase
     public function collectContentProperties(string $key=LittledGlobals::CONTENT_TYPE_KEY)
     {
 	    // use ajax request data by default
-        $ajax_rd = static::getAjaxClientRequestData();
+        $ajax_rd = static::getAjaxRequestData();
 
 		$cp = $this->getContentProperties();
 		if (!$cp->id->value) {
@@ -169,7 +167,7 @@ abstract class APIRoute extends PageContentBase
 			/* use only POST, not GET */
 			$src = $_POST;
             if (!is_array($src) || count($src) < 1) {
-                $json = file_get_contents(static::$ajax_input_stream);
+                $json = file_get_contents(static::getAjaxInputStream());
                 if (!$json) {
                     return $this;
                 }
@@ -243,22 +241,6 @@ abstract class APIRoute extends PageContentBase
 			$data[0]->location
 		);
 	}
-
-    /**
-     * Read the AJAX input stream. Convert its contents into an array of variables containing client request variables.
-     * Returns NULL instead of an empty array if no variables are found in the input stream. The result of this method
-     * can then be used as the default source of request variables for request collection routines that normally default
-     * to using GET and POST data ahead of AJAX input streams.
-     * @return array|null
-     */
-    protected static function getAjaxClientRequestData(): ?array
-    {
-        $data = Validation::getAjaxClientRequestData();
-        if (count($data)===0) {
-            $data = null;
-        }
-        return $data;
-    }
 
     /**
      * Cache class name getter.
@@ -567,16 +549,6 @@ abstract class APIRoute extends PageContentBase
 		header("Content-Type: text/plain\n\n");
 		print($response ?: $this->json->content->value);
 	}
-
-    /**
-     * API input stream setter.
-     * @param string $input_stream
-     * @return void
-     */
-    public static function setAjaxInputStream(string $input_stream)
-    {
-        static::$ajax_input_stream = $input_stream;
-    }
 
     /**
      * Content cache class setter.

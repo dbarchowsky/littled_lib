@@ -2,6 +2,7 @@
 namespace Littled\Tests\API;
 
 use Littled\API\APIRoute;
+use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -44,7 +45,7 @@ class APIRouteTestBase extends TestCase
     protected static function restoreInputState()
     {
         $_GET = $_POST = [];
-        Validation::setAjaxInputStream('php://input');
+        AppBase::setAjaxInputStream('php://input');
     }
 
     /**
@@ -71,7 +72,7 @@ class APIRouteTestBase extends TestCase
         // setup request data sources
         $_POST = $post_data;
         if ($ajax_stream) {
-            Validation::setAjaxInputStream($ajax_stream);
+            AppBase::setAjaxInputStream($ajax_stream);
         }
 
         if ($expected_exception) {
@@ -91,7 +92,7 @@ class APIRouteTestBase extends TestCase
 
         // restore state
         $_POST = [];
-        Validation::setAjaxInputStream('php://input');
+        AppBase::setAjaxInputStream('php://input');
     }
 
     /**

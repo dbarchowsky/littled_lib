@@ -2,10 +2,12 @@
 namespace Littled\Tests\Validation;
 
 use Exception;
+use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
+use Littled\Request\RequestInput;
 use Littled\Tests\TestHarness\Validation\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
@@ -118,10 +120,10 @@ class ValidationTest extends TestCase
             $_SERVER[$key2] = $ip2;
         }
         if ($expected) {
-            $this->assertEquals($ip, ValidationTestHarness::publicGetClientIP());
+            $this->assertEquals($ip, ValidationTestHarness::getClientIP());
         }
         else {
-            $this->assertEquals('', ValidationTestHarness::publicGetClientIP());
+            $this->assertEquals('', ValidationTestHarness::getClientIP());
         }
     }
 
@@ -157,17 +159,17 @@ class ValidationTest extends TestCase
     function testGetAjaxClientRequestData()
     {
         $expected = array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value");
-        Validation::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
-        $data = Validation::getAjaxClientRequestData();
+        AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+        $data = AppBase::getAjaxRequestData();
         $this->assertEquals($expected, $data);
 
         // restore state
-        Validation::setAjaxInputStream('php://input');
+        AppBase::setAjaxInputStream('php://input');
     }
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getDefaultInputSourceTestProvider()
-     * @param array $expected
+     * @param ?array $expected
      * @param array $get_data
      * @param array $post_data
      * @param string $input_stream
@@ -175,7 +177,7 @@ class ValidationTest extends TestCase
      * @return void
      */
     function testGetDefaultInputSource(
-        array $expected,
+        ?array $expected,
         array $get_data=[],
         array $post_data=[],
         string $input_stream='',
@@ -184,14 +186,14 @@ class ValidationTest extends TestCase
         $_GET = $get_data;
         $_POST = $post_data;
         if ($input_stream) {
-            ValidationTestHarness::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+            AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
         }
 
-        $this->assertEquals($expected, ValidationTestHarness::publicGetDefaultInputSource($ignore_keys));
+        $this->assertEquals($expected, ValidationTestHarness::getDefaultInputSource($ignore_keys));
 
         // restore original state
         $_GET = $_POST = [];
-        ValidationTestHarness::setAjaxInputStream('php://input');
+        AppBase::setAjaxInputStream('php://input');
     }
 
     /**
@@ -257,23 +259,24 @@ class ValidationTest extends TestCase
 
 	function testParseInput_PostData()
     {
-        $_POST['key1'] = 'value1';
-        $_POST['key2'] = 'value two';
+        $_POST = array(
+            'key1' => 'value1',
+            'key2' => 'value two');
 
-        $this->assertEquals('value1', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key1'));
-        $this->assertEquals('value two', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key2'));
-        $this->assertEquals(null, ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'NonexistentKey'));
-        unset($_POST['key1']);
-        unset($_POST['key2']);
+        $this->assertEquals('value1', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'key1'));
+        $this->assertEquals('value two', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'key2'));
+        $this->assertEquals(null, ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'NonexistentKey'));
+
+        $_POST = [];
     }
 
     function testParseInput_AjaxData()
     {
-        Validation::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
-        $this->assertEquals('value1', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'key1'));
-        $this->assertEquals('value two', ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'keyTwo'));
-        $this->assertEquals(null, ValidationTestHarness::parseInput_Public(FILTER_UNSAFE_RAW, 'NonexistentKey'));
-        Validation::setAjaxInputStream('php://input');
+        AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+        $this->assertEquals('value1', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'key1'));
+        $this->assertEquals('value two', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'keyTwo'));
+        $this->assertEquals(null, ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'NonexistentKey'));
+        AppBase::setAjaxInputStream('php://input');
     }
 
     /**

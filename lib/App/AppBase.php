@@ -1,8 +1,8 @@
 <?php
 namespace Littled\App;
 
-use Littled\Request\RequestInput;
 use Exception;
+use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
 /**
@@ -26,19 +26,18 @@ class AppBase
 	}
 
     /**
-     * Assigns JSON request data values to object properties.
+     * Assigns client ajax request data values to object properties.
      * @param ?object $data
      */
-    public function collectJsonRequestData(?object $data=null)
+    public function collectAjaxClientRequestData(?object $data=null)
     {
         if (is_null($data)) {
-            $json = file_get_contents('php://input');
-            $data = json_decode($json);
+            $data = static::getAjaxRequestData();
         }
         foreach($this as $item) {
-            if (is_object($item) && method_exists($item, 'collectJsonRequestData')) {
+            if (is_object($item) && method_exists($item, 'collectAjaxRequestData')) {
                 /** @var RequestInput $item */
-                $item->collectJsonRequestData($data);
+                $item->collectAjaxRequestData($data);
             }
         }
     }
@@ -62,6 +61,25 @@ class AppBase
     {
         $bytes = random_bytes(ceil($length/2));
         return (substr(bin2hex($bytes), 0, $length));
+    }
+
+    /**
+     * Returns the stream currently being used as the source of ajax client request data.
+     * @return string
+     */
+    protected static function getAjaxInputStream(): string
+    {
+        return static::$ajax_input_stream;
+    }
+
+    /**
+     * Returns an array containing client request data sent as AJAX request in request headers.
+     * @return array Returns an array containing client request data or null if no data is available in the ajax request headers.
+     */
+    public static function getAjaxRequestData(): ?array
+    {
+        $data = (array)json_decode(file_get_contents(static::$ajax_input_stream));
+        return ((count($data)>0)?($data):(null));
     }
 
     /**
@@ -112,16 +130,7 @@ class AppBase
     }
 
     /**
-     * Gets client request data when it is sent as JSON in request headers.
-     * @return array
-     */
-    public static function getJSONRequestData(): array
-    {
-        return (array)json_decode(file_get_contents(static::$ajax_input_stream));
-    }
-
-    /**
-     * Gets client request data from either POST variables, GET variables, or AJAX JSON data.
+     * Gets client request data from either POST variables, GET variables, or AJAX client request data.
      * @param array|null $src (Optional) Specify either $_POST or $_GET with this parameter to exclude the other from
      * the data that can be returned.
      * @return array
@@ -132,7 +141,7 @@ class AppBase
             $src = array_merge($_POST, $_GET);
         }
         if (count($src) < 1) {
-            $src = self::getJSONRequestData();
+            $src = self::getAjaxRequestData() ?: [];
         }
         return $src;
     }

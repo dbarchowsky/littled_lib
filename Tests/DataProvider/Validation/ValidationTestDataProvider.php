@@ -78,7 +78,7 @@ class ValidationTestDataProvider
     public static function getDefaultInputSourceTestProvider(): array
     {
         return array(
-            array(array()),
+            array([]),
             array(array('getVar' => 'value 1'), array('getVar' => 'value 1')),
             array(array('postVar' => 'post 1'), [], array('postVar' => 'post 1')),
             array(

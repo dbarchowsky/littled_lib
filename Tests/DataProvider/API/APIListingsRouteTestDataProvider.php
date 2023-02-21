@@ -65,7 +65,7 @@ class APIListingsRouteTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true),
                 '', [], [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIListingsRouteTest_collectRequestData_01.dat'),
                 'ajax stream'),
             array(
                 array(
@@ -73,7 +73,7 @@ class APIListingsRouteTestDataProvider
                     'int_filter' => 43,
                     'bool_filter' => true), '',
                 array('int_filter' => 82), [],
-                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
+                LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIListingsRouteTest_collectRequestData_01.dat'),
                 'ajax stream overrides GET data'),
             array(
                 array(

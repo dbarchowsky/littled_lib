@@ -17,35 +17,33 @@ use mysqli;
  */
 class RequestInput
 {
-    /** @var string Path to form input templates. */
-    protected static string $template_base_path = '';
-    /** @var string Input template filename. */
-    protected static string $template_filename = 'hidden-input.php';
-    /** @var string Form input element filename. */
-    protected static string $input_template_filename = '';
-    /** @var string Required field indicator string. */
-    protected static string $required_field_indicator = ' (*)';
-    /** @var string Error indicator CSS class. */
-    protected static string $error_class = 'form-error';
+    /** @var string             Path to form input templates. */
+    protected static string     $template_base_path = '';
+    /** @var string I           nput template filename. */
+    protected static string     $template_filename = 'hidden-input.php';
+    /** @var string             Form input element filename. */
+    protected static string     $input_template_filename = '';
+    /** @var string             Required field indicator string. */
+    protected static string     $required_field_indicator = ' (*)';
+    /** @var string             Error indicator CSS class. */
+    protected static string     $error_class = 'form-error';
     /** @var string */
-    protected static string $input_error_css_class = 'input-error';
+    protected static string     $input_error_css_class = 'input-error';
 
-	/** @var string Name of CSS class to be used when displaying the form input. */
-	public string $container_css_class='form-cell';
-	/** @var string Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
-	public string $content_type='text';
+	/** @var string             Name of CSS class to be used when displaying the form input. */
+	public string               $container_css_class='form-cell';
+	/** @var string             Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
+	public string               $content_type='text';
 	/**
-	 * @var boolean If FALSE this property will be passed over when retrieving or saving its value from or to the
-	 * database. Default value is TRUE.
+	 * @var bool                If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE.
 	 */
-	public bool $is_database_field=true;
+	public bool                 $is_database_field=true;
 	/**
-	 * @var string Name to use to override the default name of the column in the database holding the value linked to
-	 * this property. The default value is the name of the property in the parent class.
+	 * @var string              Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class.
 	 */
-	public string $column_name='';
-	/** @var bool Flag indicating that the object value should not be assigned from request variable values. */
-	public bool $bypass_collect_request_data=false;
+	public string               $column_name='';
+	/** @var bool               Flag indicating that the object value should not be assigned from request variable values. */
+	public bool                 $bypass_collect_request_data=false;
 
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
@@ -109,9 +107,9 @@ class RequestInput
 
 	/**
 	 * Assigns property value from corresponding value in JSON data passed along with a client request.
-	 * @param object $data
+     * @param object $data Collection of client ajax request data containing the key/value pair to use to assign the property value.
 	 */
-	public function collectJsonRequestData(object $data)
+	public function collectAjaxRequestData(object $data)
 	{
 		if ($this->isBypassingRequestData()) {
 			return;
@@ -132,8 +130,8 @@ class RequestInput
 
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param mysqli $mysqli
-	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
+	 * @param mysqli $mysqli Database connection.
+	 * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return string Escaped value.
 	 */
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
@@ -411,11 +409,10 @@ class RequestInput
 
     /**
      * Wrapper for render() method that prints error message if an exception is thrown rendering the form input element.
-     * @param string[optional] $label
-     * @param string[optional] $css_class
-     * @param array[optional] $options
+     * @param ?string $label Optional label that will override the object's internal property value.
+     * @param ?string $css_class Optional CSS class name that will override the object's internal property value.
      */
-	public function renderWithErrors($label=null, $css_class=null)
+	public function renderWithErrors(?string $label=null, ?string $css_class=null)
     {
         try {
             $this->render($label, $css_class);

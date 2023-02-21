@@ -3,6 +3,7 @@ namespace Littled\Tests\App;
 
 use Littled\App\AppBase;
 use Littled\Tests\TestHarness\App\AppBaseTestHarness;
+use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -28,6 +29,32 @@ class AppBaseTest extends TestCase
 
         $id_4 = AppBase::generateUniqueToken(30);
         $this->assertNotEquals($id_1, $id_4);
+    }
+
+    function testGetAjaxInputStream()
+    {
+        $this->assertEquals('php://input', AppBaseTestHarness::getAjaxInputStream());
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\App\AppBaseTestDataProvider::getAjaxRequestDataTestProvider()
+     * @param array|null $expected
+     * @param string $ajax_stream
+     * @param array $post_data
+     * @return void
+     */
+    function testGetAjaxRequestData(?array $expected, string $ajax_stream='', array $post_data=[])
+    {
+        if ($ajax_stream) {
+            AppBase::setAjaxInputStream($ajax_stream);
+        }
+        $_POST = $post_data;
+
+        $this->assertEquals($expected, AppBase::getAjaxRequestData());
+
+        // restore state
+        AppBase::setAjaxInputStream('php://input');
+        $_POST = [];
     }
 
 	function testGetErrorPageURL()
@@ -104,6 +131,18 @@ class AppBaseTest extends TestCase
         $this->assertEquals($default_key, AppBase::getErrorKey());
         AppBase::setErrorKey($new_key);
         $this->assertEquals($new_key, AppBase::getErrorKey());
+    }
+
+    function testSetAjaxInputStream()
+    {
+        $stream = LittledUtility::joinPaths(APP_BASE_DIR, self::AJAX_INPUT_SOURCE);
+
+        // default stream value
+        $this->assertEquals('php://input', AppBaseTestHarness::getAjaxInputStream());
+
+        // custom stream
+        AppBaseTestHarness::setAjaxInputStream($stream);
+        $this->assertEquals($stream, AppBaseTestHarness::getAjaxInputStream());
     }
 
     public function testSetErrorPageURL()

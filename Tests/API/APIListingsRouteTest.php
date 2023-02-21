@@ -3,6 +3,7 @@ namespace API;
 
 use Exception;
 use Littled\API\APIListingsRoute;
+use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -13,11 +14,9 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Tests\API\APIRouteTestBase;
 use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
-use Littled\Tests\TestHarness\API\APIRouteTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
-use Littled\Validation\Validation;
 
 
 class APIListingsRouteTest extends APIRouteTestBase
@@ -109,8 +108,8 @@ class APIListingsRouteTest extends APIRouteTestBase
         $ap = new APIListingsRouteTestHarness();
         $ajax_data = null;
         if ($ajax_stream) {
-            Validation::setAjaxInputStream($ajax_stream);
-            $ajax_data = APIRouteTestHarness::getAjaxClientRequestData();
+            AppBase::setAjaxInputStream($ajax_stream);
+            $ajax_data = AppBase::getAjaxRequestData();
         }
 
         if ($expected_exception) {
@@ -128,7 +127,8 @@ class APIListingsRouteTest extends APIRouteTestBase
 
             if (count($expected) == 0) {
                 $this->assertEquals(null, $ap->getContentTypeId(), $msg);
-            } else {
+            }
+            else {
                 foreach ($expected as $property => $value) {
                     if ($property == 'content_type_id') {
                         $this->assertEquals($value, $ap->getContentTypeId(), $msg);

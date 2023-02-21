@@ -2,6 +2,7 @@
 namespace Littled\Tests\API;
 
 use Littled\API\APIRoute;
+use Littled\App\AppBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
@@ -9,22 +10,24 @@ use Littled\Filters\ContentFilters;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Tests\TestHarness\API\APIRouteTestHarness;
 use Littled\Utility\LittledUtility;
-use Littled\Validation\Validation;
 
 
 class APIRouteTest extends APIRouteTestBase
 {
-	function testGetAjaxClientRequestData()
+	function testGetAjaxRequestData()
 	{
-		$expected = array("key1"=>"value1","keyTwo"=>"value two","jsonKey"=>"json value");
-		Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data.dat'));
-		$this->assertEquals($expected, APIRouteTestHarness::getAjaxClientRequestData());
+		$expected = array(
+            "key1" => "value1",
+            "keyTwo" => "value two",
+            "jsonKey" => "json value");
 
-		Validation::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data-empty.dat'));
-		$this->assertEquals(null, APIRouteTestHarness::getAjaxClientRequestData());
+        AppBase::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data.dat'));
+		$this->assertEquals($expected, AppBase::getAjaxRequestData());
 
-		// restore state
-		Validation::setAjaxInputStream('php://input');
+        AppBase::setAjaxInputStream(LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/Validation/test-ajax-data-empty.dat'));
+		$this->assertEquals(null, AppBase::getAjaxRequestData());
+
+        AppBase::setAjaxInputStream('php://input');
 	}
 
 	/**

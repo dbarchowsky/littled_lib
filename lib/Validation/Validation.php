@@ -1,17 +1,17 @@
 <?php
-
 namespace Littled\Validation;
+
 use DateTime;
+use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
 use stdClass;
 
+
 /**
- * Class Validation
  * Assorted static validation routines.
- * @package Littled\Validation
  */
 class Validation
 {
@@ -20,7 +20,6 @@ class Validation
     /** @var string[] $eu_countries */
     protected static array $eu_countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
         "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"];
-    protected static string $ajax_input_stream = 'php://input';
 
 	/**
 	 * Retrieves any valid integer values passed as request parameters.
@@ -287,19 +286,6 @@ class Validation
 	}
 
     /**
-     * Read the AJAX input stream. Convert its contents into an array of variables containing client request variables.
-     * @return array
-     */
-    public static function getAjaxClientRequestData(): array
-    {
-        $json = file_get_contents(static::$ajax_input_stream);
-        if (!$json) {
-            return [];
-        }
-        return (array)json_decode($json);
-    }
-
-    /**
      * Get IP address of website visitor for the purposes of inspecting their location
      * @return string IP address
      */
@@ -365,7 +351,7 @@ class Validation
             return $src;
         }
         // fall back to API request client data
-        return static::getAjaxClientRequestData();
+        return AppBase::getAjaxRequestData() ?: [];
     }
 
     /**
@@ -599,16 +585,6 @@ class Validation
 		return array_map(function($e) { return ((Validation::isInteger($e))?(Validation::parseInteger($e)):($e)); },
 			array_values(array_filter(preg_split('/\//', $route))));
 	}
-
-    /**
-     * API input stream setter
-     * @param string $input_stream
-     * @return void
-     */
-    public static function setAjaxInputStream(string $input_stream)
-    {
-        static::$ajax_input_stream = $input_stream;
-    }
 
     /**
      * Strips HTML tags from request variable value.

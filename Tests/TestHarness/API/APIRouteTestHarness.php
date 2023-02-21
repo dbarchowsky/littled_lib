@@ -16,15 +16,6 @@ class APIRouteTestHarness extends APIRoute
         // TODO: Implement collectAndLoadJsonContent() method.
     }
 
-    /**
-     * @inheritDoc
-     * Override parent to provide public interface for tests.
-     */
-    public static function getAjaxClientRequestData(): ?array
-    {
-        return parent::getAjaxClientRequestData();
-    }
-
 	public function hasContentPropertiesObject(): bool
 	{
 		// TODO: Implement hasContentPropertiesObject() method.
