@@ -20,8 +20,8 @@ class DateInputTestDataProvider
     public static function formatDateValueProvider(): array
     {
         return array_map(function(DateFormatTestData $e) { return $e->dateFormatProvider(); },  array(
-            new DateFormatTestData('', '[use default]', ''),
-            new DateFormatTestData(null, '[use default]', ''),
+            new DateFormatTestData('', '[use default]', null),
+            new DateFormatTestData(null, '[use default]', null),
             new DateFormatTestData('May 23, 2018', 'Ymd', '20180523'),
             new DateFormatTestData('May 23, 2018', 'm/d/Y', '05/23/2018'),
             new DateFormatTestData('06/13/1999', 'F j, Y', 'June 13, 1999')

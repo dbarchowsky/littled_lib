@@ -88,7 +88,7 @@ class DateInput extends StringInput
 	{
         $date_format = $date_format ?: $this->format;
         if ('' === $this->value || null === $this->value) {
-            return '';
+            return null;
         }
 		$valid = (
             (false !== strtotime($this->value)) ||
