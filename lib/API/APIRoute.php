@@ -133,10 +133,12 @@ abstract class APIRoute extends PageContentBase
 
     /**
      * Assigns filter values from client request data.
+     * @param ?array $src Optional array containing client data to use to populate filter values.
+     * @param ?int $content_type_id Optional content type numerical identifier that will be assigned as any new filter collection instances' content type.
      * @throws NotImplementedException
      * @throws ConfigurationUndefinedException
      */
-    public function collectFiltersRequestData(?int $content_type_id=null)
+    public function collectFiltersRequestData(?array $src=null, ?int $content_type_id=null)
     {
         if (!isset($this->filters)) {
             if (!$content_type_id) {
@@ -144,7 +146,7 @@ abstract class APIRoute extends PageContentBase
             }
             $this->initializeFiltersObject($content_type_id);
         }
-        $this->filters->collectFilterValues();
+        $this->filters->collectFilterValues(true, [], $src);
     }
 
 	/**
