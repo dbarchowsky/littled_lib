@@ -6,6 +6,7 @@ use Littled\API\JSONRecordResponse;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
 use Littled\Filters\FilterCollection;
 use Littled\Log\Log;
 use Littled\PageContent\ContentController;
@@ -122,6 +123,10 @@ abstract class ContentCache extends MySQLConnection
      * Update keyword logic by content type.
      * @param int $content_id
      * @return void
+     * @throws NotImplementedException
      */
-    protected abstract static function updateKeywordsByType(int $content_id): void;
+    protected static function updateKeywordsByType(int $content_id)
+    {
+        throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
+    }
 }
