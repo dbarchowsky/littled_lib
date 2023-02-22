@@ -172,6 +172,26 @@ class APIRouteTest extends APIRouteTestBase
 		APIRouteTestHarness::setRouteParts($original_route);
 	}
 
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setSubRouteTestProvider()
+	 * @throws InvalidTypeException
+	 */
+	function testSetSubRoute(array $expected, $value, int $index=1, ?array $start_route=null)
+	{
+		$original_route = static::getOriginalRoute(APIRouteTestHarness::class);
+
+		if(is_array($start_route)) {
+			APIRoute::setRouteParts($start_route);
+		}
+
+		APIRouteTestHarness::setSubRoute($value, $index);
+		foreach($expected as $i => $value) {
+			$this->assertEquals($value, APIRouteTestHarness::getSubRoute($i));
+		}
+
+		APIRouteTestHarness::setRouteParts($original_route);
+	}
+
 
 	/**
 	 * Get the current original route as a list of its parts from an APIRoute class.

@@ -133,4 +133,21 @@ class APIRouteTestDataProvider
 			array(['base', '738', 'sub'], ['base', 738, 'sub']),
 		);
 	}
+
+	public static function setSubRouteTestProvider(): array
+	{
+		return array(
+			array(['', ''], ''),
+			array(['', '', ''], '', 2),
+			array(['', 'foo'], 'foo'),
+			array(['', 'foo'], 'foo', 1),
+			array(['', '', 'bar'], 'bar', 2),
+			array(['', 'bar'], 'bar', 1, ['', 'foo']),
+			array(['base', 'biz'], 'biz', 1, ['base', 'bash']),
+			array(['base', 'inserted', ''], 'inserted', 1, ['base', 'bash', '']),
+			array(['base', 'to', 'foo', 'thing'], 'foo', 2, ['base', 'to', 'bar', 'thing']),
+			array(['base', '182', 'bar', 'thing'], 182, 1, ['base', 'to', 'bar', 'thing']),
+		);
+	}
+
 }

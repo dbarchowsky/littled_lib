@@ -660,4 +660,20 @@ abstract class APIRoute extends PageContentBase
 				},
 			$route));
 	}
+
+	/**
+	 * Sets a sub-route component of the object's route path.
+	 * @param string $sub_route Value to assign to the route component.
+	 * @param int $index Optional 0-based index of the component to assign the sub route value. Defaults to 1, i.e. the 2nd component in the route path.
+	 * @return void
+	 */
+	public static function setSubRoute(string $sub_route, int $index=1)
+	{
+		if (count(static::$route_parts) <= $index) {
+			for ($i = count(static::$route_parts); $i <= $index; $i++) {
+				static::$route_parts[] = '';
+			}
+		}
+		static::$route_parts[$index] = ''.$sub_route;
+	}
 }
