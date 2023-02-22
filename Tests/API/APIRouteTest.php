@@ -30,6 +30,11 @@ class APIRouteTest extends APIRouteTestBase
         AppBase::setAjaxInputStream('php://input');
 	}
 
+	function testGetBaseRoute()
+	{
+		$this->assertEquals('', APIRoute::getBaseRoute());
+	}
+
 	/**
 	 * @throws ConfigurationUndefinedException
 	 */
@@ -76,6 +81,18 @@ class APIRouteTest extends APIRouteTestBase
         $this->assertMatchesRegularExpression('/^Content-type: text\/plain/', $headers[0]);
         $this->assertMatchesRegularExpression($expected, $response);
     }
+
+
+	function testSetBaseRoute()
+	{
+		$original_route = APIRoute::getBaseRoute();
+		$new_route = 'route-boy';
+
+		APIRoute::setBaseRoute($new_route);
+		$this->assertEquals($new_route, APIRoute::getBaseRoute());
+
+		APIRoute::setBaseRoute($original_route);
+	}
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setCacheClassTestProvider()

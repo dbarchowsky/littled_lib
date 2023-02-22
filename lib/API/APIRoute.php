@@ -42,6 +42,7 @@ abstract class APIRoute extends PageContentBase
     /** @var string             Name of the default template to use in derived classes to generate markup. */
     protected static string     $default_template_dir='';
     protected static string     $default_template_name = '';
+	protected static string     $base_route='';
 
 	/** @var string             String indicating the action to be taken on the page. */
 	public string               $action='';
@@ -240,6 +241,15 @@ abstract class APIRoute extends PageContentBase
 			$data[0]->template_path,
 			$data[0]->location
 		);
+	}
+
+	/**
+	 * Base route getter.
+	 * @return string
+	 */
+	public static function getBaseRoute(): string
+	{
+		return static::$base_route;
 	}
 
     /**
@@ -548,6 +558,16 @@ abstract class APIRoute extends PageContentBase
 	{
 		header("Content-Type: text/plain\n\n");
 		print($response ?: $this->json->content->value);
+	}
+
+	/**
+	 * Base route setter.
+	 * @param string $route
+	 * @return void
+	 */
+	public static function setBaseRoute(string $route)
+	{
+		static::$base_route = $route;
 	}
 
     /**
