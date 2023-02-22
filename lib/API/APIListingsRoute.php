@@ -85,14 +85,6 @@ class APIListingsRoute extends APIRoute
 
     /**
      * @inheritDoc
-     */
-    public function sendResponse(string $template_path = '', ?array $context = null)
-    {
-        // TODO: Implement sendResponse() method.
-    }
-
-    /**
-     * @inheritDoc
      * @throws ConfigurationUndefinedException
      */
     public function setContentTypeId(int $content_id)
