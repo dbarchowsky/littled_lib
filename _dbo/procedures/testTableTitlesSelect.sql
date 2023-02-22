@@ -8,7 +8,7 @@ CREATE PROCEDURE `testTableTitlesSelect`(
 )
 BEGIN
 
-    SET @name_filter = p_name_filter;
+    SET @name_filter = udfAddWildcards(p_name_filter);
     CALL udfCalcPageLimits(p_page, p_page_length, @offset, @limit);
 
     PREPARE STMT FROM
