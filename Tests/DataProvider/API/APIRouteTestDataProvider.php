@@ -116,4 +116,21 @@ class APIRouteTestDataProvider
             array('delete', '/^\/api\/\[#]\/delete$/'),
         );
     }
+
+	public static function setRoutePartsTestProvider(): array
+	{
+		return array(
+			array([''], []),
+			array([''], ['']),
+			array(['base'], ['base']),
+			array(['base', 'sub'], ['base', 'sub']),
+			array(['base', 'next', 'sub'], ['base', 'next', 'sub']),
+			array(['base', '#', 'sub'], ['base', '#', 'sub']),
+			array(['base', '[#]', 'sub'], ['base', '[#]', 'sub']),
+			array(['base', '0', 'sub'], ['base', '0', 'sub']),
+			array(['base', '0', 'sub'], ['base', 0, 'sub']),
+			array(['base', '122', 'sub'], ['base', '122', 'sub']),
+			array(['base', '738', 'sub'], ['base', 738, 'sub']),
+		);
+	}
 }

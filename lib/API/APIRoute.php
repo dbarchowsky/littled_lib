@@ -42,7 +42,7 @@ abstract class APIRoute extends PageContentBase
     /** @var string             Name of the default template to use in derived classes to generate markup. */
     protected static string     $default_template_dir='';
     protected static string     $default_template_name = '';
-	protected static string     $base_route='';
+	protected static array      $route_parts=[];
 
 	/** @var string             String indicating the action to be taken on the page. */
 	public string               $action='';
@@ -249,7 +249,7 @@ abstract class APIRoute extends PageContentBase
 	 */
 	public static function getBaseRoute(): string
 	{
-		return static::$base_route;
+		return ((count(static::$route_parts) > 0) ? (static::$route_parts[0]) :(''));
 	}
 
     /**
@@ -328,6 +328,19 @@ abstract class APIRoute extends PageContentBase
     {
         return static::$default_template_name;
     }
+
+	/**
+	 * Returns one component of the route parts, the 2nd one by default.
+	 * @param int $index
+	 * @return string
+	 */
+	public static function getSubRoute( int $index=1 ): string
+	{
+		if (count(static::$route_parts) > $index) {
+			return static::$route_parts[$index];
+		}
+		return '';
+	}
 
     /**
      * Sets the data to be injected into templates.
@@ -567,7 +580,7 @@ abstract class APIRoute extends PageContentBase
 	 */
 	public static function setBaseRoute(string $route)
 	{
-		static::$base_route = $route;
+		static::$route_parts = array($route);
 	}
 
     /**
@@ -633,4 +646,18 @@ abstract class APIRoute extends PageContentBase
     {
         static::$default_template_name = $name;
     }
+
+	/**
+	 * Route parts setter.
+	 * @param array $route
+	 * @return void
+	 */
+	public static function setRouteParts(array $route)
+	{
+		static::$route_parts = array_values(array_map(
+			function($n) {
+				return ''.$n;
+				},
+			$route));
+	}
 }
