@@ -54,7 +54,7 @@ class RequestInputTest extends TestCase
 
 	public function testEscapeSQL()
 	{
-		$this->assertEquals("NULL", $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
+		$this->assertEquals(null, $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
 
 		$this->obj->value = '';
 		$this->assertEquals("''", $this->obj->escapeSQL($this->mysqli), "Empty string");

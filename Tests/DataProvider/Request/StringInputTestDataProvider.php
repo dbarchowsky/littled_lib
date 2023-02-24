@@ -8,20 +8,20 @@ class StringInputTestDataProvider
     public static function escapeSQLTestProvider(): array
     {
         return array(
-            [new StringInputTestData('NULL','', '[use default]')],
-            [new StringInputTestData('NULL','', true)],
-            [new StringInputTestData('NULL','', 'true')],
+            [new StringInputTestData(null,'', '[use default]')],
+            [new StringInputTestData(null,'', true)],
+            [new StringInputTestData(null,'', 'true')],
             [new StringInputTestData('1','', '1')],
             [new StringInputTestData('1','', 1)],
-            [new StringInputTestData('NULL','', false)],
-            [new StringInputTestData('NULL','', 'false')],
+            [new StringInputTestData(null,'', false)],
+            [new StringInputTestData(null,'', 'false')],
             [new StringInputTestData('0','', '0')],
             [new StringInputTestData('0','', 0)],
             [new StringInputTestData('45','', 45)],
             [new StringInputTestData('56','', '56')],
             [new StringInputTestData('3.005','', 3.005)],
             [new StringInputTestData('3.07','', '3.07')],
-            [new StringInputTestData('NULL','', 'foobar')],
+            [new StringInputTestData(null,'', 'foobar')],
         );
     }
 

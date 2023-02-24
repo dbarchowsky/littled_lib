@@ -42,16 +42,13 @@ class IntegerInput extends RenderedInput
 	}
 
 	/**
-	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param mysqli $mysqli
-	 * @param bool[optional] $include_quotes If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
-	 * @return string Escaped value.
+	 * @inheritDoc
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): ?string
 	{
 		$value = Validation::parseInteger($this->value);
 		if ($value===null) {
-			return('NULL');
+			return(null);
 		}
 		return ($mysqli->real_escape_string($value));
 	}

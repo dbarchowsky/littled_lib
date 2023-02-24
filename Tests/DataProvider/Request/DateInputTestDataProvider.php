@@ -11,9 +11,9 @@ class DateInputTestDataProvider
     {
         return array(
             array(new DateFormatTestData('May 23, 2018', '', "'2018-05-23 00:00:00'", null, null, 'source: "F d, Y"/format: ""')),
-            array(new DateFormatTestData(null, '', 'NULL', null, null, 'source: null/format: ""')),
-            array(new DateFormatTestData('', '', 'NULL', null, null, 'source: ""/format: ""')),
-            array(new DateFormatTestData('fdoclxps', '', 'NULL', null, null, 'source: [invalid date string]/format: ""'))
+            array(new DateFormatTestData(null, '', '', null, null, 'source: null/format: ""')),
+            array(new DateFormatTestData('', '', '', null, null, 'source: ""/format: ""')),
+            array(new DateFormatTestData('fdoclxps', '', '', null, null, 'source: [invalid date string]/format: ""'))
         );
     }
 

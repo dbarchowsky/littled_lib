@@ -53,13 +53,13 @@ class DateInput extends StringInput
 	 * Returns a string to use to save the object's value to a database record.
 	 * @param mysqli $mysqli Database connection to use for its escape_string() routine.
 	 * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
-	 * @return string Escaped value.
+	 * @return ?string Escaped value.
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): ?string
 	{
         $src = ($this->value===null)?(''):($this->value);
         if ($src==='') {
-            return ('NULL');
+            return null;
         }
         $ts = strtotime($src);
         if ($ts !== false) {

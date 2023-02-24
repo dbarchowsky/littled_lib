@@ -41,10 +41,10 @@ class BooleanInput extends RequestInput
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escapeSQL($mysqli, $include_quotes=false): string
+	public function escapeSQL($mysqli, $include_quotes=false): ?string
 	{
         $value = $this->formatValueMarkup();
-        return ((''===$value)?('NULL'):($value));
+        return ((''===$value)?(null):($value));
 	}
 
     /**

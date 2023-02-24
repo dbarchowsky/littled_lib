@@ -26,20 +26,20 @@ class FloatInputTestDataProvider
     public static function escapeSQLTestProvider(): array
     {
         return array(
-            [new FloatInputTestData('NULL','',  'default', '[use default]')],
-            [new FloatInputTestData('NULL','', 'true as bool', true)],
-            [new FloatInputTestData('NULL','', 'true as string', 'true')],
+            [new FloatInputTestData(null,'',  'default', '[use default]')],
+            [new FloatInputTestData(null,'', 'true as bool', true)],
+            [new FloatInputTestData(null,'', 'true as string', 'true')],
             [new FloatInputTestData('1','', '1 as string', '1')],
             [new FloatInputTestData('1','', '1 as int', 1)],
-            [new FloatInputTestData('NULL','', 'false as bool', false)],
-            [new FloatInputTestData('NULL','', 'false as string', 'false')],
+            [new FloatInputTestData(null,'', 'false as bool', false)],
+            [new FloatInputTestData(null,'', 'false as string', 'false')],
             [new FloatInputTestData('0','', '0 as string', '0')],
             [new FloatInputTestData('0','', '0 as number', 0)],
             [new FloatInputTestData('45','', '45 as number', 45)],
             [new FloatInputTestData('56','', '56 as string', '56')],
             [new FloatInputTestData('3.005','', 'decimal as number', 3.005)],
             [new FloatInputTestData('3.07','', 'decimal as string', '3.07')],
-            [new FloatInputTestData('NULL','', 'non-numeric string', 'foobar')],
+            [new FloatInputTestData(null,'', 'non-numeric string', 'foobar')],
         );
     }
 

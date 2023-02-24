@@ -8,7 +8,7 @@ class BooleanInputTestDataProvider
 	public static function escapeSQLProvider(): array
 	{
 		return array(
-			[new BooleanInputTestData('NULL', '', '[use default]')],
+			[new BooleanInputTestData(null, '', '[use default]')],
 			[new BooleanInputTestData('1', '', true)],
 			[new BooleanInputTestData('1', '', 'true')],
 			[new BooleanInputTestData('1', '', '1')],
@@ -17,9 +17,9 @@ class BooleanInputTestDataProvider
 			[new BooleanInputTestData('0', '', 'false')],
 			[new BooleanInputTestData('0', '', 0)],
 			[new BooleanInputTestData('0', '', '0')],
-			[new BooleanInputTestData('NULL', '', 45)],
-			[new BooleanInputTestData('NULL', '', 1.005)],
-			[new BooleanInputTestData('NULL', '', 'foobar')],
+			[new BooleanInputTestData(null, '', 45)],
+			[new BooleanInputTestData(null, '', 1.005)],
+			[new BooleanInputTestData(null, '', 'foobar')],
 		);
 	}
 
