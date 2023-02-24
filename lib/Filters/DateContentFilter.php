@@ -53,21 +53,21 @@ class DateContentFilter extends StringContentFilter
 	 * @param mysqli $mysqli
 	 * @param bool $include_quotes (Optional) If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
      * @param bool $include_wildcards
-	 * @return string
+	 * @return ?string
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true, bool $include_wildcards=false): string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true, bool $include_wildcards=false): ?string
 	{
 		if ($this->value===null) {
-			return ('NULL');
+			return null;
 		}
 		if ($this->value=='') {
-			return ('NULL');
+			return null;
 		}
 		try {
 			$dt = new DateTime($this->value);
 		}
 		catch(Exception $e) {
-			return ('NULL');
+			return null;
 		}
 		$value = $dt->format('Y-m-d');
 		return ((($include_quotes)?("'"):("")).$value.(($include_quotes)?("'"):("")));

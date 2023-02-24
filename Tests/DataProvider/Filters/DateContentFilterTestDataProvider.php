@@ -17,12 +17,12 @@ class DateContentFilterTestDataProvider
     public static function escapeSQLTestProvider(): array
     {
         return array(
-            [null, 'NULL', 'null value'],
-            ['', 'NULL', 'empty string'],
+            [null, null, 'null value'],
+            ['', null, 'empty string'],
             ['6/15/2016', "'2016-06-15'", 'valid string (M/DD/YYYY)'],
-            ['fdjkfdjldfld', "NULL", 'invalid date value'],
-            [45, "NULL", 'integer value'],
-            [true, "NULL", 'boolean value'],
+            ['fdjkfdjldfld', null, 'invalid date value'],
+            [45, null, 'integer value'],
+            [true, null, 'boolean value'],
         );
     }
 }

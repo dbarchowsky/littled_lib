@@ -8,7 +8,7 @@ class ContentFilterTestDataProvider
 	public const DEFAULT_LABEL = 'Test Filter';
 	/** @var string */
 	public const DEFAULT_KEY = 'filterKey';
-	public string $expected;
+	public ?string $expected;
     public $value;
 
     function __construct(?string $expected='', $value='')
@@ -46,7 +46,7 @@ class ContentFilterTestDataProvider
     public static function escapeSQLTestProvider(): array
     {
         return array(
-	        [new ContentFilterTestDataProvider('NULL', null)],
+	        [new ContentFilterTestDataProvider(null, null)],
             [new ContentFilterTestDataProvider("''", '')],
             [new ContentFilterTestDataProvider("'foo'", 'foo')],
             [new ContentFilterTestDataProvider('1', true)],

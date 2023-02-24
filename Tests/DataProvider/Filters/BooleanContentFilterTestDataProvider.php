@@ -6,16 +6,16 @@ class BooleanContentFilterTestDataProvider
     public static function escapeSQLTestProvider(): array
     {
         return array(
-            array('NULL', null, 'null value'),
+            array(null, null, 'null value'),
             array('1', 1, '1 as int'),
             array('0', 0, '0 as int'),
             array('1', true, 'true as boolean'),
             array('0', false, 'false as boolean'),
-            array('NULL', 'true', 'true as string'),
-            array('NULL', 'false', 'false as string'),
-            array('NULL', '1', '1 as string'),
-            array('NULL', '0', '0 as string'),
-            array('NULL', 'foo', 'string that is not a boolean value'),
+            array(null, 'true', 'true as string'),
+            array(null, 'false', 'false as string'),
+            array(null, '1', '1 as string'),
+            array(null, '0', '0 as string'),
+            array(null, 'foo', 'string that is not a boolean value'),
         );
     }
 

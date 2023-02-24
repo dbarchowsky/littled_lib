@@ -26,7 +26,7 @@ class StringContentFilter extends ContentFilter
     /**
      * @inheritDoc
      */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes=true, bool $include_wildcards=true): string
+    public function escapeSQL(mysqli $mysqli, bool $include_quotes=true, bool $include_wildcards=true): ?string
     {
         $quote = ($include_quotes)?("'"):('');
         $wildcard = ($include_wildcards)?("%"):('');

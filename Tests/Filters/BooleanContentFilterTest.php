@@ -11,10 +11,13 @@ class BooleanContentFilterTest extends TestCase
 {
     /**
      * @dataProvider \Littled\Tests\DataProvider\Filters\BooleanContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @param string|null $expected
+     * @param $value
+     * @param string $msg
      * @return void
      * @throws Exception
      */
-	public function testEscapeSQL(string $expected, $value, string $msg='')
+	public function testEscapeSQL(?string $expected, $value, string $msg='')
 	{
         if (!defined('MYSQL_HOST') ||
             !defined('MYSQL_USER') ||

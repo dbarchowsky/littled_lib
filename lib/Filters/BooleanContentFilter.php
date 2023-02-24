@@ -40,12 +40,9 @@ class BooleanContentFilter extends ContentFilter
     }
 
     /**
-	 * Escapes the object's value property for inclusion in SQL queries.
-	 * @param mysqli $mysqli
-	 * @param bool $include_quotes Optional If TRUE, the escape string will be enclosed in quotes. Defaults to FALSE.
-	 * @return string Escaped value.
+	 * @inheritDoc
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): ?string
 	{
 		if ($this->value===true || $this->value===1) {
 			return('1');
@@ -53,7 +50,7 @@ class BooleanContentFilter extends ContentFilter
 		if ($this->value===false || $this->value===0) {
 			return('0');
 		}
-		return ('NULL');
+		return null;
 	}
 
     /**

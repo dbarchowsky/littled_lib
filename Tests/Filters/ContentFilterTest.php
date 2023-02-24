@@ -96,6 +96,19 @@ class ContentFilterTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider
+     * @return void
+     * @throws Exception
+     */
+    public function testEscapeSQL(ContentFilterTestDataProvider $data)
+    {
+        $o = new ContentFilter(ContentFilterTestDataProvider::DEFAULT_LABEL, ContentFilterTestDataProvider::DEFAULT_KEY, $data->value, 50);
+        // re-assign to make sure we're working with the raw value
+        $o->value = $data->value;
+        $this->assertEquals($data->expected, $o->escapeSQL($this->mysqli));
+    }
+
+    /**
      * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider
      * @param string $expected
      * @param $value
@@ -107,19 +120,6 @@ class ContentFilterTest extends TestCase
         $o->value = $value;
         $this->assertEquals($expected, $o->formatQueryString());
     }
-
-    /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider
-     * @return void
-     * @throws Exception
-     */
-	public function testEscapeSQL(ContentFilterTestDataProvider $data)
-	{
-        $o = new ContentFilter(ContentFilterTestDataProvider::DEFAULT_LABEL, ContentFilterTestDataProvider::DEFAULT_KEY, $data->value, 50);
-		// re-assign to make sure we're working with the raw value
-		$o->value = $data->value;
-        $this->assertEquals($data->expected, $o->escapeSQL($this->mysqli));
-	}
 
 	/**
 	 * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::saveInFormTestProvider
