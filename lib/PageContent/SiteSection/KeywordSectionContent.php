@@ -53,11 +53,14 @@ abstract class KeywordSectionContent extends SectionContent
 	/**
 	 * Pushes a new keyword term onto the current list of Keyword objects stored in the object's $keyword property.
 	 * @param string $term Keyword term to push onto the stack.
+	 * @param bool $test_for_parent Optional flag to bypass testing for a valid parent id when adding the keyword.
      * @throws Exception
 	 */
-	public function addKeyword( string $term ): void
+	public function addKeyword( string $term, bool $test_for_parent=true ): void
 	{
-        $this->testForParentID('Could not add keyword.');
+		if ($test_for_parent) {
+			$this->testForParentID('Could not add keyword.');
+		}
         $this->testForContentType('Could not add keyword.');
         if (null === $this->content_properties->id->value) {
             throw new Exception('Could not add keyword. Content type not set.');
@@ -67,6 +70,7 @@ abstract class KeywordSectionContent extends SectionContent
 
 	/**
 	 * @inheritDoc
+	 * @throws Exception
 	 */
 	public function base64DecodeInput()
 	{
@@ -93,8 +97,9 @@ abstract class KeywordSectionContent extends SectionContent
 
 	/**
 	 * Fills object property values using data collected from request variables.
-	 * @param ?array $src Optional array container of request variables. If specified, it will override
-	 * inspecting the $_POST and $_GET collections for keyword values.
+	 * @param ?array $src Optional array container of request variables. If specified, it will override inspecting the
+	 * $_POST and $_GET collections for keyword values.
+	 * @throws Exception
 	 */
 	public function collectRequestData(?array $src = null)
 	{
@@ -115,10 +120,11 @@ abstract class KeywordSectionContent extends SectionContent
 	}
 
 	/**
-	 * Collects keyword terms from http request and stores them as separate Keyword objects in the object's
-	 * $keywords property.
-	 * @param ?array $src Optional array container of request variables. If specified, it will override
-	 * inspecting the $_POST and $_GET collections for keyword values.
+	 * Collects keyword terms from http request and stores them as separate Keyword objects in the object's $keywords
+	 * property.
+	 * @param ?array $src Optional array container of request variables. If specified, it will override inspecting the
+	 * $_POST and $_GET collections for keyword values.
+	 * @throws Exception
 	 */
 	public function collectKeywordInput(?array $src=null): void
 	{
@@ -129,7 +135,7 @@ abstract class KeywordSectionContent extends SectionContent
 		}
 		$keywords = $this->extractKeywordTerms($this->keyword_input->value);
 		foreach($keywords as $term) {
-			$this->keywords[] = new Keyword(trim($term), $this->id->value, $this->content_properties->id->value);
+			$this->addKeyword(trim($term), false);
 		}
 	}
 
@@ -375,6 +381,7 @@ abstract class KeywordSectionContent extends SectionContent
      */
 	public function saveKeywords()
 	{
+		$this->testForParentID("Could not serialize keywords.");
 		$this->deleteKeywords();
 		foreach($this->keywords as $keyword) {
             $keyword->parent_id->value = $this->id->value;

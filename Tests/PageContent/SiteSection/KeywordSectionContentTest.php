@@ -421,7 +421,8 @@ class KeywordSectionContentTest extends TestCase
 			$this->obj->saveKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. A parent record was not provided.", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/could not serialize keyword/i", $ex->getMessage());
+			$this->assertMatchesRegularExpression("/parent record.* not provided/i", $ex->getMessage());
 		}
 
 		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
