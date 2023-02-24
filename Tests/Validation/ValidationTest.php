@@ -102,7 +102,18 @@ class ValidationTest extends TestCase
         unset($_POST['testKey']);
     }
 
-    /**
+	function testGetAjaxClientRequestData()
+	{
+		$expected = array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value");
+		AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+		$data = AppBase::getAjaxRequestData();
+		$this->assertEquals($expected, $data);
+
+		// restore state
+		AppBase::setAjaxInputStream('php://input');
+	}
+
+	/**
      * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getClientIPTestProvider()
      * @param bool $expected
      * @param string $ip
@@ -154,17 +165,6 @@ class ValidationTest extends TestCase
             $this->expectException(InvalidValueException::class);
             Validation::getClientLocation($test_ip);
         }
-    }
-
-    function testGetAjaxClientRequestData()
-    {
-        $expected = array("key1" => "value1", "keyTwo" => "value two", "jsonKey" => "json value");
-        AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
-        $data = AppBase::getAjaxRequestData();
-        $this->assertEquals($expected, $data);
-
-        // restore state
-        AppBase::setAjaxInputStream('php://input');
     }
 
     /**
@@ -257,6 +257,39 @@ class ValidationTest extends TestCase
 		$this->assertEquals($expected, Validation::isSubclass($sub, $base));
 	}
 
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseBooleanTestProvider()
+	 * @param $expected
+	 * @param $value
+	 * @param string $msg
+	 * @return void
+	 */
+	public function testParseBoolean($expected, $value, string $msg='')
+	{
+		$this->assertEquals($expected, Validation::parseBoolean($value));
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
+	 * @param $expected
+	 * @param $value
+	 * @param string $msg
+	 * @return void
+	 */
+	public function testParseInteger($expected, $value, string $msg='')
+	{
+		$this->assertEquals($expected, Validation::parseInteger($value), $msg);
+	}
+
+	function testParseInput_AjaxData()
+	{
+		AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
+		$this->assertEquals('value1', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'key1'));
+		$this->assertEquals('value two', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'keyTwo'));
+		$this->assertEquals(null, ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'NonexistentKey'));
+		AppBase::setAjaxInputStream('php://input');
+	}
+
 	function testParseInput_PostData()
     {
         $_POST = array(
@@ -270,15 +303,6 @@ class ValidationTest extends TestCase
         $_POST = [];
     }
 
-    function testParseInput_AjaxData()
-    {
-        AppBase::setAjaxInputStream(self::AJAX_INPUT_SOURCE);
-        $this->assertEquals('value1', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'key1'));
-        $this->assertEquals('value two', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'keyTwo'));
-        $this->assertEquals(null, ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'NonexistentKey'));
-        AppBase::setAjaxInputStream('php://input');
-    }
-
     /**
      * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseNumericTestProvider()
      * @param $expected
@@ -290,19 +314,19 @@ class ValidationTest extends TestCase
         $this->assertEquals($expected, Validation::parseNumeric($value));
 	}
 
-    /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
-     * @param $expected
-     * @param $value
-     * @param string $msg
-     * @return void
-     */
-	public function testParseInteger($expected, $value, string $msg='')
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseRoutePartsTestProvider()
+	 * @param array $expected
+	 * @param string $route
+	 * @param string $msg
+	 * @return void
+	 */
+	function testParseRouteParts(array $expected, string $route, string $msg='')
 	{
-        $this->assertEquals($expected, Validation::parseInteger($value), $msg);
+		$this->assertEquals($expected, Validation::parseRouteParts($route), $msg);
 	}
 
-    /**
+	/**
      * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::stripTagsTestProvider()
      * @return void
      * @throws Exception
@@ -322,18 +346,6 @@ class ValidationTest extends TestCase
         }
         self::assertMatchesRegularExpression($expected, Validation::stripTags($key, $whitelist_tags, null, $data), $msg);
     }
-
-	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseRoutePartsTestProvider()
-	 * @param array $expected
-	 * @param string $route
-	 * @param string $msg
-	 * @return void
-	 */
-	function testParseRouteParts(array $expected, string $route, string $msg='')
-	{
-		$this->assertEquals($expected, Validation::parseRouteParts($route), $msg);
-	}
 
 	/**
 	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::validateCSRFTestProvider()

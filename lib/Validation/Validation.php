@@ -458,10 +458,10 @@ class Validation
 		if (is_bool($value)) {
 			return ($value);
 		}
-		if ($value === 1 || $value === "1" || $value === "true" || $value === "on") {
+		if ($value === 1 || $value === '1' || $value === 'true' || $value === 'on' || $value === 'yes') {
 			return true;
 		}
-		if ($value === 0 || $value == "0" || $value === "false" || $value === "off") {
+		if ($value === 0 || $value == '0' || $value === 'false' || $value === 'off' || $value === 'no') {
 			return false;
 		}
 		return null;

@@ -118,63 +118,26 @@ class ValidationTestDataProvider
         );
     }
 
-	public static function isSubclassTestProvider(): array
+	public static function isIntegerTestProvider(): array
 	{
 		return array(
-			array(PageContent::class, AppBase::class, true),
-			array(PageContent::class, PageContent::class, true),
-			array(AppBase::class, PageContent::class, false),
-			array(TestTableContentFiltersTestHarness::class, PageContent::class, false),
-			array(PageContent::class, TestTableContentFiltersTestHarness::class, false),
-			array(new APIRouteTestHarness(), ContentFiltersChild::class, false),
-			array(new APIRouteTestHarness(), APIRoute::class, true),
-			array(new APIRouteTestHarness(), APIRouteTestHarness::class, true),
+			[true, 1],
+			[true, 0],
+			[true, -1],
+			[true, '1'],
+			[true, '0'],
+			[true, '58'],
+			[true, 87],
+			[false, '-'],
+			[false, 'true'],
+			[false, 'false'],
+			[false, true],
+			[false, false],
+			[false, 4.5],
+			[false, '4.5'],
+			[false, null],
 		);
 	}
-
-	public static function parseIntegerTestProvider(): array
-    {
-        return array(
-            [1, 1, 'starting value: 1'],
-            [0, 0, 'starting value: 0'],
-            [-1, -1, 'starting value: -1'],
-            [1, '1', 'starting value: "1"'],
-            [0, '0', 'starting value: "0'],
-            [-1, '-1', 'starting value: "-1"'],
-            [null, '-', 'starting value: "-"'],
-            [null, 'true', 'starting value: "true"'],
-            [null, 'false', 'starting value: "false"'],
-            [null, true, 'starting value: true'],
-            [null, false, 'starting value: false'],
-            [5, 4.5, 'starting value: 4.5'],
-            [5, '4.5', 'starting value: "4.5"'],
-            [4, 4.49, 'starting value: 4.49'],
-            [5, 4.51, 'starting value: 4.51'],
-            [null, null, 'starting value: null'],
-            [null, 'funky chicken', 'starting value: "funky chicken"'],
-        );
-    }
-
-    public static function isIntegerTestProvider(): array
-    {
-        return array(
-            [true, 1],
-            [true, 0],
-            [true, -1],
-            [true, '1'],
-            [true, '0'],
-            [true, '58'],
-            [true, 87],
-            [false, '-'],
-            [false, 'true'],
-            [false, 'false'],
-            [false, true],
-            [false, false],
-            [false, 4.5],
-            [false, '4.5'],
-            [false, null],
-        );
-    }
 
 	public static function isStringWithContentTestProvider(): array
 	{
@@ -197,7 +160,66 @@ class ValidationTestDataProvider
 		);
 	}
 
-    public static function parseNumericTestProvider(): array
+	public static function isSubclassTestProvider(): array
+	{
+		return array(
+			array(PageContent::class, AppBase::class, true),
+			array(PageContent::class, PageContent::class, true),
+			array(AppBase::class, PageContent::class, false),
+			array(TestTableContentFiltersTestHarness::class, PageContent::class, false),
+			array(PageContent::class, TestTableContentFiltersTestHarness::class, false),
+			array(new APIRouteTestHarness(), ContentFiltersChild::class, false),
+			array(new APIRouteTestHarness(), APIRoute::class, true),
+			array(new APIRouteTestHarness(), APIRouteTestHarness::class, true),
+		);
+	}
+
+	public static function parseBooleanTestProvider(): array
+	{
+		return array(
+			[null, null],
+			[null, ''],
+			[false, '0'],
+			[true, '1'],
+			[false, 0],
+			[true, 1],
+			[false, 'false'],
+			[true, 'true'],
+			[false, false],
+			[true, true],
+			[false, 'off'],
+			[true, 'on'],
+			[false, 'no'],
+			[true, 'yes'],
+			[null, 2],
+			[null, '65'],
+		);
+	}
+
+	public static function parseIntegerTestProvider(): array
+	{
+		return array(
+			[1, 1, 'starting value: 1'],
+			[0, 0, 'starting value: 0'],
+			[-1, -1, 'starting value: -1'],
+			[1, '1', 'starting value: "1"'],
+			[0, '0', 'starting value: "0'],
+			[-1, '-1', 'starting value: "-1"'],
+			[null, '-', 'starting value: "-"'],
+			[null, 'true', 'starting value: "true"'],
+			[null, 'false', 'starting value: "false"'],
+			[null, true, 'starting value: true'],
+			[null, false, 'starting value: false'],
+			[5, 4.5, 'starting value: 4.5'],
+			[5, '4.5', 'starting value: "4.5"'],
+			[4, 4.49, 'starting value: 4.49'],
+			[5, 4.51, 'starting value: 4.51'],
+			[null, null, 'starting value: null'],
+			[null, 'funky chicken', 'starting value: "funky chicken"'],
+		);
+	}
+
+	public static function parseNumericTestProvider(): array
     {
         return array(
             [1, '1'],
@@ -227,6 +249,22 @@ class ValidationTestDataProvider
 			array(array('route', 'to'), '/route/to', '2-part route'),
 			array(array('section', '1234', 'view'), '/section/1234/view', 'route containing number; testing value as string'),
 			array(array('section', 1234, 'view'), '/section/1234/view', 'route containing number; testing value as integer'),
+		);
+	}
+
+	public static function stripTagsTestProvider(): array
+	{
+		return array(
+			array('/^$/', '', '', [], 'no data'),
+			array('/^this is the original source$/', 'p1', 'this is the original source', [], '', 'nothing to strip'),
+			array('/^this is the original sourcediv content$/', 'p1', '<p>this is the original source</p><div>div content</div>', [], '', 'strip all tags'),
+			array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], '', 'p tag whitelisted'),
+			array('/^this is the original source<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['div'], '', 'div tag whitelisted'),
+			array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'POST', 'reading from POST data'),
+			array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'REQUEST', 'reading from REQUEST data'),
+			array('/^<p>this is the original source<\/p><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><im'. 'g src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'div'], '', 'strip img tag'),
+			array('/^<p>this is the original source<\/p><img.*\/><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'img', 'div'], '', 'allow img tag'),
+			array('/^<p>this is the original source<\/p><img.*\/>alert.*\)<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><script>alert("hello there!")</script><div>div content</div>', ['p', 'img', 'div'], '', 'strip script tag'),
 		);
 	}
 
@@ -333,20 +371,4 @@ class ValidationTestDataProvider
 			array('', ContentValidationException::class, 'February 08, 87', 'invalid date'),
 		);
 	}
-
-    public static function stripTagsTestProvider(): array
-    {
-        return array(
-            array('/^$/', '', '', [], 'no data'),
-            array('/^this is the original source$/', 'p1', 'this is the original source', [], '', 'nothing to strip'),
-            array('/^this is the original sourcediv content$/', 'p1', '<p>this is the original source</p><div>div content</div>', [], '', 'strip all tags'),
-            array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], '', 'p tag whitelisted'),
-            array('/^this is the original source<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['div'], '', 'div tag whitelisted'),
-            array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'POST', 'reading from POST data'),
-            array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'REQUEST', 'reading from REQUEST data'),
-            array('/^<p>this is the original source<\/p><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><im'. 'g src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'div'], '', 'strip img tag'),
-            array('/^<p>this is the original source<\/p><img.*\/><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'img', 'div'], '', 'allow img tag'),
-            array('/^<p>this is the original source<\/p><img.*\/>alert.*\)<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><script>alert("hello there!")</script><div>div content</div>', ['p', 'img', 'div'], '', 'strip script tag'),
-        );
-    }
 }
