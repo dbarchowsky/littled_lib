@@ -112,6 +112,9 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertFalse($this->obj->hasKeywordData());
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	public function testConstructorPassedValues()
 	{
 		$obj = new KeywordSectionContentTestHarness(83, 629);
@@ -146,6 +149,12 @@ class KeywordSectionContentTest extends TestCase
 		$obj->addKeyword('test II new term');
 		$this->assertCount($prev_count + 2, $obj->keywords);
 		$this->assertEquals('test II new term', $obj->keywords[1]->term->value);
+		$this->assertTrue($obj->keywords[1]->parent_id->required);
+
+		$obj->addKeyword('3rd term', false);
+		$this->assertCount($prev_count + 3, $obj->keywords);
+		$this->assertEquals('3rd term', $obj->keywords[2]->term->value);
+		$this->assertFalse($obj->keywords[2]->parent_id->required);
 	}
 
 	public function testClearKeywordData()
@@ -161,6 +170,9 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertFalse($this->obj->hasKeywordData());
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testCollectFromInput()
 	{
 		$input = array(
@@ -174,6 +186,9 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertEquals(629, $this->obj->content_properties->id->value);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testCollectKeywordInputWhenEmpty()
 	{
 		$this->obj->collectKeywordInput();
@@ -187,7 +202,8 @@ class KeywordSectionContentTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-     */
+	 * @throws Exception
+	 */
 	public function testCollectKeywordInput()
 	{
 		$src = array($this->obj->keyword_input->key => "foo , bar, biz,bash, hhoo,haa dee,didly, dah ");
@@ -201,13 +217,17 @@ class KeywordSectionContentTest extends TestCase
 		$this->assertContains('haa dee', $keywords);
 		$this->assertContains('didly', $keywords);
 		$this->assertContains('dah', $keywords);
+
+		$this->assertFalse($this->obj->keywords[0]->parent_id->required);
+		$this->assertFalse($this->obj->keywords[count($this->obj->keywords)-1]->parent_id->required);
 	}
 
 	/**
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-     */
+	 * @throws Exception
+	 */
 	public function testCollectKeywordInputWithBadValues()
 	{
         $inject_test = "[before script]<script>alert('what');</script>[after script]";
@@ -383,10 +403,8 @@ class KeywordSectionContentTest extends TestCase
 	}
 
 	/**
-     * @throws NotImplementedException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
 	 * @throws RecordNotFoundException
 	 */
 	public function testSave()

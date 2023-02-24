@@ -65,7 +65,11 @@ abstract class KeywordSectionContent extends SectionContent
         if (null === $this->content_properties->id->value) {
             throw new Exception('Could not add keyword. Content type not set.');
         }
-		$this->keywords[] = new Keyword($term, $this->id->value, $this->content_properties->id->value);
+		$kw = new Keyword($term, $this->id->value, $this->content_properties->id->value);
+		if (!$test_for_parent) {
+			$kw->parent_id->required = false;
+		}
+		$this->keywords[] = $kw;
 	}
 
 	/**
