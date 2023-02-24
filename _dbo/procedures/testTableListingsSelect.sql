@@ -12,7 +12,7 @@ CREATE PROCEDURE `testTableListingsSelect`(
 )
 BEGIN
 
-    SET @name_filter = p_name_filter;
+    SET @name_filter = udfAddWildcards(p_name_filter);
     SET @int_filter = p_int_filter;
     SET @bool_filter = p_bool_filter;
     SET @after_filter = p_after_date;

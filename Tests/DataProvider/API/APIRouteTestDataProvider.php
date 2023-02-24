@@ -116,4 +116,38 @@ class APIRouteTestDataProvider
             array('delete', '/^\/api\/\[#]\/delete$/'),
         );
     }
+
+	public static function setRoutePartsTestProvider(): array
+	{
+		return array(
+			array([''], []),
+			array([''], ['']),
+			array(['base'], ['base']),
+			array(['base', 'sub'], ['base', 'sub']),
+			array(['base', 'next', 'sub'], ['base', 'next', 'sub']),
+			array(['base', '#', 'sub'], ['base', '#', 'sub']),
+			array(['base', '[#]', 'sub'], ['base', '[#]', 'sub']),
+			array(['base', '0', 'sub'], ['base', '0', 'sub']),
+			array(['base', '0', 'sub'], ['base', 0, 'sub']),
+			array(['base', '122', 'sub'], ['base', '122', 'sub']),
+			array(['base', '738', 'sub'], ['base', 738, 'sub']),
+		);
+	}
+
+	public static function setSubRouteTestProvider(): array
+	{
+		return array(
+			array(['', ''], ''),
+			array(['', '', ''], '', 2),
+			array(['', 'foo'], 'foo'),
+			array(['', 'foo'], 'foo', 1),
+			array(['', '', 'bar'], 'bar', 2),
+			array(['', 'bar'], 'bar', 1, ['', 'foo']),
+			array(['base', 'biz'], 'biz', 1, ['base', 'bash']),
+			array(['base', 'inserted', ''], 'inserted', 1, ['base', 'bash', '']),
+			array(['base', 'to', 'foo', 'thing'], 'foo', 2, ['base', 'to', 'bar', 'thing']),
+			array(['base', '182', 'bar', 'thing'], 182, 1, ['base', 'to', 'bar', 'thing']),
+		);
+	}
+
 }

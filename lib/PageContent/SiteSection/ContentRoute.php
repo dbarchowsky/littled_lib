@@ -12,28 +12,28 @@ use Littled\Request\URLTextField;
  */
 class ContentRoute extends SerializedContent
 {
-    /** @var string Token representing operation property */
-    const PROPERTY_TOKEN_OPERATION      = 'operation';
-    /** @var string Token representing route property */
-    const PROPERTY_TOKEN_ROUTE          = 'route';
-    /** @var string Token representing route property in array format */
-    const PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
-    /** @var string Token representing url property */
-    const PROPERTY_TOKEN_URL            = 'url';
+    /** @var string                 Token representing operation property */
+    const                           PROPERTY_TOKEN_OPERATION = 'operation';
+    /** @var string                 Token representing route property */
+    const                           PROPERTY_TOKEN_ROUTE = 'route';
+    /** @var string                 Token representing route property in array format */
+    const                           PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
+    /** @var string                 Token representing url property */
+    const                           PROPERTY_TOKEN_URL = 'url';
 
-	/** @var int Value of this record in the site section table. */
-	protected static int $content_type_id = 34;
+	/** @var int                    Value of this record in the site section table. */
+	protected static int            $content_type_id = 34;
 	/** @var string */
-	protected static string $table_name = "content_route";
+	protected static string         $table_name = "content_route";
 
-	/** @var IntegerSelect Record id representing the site content. Corresponds to table `site_section`. */
-	public IntegerSelect $site_section_id;
-	/** @var StringTextField Token representing the action taken on the content, e.g. 'listings', 'details', or 'edit'. */
-	public StringTextField $operation;
-    /** @var StringTextField The route on the site to this content. */
-    public StringTextField $route;
-	/** @var StringTextField The URL used to retrieve and refresh content. */
-	public StringTextField $api_route;
+	/** @var IntegerSelect          Record id representing the site content. Corresponds to table `site_section`. */
+	public IntegerSelect            $site_section_id;
+	/** @var StringTextField        Token representing the action taken on the content, e.g. 'listings', 'details', or 'edit'. */
+	public StringTextField          $operation;
+    /** @var StringTextField        The route on the site to this content. */
+    public StringTextField          $route;
+	/** @var StringTextField        The URL used to retrieve and refresh content. */
+	public StringTextField          $api_route;
 
 	/**
 	 * Class constructor
