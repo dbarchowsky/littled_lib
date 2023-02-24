@@ -2,14 +2,15 @@
 namespace Littled\Tests\DataProvider\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\NotImplementedException;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
 use Littled\PageContent\PageConfig;
-use Littled\API\APIRoute;
 use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\PageContentInterface;
 use Littled\Tests\API\APIRouteTestBase;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Utility\LittledUtility;
@@ -17,33 +18,45 @@ use Littled\Utility\LittledUtility;
 
 class APIRouteTestDataProvider
 {
-    public static function collectFiltersRequestDataTestProvider(): array
+	/**
+	 * @throws NotImplementedException
+	 */
+	public static function collectFiltersRequestDataTestProvider(): array
     {
         return array(
-            array([], [], [], '', 'no data'),
-            array(array('name_filter' => 'bar'), array('name' => 'bar'), [], '', 'GET data'),
-            array(array('name_filter' => 'biz'), [], array('name' => 'biz'), '', 'POST data'),
             array(
-                array(
-                    'name_filter' => 'foo',
-                    'int_filter' => 43,
-                    'bool_filter' => true), [], [],
+				new APIRouteTestExpectations(),
+	            [], [], '',
+	            'no data'),
+            array(
+	            new APIRouteTestExpectations(),
+	            array(
+					LittledGlobals::CONTENT_TYPE_KEY => TestTableContentFiltersTestHarness::getContentTypeId(),
+		            'name' => 'bar'), [], '',
+	            'Confirm GET data is ignored'),
+            array(
+	            new APIRouteTestExpectations('biz'),
+	            [], array(
+	                LittledGlobals::CONTENT_TYPE_KEY => TestTableContentFiltersTestHarness::getContentTypeId(),
+					'name' => 'biz'), '',
+	            'Confirm POST data collection'),
+            array(
+                new APIRouteTestExpectations('foo', 43, true),
+	            [], [],
                 LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
-                'ajax stream'),
+                'Confirm ajax stream data collection'),
             array(
+	            new APIRouteTestExpectations('foo', 43, true),
                 array(
-                    'name_filter' => 'foo',
-                    'int_filter' => 43,
-                    'bool_filter' => true),
-                array('int_filter' => 82), [],
+	                LittledGlobals::CONTENT_TYPE_KEY => TestTableContentFiltersTestHarness::getContentTypeId(),
+					'int_filter' => 82), [],
                 LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides GET data'),
             array(
-                array(
-                    'name_filter' => 'foo',
-                    'int_filter' => 43,
-                    'bool_filter' => true),
-                [], array('int_filter' => 629),
+	            new APIRouteTestExpectations('foo', 43, true),
+                [], array(
+	                LittledGlobals::CONTENT_TYPE_KEY => TestTableContentFiltersTestHarness::getContentTypeId(),
+					'int_filter' => 629),
                 LittledUtility::joinPaths(APP_BASE_DIR, 'Tests/DataProvider/API/APIRoute_collectFiltersRequestData_01.dat'),
                 'ajax stream overrides POST data'),
         );

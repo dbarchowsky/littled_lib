@@ -3,6 +3,7 @@ namespace Littled\API;
 
 use Error;
 use Exception;
+use Littled\App\AppBase;
 use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -139,6 +140,9 @@ abstract class APIRoute extends PageContentBase
      */
     public function collectFiltersRequestData(?array $src=null, ?int $content_type_id=null)
     {
+		if ($src === null) {
+			$src = self::getAjaxRequestData() ?: $_POST;
+		}
         if (!isset($this->filters)) {
             if (!$content_type_id) {
                 throw new ConfigurationUndefinedException('Content type not provided.');
@@ -149,15 +153,6 @@ abstract class APIRoute extends PageContentBase
     }
 
 	/**
-	 * Fills out input values from request data.
-	 * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
-	 */
-	public function collectRequestData( ?array $src=null )
-	{
-		$this->operation->collectRequestData($src);
-	}
-
-    /**
 	 * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
 	 * @param ?array $src Optional array of variables to use instead of POST data.
 	 * @return APIRoute
@@ -167,13 +162,13 @@ abstract class APIRoute extends PageContentBase
 		if ($src===null) {
 			/* use only POST, not GET */
 			$src = $_POST;
-            if (!is_array($src) || count($src) < 1) {
-                $json = file_get_contents(static::getAjaxInputStream());
-                if (!$json) {
-                    return $this;
-                }
-                $src = (array)json_decode($json);
-            }
+			if (!is_array($src) || count($src) < 1) {
+				$json = file_get_contents(static::getAjaxInputStream());
+				if (!$json) {
+					return $this;
+				}
+				$src = (array)json_decode($json);
+			}
 		}
 		if (Validation::collectBooleanRequestVar(LittledGlobals::COMMIT_KEY, null, $src)===true) {
 			$this->action = self::COMMIT_ACTION;
@@ -184,6 +179,15 @@ abstract class APIRoute extends PageContentBase
 			return($this);
 		}
 		return ($this);
+	}
+
+	/**
+	 * Fills out input values from request data.
+	 * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
+	 */
+	public function collectRequestData( ?array $src=null )
+	{
+		$this->operation->collectRequestData($src);
 	}
 
     /**

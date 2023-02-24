@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\API;
 
+use Littled\Tests\DataProvider\API\APIRouteTestExpectations;
 use Littled\API\APIRoute;
 use Littled\App\AppBase;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -9,6 +10,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Tests\TestHarness\API\APIRouteTestHarness;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
 
@@ -34,6 +36,44 @@ class APIRouteTest extends APIRouteTestBase
 	function testGetBaseRoute()
 	{
 		$this->assertEquals('', APIRoute::getBaseRoute());
+	}
+
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectFiltersRequestDataTestProvider()
+	 * @param APIRouteTestExpectations $expected
+	 * @param array|null $post_data
+	 * @param array|null $get_data
+	 * @param string $ajax_stream
+	 * @param string $msg
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws NotImplementedException
+	 */
+	function testCollectFiltersRequestData(
+		APIRouteTestExpectations $expected,
+		?array $get_data=[],
+		?array $post_data=[],
+		string $ajax_stream='',
+		string $msg='')
+	{
+		$_POST = $post_data;
+		$_GET = $get_data;
+		if ($ajax_stream) {
+			AppBase::setAjaxInputStream($ajax_stream);
+		}
+
+		$r = new APIRouteTestHarness();
+		if ($expected->exception_class) {
+			$this->expectException($expected->exception_class);
+		}
+		$r->filters = new TestTableContentFiltersTestHarness();
+		$r->collectFiltersRequestData();
+		$this->assertEquals($expected->name_filter, $r->filters->name_filter->value, $msg);
+		$this->assertEquals($expected->int_filter, $r->filters->int_filter->value, $msg);
+		$this->assertEquals($expected->bool_filter, $r->filters->bool_filter->value, $msg);
+
+		$_GET = $_POST = [];
+		AppBase::setAjaxInputStream('php://input');
 	}
 
 	/**
