@@ -256,6 +256,11 @@ class IntegerInputTest extends TestCase
         $this->assertEquals($expected, $o->escapeSQL($mysqli), $msg);
     }
 
+    function testGetPreparedStatementTypeIdentifier()
+    {
+        $this->assertEquals('i', IntegerInput::getPreparedStatementTypeIdentifier());
+    }
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::renderTestProvider()
      * @param IntegerInputTestData $data

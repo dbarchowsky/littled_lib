@@ -44,6 +44,11 @@ class StringInputTest extends TestCase
 		$this->assertEquals("43", $obj->value);
 	}
 
+    function testGetPreparedStatementTypeIdentifier()
+    {
+        $this->assertEquals('s', StringInput::getPreparedStatementTypeIdentifier());
+    }
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::renderTestProvider()
      * @param StringInputTestData $data

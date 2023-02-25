@@ -80,6 +80,11 @@ class FloatInputTest extends ContentValidationTestCase
         }
 	}
 
+    function testGetPreparedStatementTypeIdentifier()
+    {
+        $this->assertEquals('d', FloatInput::getPreparedStatementTypeIdentifier());
+    }
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::renderTestProvider()
      * @param FloatInputTestData $data

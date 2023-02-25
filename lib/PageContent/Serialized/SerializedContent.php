@@ -137,7 +137,7 @@ abstract class SerializedContent extends SerializedContentValidation
 		$query = "INS"."ERT INTO `".$this::getTableName()."` (`".
 			implode('`,`', array_keys($fields)).
 			"`) VALUES (".
-			implode(',', array_values($fields)).
+			implode(',', array_map(function($e) { return '?'; }, $fields)).
 			")";
 
 		/* execute sql and store id value of the new record. */

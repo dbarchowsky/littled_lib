@@ -122,7 +122,12 @@ class DateInputTest extends ContentValidationTestCase
 		$this->assertEquals($date_string, $o->value, "internal value, format: $format");
 	}
 
-	/**
+    function testGetPreparedStatementTypeIdentifier()
+    {
+        $this->assertEquals('s', DateInput::getPreparedStatementTypeIdentifier());
+    }
+
+    /**
 	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::renderTestProvider()
 	 * @param DateTextFieldTestData $data
 	 * @return void

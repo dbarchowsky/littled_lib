@@ -53,6 +53,11 @@ class FloatInput extends RenderedInput
 		return ($mysqli->real_escape_string($value));
 	}
 
+    public static function getPreparedStatementTypeIdentifier(): string
+    {
+        return 'd';
+    }
+
 	/**
 	 * @param integer $value Value to assign as the value of the object.
 	 */

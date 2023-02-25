@@ -40,7 +40,15 @@ class StringInput extends RenderedInput
         $this->value = Validation::collectStringRequestVar($key, $filters, $this->index, $src);
 	}
 
-	/**
+    /**
+     * @inheritDoc
+     */
+    public static function getPreparedStatementTypeIdentifier(): string
+    {
+        return 's';
+    }
+
+    /**
 	 * Sets the internal value of the object. Casts any values as strings.
 	 * @param mixed $value
 	 */

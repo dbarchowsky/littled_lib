@@ -84,7 +84,12 @@ class BooleanInputTest extends ContentValidationTestCase
 		self::assertTrue($o->isEmpty());
 	}
 
-	/**
+    function testGetPreparedStatementTypeIdentifier()
+    {
+        $this->assertEquals('i', BooleanInput::getPreparedStatementTypeIdentifier());
+    }
+
+    /**
 	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::saveInFormProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void

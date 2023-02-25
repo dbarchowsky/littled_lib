@@ -159,6 +159,11 @@ class RequestInputTest extends TestCase
 		$this->assertFalse($this->obj->isEmpty());
 	}
 
+    function testGetPreparedStatementTypeIdentifier()
+    {
+        $this->assertEquals('i', RequestInput::getPreparedStatementTypeIdentifier());
+    }
+
     public function testSaveInForm()
     {
 		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');

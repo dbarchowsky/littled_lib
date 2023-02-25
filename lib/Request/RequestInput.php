@@ -295,6 +295,15 @@ class RequestInput
     }
 
     /**
+     * Returns an identifier to use when using the value with a mysqli prepared statement.
+     * @return string
+     */
+    public static function getPreparedStatementTypeIdentifier(): string
+    {
+        return 'i';
+    }
+
+    /**
 	 * Returns string to insert into front-end templates that will indicate that field is required to submit form data.
 	 * @return string Content to insert into template.
 	 */
