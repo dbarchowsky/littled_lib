@@ -72,12 +72,7 @@ class FloatInputTest extends ContentValidationTestCase
      */
     public function testEscapeSQL(FloatInputTestData $data)
 	{
-        if (null===$data->expected) {
-            $this->assertNull($data->obj->value);
-        }
-        else {
-            $this->assertEquals($data->expected, $data->obj->escapeSQL($this->mysqli));
-        }
+        $this->assertSame($data->expected, $data->obj->escapeSQL($this->mysqli));
 	}
 
     function testGetPreparedStatementTypeIdentifier()
