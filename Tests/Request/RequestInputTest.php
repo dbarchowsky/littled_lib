@@ -52,15 +52,20 @@ class RequestInputTest extends TestCase
 		$this->assertNull($this->obj->value);
 	}
 
-	public function testEscapeSQL()
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::escapeSQLTestProvider()
+     * @param $expected
+     * @param $value
+     * @param bool $include_quotes
+     * @return void
+     */
+	public function testEscapeSQL($expected, $value, bool $include_quotes=true)
 	{
-		$this->assertEquals(null, $this->obj->escapeSQL($this->mysqli), "Defaults to 'null'");
-
-		$this->obj->value = '';
-		$this->assertEquals("''", $this->obj->escapeSQL($this->mysqli), "Empty string");
-
-		$this->obj->value = "abc";
-		$this->assertEquals("'abc'", $this->obj->escapeSQL($this->mysqli), "Strings are quoted");
+        $i = new RequestInput('Test Input', 'ti');
+        if ($value !== '[use default]') {
+            $i->value = $value;
+        }
+		$this->assertSame($expected, $i->escapeSQL($this->mysqli, $include_quotes));
 	}
 
     /**
