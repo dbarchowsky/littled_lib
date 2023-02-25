@@ -57,7 +57,12 @@ class BooleanInputTest extends ContentValidationTestCase
 		if ('[use default]' !== $data->obj->value) {
 			$data->obj->value = $data->value;
 		}
-		$this->assertEquals($data->expected, $data->obj->escapeSQL($this->mysqli));
+        if ($data->expected===null) {
+            $this->assertNull($data->obj->escapeSQL($this->mysqli));
+        }
+        else {
+            $this->assertEquals($data->expected, $data->obj->escapeSQL($this->mysqli));
+        }
 	}
 
 	/**
@@ -97,7 +102,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	public function testSaveInForm(BooleanInputTestData $data)
 	{
 		$o = new BooleanInput(BooleanInputTestData::DEFAULT_LABEL, BooleanInputTestData::DEFAULT_KEY);
-		$o->setInputValue($data->value);
+		$o->value = $data->value;
 		$this->expectOutputRegex($data->expected_regex);
 		$o->saveInForm();
 	}

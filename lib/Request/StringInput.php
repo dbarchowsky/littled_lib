@@ -9,10 +9,22 @@ use Littled\Validation\Validation;
  */
 class StringInput extends RenderedInput
 {
-    /** @var string Form input element template filename */
+    /** @var string         Form input element template filename */
     protected static string $input_template_filename = 'string-text-input.php';
-    /** @var string */
+    /** @var string         Input container template filename */
     protected static string $template_filename = 'string-text-field.php';
+    /** @var string         Data type identifier used with bind_param() calls */
+    protected static string $bind_param_type = 's';
+
+    /**
+     * @inheritDoc
+     */
+    public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
+    {
+        parent::__construct($label, $key, $required, $value, $size_limit, $index);
+        // override to avoid null values
+        $this->setInputValue($value);
+    }
 
     /**
 	 * {@inheritDoc}
@@ -39,14 +51,6 @@ class StringInput extends RenderedInput
 		}
         $this->value = Validation::collectStringRequestVar($key, $filters, $this->index, $src);
 	}
-
-    /**
-     * @inheritDoc
-     */
-    public static function getPreparedStatementTypeIdentifier(): string
-    {
-        return 's';
-    }
 
     /**
 	 * Sets the internal value of the object. Casts any values as strings.

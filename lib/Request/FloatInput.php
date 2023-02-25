@@ -6,16 +6,19 @@ use Littled\Validation\Validation;
 
 class FloatInput extends RenderedInput
 {
-	/** @var string Form input element template filename */
-	protected static string $input_template_filename = 'string-text-input.php';
-	/** @var string */
-	protected static string $template_filename = 'string-text-field.php';
-    /** @var int */
-    const DEFAULT_DATA_SIZE = 16;
+	/** @var string             Form input element template filename */
+	protected static string     $input_template_filename = 'string-text-input.php';
+    /** @var string             Input container template filename */
+	protected static string     $template_filename = 'string-text-field.php';
+    /** @var string             Data type identifier used with bind_param() calls */
+    protected static string     $bind_param_type = 'd';
+    const                       DEFAULT_DATA_SIZE = 16;
 
     public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
+        // make sure that invalid values are converted to a null value
+        $this->setInputValue($value);
         $this->content_type = 'number';
     }
 
@@ -52,11 +55,6 @@ class FloatInput extends RenderedInput
 		}
 		return ($mysqli->real_escape_string($value));
 	}
-
-    public static function getPreparedStatementTypeIdentifier(): string
-    {
-        return 'd';
-    }
 
 	/**
 	 * @param integer $value Value to assign as the value of the object.

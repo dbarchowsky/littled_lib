@@ -9,6 +9,8 @@ class BooleanInput extends RequestInput
 {
 	/** @var string */
 	protected static string $template_filename = 'hidden-input.php';
+    /** @var string             Data type identifier used with bind_param() calls */
+    protected static string $bind_param_type = 'i';
 
 	/**
 	 * Clears the data container value.
@@ -52,13 +54,11 @@ class BooleanInput extends RequestInput
      */
     public function formatValueMarkup(): string
     {
-        if ($this->value===false || $this->value==='false' || $this->value==='0' || $this->value===0 || $this->value==='off') {
-            return ('0');
+        if ($this->value===null) {
+            return '';
         }
-        if ($this->value===true || $this->value==='true' || $this->value==='1' || $this->value===1 || $this->value==='on') {
-            return ('1');
-        }
-        return ('');
+        $v = Validation::parseBoolean($this->value);
+        return (($v===true) ? '1' : (($v===false) ? '0' : ''));
     }
 
     /**

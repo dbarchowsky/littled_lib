@@ -6,16 +6,18 @@ use Littled\Validation\Validation;
 
 class IntegerInput extends RenderedInput
 {
-    /** @var string Form input element template filename */
+    /** @var string         Form input element template filename */
     protected static string $input_template_filename = 'string-text-input.php';
-    /** @var string */
+    /** @var string         Input container filename template */
     protected static string $template_filename = 'string-text-field.php';
-    /** @var int */
+    /** @var string         Data type identifier used with bind_param() calls */
+    protected static string $bind_param_type = 'i';
     const DEFAULT_DATA_SIZE = 8;
 
     public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
+        $this->setInputValue($value);
         $this->content_type = 'number';
     }
 

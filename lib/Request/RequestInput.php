@@ -29,6 +29,8 @@ class RequestInput
     protected static string     $error_class = 'form-error';
     /** @var string */
     protected static string     $input_error_css_class = 'input-error';
+    /** @var string             Data type identifier used with bind_param() calls */
+    protected static string     $bind_param_type = 's';
 
 	/** @var string             Name of CSS class to be used when displaying the form input. */
 	public string               $container_css_class='form-cell';
@@ -94,7 +96,7 @@ class RequestInput
 		$this->size_limit         = $size_limit;
 		$this->required           = $required;
 		$this->index              = $index;
-        $this->setInputValue($value);
+        $this->value              = $value;
 	}
 
 	/**
@@ -137,7 +139,7 @@ class RequestInput
 	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): ?string
 	{
 		if ($this->value===null) {
-			return (null);
+			return null;
 		}
 		return (($include_quotes)?("'"):("")).$mysqli->real_escape_string($this->value).(($include_quotes)?("'"):(""));
 	}
@@ -300,7 +302,7 @@ class RequestInput
      */
     public static function getPreparedStatementTypeIdentifier(): string
     {
-        return 'i';
+        return static::$bind_param_type;
     }
 
     /**

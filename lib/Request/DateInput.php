@@ -10,11 +10,10 @@ use Littled\Exception\ContentValidationException;
  */
 class DateInput extends StringInput
 {
-    /** @property int */
-    public const DEFAULT_SIZE_LIMIT = 20;
-    protected static string $input_template_filename = 'date-text-input.php';
-    protected static string $template_filename = 'date-text-field.php';
-    public string $format = 'Y-m-d H:i:00';
+    public const                DEFAULT_SIZE_LIMIT = 20;
+    protected static string     $input_template_filename = 'date-text-input.php';
+    protected static string     $template_filename = 'date-text-field.php';
+    public string               $format = 'Y-m-d H:i:00';
 
 	/**
 	 * DateInput constructor.

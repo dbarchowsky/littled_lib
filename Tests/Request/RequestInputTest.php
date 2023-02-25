@@ -161,7 +161,7 @@ class RequestInputTest extends TestCase
 
     function testGetPreparedStatementTypeIdentifier()
     {
-        $this->assertEquals('i', RequestInput::getPreparedStatementTypeIdentifier());
+        $this->assertEquals('s', RequestInput::getPreparedStatementTypeIdentifier());
     }
 
     public function testSaveInForm()

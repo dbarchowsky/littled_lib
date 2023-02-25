@@ -29,7 +29,7 @@ class BooleanCheckboxTest extends TestCase
     public function testSaveInForm(BooleanInputTestData $data)
     {
 	    $o = new BooleanCheckbox(BooleanInputTestData::DEFAULT_LABEL, BooleanInputTestData::DEFAULT_KEY);
-	    $o->setInputValue($data->value);
+	    $o->value = $data->value;
         $this->expectOutputRegex($data->expected_regex);
         $o->saveInForm();
     }
