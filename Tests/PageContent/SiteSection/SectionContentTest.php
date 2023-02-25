@@ -2,6 +2,7 @@
 namespace Littled\Tests\PageContent\SiteSection;
 
 use Exception;
+use Littled\Database\DBUtils;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -100,16 +101,8 @@ class SectionContentTest extends TestCase
         $o = new TestTableSectionContentTestHarness();
         $start_count = static::getRecordCount($o);
 
-        $query = 'SELECT MIN(t1.id + 1) AS next_id '.
-            'FROM '.$o::getTableName().' AS t1 '.
-            'LEFT JOIN '.$o::getTableName().' AS t2 '.
-            'ON t1.id + 1 = t2.id '.
-            'WHERE t2.id IS NULL';
-        $data = $o->fetchRecords($query);
-        if (count($data) < 1) {
-            throw new Exception('Temp id not available.');
-        }
-        $o->id->setInputValue($data[0]->next_id);
+        $next_id = DBUtils::lookupNextAvailableRecordId($o::getTableName());
+        $o->id->setInputValue($next_id);
         $o->name->setInputValue('test record');
         $o->save();
 
