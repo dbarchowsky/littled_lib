@@ -266,7 +266,7 @@ class ValidationTest extends TestCase
 	 */
 	public function testParseBoolean($expected, $value, string $msg='')
 	{
-		$this->assertEquals($expected, Validation::parseBoolean($value));
+		$this->assertSame($expected, Validation::parseBoolean($value));
 	}
 
 	/**
@@ -278,7 +278,7 @@ class ValidationTest extends TestCase
 	 */
 	public function testParseInteger($expected, $value, string $msg='')
 	{
-		$this->assertEquals($expected, Validation::parseInteger($value), $msg);
+		$this->assertSame($expected, Validation::parseInteger($value), $msg);
 	}
 
 	function testParseInput_AjaxData()
