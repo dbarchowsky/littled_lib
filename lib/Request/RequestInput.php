@@ -133,10 +133,10 @@ class RequestInput
 	/**
 	 * Escapes the object's value property for inclusion in SQL queries.
 	 * @param mysqli $mysqli Database connection.
-	 * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
+	 * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Default is FALSE.
 	 * @return int|float|string|null Escaped value.
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true)
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false)
 	{
 		if ($this->value===null) {
 			return null;

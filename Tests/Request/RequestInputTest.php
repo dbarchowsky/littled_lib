@@ -59,7 +59,7 @@ class RequestInputTest extends TestCase
      * @param bool $include_quotes
      * @return void
      */
-	public function testEscapeSQL($expected, $value, bool $include_quotes=true)
+	public function testEscapeSQL($expected, $value, bool $include_quotes=false)
 	{
         $i = new RequestInput('Test Input', 'ti');
         if ($value !== '[use default]') {

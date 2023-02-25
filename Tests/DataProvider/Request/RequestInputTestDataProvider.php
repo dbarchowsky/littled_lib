@@ -13,19 +13,19 @@ class RequestInputTestDataProvider
     {
         return array(
             array(null, '[use default]'),
-            array(null, '[use default]', false),
+            array(null, '[use default]', true),
             array(null, null),
-            array(null, null, false),
-            array("''", ''),
-            array('', '', false),
-            array("'foobar'", 'foobar'),
-            array("foobar", 'foobar', false),
-            array("'122'", 122),
-            array("'67.23'", 67.23),
-            array("'0'", false),
-            array("'1'", true),
-            array("'0'", 0),
-            array("'1'", 1),
+            array(null, null, true),
+            array("''", '', true),
+            array('', ''),
+            array('foobar', 'foobar'),
+            array("'foobar'", 'foobar', true),
+            array('122', 122),
+            array('67.23', 67.23),
+            array('0', false),
+            array('1', true),
+            array('0', 0),
+            array('1', 1),
         );
     }
 

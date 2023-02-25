@@ -10,7 +10,7 @@ class DateInputTestDataProvider
     public static function escapeSQLProvider(): array
     {
         return array(
-            array(new DateFormatTestData('May 23, 2018', '', "'2018-05-23 00:00:00'", null, null, 'source: "F d, Y"/format: ""')),
+            array(new DateFormatTestData('May 23, 2018', '', '2018-05-23 00:00:00', null, null, 'source: "F d, Y"/format: ""')),
             array(new DateFormatTestData(null, '', '', null, null, 'source: null/format: ""')),
             array(new DateFormatTestData('', '', '', null, null, 'source: ""/format: ""')),
             array(new DateFormatTestData('fdoclxps', '', '', null, null, 'source: [invalid date string]/format: ""'))

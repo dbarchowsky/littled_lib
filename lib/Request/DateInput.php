@@ -54,7 +54,7 @@ class DateInput extends StringInput
 	 * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
 	 * @return ?string Escaped value.
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true): ?string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): ?string
 	{
         $src = ($this->value===null)?(''):($this->value);
         if ($src==='') {
