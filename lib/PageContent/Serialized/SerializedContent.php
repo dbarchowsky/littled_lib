@@ -135,13 +135,16 @@ abstract class SerializedContent extends SerializedContentValidation
 
 		/* build sql statement */
 		$query = "INS"."ERT INTO `".$this::getTableName()."` (`".
-			implode('`,`', array_keys($fields)).
+			implode('`,`', array_map(function($e) { return $e->key; }, $fields)).
 			"`) VALUES (".
-			implode(',', array_map(function($e) { return '?'; }, $fields)).
+			implode(',', array_map(function() { return '?'; }, $fields)).
 			")";
+        $type_str = implode('', array_map(function($e) { return $e->type; }, $fields));
+        $args = array_map(function($e) { return $e->value; }, $fields);
 
 		/* execute sql and store id value of the new record. */
-		$this->query($query);
+        $this->query($query, $type_str, ...$args);
+        // call_user_func_array([$this, 'query'], [$query, $type_str, $args]);
 		$this->id->value = $this->retrieveInsertID();
 	}
 
@@ -162,13 +165,14 @@ abstract class SerializedContent extends SerializedContentValidation
 			throw new RecordNotFoundException("Requested record not available for update.");
 		}
 
-		$fields_cb = function($key, $value) { return("`$key`=$value"); };
-
 		/* build and execute sql statement */
 		$query = "UPDATE `".$this::getTableName()."` SET ".
-			implode(',', array_map($fields_cb, array_keys($fields), $fields))." ".
+			implode(',', array_map(function($e) { return "$e->key=?"; }, $fields))." ".
 			"WHERE id = ?;";
-		$this->query($query, 'i', $this->id->value);
+        $type_str = implode('', array_map(function($e) { return $e->type; }, $fields)).'i';
+        $args = array_map(function($e) { return $e->value; }, $fields);
+        $args[] = $this->id->value;
+		$this->query($query, $type_str, ...$args);
 	}
 
     /**
@@ -288,11 +292,11 @@ abstract class SerializedContent extends SerializedContentValidation
 
 		$fields = $this->formatDatabaseColumnList();
 		$query = "SELECT `".
-			implode('`,`', array_keys($fields))."` ".
+			implode('`,`', array_map(function($e) { return $e->key; }, $fields))."` ".
 			"FROM `".$this::getTableName()."` ".
-			"WHERE id = {$this->id->value}";
+			"WHERE id = ?";
 		try {
-			$this->hydrateFromQuery($query);
+			$this->hydrateFromQuery($query, 'i', $this->id->value);
 		}
 		catch(RecordNotFoundException $ex) {
 			$error_msg = "The requested ".$this::getTableName()." record could not be found.";

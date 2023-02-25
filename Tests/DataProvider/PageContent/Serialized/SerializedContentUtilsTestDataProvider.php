@@ -2,6 +2,8 @@
 
 namespace Littled\Tests\DataProvider\PageContent\Serialized;
 
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 
 class SerializedContentUtilsTestDataProvider
@@ -62,6 +64,25 @@ class SerializedContentUtilsTestDataProvider
                 'slot' => "NULL"),
                 $o4,
                 'object $o4'],
+        );
+    }
+
+    public static function preserveInFormTestProvider(): array
+    {
+        return array(
+            array(
+                array('vc_col1', 'vc_col2', 'int_col', 'bool_col', 'id'),
+                SerializedContentChild::class, []
+            ),
+            array(
+                array('cu_field', 'vc_col1', 'vc_col2', 'int_col', 'bool_col', 'id'),
+                SerializedContentUtilsChild::class, []
+            ),
+            array(
+                array('cu_field', 'vc_col1', 'int_col', 'id'),
+                SerializedContentUtilsChild::class,
+                array('p_vc2', 'p_bool')
+            ),
         );
     }
 }

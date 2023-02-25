@@ -11,6 +11,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContentUtils;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTestUtility;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
 use Littled\Request\RequestInput;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
@@ -237,22 +238,84 @@ class SerializedContentUtilsTest extends TestCase
 		$this->assertNull($dst->int_col->value);
 	}
 
+
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentUtilsTestDataProvider::formatDatabaseColumnList()
-	 * @param array $expected
-	 * @param TestTableSerializedContentTestHarness $o
-	 * @param string $msg
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 */
-    public function testFormatDatabaseColumnList(array $expected, TestTableSerializedContentTestHarness $o, string $msg='')
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
+    function testFormatDatabaseColumnList()
     {
-        $fields = $o->formatDatabaseColumnListPublic();
-        foreach ($expected as $key => $value) {
-            $this->assertArrayHasKey($key, $fields, "$msg; field: $key");
-            $this->assertEquals($value, $fields[$key], "$msg; field: $key");
-        }
+        $o = new SerializedContentChild();
+        $fields = $o->formatDatabaseColumnList();
+        $this->assertGreaterThan(0, count($fields));
+        $this->assertTrue(property_exists($fields[0], 'key'));
+        $this->assertTrue(property_exists($fields[0], 'value'));
+        $this->assertTrue(property_exists($fields[0], 'type'));
+        $this->assertEquals('', SerializedContentTestUtility::lookupColumnListValue($fields, 'vc_col1'));
+        $this->assertNull(SerializedContentTestUtility::lookupColumnListValue($fields, 'int_col'));
+        $this->assertNull(SerializedContentTestUtility::lookupColumnListValue($fields, 'bool_col'));
+        $this->assertNull(SerializedContentTestUtility::lookupColumnListValue($fields, 'date_col'));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListBooleanValuesTestProvider()
+     * @param bool|null $expected
+     * @param $value
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     */
+    function testFormatDatabaseColumnListBooleanValues(?bool $expected, $value)
+    {
+        $o = new SerializedContentChild();
+        $o->bool_col->value = $value;
+        $fields = $o->formatDatabaseColumnList();
+        $this->assertSame($expected, SerializedContentTestUtility::lookupColumnListValue($fields, 'bool_col'));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListDateValuesTestProvider()
+     * @param string|null $expected
+     * @param $value
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     */
+    function testFormatDatabaseColumnListDateValues(?string $expected, $value)
+    {
+        $o = new SerializedContentChild();
+        $o->date_col->value = $value;
+        $fields = $o->formatDatabaseColumnList();
+        $this->assertSame($expected, SerializedContentTestUtility::lookupColumnListValue($fields, 'date_col'));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListIntegerValuesTestProvider()
+     * @param int|null $expected
+     * @param $value
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     */
+    function testFormatDatabaseColumnListIntegerValues(?int $expected, $value)
+    {
+        $o = new SerializedContentChild();
+        $o->int_col->setInputValue($value);
+        $fields = $o->formatDatabaseColumnList();
+        $this->assertSame($expected, SerializedContentTestUtility::lookupColumnListValue($fields, 'int_col'));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListStringValuesTestProvider()
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
+    function testFormatDatabaseColumnListStringValues(?string $expected, $value)
+    {
+        $o = new SerializedContentChild();
+        $o->vc_col1->setInputValue($value);
+        $fields = $o->formatDatabaseColumnList();
+        $this->assertSame($expected, SerializedContentTestUtility::lookupColumnListValue($fields, 'vc_col1'));
     }
 
     /**
@@ -388,60 +451,32 @@ class SerializedContentUtilsTest extends TestCase
         self::assertEquals(' foo', $obj->prependSeparator('foo', ''));
     }
 
-	public function testPreserveInForm()
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentUtilsTestDataProvider::preserveInFormTestProvider()
+     * @param array $expected
+     * @param string $class
+     * @param array $excluded
+     * @return void
+     */
+	public function testPreserveInForm(array $expected, string $class, array $excluded=[])
 	{
 		RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR."forms/input-elements/");
 
-		// test object with no added RequestInput properties
-		$obj = new SerializedContentChild();
+        $obj = new $class();
 
         ob_start();
-		$obj->preserveInForm();
-        $ob = ob_get_contents();
-
-        $pattern = "/<input type=\"hidden\" name=\"{$obj->vc_col1->key}\" value=\"{$obj->vc_col1->value}\" \/>\n/";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "/<input type=\"hidden\" name=\"{$obj->vc_col2->key}\" value=\"{$obj->vc_col2->value}\" \/>\n/";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "/<input type=\"hidden\" name=\"{$obj->int_col->key}\" value=\"{$obj->int_col->value}\" \/>\n/";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "/<input type=\"hidden\" name=\"{$obj->bool_col->key}\" value=\"{$obj->bool_col->value}\" \/>\n/";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "/<input type=\"hidden\" name=\"{$obj->id->key}\" value=\"{$obj->id->value}\" \/>\n/";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-
-		// test object with added RequestInput properties
-		// N.B. expectOutputString() evaluates against ALL strings that have been printed to STDOUT
-		$o2 = new SerializedContentUtilsChild();
-        $o2->preserveInForm();
-        $ob = ob_get_contents();
-
-        $pattern = "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->vc_col2->key}\" value=\"{$o2->vc_col2->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->bool_col->key}\" value=\"{$o2->bool_col->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-
-        $o2->preserveInForm(array('p_vc2', 'p_bool'));
-        $ob = ob_get_contents();
-
-        // test object with excluded properties
-        $pattern = "<input type=\"hidden\" name=\"{$o2->cu_field->key}\" value=\"{$o2->cu_field->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->vc_col1->key}\" value=\"{$o2->vc_col1->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->int_col->key}\" value=\"{$o2->int_col->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
-        $pattern = "<input type=\"hidden\" name=\"{$o2->id->key}\" value=\"{$o2->id->value}\" \/>\n";
-        $this->assertMatchesRegularExpression($pattern, $ob);
+        $obj->preserveInForm($excluded);
+        $content = ob_get_contents();
         ob_end_clean();
+
+        $patterns = [];
+        foreach ($expected as $property) {
+            $p = $obj->$property;
+            $patterns[] = '/<input type="hidden" name="'.$p->key.'" value="'.$p->value.'" \/>\n/';
+        }
+        foreach($patterns as $pattern) {
+            $this->assertMatchesRegularExpression($pattern, $content);
+        }
 	}
 
     public function testCacheTemplatePath()

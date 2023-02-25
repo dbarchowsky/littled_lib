@@ -3,6 +3,7 @@
 namespace Littled\Tests\TestHarness\PageContent\Serialized;
 
 use Littled\Request\BooleanInput;
+use Littled\Request\DateInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 
@@ -16,6 +17,7 @@ class SerializedContentChild extends SerializedContentTestHarness
     public IntegerInput $int_col;
     /** @var BooleanInput Test boolean input property */
     public BooleanInput $bool_col;
+    public DateInput $date_col;
     /** @var mixed Test plain mixed variable value property */
     public $prop1;
     /** @var mixed Another test plain mixed variable value property */
@@ -34,6 +36,16 @@ class SerializedContentChild extends SerializedContentTestHarness
         $this->vc_col2 = new StringInput('Test varchar value 1', 'p_vc2', false, '', 255);
         $this->int_col = new IntegerInput('Test int value', 'p_int');
         $this->bool_col = new BooleanInput('Test bool value', 'p_bool');
+        $this->date_col = new DateInput('Test date value', 'p_date', false, '');
+    }
+
+    /**
+     * @inheritDoc
+     * Overrides parent to provide public interface to tests.
+     */
+    public function formatDatabaseColumnList(array $used_keys = []): array
+    {
+        return parent::formatDatabaseColumnList($used_keys);
     }
 
     public function hasData(): bool

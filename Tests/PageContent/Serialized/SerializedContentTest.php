@@ -2,8 +2,10 @@
 namespace Littled\Tests\PageContent\Serialized;
 
 use Littled\Tests\DataProvider\PageContent\Serialized\ReadListTestDataProvider;
+use Littled\Tests\PageContent\SiteSection\SectionContentTest;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentNameTestHarness;
+use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTestUtility;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentNonDefaultColumn;
 use Littled\Database\MySQLConnection;
@@ -16,8 +18,10 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Tests\TestHarness\PageContent\Serialized\SketchbookTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
+
 
 class SerializedContentTest extends TestCase
 {
@@ -32,15 +36,16 @@ class SerializedContentTest extends TestCase
 	{
 		$c = new MySQLConnection();
 
-		$query = "DROP TABLE IF EXISTS `".SerializedContentChild::getTableName()."`";
+		$query = "DR"."OP TABLE IF EXISTS `".SerializedContentChild::getTableName()."`";
         $c->query($query);
 
-        $query = "CREATE TABLE `".SerializedContentChild::getTableName()."` (".
-			"`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,".
-			"`vc_col1` VARCHAR(50),".
-			"`vc_col2` VARCHAR(255),".
-			"`int_col` INT,".
-			"`bool_col` BOOLEAN);";
+        $query = 'CREATE TABLE `'.SerializedContentChild::getTableName().'` ('.
+			'`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,'.
+			'`vc_col1` VARCHAR(50),'.
+			'`vc_col2` VARCHAR(255),'.
+			'`int_col` INT,'.
+			'`bool_col` BOOLEAN,'.
+            '`date_col` DATETIME);';
 		$c->query($query);
 
 		$query = "DROP TABLE IF EXISTS `".SerializedContentTitleTestHarness::getTableName();
@@ -153,6 +158,89 @@ class SerializedContentTest extends TestCase
 		/* test that internal table name value cannot be overridden */
 		$this->assertFalse($obj->columnExists('name', 'video_reel'));
 	}
+
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     * @throws Exception
+     */
+    function testExecuteInsertQuery()
+    {
+        $o = new TestTableSectionContentTestHarness();
+        $original_ids = $o->fetchRecords('SEL'.'ECT id FROM '.$o::getTableName());
+
+        $o->int_col->value = 563;
+        $o->name->value = 'foobar';
+        $o->bool_col->value = true;
+        $o->date->value =  '2/25/2023';
+
+        $o->executeInsertQuery();
+        $this->assertGreaterThan(0, $o->getRecordId());
+        $this->assertNotContains($o->getRecordId(), array_map(function($e) { return $e->id; }, $original_ids));
+
+        $o2 = new TestTableSectionContentTestHarness($o->getRecordId());
+        $o2->read();
+        $this->assertEquals(563, $o->int_col->value);
+        $this->assertEquals('foobar', $o->name->value);
+        $this->assertEquals('2/25/2023', $o->date->value);
+        $this->assertEquals(true, $o->bool_col->value);
+
+        $o2->delete();
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+    function testExecuteUpdateQuery()
+    {
+        // retrieve original property values from database
+        $o = new TestTableSectionContentTestHarness();
+        $o->setRecordId(SectionContentTest::TEST_RECORD_ID);
+        $o->read();
+        $start_values = $o->formatDatabaseColumnList();
+
+        // assign new property values
+        $new_values = (object)array(
+            'name' => 'new value',
+            'int_col' => 5294,
+            'bool_col' => false,
+            'date' => '2/25/2023'
+        );
+        $o->name->setInputValue($new_values->name);
+        $o->int_col->setInputValue($new_values->int_col);
+        $o->bool_col->setInputValue($new_values->bool_col);
+        $o->date->setInputValue($new_values->date);
+
+        // commit changes
+        $o->executeUpdateQuery();
+
+        // retrieve new property values from database
+        $o2 = new TestTableSectionContentTestHarness();
+        $o2->setRecordId($o->getRecordId());
+        $o2->read();
+
+        // confirm update query committed new values
+        $this->assertSame($new_values->name, $o2->name->value);
+        $this->assertSame($new_values->int_col, $o2->int_col->value);
+        $this->assertEquals(strtotime($new_values->date), strtotime($o2->date->value));
+        $this->assertSame($new_values->bool_col, $o2->bool_col->value);
+        $this->assertNotSame(SerializedContentTestUtility::lookupColumnListValue($start_values, 'name'), $o2->name->value);
+
+        // restore record to its original state
+        $o->name->setInputValue(SerializedContentTestUtility::lookupColumnListValue($start_values, 'name'));
+        $o->int_col->setInputValue(SerializedContentTestUtility::lookupColumnListValue($start_values, 'int_col'));
+        $o->date->setInputValue(SerializedContentTestUtility::lookupColumnListValue($start_values, 'date'));
+        $o->bool_col->setInputValue(SerializedContentTestUtility::lookupColumnListValue($start_values, 'bool_col'));
+        $o->save();
+    }
 
     function testGetRecordId()
     {

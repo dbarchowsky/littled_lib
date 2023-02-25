@@ -12,6 +12,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Exception;
+use Littled\Validation\Validation;
 
 /**
  * Class SerializedContentUtils
@@ -196,11 +197,10 @@ class SerializedContentUtils extends AppContentBase
 					continue;
 				}
 				/* format column name and value for SQL statement */
-				if ($item->column_name) {
-					$fields[$item->column_name] = $item->escapeSQL($this->mysqli);
-				} else {
-					$fields[$key] = $item->escapeSQl($this->mysqli);
-				}
+                $fields[] = (object)array(
+                    'key' => $item->column_name ?: $key,
+                    'value' => $item->escapeSQL($this->mysqli),
+                    'type' => $item::getPreparedStatementTypeIdentifier());
 			}
 		}
 		return ($fields);

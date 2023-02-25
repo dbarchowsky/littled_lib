@@ -47,6 +47,16 @@ class TestTableSectionContentTestHarness extends parentAlias
         $this->slot = new IntegerInput('Slot', 'slot', false, $slot);
     }
 
+    public function formatDatabaseColumnList(array $used_keys = []): array
+    {
+        return parent::formatDatabaseColumnList($used_keys);
+    }
+
+    public function executeUpdateQuery()
+    {
+        parent::executeUpdateQuery();
+    }
+
     /**
      * @inheritDoc
      */
@@ -60,5 +70,14 @@ class TestTableSectionContentTestHarness extends parentAlias
             &$this->bool_col->value,
             &$this->date->value,
             &$this->slot->value);
+    }
+
+    /**
+     * @inheritDoc
+     * Override parent method to provide public interface for testing.
+     */
+    public function executeInsertQuery()
+    {
+        parent::executeInsertQuery();
     }
 }
