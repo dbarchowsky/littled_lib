@@ -20,7 +20,6 @@ class BooleanInput extends RequestInput
 		$this->value = null;
 	}
 
-
 	/**
 	 * Collects the value of this form input and stores it in the object.
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
@@ -43,10 +42,9 @@ class BooleanInput extends RequestInput
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escapeSQL($mysqli, $include_quotes=false): ?string
+	public function escapeSQL($mysqli, $include_quotes=false)
 	{
-        $value = $this->formatValueMarkup();
-        return ((''===$value)?(null):($value));
+        return Validation::parseBoolean($this->value);
 	}
 
     /**

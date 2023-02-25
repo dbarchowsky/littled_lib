@@ -9,14 +9,16 @@ class BooleanInputTestDataProvider
 	{
 		return array(
 			[new BooleanInputTestData(null, '', '[use default]')],
-			[new BooleanInputTestData('1', '', true)],
-			[new BooleanInputTestData('1', '', 'true')],
-			[new BooleanInputTestData('1', '', '1')],
-			[new BooleanInputTestData('1', '', 1)],
-			[new BooleanInputTestData('0', '', false)],
-			[new BooleanInputTestData('0', '', 'false')],
-			[new BooleanInputTestData('0', '', 0)],
-			[new BooleanInputTestData('0', '', '0')],
+			[new BooleanInputTestData(true, '', true)],
+			[new BooleanInputTestData(true, '', 'true')],
+			[new BooleanInputTestData(true, '', '1')],
+			[new BooleanInputTestData(true, '', 1)],
+			[new BooleanInputTestData(false, '', false)],
+			[new BooleanInputTestData(false, '', 'false')],
+			[new BooleanInputTestData(false, '', 0)],
+			[new BooleanInputTestData(false, '', '0')],
+            [new BooleanInputTestData(true, '', 'yes')],
+            [new BooleanInputTestData(false, '', 'no')],
 			[new BooleanInputTestData(null, '', 45)],
 			[new BooleanInputTestData(null, '', 1.005)],
 			[new BooleanInputTestData(null, '', 'foobar')],
@@ -27,13 +29,15 @@ class BooleanInputTestDataProvider
 	{
 		return array(
 			[new BooleanInputTestData('', '', '[use default]')],
+            [new BooleanInputTestData('', '', null)],
 			[new BooleanInputTestData('1', '', 1)],
 			[new BooleanInputTestData('1', '', true)],
 			[new BooleanInputTestData('1', '', 'on')],
+            [new BooleanInputTestData('1', '', 'yes')],
 			[new BooleanInputTestData('0', '', 0)],
 			[new BooleanInputTestData('0', '', false)],
 			[new BooleanInputTestData('0', '', 'off')],
-			[new BooleanInputTestData('', '', null)],
+            [new BooleanInputTestData('0', '', 'no')],
 		);
 	}
 

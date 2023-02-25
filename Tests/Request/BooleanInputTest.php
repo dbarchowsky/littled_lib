@@ -57,12 +57,7 @@ class BooleanInputTest extends ContentValidationTestCase
 		if ('[use default]' !== $data->obj->value) {
 			$data->obj->value = $data->value;
 		}
-        if ($data->expected===null) {
-            $this->assertNull($data->obj->escapeSQL($this->mysqli));
-        }
-        else {
-            $this->assertEquals($data->expected, $data->obj->escapeSQL($this->mysqli));
-        }
+        $this->assertSame($data->expected, $data->obj->escapeSQL($this->mysqli));
 	}
 
 	/**
