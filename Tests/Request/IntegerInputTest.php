@@ -253,7 +253,7 @@ class IntegerInputTest extends TestCase
     {
         $o = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
         $o->setInputValue($value);
-        $this->assertEquals($expected, $o->escapeSQL($mysqli), $msg);
+        $this->assertSame($expected, $o->escapeSQL($mysqli), $msg);
     }
 
     function testGetPreparedStatementTypeIdentifier()

@@ -46,13 +46,9 @@ class IntegerInput extends RenderedInput
 	/**
 	 * @inheritDoc
 	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): ?string
+	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): ?int
 	{
-		$value = Validation::parseInteger($this->value);
-		if ($value===null) {
-			return(null);
-		}
-		return ($mysqli->real_escape_string($value));
+		return Validation::parseInteger($this->value);
 	}
 
     /**
