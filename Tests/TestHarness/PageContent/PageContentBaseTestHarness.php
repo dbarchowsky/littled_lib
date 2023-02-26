@@ -6,6 +6,8 @@ use Littled\PageContent\PageContentBase;
 
 class PageContentBaseTestHarness extends PageContentBase
 {
+    protected static array $route_parts = ['route-base', 'route-sub'];
+
     public function sendResponse(string $template_path = '', ?array $context = null)
     {
         // TODO: Implement sendResponse() method.

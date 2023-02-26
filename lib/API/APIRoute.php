@@ -43,7 +43,6 @@ abstract class APIRoute extends PageContentBase
     /** @var string             Name of the default template to use in derived classes to generate markup. */
     protected static string     $default_template_dir='';
     protected static string     $default_template_name = '';
-	protected static array      $route_parts=[];
 
 	/** @var string             String indicating the action to be taken on the page. */
 	public string               $action='';
@@ -247,15 +246,6 @@ abstract class APIRoute extends PageContentBase
 		);
 	}
 
-	/**
-	 * Base route getter.
-	 * @return string
-	 */
-	public static function getBaseRoute(): string
-	{
-		return ((count(static::$route_parts) > 0) ? (static::$route_parts[0]) :(''));
-	}
-
     /**
      * Cache class name getter.
      * @return string
@@ -332,19 +322,6 @@ abstract class APIRoute extends PageContentBase
     {
         return static::$default_template_name;
     }
-
-	/**
-	 * Returns one component of the route parts, the 2nd one by default.
-	 * @param int $index
-	 * @return string
-	 */
-	public static function getSubRoute( int $index=1 ): string
-	{
-		if (count(static::$route_parts) > $index) {
-			return static::$route_parts[$index];
-		}
-		return '';
-	}
 
     /**
      * Sets the data to be injected into templates.
@@ -577,16 +554,6 @@ abstract class APIRoute extends PageContentBase
 		print($response ?: $this->json->content->value);
 	}
 
-	/**
-	 * Base route setter.
-	 * @param string $route
-	 * @return void
-	 */
-	public static function setBaseRoute(string $route)
-	{
-		static::$route_parts = array($route);
-	}
-
     /**
      * Content cache class setter.
      * @param string $class_name Name of class to use to cache ajax content. Must be derived from \Littled\PageContent\Cache\ContentCache
@@ -650,34 +617,4 @@ abstract class APIRoute extends PageContentBase
     {
         static::$default_template_name = $name;
     }
-
-	/**
-	 * Route parts setter.
-	 * @param array $route
-	 * @return void
-	 */
-	public static function setRouteParts(array $route)
-	{
-		static::$route_parts = array_values(array_map(
-			function($n) {
-				return ''.$n;
-				},
-			$route));
-	}
-
-	/**
-	 * Sets a sub-route component of the object's route path.
-	 * @param string $sub_route Value to assign to the route component.
-	 * @param int $index Optional 0-based index of the component to assign the sub route value. Defaults to 1, i.e. the 2nd component in the route path.
-	 * @return void
-	 */
-	public static function setSubRoute(string $sub_route, int $index=1)
-	{
-		if (count(static::$route_parts) <= $index) {
-			for ($i = count(static::$route_parts); $i <= $index; $i++) {
-				static::$route_parts[] = '';
-			}
-		}
-		static::$route_parts[$index] = ''.$sub_route;
-	}
 }

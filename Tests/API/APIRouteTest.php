@@ -33,11 +33,6 @@ class APIRouteTest extends APIRouteTestBase
         AppBase::setAjaxInputStream('php://input');
 	}
 
-	function testGetBaseRoute()
-	{
-		$this->assertEquals('', APIRoute::getBaseRoute());
-	}
-
 	/**
 	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectFiltersRequestDataTestProvider()
 	 * @param APIRouteTestExpectations $expected
@@ -129,21 +124,6 @@ class APIRouteTest extends APIRouteTestBase
         $this->assertMatchesRegularExpression($expected, $response);
     }
 
-	/**
-	 * @throws InvalidTypeException
-	 */
-	function testSetBaseRoute()
-	{
-		$original_route = APIRouteTest::getOriginalRoute(APIRouteTestHarness::class);
-
-		$new_route = 'route-boy';
-		APIRoute::setBaseRoute($new_route);
-		$this->assertEquals($new_route, APIRoute::getBaseRoute());
-		$this->assertEquals('', APIRouteTestHarness::getSubRoute());
-
-		APIRouteTestHarness::setRouteParts($original_route);
-	}
-
     /**
      * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setCacheClassTestProvider()
      * @param string $cache_class
@@ -192,69 +172,4 @@ class APIRouteTest extends APIRouteTestBase
         // return to its original state
         APIRoute::setDefaultTemplateName('');
     }
-
-	/**
-	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setRoutePartsTestProvider()
-	 * @param array $expected
-	 * @param array $route_parts
-	 * @return void
-	 * @throws InvalidTypeException
-	 */
-	function testSetRouteParts(array $expected, array $route_parts)
-	{
-		$original_route = static::getOriginalRoute(APIRouteTestHarness::class);
-
-		APIRouteTestHarness::setRouteParts($route_parts);
-		foreach($expected as $i => $value) {
-			$this->assertEquals($value, APIRouteTestHarness::getSubRoute($i));
-		}
-
-		APIRouteTestHarness::setRouteParts($original_route);
-	}
-
-	/**
-	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setSubRouteTestProvider()
-	 * @throws InvalidTypeException
-	 */
-	function testSetSubRoute(array $expected, $value, int $index=1, ?array $start_route=null)
-	{
-		$original_route = static::getOriginalRoute(APIRouteTestHarness::class);
-
-		if(is_array($start_route)) {
-			APIRoute::setRouteParts($start_route);
-		}
-
-		APIRouteTestHarness::setSubRoute($value, $index);
-		foreach($expected as $i => $value) {
-			$this->assertEquals($value, APIRouteTestHarness::getSubRoute($i));
-		}
-
-		APIRouteTestHarness::setRouteParts($original_route);
-	}
-
-
-	/**
-	 * Get the current original route as a list of its parts from an APIRoute class.
-	 * @param string $api_route_class
-	 * @return array
-	 * @throws InvalidTypeException
-	 */
-	protected static function getOriginalRoute(string $api_route_class): array
-	{
-		if (!Validation::isSubclass($api_route_class, APIRoute::class)) {
-			throw new InvalidTypeException('Must be APIRoute class');
-		}
-
-		$original_route = [];
-		$i = 0;
-		do {
-			$part = call_user_func([$api_route_class, 'getSubRoute'], $i);
-			if ($part=='') {
-				break;
-			}
-			$original_route[] = $part;
-			$i++;
-		} while (1);
-		return $original_route;
-	}
 }
