@@ -10,8 +10,8 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\API\APIRouteTestBase;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableDetailsPage;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
+use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
+use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use Littled\Utility\LittledUtility;
 

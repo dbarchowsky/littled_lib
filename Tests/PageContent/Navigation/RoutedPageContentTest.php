@@ -9,12 +9,14 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\TestTableRoutes;
+use Littled\Tests\TestHarness\SiteContent\TestTableSectionNavigationRoutes;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
-use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
+use Littled\Tests\TestHarness\SiteContent\TestTableEditPage;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 
@@ -60,7 +62,8 @@ class RoutedPageContentTest extends TestCase
         $o::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
         $o->instantiateProperties($record_id);
 
-        $this->assertEquals('/unicorn/123', $o->getDetailsURI($record_id));
+        $expected = LittledUtility::joinPaths('/', TestTableDetailsPage::getBaseRoute(), $record_id);
+        $this->assertEquals($expected, $o->getDetailsURI($record_id));
     }
 
 	/**
@@ -68,43 +71,43 @@ class RoutedPageContentTest extends TestCase
 	 */
 	function testGetEditURIWithFilters()
     {
+        $test_record_id = 643;
         $o = new RoutedPageContentTestHarness();
-        $o::setFiltersClassName(ContentFiltersChild::class);
-        $o::setContentClassName(SectionContentTestHarness::class);
-        $o::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
+        $o::setFiltersClassName(TestTableContentFiltersTestHarness::class);
+        $o::setContentClassName(TestTableSectionContentTestHarness::class);
+        $o::setRoutesClassName(TestTableSectionNavigationRoutes::class);
         $o->instantiateProperties();
         $o->filters->display_listings->value = true;
         $o->formatQueryString();
 
         // edit uri without a record id
-        $uri = $o->getEditURIWithFilters();
-        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), RoutedPageContentTestHarness::getAddToken());
+        $expected = LittledUtility::joinPaths('/', TestTableEditPage::getBaseRoute(), RoutedPageContentTestHarness::getAddToken());
         $pattern = '/'.preg_quote($expected, '/').'/';
-        $this->assertMatchesRegularExpression($pattern, $uri);
+        $this->assertMatchesRegularExpression($pattern,  $o->getEditURIWithFilters());
 
         $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
-        $this->assertMatchesRegularExpression($pattern, $uri);
+        $this->assertMatchesRegularExpression($pattern,  $o->getEditURIWithFilters());
 
         // edit uri with a record id
-        $uri = $o->getEditURIWithFilters(643);
-        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), 643, RoutedPageContentTestHarness::getEditToken());
+        $expected = LittledUtility::joinPaths(TestTableEditPage::getBaseRoute(), $test_record_id, RoutedPageContentTestHarness::getEditToken());
         $pattern = '/'.preg_quote($expected, '/').'/';
-        $this->assertMatchesRegularExpression($pattern, $uri);
+        $this->assertMatchesRegularExpression($pattern, $o->getEditURIWithFilters($test_record_id));
 
-        $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
-        $this->assertMatchesRegularExpression($pattern, $uri);
+        $expected = $o->filters->display_listings->key.'=1';
+        $pattern = '/'.preg_quote($expected, '/').'/';
+        $this->assertMatchesRegularExpression($pattern, $o->getEditURIWithFilters($test_record_id));
 
         // edit uri without the filter's value being set
         $o->filters->display_listings->value = null;
         $o->formatQueryString();
         $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
-        $uri = $o->getEditURIWithFilters(643);
-        $this->assertDoesNotMatchRegularExpression($pattern, $uri);
+        $this->assertDoesNotMatchRegularExpression($pattern, $o->getEditURIWithFilters($test_record_id));
     }
 
-	/**
-	 * @throws InvalidTypeException
-	 */
+    /**
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     */
 	function testGetEditURIWithoutRecordId()
     {
         $o = new RoutedPageContentTestHarness();
@@ -113,16 +116,17 @@ class RoutedPageContentTest extends TestCase
         $o->instantiateProperties();
 
         // format uri using object's internal value
-        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), RoutedPageContentTestHarness::getAddToken());
+        $expected = LittledUtility::joinPaths('/', TestTableDetailsPage::getBaseRoute(), RoutedPageContentTestHarness::getAddToken());
         $this->assertEquals($expected, $o->getEditURI());
         // format uri by passing record id as argument
-        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), 539, RoutedPageContentTestHarness::getEditToken());
+        $expected = LittledUtility::joinPaths('/', TestTableEditPage::getBaseRoute(), 539, RoutedPageContentTestHarness::getEditToken());
         $this->assertEquals($expected, $o->getEditURI(539));
     }
 
-	/**
-	 * @throws InvalidTypeException
-	 */
+    /**
+     * @throws InvalidTypeException
+     * @throws ConfigurationUndefinedException
+     */
 	function testGetEditURIWithRecordId()
     {
         $record_id = 123;
@@ -132,9 +136,10 @@ class RoutedPageContentTest extends TestCase
         $o->instantiateProperties($record_id);
 
         // format uri using object's internal value
-        $this->assertEquals('/unicorn/123/edit', $o->getEditURI());
+        $expected = LittledUtility::joinPaths('/', TestTableEditPage::getBaseRoute(), $record_id, TestTableEditPage::getEditToken());
+        $this->assertEquals($expected, $o->getEditURI());
         // format uri by passing record id as argument
-        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), 765, RoutedPageContentTestHarness::getEditToken());
+        $expected = LittledUtility::joinPaths('/', TestTableDetailsPage::getBaseRoute(), 765, RoutedPageContentTestHarness::getEditToken());
         $this->assertEquals($expected, $o->getEditURI(765));
     }
 
@@ -163,6 +168,8 @@ class RoutedPageContentTest extends TestCase
     function testGetRecordId(?int $record_id, ?int $expected)
     {
         $o = new RoutedPageContentTestHarness();
+        $o::setContentClassName(TestTableSectionContentTestHarness::class);
+        $o->instantiateProperties();
         $o->content->id->value = $record_id;
         $this->assertEquals($expected, $o->getRecordId());
     }
@@ -250,7 +257,8 @@ class RoutedPageContentTest extends TestCase
 			'dateBefore' => '2023-02-28',
 			);
 
-		$rpc = new TestTableRoutes();
+		$rpc = new RoutedPageContentTestHarness();
+        $rpc::setFiltersClassName(TestTableContentFiltersTestHarness::class);
 		$rpc->instantiateProperties();
 		$this->assertTrue(isset($rpc->filters));
 

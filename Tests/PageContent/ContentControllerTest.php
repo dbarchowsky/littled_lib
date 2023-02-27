@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\Tests\PageContent;
 
 use Exception;
@@ -7,10 +6,10 @@ use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableDetailsPage;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableListingsPage;
+use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
+use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
+
 
 class ContentControllerTest extends TestCase
 {
@@ -19,7 +18,12 @@ class ContentControllerTest extends TestCase
      * @throws InvalidValueException
      * @throws NotImplementedException
      */
-    function testFormatNavigationRoute(string $expected, string $routed_content_class, string $operation, ?int $record_id, string $msg='')
+    function testFormatNavigationRoute(
+        string $expected,
+        string $routed_content_class,
+        string $operation,
+        ?int $record_id,
+        string $msg='' )
     {
         $route = ContentControllerTestHarness::publicFormatNavigationRoute(
             new $routed_content_class(),

@@ -5,11 +5,8 @@ namespace Littled\PageContent\Navigation;
 abstract class SectionNavigationRoutes
 {
 	protected static string $details_page_class='';
-	protected static string $details_route='';
 	protected static string $edit_page_class='';
-    protected static string $edit_route='';
 	protected static string $listings_page_class='';
-	protected static string $listings_route='';
     protected static string $template_dir='';
 
 	/**
@@ -26,16 +23,23 @@ abstract class SectionNavigationRoutes
      * @param ?int $record_id
 	 * @return void
 	 */
-	abstract public static function getDetailsRoute(?int $record_id=null): string;
+	public static function getDetailsRoute(?int $record_id=null): string
+    {
+        /** @var RoutedPageContent $class */
+        $class = static::getDetailsPageClass();
+        $p = new $class();
+        return $p->formatRoutePath($record_id);
+    }
 
     /**
      * Returns the first component of the details route.
      * @return string
      */
-    public static function getDetailsRouteBase(): string
+     public static function getDetailsRouteBase(): string
     {
-        $arr = array_values(array_filter(explode('/', static::$details_route)));
-        return ((count($arr) > 0)?($arr[0]):(''));
+        /** @var RoutedPageContent $class */
+        $class = static::getDetailsPageClass();
+        return $class::getBaseRoute();
     }
 
 	/**
@@ -52,7 +56,13 @@ abstract class SectionNavigationRoutes
      * @param ?int $record_id Record id of the record being edited.
      * @return string
      */
-    abstract public static function getEditRoute(?int $record_id=null): string;
+    public static function getEditRoute(?int $record_id=null): string
+    {
+        /** @var RoutedPageContent $class */
+        $class = static::getEditPageClass();
+        $p = new $class();
+        return $p->formatRoutePath($record_id);
+    }
 
 	/**
 	 * Listings page class name getter
@@ -67,7 +77,13 @@ abstract class SectionNavigationRoutes
 	 * Listings route getter
 	 * @return void
 	 */
-	abstract public static function getListingsRoute(): string;
+	public static function getListingsRoute(): string
+    {
+        /** @var RoutedPageContent $class */
+        $class = static::getListingsPageClass();
+        $p = new $class();
+        return $p->formatRoutePath();
+    }
 
     /**
      * Returns the first component of the listings route.
@@ -75,8 +91,10 @@ abstract class SectionNavigationRoutes
      */
     public static function getListingsRouteBase(): string
     {
-        $arr = array_values(array_filter(explode('/', static::$listings_route)));
-        return ((count($arr) > 0)?($arr[0]):(''));
+        /** @var RoutedPageContent $class */
+        $class = static::getListingsPageClass();
+        $p = new $class();
+        return $p::getBaseRoute();
     }
 
     /**
@@ -87,26 +105,6 @@ abstract class SectionNavigationRoutes
     {
         return static::$template_dir;
     }
-
-    /**
-	 * Details route setter.
-	 * @param string $route
-	 * @return void
-	 */
-	public static function setDetailsRoute(string $route)
-	{
-		static::$details_route = $route;
-	}
-
-	/**
-	 * Listings route setter.
-	 * @param string $route
-	 * @return void
-	 */
-	public static function setListingsRoute(string $route)
-	{
-		static::$listings_route = $route;
-	}
 
     /**
      * Template path setter.

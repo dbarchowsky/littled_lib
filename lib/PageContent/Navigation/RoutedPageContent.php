@@ -129,6 +129,13 @@ abstract class RoutedPageContent extends PageContent
         return null;
     }
 
+    /**
+     * Formats and returns path to use to reach this page.
+     * @param int|null $record_id
+     * @return string
+     */
+    abstract public function formatRoutePath(?int $record_id=null): string;
+
 	/**
 	 * Access level getter.
 	 * @return ?int
@@ -156,15 +163,19 @@ abstract class RoutedPageContent extends PageContent
         return static::$content_class;
     }
 
-	/**
+    /**
      * Details uri getter.
      * @param ?int $record_id
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getDetailsURI(?int $record_id=null): string
     {
-        if (!isset($this->routes)) {
-            return '';
+        try {
+            $this->verifyAndLoadRoutes();
+        }
+        catch(ConfigurationUndefinedException $e) {
+            throw new ConfigurationUndefinedException('Routes class unavailable for details uri.');
         }
         return $this->routes::getDetailsRoute( $record_id ?: $this->getRecordId());
     }
@@ -173,6 +184,7 @@ abstract class RoutedPageContent extends PageContent
      * Returns the details route including a query string including variables used to filter listings content.
      * @param int|null $record_id The record id to inject into the URI. The content property's internal value will be used if a record id value is not passed in this argument.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getDetailsURIWithFilters(?int $record_id=null): string
     {
@@ -192,17 +204,24 @@ abstract class RoutedPageContent extends PageContent
      * Edit record uri getter.
      * @param int|null $record_id
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getEditURI(?int $record_id=null): string
     {
-        $record_id = $record_id ?: $this->getRecordId();
-        return LittledUtility::joinPaths($this->getDetailsURI($record_id), (($record_id)?(static::getEditToken()):(static::getAddToken())));
+        try {
+            $this->verifyAndLoadRoutes();
+        }
+        catch(ConfigurationUndefinedException $e) {
+            throw new ConfigurationUndefinedException('Routes class unavailable for edit uri.');
+        }
+        return $this->routes::getEditRoute($record_id ?: $this->getRecordId());
     }
 
     /**
      * Returns edit uri with current filter values added on as get variables.
-     * @param ?int $record_id;
+     * @param ?int $record_id ;
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getEditURIWithFilters(?int $record_id=null): string
     {
@@ -221,11 +240,15 @@ abstract class RoutedPageContent extends PageContent
     /**
      * Returns listings uri with current filter values added on as get variables.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getListingsURI(): string
     {
-        if (!isset($this->routes)) {
-            return '';
+        try {
+            $this->verifyAndLoadRoutes();
+        }
+        catch(ConfigurationUndefinedException $e) {
+            throw new ConfigurationUndefinedException('Routes class unavailable for listings uri.');
         }
         return $this->routes::getListingsRoute();
     }
@@ -233,6 +256,7 @@ abstract class RoutedPageContent extends PageContent
     /**
      * Returns listings uri with current filter values added on as get variables.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getListingsURIWithFilters(): string
     {
@@ -466,6 +490,22 @@ abstract class RoutedPageContent extends PageContent
         }
         catch(Exception $e) {
             $this->content->addValidationError($e->getMessage());
+        }
+    }
+
+    /**
+     * Confirm that the object has an instantiated routes object as the value of its $routes property.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected function verifyAndLoadRoutes()
+    {
+        if (!isset($this->routes)) {
+            if (!static::$routes_class) {
+                throw new ConfigurationUndefinedException('Routes class unavailable.');
+            }
+            $class = $this::$routes_class;
+            $this->routes = new $class();
         }
     }
 }

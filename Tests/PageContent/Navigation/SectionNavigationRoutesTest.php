@@ -3,6 +3,8 @@ namespace Littled\Tests\PageContent\Navigation;
 
 use Littled\PageContent\Navigation\SectionNavigationRoutes;
 use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
+use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
+use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
 
 
@@ -10,12 +12,12 @@ class SectionNavigationRoutesTest extends TestCase
 {
     function testGetDetailsRouteBase()
     {
-        $this->assertEquals('unicorn', SectionNavigationRoutesTestHarness::getDetailsRouteBase());
+        $this->assertEquals(TestTableDetailsPage::getBaseRoute(), SectionNavigationRoutesTestHarness::getDetailsRouteBase());
     }
 
     function testGetListingsRouteBase()
     {
-        $this->assertEquals('unicorns', SectionNavigationRoutesTestHarness::getListingsRouteBase());
+        $this->assertEquals(TestTableListingsPage::getBaseRoute(), SectionNavigationRoutesTestHarness::getListingsRouteBase());
     }
 
 	function testGetTemplateDir()
