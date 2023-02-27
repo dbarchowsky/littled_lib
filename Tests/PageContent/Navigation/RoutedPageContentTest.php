@@ -60,7 +60,7 @@ class RoutedPageContentTest extends TestCase
         $o::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
         $o->instantiateProperties($record_id);
 
-        $this->assertEquals('/unicorn/123', $o->getDetailsURI());
+        $this->assertEquals('/unicorn/123', $o->getDetailsURI($record_id));
     }
 
 	/**
@@ -78,7 +78,8 @@ class RoutedPageContentTest extends TestCase
 
         // edit uri without a record id
         $uri = $o->getEditURIWithFilters();
-        $pattern = '/'.preg_quote(SectionNavigationRoutesTestHarness::getDetailsRoute().'/'.RoutedPageContentTestHarness::getAddToken(), '/').'/';
+        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), RoutedPageContentTestHarness::getAddToken());
+        $pattern = '/'.preg_quote($expected, '/').'/';
         $this->assertMatchesRegularExpression($pattern, $uri);
 
         $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
@@ -86,7 +87,8 @@ class RoutedPageContentTest extends TestCase
 
         // edit uri with a record id
         $uri = $o->getEditURIWithFilters(643);
-        $pattern = '/'.preg_quote(SectionNavigationRoutesTestHarness::getDetailsRoute().'/643/'.RoutedPageContentTestHarness::getEditToken(), '/').'/';
+        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), 643, RoutedPageContentTestHarness::getEditToken());
+        $pattern = '/'.preg_quote($expected, '/').'/';
         $this->assertMatchesRegularExpression($pattern, $uri);
 
         $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
@@ -111,10 +113,10 @@ class RoutedPageContentTest extends TestCase
         $o->instantiateProperties();
 
         // format uri using object's internal value
-        $expected = SectionNavigationRoutesTestHarness::getDetailsRoute().'/'.RoutedPageContentTestHarness::getAddToken();
+        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), RoutedPageContentTestHarness::getAddToken());
         $this->assertEquals($expected, $o->getEditURI());
         // format uri by passing record id as argument
-        $expected = SectionNavigationRoutesTestHarness::getDetailsRoute().'/539/'.RoutedPageContentTestHarness::getEditToken();
+        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), 539, RoutedPageContentTestHarness::getEditToken());
         $this->assertEquals($expected, $o->getEditURI(539));
     }
 
@@ -132,7 +134,7 @@ class RoutedPageContentTest extends TestCase
         // format uri using object's internal value
         $this->assertEquals('/unicorn/123/edit', $o->getEditURI());
         // format uri by passing record id as argument
-        $expected = SectionNavigationRoutesTestHarness::getDetailsRoute().'/765/'.RoutedPageContentTestHarness::getEditToken();
+        $expected = LittledUtility::joinPaths(SectionNavigationRoutesTestHarness::getDetailsRoute(), 765, RoutedPageContentTestHarness::getEditToken());
         $this->assertEquals($expected, $o->getEditURI(765));
     }
 

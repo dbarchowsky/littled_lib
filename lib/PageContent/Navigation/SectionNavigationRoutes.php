@@ -2,11 +2,12 @@
 namespace Littled\PageContent\Navigation;
 
 
-class SectionNavigationRoutes
+abstract class SectionNavigationRoutes
 {
 	protected static string $details_page_class='';
 	protected static string $details_route='';
 	protected static string $edit_page_class='';
+    protected static string $edit_route='';
 	protected static string $listings_page_class='';
 	protected static string $listings_route='';
     protected static string $template_dir='';
@@ -22,12 +23,10 @@ class SectionNavigationRoutes
 
 	/**
 	 * Details route getter
+     * @param ?int $record_id
 	 * @return void
 	 */
-	public static function getDetailsRoute(): string
-	{
-		return static::$details_route;
-	}
+	abstract public static function getDetailsRoute(?int $record_id=null): string;
 
     /**
      * Returns the first component of the details route.
@@ -48,6 +47,13 @@ class SectionNavigationRoutes
 		return static::$edit_page_class;
 	}
 
+    /**
+     * Edit route getter.
+     * @param ?int $record_id Record id of the record being edited.
+     * @return string
+     */
+    abstract public static function getEditRoute(?int $record_id=null): string;
+
 	/**
 	 * Listings page class name getter
 	 * @return void
@@ -61,10 +67,7 @@ class SectionNavigationRoutes
 	 * Listings route getter
 	 * @return void
 	 */
-	public static function getListingsRoute(): string
-	{
-		return static::$listings_route;
-	}
+	abstract public static function getListingsRoute(): string;
 
     /**
      * Returns the first component of the listings route.

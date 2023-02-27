@@ -166,11 +166,7 @@ abstract class RoutedPageContent extends PageContent
         if (!isset($this->routes)) {
             return '';
         }
-        $record_id = $record_id ?: $this->getRecordId();
-        if ($record_id) {
-            return rtrim($this->routes::getDetailsRoute(), '/') . "/$record_id";
-        }
-        return $this->routes::getDetailsRoute();
+        return $this->routes::getDetailsRoute( $record_id ?: $this->getRecordId());
     }
 
     /**
@@ -200,7 +196,7 @@ abstract class RoutedPageContent extends PageContent
     public function getEditURI(?int $record_id=null): string
     {
         $record_id = $record_id ?: $this->getRecordId();
-        return rtrim($this->getDetailsURI($record_id),'/').'/'.(($record_id)?(static::getEditToken()):(static::getAddToken()));
+        return LittledUtility::joinPaths($this->getDetailsURI($record_id), (($record_id)?(static::getEditToken()):(static::getAddToken())));
     }
 
     /**
@@ -210,7 +206,6 @@ abstract class RoutedPageContent extends PageContent
      */
     public function getEditURIWithFilters(?int $record_id=null): string
     {
-        $record_id = $record_id ?: $this->getRecordId();
         return $this->getEditURI($record_id).$this->query_string;
     }
 
@@ -241,6 +236,9 @@ abstract class RoutedPageContent extends PageContent
      */
     public function getListingsURIWithFilters(): string
     {
+        if (!isset($this->routes)) {
+            return '';
+        }
         return $this->getListingsURI().$this->query_string;
     }
 
