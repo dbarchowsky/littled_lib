@@ -3,7 +3,6 @@ namespace Littled\API;
 
 use Error;
 use Exception;
-use Littled\App\AppBase;
 use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
