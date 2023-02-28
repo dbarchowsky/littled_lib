@@ -71,17 +71,26 @@ class ContentRouteTest extends TestCase
      */
     function testGetPropertyValue()
     {
-        $o = new ContentRoute(99, 1011, 'listings', '/my-route', 'https://localhost');
+        $o = new ContentRoute(99, 1011, 'listings', '/my-route', '/api/route');
         $this->assertEquals('listings', $o->getPropertyValue(ContentRoute::PROPERTY_TOKEN_OPERATION));
         $this->assertEquals('/my-route', $o->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE));
-        $this->assertEquals('https://localhost', $o->getPropertyValue(ContentRoute::PROPERTY_TOKEN_URL));
+        $this->assertEquals('/api/route', $o->getPropertyValue(ContentRoute::PROPERTY_TOKEN_API_ROUTE));
 
         $o->route->setInputValue('/path/to/route');
+        $o->api_route->setInputValue('/api/route/path');
+
         $route_parts = $o->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
         $this->assertCount(3, $route_parts);
         $this->assertEquals('path', $route_parts[0]);
         $this->assertEquals('to', $route_parts[1]);
         $this->assertEquals('route', $route_parts[2]);
+
+        $route_parts = $o->getPropertyValue(ContentRoute::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY);
+        $this->assertCount(3, $route_parts);
+        $this->assertEquals('api', $route_parts[0]);
+        $this->assertEquals('route', $route_parts[1]);
+        $this->assertEquals('path', $route_parts[2]);
+
     }
 
     /**

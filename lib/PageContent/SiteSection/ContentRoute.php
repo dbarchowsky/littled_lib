@@ -16,10 +16,12 @@ class ContentRoute extends SerializedContent
     const                           PROPERTY_TOKEN_OPERATION = 'operation';
     /** @var string                 Token representing route property */
     const                           PROPERTY_TOKEN_ROUTE = 'route';
+    /** @var string                 Token representing api route path */
+    const                           PROPERTY_TOKEN_API_ROUTE = 'apiRoute';
     /** @var string                 Token representing route property in array format */
     const                           PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
-    /** @var string                 Token representing url property */
-    const                           PROPERTY_TOKEN_URL = 'url';
+    /** @var string                 Token representing api route property in array format */
+    const                           PROPERTY_TOKEN_API_ROUTE_AS_ARRAY = 'apiRouteArray';
 
 	/** @var int                    Value of this record in the site section table. */
 	protected static int            $content_type_id = 34;
@@ -41,9 +43,14 @@ class ContentRoute extends SerializedContent
 	 * @param int|null $route_content_type_id
 	 * @param string $operation
      * @param string $route
-	 * @param string $url
+	 * @param string $api_route
 	 */
-	public function __construct(?int $id = null, ?int $route_content_type_id=null, string $operation='', string $route='', string $url='')
+	public function __construct(
+        ?int $id = null,
+        ?int $route_content_type_id=null,
+        string $operation='',
+        string $route='',
+        string $api_route='')
 	{
 		parent::__construct($id);
 
@@ -52,8 +59,8 @@ class ContentRoute extends SerializedContent
 		$this->id->required = false;
 		$this->site_section_id = new IntegerSelect('Site Section', 'routeSectionId', true, $route_content_type_id);
 		$this->operation = new StringTextField('Name', 'routeOp', true, $operation, 45);
-        $this->route = new StringTextField('Route', 'routePath', false, $route, 255);
-		$this->api_route = new URLTextField('URL', 'routeURL', true, $url, 256);
+        $this->route = new StringTextField('Route', 'route', false, $route, 255);
+		$this->api_route = new URLTextField('URL', 'apiRoute', true, $api_route, 256);
 	}
 
 	/**
@@ -84,8 +91,10 @@ class ContentRoute extends SerializedContent
                 return $this->route->value;
             case self::PROPERTY_TOKEN_ROUTE_AS_ARRAY:
                 return explode('/', trim(''.$this->route->value, '/'));
-            case self::PROPERTY_TOKEN_URL:
+            case self::PROPERTY_TOKEN_API_ROUTE:
                 return $this->api_route->value;
+            case self::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY:
+                return explode('/', trim(''.$this->api_route->value, '/'));
             default:
                 throw new InvalidValueException('Invalid property token.');
         }
