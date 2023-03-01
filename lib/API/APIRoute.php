@@ -330,7 +330,7 @@ abstract class APIRoute extends PageContentBase
     public function getTemplateContext(): array
     {
         $context = array(
-            'page_data' => $this->newRoutedPageContentInstance(),
+            'page_data' => $this->newAPIRouteInstance(),
             'content' => null,
             'filters' => null);
         if (isset($this->filters)) {
@@ -423,12 +423,12 @@ abstract class APIRoute extends PageContentBase
 
     /**
      * Returns instance of a PageContent class used to render front-end content.
-     * @return PageContent
+     * @return APIRoute
      * @throws ConfigurationUndefinedException|InvalidValueException
      * @throws InvalidQueryException
      * @throws RecordNotFoundException
      */
-	protected function newRoutedPageContentInstance(): PageContent
+	protected function newAPIRouteInstance(): APIRoute
 	{
         if (!$this->hasContentPropertiesObject()) {
             throw new ConfigurationUndefinedException('Content properties not available.');
@@ -438,12 +438,12 @@ abstract class APIRoute extends PageContentBase
             $route_parts = $this
                 ->getContentProperties()
                 ->getContentRouteByOperation('listings')
-                ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
+                ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY);
         }
         catch(Error $e) {
             throw new RecordNotFoundException('Content route not found.');
         }
-		$rpc_class = call_user_func([static::getControllerClass(), 'getRoutedPageContentClass'], $route_parts);
+		$rpc_class = call_user_func([static::getControllerClass(), 'getAPIRouteClassName'], $route_parts);
 		return new $rpc_class();
 	}
 

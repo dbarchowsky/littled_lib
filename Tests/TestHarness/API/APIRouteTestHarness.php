@@ -2,11 +2,6 @@
 namespace Littled\Tests\TestHarness\API;
 
 use Littled\API\APIRoute;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\PageContent\PageContent;
 
 
 class APIRouteTestHarness extends APIRoute
@@ -29,17 +24,6 @@ class APIRouteTestHarness extends APIRoute
     public function initializeFiltersObject(?int $content_type_id = null)
     {
         parent::initializeFiltersObject($content_type_id);
-    }
-
-    /**
-     * @return PageContent
-     * @throws ConfigurationUndefinedException
-     * @throws InvalidValueException
-     * @throws InvalidQueryException|RecordNotFoundException
-     */
-    public function newRoutedPageContentTemplateInstance(): PageContent
-    {
-        return $this->newRoutedPageContentInstance();
     }
 
     public function retrieveContentData()

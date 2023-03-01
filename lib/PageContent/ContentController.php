@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent;
 
+use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -47,6 +48,28 @@ abstract class ContentController
             default:
                 throw new NotImplementedException('Unrecognized operation.');
         }
+    }
+
+    /**
+     * Returns a fully-qualified name of an APIRoute class corresponding to the given route components.
+     * @param array $route_parts
+     * @return string
+     * @throws NotImplementedException
+     */
+    abstract public static function getAPIRouteClassName(array $route_parts): string;
+
+    /**
+     * Returns an APIRoute class corresponding ot the given route components.
+     * @throws NotImplementedException
+     * @throws InvalidTypeException
+     */
+    public static function getAPIRouteInstance(array $route_parts): APIRoute
+    {
+        $class = static::getAPIRouteClassName($route_parts);
+        if (!class_exists($class)) {
+            throw new InvalidTypeException('bad class');
+        }
+        return new $class();
     }
 
     /**

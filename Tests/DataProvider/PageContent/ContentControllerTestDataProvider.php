@@ -1,8 +1,11 @@
 <?php
 namespace Littled\Tests\DataProvider\PageContent;
 
+use Littled\Exception\InvalidRouteException;
 use Littled\PageContent\ContentController;
 use Littled\Tests\PageContent\SiteSection\SectionContentTest;
+use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
+use Littled\Tests\TestHarness\API\APIRecordRouteTestHarness;
 use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
 use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
 use Littled\Tests\TestHarness\SiteContent\TestTableEditPage;
@@ -12,7 +15,7 @@ use Littled\Utility\LittledUtility;
 
 class ContentControllerTestDataProvider
 {
-    public function formatNavigationRouteTestProvider(): array
+    function formatNavigationRouteTestProvider(): array
     {
         return array(
             array(
@@ -36,6 +39,17 @@ class ContentControllerTestDataProvider
                 SectionContentTest::TEST_RECORD_ID,
                 'details route'
             ),
+        );
+    }
+
+    function getAPIRouteClassNameTestProvider(): array
+    {
+        return array(
+            array(['api', 'listings'], APIListingsRouteTestHarness::class),
+            array(['api', 'test', SectionContentTest::TEST_RECORD_ID], APIRecordRouteTestHarness::class),
+            array(['api'], '', InvalidRouteException::class),
+            array([''], '', InvalidRouteException::class),
+            array(['listings'], '', InvalidRouteException::class),
         );
     }
 }

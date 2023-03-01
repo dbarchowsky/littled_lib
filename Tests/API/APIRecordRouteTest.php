@@ -13,6 +13,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Tests\DataProvider\API\APIRouteLoadTemplateContentTestData;
+use Littled\Tests\TestHarness\API\APIRecordRouteTestHarness;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 
@@ -38,7 +39,7 @@ class APIRecordRouteTest extends APIRouteTestBase
             LittledGlobals::ID_KEY => APIRouteTestBase::TEST_RECORD_ID
 	    );
 
-	    $ap = new APIRecordRoute();
+	    $ap = new APIRecordRouteTestHarness();
 	    $ap->collectRequestData();
 
 	    // inject record content into template

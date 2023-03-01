@@ -3,6 +3,7 @@ namespace Littled\Tests\PageContent;
 
 use Exception;
 use Littled\Exception\InvalidRouteException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
@@ -25,11 +26,44 @@ class ContentControllerTest extends TestCase
         ?int $record_id,
         string $msg='' )
     {
-        $route = ContentControllerTestHarness::publicFormatNavigationRoute(
+        $route = ContentControllerTestHarness::formatNavigationRoute(
             new $routed_content_class(),
             $operation,
             $record_id);
         $this->assertEquals($expected, $route, $msg);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\ContentControllerTestDataProvider::getAPIRouteClassNameTestProvider()
+     * @param array $route_parts
+     * @param string $expected_class
+     * @param string $expected_exception
+     * @return void
+     * @throws InvalidRouteException
+     * @throws NotImplementedException
+     */
+    function testGetAPIRouteClassName(array $route_parts, string $expected_class='', string $expected_exception='')
+    {
+        if ($expected_exception) {
+            $this->expectException($expected_exception);
+        }
+        $this->assertEquals($expected_class, ContentControllerTestHarness::getAPIRouteClassName($route_parts));
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\ContentControllerTestDataProvider::getAPIRouteClassNameTestProvider()
+     * @param array $route_parts
+     * @param string $expected_class
+     * @param string $expected_exception
+     * @return void
+     * @throws InvalidTypeException|NotImplementedException
+     */
+    function testGetAPIRouteInstance(array $route_parts, string $expected_class='', string $expected_exception='')
+    {
+        if ($expected_exception) {
+            $this->expectException($expected_exception);
+        }
+        $this->assertInstanceOf($expected_class, ContentControllerTestHarness::getAPIRouteInstance($route_parts));
     }
 
     function testGetRoutedPageContentClass()

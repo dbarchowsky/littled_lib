@@ -9,6 +9,8 @@ use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Tests\API\APIRouteTestBase;
+use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
+use Littled\Tests\TestHarness\API\APIRecordRouteTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
 use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
@@ -18,6 +20,38 @@ use Littled\Utility\LittledUtility;
 
 class ContentControllerTestHarness extends ContentController
 {
+    /**
+     * @param RoutedPageContent $class
+     * @param string $operation
+     * @param int|null $record_id
+     * @return string
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     */
+    public static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id=null): string
+    {
+        return parent::formatNavigationRoute($class, $operation, $record_id);
+    }
+
+    /**
+     * @inheritDoc
+     * @throws InvalidRouteException
+     */
+    public static function getAPIRouteClassName(array $route_parts): string
+    {
+        if (count($route_parts) < 2) {
+            throw new InvalidRouteException("Invalid route: \"".LittledUtility::joinPaths('/', ...$route_parts)."\"");
+        }
+        switch($route_parts[1]) {
+            case APIListingsRouteTestHarness::getSubRoute():
+                return APIListingsRouteTestHarness::class;
+            case APIRecordRouteTestHarness::getSubRoute():
+                return APIRecordRouteTestHarness::class;
+            default:
+                throw new InvalidRouteException('Invalid api route "'.LittledUtility::joinPaths('/', ...$route_parts).'".');
+        }
+    }
+
     /**
      * @inheritDoc
      */
@@ -45,15 +79,6 @@ class ContentControllerTestHarness extends ContentController
     }
 
     /**
-     * @param SectionContent $content
-     * @return string
-     */
-    protected static function getPostEditTemplatePath(SerializedContent $content): string
-    {
-        return 'Abstract method placeholder. Content type '.get_class($content);
-    }
-
-    /**
      * @param int $site_section_id
      * @param string $operation
      * @param int|null $record_id
@@ -75,6 +100,15 @@ class ContentControllerTestHarness extends ContentController
 	}
 
     /**
+     * @param SectionContent $content
+     * @return string
+     */
+    protected static function getPostEditTemplatePath(SerializedContent $content): string
+    {
+        return 'Abstract method placeholder. Content type '.get_class($content);
+    }
+
+    /**
      * @inheritDoc
      * @throws InvalidRouteException
      */
@@ -90,20 +124,7 @@ class ContentControllerTestHarness extends ContentController
                 /* This is a stand-in. IRL the sub-route would dictate a subclass representing Details, Edit, or Delete page content. */
                 return TestTableListingsPage::class;
             default:
-                throw new InvalidRouteException('Invalid route "'.call_user_func_array([LittledUtility::class, 'joinPaths'], $route_parts).'".');
+                throw new InvalidRouteException('Invalid route "'.LittledUtility::joinPaths('/', ...$route_parts).'".');
         }
-    }
-
-    /**
-     * @param RoutedPageContent $class
-     * @param string $operation
-     * @param int|null $record_id
-     * @return string
-     * @throws InvalidValueException
-     * @throws NotImplementedException
-     */
-    public static function publicFormatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id=null): string
-    {
-        return parent::formatNavigationRoute($class, $operation, $record_id);
     }
 }
