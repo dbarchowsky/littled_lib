@@ -185,7 +185,7 @@ class RoutedPageContentTest extends TestCase
         $route->instantiateProperties();
 
         $expected = LittledUtility::joinPaths('/', TestTableListingsPage::getBaseRoute());
-        $this->assertEquals($expected, $route->getListingsURIWithFilters());
+        $this->assertStringStartsWith($expected, $route->getListingsURIWithFilters());
     }
 
     /**

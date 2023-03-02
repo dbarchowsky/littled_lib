@@ -256,13 +256,14 @@ abstract class RoutedPageContent extends PageContent
     /**
      * Returns listings uri with current filter values added on as get variables.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getListingsURIWithFilters(): string
     {
         if (!isset($this->routes)) {
             return '';
         }
-        return $this->routes::getListingsRoute().$this->getQueryString(true);
+        return $this->getListingsURI().$this->getQueryString(true);
     }
 
     /**
