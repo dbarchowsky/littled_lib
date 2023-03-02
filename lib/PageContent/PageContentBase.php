@@ -83,6 +83,16 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     }
 
     /**
+     * Filters property setter.
+     * @param ContentFilters $filters
+     * @return void
+     */
+    public function setFilters(ContentFilters $filters)
+    {
+        $this->filters = $filters;
+    }
+
+    /**
      * Route parts setter.
      * @param array $route
      * @return void
@@ -109,7 +119,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
                 static::$route_parts[] = '';
             }
         }
-        static::$route_parts[$index] = ''.$sub_route;
+        static::$route_parts[$index] = $sub_route;
     }
 
     /**
