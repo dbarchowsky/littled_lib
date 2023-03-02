@@ -46,7 +46,7 @@ class RoutedPageContentTestHarness extends RoutedPageContent
         // TODO: Implement setPageState() method.
     }
 
-    public function formatRoutePath(?int $record_id = null): string
+    public static function formatRoutePath(?int $record_id = null): string
     {
         return LittledUtility::joinPaths(static::$route_parts);
     }

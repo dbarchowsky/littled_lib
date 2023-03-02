@@ -14,7 +14,7 @@ class TestTableListingsPage extends RoutedPageContentTestHarness
     protected static string $routes_class = TestTableSectionNavigationRoutes::class;
     protected static array $route_parts = ['tests'];
 
-    public function formatRoutePath(?int $record_id = null): string
+    public static function formatRoutePath(?int $record_id = null): string
     {
         return LittledUtility::joinPaths('/', ...static::$route_parts);
     }

@@ -19,7 +19,7 @@ class TestTableDetailsPage extends RoutedPageContentTestHarness
      * @inheritDoc
      * @throws ConfigurationUndefinedException
      */
-    public function formatRoutePath(?int $record_id = null): string
+    public static function formatRoutePath(?int $record_id = null): string
     {
         if ($record_id===null) {
             throw new ConfigurationUndefinedException('Record id not provided for details route.');

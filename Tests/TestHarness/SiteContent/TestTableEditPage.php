@@ -16,11 +16,8 @@ class TestTableEditPage extends RoutedPageContentTestHarness
     const                   ADD_TOKEN    = 'add';
     const                   EDIT_TOKEN = 'edit';
 
-    public function formatRoutePath(?int $record_id = null): string
+    public static function formatRoutePath(?int $record_id = null): string
     {
-        if (!$record_id && isset($this->content)) {
-            $record_id = $this->content->getRecordId();
-        }
         if ($record_id) {
             $route_parts = array_merge(static::$route_parts, array($record_id, self::EDIT_TOKEN));
         }

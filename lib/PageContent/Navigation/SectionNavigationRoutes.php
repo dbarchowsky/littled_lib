@@ -27,8 +27,7 @@ abstract class SectionNavigationRoutes
     {
         /** @var RoutedPageContent $class */
         $class = static::getDetailsPageClass();
-        $p = new $class();
-        return $p->formatRoutePath($record_id);
+        return $class::formatRoutePath($record_id);
     }
 
     /**
@@ -60,8 +59,7 @@ abstract class SectionNavigationRoutes
     {
         /** @var RoutedPageContent $class */
         $class = static::getEditPageClass();
-        $p = new $class();
-        return $p->formatRoutePath($record_id);
+        return $class::formatRoutePath($record_id);
     }
 
 	/**
@@ -81,8 +79,7 @@ abstract class SectionNavigationRoutes
     {
         /** @var RoutedPageContent $class */
         $class = static::getListingsPageClass();
-        $p = new $class();
-        return $p->formatRoutePath();
+        return $class::formatRoutePath();
     }
 
     /**

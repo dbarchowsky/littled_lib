@@ -134,7 +134,7 @@ abstract class RoutedPageContent extends PageContent
      * @param int|null $record_id
      * @return string
      */
-    abstract public function formatRoutePath(?int $record_id=null): string;
+    abstract public static function formatRoutePath(?int $record_id=null): string;
 
 	/**
 	 * Access level getter.
