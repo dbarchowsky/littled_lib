@@ -188,7 +188,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public function getDetailsURIWithFilters(?int $record_id=null): string
     {
-        return $this->getDetailsURI($record_id).$this->query_string;
+        return $this->getDetailsURI($record_id).$this->getQueryString(true);
     }
 
     /**
@@ -225,7 +225,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public function getEditURIWithFilters(?int $record_id=null): string
     {
-        return $this->getEditURI($record_id).$this->query_string;
+        return $this->getEditURI($record_id).$this->getQueryString(true);
     }
 
     /**
@@ -256,14 +256,13 @@ abstract class RoutedPageContent extends PageContent
     /**
      * Returns listings uri with current filter values added on as get variables.
      * @return string
-     * @throws ConfigurationUndefinedException
      */
     public function getListingsURIWithFilters(): string
     {
         if (!isset($this->routes)) {
             return '';
         }
-        return $this->getListingsURI().$this->query_string;
+        return $this->routes::getListingsRoute().$this->getQueryString(true);
     }
 
     /**
@@ -331,7 +330,7 @@ abstract class RoutedPageContent extends PageContent
         if (ContentFilters::NEXT_OP_PREVIOUS === $this->filters->next->value) {
             if ($this->filters->referer_uri) {
                 $this->formatQueryString();
-                header("Location: {$this->filters->referer_uri}$this->query_string");
+                header("Location: {$this->filters->referer_uri}".$this->getQueryString(true));
             }
             throw new ConfigurationUndefinedException('Referer URI for previous page was not specified.');
         }
@@ -394,7 +393,7 @@ abstract class RoutedPageContent extends PageContent
             return;
         }
         $this->filters->collectFilterValues();
-        $this->formatPageStateQueryString();
+        $this->formatQueryString();
     }
 
 	/**

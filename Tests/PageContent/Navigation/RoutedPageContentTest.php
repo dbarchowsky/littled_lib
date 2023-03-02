@@ -9,6 +9,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
 use Littled\Tests\TestHarness\SiteContent\TestTableSectionNavigationRoutes;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
@@ -51,9 +52,25 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals($expected, RoutedPageContent::collectRecordIdFromRoute($route), static::formatRouteMessage($route));
     }
 
-	/**
-	 * @throws InvalidTypeException
-	 */
+    function testGetAccessLevel()
+    {
+        $o = new RoutedPageContentTestHarness();
+        $original_access = $o::getAccessLevel();
+
+        // default setting
+        $this->assertEquals(UserAccount::AUTHENTICATION_UNRESTRICTED, $o::getAccessLevel());
+
+        // set to a value
+        $o::setAccessLevel(UserAccount::BASIC_AUTHENTICATION);
+        $this->assertEquals(UserAccount::BASIC_AUTHENTICATION, $o::getAccessLevel());
+
+        // restore state
+        $o::setAccessLevel($original_access);
+    }
+
+    /**
+	 * @throws InvalidTypeException|ConfigurationUndefinedException
+     */
 	function testGetDetailsURI()
     {
         $record_id = 123;
@@ -67,8 +84,8 @@ class RoutedPageContentTest extends TestCase
     }
 
 	/**
-	 * @throws InvalidTypeException
-	 */
+	 * @throws InvalidTypeException|ConfigurationUndefinedException
+     */
 	function testGetEditURIWithFilters()
     {
         $test_record_id = 643;
@@ -143,27 +160,40 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals($expected, $o->getEditURI(765));
     }
 
-	function testGetAccessLevel()
-	{
-		$o = new RoutedPageContentTestHarness();
-        $original_access = $o::getAccessLevel();
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    function testGetListingsURI()
+    {
+        $route = new RoutedPageContentTestHarness();
+        $route::setContentClassName(SectionContentTestHarness::class);
+        $route::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
 
-		// default setting
-		$this->assertEquals(UserAccount::AUTHENTICATION_UNRESTRICTED, $o::getAccessLevel());
+        $expected = LittledUtility::joinPaths('/', TestTableListingsPage::getBaseRoute());
+        $this->assertEquals($expected, $route->getListingsURI());
+    }
 
-		// set to a value
-		$o::setAccessLevel(UserAccount::BASIC_AUTHENTICATION);
-		$this->assertEquals(UserAccount::BASIC_AUTHENTICATION, $o::getAccessLevel());
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     */
+    function testGetListingsURIWithFilters()
+    {
+        $route = new RoutedPageContentTestHarness();
+        $route::setContentClassName(SectionContentTestHarness::class);
+        $route::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
+        $route->instantiateProperties();
 
-        // restore state
-        $o::setAccessLevel($original_access);
-	}
+        $expected = LittledUtility::joinPaths('/', TestTableListingsPage::getBaseRoute());
+        $this->assertEquals($expected, $route->getListingsURIWithFilters());
+    }
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getRecordIdProvider()
      * @param int|null $record_id
      * @param int|null $expected
      * @return void
+     * @throws InvalidTypeException
      */
     function testGetRecordId(?int $record_id, ?int $expected)
     {
