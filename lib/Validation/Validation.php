@@ -144,7 +144,7 @@ class Validation
 			}
 		}
 		else {
-			$value = trim(filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER));
+			$value = $src[$key]===false ? false : trim(filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER));
 		}
 
 		return Validation::parseBoolean($value);

@@ -8,6 +8,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
 use Littled\Request\RequestInput;
+use Littled\Tests\DataProvider\Validation\CollectBooleanRequestVarTestData;
 use Littled\Tests\TestHarness\Validation\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
@@ -56,6 +57,22 @@ class ValidationTest extends TestCase
 
         unset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY]);
         $this->assertFalse(Validation::checkForCookieConsent());
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Validation\CollectBooleanRequestVarTestDataProvider::collectBooleanRequestVarTestProvider()
+     * @param CollectBooleanRequestVarTestData $data
+     * @return void
+     */
+    function testCollectBooleanRequestVar(CollectBooleanRequestVarTestData $data)
+    {
+        $_POST = $data->post_data;
+        $_GET = $data->get_data;
+
+        $this->assertSame($data->expected, Validation::collectBooleanRequestVar($data->key));
+
+        // restored state
+        $_POST = $_GET = [];
     }
 
 	/**
