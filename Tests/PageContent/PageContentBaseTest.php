@@ -2,15 +2,80 @@
 namespace Littled\Tests\PageContent;
 
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\NotImplementedException;
+use Littled\Filters\ContentFilters;
+use Littled\Filters\FilterCollectionProperties;
 use Littled\PageContent\PageContentBase;
+use Littled\Tests\DataProvider\PageContent\PageContentBaseTestData;
+use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
+use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\PageContent\PageContentBaseTestHarness;
 use Littled\Tests\TestHarness\PageContent\PageContentChild;
+use Littled\Tests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 
 
 class PageContentBaseTest extends TestCase
 {
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentBaseTestDataProvider::formatQueryStringTestProvider()
+     * @throws NotImplementedException
+     */
+    function testFormatQueryString(PageContentBaseTestData $data)
+    {
+        $_POST = $data->post_data;
+
+        $o = new PageContentBaseTestHarness();
+        $o->filters = new TestTableContentFiltersTestHarness();
+        $o->filters->collectFilterValues();
+
+        $query_string = $o->formatQueryString($data->excluded_keys);
+
+        foreach ($data->expected as $test_value) {
+            $this->assertStringContainsString($test_value, $query_string);
+        }
+        foreach($data->excluded_keys as $key) {
+            $this->assertStringNotContainsString("$key=", $query_string);
+        }
+        foreach($data->keys_not_contained as $key) {
+            $this->assertStringNotContainsString("$key=", $query_string);
+        }
+
+        $_POST = [];
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentBaseTestDataProvider::getQueryStringTestProvider()
+     * @throws NotImplementedException
+     */
+    function testGetQueryString(PageContentBaseTestData $data)
+    {
+        $preexisting = 'pre-existing value';
+        $_POST = $data->post_data;
+
+        $o = new PageContentBaseTestHarness();
+        $o->filters = new TestTableContentFiltersTestHarness();
+        $o->filters->collectFilterValues();
+
+        if ($data->force_update) {
+            $o->query_string = $preexisting;
+            $this->assertEquals($preexisting, $o->getQueryString());
+            $query_string = $o->getQueryString(true);
+            $this->assertNotEquals($preexisting, $o->query_string);
+        }
+        else {
+            // force an update of the query string otherwise it will remain its original empty string value
+            $query_string = $o->getQueryString(true);
+        }
+
+        foreach ($data->expected as $test_value) {
+            $this->assertStringContainsString($test_value, $query_string);
+        }
+
+        $_POST = [];
+    }
+
     function testGetBaseRoute()
     {
         $this->assertEquals('', PageContentBase::getBaseRoute());

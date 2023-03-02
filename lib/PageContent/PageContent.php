@@ -27,8 +27,6 @@ abstract class PageContent extends PageContentBase
      * @todo Audit this property. Consider using $content->content_properties->name or $filters->content_properties->name in its place.
      */
     public string           $label = '';
-    /** @var string         Query string to attach to page links. */
-    protected string        $query_string = '';
 	/** @var string         URL to use for redirects. */
 	public string           $redirect_url = '';
 
@@ -60,30 +58,6 @@ abstract class PageContent extends PageContentBase
 		return ($this->content->id->value);
 	}
 
-	/**
-	 * Formats and stores query string from current filter property values.
-     * @param string[]|null $exclude
-	 * @return string
-	 */
-	public function formatQueryString(?array $exclude=null): string
-	{
-		$this->query_string = $this->filters->formatQueryString($exclude);
-		return $this->query_string;
-	}
-
-    /**
-     * Uses current filter values to generate a query string that
-     * will preserver the current page state. The query string value is
-     * stored as the value of the object's $qs property.
-     * @todo Consider moving this method to dedicated cms page content class
-     * @returns string
-     */
-    public function formatPageStateQueryString(): string
-    {
-        $this->query_string = $this->filters->formatQueryString();
-		return $this->query_string;
-    }
-
     /**
      * Content label getter.
      * @return string
@@ -106,15 +80,6 @@ abstract class PageContent extends PageContentBase
             return $this->content->getLabel();
         }
         return '';
-    }
-
-    /**
-     * Query string getter
-     * @return string
-     */
-    public function getQueryString(): string
-    {
-        return $this->query_string;
     }
 
     /**

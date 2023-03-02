@@ -7,11 +7,26 @@ use Littled\Filters\ContentFilters;
 
 abstract class PageContentBase extends MySQLConnection implements PageContentInterface
 {
-    /** @var string             Path to template file. */
-    protected string            $template_path = '';
     /** @var ContentFilters     Filters to apply to page content. */
     public ContentFilters       $filters;
+    /** @var string             Query string to attach to page links. */
+    protected string            $query_string = '';
     protected static array      $route_parts=[];
+    /** @var string             Path to template file. */
+    protected string            $template_path = '';
+
+    /**
+     * Formats and stores query string from current filter property values.
+     * @param string[]|null $exclude
+     * @return string
+     */
+    public function formatQueryString(?array $exclude=null): string
+    {
+        if (isset($this->filters)) {
+            $this->query_string = $this->filters->formatQueryString($exclude);
+        }
+        return $this->query_string;
+    }
 
     /**
      * Base route getter.
@@ -20,6 +35,19 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     public static function getBaseRoute(): string
     {
         return ((count(static::$route_parts) > 0) ? (static::$route_parts[0]) :(''));
+    }
+
+    /**
+     * Query string getter
+     * @param bool $force_update Flag indicating that the query string should be regenerating instead of using the cached value. Defaults to FALSE.
+     * @return string
+     */
+    public function getQueryString(bool $force_update=false): string
+    {
+        if ($force_update) {
+            $this->query_string = $this->formatQueryString();
+        }
+        return $this->query_string;
     }
 
     /**
