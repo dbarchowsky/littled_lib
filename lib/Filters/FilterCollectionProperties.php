@@ -1,12 +1,10 @@
 <?php
-
-
 namespace Littled\Filters;
-
 
 use Littled\App\LittledGlobals;
 use Littled\Database\AppContentBase;
 use Littled\Exception\NotImplementedException;
+
 
 class FilterCollectionProperties extends AppContentBase
 {
@@ -17,38 +15,38 @@ class FilterCollectionProperties extends AppContentBase
     const LINKS_OFFSET = 5;
     const LINKS_END_LENGTH = 2;
 
-    /** @var BooleanContentFilter Flag to suppress the display of the listings. */
-    public BooleanContentFilter $display_listings;
-    /** @var StringContentFilter Token indicating the next operation to take, typically after editing a record. */
-    public StringContentFilter $next;
-    /** @var ?int Record id of the next record in the sequence matching the current filter values. */
-    public ?int $next_record_id=null;
-    /** @var IntegerContentFilter Current page number. */
-    public IntegerContentFilter $page;
-    /** @var integer Total number of pages available for records matching the current filter values. */
-    public int $page_count;
-    /** @var IntegerContentFilter Maximum number of records to display per page. */
-    public IntegerContentFilter $listings_length;
-    /** @var ?int Record id of the previous record in the sequence matching the current filter values. */
-    public ?int $previous_record_id=null;
-    /** @var string SQL query string used to fetch the current record set. */
-    public string $query_string='';
-    /** @var integer Total number of records matching the current filter values. */
-    public int $record_count = 0;
-    /** @var string URL to redirect back to, if specified */
-    public string $referer_uri='';
-    /** @var string SQL WHERE clause matching the current filter values. */
-    public string $sql_clause='';
-    /** @var string Key for cookie used to preserve filter settings. */
-    protected static string $cookie_key = '';
-    /** @var int Default number of line items to display in listings */
-    protected static int $default_listings_length;
-    /** @var string Item label to insert into listings content. */
-    protected static string $listings_label = '';
-    /** @var string String to add to parameter names to make them specific to the current type of listings. */
-    protected static string $key_prefix = '';
-    /** @var string Name of table storing listings content. */
-    protected static string $table_name = '';
+    /** @var BooleanContentFilter   Flag to suppress the display of the listings. */
+    public BooleanContentFilter     $display_listings;
+    /** @var StringContentFilter    Token indicating the next operation to take, typically after editing a record. */
+    public StringContentFilter      $next;
+    /** @var ?int                   Record id of the next record in the sequence matching the current filter values. */
+    public ?int                     $next_record_id=null;
+    /** @var IntegerContentFilter   Current page number. */
+    public IntegerContentFilter     $page;
+    /** @var integer                Total number of pages available for records matching the current filter values. */
+    public int                      $page_count;
+    /** @var IntegerContentFilter   Maximum number of records to display per page. */
+    public IntegerContentFilter     $listings_length;
+    /** @var ?int                   Record id of the previous record in the sequence matching the current filter values. */
+    public ?int                     $previous_record_id=null;
+    /** @var string                 SQL query string used to fetch the current record set. */
+    public string                   $query_string='';
+    /** @var integer                Total number of records matching the current filter values. */
+    public int                      $record_count = 0;
+    /** @var string                 URL to redirect back to, if specified */
+    public string                   $referer_uri='';
+    /** @var string                 SQL WHERE clause matching the current filter values. */
+    public string                   $sql_clause='';
+    /** @var string                 Key for cookie used to preserve filter settings. */
+    protected static string         $cookie_key = '';
+    /** @var int                    Default number of line items to display in listings */
+    protected static int            $default_listings_length;
+    /** @var string                 Item label to insert into listings content. */
+    protected static string         $listings_label = '';
+    /** @var string                 String to add to parameter names to make them specific to the current type of listings. */
+    protected static string         $key_prefix = '';
+    /** @var string                 Name of table storing listings content. */
+    protected static string         $table_name = '';
 
     /**
      * class constructor

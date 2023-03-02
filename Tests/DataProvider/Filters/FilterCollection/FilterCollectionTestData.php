@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Filters;
+namespace Littled\Tests\DataProvider\Filters\FilterCollection;
 
 
 use Littled\Tests\Filters\FilterCollectionTest;

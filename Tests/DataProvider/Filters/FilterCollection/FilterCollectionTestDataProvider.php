@@ -1,6 +1,6 @@
 <?php /** @noinspection PhpRedundantOptionalArgumentInspection */
 
-namespace Littled\Tests\DataProvider\Filters;
+namespace Littled\Tests\DataProvider\Filters\FilterCollection;
 
 
 class FilterCollectionTestDataProvider
@@ -139,7 +139,7 @@ class FilterCollectionTestDataProvider
 					->setExpectations(1),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2208, 2, 4, '%oo%')
-					->setExpectations(2),
+					->setExpectations(3),
 			)
 		);
 	}

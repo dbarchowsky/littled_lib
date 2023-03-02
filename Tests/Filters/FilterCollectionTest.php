@@ -4,10 +4,10 @@ namespace Littled\Tests\Filters;
 use Littled\App\LittledGlobals;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilter;
+use Littled\Tests\DataProvider\Filters\FilterCollection\FormatQueryStringTestData;
 use Littled\Tests\TestHarness\Filters\FilterCollectionAutoloadChild;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChild;
 use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithProcedure;
-use Exception;
 use Littled\Tests\TestHarness\Filters\TestTableFilters;
 
 class FilterCollectionTest extends FilterCollectionTestBase
@@ -28,7 +28,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::calculateOffsetToPageTestProvider()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::calculateOffsetToPageTestProvider()
 	 * @param int $page
 	 * @param int $listings_length
 	 * @param int $expected
@@ -63,7 +63,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
 	 * @param ?bool $expected
 	 * @param string $collection
 	 * @param $value
@@ -76,7 +76,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
+	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
 	 * @param ?bool $expected
 	 * @param string $collection
 	 * @param $value
@@ -89,7 +89,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectDisplayListingsSettingTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingTestProvider()
      * @param bool|null $expected
      * @param array $post_data
      * @param array $get_data
@@ -117,7 +117,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::collectFilterValuesTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectFilterValuesTestProvider()
      * @param array $expected
      * @param array $get_data
      * @param array $post_data
@@ -166,6 +166,27 @@ class FilterCollectionTest extends FilterCollectionTestBase
         $this->assertEquals('https://localhost', $o->referer_uri);
     }
 
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FormatQueryStringTestDataProvider::formatQueryStringTestProvider()
+     * @param FormatQueryStringTestData $data
+     * @return void
+     */
+    function testFormatQueryString(FormatQueryStringTestData $data)
+    {
+        $f = new FilterCollectionChild();
+        foreach ($data->test_values as $key => $value) {
+            $p = $f->$key;
+            $p->value = $value;
+        }
+        $query_string = $f->formatQueryString($data->excluded_keys);
+        foreach ($data->expected->values as $expected) {
+            $this->assertStringContainsString($expected, $query_string);
+        }
+        foreach ($data->expected->not_contains as $test_value) {
+            $this->assertStringNotContainsString($test_value, $query_string);
+        }
+    }
+
     function testFormatListingsQueryNotImplemented()
     {
         // Test when not implemented in child class
@@ -191,17 +212,18 @@ class FilterCollectionTest extends FilterCollectionTestBase
         $this->assertEquals(0, $args[2]);
     }
 
-	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollectionTestDataProvider::listingsDataContainsNeighborIdsTestProvider()
-	 * @param bool $expected
-	 * @param array $data
-	 * @param int $page_position
-	 * @param int $page
-	 * @param int $listings_length
-	 * @param int $record_count
-	 * @param string $msg
-	 * @return void
-	 */
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::listingsDataContainsNeighborIdsTestProvider()
+     * @param bool $expected
+     * @param array $data
+     * @param int $page_position
+     * @param int $page
+     * @param int $listings_length
+     * @param int $page_count
+     * @param int $record_count
+     * @param string $msg
+     * @return void
+     */
 	function testListingsDataContainsNeighborIds(
 		bool $expected,
 		array $data,

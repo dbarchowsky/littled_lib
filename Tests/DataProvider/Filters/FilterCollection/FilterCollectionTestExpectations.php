@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Filters;
+namespace Littled\Tests\DataProvider\Filters\FilterCollection;
 
 class FilterCollectionTestExpectations
 {
