@@ -2,6 +2,10 @@
 
 namespace Littled\Tests\DataProvider\Filters;
 
+use Littled\Filters\BooleanContentFilter;
+use Littled\Filters\ContentFilter;
+use Littled\Filters\IntegerContentFilter;
+
 class ContentFilterTestDataProvider
 {
 	/** @var string */
@@ -59,15 +63,19 @@ class ContentFilterTestDataProvider
         return array(
             array('', null),
             array('', ''),
-            array('key=1', '1'),
+            array('key=1', '1', ContentFilter::class),
+            array('key=1', '1', IntegerContentFilter::class),
+            array('key=1', '1', BooleanContentFilter::class),
             array('key=86', '86'),
             array('key=1', 1),
-            array('key=845', 845),
-            array('key=-12', -12),
+            array('key=845', 845, IntegerContentFilter::class),
+            array('key=-12', -12, IntegerContentFilter::class),
             array('key=my+test', 'my test'),
             array('key=my+%26test', 'my &test'),
-            array('key=1', true),
-            array('key=0', false),
+            array('key=1', true, ContentFilter::class),
+            array('key=1', true, BooleanContentFilter::class),
+            array('key=0', false, ContentFilter::class),
+            array('key=0', false, BooleanContentFilter::class),
         );
     }
 

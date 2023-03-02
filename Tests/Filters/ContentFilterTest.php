@@ -112,11 +112,13 @@ class ContentFilterTest extends TestCase
      * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider
      * @param string $expected
      * @param $value
+     * @param string $filter_class
      * @return void
      */
-    function testFormatQueryString(string $expected, $value)
+    function testFormatQueryString(string $expected, $value, string $filter_class='')
     {
-        $o = new ContentFilter('Label', 'key');
+        $filter_class = $filter_class ?: ContentFilter::class;
+        $o = new $filter_class('Label', 'key');
         $o->value = $value;
         $this->assertEquals($expected, $o->formatQueryString());
     }
