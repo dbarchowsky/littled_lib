@@ -65,7 +65,8 @@ class ContentFilterTestDataProvider
             array('', ''),
             array('key=1', '1', ContentFilter::class),
             array('key=1', '1', IntegerContentFilter::class),
-            array('key=1', '1', BooleanContentFilter::class),
+            array('key=1', 1, BooleanContentFilter::class),
+            array('', '1', BooleanContentFilter::class),
             array('key=86', '86'),
             array('key=1', 1),
             array('key=845', 845, IntegerContentFilter::class),
@@ -76,6 +77,8 @@ class ContentFilterTestDataProvider
             array('key=1', true, BooleanContentFilter::class),
             array('key=0', false, ContentFilter::class),
             array('key=0', false, BooleanContentFilter::class),
+            array('key=0', 0, BooleanContentFilter::class),
+            array('', '0', BooleanContentFilter::class),
         );
     }
 
