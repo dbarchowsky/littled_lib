@@ -1,8 +1,8 @@
-<?php
+<?php /** @noinspection PhpUndefinedConstantInspection */
+
 namespace Littled\Tests\Request;
 require_once(APP_BASE_DIR . "/Tests/Base/DatabaseTestCase.php");
 
-use Littled\Database\MySQLConnection;
 use Littled\Tests\DataProvider\Request\RequestInputTestDataProvider;
 use mysqli;
 use Exception;
@@ -12,28 +12,30 @@ use PHPUnit\Framework\TestCase;
 
 class RequestInputTest extends TestCase
 {
-    public MySQLConnection $conn;
-	public mysqli $mysqli;
+	protected static mysqli $mysqli;
 	public RequestInput $obj;
 
-	/**
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        static::$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_SCHEMA, MYSQL_PORT);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+        static::$mysqli->close();
+    }
+
+    /**
 	 * @throws Exception
 	 */
 	public function setUp(): void
 	{
 		parent::setUp();
         RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
-        $this->conn = new MySQLConnection();
-        $this->conn->connectToDatabase();
-        $this->mysqli = $this->conn->getMysqli();
 		$this->obj = new RequestInput("Test", "test_param");
 	}
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        $this->conn->closeDatabaseConnection();
-    }
 
     public function testClearValidationErrors()
     {
@@ -65,7 +67,7 @@ class RequestInputTest extends TestCase
         if ($value !== '[use default]') {
             $i->value = $value;
         }
-		$this->assertSame($expected, $i->escapeSQL($this->mysqli, $include_quotes));
+		$this->assertSame($expected, $i->escapeSQL(static::$mysqli, $include_quotes));
 	}
 
     /**

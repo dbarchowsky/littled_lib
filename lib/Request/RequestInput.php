@@ -148,7 +148,7 @@ class RequestInput
         elseif ($value===false) {
             $value = 0;
         }
-		return (($include_quotes)?("'"):("")).$mysqli->real_escape_string($value).(($include_quotes)?("'"):(""));
+		return (($include_quotes)?("'"):("")).$value.(($include_quotes)?("'"):(""));
 	}
 
 	/**

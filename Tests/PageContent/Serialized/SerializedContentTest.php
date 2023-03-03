@@ -209,7 +209,7 @@ class SerializedContentTest extends TestCase
 
         // assign new property values
         $new_values = (object)array(
-            'name' => 'new value',
+            'name' => "new value's new\n value",
             'int_col' => 5294,
             'bool_col' => false,
             'date' => '2/25/2023'
