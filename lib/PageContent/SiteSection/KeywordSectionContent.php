@@ -361,6 +361,7 @@ abstract class KeywordSectionContent extends SectionContent
 			$i = count($this->keywords);
 			$this->keywords[$i] = new Keyword($row->term, $this->id->value, $this->content_properties->id->value, $row->count);
 		}
+        $this->keyword_input->value = implode(', ', $this->getKeywordTermsArray(false));
 	}
 
 	/**

@@ -13,13 +13,15 @@ use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
 use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentNonDefaultKey;
 use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordTestTableTestHarness;
+use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
 class KeywordSectionContentTest extends TestCase
 {
 	/** @var int Test content type to use on test KSC objects. */
-	const TEST_CONTENT_TYPE_ID = 8; /* "news" in damienjay database */
+	const TEST_CONTENT_TYPE_ID = 6037; /* "test_table" in littledamien database */
 	/** @var int Test parent record id that is safe for testing deletion operations. */
 	const TEST_PARENT_ID_FOR_DELETE = 998899;
 	/** @var int Test parent record id that is safe for testing deletion operations. */
@@ -401,6 +403,29 @@ class KeywordSectionContentTest extends TestCase
 		$this->obj->keywords[] = new Keyword(' spaced  ', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ);
 		$this->assertTrue($this->obj->hasKeywordData());
 	}
+
+    /**
+     * @throws ContentValidationException
+     * @throws RecordNotFoundException
+     * @throws ConnectionException
+     * @throws NotImplementedException
+     * @throws ConfigurationUndefinedException
+     */
+    function testRead()
+    {
+        $o = new KeywordTestTableTestHarness();
+        $o->setRecordId(self::TEST_PARENT_ID_FOR_READ);
+        $o->read();
+
+        // confirm that keywords are retrieved from the database when retrieving record data
+        $this->assertGreaterThan(0, $o->keywords);
+
+        // confirm that the keyword_input property value contains the keyword terms retrieved from the database
+        $this->assertNotEmpty($o->keyword_input->value);
+        foreach($o->keywords as $keyword) {
+            $this->assertStringContainsString($keyword->term->value, $o->keyword_input->value);
+        }
+    }
 
 	/**
 	 * @throws ConfigurationUndefinedException
