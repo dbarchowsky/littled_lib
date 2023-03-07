@@ -370,6 +370,20 @@ class KeywordSectionContentTest extends TestCase
 	}
 
     /**
+     * @throws ContentValidationException
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
+    function testGetKeywordTermsArray()
+    {
+        $o = new KeywordSectionContentTestHarness();
+        $o->setRecordId(889988);
+        $terms = $o->getKeywordTermsArray();
+        $this->assertGreaterThan(0, count($terms));
+        $this->assertMatchesRegularExpression('/test/i', $terms[0]);
+    }
+
+    /**
      * @return void
      * @throws Exception
      */
