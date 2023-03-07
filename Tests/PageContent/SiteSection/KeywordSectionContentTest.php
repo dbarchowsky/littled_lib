@@ -14,7 +14,6 @@ use Littled\PageContent\SiteSection\KeywordSectionContent;
 use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentNonDefaultKey;
 use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentTestHarness;
 use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordTestTableTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
