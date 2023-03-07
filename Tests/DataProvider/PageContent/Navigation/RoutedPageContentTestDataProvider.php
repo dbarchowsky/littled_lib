@@ -25,6 +25,16 @@ class RoutedPageContentTestDataProvider
         );
     }
 
+    public static function getListingsURIWithFilters(): array
+    {
+        return array(
+            array(['p=1', 'pl=25'], ['kw']),
+            array(['p=1', 'pl=25', 'kw=foo', 'next=view'], [], array('kw' => 'foo')),
+            array(['p=1', 'pl=25', 'kw=foo'], ['next'], array('kw' => 'foo'), array('next')),
+            array(['p=1', 'pl=25'], ['next', 'kw'], array('kw' => 'foo'), array('next', 'kw')),
+        );
+    }
+
     public static function getRecordIdProvider(): array
     {
         return array(

@@ -7,7 +7,9 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
+use Littled\Filters\KeywordContentFilters;
 use Littled\PageContent\Navigation\RoutedPageContent;
+use Littled\Tests\TestHarness\Filters\KeywordContentFiltersTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
 use Littled\Tests\TestHarness\SiteContent\TestTableSectionNavigationRoutes;
@@ -174,18 +176,37 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getListingsURIWithFilters()
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
      */
-    function testGetListingsURIWithFilters()
+    function testGetListingsURIWithFilters(
+        array $expected_pairs=[],
+        array $expected_excluded_keys=[],
+        array $post_data=[],
+        array $exclude_keys=[])
     {
+        $_POST = $post_data;
+
         $route = new RoutedPageContentTestHarness();
         $route::setContentClassName(SectionContentTestHarness::class);
+        $route::setFiltersClassName(KeywordContentFiltersTestHarness::class);
         $route::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
         $route->instantiateProperties();
+        $route->filters->collectFilterValues();
 
         $expected = LittledUtility::joinPaths('/', TestTableListingsPage::getBaseRoute());
-        $this->assertStringStartsWith($expected, $route->getListingsURIWithFilters());
+        $url = $route->getListingsURIWithFilters($exclude_keys);
+        $this->assertStringStartsWith($expected.'?', $url);
+        foreach ($expected_pairs as $pair) {
+            $this->assertMatchesRegularExpression("/[?|&]$pair/", $url);
+        }
+        foreach ($expected_excluded_keys as $key) {
+            $this->assertDoesNotMatchRegularExpression("/[?|&]$key=/", $url);
+        }
+
+        // restore state
+        $_POST = [];
     }
 
     /**

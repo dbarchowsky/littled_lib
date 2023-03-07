@@ -255,15 +255,16 @@ abstract class RoutedPageContent extends PageContent
 
     /**
      * Returns listings uri with current filter values added on as get variables.
+     * @param array $exclude_keys Keys to exclude from the filters. Empty by default.
      * @return string
      * @throws ConfigurationUndefinedException
      */
-    public function getListingsURIWithFilters(): string
+    public function getListingsURIWithFilters( array $exclude_keys=[] ): string
     {
         if (!isset($this->routes)) {
             return '';
         }
-        return $this->getListingsURI().$this->getQueryString(true);
+        return $this->getListingsURI().$this->formatQueryString($exclude_keys);
     }
 
     /**
