@@ -63,6 +63,38 @@ class ContentRoute extends SerializedContent
 		$this->api_route = new URLTextField('URL', 'apiRoute', true, $api_route, 256);
 	}
 
+    /**
+     * Returns API route as array of its components.
+     * @return array
+     */
+    public function explodeAPIRoute(): array
+    {
+        return static::explodeRouteString($this->api_route->value);
+    }
+
+    /**
+     * Returns page route as array of its components.
+     * @return array
+     */
+    public function explodeRoute(): array
+    {
+        return static::explodeRouteString($this->route->value);
+    }
+
+    /**
+     * Returns route string as array of its components.
+     * @param string $route
+     * @return array
+     */
+    protected static function explodeRouteString(string $route): array
+    {
+        $route = trim($route, '/');
+        if (!$route) {
+            return [];
+        }
+        return explode('/', $route);
+    }
+
 	/**
 	 * @inheritDoc
 	 */

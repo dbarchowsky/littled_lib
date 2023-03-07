@@ -8,6 +8,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentRoute;
+use Littled\Tests\TestHarness\PageContent\SiteSection\ContentRouteTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -39,6 +40,44 @@ class ContentRouteTest extends TestCase
 
 		$this->assertEquals(self::TEST_CONTENT_TYPE_ID, ContentRoute::getContentTypeId());
 	}
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::explodeRouteStringTestProvider()
+     * @param array $expected
+     * @param string $route
+     * @param string $msg
+     * @return void
+     */
+    function testExplodeRouteString(array $expected, string $route, string $msg='')
+    {
+        $this->assertEquals($expected, ContentRouteTestHarness::explodeRouteString($route));
+    }
+
+    /**
+     * @param array $expected
+     * @param string $route
+     * @param string $msg
+     * @return void
+     */
+    function testExplodeAPIRoute()
+    {
+        $r = new ContentRoute();
+        $r->api_route->value = '/api/route';
+        $this->assertEquals(['api', 'route'], $r->explodeAPIRoute());
+    }
+
+    /**
+     * @param array $expected
+     * @param string $route
+     * @param string $msg
+     * @return void
+     */
+    function testExplodeRoute()
+    {
+        $r = new ContentRoute();
+        $r->route->value = '/path/to/page';
+        $this->assertEquals(['path', 'to', 'page'], $r->explodeRoute());
+    }
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::fetchRecordTestProvider()

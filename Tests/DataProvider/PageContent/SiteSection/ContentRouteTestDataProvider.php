@@ -5,6 +5,26 @@ namespace Littled\Tests\DataProvider\PageContent\SiteSection;
 
 class ContentRouteTestDataProvider
 {
+    public static function explodeRouteStringTestProvider(): array
+    {
+        return array(
+            array([], ''),
+            array([], '/'),
+            array(['route'], 'route'),
+            array(['route'], '/route'),
+            array(['route'], 'route/'),
+            array(['route'], '/route/'),
+            array(['route', 'parts'], 'route/parts'),
+            array(['route', 'parts'], '/route/parts'),
+            array(['route', 'parts'], 'route/parts/'),
+            array(['route', 'parts'], '/route/parts/'),
+            array(['path', 'to', 'route'], '/path/to/route/'),
+            array(['path', 'to', 'route'], '/path/to/route'),
+            array(['path', 'to', 'route'], 'path/to/route/'),
+            array(['path', 'to', 'route'], 'path/to/route'),
+        );
+    }
+
 	public static function hasDataTestProvider(): array
 	{
         return array_map(function(ContentRouteTestData $o) { return $o->mapHasDataTestData(); }, array(
