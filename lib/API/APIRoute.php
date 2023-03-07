@@ -15,7 +15,6 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Log\Log;
-use Littled\PageContent\PageContent;
 use Littled\PageContent\PageContentBase;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\Cache\ContentCache;
