@@ -134,36 +134,18 @@ class RequestInputTest extends TestCase
         $this->assertEquals("['str']", $this->obj->formatIndexMarkup());
     }
 
-	public function testIsEmpty()
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::isEmptyTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testIsEmpty(bool $expected, $value)
 	{
-		$this->assertTrue($this->obj->isEmpty());
-
-		$this->obj->value = '';
-		$this->assertTrue($this->obj->isEmpty());
-
-		$this->obj->value = ' ';
-		$this->assertTrue($this->obj->isEmpty());
-
-		$this->obj->value = 1;
-		$this->assertFalse($this->obj->isEmpty());
-
-		$this->obj->value = 0;
-		$this->assertFalse($this->obj->isEmpty());
-
-		$this->obj->value = 16;
-		$this->assertFalse($this->obj->isEmpty());
-
-		$this->obj->value = 16.23;
-		$this->assertFalse($this->obj->isEmpty());
-
-		$this->obj->value = -8;
-		$this->assertFalse($this->obj->isEmpty());
-
-		$this->obj->value = false;
-		$this->assertFalse($this->obj->isEmpty());
-
-		$this->obj->value = true;
-		$this->assertFalse($this->obj->isEmpty());
+        if ($value!==null) {
+            $this->obj->value = $value;
+        }
+        $this->assertSame($expected, $this->obj->isEmpty());
 	}
 
     function testGetPreparedStatementTypeIdentifier()
