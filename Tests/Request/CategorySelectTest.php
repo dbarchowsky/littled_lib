@@ -44,6 +44,9 @@ class CategorySelectTest extends TestCase
         $_POST = [];
     }
 
+    /**
+     * @throws ConfigurationUndefinedException
+     */
     function testGetCategoryTermOptions()
     {
         $options = CategorySelectTestHarness::retrieveCategoryOptions();
