@@ -3,7 +3,7 @@ namespace Littled\Tests\DataProvider\Validation;
 
 class CollectStringArrayRequestVarTestDataProvider
 {
-    public static function collectStringArrayRequestVarTestProvider(): array
+    public static function collectStringArrayRequestVarMultipleTestProvider(): array
     {
         return array(
             array(new CollectStringArrayRequestVarTestData(
