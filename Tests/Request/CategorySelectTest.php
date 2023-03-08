@@ -50,9 +50,12 @@ class CategorySelectTest extends TestCase
     function testGetCategoryTermOptions()
     {
         $options = CategorySelectTestHarness::retrieveCategoryOptions();
-        $this->assertContains('tests', $options);        // << term shared by multiple parent records
-        $this->assertContains('development', $options);  // << term in use by one parent record
-        $this->assertContains('cooking', $options);      // << term in use by a different parent record
+        $this->assertArrayHasKey('tests', $options);        // << term shared by multiple parent records
+        $this->assertArrayHasKey('development', $options);  // << term in use by one parent record
+        $this->assertArrayHasKey('cooking', $options);      // << term in use by a different parent record
+        $this->assertEquals('tests', $options['tests']);
+        $this->assertEquals('development', $options['development']);
+        $this->assertEquals('cooking', $options['cooking']);
     }
 
     /**

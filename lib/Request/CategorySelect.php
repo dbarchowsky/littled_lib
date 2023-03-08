@@ -59,7 +59,8 @@ class CategorySelect extends MySQLConnection
         $content_type_id = static::getContentTypeId();
         $conn = new MySQLConnection();
         $data = $conn->fetchRecords($query, 'i', $content_type_id);
-        return array_map(function ($e) { return $e->term; }, $data);
+        $options = array_map(function ($e) { return $e->term; }, $data);
+        return array_combine($options, $options);
     }
 
     /**
