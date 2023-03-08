@@ -6,6 +6,15 @@ use Littled\Validation\Validation;
 
 class ValidationTestHarness extends Validation
 {
+    /**
+     * @inheritDoc
+     * Public interface for tests
+     */
+    public static function checkSourceValue(?array &$src, string $key): bool
+    {
+        return parent::checkSourceValue($src, $key);
+    }
+
     public static function getDefaultInputSource(array $ignore_keys=[]): array
     {
         return parent::getDefaultInputSource($ignore_keys);

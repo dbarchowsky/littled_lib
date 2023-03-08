@@ -7,8 +7,9 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
-use Littled\Request\RequestInput;
+use Littled\Tests\DataProvider\Validation\CheckSourceValueTestData;
 use Littled\Tests\DataProvider\Validation\CollectBooleanRequestVarTestData;
+use Littled\Tests\DataProvider\Validation\CollectStringArrayRequestVarTestData;
 use Littled\Tests\TestHarness\Validation\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
@@ -57,6 +58,26 @@ class ValidationTest extends TestCase
 
         unset($_COOKIE[LittledGlobals::COOKIE_CONSENT_KEY]);
         $this->assertFalse(Validation::checkForCookieConsent());
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Validation\CheckSourceValueTestDataProvider::checkSourceValueTestProvider()
+     * @param CheckSourceValueTestData $data
+     * @return void
+     */
+    function testCheckSourceValue(CheckSourceValueTestData $data)
+    {
+        $_POST = $data->post_data;
+        $src = $data->custom_data;
+        $this->assertSame($data->expected->return_value, ValidationTestHarness::checkSourceValue($src, $data->key));
+        if ($data->expected->return_value) {
+            $this->assertArrayHasKey($data->expected->key, $src);
+            $this->assertEquals($data->expected->value, $src[$data->expected->key]);
+        }
+        else {
+            $this->assertArrayNotHasKey($data->expected->key, $src);
+        }
+        $_POST = []; // <-- restore state
     }
 
     /**
@@ -117,6 +138,21 @@ class ValidationTest extends TestCase
         $_POST['testKey'] = $value;
         $this->assertEquals($expected, Validation::collectIntegerRequestVar('testKey'), $msg);
         unset($_POST['testKey']);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Validation\CollectStringArrayRequestVarTestDataProvider::collectStringArrayRequestVarTestProvider()
+     * @param array $expected
+     * @param string $key
+     * @param array $post_data
+     * @param array|null $custom_data
+     * @return void
+     */
+    public function testCollectStringArrayRequestVar(CollectStringArrayRequestVarTestData $data)
+    {
+        $_POST = $data->post_data;
+        $this->assertEquals($data->expected, Validation::collectStringArrayRequestVar($data->key, $data->custom_data));
+        $_POST = []; // <-- restore state
     }
 
 	function testGetAjaxClientRequestData()
@@ -283,7 +319,7 @@ class ValidationTest extends TestCase
 	 */
 	public function testParseBoolean($expected, $value, string $msg='')
 	{
-		$this->assertSame($expected, Validation::parseBoolean($value));
+		$this->assertSame($expected, Validation::parseBoolean($value), $msg);
 	}
 
 	/**

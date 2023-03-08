@@ -121,6 +121,24 @@ class Validation
 		return false;
 	}
 
+    /**
+     * Get default client request input source and check it for an existing value. Returns FALSE if no existing value
+     * is found.
+     * @param array|null $src
+     * @param string $key
+     * @return bool
+     */
+    protected static function checkSourceValue(?array &$src, string $key): bool
+    {
+        if ($src===null) {
+            $src = static::getDefaultInputSource();
+        }
+        if (!isset($src[$key])) {
+            return false;
+        }
+        return true;
+    }
+
 	/**
 	 * Returns TRUE/FALSE depending on the value of the requested input variable.
 	 * @param string $key Input variable name in either GET  or POST data.
@@ -130,13 +148,10 @@ class Validation
 	 */
 	public static function collectBooleanRequestVar( string $key, ?int $index=null, ?array $src=null): ?bool
 	{
+        if (!static::checkSourceValue($src, $key)) {
+            return null;
+        }
 		$value = null;
-		if ($src===null) {
-			$src = static::getDefaultInputSource();
-		}
-		if (!isset($src[$key])) {
-			return null;
-		}
 		if ($index!==null) {
 			$arr = filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER, FILTER_REQUIRE_ARRAY);
 			if (is_array($arr) && count($arr) >= ($index-1)) {
@@ -158,12 +173,9 @@ class Validation
 	 */
 	public static function collectIntegerArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        if ($src===null) {
-            $src = static::getDefaultInputSource();
+        if (!static::checkSourceValue($src, $key)) {
+            return null;
         }
-		if (!array_key_exists($key, $src)) {
-			return null;
-		}
 		$arr = filter_var($src[$key], FILTER_VALIDATE_FLOAT, FILTER_FORCE_ARRAY);
 		if (!is_array($arr)) {
 			return null;
@@ -212,12 +224,9 @@ class Validation
 	 */
 	public static function collectNumericArrayRequestVar(string $key, ?array $src=null): ?array
 	{
-        if ($src===null) {
-            $src = static::getDefaultInputSource();
+        if (!static::checkSourceValue($src, $key)) {
+            return null;
         }
-		if (!array_key_exists($key, $src)) {
-			return null;
-		}
 		$arr = filter_var($src[$key], FILTER_VALIDATE_FLOAT, FILTER_FORCE_ARRAY);
 		if (!is_array($arr)) {
 			return null;
@@ -240,10 +249,7 @@ class Validation
         ?array  $src=null
     ): ?string
 	{
-        if ($src===null) {
-            $src = static::getDefaultInputSource();
-        }
-        if (!array_key_exists($key, $src)) {
+        if (!static::checkSourceValue($src, $key)) {
             return null;
         }
         return trim(filter_var($src[$key], $filter));
@@ -261,6 +267,28 @@ class Validation
 	{
 		return Validation::collectStringRequestVar($key, $filter, $index, $src);
 	}
+
+    /**
+     * Converts script argument (query string or form data) to array of numeric values.
+     * @param string $key Key containing potential numeric values.
+     * @param array|null $src Optional array of variables to use instead of GET or POST data.
+     * @return array|null Returns an array if values are found for the specified key. Null otherwise.
+     */
+    public static function collectStringArrayRequestVar(
+        string $key,
+        ?array $src=null,
+        int $filter=Validation::DEFAULT_REQUEST_FILTER
+    ): ?array
+    {
+        if (!static::checkSourceValue($src, $key)) {
+            return null;
+        }
+        $values = filter_var($src[$key], $filter, FILTER_FORCE_ARRAY);
+        if (!is_array($values)) {
+            return null;
+        }
+        return array_filter($values);
+    }
 
 	/**
 	 * Searches POST, GET and session data, in that order, for a property corresponding to $key.
