@@ -489,11 +489,12 @@ class RequestInput
     /**
      * Container CSS class setter.
      * @param string $class
-     * @return void
+     * @return RequestInput
      */
-    public function setContainerCSSClass(string $class)
+    public function setContainerCSSClass(string $class): RequestInput
     {
         $this->container_css_class = $class;
+        return $this;
     }
 
 	/**
@@ -508,16 +509,18 @@ class RequestInput
     /**
      * Input CSS class setter.
      * @param string $class
-     * @return void
+     * @return RequestInput
      */
-    public function setInputCSSClass(string $class)
+    public function setInputCSSClass(string $class): RequestInput
     {
         $this->input_css_class = $class;
+        return $this;
     }
 
 	/**
 	 * Form input element template filename setter.
 	 * @param string $filename Template filename.
+     * @return void
 	 */
 	public static function setInputTemplateFilename( string $filename )
 	{

@@ -183,6 +183,24 @@ class RequestInputTest extends TestCase
         $this->obj->saveInForm();
     }
 
+    public function testSetContainerCSSClass()
+    {
+        $o = new RequestInput('Container Test', 'ctKey');
+        $original_class = $o->container_css_class;
+        $returned = $o->setContainerCSSClass('new-container-class');
+        $this->assertNotEquals($original_class, $o->container_css_class);
+        $this->assertSame($returned, $o);
+    }
+
+    public function testSetInputCSSClass()
+    {
+        $o = new RequestInput('Test Label', 'testKey');
+        $original_class = $o->input_css_class;
+        $returned = $o->setInputCSSClass('new-class');
+        $this->assertNotEquals($original_class, $o->input_css_class);
+        $this->assertSame($returned, $o);
+    }
+
 	public function testSetTemplatePath()
 	{
         $original = $this->obj::getInputTemplatePath();
