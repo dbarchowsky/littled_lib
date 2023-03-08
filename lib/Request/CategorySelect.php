@@ -47,6 +47,21 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
+     * Returns list of strings with all category terms in use for this content type.
+     * @return string[] List of all category terms in use for this content type.
+     * @throws ConfigurationUndefinedException
+     * @throws Exception
+     */
+    public static function retrieveCategoryOptions(): array
+    {
+        $query = 'SELECT term FROM keyword WHERE type_id = ? GROUP BY term';
+        $content_type_id = static::getContentTypeId();
+        $conn = new MySQLConnection();
+        $data = $conn->fetchRecords($query, 'i', $content_type_id);
+        return array_map(function ($e) { return $e->term; }, $data);
+    }
+
+    /**
      * Returns all the current category terms as a string array.
      * @return string[]
      */

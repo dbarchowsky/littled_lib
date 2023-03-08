@@ -44,6 +44,14 @@ class CategorySelectTest extends TestCase
         $_POST = [];
     }
 
+    function testGetCategoryTermOptions()
+    {
+        $options = CategorySelectTestHarness::retrieveCategoryOptions();
+        $this->assertContains('tests', $options);        // << term shared by multiple parent records
+        $this->assertContains('development', $options);  // << term in use by one parent record
+        $this->assertContains('cooking', $options);      // << term in use by a different parent record
+    }
+
     /**
      * @throws ConfigurationUndefinedException
      */
