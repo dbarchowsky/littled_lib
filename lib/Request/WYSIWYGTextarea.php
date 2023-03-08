@@ -64,13 +64,14 @@ class WYSIWYGTextarea extends StringTextarea
     /**
      * Overrides parent method to inject the editor class onto the editor DOM element.
      * @param string $class
-     * @return void
+     * @return WYSIWYGTextarea
      */
-    public function setInputCSSClass(string $class)
+    public function setInputCSSClass(string $class): WYSIWYGTextarea
     {
         $this->input_css_class = $class;
         if (strpos($this->input_css_class, static::$editor_css_class)===false) {
             $this->input_css_class .= " ".static::$editor_css_class;
         }
+        return $this;
     }
 }
