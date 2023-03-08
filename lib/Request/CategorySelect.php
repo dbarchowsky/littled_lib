@@ -86,7 +86,7 @@ class CategorySelect extends MySQLConnection
      */
     public static function getContainerTemplatePath(): string
     {
-        return LittledUtility::joinPaths(RequestInput::getTemplatePath(), static::getContainerTemplateFilename());
+        return LittledUtility::joinPaths(RequestInput::getTemplateBasePath(), static::getContainerTemplateFilename());
     }
 
     /**

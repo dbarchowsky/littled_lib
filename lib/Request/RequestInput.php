@@ -19,7 +19,7 @@ class RequestInput
 {
     /** @var string             Path to form input templates. */
     protected static string     $template_base_path = '';
-    /** @var string I           nput template filename. */
+    /** @var string             Input template filename. */
     protected static string     $template_filename = 'hidden-input.php';
     /** @var string             Form input element filename. */
     protected static string     $input_template_filename = '';
