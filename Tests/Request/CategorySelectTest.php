@@ -72,7 +72,7 @@ class CategorySelectTest extends TestCase
 
     function testGetContainerTemplatePath()
     {
-        $expected = LittledUtility::joinPaths(RequestInput::getTemplateBasePath(), CategorySelect::getContainerTemplatePath());
+        $expected = LittledUtility::joinPaths(RequestInput::getTemplateBasePath(), CategorySelect::getContainerTemplateFilename());
         $this->assertEquals($expected, CategorySelect::getContainerTemplatePath());
     }
 

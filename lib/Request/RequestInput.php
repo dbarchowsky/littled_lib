@@ -5,6 +5,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
+use Littled\Utility\LittledUtility;
 use Littled\Validation\ContentConversion;
 use Littled\Validation\Validation;
 use Exception;
@@ -291,7 +292,7 @@ class RequestInput
 	 */
 	public static function getInputTemplatePath(): string
 	{
-		return(static::$template_base_path.static::$input_template_filename);
+		return(LittledUtility::joinPaths(static::$template_base_path, static::$input_template_filename));
 	}
 
     /**
@@ -345,7 +346,7 @@ class RequestInput
      */
     public static function getTemplatePath(): string
     {
-        return (static::$template_base_path.static::$template_filename);
+        return (LittledUtility::joinPaths(static::$template_base_path, static::$template_filename));
     }
 
 	/**
