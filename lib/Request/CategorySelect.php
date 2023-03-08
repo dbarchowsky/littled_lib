@@ -6,6 +6,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Keyword\Keyword;
 use Littled\Log\Log;
+use Littled\PageContent\ContentUtils;
 use Littled\Utility\LittledUtility;
 
 class CategorySelect extends MySQLConnection
@@ -136,6 +137,22 @@ class CategorySelect extends MySQLConnection
         foreach($data as $row) {
             $this->categories[] = new Keyword($row->term, $this->parent_id, static::getContentTypeId());
         }
+    }
+
+    /**
+     * Injects class property values into template and prints result.
+     * @return void
+     */
+    public function render()
+    {
+        ContentUtils::renderTemplateWithErrors(
+            static::getContainerTemplatePath(),
+            array(
+              'category_inputs' => &$this,
+              'label' => $this->category_input->label,
+              'css_class' => $this->category_input->container_css_class
+            )
+        );
     }
 
     /**
