@@ -147,11 +147,7 @@ class CategorySelect extends MySQLConnection
     {
         ContentUtils::renderTemplateWithErrors(
             static::getContainerTemplatePath(),
-            array(
-              'category_inputs' => &$this,
-              'label' => $this->category_input->label,
-              'css_class' => $this->category_input->container_css_class
-            )
+            array('category_inputs' => &$this)
         );
     }
 
