@@ -174,11 +174,11 @@ class Validation
 	public static function collectIntegerArrayRequestVar(string $key, ?array $src=null): ?array
 	{
         if (!static::checkSourceValue($src, $key)) {
-            return null;
+            return [];
         }
 		$arr = filter_var($src[$key], FILTER_VALIDATE_FLOAT, FILTER_FORCE_ARRAY);
 		if (!is_array($arr)) {
-			return null;
+			return [];
 		}
 		// filter out any elements that are false or null, but keep elements equal to "0"
 		$arr = array_filter($arr, function($i) { return (false!==$i && null!==$i); });

@@ -141,7 +141,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\CollectStringArrayRequestVarTestDataProvider::collectStringArrayRequestVarTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Validation\CollectStringArrayRequestVarTestDataProvider::collectStringArrayRequestVarMultipleTestProvider()
      * @param array $expected
      * @param string $key
      * @param array $post_data
