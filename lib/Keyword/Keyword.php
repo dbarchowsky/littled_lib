@@ -39,16 +39,16 @@ class Keyword extends SerializedContentValidation
 	/**
 	 * Keyword constructor.
 	 * @param string $keyword Keyword term.
-	 * @param ?int $parent_type_id Parent id.
+	 * @param ?int $parent_id Parent id.
 	 * @param ?int $type_id Keyword type id.
 	 * @param int $count (Optional) Keyword count. Defaults to 0.
 	 */
-	function __construct(string $keyword, ?int $parent_type_id=null, ?int $type_id=null, int $count=0 )
+	function __construct(string $keyword, ?int $parent_id=null, ?int $type_id=null, int $count=0 )
 	{
 		parent::__construct();
 		$this->term = new StringTextarea("Keyword", Keyword::KEYWORD_KEY, true, $keyword, 1000, null);
 		$this->type_id = new IntegerInput("Keyword type", Keyword::TYPE_KEY, true, $type_id);
-		$this->parent_id = new IntegerInput("Parent", Keyword::PARENT_KEY, true, $parent_type_id);
+		$this->parent_id = new IntegerInput("Parent", Keyword::PARENT_KEY, true, $parent_id);
 		$this->count = $count;
 	}
 

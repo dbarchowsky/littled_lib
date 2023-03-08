@@ -1,9 +1,9 @@
 <?php
-
-namespace Littled\Tests\DataProvider\Request;
-
+namespace Littled\Tests\DataProvider\Request\StringSelect;
 
 use Littled\Request\StringSelect;
+use Littled\Tests\DataProvider\Request\SelectTestData;
+
 
 class StringSelectTestDataProvider
 {
@@ -36,4 +36,16 @@ class StringSelectTestDataProvider
 				'', '', true, 5)],
 		);
 	}
+
+    public static function setInputValueTestProvider(): array
+    {
+        return array(
+            array([], []),
+            array([], ''),
+            array(['foo'], 'foo'),
+            array(['foo'], ['foo']),
+            array(['1', '0', '62.34'], [1, 0, 62.34]),
+            array(['foo', 'bar'], ['', 'foo', '', 'bar', '']),
+        );
+    }
 }
