@@ -2,6 +2,8 @@
 namespace Littled\Request;
 
 
+use Littled\Validation\Validation;
+
 class StringSelect extends StringInput
 {
 	/** @var string */
@@ -15,12 +17,41 @@ class StringSelect extends StringInput
 
 	/**
 	 * Allow multiple setter. If set to true, multiple choices can be selected from the drop-down options.
+     * @param bool $allow Flag indicating if multiple values are allowed or not.
 	 * @return void
 	 */
-	public function allowMultiple()
+	public function allowMultiple(bool $allow=true)
 	{
-		$this->allow_multiple = true;
+		$this->allow_multiple = $allow;
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function collectRequestData (?array $src=null, ?int $filters=null, ?string $key=null)
+    {
+        if (true===$this->bypass_collect_request_data) {
+            return;
+        }
+        $key = $key ?: $this->key;
+        if (null===$filters) {
+            $filters = Validation::DEFAULT_REQUEST_FILTER;
+        }
+        $this->value = Validation::collectStringArrayRequestVar($key, $src, $filters);
+        if ($this->allow_multiple) {
+            if ($this->value===null) {
+                $this->value = [];
+            }
+        }
+        else {
+            if (is_array($this->value) && count($this->value) > 0) {
+                $this->value = $this->value[0];
+            }
+            else {
+                $this->value = '';
+            }
+        }
+    }
 
     /**
      * Returns input size attribute markup to inject into template.
@@ -49,6 +80,23 @@ class StringSelect extends StringInput
             $context = array('options' => $context);
         }
         parent::render($label, $css_class, $context);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setInputValue($value)
+    {
+        if (is_array($value)) {
+            $value = array_map(function ($e) { return (''.$e); }, $value);
+            $this->value = array_values(array_filter($value, function($e) { return ($e!=''); }));
+        }
+        elseif(''.$value) {
+            $this->value = array($value);
+        }
+        else {
+            $this->value = [];
+        }
     }
 
 	/**

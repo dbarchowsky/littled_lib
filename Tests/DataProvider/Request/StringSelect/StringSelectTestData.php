@@ -1,7 +1,8 @@
 <?php
-namespace Littled\Tests\DataProvider\Request;
+namespace Littled\Tests\DataProvider\Request\StringSelect;
 
 use Littled\Request\StringSelect;
+use Littled\Tests\DataProvider\Request\SelectTestData;
 
 class StringSelectTestData extends SelectTestData
 {
@@ -35,4 +36,11 @@ class StringSelectTestData extends SelectTestData
 			$o->setOptionsLength($options_size);
 		}
 	}
+
+    public function mapMultipleTestProvider(): array
+    {
+        return array(
+            $this->expected
+        );
+    }
 }
