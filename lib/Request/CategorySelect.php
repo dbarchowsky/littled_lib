@@ -12,7 +12,7 @@ use Littled\Utility\LittledUtility;
 class CategorySelect extends MySQLConnection
 {
     protected static int    $content_type_id;
-    protected static string $container_template = 'category-container.php';
+    protected static string $container_template = 'category-select-container.php';
 
     /** @var Keyword[] */
     public array            $categories=[];
