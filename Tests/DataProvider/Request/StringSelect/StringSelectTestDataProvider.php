@@ -8,6 +8,19 @@ use Littled\Tests\DataProvider\Request\SelectTestData;
 
 class StringSelectTestDataProvider
 {
+    public static function lookupValueInSelectedValuesTestProvider(): array
+    {
+        return array(
+            array(true, true, ['foo', 'bar', 'biz'], 'bar'),
+            array(false, true, ['foo', 'bar', 'biz'], 'bash'),
+            array(true, false, 'foo', 'foo'),
+            array(false, false, 'bar', 'biz'),
+            array(false, true, [''], 'foo'),
+            array(false, true, [], 'foo'),
+            array(false, false, '', 'foo'),
+        );
+    }
+
 	public static function renderTestProvider(): array
 	{
 		return array(

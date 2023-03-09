@@ -74,6 +74,22 @@ class StringSelect extends StringInput
 	}
 
     /**
+     * Test if the supplied value matches any of the current internal selected category values. Returns TRUE if
+     * $value matches a selected category value.
+     * @param string $value
+     * @return bool
+     */
+    public function lookupValueInSelectedValues(string $value): bool
+    {
+        if (is_array($this->value)) {
+            return in_array($value, $this->value);
+        }
+        else {
+            return ($value === $this->value);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function render(string $label='', string $css_class='', array $context=[])

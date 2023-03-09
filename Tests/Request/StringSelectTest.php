@@ -80,6 +80,22 @@ class StringSelectTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
+     * @param bool $expected
+     * @param bool $allow_multiple
+     * @param $selections
+     * @param $value
+     * @return void
+     */
+    function testLookupValueInSelectedValues(bool $expected, bool $allow_multiple, $selections, $value)
+    {
+        $o = new StringSelect('Test Input', 'testInput', false, '', 100);
+        $o->allowMultiple($allow_multiple);
+        $o->value = $selections;
+        $this->assertSame($expected, $o->lookupValueInSelectedValues($value));
+    }
+
+    /**
 	 * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::renderTestProvider()
 	 * @param StringSelectTestData $data
 	 * @return void
