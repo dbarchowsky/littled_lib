@@ -8,6 +8,7 @@ use Littled\Request\CategorySelect;
 use Littled\Request\RequestInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
+use Littled\Tests\DataProvider\Request\CategorySelect\CollectRequestDataTestData;
 use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\Request\CategorySelectTestHarness;
@@ -28,20 +29,20 @@ class CategorySelectTest extends TestCase
     }
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\CategorySelect\CategorySelectTestDataProvider::collectRequestDataTestProvider()
+     * @param CollectRequestDataTestData $data
      * @throws ConfigurationUndefinedException
      */
-    function testCollectRequestData()
+    function testCollectRequestData(CollectRequestDataTestData $data)
     {
-        $_POST = array(
-            'catTerm' => array('a' => 'a', 'b' => 'b'),
-            'catNew' => 'bash'
-        );
+        $_POST = $data->post_data;
 
         $o = new CategorySelectTestHarness();
+        $o->allowMultiple($data->allow_multiple);
         $o->collectRequestData();
-        $this->assertEquals(array('a' => 'a', 'b' => 'b'), $o->category_input->value);
-        $this->assertEquals('bash', $o->new_category->value);
-        $this->assertContains('bash', $o->getCategoryTermList());
+        $this->assertEquals($data->expected->category_input, $o->category_input->value);
+        $this->assertEquals($data->expected->terms, $o->getCategoryTermList());
+        $this->assertEquals($data->expected->new_category, $o->new_category->value);
 
         // restore state
         $_POST = [];
@@ -170,7 +171,7 @@ class CategorySelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\CategorySelectTestDataProvider::validateInputTestProvider()
+     * @dataProvider \Littled\Tests\DataProvider\Request\CategorySelect\CategorySelectTestDataProvider::validateInputTestProvider()
      * @param ValidateTestData $data
      * @return void
      * @throws ConfigurationUndefinedException

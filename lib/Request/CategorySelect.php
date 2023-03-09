@@ -56,9 +56,19 @@ class CategorySelect extends MySQLConnection
                 $property->collectRequestData();
             }
         }
+        if ($this->category_input->allow_multiple) {
+            foreach($this->category_input->value as $term) {
+                $this->pushKeywordInstance($term);
+            }
+        }
+        else {
+            if ($this->category_input->value) {
+                $this->pushKeywordInstance($this->category_input->value);
+            }
+        }
         if ($this->new_category->value &&
             !in_array($this->new_category->value, $this->getCategoryTermList())) {
-            $this->categories[] = new Keyword($this->new_category->value, $this->getParentId(), static::getContentTypeId());
+            $this->pushKeywordInstance($this->new_category->value);
         }
     }
 
@@ -72,31 +82,6 @@ class CategorySelect extends MySQLConnection
         foreach($this->categories as $term) {
             $term->delete();
         }
-    }
-
-    /**
-     * Returns boolean value indicating that this object has existing validation errors to report.
-     * @return bool
-     */
-    public function hasValidationErrors(): bool
-    {
-        return $this->validation_errors->hasErrors();
-    }
-
-    /**
-     * Returns list of strings with all category terms in use for this content type.
-     * @return string[] List of all category terms in use for this content type.
-     * @throws ConfigurationUndefinedException
-     * @throws Exception
-     */
-    public static function retrieveCategoryOptions(): array
-    {
-        $query = 'SELECT term FROM keyword WHERE type_id = ? GROUP BY term';
-        $content_type_id = static::getContentTypeId();
-        $conn = new MySQLConnection();
-        $data = $conn->fetchRecords($query, 'i', $content_type_id);
-        $options = array_map(function ($e) { return $e->term; }, $data);
-        return array_combine($options, $options);
     }
 
     /**
@@ -149,12 +134,32 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
+     * Returns boolean value indicating that this object has existing validation errors to report.
+     * @return bool
+     */
+    public function hasValidationErrors(): bool
+    {
+        return $this->validation_errors->hasErrors();
+    }
+
+    /**
      * Tests if the instance is in possession of a valid parent record id.
      * @return bool
      */
     public function hasValidParent(): bool
     {
         return (isset($this->parent_id) && $this->parent_id > 0);
+    }
+
+    /**
+     * Push a term as a Keyword object instance onto the internal stack of keywords.
+     * @param string $term
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected function pushKeywordInstance(string $term)
+    {
+        $this->categories[] = new Keyword($term, $this->getParentId(), static::getContentTypeId());
     }
 
     /**
@@ -186,6 +191,22 @@ class CategorySelect extends MySQLConnection
             static::getContainerTemplatePath(),
             array('category_inputs' => &$this)
         );
+    }
+
+    /**
+     * Returns list of strings with all category terms in use for this content type.
+     * @return string[] List of all category terms in use for this content type.
+     * @throws ConfigurationUndefinedException
+     * @throws Exception
+     */
+    public static function retrieveCategoryOptions(): array
+    {
+        $query = 'SELECT term FROM keyword WHERE type_id = ? GROUP BY term';
+        $content_type_id = static::getContentTypeId();
+        $conn = new MySQLConnection();
+        $data = $conn->fetchRecords($query, 'i', $content_type_id);
+        $options = array_map(function ($e) { return $e->term; }, $data);
+        return array_combine($options, $options);
     }
 
     /**
