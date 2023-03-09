@@ -1,6 +1,8 @@
 <?php
 namespace Littled\Tests\DataProvider\Request\StringSelect;
 
+use Exception;
+use Littled\Exception\ContentValidationException;
 use Littled\Request\StringSelect;
 use Littled\Tests\DataProvider\Request\SelectTestData;
 

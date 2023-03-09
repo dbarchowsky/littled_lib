@@ -14,6 +14,8 @@ class StringSelect extends StringInput
 	public bool $allow_multiple = false;
 	/** @var ?int */
 	public ?int $options_length = null;
+    /** @var array|string */
+    public $value;
 
 	/**
 	 * Allow multiple setter. If set to true, multiple choices can be selected from the drop-down options.
@@ -108,4 +110,24 @@ class StringSelect extends StringInput
 	{
 		$this->options_length = $len;
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function validate()
+    {
+        if (!$this->required) {
+            return;
+        }
+        if ($this->allow_multiple) {
+            if (count($this->value) < 1) {
+                $this->throwValidationError($this->formatErrorLabel() . " is required.");
+            }
+        }
+        else {
+            if (''.$this->value==='') {
+                $this->throwValidationError($this->formatErrorLabel() . " is required.");
+            }
+        }
+    }
 }

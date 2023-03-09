@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\DataProvider\Request\StringSelect;
 
+use Littled\Exception\ContentValidationException;
 use Littled\Request\StringSelect;
 use Littled\Tests\DataProvider\Request\SelectTestData;
 
@@ -47,5 +48,32 @@ class StringSelectTestDataProvider
             array(['1', '0', '62.34'], [1, 0, 62.34]),
             array(['foo', 'bar'], ['', 'foo', '', 'bar', '']),
         );
+    }
+
+    public static function validateTestProvider(): array
+    {
+        return array_map(function($e) { return array($e); }, array(
+            new ValidateTestData(
+                new ValidateTestExpectations(ContentValidationException::class, '/is required/i', 0),
+                true,
+                true,
+                'ssKey',
+                []
+            ),
+            new ValidateTestData(
+                new ValidateTestExpectations(ContentValidationException::class, '/is required/i', 0),
+                false,
+                true,
+                'ssKey',
+                []
+            ),
+            new ValidateTestData(
+                new ValidateTestExpectations('', '', 3),
+                true,
+                true,
+                'ssKey',
+                array('ssKey' => ['a', 'b', 'c'])
+            ),
+        ));
     }
 }

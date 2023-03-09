@@ -1,9 +1,11 @@
 <?php
 namespace Littled\Tests\Request;
 
+use Exception;
 use Littled\Request\RequestInput;
 use Littled\Request\StringSelect;
 use Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestData;
+use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -99,5 +101,36 @@ class StringSelectTest extends TestCase
         $o = new StringSelect('Select test', 'testKey', false, [], 100);
         $o->setInputValue($value);
         $this->assertEquals($expected, $o->value);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::validateTestProvider()
+     * @param ValidateTestData $data
+     * @return void
+     */
+    public function testValidate( ValidateTestData $data )
+    {
+        $_POST = $data->post_data;
+        $o = new StringSelect('Label', $data->key, $data->required, '', 100);
+        $o->allowMultiple($data->allow_multiple);
+        $o->collectRequestData();
+        try {
+            $o->validate();
+            if ($data->expected->exception) {
+                $this->assertEquals(false, true, "Expected exception {$data->expected->exception} not thrown.");
+            }
+            $this->assertCount($data->expected->count, $o->value);
+        }
+        catch(Exception $e) {
+            if ($data->expected->exception) {
+                $this->assertInstanceOf($data->expected->exception, $e);
+                $this->assertMatchesRegularExpression($data->expected->exception_msg, $e->getMessage());
+            }
+            else {
+                $this->assertEquals(false, true, 'Unexpected Exception thrown.');
+            }
+        }
+
+        $_POST = [];  // << restore state
     }
 }
