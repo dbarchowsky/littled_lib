@@ -296,7 +296,7 @@ class CategorySelect extends MySQLConnection
         $this->new_category->required = $original;
 
         if ($cat_error && $new_cat_error) {
-            throw new ContentValidationException($this->validation_errors->getErrorsString());
+            throw new ContentValidationException($this->category_input->formatErrorLabel()." is required.");
         }
     }
 

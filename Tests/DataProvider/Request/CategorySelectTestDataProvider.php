@@ -13,7 +13,7 @@ class CategorySelectTestDataProvider
             new ValidateTestData(
                 new ValidateTestExpectations(
                     ContentValidationException::class,
-                    '/is required/i',
+                    '/^Category is required\.$/i',
                     0),
                 true,
                 true,
