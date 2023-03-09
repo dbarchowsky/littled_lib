@@ -1,15 +1,19 @@
 <?php
 namespace Littled\Tests\Request;
 
+use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
 use Littled\Keyword\Keyword;
 use Littled\Request\CategorySelect;
 use Littled\Request\RequestInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
+use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\Request\CategorySelectTestHarness;
 use Littled\Utility\LittledUtility;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 
 class CategorySelectTest extends TestCase
@@ -119,5 +123,38 @@ class CategorySelectTest extends TestCase
         $this->assertEquals($new_template, CategorySelect::getContainerTemplateFilename());
 
         CategorySelect::setContainerTemplateFilename($original);
+    }
+
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\CategorySelectTestDataProvider::validateInputTestProvider()
+     * @param ValidateTestData $data
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    function testValidateInput( ValidateTestData $data )
+    {
+        $_POST = $data->post_data;
+
+        $o = new CategorySelectTestHarness();
+        $o->category_input->required = $data->required;
+        $o->allowMultiple($data->allow_multiple);
+        $o->collectRequestData();
+
+        try {
+            $o->validateInput();
+            if ($data->expected->exception) {
+                $this->assertEquals(false, true, "Expected {$data->expected->exception} not thrown.");
+            }
+            $this->assertCount($data->expected->count, $o->category_input->value);
+        }
+        catch(ContentValidationException $e) {
+            if ($data->expected->exception) {
+                $this->assertInstanceOf($data->expected->exception, $e);
+                $this->assertMatchesRegularExpression($data->expected->exception_msg, $e->getMessage());
+            }
+        }
+
+        // restore state
+        $_POST = [];
     }
 }

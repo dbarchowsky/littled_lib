@@ -4,6 +4,9 @@ namespace Littled\Request;
 use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidValueException;
 use Littled\Keyword\Keyword;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
@@ -30,6 +33,16 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
+     * Flag indicating that multiple category values can be collected.
+     * @param bool $allow Optional flag indicating if multiple values are allowed. Defaults to TRUE.
+     * @return void
+     */
+    public function allowMultiple(bool $allow=true)
+    {
+        $this->category_input->allowMultiple($allow);
+    }
+
+    /**
      * Collect and store client request data.
      * @return void
      * @throws ConfigurationUndefinedException
@@ -44,6 +57,18 @@ class CategorySelect extends MySQLConnection
         if ($this->new_category->value &&
             !in_array($this->new_category->value, $this->getCategoryTermList())) {
             $this->categories[] = new Keyword($this->new_category->value, $this->getParentId(), static::getContentTypeId());
+        }
+    }
+
+    /**
+     * Deletes associated keyword records from the database.
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
+    public function deleteRecords()
+    {
+        foreach($this->categories as $term) {
+            $term->delete();
         }
     }
 
@@ -181,5 +206,40 @@ class CategorySelect extends MySQLConnection
     public function setParentId( int $parent_id )
     {
         $this->parent_id = $parent_id;
+    }
+
+    /**
+     * Validates category form data.
+     * @return void
+     * @throws ContentValidationException
+     */
+    public function validateInput()
+    {
+        $errors = [];
+        $cat_error = $new_cat_error = false;
+        try {
+            $this->category_input->validate();
+        }
+        catch(ContentValidationException $e) {
+            $errors[] = $e->getMessage();
+            $cat_error = true;
+        }
+
+        // if a category value is expected, it can be provided either by selecting from pre-existing categories
+        // ($category_input property) or it can come from the new category field ($new_category property)
+        $original = $this->new_category->required;
+        try {
+            $this->new_category->required = $this->category_input->required;
+            $this->new_category->validate();
+        }
+        catch(ContentValidationException $e) {
+            $errors[] = $e->getMessage();
+            $new_cat_error = true;
+        }
+        $this->new_category->required = $original;
+
+        if ($cat_error && $new_cat_error) {
+            throw new ContentValidationException(implode("\n ", $errors));
+        }
     }
 }
