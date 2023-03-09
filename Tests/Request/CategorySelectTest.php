@@ -134,13 +134,23 @@ class CategorySelectTest extends TestCase
         CategorySelect::setContainerTemplateFilename($original);
     }
 
-    function testSetInputCSSClass()
+    function testSetListInputCSSClass()
     {
         $new_class = 'custom-input-class';
         $o = new CategorySelectTestHarness();
         $original = $o->category_input->getInputCssClass();
-        $return = $o->setInputCSSClass($new_class);
+        $return = $o->setListInputCSSClass($new_class);
         $this->assertNotEquals($original, $o->category_input->getInputCssClass());
+        $this->assertEquals($return, $o);
+    }
+
+    function testSetTextInputCSSClass()
+    {
+        $new_class = 'custom-input-class';
+        $o = new CategorySelectTestHarness();
+        $original = $o->category_input->getInputCssClass();
+        $return = $o->setTextInputCSSClass($new_class);
+        $this->assertNotEquals($original, $o->new_category->getInputCssClass());
         $this->assertEquals($return, $o);
     }
 

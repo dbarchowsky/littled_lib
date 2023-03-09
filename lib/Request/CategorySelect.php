@@ -212,7 +212,7 @@ class CategorySelect extends MySQLConnection
      * @param string $class_name
      * @return $this
      */
-    public function setInputCSSClass(string $class_name): CategorySelect
+    public function setListInputCSSClass(string $class_name): CategorySelect
     {
         $this->category_input->setInputCSSClass($class_name);
         return $this;
@@ -226,6 +226,16 @@ class CategorySelect extends MySQLConnection
     public function setParentId( int $parent_id )
     {
         $this->parent_id = $parent_id;
+    }
+
+    /**
+     * @param string $class_name
+     * @return $this
+     */
+    public function setTextInputCSSClass(string $class_name): CategorySelect
+    {
+        $this->new_category->setInputCSSClass($class_name);
+        return $this;
     }
 
     /**
