@@ -14,7 +14,7 @@ class StringSelect extends StringInput
 	public bool $allow_multiple = false;
 	/** @var ?int */
 	public ?int $options_length = null;
-    /** @var array|string */
+    /** @var string[]|string */
     public $value;
 
 	/**
@@ -89,15 +89,29 @@ class StringSelect extends StringInput
      */
     public function setInputValue($value)
     {
-        if (is_array($value)) {
-            $value = array_map(function ($e) { return (''.$e); }, $value);
-            $this->value = array_values(array_filter($value, function($e) { return ($e!=''); }));
-        }
-        elseif(''.$value) {
-            $this->value = array($value);
+        if ($this->allow_multiple) {
+            // value is an array of strings
+            if (is_array($value)) {
+                $value = array_map(function ($e) {
+                    return ('' . $e);
+                }, $value);
+                $this->value = array_values(array_filter($value, function ($e) {
+                    return ($e != '');
+                }));
+            } elseif ('' . $value) {
+                $this->value = array($value);
+            } else {
+                $this->value = [];
+            }
         }
         else {
-            $this->value = [];
+            // value is a single string
+            if (is_array($value)) {
+                $this->value = ((count($value)>0)? (''.$value[0]) : '');
+            }
+            else {
+                $this->value = filter_var($value);
+            }
         }
     }
 

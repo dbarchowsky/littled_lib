@@ -41,12 +41,18 @@ class StringSelectTestDataProvider
     public static function setInputValueTestProvider(): array
     {
         return array(
-            array([], []),
-            array([], ''),
-            array(['foo'], 'foo'),
-            array(['foo'], ['foo']),
-            array(['1', '0', '62.34'], [1, 0, 62.34]),
-            array(['foo', 'bar'], ['', 'foo', '', 'bar', '']),
+            array([], true, []),
+            array([], true, ''),
+            array(['foo'], true, 'foo'),
+            array(['foo'], true, ['foo']),
+            array(['1', '0', '62.34'], true, [1, 0, 62.34]),
+            array(['foo', 'bar'], true, ['', 'foo', '', 'bar', '']),
+            array('', false, []),
+            array('', false, ''),
+            array('foo', false, 'foo'),
+            array('foo', false, ['foo']),
+            array('1', false, [1, 0, 62.34]),
+            array('', false, ['', 'foo', '', 'bar', '']),
         );
     }
 

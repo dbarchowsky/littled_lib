@@ -92,13 +92,15 @@ class StringSelectTest extends TestCase
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::setInputValueTestProvider()
-     * @param array $expected
-     * @param $value
+     * @param string|array $expected
+     * @param bool $allow_multiple
+     * @param string|array $value
      * @return void
      */
-    function testSetInputValue(array $expected, $value)
+    function testSetInputValue($expected, bool $allow_multiple, $value)
     {
         $o = new StringSelect('Select test', 'testKey', false, [], 100);
+        $o->allowMultiple($allow_multiple);
         $o->setInputValue($value);
         $this->assertEquals($expected, $o->value);
     }
