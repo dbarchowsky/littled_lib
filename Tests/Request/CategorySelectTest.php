@@ -201,4 +201,14 @@ class CategorySelectTest extends TestCase
         // restore state
         $_POST = [];
     }
+
+    function testValidationErrors()
+    {
+        $o = new CategorySelectTestHarness();
+        $this->assertCount(0, $o->validationErrors());
+
+        $o->validation_errors->push('first error');
+        $o->validation_errors->push('second error');
+        $this->assertCount(2, $o->validationErrors());
+    }
 }

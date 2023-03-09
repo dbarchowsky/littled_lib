@@ -299,4 +299,13 @@ class CategorySelect extends MySQLConnection
             throw new ContentValidationException($this->validation_errors->getErrorsString());
         }
     }
+
+    /**
+     * Gets current error messages as an array.
+     * @return array
+     */
+    public function validationErrors(): array
+    {
+        return $this->validation_errors->getList();
+    }
 }
