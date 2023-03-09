@@ -145,6 +145,20 @@ class CategorySelectTest extends TestCase
         $this->assertEquals($return, $o);
     }
 
+    function testSetRequired()
+    {
+        $o = new CategorySelect();
+
+        $o->setRequired();
+        $this->assertTrue($o->category_input->required);
+
+        $o->setRequired(false);
+        $this->assertFalse($o->category_input->required);
+
+        $o->setRequired(true);
+        $this->assertTrue($o->category_input->required);
+    }
+
     function testSetTextInputCSSClass()
     {
         $new_class = 'custom-input-class';

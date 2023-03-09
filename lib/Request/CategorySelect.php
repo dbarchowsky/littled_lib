@@ -241,6 +241,21 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
+     * Specify if data is required for this input.
+     * @param bool $required
+     * @return void
+     */
+    public function setRequired(bool $required=true)
+    {
+        if ($required) {
+            $this->category_input->setAsRequired();
+        }
+        else {
+            $this->category_input->setAsNotRequired();
+        }
+    }
+
+    /**
      * @param string $class_name
      * @return $this
      */
