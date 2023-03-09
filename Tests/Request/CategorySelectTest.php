@@ -111,6 +111,7 @@ class CategorySelectTest extends TestCase
         $o->read();
         $this->assertGreaterThan(0, $o->categories);
         $this->assertContains('development', $o->getCategoryTermList());
+        $this->assertTrue($o->category_input->lookupValueInSelectedValues('development'));
     }
 
     function testSetContainerCSSClass()

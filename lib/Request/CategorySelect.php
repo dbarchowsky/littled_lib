@@ -179,6 +179,7 @@ class CategorySelect extends MySQLConnection
         foreach($data as $row) {
             $this->categories[] = new Keyword($row->term, $this->parent_id, static::getContentTypeId());
         }
+        $this->category_input->value = $this->getCategoryTermList();
     }
 
     /**
