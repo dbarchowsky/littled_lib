@@ -10,6 +10,7 @@ use Littled\Keyword\Keyword;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\Utility\LittledUtility;
+use Littled\Validation\ValidationErrors;
 
 
 class CategorySelect extends MySQLConnection
@@ -22,14 +23,15 @@ class CategorySelect extends MySQLConnection
     public StringSelect     $category_input;
     public StringTextField  $new_category;
     protected int           $parent_id;
+    public ValidationErrors $validation_errors;
 
     public function __construct()
     {
         parent::__construct();
         $this->category_input = new StringSelect('Category', 'catTerm', false, [], 100);
         $this->category_input->allowMultiple();
-
         $this->new_category = new StringTextField('New category', 'catNew', false, '', 100);
+        $this->validation_errors = new ValidationErrors();
     }
 
     /**
@@ -70,6 +72,15 @@ class CategorySelect extends MySQLConnection
         foreach($this->categories as $term) {
             $term->delete();
         }
+    }
+
+    /**
+     * Returns boolean value indicating that this object has existing validation errors to report.
+     * @return bool
+     */
+    public function hasValidationErrors(): bool
+    {
+        return $this->validation_errors->hasErrors();
     }
 
     /**
@@ -246,13 +257,13 @@ class CategorySelect extends MySQLConnection
      */
     public function validateInput()
     {
-        $errors = [];
+        $this->validation_errors->clear();
         $cat_error = $new_cat_error = false;
         try {
             $this->category_input->validate();
         }
         catch(ContentValidationException $e) {
-            $errors[] = $e->getMessage();
+            $this->validation_errors->push($e->getMessage());
             $cat_error = true;
         }
 
@@ -264,13 +275,13 @@ class CategorySelect extends MySQLConnection
             $this->new_category->validate();
         }
         catch(ContentValidationException $e) {
-            $errors[] = $e->getMessage();
+            $this->validation_errors->push($e->getMessage());
             $new_cat_error = true;
         }
         $this->new_category->required = $original;
 
         if ($cat_error && $new_cat_error) {
-            throw new ContentValidationException(implode("\n ", $errors));
+            throw new ContentValidationException($this->validation_errors->getErrorsString());
         }
     }
 }
