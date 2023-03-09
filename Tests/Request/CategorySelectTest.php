@@ -119,6 +119,7 @@ class CategorySelectTest extends TestCase
         $original = $o->category_input->getContainerCssClass();
         $return = $o->setContainerCSSClass($new_class);
         $this->assertNotEquals($original, $o->category_input->getContainerCssClass());
+        $this->assertNotEquals($original, $o->new_category->getContainerCssClass());
         $this->assertEquals($return, $o);
     }
 

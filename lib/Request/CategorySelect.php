@@ -195,6 +195,7 @@ class CategorySelect extends MySQLConnection
     public function setContainerCSSClass(string $class_name): CategorySelect
     {
         $this->category_input->setContainerCSSClass($class_name);
+        $this->new_category->setContainerCSSClass($class_name);
         return $this;
     }
 
