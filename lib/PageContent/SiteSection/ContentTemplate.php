@@ -198,15 +198,15 @@ class ContentTemplate extends SerializedContent
 		catch (ContentValidationException $ex) { /* continue */ }
 
 		if (!$this->template_dir->value && !$this->location->value) {
-			$this->validationErrors[] = "Either a template path or location must be specified.";
+			$this->addValidationError("Either a template path or location must be specified.");
 		}
 
         if ($section = $this->testForDuplicateTemplate()) {
             $error = "A \"{$this->name->value}\" template already exists for the \"$section\" area of the site.";
-            $this->validationErrors[] = $error;
+            $this->addValidationError($error);
         }
 
-		if (count($this->validationErrors) > 0) {
+		if ($this->hasValidationErrors()) {
 			throw new ContentValidationException("Error validating content templates.");
 		}
 	}

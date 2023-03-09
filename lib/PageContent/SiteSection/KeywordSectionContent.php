@@ -43,7 +43,7 @@ abstract class KeywordSectionContent extends SectionContent
         $this->content_properties->id->key = static::$keyword_key.$this->content_properties->id->key;
 
 		/* Suppress generalized error messages related to the content type properties */
-		$this->content_properties->validationMessage = '';
+		$this->content_properties->validation_message = '';
 
 		$this->keyword_input = new StringTextarea("Keywords", static::$keyword_key."Text", false, '', 1000, null);
 
@@ -463,18 +463,18 @@ abstract class KeywordSectionContent extends SectionContent
 		    $this->content_properties->id->validate();
         }
         catch(ContentValidationException $ex) {
-            $this->validationErrors[] = $ex->getMessage();
+            $this->addValidationError($ex->getMessage());
         }
         foreach($this->keywords as $keyword) {
             try {
                 $keyword->validateInput();
             }
             catch(ContentValidationException $ex) {
-                $this->validationErrors = array_merge($this->validationErrors, $keyword->validationErrors);
+                $this->validation_errors->push($keyword->validationErrors());
             }
         }
-		if (count($this->validationErrors) > 0) {
-			throw new ContentValidationException($this->validationMessage);
+		if ($this->hasValidationErrors()) {
+			throw new ContentValidationException($this->validation_message);
 		}
 	}
 }

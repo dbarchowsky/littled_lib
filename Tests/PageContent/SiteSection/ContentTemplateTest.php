@@ -185,10 +185,10 @@ class ContentTemplateTest extends TestCase
 		}
 		catch (ContentValidationException $ex) {
 			$this->assertEquals("Error validating content templates.", $ex->getMessage());
-			$this->assertContains("Name is required.", $this->obj->validationErrors);
-			$this->assertContains("Content type is required.", $this->obj->validationErrors);
-			$this->assertContains("Template file is required.", $this->obj->validationErrors);
-			$this->assertContains("Either a template path or location must be specified.", $this->obj->validationErrors);
+			$this->assertContains("Name is required.", $this->obj->validationErrors());
+			$this->assertContains("Content type is required.", $this->obj->validationErrors());
+			$this->assertContains("Template file is required.", $this->obj->validationErrors());
+			$this->assertContains("Either a template path or location must be specified.", $this->obj->validationErrors());
 		}
 
 		$this->obj->name->setInputValue("Sketchbooks");
@@ -196,7 +196,7 @@ class ContentTemplateTest extends TestCase
 			$this->obj->validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			$this->assertNotContains("Name is required.", $this->obj->validationErrors);
+			$this->assertNotContains("Name is required.", $this->obj->validationErrors());
 		}
 
 		$this->obj->content_id->setInputValue(2);
@@ -204,7 +204,7 @@ class ContentTemplateTest extends TestCase
 			$this->obj->validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			$this->assertNotContains("Content type is required.", $this->obj->validationErrors);
+			$this->assertNotContains("Content type is required.", $this->obj->validationErrors());
 		}
 
 		$this->obj->path->setInputValue('template.php');
@@ -212,7 +212,7 @@ class ContentTemplateTest extends TestCase
 			$this->obj->validateInput();
 		}
 		catch (ContentValidationException $ex) {
-			$this->assertNotContains("Template file is required.", $this->obj->validationErrors);
+			$this->assertNotContains("Template file is required.", $this->obj->validationErrors());
 		}
 
 		$this->obj->template_dir->setInputValue('templates/html/');
@@ -221,7 +221,7 @@ class ContentTemplateTest extends TestCase
 		}
 		catch (ContentValidationException $ex) {
         }
-		$this->assertEmpty($this->obj->validationErrors);
+		$this->assertEmpty($this->obj->validationErrors());
 	}
 
     /**
@@ -256,7 +256,7 @@ class ContentTemplateTest extends TestCase
         }
         catch(Exception $ex) {
             $this->assertMatchesRegularExpression('/Error validating content templates./', $ex->getMessage());
-            $this->assertContains("A \"$template_name\" template already exists for the \"$section_name\" area of the site.", $o2->validationErrors);
+            $this->assertContains("A \"$template_name\" template already exists for the \"$section_name\" area of the site.", $o2->validationErrors());
         }
 
         // test the duplicate validator with a unique template name

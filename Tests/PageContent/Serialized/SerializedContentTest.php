@@ -127,18 +127,18 @@ class SerializedContentTest extends TestCase
 
         // confirm no validation errors with no required fields
         $obj->validateInput();
-        $this->assertCount(0, $obj->validationErrors);
+        $this->assertCount(0, $obj->validationErrors());
 
         // set one property value as required with bypassValidation called with default value (TRUE)
         $obj->vc_col2->setAsRequired();
         $obj->bypassValidation();
         $obj->validateInput();
-        $this->assertCount(0, $obj->validationErrors);
+        $this->assertCount(0, $obj->validationErrors());
 
         // pass explicit TRUE value to bypassValidation()
         $obj->bypassValidation(true);
         $obj->validateInput();
-        $this->assertCount(0, $obj->validationErrors);
+        $this->assertCount(0, $obj->validationErrors());
 
         // turn off validation bypass to confirm errors are caught
         $obj->bypassValidation(false);

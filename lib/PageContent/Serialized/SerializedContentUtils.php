@@ -12,7 +12,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Exception;
-use Littled\Validation\Validation;
+
 
 /**
  * Class SerializedContentUtils
@@ -23,26 +23,12 @@ class SerializedContentUtils extends AppContentBase
     /** @var string Path to CMS template dir */
     protected static string $common_cms_template_path;
 
-	/** @var string[] Container for validation error messages. */
-	public array $validationErrors=[];
-	/** @var string Error message returned when invalid form data is encountered. */
-	public string $validationMessage='';
 	/** @var int */
 	protected static int $content_type_id;
 	/** @var string Path to cache template. */
 	protected static string $cache_template = '';
 	/** @var string Path to rendered cache file to use on site front-end. */
 	protected static string $output_cache_file = '';
-
-    /**
-     * SerializedContentUtils constructor.
-     */
-	public function __construct()
-    {
-        parent::__construct();
-        $this->validationErrors = [];
-        $this->validationMessage = "Errors were found in the content.";
-    }
 
 	/**
      * Add a separator string after a string.

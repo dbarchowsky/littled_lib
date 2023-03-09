@@ -5,41 +5,31 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
+use Littled\Validation\ValidationErrors;
 
 class SerializedContentValidation extends SerializedContentUtils
 {
-    /** @var int */
-    protected $bypass_validation = false;
+    protected bool                  $bypass_validation = false;
+    protected ValidationErrors      $validation_errors;
+    /** @var string                 Error message returned when invalid form data is encountered. */
+    public string                   $validation_message='';
 
-	/**
+    public function __construct()
+    {
+        parent::__construct();
+        $this->validation_errors = new ValidationErrors();
+        $this->validation_message = "Errors were found in the content.";
+    }
+
+    /**
 	 * Stores new error message string on stack of current error messages.
 	 * @param string|array $err Array or string containing errors to push onto the current
 	 * stack of error messages.
 	 */
 	public function addValidationError($err)
 	{
-		if (is_array($err)) {
-			$this->validationErrors = array_merge($this->validationErrors, $err);
-		}
-		else {
-            $this->validationErrors[] = $err;
-		}
+		$this->validation_errors->push($err);
 	}
-
-    /**
-     * Stores new error message string at the beginning of the stack of current error messages.
-     * @param string|array $err Array or string containing errors to push onto the current
-     * stack of error messages.
-     */
-    public function unshiftValidationError($err)
-    {
-        if (is_array($err)) {
-            $this->validationErrors = array_merge($err, $this->validationErrors);
-        }
-        else {
-            array_unshift($this->validationErrors, $err);
-        }
-    }
 
     /**
      * Specify if the object should skip validation.
@@ -52,12 +42,13 @@ class SerializedContentValidation extends SerializedContentUtils
     }
 
     /**
-	 * Removes all validation errors from the object.
-	 */
-	public function clearValidationErrors()
-	{
-		$this->validationErrors = array();
-	}
+     * Clear all current validation error messages.
+     * @return void
+     */
+    public function clearValidationErrors()
+    {
+        $this->validation_errors->clear();
+    }
 
 	/**
 	 * Returns all validation errors as a single string
@@ -66,7 +57,7 @@ class SerializedContentValidation extends SerializedContentUtils
 	 */
 	public function getErrorsString(string $delimiter=" \n"): string
 	{
-		return implode($delimiter, $this->validationErrors);
+		return $this->validation_errors->getErrorsString($delimiter);
 	}
 
 	/**
@@ -96,8 +87,18 @@ class SerializedContentValidation extends SerializedContentUtils
 	 */
 	public function hasValidationErrors(): bool
 	{
-		return (count($this->validationErrors) > 0);
+		return $this->validation_errors->hasErrors();
 	}
+
+    /**
+     * Add error message or messages to the beginning of the existings list of errors.
+     * @param string|array $err
+     * @return void
+     */
+    public function unshiftValidationError($err)
+    {
+        $this->validation_errors->unshift($err);
+    }
 
 	/**
 	 * Validates the internal property values of the object for data that is not valid.
@@ -111,7 +112,7 @@ class SerializedContentValidation extends SerializedContentUtils
             return;
         }
 
-		$this->validationErrors = [];
+		$this->validation_errors->clear();
 		foreach($this as $key => $property) {
 			if (in_array($key, $exclude_properties)) {
 				continue;
@@ -130,12 +131,21 @@ class SerializedContentValidation extends SerializedContentUtils
 					$property->validateInput();
 				}
 				catch(ContentValidationException $ex) {
-					$this->addValidationError($property->validationErrors);
+					$this->addValidationError($property->validationErrors());
 				}
 			}
 		}
-		if (count($this->validationErrors) > 0) {
+		if ($this->hasValidationErrors()) {
 			throw new ContentValidationException("Some required information is missing.");
 		}
 	}
+
+    /**
+     * Validation errors getter.
+     * @return array
+     */
+    public function validationErrors(): array
+    {
+        return $this->validation_errors->getList();
+    }
 }

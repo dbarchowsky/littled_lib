@@ -522,14 +522,14 @@ class KeywordSectionContentTest extends TestCase
 		}
 		catch(ContentValidationException $ex) {
 			$this->assertEquals("Errors were found in the content.", $ex->getMessage());
-			$this->assertGreaterThan(0, count($this->obj->validationErrors));
+			$this->assertGreaterThan(0, count($this->obj->validationErrors()));
 		}
 
         $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
 		$this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
         $this->obj->content_properties->read();
         $this->obj->validateInput();
-		$this->assertCount(0, $this->obj->validationErrors);
+		$this->assertCount(0, $this->obj->validationErrors());
 
 		$this->obj->addKeyword('test');
 		$this->obj->keywords[0]->term->value = '';
@@ -538,7 +538,7 @@ class KeywordSectionContentTest extends TestCase
         }
         catch(ContentValidationException $ex) {
 		    $this->assertEquals("Errors were found in the content.", $ex->getMessage());
-		    $this->assertContains("Keyword is required.", $this->obj->validationErrors);
+		    $this->assertContains("Keyword is required.", $this->obj->validationErrors());
         }
 	}
 }

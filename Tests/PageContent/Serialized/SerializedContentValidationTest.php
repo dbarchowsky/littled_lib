@@ -18,29 +18,29 @@ class SerializedContentValidationTest extends TestCase
 
 	public function testAddValidationError()
 	{
-		self::assertCount(0, $this->obj->validationErrors);
+		self::assertCount(0, $this->obj->validationErrors());
 		$this->obj->addValidationError('Test error message.');
-		self::assertCount(1, $this->obj->validationErrors);
+		self::assertCount(1, $this->obj->validationErrors());
 	}
 
     public function testUnshiftValidationError()
     {
         $o = new SerializedContentValidation();
         $o->unshiftValidationError('number one');
-        self::assertCount(1, $o->validationErrors);
+        self::assertCount(1, $o->validationErrors());
 
         $o->unshiftValidationError('number two');
-        self::assertCount(2, $o->validationErrors);
-        self::assertEquals('number two', $o->validationErrors[0]);
+        self::assertCount(2, $o->validationErrors());
+        self::assertEquals('number two', $o->validationErrors()[0]);
 
         $o->addValidationError('number three');
-        self::assertEquals('number three', $o->validationErrors[2]);
+        self::assertEquals('number three', $o->validationErrors()[2]);
 
         $o->unshiftValidationError('number four');
-        self::assertCount(4, $o->validationErrors);
-        self::assertEquals('number four', $o->validationErrors[0]);
-        self::assertEquals('number two', $o->validationErrors[1]);
-        self::assertEquals('number three', $o->validationErrors[3]);
+        self::assertCount(4, $o->validationErrors());
+        self::assertEquals('number four', $o->validationErrors()[0]);
+        self::assertEquals('number two', $o->validationErrors()[1]);
+        self::assertEquals('number three', $o->validationErrors()[3]);
     }
 
 	public function testClearValidationErrors()
@@ -48,18 +48,18 @@ class SerializedContentValidationTest extends TestCase
 		// confirm object state calling clearValidationErrors() on object without any errors pushed onto it
 		$this->obj->clearValidationErrors();
 		$this->assertFalse($this->obj->hasValidationErrors());
-		$this->assertCount(0, $this->obj->validationErrors);
+		$this->assertCount(0, $this->obj->validationErrors());
 
 		// confirm with existing errors on stack
 		$this->obj->addValidationError('This is the first error.');
 		$this->obj->addValidationError('This is the second error.');
 		$this->assertTrue($this->obj->hasValidationErrors());
-		$this->assertCount(2, $this->obj->validationErrors);
+		$this->assertCount(2, $this->obj->validationErrors());
 
 		// confirm object state after clearValidationErrors()
 		$this->obj->clearValidationErrors();
 		$this->assertFalse($this->obj->hasValidationErrors());
-		$this->assertCount(0, $this->obj->validationErrors);
+		$this->assertCount(0, $this->obj->validationErrors());
 	}
 
 	public function testGetErrorsString()
@@ -109,7 +109,7 @@ class SerializedContentValidationTest extends TestCase
 		$this->obj->addValidationError('2nd test validation error');
 		self::assertTrue($this->obj->hasValidationErrors());
 
-		self::assertCount(2, $this->obj->validationErrors);
+		self::assertCount(2, $this->obj->validationErrors());
 	}
 
 	public function testValidateInput()
@@ -119,8 +119,8 @@ class SerializedContentValidationTest extends TestCase
 		}
 		catch(ContentValidationException $ex) {
 			self::assertEquals('Some required information is missing.', $ex->getMessage());
-			self::assertCount(1, $this->obj->validationErrors);
-			self::assertEquals('Test varchar value 1 is required.', $this->obj->validationErrors[0]);
+			self::assertCount(1, $this->obj->validationErrors());
+			self::assertEquals('Test varchar value 1 is required.', $this->obj->validationErrors()[0]);
 		}
 	}
 }
