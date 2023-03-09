@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Tests\Request;
 
-use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Keyword\Keyword;
@@ -13,8 +12,8 @@ use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\Request\CategorySelectTestHarness;
 use Littled\Utility\LittledUtility;
-use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+
 
 class CategorySelectTest extends TestCase
 {
@@ -113,6 +112,16 @@ class CategorySelectTest extends TestCase
         $this->assertContains('development', $o->getCategoryTermList());
     }
 
+    function testSetContainerCSSClass()
+    {
+        $new_class = 'custom-class';
+        $o = new CategorySelectTestHarness();
+        $original = $o->category_input->getContainerCssClass();
+        $return = $o->setContainerCSSClass($new_class);
+        $this->assertNotEquals($original, $o->category_input->getContainerCssClass());
+        $this->assertEquals($return, $o);
+    }
+
     function testSetContainerTemplateFilename()
     {
         $new_template = 'new-template.php';
@@ -123,6 +132,16 @@ class CategorySelectTest extends TestCase
         $this->assertEquals($new_template, CategorySelect::getContainerTemplateFilename());
 
         CategorySelect::setContainerTemplateFilename($original);
+    }
+
+    function testSetInputCSSClass()
+    {
+        $new_class = 'custom-input-class';
+        $o = new CategorySelectTestHarness();
+        $original = $o->category_input->getInputCssClass();
+        $return = $o->setInputCSSClass($new_class);
+        $this->assertNotEquals($original, $o->category_input->getInputCssClass());
+        $this->assertEquals($return, $o);
     }
 
     /**

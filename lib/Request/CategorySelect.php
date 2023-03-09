@@ -6,11 +6,11 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidValueException;
 use Littled\Keyword\Keyword;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\Utility\LittledUtility;
+
 
 class CategorySelect extends MySQLConnection
 {
@@ -189,6 +189,16 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
+     * @param string $class_name
+     * @return $this
+     */
+    public function setContainerCSSClass(string $class_name): CategorySelect
+    {
+        $this->category_input->setContainerCSSClass($class_name);
+        return $this;
+    }
+
+    /**
      * Container template filename setter.
      * @param string $filename
      * @return void
@@ -196,6 +206,16 @@ class CategorySelect extends MySQLConnection
     public static function setContainerTemplateFilename(string $filename)
     {
         static::$container_template = $filename;
+    }
+
+    /**
+     * @param string $class_name
+     * @return $this
+     */
+    public function setInputCSSClass(string $class_name): CategorySelect
+    {
+        $this->category_input->setInputCSSClass($class_name);
+        return $this;
     }
 
     /**
