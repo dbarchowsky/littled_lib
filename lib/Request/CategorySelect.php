@@ -133,6 +133,15 @@ class CategorySelect extends MySQLConnection
         return $this->parent_id;
     }
 
+	/**
+	 * Returns flag indicating that the object is currently has some keyword terms attached to it.
+	 * @return bool
+	 */
+	public function hasKeywordData(): bool
+	{
+		return (count($this->categories) > 0);
+	}
+
     /**
      * Returns boolean value indicating that this object has existing validation errors to report.
      * @return bool
