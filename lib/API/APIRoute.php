@@ -458,9 +458,10 @@ abstract class APIRoute extends PageContentBase
 	 * @inheritDoc
 	 * @throws ResourceNotFoundException
 	 */
-	public function processRequest()
+	public function processRequest(): APIRoute
 	{
 		$this->loadTemplateContent();
+		return $this;
 	}
 
 	/**

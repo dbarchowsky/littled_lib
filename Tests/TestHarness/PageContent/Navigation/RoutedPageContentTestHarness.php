@@ -51,9 +51,9 @@ class RoutedPageContentTestHarness extends RoutedPageContent
         parent::loadFilters();
     }
 
-	public function processRequest()
+	public function processRequest(): RoutedPageContent
 	{
-		// stub
+		return $this;
 	}
 
     public function setPageState()

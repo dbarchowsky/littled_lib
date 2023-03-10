@@ -8,12 +8,12 @@ class APIRouteTestHarness extends APIRoute
 {
     public function collectAndLoadJsonContent()
     {
-        // TODO: Implement collectAndLoadJsonContent() method.
+	    // stub
     }
 
 	public function hasContentPropertiesObject(): bool
 	{
-		// TODO: Implement hasContentPropertiesObject() method.
+		// stub
         return false;
 	}
 
@@ -28,16 +28,16 @@ class APIRouteTestHarness extends APIRoute
 
     public function retrieveContentData()
 	{
-		// TODO: Implement retrieveContentData() method.
+		// stub
 	}
 
 	protected function retrieveCoreContentProperties()
 	{
-		// TODO: Implement retrieveCoreContentProperties() method.
+		// stub
 	}
 
 	public function setContentTypeId(int $content_id)
 	{
-		// TODO: Implement setContentTypeId() method.
+		// stub
 	}
 }

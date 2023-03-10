@@ -29,9 +29,9 @@ class PageContentChild extends PageContent
         );
     }
 
-	public function processRequest()
+	public function processRequest(): PageContentChild
 	{
-		// stub
+		return $this;
 	}
 
     public function setPageState()

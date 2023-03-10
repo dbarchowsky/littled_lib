@@ -27,9 +27,9 @@ class PageContentBaseTestHarness extends PageContentBase
 		return [];
 	}
 
-	public function processRequest()
+	public function processRequest(): PageContentBase
 	{
-		// stub
+		return $this;
 	}
 
 	public function render(?array $context = null)

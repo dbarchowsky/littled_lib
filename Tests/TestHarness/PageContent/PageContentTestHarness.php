@@ -20,9 +20,9 @@ class PageContentTestHarness extends PageContent
 		return [];
 	}
 
-	public function processRequest()
+	public function processRequest(): PageContent
 	{
-		// stub
+		return $this;
 	}
 
 	public function setPageState()
