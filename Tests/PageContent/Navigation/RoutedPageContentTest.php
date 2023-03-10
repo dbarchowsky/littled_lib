@@ -7,7 +7,6 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
-use Littled\Filters\KeywordContentFilters;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\Tests\TestHarness\Filters\KeywordContentFiltersTestHarness;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
@@ -178,7 +177,7 @@ class RoutedPageContentTest extends TestCase
     /**
      * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getListingsURIWithFilters()
      * @throws ConfigurationUndefinedException
-     * @throws InvalidTypeException
+     * @throws InvalidTypeException|NotImplementedException
      */
     function testGetListingsURIWithFilters(
         array $expected_pairs=[],

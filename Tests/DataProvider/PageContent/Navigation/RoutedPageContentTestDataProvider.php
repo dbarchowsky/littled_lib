@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\DataProvider\PageContent\Navigation;
 
+
 class RoutedPageContentTestDataProvider
 {
     public static function collectActionFromRouteTestProvider(): array
