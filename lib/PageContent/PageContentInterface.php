@@ -30,7 +30,7 @@ interface PageContentInterface
 
 	/**
 	 * Apply any needed work to the request data. Use the request data to prepare a response.
-	 * @return void
+	 * @return PageContentBase
 	 */
 	public function processRequest(): PageContentBase;
 
