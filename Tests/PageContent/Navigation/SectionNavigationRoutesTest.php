@@ -1,7 +1,9 @@
 <?php
 namespace Littled\Tests\PageContent\Navigation;
 
+use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\SectionNavigationRoutes;
+use Littled\Tests\DataProvider\PageContent\Navigation\SectionNavigationRoutes\GetPageRouteTestData;
 use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
 use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
 use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
@@ -19,6 +21,19 @@ class SectionNavigationRoutesTest extends TestCase
     {
         $this->assertEquals(TestTableListingsPage::getBaseRoute(), SectionNavigationRoutesTestHarness::getListingsRouteBase());
     }
+
+	/**
+	 * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\SectionNavigationRoutesTestDataProvider::getPageRouteTestProvider()
+	 * @param GetPageRouteTestData $data
+	 * @return void
+	 * @throws InvalidTypeException
+	 */
+	function testGetPageRoute(GetPageRouteTestData $data)
+	{
+		$this->assertEquals(
+			$data->expected,
+			SectionNavigationRoutesTestHarness::getPageRoute($data->class, $data->record_id));
+	}
 
 	function testGetTemplateDir()
 	{

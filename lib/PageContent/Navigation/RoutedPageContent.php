@@ -267,7 +267,40 @@ abstract class RoutedPageContent extends PageContent
         return $this->getListingsURI().$this->formatQueryString($exclude_keys);
     }
 
-    /**
+	/**
+	 * Returns route for a given RoutedPageContent class
+	 * @param string $class
+	 * @param int|null $record_id
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 * @throws InvalidTypeException
+	 */
+	public function getPageRoute(string $class, ?int $record_id=null): string
+	{
+		try {
+			$this->verifyAndLoadRoutes();
+		}
+		catch(ConfigurationUndefinedException $e) {
+			throw new ConfigurationUndefinedException('Routes class unavailable for edit uri.');
+		}
+		return $this->routes::getPageRoute($class, $record_id ?: $this->getRecordId());
+	}
+
+	/**
+	 * Returns route with query string storing current listings filters for a given RoutedPageContent class.
+	 * @param string $class
+	 * @param int|null $record_id
+	 * @param bool $force_query_update
+	 * @return string
+	 * @throws ConfigurationUndefinedException
+	 * @throws InvalidTypeException
+	 */
+	public function getPageRouteWithFilters(string $class, ?int $record_id=null, bool $force_query_update=false): string
+	{
+		return $this->getPageRoute($class, $record_id ?: $this->getRecordId()).$this->getQueryString($force_query_update);
+	}
+
+	/**
      * Record id getter.
      * @return int|null
      */

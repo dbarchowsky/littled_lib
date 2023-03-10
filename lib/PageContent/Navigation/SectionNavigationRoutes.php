@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Navigation;
 
 use Littled\Exception\InvalidTypeException;
+use Littled\Validation\Validation;
 
 
 abstract class SectionNavigationRoutes
@@ -100,12 +101,24 @@ abstract class SectionNavigationRoutes
 	 * Return page route for a specified class.
 	 * @param string $class Class name
 	 * @param int|null $record_id Optional record id to be incorporated into the route
-	 * @param bool $include_query_string Option to include current page filters into the route as a query string.
 	 * Default value is TRUE.
 	 * @return string
 	 * @throws InvalidTypeException
 	 */
-	abstract public static function getPageRoute(string $class, ?int $record_id=null, bool $include_query_string=true): string;
+	public static function getPageRoute(string $class, ?int $record_id=null): string
+	{
+		if(!class_exists($class)) {
+			throw new InvalidTypeException("Bad class: \"$class\".");
+		}
+		if (!Validation::isSubclass($class, RoutedPageContent::class)) {
+			throw new InvalidTypeException("\"$class\" is not a routed page type.");
+		}
+		/** @var RoutedPageContent $class */
+		if ($record_id) {
+			return $class::formatRoutePath($record_id);
+		}
+		return $class::formatRoutePath();
+	}
 
     /**
      * Template path getter.
