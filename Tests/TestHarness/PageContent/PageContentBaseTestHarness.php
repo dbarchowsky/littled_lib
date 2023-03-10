@@ -10,25 +10,35 @@ class PageContentBaseTestHarness extends PageContentBase
     /** @var string Override parent to make property public for tests */
     public string $query_string='';
 
-    public function sendResponse(string $template_path = '', ?array $context = null)
-    {
-        // TODO: Implement sendResponse() method.
-    }
-
-    public function render(?array $context = null)
-    {
-        // TODO: Implement render() method.
-    }
-
-    public function getTemplateContext(): array
-    {
-        // TODO: Implement getTemplateContext() method.
-        return [];
-    }
+	public function collectRequestData(?array $src = null)
+	{
+		// stub
+	}
 
     public function getContentLabel(): string
     {
-        // TODO: Implement getContentLabel() method.
+	    // stub
         return '';
     }
+
+	public function getTemplateContext(): array
+	{
+		// stub
+		return [];
+	}
+
+	public function processRequest()
+	{
+		// stub
+	}
+
+	public function render(?array $context = null)
+	{
+		// stub
+	}
+
+	public function sendResponse(string $template_path = '', ?array $context = null)
+	{
+		// stub
+	}
 }

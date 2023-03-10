@@ -17,15 +17,25 @@ class PageContentChild extends PageContent
         $this->injected_text = '';
     }
 
-    public function getTemplateContext(): array
+	public function collectRequestData(?array $src = null)
+	{
+		// stub
+	}
+
+	public function getTemplateContext(): array
     {
         return array(
             'test_var' => $this->injected_text
         );
     }
 
+	public function processRequest()
+	{
+		// stub
+	}
+
     public function setPageState()
     {
-        // TODO: Implement setPageState() method.
+	    // stub
     }
 }

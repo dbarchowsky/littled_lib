@@ -27,30 +27,6 @@ class APIRecordRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws Exception
-     */
-    function testCollectAndLoadJsonContent()
-    {
-	    $_POST = array(
-		    LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
-		    APIRoute::TEMPLATE_TOKEN_KEY => 'delete',
-            LittledGlobals::ID_KEY => APIRouteTestBase::TEST_RECORD_ID
-	    );
-
-	    $ap = new APIRecordRouteTestHarness();
-	    $ap->collectRequestData();
-
-	    // inject record content into template
-	    $ap->collectAndLoadJsonContent();
-	    $this->assertMatchesRegularExpression('/^\s*<div class=\"dialog delete-confirmation\"/', $ap->json->content->value);
-
-	    // restore state
-	    $_POST = [];
-    }
-
-    /**
      * @dataProvider \Littled\Tests\DataProvider\API\APIRecordRouteTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param string $expected_exception
@@ -206,7 +182,31 @@ class APIRecordRouteTest extends APIRouteTestBase
         $this->_testLookupTemplate($ap);
     }
 
-    /**
+	/**
+	 * @return void
+	 * @throws ConfigurationUndefinedException
+	 * @throws Exception
+	 */
+	function testProcessRequest()
+	{
+		$_POST = array(
+			LittledGlobals::CONTENT_TYPE_KEY => APIRouteTestBase::TEST_CONTENT_TYPE_ID,
+			APIRoute::TEMPLATE_TOKEN_KEY => 'delete',
+			LittledGlobals::ID_KEY => APIRouteTestBase::TEST_RECORD_ID
+		);
+
+		$ap = new APIRecordRouteTestHarness();
+		$ap->collectRequestData();
+
+		// inject record content into template
+		$ap->processRequest();
+		$this->assertMatchesRegularExpression('/^\s*<div class=\"dialog delete-confirmation\"/', $ap->json->content->value);
+
+		// restore state
+		$_POST = [];
+	}
+
+	/**
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException

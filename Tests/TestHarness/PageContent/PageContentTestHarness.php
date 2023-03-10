@@ -1,21 +1,32 @@
 <?php
-
 namespace Littled\Tests\TestHarness\PageContent;
 
-class PageContentTestHarness extends \Littled\PageContent\PageContent
+use Littled\PageContent\PageContent;
+
+
+class PageContentTestHarness extends PageContent
 {
+	public function collectRequestData(?array $src = null)
+	{
+		// stub
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getTemplateContext(): array
-    {
-        // TODO: Implement getTemplateContext() method.
-        return [];
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getTemplateContext(): array
+	{
+		// stub
+		return [];
+	}
 
-    public function setPageState()
-    {
-        // TODO: Implement setPageState() method.
-    }
+	public function processRequest()
+	{
+		// stub
+	}
+
+	public function setPageState()
+	{
+		// stub
+	}
 }

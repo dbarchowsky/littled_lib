@@ -6,7 +6,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
-use Littled\Log\Log;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -155,7 +154,7 @@ abstract class PageContent extends PageContentBase
      */
     public function setPageError(string $error_msg )
     {
-        $this->content->validationErrors[] = $error_msg;
+        $this->content->addValidationError($error_msg);
     }
 
     /**

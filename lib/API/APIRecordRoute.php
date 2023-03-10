@@ -17,16 +17,6 @@ class APIRecordRoute extends APIRoute
 {
 	public SectionContent $content;
 
-	public function collectAndLoadJsonContent()
-	{
-		/* retrieve content object if needed */
-		if (!is_object($this->content)) {
-			$this->initializeContentObject();
-		}
-		$this->retrieveContentData();
-		$this->loadTemplateContent();
-	}
-
 	/**
 	 * Convenience routine that will collect the content id from POST
 	 * data using first the content object's internal id parameter, and then if

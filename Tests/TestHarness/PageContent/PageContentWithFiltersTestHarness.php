@@ -2,9 +2,8 @@
 namespace Littled\Tests\TestHarness\PageContent;
 
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
 use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\Filters\TestTableFilters;
+
 
 class PageContentWithFiltersTestHarness extends PageContent
 {
@@ -14,14 +13,24 @@ class PageContentWithFiltersTestHarness extends PageContent
         $this->filters = new TestTableContentFiltersTestHarness();
     }
 
+	public function collectRequestData(?array $src = null)
+	{
+		// stub
+	}
+
     public function getTemplateContext(): array
     {
-        // TODO: Implement getTemplateContext() method.
+	    // stub
         return [];
     }
 
+	public function processRequest()
+	{
+		// stub
+	}
+
     public function setPageState()
     {
-        // TODO: Implement setPageState() method.
+	    // stub
     }
 }

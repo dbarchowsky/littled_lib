@@ -9,6 +9,13 @@ interface PageContentInterface
     const CANCEL_ACTION = "cancel";
     const COMMIT_ACTION = "commit";
 
+	/**
+	 * Collect client request data.
+	 * @param array|null $src
+	 * @return mixed
+	 */
+	public function collectRequestData(?array $src=null);
+
     /**
      * Template context getter
      * @return array
@@ -20,6 +27,12 @@ interface PageContentInterface
      * @return string
      */
     public function getContentLabel(): string;
+
+	/**
+	 * Apply any needed work to the request data. Use the request data to prepare a response.
+	 * @return void
+	 */
+	public function processRequest();
 
     /**
      * Injects content into template to generate markup to send as http response matching a client request.

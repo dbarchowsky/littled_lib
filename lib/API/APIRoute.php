@@ -82,13 +82,6 @@ abstract class APIRoute extends PageContentBase
 		}
 	}
 
-	/**
-	 * Retrieves content and filters based on page object's content type id setting.
-	 * Inserts content into template and saves resulting markup in page object's "json" property.
-	 * @throws Exception
-	 */
-	abstract public function collectAndLoadJsonContent();
-
     /**
      * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
@@ -461,7 +454,16 @@ abstract class APIRoute extends PageContentBase
         return new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location);
     }
 
-    /**
+	/**
+	 * @inheritDoc
+	 * @throws ResourceNotFoundException
+	 */
+	public function processRequest()
+	{
+		$this->loadTemplateContent();
+	}
+
+	/**
      * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the class's json property's content property, which is then sent back to the client.
      * @param string $next_operation Token determining which template to load.
      * @throws Exception
@@ -474,14 +476,6 @@ abstract class APIRoute extends PageContentBase
 			$template->formatFullPath(),
             $this->getTemplateContext());
     }
-
-	/**
-	 * Collects filter values from request data, and reads the content data from the database.
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws NotImplementedException
-	 */
-	abstract public function retrieveContentData();
 
 	/**
 	 * Hydrates the content properties object by retrieving data from the database.

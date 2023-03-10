@@ -8,24 +8,12 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
 
 class APIListingsRoute extends APIRoute
 {
-	/**
-	 * @inheritDoc
-	 */
-	public function collectAndLoadJsonContent()
-	{
-		/** retrieve filters object if needed */
-		if (!isset($this->filters)) {
-			$this->initializeFiltersObject();
-		}
-		$this->retrieveContentData();
-		$this->loadTemplateContent();
-	}
-
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException|NotImplementedException
@@ -61,14 +49,6 @@ class APIListingsRoute extends APIRoute
 	{
 		return isset($this->filters);
 	}
-
-    /**
-     * @inheritDoc
-     */
-    public function retrieveContentData()
-    {
-        $this->collectRequestData();
-    }
 
     /**
 	 * @return void

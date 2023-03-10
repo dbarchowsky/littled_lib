@@ -14,6 +14,16 @@ class RoutedPageContentTestHarness extends RoutedPageContent
     protected static string $routes_class       = SectionNavigationRoutesTestHarness::class;
     protected static string $base_route         = '';
 
+	public function collectRequestData(?array $src = null)
+	{
+		// TODO: Implement collectRequestData() method.
+	}
+
+	public static function formatRoutePath(?int $record_id = null): string
+	{
+		return LittledUtility::joinPaths(static::$route_parts);
+	}
+
     public function getTemplateContext(): array
     {
         // TODO: Implement getTemplateContext() method.
@@ -41,13 +51,13 @@ class RoutedPageContentTestHarness extends RoutedPageContent
         parent::loadFilters();
     }
 
+	public function processRequest()
+	{
+		// stub
+	}
+
     public function setPageState()
     {
-        // TODO: Implement setPageState() method.
-    }
-
-    public static function formatRoutePath(?int $record_id = null): string
-    {
-        return LittledUtility::joinPaths(static::$route_parts);
+        // stub
     }
 }
