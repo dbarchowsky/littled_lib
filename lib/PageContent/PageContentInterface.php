@@ -32,7 +32,7 @@ interface PageContentInterface
 	 * Apply any needed work to the request data. Use the request data to prepare a response.
 	 * @return void
 	 */
-	public function processRequest();
+	public function processRequest(): PageContentBase;
 
     /**
      * Injects content into template to generate markup to send as http response matching a client request.
