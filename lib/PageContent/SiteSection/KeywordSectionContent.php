@@ -48,6 +48,7 @@ abstract class KeywordSectionContent extends SectionContent
 		$this->keyword_input = new StringTextarea("Keywords", static::$keyword_key."Text", false, '', 1000, null);
 
 		$this->keyword_input->is_database_field = false;
+		$this->validation_message = "Problems found in keywords.";
 	}
 
 	/**
@@ -452,22 +453,29 @@ abstract class KeywordSectionContent extends SectionContent
 	{
 		try {
 		    /* bypass validation of site section properties */
-		    $exclude_properties[] = 'contentProperties';
+		    $exclude_properties[] = 'content_properties';
 			parent::validateInput($exclude_properties);
 		}
 		catch (ContentValidationException $ex) {
 			/* continue validating collected request data */
 		}
+		try {
+		    /* validate the content type id to ensure this record has a content type value */
+		    $this->content_properties->id->validate();
+        }
+        catch(ContentValidationException $ex) {
+            $this->addValidationError($ex->getMessage());
+        }
         foreach($this->keywords as $keyword) {
             try {
                 $keyword->validateInput();
             }
             catch(ContentValidationException $ex) {
-                $this->validation_errors->push($keyword->validationErrors());
+                $this->addValidationError($keyword->validationErrors());
             }
         }
 		if ($this->hasValidationErrors()) {
-			throw new ContentValidationException($this->validation_message);
+			throw new ContentValidationException($this->getErrorsString());
 		}
 	}
 }

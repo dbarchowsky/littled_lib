@@ -54,11 +54,16 @@ class SerializedContentValidation extends SerializedContentUtils
 	/**
 	 * Returns all validation errors as a single string
 	 * @param string $delimiter (optional) string to insert between the individual error messages.
+	 * @param bool $include_header Include the class's generalized error message before specific errors.
 	 * @return string
 	 */
-	public function getErrorsString(string $delimiter=" \n"): string
+	public function getErrorsString(string $delimiter=" \n", bool $include_header=true): string
 	{
-		return $this->validation_errors->getErrorsString($delimiter);
+		if (!$this->hasValidationErrors()) {
+			return '';
+		}
+		return (($include_header && $this->validation_message)?($this->validation_message.$delimiter):('')).
+			$this->validation_errors->getErrorsString($delimiter);
 	}
 
 	/**

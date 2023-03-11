@@ -23,26 +23,6 @@ class SerializedContentValidationTest extends TestCase
 		self::assertCount(1, $this->obj->validationErrors());
 	}
 
-    public function testUnshiftValidationError()
-    {
-        $o = new SerializedContentValidation();
-        $o->unshiftValidationError('number one');
-        self::assertCount(1, $o->validationErrors());
-
-        $o->unshiftValidationError('number two');
-        self::assertCount(2, $o->validationErrors());
-        self::assertEquals('number two', $o->validationErrors()[0]);
-
-        $o->addValidationError('number three');
-        self::assertEquals('number three', $o->validationErrors()[2]);
-
-        $o->unshiftValidationError('number four');
-        self::assertCount(4, $o->validationErrors());
-        self::assertEquals('number four', $o->validationErrors()[0]);
-        self::assertEquals('number two', $o->validationErrors()[1]);
-        self::assertEquals('number three', $o->validationErrors()[3]);
-    }
-
 	public function testClearValidationErrors()
 	{
 		// confirm object state calling clearValidationErrors() on object without any errors pushed onto it
@@ -66,6 +46,7 @@ class SerializedContentValidationTest extends TestCase
 	{
 		$test_error_1 = 'error one';
 		$test_error_2 = 'error two';
+		$default_delimiter = " \n";
 		$test_delimiter = ':';
 
 		// test the default value with no errors
@@ -73,14 +54,21 @@ class SerializedContentValidationTest extends TestCase
 
 		// test with a single error on the stack
 		$this->obj->addValidationError($test_error_1);
-		$this->assertEquals($test_error_1, $this->obj->getErrorsString());
+		$expected = $this->obj->validation_message.$default_delimiter.$test_error_1;
+		$this->assertEquals($expected, $this->obj->getErrorsString());
 
 		// test with multiple errors on stack
 		$this->obj->addValidationError($test_error_2);
-		$this->assertEquals("$test_error_1 \n$test_error_2", $this->obj->getErrorsString());
+		$expected = $this->obj->validation_message.$default_delimiter.$test_error_1.$default_delimiter.$test_error_2;
+		$this->assertEquals($expected, $this->obj->getErrorsString());
 
 		// test with non-default delimiter
-		$this->assertEquals("$test_error_1$test_delimiter$test_error_2", $this->obj->getErrorsString($test_delimiter));
+		$expected = $this->obj->validation_message.$test_delimiter.$test_error_1 . $test_delimiter . $test_error_2;
+		$this->assertEquals($expected, $this->obj->getErrorsString($test_delimiter));
+
+		$this->obj->validation_message = '';
+		$expected = $test_error_1 . $test_delimiter . $test_error_2;
+		$this->assertEquals($expected, $this->obj->getErrorsString($test_delimiter));
 	}
 
     public function testHasData()
@@ -110,6 +98,26 @@ class SerializedContentValidationTest extends TestCase
 		self::assertTrue($this->obj->hasValidationErrors());
 
 		self::assertCount(2, $this->obj->validationErrors());
+	}
+
+	public function testUnshiftValidationError()
+	{
+		$o = new SerializedContentValidation();
+		$o->unshiftValidationError('number one');
+		self::assertCount(1, $o->validationErrors());
+
+		$o->unshiftValidationError('number two');
+		self::assertCount(2, $o->validationErrors());
+		self::assertEquals('number two', $o->validationErrors()[0]);
+
+		$o->addValidationError('number three');
+		self::assertEquals('number three', $o->validationErrors()[2]);
+
+		$o->unshiftValidationError('number four');
+		self::assertCount(4, $o->validationErrors());
+		self::assertEquals('number four', $o->validationErrors()[0]);
+		self::assertEquals('number two', $o->validationErrors()[1]);
+		self::assertEquals('number three', $o->validationErrors()[3]);
 	}
 
 	public function testValidateInput()
