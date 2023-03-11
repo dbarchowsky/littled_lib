@@ -93,6 +93,17 @@ class CategorySelectTest extends TestCase
         $this->assertEquals(TestTableSerializedContentTestHarness::CONTENT_TYPE_ID, $th->getContentTypeId());
     }
 
+	function testGetParentId()
+	{
+		$test_id = 792;
+
+		$o = new CategorySelect();
+		$this->assertNull($o->getParentId());
+
+		$o->setParentId($test_id);
+		$this->assertEquals($test_id, $o->getParentId());
+	}
+
 	function testHasKeywordData()
 	{
 		$o = new CategorySelectTestHarness();

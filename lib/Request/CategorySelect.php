@@ -126,11 +126,11 @@ class CategorySelect extends MySQLConnection
 
     /**
      * Parent record id value getter.
-     * @return int
+     * @return ?int
      */
-    public function getParentId(): int
+    public function getParentId(): ?int
     {
-        return $this->parent_id;
+        return $this->parent_id ?? null;
     }
 
 	/**
