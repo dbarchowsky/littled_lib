@@ -10,7 +10,7 @@ use Littled\Request\CategorySelect;
  */
 abstract class CategorySectionContent extends KeywordSectionContent
 {
-    public static string        $category_class = CategorySelect::class;
+    protected static string     $category_class = CategorySelect::class;
     /** @var CategorySelect     Category keywords. */
     public CategorySelect       $categories;
 
