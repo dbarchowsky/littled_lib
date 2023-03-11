@@ -320,7 +320,9 @@ class CategorySelect extends MySQLConnection
         // ($category_input property) or it can come from the new category field ($new_category property)
         $original = $this->new_category->required;
         try {
-            $this->new_category->required = $this->category_input->required;
+			if ($this->category_input->required && $this->category_input->has_errors) {
+				$this->new_category->required = $this->category_input->required;
+			}
             $this->new_category->validate();
         }
         catch(ContentValidationException $e) {

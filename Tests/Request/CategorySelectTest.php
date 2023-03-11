@@ -105,6 +105,9 @@ class CategorySelectTest extends TestCase
 		$this->assertEquals($test_id, $o->getParentId());
 	}
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	function testHasKeywordData()
 	{
 		$o = new CategorySelectTestHarness();
@@ -168,6 +171,9 @@ class CategorySelectTest extends TestCase
         $this->assertEquals($return, $o);
     }
 
+	/**
+	 * @throws ConfigurationUndefinedException
+	 */
 	function testSetParentId()
 	{
 		$o = new CategorySelectTestHarness();
@@ -229,6 +235,17 @@ class CategorySelectTest extends TestCase
                 $this->assertEquals(false, true, "Expected {$data->expected->exception} not thrown.");
             }
             $this->assertCount($data->expected->count, $o->category_input->value);
+			if ($o->category_input->required && $o->category_input->has_errors) {
+				if ($o->new_category->value) {
+					$this->assertFalse($o->new_category->has_errors);
+				}
+				else {
+					$this->assertTrue($o->new_category->has_errors);
+				}
+			}
+			else {
+				$this->assertFalse($o->new_category->has_errors);
+			}
         }
         catch(ContentValidationException $e) {
             if ($data->expected->exception) {
