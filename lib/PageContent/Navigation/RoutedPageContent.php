@@ -74,10 +74,12 @@ abstract class RoutedPageContent extends PageContent
 		}
 	}
 
-    /**
-     * @throws ConfigurationUndefinedException
-     */
-    public function checkAndCommitUpdates(): ?RoutedPageContent
+	/**
+	 * Check the requested edit action. Commit updates if requested.
+	 * @return $this
+	 * @throws ConfigurationUndefinedException
+	 */
+    public function checkAndCommitUpdates(): RoutedPageContent
     {
         $page = $this;
         if (LittledGlobals::COMMIT_KEY === $this->edit_action) {
