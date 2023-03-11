@@ -475,7 +475,7 @@ abstract class KeywordSectionContent extends SectionContent
             }
         }
 		if ($this->hasValidationErrors()) {
-			throw new ContentValidationException($this->getErrorsString());
+			throw new ContentValidationException($this->validation_message);
 		}
 	}
 }

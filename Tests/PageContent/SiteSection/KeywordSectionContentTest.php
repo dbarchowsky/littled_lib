@@ -538,8 +538,7 @@ class KeywordSectionContentTest extends TestCase
         }
         catch(ContentValidationException $ex) {
 			$expected_err = "Keyword is required.";
-			$expected_msg = $this->obj->validation_message." \n$expected_err";
-		    $this->assertEquals($expected_msg, $ex->getMessage());
+		    $this->assertEquals($this->obj->validation_message, $ex->getMessage());
 		    $this->assertContains($expected_err, $this->obj->validationErrors());
         }
 	}

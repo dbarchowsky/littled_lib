@@ -19,7 +19,7 @@ class SerializedContentValidation extends SerializedContentUtils
     {
         parent::__construct();
         $this->validation_errors = new ValidationErrors();
-        $this->validation_message = "Errors were found in the content.";
+        $this->validation_message = "Required information is missing.";
     }
 
     /**
@@ -57,7 +57,7 @@ class SerializedContentValidation extends SerializedContentUtils
 	 * @param bool $include_header Include the class's generalized error message before specific errors.
 	 * @return string
 	 */
-	public function getErrorsString(string $delimiter=" \n", bool $include_header=true): string
+	public function getErrorsString(string $delimiter=" \n", bool $include_header=false): string
 	{
 		if (!$this->hasValidationErrors()) {
 			return '';
@@ -97,7 +97,7 @@ class SerializedContentValidation extends SerializedContentUtils
 	}
 
     /**
-     * Add error message or messages to the beginning of the existings list of errors.
+     * Add error message or messages to the beginning of the existing list of errors.
      * @param string|array $err
      * @return void
      */
@@ -144,7 +144,7 @@ class SerializedContentValidation extends SerializedContentUtils
 			}
 		}
 		if ($this->hasValidationErrors()) {
-			throw new ContentValidationException("Some required information is missing.");
+			throw new ContentValidationException($this->validation_message);
 		}
 	}
 

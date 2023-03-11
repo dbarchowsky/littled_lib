@@ -54,21 +54,23 @@ class SerializedContentValidationTest extends TestCase
 
 		// test with a single error on the stack
 		$this->obj->addValidationError($test_error_1);
-		$expected = $this->obj->validation_message.$default_delimiter.$test_error_1;
-		$this->assertEquals($expected, $this->obj->getErrorsString());
+		$this->assertEquals($test_error_1, $this->obj->getErrorsString());
 
 		// test with multiple errors on stack
 		$this->obj->addValidationError($test_error_2);
-		$expected = $this->obj->validation_message.$default_delimiter.$test_error_1.$default_delimiter.$test_error_2;
+		$expected = $test_error_1.$default_delimiter.$test_error_2;
 		$this->assertEquals($expected, $this->obj->getErrorsString());
 
 		// test with non-default delimiter
-		$expected = $this->obj->validation_message.$test_delimiter.$test_error_1 . $test_delimiter . $test_error_2;
+		$expected = $test_error_1 . $test_delimiter . $test_error_2;
 		$this->assertEquals($expected, $this->obj->getErrorsString($test_delimiter));
+
+		$expected = $this->obj->validation_message. $test_delimiter. $test_error_1 . $test_delimiter . $test_error_2;
+		$this->assertEquals($expected, $this->obj->getErrorsString($test_delimiter, true));
 
 		$this->obj->validation_message = '';
 		$expected = $test_error_1 . $test_delimiter . $test_error_2;
-		$this->assertEquals($expected, $this->obj->getErrorsString($test_delimiter));
+		$this->assertEquals($expected, $this->obj->getErrorsString($test_delimiter, true));
 	}
 
     public function testHasData()
@@ -126,7 +128,7 @@ class SerializedContentValidationTest extends TestCase
 			$this->obj->validateInput();
 		}
 		catch(ContentValidationException $ex) {
-			self::assertEquals('Some required information is missing.', $ex->getMessage());
+			self::assertEquals('Required information is missing.', $ex->getMessage());
 			self::assertCount(1, $this->obj->validationErrors());
 			self::assertEquals('Test varchar value 1 is required.', $this->obj->validationErrors()[0]);
 		}
