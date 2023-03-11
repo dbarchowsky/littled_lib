@@ -458,13 +458,6 @@ abstract class KeywordSectionContent extends SectionContent
 		catch (ContentValidationException $ex) {
 			/* continue validating collected request data */
 		}
-		try {
-		    /* validate the content type id to ensure this record has a content type value */
-		    $this->content_properties->id->validate();
-        }
-        catch(ContentValidationException $ex) {
-            $this->addValidationError($ex->getMessage());
-        }
         foreach($this->keywords as $keyword) {
             try {
                 $keyword->validateInput();
