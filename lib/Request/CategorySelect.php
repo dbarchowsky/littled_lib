@@ -269,6 +269,9 @@ class CategorySelect extends MySQLConnection
     public function setParentId( int $parent_id )
     {
         $this->parent_id = $parent_id;
+		foreach($this->categories as $term) {
+			$term->parent_id->value = $parent_id;
+		}
     }
 
     /**

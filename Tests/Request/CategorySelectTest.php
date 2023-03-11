@@ -10,6 +10,7 @@ use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Littled\Tests\DataProvider\Request\CategorySelect\CollectRequestDataTestData;
 use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
+use Littled\Tests\PageContent\SiteSection\SectionContentTest;
 use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use Littled\Tests\TestHarness\Request\CategorySelectTestHarness;
 use Littled\Utility\LittledUtility;
@@ -166,6 +167,22 @@ class CategorySelectTest extends TestCase
         $this->assertNotEquals($original, $o->category_input->getInputCssClass());
         $this->assertEquals($return, $o);
     }
+
+	function testSetParentId()
+	{
+		$o = new CategorySelectTestHarness();
+		$o->pushKeywordInstance('foo');
+		$o->pushKeywordInstance('bar');
+
+		$o->setParentId(SectionContentTest::TEST_RECORD_ID);
+		$this->assertEquals(SectionContentTest::TEST_RECORD_ID, $o->getParentId());
+
+		$this->assertCount(2, $o->categories);
+		$parent_ids = array_map(function(Keyword $e) { return $e->parent_id->value; }, $o->categories);
+		foreach($parent_ids as $parent_id) {
+			$this->assertEquals(SectionContentTest::TEST_RECORD_ID, $parent_id);
+		}
+	}
 
     function testSetRequired()
     {
