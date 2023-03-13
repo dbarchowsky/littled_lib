@@ -85,6 +85,16 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
+     * Returns current list of all category options. Just returns the internal values as they are. Doesn't perform
+     * any database retrieval, like e.g. ::retrieveCategoryOptions()
+     * @return array
+     */
+    public function getCategoryOptionList(): array
+    {
+        return $this->category_input->getOptions();
+    }
+
+    /**
      * Returns all the current category terms as a string array.
      * @return string[]
      */
@@ -205,18 +215,18 @@ class CategorySelect extends MySQLConnection
 
     /**
      * Returns list of strings with all category terms in use for this content type.
-     * @return string[] List of all category terms in use for this content type.
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
-    public static function retrieveCategoryOptions(): array
+    public function retrieveCategoryOptions()
     {
         $query = 'SELECT term FROM keyword WHERE type_id = ? GROUP BY term';
         $content_type_id = static::getContentTypeId();
         $conn = new MySQLConnection();
         $data = $conn->fetchRecords($query, 'i', $content_type_id);
         $options = array_map(function ($e) { return $e->term; }, $data);
-        return array_combine($options, $options);
+        $options = array_combine($options, $options);
+        $this->category_input->setOptions($options);
     }
 
     /**

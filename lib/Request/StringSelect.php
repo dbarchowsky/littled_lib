@@ -73,7 +73,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
      */
     public function getOptions(): array
     {
-        return $this->options;
+        return $this->options ?? [];
     }
 
     /**

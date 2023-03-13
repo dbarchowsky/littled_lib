@@ -52,15 +52,15 @@ class CategorySelectTest extends TestCase
     /**
      * @throws ConfigurationUndefinedException
      */
-    function testGetCategoryTermOptions()
+    function testGetCategoryOptions()
     {
-        $options = CategorySelectTestHarness::retrieveCategoryOptions();
-        $this->assertArrayHasKey('tests', $options);        // << term shared by multiple parent records
-        $this->assertArrayHasKey('development', $options);  // << term in use by one parent record
-        $this->assertArrayHasKey('cooking', $options);      // << term in use by a different parent record
-        $this->assertEquals('tests', $options['tests']);
-        $this->assertEquals('development', $options['development']);
-        $this->assertEquals('cooking', $options['cooking']);
+        $o = new CategorySelectTestHarness();
+        $this->assertEquals([], $o->getCategoryOptionList());
+
+        $o->retrieveCategoryOptions();
+        $this->assertArrayHasKey('tests', $o->category_input->options);
+        $this->assertArrayHasKey('tests', $o->category_input->getOptions());
+        $this->assertArrayHasKey('tests', $o->getCategoryOptionList());
     }
 
     /**
@@ -136,6 +136,23 @@ class CategorySelectTest extends TestCase
         $this->assertGreaterThan(0, $o->categories);
         $this->assertContains('development', $o->getCategoryTermList());
         $this->assertTrue($o->category_input->lookupValueInSelectedValues('development'));
+    }
+
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    function testRetrieveCategoryOptions()
+    {
+        $o = new CategorySelectTestHarness();
+        $this->assertFalse(isset($o->category_input->options));
+
+        $o->retrieveCategoryOptions();
+        $this->assertArrayHasKey('tests', $o->category_input->options);        // << term shared by multiple parent records
+        $this->assertArrayHasKey('development', $o->category_input->options);  // << term in use by one parent record
+        $this->assertArrayHasKey('cooking', $o->category_input->options);      // << term in use by a different parent record
+        $this->assertEquals('tests', $o->category_input->options['tests']);
+        $this->assertEquals('development', $o->category_input->options['development']);
+        $this->assertEquals('cooking', $o->category_input->options['cooking']);
     }
 
     function testSetContainerCSSClass()

@@ -43,7 +43,7 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
      */
     public function getOptions(): array
     {
-        return $this->options;
+        return $this->options ?? [];
     }
 
     /**
