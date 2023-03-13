@@ -18,6 +18,17 @@ class IntegerSelectTest extends TestCase
         RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 
+    function doesAllowMultiple()
+    {
+        $o = new IntegerSelect('Test Input', 'intKey');
+
+        $o->allowMultiple(true);
+        $this->assertTrue($o->doesAllowMultiple());
+
+        $o->allowMultiple(false);
+        $this->assertFalse($o->doesAllowMultiple());
+    }
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Request\IntegerSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
      * @param bool $expected
@@ -42,6 +53,6 @@ class IntegerSelectTest extends TestCase
 	function testRender(IntegerSelectTestData $data)
 	{
 		$this->expectOutputRegex($data->expected);
-		$data->input->render($data->override_label, $data->css_class, $data->options);
+		$data->input->setOptions($data->options)->render($data->override_label, $data->css_class);
 	}
 }

@@ -12,6 +12,18 @@ interface RequestSelectInterface
     public function allowMultiple(bool $allow=true);
 
     /**
+     * Allow multiple flag getter.
+     * @return bool
+     */
+    public function doesAllowMultiple(): bool;
+
+    /**
+     * Dropdown menu options.
+     * @return array
+     */
+    public function getOptions(): array;
+
+    /**
      * Options length getter.
      * @return int|null
      */

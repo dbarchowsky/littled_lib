@@ -32,6 +32,17 @@ class StringSelectTest extends TestCase
         $this->assertFalse($o->allow_multiple);
     }
 
+    function doesAllowMultiple()
+    {
+        $o = new StringSelect('Test Input', 'intKey');
+
+        $o->allowMultiple(true);
+        $this->assertTrue($o->doesAllowMultiple());
+
+        $o->allowMultiple(false);
+        $this->assertFalse($o->doesAllowMultiple());
+    }
+
     /**
      * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\CollectRequestDataSingleTestDataProvider::testProvider()
      * @param ?string $expected
@@ -103,7 +114,9 @@ class StringSelectTest extends TestCase
 	function testRender(StringSelectTestData $data)
 	{
 		$this->expectOutputRegex($data->expected);
-		$data->input->render($data->override_label, $data->css_class, $data->options);
+		$data->input
+            ->setOptions($data->options)
+            ->render($data->override_label, $data->css_class);
 	}
 
     /**

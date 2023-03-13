@@ -52,6 +52,14 @@ class StringSelect extends StringInput implements RequestSelectInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function doesAllowMultiple(): bool
+    {
+        return $this->allow_multiple;
+    }
+
+    /**
      * Returns input size attribute markup to inject into template.
      * @return string
      */
@@ -60,7 +68,15 @@ class StringSelect extends StringInput implements RequestSelectInterface
         return ((0 < $this->options_length)?(" size=\"$this->options_length\""):(''));
     }
 
-	/**
+    /**
+     * @inheritDoc
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
 	 * @inheritDoc
 	 */
 	public function getOptionsLength(): ?int

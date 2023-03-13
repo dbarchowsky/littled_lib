@@ -15,6 +15,18 @@ class BooleanSelectTest extends TestCase
         RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 
+    function doesAllowMultiple()
+    {
+        $o = new BooleanSelect('Test Input', 'boolKey');
+
+        // always false for BooleanSelect
+        $o->allowMultiple(true);
+        $this->assertFalse($o->doesAllowMultiple());
+
+        $o->allowMultiple(false);
+        $this->assertFalse($o->doesAllowMultiple());
+    }
+
     public function testLookupValueInSelectedValuesWhenUninitialized()
     {
         $o = new BooleanSelect('Test Input', 'testBool');
@@ -48,7 +60,9 @@ class BooleanSelectTest extends TestCase
     function testRenderInput(BooleanSelectTestData $data)
     {
         $this->expectOutputRegex($data->expected);
-        $data->input->renderInput($data->label_override, $data->options);
+        $data->input
+            ->setOptions(array('' => ' ', '1' => 'enabled', '0' => 'disabled'))
+            ->renderInput($data->label_override, $data->options);
     }
 
     function testSetOptions()

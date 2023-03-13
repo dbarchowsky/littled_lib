@@ -28,6 +28,15 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function doesAllowMultiple(): bool
+    {
+        // always false for boolean dropdowns
+        return false;
+    }
+
+    /**
      * Returns input size attribute markup to inject into template.
      * @return string
      */
