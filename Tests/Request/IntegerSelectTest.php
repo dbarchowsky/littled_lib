@@ -34,10 +34,10 @@ class IntegerSelectTest extends TestCase
      * @param bool $expected
      * @param int|int[]|null $selected_values
      * @param bool $allow_multiple
-     * @param int $value
+     * @param ?int $value
      * @return void
      */
-    function testLookupValueInSelectedValues(bool $expected, $selected_values, bool $allow_multiple, int $value)
+    function testLookupValueInSelectedValues(bool $expected, $selected_values, bool $allow_multiple, ?int $value)
     {
         $o = new IntegerSelect('Test Input', 'testInput');
         $o->allow_multiple = $allow_multiple;

@@ -64,7 +64,7 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
             return in_array($value, $this->value);
         }
         else {
-            return ($value === $this->value);
+            return ($value!==null) && ($value === $this->value);
         }
     }
 

@@ -15,6 +15,7 @@ class IntegerSelectTestDataProvider
             array(true, 8, false, 8),
             array(false, null, false, 8),
             array(false, [], false, 9),
+	        array(false, [4,5,6,7], false, null),
         );
     }
 

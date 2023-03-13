@@ -95,7 +95,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
             return in_array($value, $this->value);
         }
         else {
-            return ($value === $this->value);
+            return ($value!=='') && ($value === $this->value);
         }
     }
 

@@ -18,6 +18,7 @@ class StringSelectTestDataProvider
             array(false, true, [''], 'foo'),
             array(false, true, [], 'foo'),
             array(false, false, '', 'foo'),
+	        array(false, false, '', ''),
         );
     }
 
