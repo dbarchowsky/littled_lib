@@ -6,6 +6,18 @@ use Littled\Request\IntegerSelect;
 
 class IntegerSelectTestDataProvider
 {
+    public static function lookupValueInSelectedValuesTestProvider(): array
+    {
+        return array(
+            array(true, [4,6,2], true, 6),
+            array(false, [4,6,2], true, 7),
+            array(false, 8, false, 7),
+            array(true, 8, false, 8),
+            array(false, null, false, 8),
+            array(false, [], false, 9),
+        );
+    }
+
 	public static function renderTestProvider(): array
 	{
 		return array(

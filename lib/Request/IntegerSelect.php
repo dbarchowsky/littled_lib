@@ -2,20 +2,23 @@
 namespace Littled\Request;
 
 
-class IntegerSelect extends IntegerInput
+class IntegerSelect extends IntegerInput implements RequestSelectInterface
 {
-    public static string $input_template_filename = 'string-select-input.php';
+    public static string    $input_template_filename = 'string-select-input.php';
     protected static string $template_filename = 'string-select-field.php';
-    public bool $allow_multiple = false;
-    public ?int $options_length = null;
+    public bool             $allow_multiple = false;
+    public ?int             $options_length = null;
+    /** @var int|int[] */
+    public $value;
+    /** @var int[]          List of available options to include in dropdown menus */
+    public array            $options;
 
     /**
-     * Allow multiple setter. If set to true, multiple choices can be selected from the drop-down options.
-     * @return void
+     * @inheritDoc
      */
-    public function allowMultiple()
+    public function allowMultiple(bool $allow=true)
     {
-        $this->allow_multiple = true;
+        $this->allow_multiple = $allow;
     }
 
     /**
@@ -28,14 +31,30 @@ class IntegerSelect extends IntegerInput
     }
 
     /**
-     * Options length getter.
-     * @return int|null
+     * @inheritDoc
      */
     public function getOptionsLength(): ?int
     {
         return $this->options_length;
     }
 
+    /**
+     * @inheritDoc
+     * @param null|int $value
+     */
+    public function lookupValueInSelectedValues($value): bool
+    {
+        if (is_array($this->value)) {
+            return in_array($value, $this->value);
+        }
+        else {
+            return ($value === $this->value);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function render(string $label = '', string $css_class = '', array $context=[])
     {
         if (!array_key_exists('options', $context)) {
@@ -45,12 +64,21 @@ class IntegerSelect extends IntegerInput
     }
 
     /**
-     * Options length setter. If this value is set, the number of options displayed will be limited to length value.
-     * @param int $len
-     * @return void
+     * @inheritDoc
      */
     public function setOptionsLength(int $len)
     {
         $this->options_length = $len;
+    }
+
+    /**
+     * @inheritDoc
+     * @param int[] $options
+     * @return $this
+     */
+    public function setOptions(array $options): IntegerSelect
+    {
+        $this->options = $options;
+        return $this;
     }
 }

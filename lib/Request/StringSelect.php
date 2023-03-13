@@ -1,26 +1,22 @@
 <?php
 namespace Littled\Request;
 
-
 use Littled\Validation\Validation;
 
-class StringSelect extends StringInput
+
+class StringSelect extends StringInput implements RequestSelectInterface
 {
-	/** @var string */
-	protected static string $input_template_filename = 'string-select-input.php';
-	/** @var string */
-	protected static string $template_filename = 'string-select-field.php';
-	/** @var bool */
-	public bool $allow_multiple = false;
-	/** @var ?int */
-	public ?int $options_length = null;
+    public bool                 $allow_multiple = false;
+	protected static string     $input_template_filename = 'string-select-input.php';
+	protected static string     $template_filename = 'string-select-field.php';
+    /** @var int[]              List of available options to include in dropdown menus */
+    public array                $options;
+	public ?int                 $options_length = null;
     /** @var string[]|string */
-    public $value;
+    public                      $value;
 
 	/**
-	 * Allow multiple setter. If set to true, multiple choices can be selected from the drop-down options.
-     * @param bool $allow Flag indicating if multiple values are allowed or not.
-	 * @return void
+	 * @inheritDoc
 	 */
 	public function allowMultiple(bool $allow=true)
 	{
@@ -65,8 +61,7 @@ class StringSelect extends StringInput
     }
 
 	/**
-	 * Options length getter.
-	 * @return int|null
+	 * @inheritDoc
 	 */
 	public function getOptionsLength(): ?int
 	{
@@ -74,12 +69,11 @@ class StringSelect extends StringInput
 	}
 
     /**
-     * Test if the supplied value matches any of the current internal selected category values. Returns TRUE if
-     * $value matches a selected category value.
-     * @param string $value
+     * @inheritDoc
+     * @param null|string $value
      * @return bool
      */
-    public function lookupValueInSelectedValues(string $value): bool
+    public function lookupValueInSelectedValues($value): bool
     {
         if (is_array($this->value)) {
             return in_array($value, $this->value);
@@ -132,14 +126,23 @@ class StringSelect extends StringInput
     }
 
 	/**
-	 * Options length setter. If this value is set, the number of options displayed will be limited to length value.
-	 * @param int $len
-	 * @return void
+	 * @inheritDoc
 	 */
 	public function setOptionsLength(int $len)
 	{
 		$this->options_length = $len;
 	}
+
+    /**
+     * @inheritDoc
+     * @param string[] $options
+     * @return $this
+     */
+    public function setOptions(array $options): StringSelect
+    {
+        $this->options = $options;
+        return $this;
+    }
 
     /**
      * @inheritDoc
