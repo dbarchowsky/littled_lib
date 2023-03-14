@@ -205,4 +205,14 @@ abstract class ContentController
         }
         $content->read();
     }
+
+	/**
+	 * Respond to request with 404 error
+	 * @return void
+	 */
+	public static function send404ResponseAndExit()
+	{
+		http_response_code(404);
+		exit;
+	}
 }
