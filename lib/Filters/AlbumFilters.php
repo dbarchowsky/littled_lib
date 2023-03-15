@@ -273,7 +273,7 @@ class AlbumFilters extends ContentFilters
 	 * @throws ResourceNotFoundException
 	 * @throws Exception
 	 */
-	public function searchTitles(): array
+	public function retrieveKeywordSearchResults(): array
 	{
 		$data = $this->fetchRecords(
 			"CALL albumTitlesSelect(?,?,?,?,@total_matches)",

@@ -148,7 +148,16 @@ class FilterCollection extends FilterCollectionProperties
 		}
 	}
 
-	/**
+    /**
+     * Returns the procedure call, type string, and arguments used in the searchTitles() method.
+     * @return array
+     */
+    protected function formatKeywordSearchQuery(): array
+    {
+        return array('', '', null);
+    }
+
+    /**
 	 * Format and return the query string that will retrieve filters listings data.
 	 * @param bool $calculate_offset Optional flag to prevent the offset to the start of the records from being recalculated.
      * @returns array Returns an array where the first element is a sql query followed by an array of variables to bind
@@ -196,15 +205,6 @@ class FilterCollection extends FilterCollectionProperties
         }
         return ($this->query_string);
     }
-
-	/**
-	 * Returns the procedure call, type string, and arguments used in the searchTitles() method.
-	 * @return array
-	 */
-	protected function formatTitleSearchQuery(): array
-	{
-		return array('', '', null);
-	}
 
 	/**
 	 * Autoload listings setting getter.
@@ -399,7 +399,25 @@ class FilterCollection extends FilterCollectionProperties
 		}
 	}
 
-	/**
+    /**
+     * Retrieves recordset containing codes or titles matching the current keyword filter that can then be used to populate autocomplete routines.
+     * @return array Record set containing matching package records
+     * @throws Exception
+     */
+    public function retrieveKeywordSearchResults(): array
+    {
+        $args = $this->formatKeywordSearchQuery();
+        if (count($args) > 1 && $args[1]) {
+            $data = call_user_func_array([$this, 'fetchRecords'], $args);
+        }
+        else {
+            $data = $this->fetchRecords($args[0]);
+        }
+        $this->getProcedurePageCount();
+        return $data;
+    }
+
+    /**
 	 * Retrieves listings data from database using object's filter values.
 	 * @param bool $calculate_offset Optional flag to prevent the offset to the first record in the listings from being recalculated prior to retrieving the listings records.
 	 * @return array Listings data
@@ -455,24 +473,6 @@ class FilterCollection extends FilterCollectionProperties
 
 		// At this point, either the previous or next record exist outside the set of listings representing the current page of listings.
 		$this->setOutOfBoundNeighborIds($record_id, $page_position);
-	}
-
-	/**
-	 * Retrieves recordset containing codes or titles matching the current keyword filter that can then be used to populate autocomplete routines.
-	 * @return array Record set containing matching package records
-	 * @throws Exception
-	 */
-	public function searchTitles(): array
-	{
-		$args = $this->formatTitleSearchQuery();
-		if (count($args) > 1 && $args[1]) {
-			$data = call_user_func_array([$this, 'fetchRecords'], $args);
-		}
-		else {
-			$data = $this->fetchRecords($args[0]);
-		}
-		$this->getProcedurePageCount();
-		return $data;
 	}
 
 	/**

@@ -34,19 +34,19 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
     /**
 	 * @throws Exception
 	 */
-	function testSearchTitles()
+	function testRetrieveKeywordSearchResults()
 	{
 		$f = new TestTableFilters();
 		$f->page->value = null;
 		$f->listings_length->value = null;
 		$f->name->value = '';
 
-		$data = $f->searchTitles();
+		$data = $f->retrieveKeywordSearchResults();
 		$data1_size = count($data);
 		$this->assertGreaterThan(0, $data1_size);
 
 		$f->name->value = 'foo';
-		$data = $f->searchTitles();
+		$data = $f->retrieveKeywordSearchResults();
 		$this->assertGreaterThan(0, count($data));
 		$this->assertGreaterThan(count($data), $data1_size);
 	}

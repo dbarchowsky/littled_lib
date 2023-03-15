@@ -48,7 +48,7 @@ class TestTableFilters extends FilterCollectionChild
 			&$this->date_before->value);
 	}
 
-	protected function formatTitleSearchQuery(): array
+	protected function formatKeywordSearchQuery(): array
 	{
 		return array(
 			'CALL testTableTitlesSelect (?,?,?,@total_matches)',
