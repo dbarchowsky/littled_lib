@@ -131,7 +131,7 @@ abstract class APIRoute extends PageContentBase
     public function collectFiltersRequestData(?array $src=null, ?int $content_type_id=null)
     {
 		if ($src === null) {
-			$src = self::getAjaxRequestData() ?: $_POST;
+			$src = static::getAjaxRequestData() ?: $_POST;
 		}
         if (!isset($this->filters)) {
             if (!$content_type_id) {
