@@ -483,7 +483,7 @@ class Validation
 	 */
 	public static function parseBoolean( $value ): ?bool
 	{
-        if ($value===null) {
+        if ($value===null || $value==='') {
             return null;
         }
 		if (is_bool($value)) {
