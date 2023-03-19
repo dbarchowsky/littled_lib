@@ -57,12 +57,16 @@ class TinyMCEUploader
      */
     public function formatTargetPath(string $upload_path): string
     {
-        $lp = strpos(rtrim($upload_path, '/'), rtrim($this->image_base_path, '/'));
+        // get location of image base path in full filesystem path
+        $lp = strpos($upload_path, rtrim($this->image_base_path, '/'));
         if ($lp===false) {
             throw new InvalidValueException('Image base path not found in upload path.');
         }
+        // anything in the upload path to the right of the image base path,
+        // e.g. directories organizing assets by date and filename
         $right = substr($upload_path, $lp+strlen($this->image_base_path));
-        return LittledUtility::joinPaths('/', $this->image_base_path, $right, '/');
+        // return image base + extras in upload path + filename
+        return LittledUtility::joinPaths('/', $this->image_base_path, $right);
     }
 
     /**
