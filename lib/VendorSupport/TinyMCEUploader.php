@@ -110,7 +110,7 @@ class TinyMCEUploader
     /**
      * Perform checks on the upload. Move the upload to its final location. Return JSON expected by the editor to
      * confirm that the image was successfully uploaded.
-     * @return false|string JSON string to send to editor.
+     * @return false|array JSON string to send to editor.
      * @throws InvalidValueException
      */
     public function processImageUpload()
@@ -131,7 +131,7 @@ class TinyMCEUploader
             // Respond to the successful upload with JSON.
             // Use a location key to specify the path to the saved image resource.
             // { location : '/your/uploaded/image/file'}
-            return json_encode(array('location' => $location));
+            return array('location' => $location);
         }
         else {
             // Notify editor that the upload failed
