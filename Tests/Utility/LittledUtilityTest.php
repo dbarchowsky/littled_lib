@@ -19,6 +19,18 @@ class LittledUtilityTest extends TestCase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::overlapTestProvider()
+     * @param string $expected
+     * @param string $a
+     * @param string $b
+     * @return void
+     */
+    function testOverlap(string $expected, string $a, string $b)
+    {
+        $this->assertEquals($expected, LittledUtility::overlap($a, $b));
+    }
+
+    /**
      * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
      * @param string $expected
      * @param string $path

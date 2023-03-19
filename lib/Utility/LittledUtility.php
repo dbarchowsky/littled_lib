@@ -34,6 +34,22 @@ class LittledUtility
 		return preg_replace('#/+#','/',join('/', $paths));
 	}
 
+    public static function overlap(string $a, string $b)
+    {
+        if (!strlen($b)) {
+            return '';
+        }
+
+        if (strpos($a, $b) !== false) {
+            return $b;
+        }
+
+        $left = LittledUtility::overlap($a, substr($b, 1));
+        $right = LittledUtility::overlap($a, substr($b, 0, -1));
+
+        return strlen($left) > strlen($right) ? $left : $right;
+    }
+
     /**
      * Strips levels off a filesystem path.
      * @param string $path Path to edit.

@@ -45,6 +45,18 @@ class LittledUtilityTestDataProvider
 		);
 	}
 
+    public static function overlapTestProvider(): array
+    {
+        return array(
+            array('first string', 'my first string', 'first string then some'),
+            array(' first string ', 'my first string bro', 'your first string homie'),
+            array('abcd', 'abcd9876', 'abcd12345'),
+            array('12345', 'zxyw12345', 'abcd12345'),
+            array('12345', 'zxyw12345', 'abcd12345a'),
+            array('12345', 'zxyw12345a', 'abcd12345'),
+            array('', 'no overlap', '78549449')
+        );
+    }
 
     public static function stripPathLevelsTestProvider(): array
     {
