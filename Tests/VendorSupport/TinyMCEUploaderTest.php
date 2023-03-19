@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Tests\VendorSupport;
 
+use Littled\Exception\InvalidValueException;
 use Littled\Tests\TestHarness\VendorSupport\TinyMCEUploaderTestHarness;
 use PHPUnit\Framework\TestCase;
 
@@ -74,24 +75,47 @@ class TinyMCEUploaderTest extends TestCase
         unset($_SERVER['REQUEST_METHOD']);
     }
 
-    function testGetDestinationPath()
+    /**
+     * @dataProvider \Littled\Tests\DataProvider\VendorSupport\TinyMCEUploaderTestDataProvider::formatTargetPathTestProvider()
+     * @param string $expected
+     * @param string $expected_exception
+     * @param string $upload_path
+     * @param string $image_base_path
+     * @return void
+     * @throws InvalidValueException
+     */
+    function testFormatTargetPath(
+        string $expected,
+        string $expected_exception,
+        string $upload_path,
+        string $image_base_path)
+    {
+        $o = new TinyMCEUploaderTestHarness();
+        $o->setImageBasePath($image_base_path);
+        if ($expected_exception) {
+            $this->expectException($expected_exception);
+        }
+        $this->assertEquals($expected, $o->formatTargetPath($upload_path));
+    }
+
+    function testFormatUploadPath()
     {
         $o = new TinyMCEUploaderTestHarness();
         $o->setOrganizeByDate(false);
-        $this->assertEquals('/var/www/html/images/', $o->getDestinationPath());
+        $this->assertEquals('/var/www/html/images/', $o->formatUploadPath());
 
         $o->setUploadPath('/var/www/html/images/new_dir');
-        $this->assertEquals('/var/www/html/images/new_dir/', $o->getDestinationPath());
+        $this->assertEquals('/var/www/html/images/new_dir/', $o->formatUploadPath());
     }
 
-    function testGetDestinationPathWithDates()
+    function testFormatUploadPathWithDates()
     {
         $o = new TinyMCEUploaderTestHarness();
         $o->setOrganizeByDate(true);
 
         $year = date('Y');
         $month = date('m');
-        $this->assertEquals("/var/www/html/images/$year/$month/", $o->getDestinationPath());
+        $this->assertEquals("/var/www/html/images/$year/$month/", $o->formatUploadPath());
     }
 
     /**

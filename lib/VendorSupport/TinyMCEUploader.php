@@ -1,15 +1,20 @@
 <?php
 namespace Littled\VendorSupport;
 
+use Littled\Exception\InvalidValueException;
+use Littled\Utility\LittledUtility;
+
 class TinyMCEUploader
 {
     /** @var string[]       List of allowed file types by extension */
     protected static array  $allowed_extensions = array('gif', 'jpg', 'jpeg', 'png', 'webp');
     /** @var string[]       List of allowed origins for image uploads. */
     protected array         $allowed_origins = [];
+    /** @var string         Path to images relative to server root. Used to format the href attribute value of img tags */
+    protected string        $image_base_path;
     /** @var bool           If TRUE, image uploads will be organized by year and month under the upload directory  */
     protected bool          $organize_by_date = false;
-    /** @var string         Path to the location where uploads are stored. */
+    /** @var string         Full path on the filesystem to the location where uploads are stored. */
     protected string        $upload_path;
 
     /**
@@ -45,11 +50,27 @@ class TinyMCEUploader
     }
 
     /**
+     * Returns the image base path with year and month directories added onto it if images are organized by date.
+     * @param string $upload_path
+     * @return string
+     * @throws InvalidValueException
+     */
+    public function formatTargetPath(string $upload_path): string
+    {
+        $lp = strpos(rtrim($upload_path, '/'), rtrim($this->image_base_path, '/'));
+        if ($lp===false) {
+            throw new InvalidValueException('Image base path not found in upload path.');
+        }
+        $right = substr($upload_path, $lp+strlen($this->image_base_path));
+        return LittledUtility::joinPaths('/', $this->image_base_path, $right, '/');
+    }
+
+    /**
      * Returns path to directory where the image upload will be stored. Directories with the current year and month
      * will be appended to the path if the object's $organize_by_date flag is set to TRUE.
      * @return string Path to location where images will be stored.
      */
-    protected function getDestinationPath(): string
+    protected function formatUploadPath(): string
     {
         $path = rtrim($this->upload_path, '/ ').'/';
         if (!$this->organize_by_date) {
@@ -72,24 +93,21 @@ class TinyMCEUploader
      * Move the temporary upload file to its permanent location on the server. Return the path to the final location.
      * @param array $temp
      * @return string
+     * @throws InvalidValueException
      */
     protected function moveUpload(array $temp): string
     {
         // Accept upload if there was no origin, or if it is an accepted origin
-        $dest_path = $this->getDestinationPath() . $temp['name'];
+        $dest_path = $this->formatUploadPath() . $temp['name'];
         move_uploaded_file($temp['tmp_name'], $dest_path);
-
-        // Determine the base URL
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? "https://" : "http://";
-        $baseurl = $protocol . $_SERVER["HTTP_HOST"] . rtrim(dirname($_SERVER['REQUEST_URI']), "/") . "/";
-
-        return $baseurl.$dest_path;
+        return $this->formatTargetPath($dest_path);
     }
 
     /**
      * Perform checks on the upload. Move the upload to its final location. Return JSON expected by the editor to
      * confirm that the image was successfully uploaded.
      * @return false|string JSON string to send to editor.
+     * @throws InvalidValueException
      */
     public function processImageUpload()
     {
@@ -116,6 +134,16 @@ class TinyMCEUploader
             header("HTTP/1.1 500 Server Error");
         }
         return false;
+    }
+
+    /**
+     * Image base path setter.
+     * @param string $path
+     * @return void
+     */
+    public function setImageBasePath(string $path)
+    {
+        $this->image_base_path = $path;
     }
 
     /**

@@ -31,9 +31,9 @@ class TinyMCEUploaderTestHarness extends TinyMCEUploader
      * @inheritDoc
      * Public interface for tests
      */
-    public function getDestinationPath(): string
+    public function formatUploadPath(): string
     {
-        return parent::getDestinationPath();
+        return parent::formatUploadPath();
     }
 
     /**
