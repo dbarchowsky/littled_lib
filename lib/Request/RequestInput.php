@@ -48,6 +48,7 @@ class RequestInput
 	/** @var bool               Flag indicating that the object value should not be assigned from request variable values. */
 	public bool                 $bypass_collect_request_data=false;
 
+    public array $attributes=[];
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
 	 * when rendering the input. If TRUE, a placeholder attribute will be added
@@ -485,6 +486,18 @@ class RequestInput
     public function setAsRequired()
     {
         $this->required = true;
+    }
+
+    /**
+     * Sets what will be an attribute of the html element representing the form input that collects this variable.
+     * @param string $key Attribute name
+     * @param mixed $value Attribute value
+     * @return $this
+     */
+    public function setAttribute(string $key, $value): RequestInput
+    {
+        $this->attributes[$key] = $value;
+        return $this;
     }
 
     /**

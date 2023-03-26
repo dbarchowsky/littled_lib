@@ -183,6 +183,25 @@ class RequestInputTest extends TestCase
         $this->obj->saveInForm();
     }
 
+    function testSetAttribute()
+    {
+        $o = new RequestInput('Input Test', 'testKey');
+        $this->assertCount(0, $o->attributes);
+
+        $r = $o->setAttribute('data-tid', 3);
+        $this->assertEquals($o, $r);
+        $this->assertCount(1, $o->attributes);
+        $this->assertEquals(3, $o->attributes['data-tid']);
+
+        $o->setAttribute('color', 'blue');
+        $this->assertCount(2, $o->attributes);
+        $this->assertEquals('blue', $o->attributes['color']);
+
+        $o->setAttribute('color', 'red');
+        $this->assertCount(2, $o->attributes);
+        $this->assertEquals('red', $o->attributes['color']);
+    }
+
     public function testSetContainerCSSClass()
     {
         $o = new RequestInput('Container Test', 'ctKey');
