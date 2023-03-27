@@ -32,6 +32,15 @@ class RequestInputTestDataProvider
         );
     }
 
+    public static function formatAttributeMarkupTestProvider(): array
+    {
+        return array(
+            array('', []),
+            array(' data-tid="3"', array('data-tid' => 3)),
+            array(' foo="bar" biz="bash"', array('foo' => 'bar', 'biz' => 'bash')),
+        );
+    }
+
     public static function formatClassAttributeTestProvider(): array
     {
         return array(

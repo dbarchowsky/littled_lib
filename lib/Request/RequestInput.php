@@ -169,6 +169,22 @@ class RequestInput
 	}
 
     /**
+     * Returns string containing markup containing all attributes and their values stored in the object.
+     * @return string
+     */
+    public function formatAttributesMarkup(): string
+    {
+        $markup = implode(' ', array_map(
+            function($key, $value) {return "$key=\"$value\""; },
+            array_keys($this->attributes),
+            $this->attributes));
+        if($markup) {
+            $markup = ' '.$markup;
+        }
+        return $markup;
+    }
+
+    /**
      * Formats the css class attribute string to be injected into markup of the input's container element.
      * @param string $css_class (Optional) An additional CSS class to apply to the element in addition to the CSS class stored in the object.
      * @param callable|null $css_callback (Optional) Routine to use to fetch the class from the input object that will be applied to the element. The markup element is either the input element itself or its container. Defaults to applying the input elements css class.

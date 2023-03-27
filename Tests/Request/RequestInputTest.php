@@ -71,6 +71,21 @@ class RequestInputTest extends TestCase
 	}
 
     /**
+     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::formatAttributeMarkupTestProvider()
+     * @param string $expected
+     * @param array $attributes
+     * @return void
+     */
+    function testFormatAttributeMarkup(string $expected, array $attributes)
+    {
+        $o = new RequestInput('Test Label', 'testKey');
+        foreach($attributes as $key => $value) {
+            $o->setAttribute($key, $value);
+        }
+        $this->assertEquals($expected, $o->formatAttributesMarkup());
+    }
+
+    /**
      * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::formatClassAttributeTestProvider()
      * @param string $expected
      * @param string $css_class
