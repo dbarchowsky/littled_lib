@@ -153,7 +153,7 @@ class NavigationMenuBase
         $node = $this->last;
         if (isset($node->prev_node)) {
             if ($node->prev_node===$this->first) {
-                // two nodes on the list; the link to a previous node should not be set anymore
+                // a single node remaining in the list; the link to a previous node should not be set anymore
                 $this->last = $this->first;
                 unset($this->first->next_node);
             }
@@ -186,7 +186,41 @@ class NavigationMenuBase
         }
     }
 
-    /**
+	public function removeByLabel(string $label)
+	{
+		if (isset($this->first)) {
+			$node = $this->first;
+			while ($node) {
+				if ($label == $node->label) {
+					if (isset($node->prev_node) && isset($node->next_node)) {
+						// matching node is in the middle of the list
+						$node->prev_node->next_node = $node->next_node;
+						$node->next_node->prev_node = $node->prev_node;
+					}
+					elseif (isset($node->prev_node)) {
+						// matching node found at the end of the list
+						$this->last = $node->prev_node;
+						unset($this->last->next_node);
+					}
+					elseif (isset($node->next_node)) {
+						// matching node found at the start of the list
+						$this->first = $node->next_node;
+						unset($this->first->prev_node);
+					}
+					else {
+						// matching node was the only node on the list
+						unset($this->first);
+						unset($this->last);
+					}
+					// clean up the removed node
+					unset($node);
+				}
+				$node = ((isset($node->next_node))?($node->next_node):(null));
+			}
+		}
+	}
+
+	/**
 	 * Outputs navigation menu markup.
 	 * @throws ResourceNotFoundException
 	 */

@@ -17,6 +17,13 @@ class PageConfigTest extends TestCase
 		LittledGlobals::setLocalTemplatesPath(SHARED_CMS_TEMPLATE_DIR);
 	}
 
+	protected function tearDown(): void
+	{
+		parent::tearDown();
+		PageConfig::destroyBreadcrumbs();
+		PageConfig::destroyUtilityLinks();
+	}
+
 	public function testAddUtilityLink()
     {
         $link1 = array('label' => 'label-one', 'url' => '/url-one');
@@ -68,7 +75,35 @@ class PageConfigTest extends TestCase
 		$this->assertEquals($css_class, PageConfig::getContentCSSClass(), 'Content CSS class assignment');
 	}
 
-    public function testGetPageConfig()
+	public function testDestroyBreadcrumbs()
+	{
+		// test with uninitialized breadcrumbs
+		PageConfig::destroyBreadcrumbs();
+		$this->assertNull(PageConfig::getBreadcrumbs());
+
+		PageConfig::addBreadcrumb('foo', '/foo');
+		PageConfig::addBreadcrumb('bar', '/foo');
+
+		// test with existing nodes
+		PageConfig::destroyBreadcrumbs();
+		$this->assertNull(PageConfig::getBreadcrumbs());
+	}
+
+	public function testDestroyUtilityLinks()
+	{
+		// test with uninitialized breadcrumbs
+		PageConfig::destroyUtilityLinks();
+		$this->assertNull(PageConfig::getUtilityLinks());
+
+		PageConfig::addUtilityLink('foo', '/foo');
+		PageConfig::addUtilityLink('bar', '/foo');
+
+		// test with existing nodes
+		PageConfig::destroyUtilityLinks();
+		$this->assertNull(PageConfig::getUtilityLinks());
+	}
+
+	public function testGetPageConfig()
     {
         $this->assertEquals('', PageConfig::getPageStatus());
     }
@@ -83,6 +118,73 @@ class PageConfigTest extends TestCase
         $preloads = PageConfig::getPreloads();
         $this->assertCount(1, $preloads);
     }
+
+	public function testRemoveBreadcrumbWhenEmpty()
+	{
+		$this->assertEmpty(PageConfig::getBreadcrumbs());
+
+		PageConfig::removeBreadcrumb();
+		$this->assertEmpty(PageConfig::getBreadcrumbs());
+
+		PageConfig::removeBreadcrumb('foo');
+		$this->assertEmpty(PageConfig::getBreadcrumbs());
+	}
+
+	public function testRemoveBreadcrumbWithoutLabel()
+	{
+		PageConfig::addBreadcrumb('foo', '/foo');
+		$this->assertEquals(1, PageConfig::getBreadcrumbs()->getNodeCount());
+
+		PageConfig::addBreadcrumb('bar', '/bar');
+		PageConfig::addBreadcrumb('biz', '/biz');
+		$this->assertEquals(3, PageConfig::getBreadcrumbs()->getNodeCount());
+
+		PageConfig::removeBreadcrumb();
+		$this->assertEquals(2, PageConfig::getBreadcrumbs()->getNodeCount());
+		$this->assertEquals('foo', PageConfig::getBreadcrumbs()->first->label);
+		$this->assertEquals('bar', PageConfig::getBreadcrumbs()->last->label);
+
+		PageConfig::removeBreadcrumb();
+		$this->assertEquals(1, PageConfig::getBreadcrumbs()->getNodeCount());
+		$this->assertEquals('foo', PageConfig::getBreadcrumbs()->first->label);
+		$this->assertEquals('foo', PageConfig::getBreadcrumbs()->last->label);
+	}
+
+	public function testRemoveFirstBreadcrumbByLabel()
+	{
+		PageConfig::addBreadcrumb('foo', '/foo');
+		PageConfig::addBreadcrumb('bar', '/bar');
+
+		PageConfig::removeBreadcrumb('foo');
+		$this->assertEquals(1, PageConfig::getBreadcrumbs()->getNodeCount());
+		$this->assertEquals('bar', PageConfig::getBreadcrumbs()->first->label);
+		$this->assertEquals('bar', PageConfig::getBreadcrumbs()->last->label);
+
+		PageConfig::addBreadcrumb('biz', '/biz');
+		PageConfig::addBreadcrumb('bash', '/bash');
+		$this->assertEquals(3, PageConfig::getBreadcrumbs()->getNodeCount());
+
+		PageConfig::removeBreadcrumb('bar');
+		$this->assertEquals(2, PageConfig::getBreadcrumbs()->getNodeCount());
+		$this->assertEquals('biz', PageConfig::getBreadcrumbs()->first->label);
+		$this->assertEquals('bash', PageConfig::getBreadcrumbs()->last->label);
+	}
+
+	public function testRemoveSolitaryBreadcrumbByLabel()
+	{
+		PageConfig::addBreadcrumb('foo', '/foo');
+		$this->assertEquals(1, PageConfig::getBreadcrumbs()->getNodeCount());
+
+		PageConfig::removeBreadcrumb('foo');
+		$this->assertEquals(0, PageConfig::getBreadcrumbs()->getNodeCount());
+
+		// confirm that removing a label that doesn't exist in the list
+		PageConfig::addBreadcrumb('bar', '/bar');
+		$this->assertEquals(1, PageConfig::getBreadcrumbs()->getNodeCount());
+
+		PageConfig::removeBreadcrumb('biz');
+		$this->assertEquals(1, PageConfig::getBreadcrumbs()->getNodeCount());
+	}
 
 	function testRegisterScript()
 	{

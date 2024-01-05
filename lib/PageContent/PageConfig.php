@@ -32,10 +32,10 @@ class PageConfig
 	protected static PageMetadata $metadata;
 	/** @var string Status message passed from one page to another */
 	protected static string $status='';
-	/** @var NavigationMenu Page utility links list. */
-	protected static NavigationMenu $utilityLinks;
-	/** @var Breadcrumbs Page breadcrumb list. */
-	protected static Breadcrumbs $breadcrumbs;
+	/** @var ?NavigationMenu Page utility links list. */
+	protected static ?NavigationMenu $utilityLinks;
+	/** @var ?Breadcrumbs Page breadcrumb list. */
+	protected static ?Breadcrumbs $breadcrumbs;
 	/** @var string */
 	protected static string $breadcrumbs_class = Breadcrumbs::class;
 	/** @var string */
@@ -167,6 +167,22 @@ class PageConfig
 		return(isset(static::$breadcrumbs)?(static::$breadcrumbs):(null));
 	}
 
+	public static function destroyBreadcrumbs()
+	{
+		if (isset(static::$breadcrumbs)) {
+			static::$breadcrumbs->clearNodes();
+		}
+		static::$breadcrumbs = null;
+	}
+
+	public static function destroyUtilityLinks()
+	{
+		if (isset(static::$utilityLinks)) {
+			static::$utilityLinks->clearNodes();
+		}
+		static::$utilityLinks = null;
+	}
+
 	/**
 	 * Gets the current content CSS class value.
 	 * @return string
@@ -269,6 +285,20 @@ class PageConfig
 	{
 		if (!isset(static::$metadata)) {
 			static::$metadata = new PageMetadata();
+		}
+	}
+
+	public static function removeBreadcrumb(string $label='')
+	{
+		if (isset(static::$breadcrumbs)) {
+			if ($label) {
+				// remove breadcrumb with matching label
+				static::$breadcrumbs->removeByLabel($label);
+			}
+			else {
+				// remove the last breadcrumb
+				static::$breadcrumbs->popNode();
+			}
 		}
 	}
 

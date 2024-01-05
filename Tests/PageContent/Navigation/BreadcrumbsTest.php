@@ -7,6 +7,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Navigation\Breadcrumbs;
 use Littled\Tests\DataProvider\PageContent\Navigation\BreadcrumbsTestData;
 use PHPUnit\Framework\TestCase;
+use function PHPUnit\Framework\assertEquals;
 
 class BreadcrumbsTest extends TestCase
 {
@@ -177,6 +178,96 @@ class BreadcrumbsTest extends TestCase
         $this->assertEquals('test 2d', $o->first->next_node->label);
         $this->assertEquals('test 2d', $o->last->prev_node->label);
     }
+
+	function testRemoveAtStartOfList()
+	{
+		$o = new Breadcrumbs();
+		$o->addNode('foo', '/foo');
+		$o->addNode('bar', '/bar');
+		$this->assertEquals('foo', $o->first->label);
+
+		$o->removeByLabel('foo');
+		$this->assertEquals(1, $o->getNodeCount());
+		$this->assertEquals('bar', $o->first->label);
+		$this->assertEquals('bar', $o->last->label);
+
+		$o->addNode('biz', '/biz');
+		$o->addNode('bash', '/bash');
+		$this->assertEquals(3, $o->getNodeCount());
+
+		$o->removeByLabel('bar');
+		$this->assertEquals(2, $o->getNodeCount());
+		$this->assertEquals('biz', $o->first->label);
+		$this->assertEquals('bash', $o->last->label);
+	}
+
+	function testRemoveAtEndOfList()
+	{
+		$o = new Breadcrumbs();
+		$o->addNode('foo', '/foo');
+		$o->addNode('bar', '/bar');
+		$this->assertEquals('bar', $o->last->label);
+
+		$o->removeByLabel('bar');
+		$this->assertEquals(1, $o->getNodeCount());
+		$this->assertEquals('foo', $o->first->label);
+		$this->assertEquals('foo', $o->last->label);
+
+		$o->addNode('biz', '/foo');
+		$o->addNode('bash', '/bar');
+		$this->assertEquals(3, $o->getNodeCount());
+
+		$o->removeByLabel('bash');
+		$this->assertEquals(2, $o->getNodeCount());
+		$this->assertEquals('foo', $o->first->label);
+		$this->assertEquals('biz', $o->last->label);
+	}
+
+	function testRemoveMiddleNode()
+	{
+		$o = new Breadcrumbs();
+		$o->addNode('foo', '/foo');
+		$o->addNode('bar', '/bar');
+		$o->addNode('biz', '/biz');
+		$o->addNode('bash', '/bash');
+		$this->assertEquals(4, $o->getNodeCount());
+
+		$o->removeByLabel('bar');
+		$this->assertEquals(3, $o->getNodeCount());
+		$this->assertEquals('foo', $o->first->label);
+		$this->assertEquals('biz', $o->first->next_node->label);
+		$this->assertEquals('biz', $o->last->prev_node->label);
+
+		$o->removeByLabel('biz');
+		$this->assertEquals(2, $o->getNodeCount());
+		$this->assertEquals('foo', $o->first->label);
+		$this->assertEquals('bash', $o->first->next_node->label);
+		$this->assertEquals('foo', $o->last->prev_node->label);
+	}
+
+	function testRemoveNonExistingNode()
+	{
+		$o = new Breadcrumbs();
+		$o->addNode('foo', '/foo');
+		$o->removeByLabel('bar');
+		assertEquals(1, $o->getNodeCount());
+
+		$o->addNode('bar', '/bar');
+		$o->addNode('biz', '/bar');
+		$o->addNode('bash', '/bar');
+
+		$o->removeByLabel('zingo');
+		assertEquals(4, $o->getNodeCount());
+	}
+
+	function testRemoveSolitaryNode()
+	{
+		$o = new Breadcrumbs();
+		$o->addNode('foo', '/foo');
+		$o->removeByLabel('foo');
+		$this->assertFalse(isset($o->first));
+		$this->assertFalse(isset($o->last));
+	}
 
     /**
      * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\BreadcrumbsTestDataProvider::renderTestProvider()
