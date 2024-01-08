@@ -115,7 +115,7 @@ class APIListingsRouteTest extends APIRouteTestBase
         if ($expected_exception) {
             try {
                 $ap->collectRequestData($ajax_data);
-                $this->assertEquals(false, true, 'Expected exception not thrown. $msg');
+                $this->fail('Expected exception not thrown. $msg');
             }
             catch(Exception $e) {
                 $this->assertInstanceOf($expected_exception, $e, $msg);
@@ -184,7 +184,7 @@ class APIListingsRouteTest extends APIRouteTestBase
         $o->setContentTypeId(TestTableSerializedContentTestHarness::CONTENT_TYPE_ID);
         try {
             $o->fetchContentTemplate('bogus-token');
-            $this->assertEquals(false, true, 'Expected exception not thrown.');
+            $this->fail('Expected exception not thrown.');
         }
         catch(Exception $e) {
             $this->assertInstanceOf(RecordNotFoundException::class, $e);
