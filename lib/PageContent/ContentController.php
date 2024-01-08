@@ -166,10 +166,11 @@ abstract class ContentController
     /**
      * Returns the name of a RoutedPageContent class appropriate to serve a response matching the requested route represented by the $route_parts argument.
      * @param array $route_parts The route that has been requested, exploded into its parts.
+     * @param bool $send_404 (Optional) Flag indicating to send a 404 response if the route is invalid.
      * @return string The name of the matching RoutedPageContent class.
      * @throws InvalidTypeException
      */
-    abstract public static function getRoutedPageContentClass(array $route_parts): string;
+    abstract public static function getRoutedPageContentClass(array $route_parts, bool $send_404=true): string;
 
     /**
      * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by the $route_parts argument.
