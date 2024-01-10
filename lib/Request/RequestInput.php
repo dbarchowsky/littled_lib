@@ -39,13 +39,9 @@ class RequestInput
     public string               $container_css_class='form-cell';
     /** @var string             Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
     public string               $content_type='text';
-    /**
-     * @var bool                If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE.
-     */
+    /** @var bool                If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE. */
     public bool                 $is_database_field=true;
-    /**
-     * @var string              Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class.
-     */
+    /** @var string              Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class. */
     public string               $column_name='';
     /** @var bool               Flag indicating that the object value should not be assigned from request variable values. */
     public bool                 $bypass_collect_request_data=false;
