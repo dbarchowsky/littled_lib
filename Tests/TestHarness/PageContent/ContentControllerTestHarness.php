@@ -112,7 +112,7 @@ class ContentControllerTestHarness extends ContentController
      * @inheritDoc
      * @throws InvalidRouteException
      */
-    public static function getRoutedPageContentClass(array $route_parts): string
+    public static function getRoutedPageContentClass(array $route_parts, bool $send_404=true): string
     {
         if (count($route_parts) < 1) {
             throw new InvalidRouteException('A route was not supplied.');
