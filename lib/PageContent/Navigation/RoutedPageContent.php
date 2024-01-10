@@ -38,7 +38,11 @@ abstract class RoutedPageContent extends PageContent
     /** @var string @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record. */
     protected static string         $edit_token = 'edit';
     protected static string         $template_filename='';
-    protected static string         $update_confirmation_msg = "The record was successfully updated.";
+    protected int                   $update_type = self::UPDATE_NONE;
+
+    public const                    UPDATE_NONE = 0;
+    public const                    UPDATE_NEW = 1;
+    public const                    UPDATE_EXISTING = 2;
 
     /**
      * @inheritDoc
@@ -346,15 +350,6 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Returns message to use to indicate that a record was successfully updated.
-     * @return string
-     */
-    public static function getUpdateConfirmationMessage(): string
-    {
-        return static::$update_confirmation_msg;
-    }
-
-    /**
      * Sets the page template to load after updating a database record.
      * @return RoutedPageContent
      * @throws ConfigurationUndefinedException
@@ -370,6 +365,15 @@ abstract class RoutedPageContent extends PageContent
             throw new ConfigurationUndefinedException('Referer URI for previous page was not specified.');
         }
         return $this;
+    }
+
+    /**
+     * Update type getter
+     * @return int
+     */
+    public function getUpdateType(): int
+    {
+        return $this->update_type;
     }
 
     /**
@@ -390,6 +394,15 @@ abstract class RoutedPageContent extends PageContent
             throw new ConfigurationUndefinedException('Invalid interface.');
         }
         return $routes_class;
+    }
+
+    /**
+     * Tests if the page has had its content updated.
+     * @return bool
+     */
+    public function hasContentUpdates(): bool
+    {
+        return ($this->update_type !== self::UPDATE_NONE);
     }
 
     /**
@@ -492,13 +505,13 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Updates the message used to indicate that a record has been successfully updated.
-     * @param string $msg Message to display.
+     * Update type setter
+     * @param int $type Value to assign to update type.
      * @return void
      */
-    public static function setUpdateConfirmationMessage(string $msg)
+    public function setUpdateType(int $type)
     {
-        static::$update_confirmation_msg = $msg;
+        $this->update_type = $type;
     }
 
     /**
@@ -521,7 +534,9 @@ abstract class RoutedPageContent extends PageContent
         }
 
         try {
+            $new = !$this->content->id->value;
             $this->content->save();
+            $this->setUpdateType($new ? self::UPDATE_NEW : self::UPDATE_EXISTING);
         }
         catch(Exception $e) {
             $this->content->addValidationError($e->getMessage());

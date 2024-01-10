@@ -322,6 +322,18 @@ class RoutedPageContentTest extends TestCase
 		RoutedPageContentTestHarness::setRoutesClassName('');
 	}
 
+    function testHasContentUpdates()
+    {
+        $p = new RoutedPageContentTestHarness();
+        $this->assertFalse($p->hasContentUpdates());
+
+        $p->setUpdateType($p::UPDATE_NEW);
+        $this->assertTrue($p->hasContentUpdates());
+
+        $p->setUpdateType($p::UPDATE_EXISTING);
+        $this->assertTrue($p->hasContentUpdates());
+    }
+
 	/**
 	 * @throws InvalidTypeException
 	 * @throws NotImplementedException
@@ -387,15 +399,13 @@ class RoutedPageContentTest extends TestCase
 		RoutedPageContentTestHarness::setTemplateFilename(RoutedPageContentTest::TEST_TEMPLATE_FILENAME);
 	}
 
-    function testSetUpdateConfirmationMessage()
+    function testSetUpdateType()
     {
-        $default = RoutedPageContentTestHarness::getUpdateConfirmationMessage();
-        $this->assertNotEmpty($default);
+        $p = new RoutedPageContentTestHarness();
+        $this->assertEquals($p::UPDATE_NONE, $p->getUpdateType());
 
-        $new = "My new message.";
-        RoutedPageContentTestHarness::setUpdateConfirmationMessage($new);
-        $this->assertNotEmpty(RoutedPageContentTestHarness::getUpdateConfirmationMessage());
-        $this->assertNotEquals($default, RoutedPageContentTestHarness::getUpdateConfirmationMessage());
+        $p->setUpdateType($p::UPDATE_EXISTING);
+        $this->assertEquals($p::UPDATE_EXISTING, $p->getUpdateType());
     }
 
     protected static function formatRouteMessage(array $route): string
