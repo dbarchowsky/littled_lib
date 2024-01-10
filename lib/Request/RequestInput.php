@@ -22,7 +22,9 @@ class RequestInput
     protected static string     $template_base_path = '';
     /** @var string             Input template filename. */
     protected static string     $template_filename = 'hidden-input.php';
-    /** @var string             Form input element filename. */
+	/** @var string             Input template filename. */
+	protected static string     $hidden_template_filename = 'hidden-input.php';
+	/** @var string             Form input element filename. */
     protected static string     $input_template_filename = '';
     /** @var string             Required field indicator string. */
     protected static string     $required_field_indicator = ' (*)';
@@ -48,7 +50,7 @@ class RequestInput
 	/** @var bool               Flag indicating that the object value should not be assigned from request variable values. */
 	public bool                 $bypass_collect_request_data=false;
 
-    public array $attributes=[];
+    public array                $attributes=[];
 	/**
 	 * @var boolean Flag to control the insertion of a "placeholder" attribute
 	 * when rendering the input. If TRUE, a placeholder attribute will be added
@@ -69,7 +71,7 @@ class RequestInput
 	public string $input_css_class='';
 	/** @var bool Set to TRUE if a value for this form data is required. */
 	public bool $required=false;
-	/** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textbox inputs. */
+	/** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textarea inputs. */
 	public int $size_limit=0;
 	/** @var mixed Value of the script argument. Value collected from form data. */
 	public $value;
@@ -274,6 +276,24 @@ class RequestInput
 	public static function getErrorClass(): string
 	{
 		return (static::$error_class);
+	}
+
+	/**
+	 * Hidden template filename getter.
+	 * @return string
+	 */
+	public static function getHiddenTemplateFilename(): string
+	{
+		return static::$hidden_template_filename;
+	}
+
+	/**
+	 * Get full path to the hidden form input element template file.
+	 * @return string Full path to form input element template file.
+	 */
+	public static function getHiddenTemplatePath(): string
+	{
+		return (LittledUtility::joinPaths(static::$template_base_path, static::$hidden_template_filename));
 	}
 
     /**
@@ -546,6 +566,16 @@ class RequestInput
         $this->input_css_class = $class;
         return $this;
     }
+
+	/**
+	 * Hidden template filename setter.
+	 * @param string $filename
+	 * @return void
+	 */
+	public static function setHiddenTemplateFilename(string $filename)
+	{
+		static::$hidden_template_filename = $filename;
+	}
 
 	/**
 	 * Form input element template filename setter.

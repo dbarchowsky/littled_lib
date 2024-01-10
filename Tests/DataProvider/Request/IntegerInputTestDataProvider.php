@@ -136,6 +136,26 @@ class IntegerInputTestDataProvider
 		);
 	}
 
+	public static function renderHiddenTestProvider(): array
+	{
+		return array(
+			[new HiddenInputTestData('',
+				'/<'.'input type="hidden" name="'.HiddenInputTestData::DEFAULT_KEY.'" id="'.HiddenInputTestData::DEFAULT_KEY.'" value="" \/>/',
+				'default', '[use default]')],
+			[new HiddenInputTestData('',
+				'/<'.'input.* value="45" \/>/',
+				'45 as number', 45)],
+			[new HiddenInputTestData('',
+				'/<'.'input.* value="46" \/>/',
+				'decimal as number', 45.75)],
+			[new HiddenInputTestData('',
+				'/<'.'input.* value="5" \/>/',
+				'decimal as number', 3,
+				false, null, '', '', '', '', false,
+				5 )],
+		);
+	}
+
     public static function renderInputTestProvider(): array
     {
         return array(

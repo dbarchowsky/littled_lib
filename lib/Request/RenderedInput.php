@@ -28,10 +28,26 @@ class RenderedInput extends RequestInput
 	}
 
 	/**
-	 * Renders the corresponding form field with a label to collect the input data.
-	 * @param string[optional] $label
+	 * @param ?int $value_override Value to insert into the element instead of the object's stored value.
+	 * @param array $context Optional array of variables to insert into the element template.
+	 * @return void
 	 */
-	public function renderInput($label=null)
+	public function renderHidden(?int $value_override=null, array $context=[])
+	{
+		$context = array_merge($context, array(
+			'input' => &$this
+		));
+		if ($value_override !== null) {
+			$context['value_override'] = $value_override;
+		}
+		ContentUtils::renderTemplateWithErrors(static::getHiddenTemplatePath(), $context);
+	}
+
+	/**
+	 * Renders the corresponding form field with a label to collect the input data.
+	 * @param ?string $label
+	 */
+	public function renderInput(?string $label=null)
 	{
 		if (!$label) {
 			$label = $this->label;

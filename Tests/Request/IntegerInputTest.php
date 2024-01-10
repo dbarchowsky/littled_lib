@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
+use LittledTests\DataProvider\Request\HiddenInputTestData;
 use LittledTests\DataProvider\Request\IntegerInputTestData;
 use PHPUnit\Framework\TestCase;
 use mysqli;
@@ -125,7 +126,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -139,7 +140,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"23\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -153,7 +154,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"-62\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -167,7 +168,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"1\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -181,7 +182,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"0\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -195,7 +196,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"1\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -209,7 +210,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"0\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -223,7 +224,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -237,7 +238,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Integer variable was collected: \"\".", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -274,6 +275,25 @@ class IntegerInputTest extends TestCase
         ob_end_clean();
         $this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
     }
+
+	/**
+	 * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::renderHiddenTestProvider()
+	 * @param HiddenInputTestData $data
+	 * @return void
+	 */
+	function testRenderHidden(HiddenInputTestData $data)
+	{
+		ob_start();
+		if (isset($data->value_override)) {
+			$data->obj->renderHidden($data->value_override);
+		}
+		else {
+			$data->obj->renderHidden();
+		}
+		$markup = ob_get_contents();
+		ob_end_clean();
+		$this->assertMatchesRegularExpression($data->expected_regex, $markup, $data->msg);
+	}
 
     /**
      * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::renderInputTestProvider()
@@ -335,7 +355,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Test variable is required.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -351,7 +371,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Validate integer ok.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -367,7 +387,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Validate integer ok.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -383,7 +403,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Validate integer ok.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -399,7 +419,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Validate integer ok.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -415,7 +435,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Validate integer ok.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -431,7 +451,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Validate integer ok.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -447,7 +467,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Test variable is required.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
@@ -463,7 +483,7 @@ class IntegerInputTest extends TestCase
             $this->assertEquals("Test variable is required.", $json['data']['result']);
         }
         else {
-            $this->assertEquals(true, 1);
+            $this->assertTrue(true);
         }
 	}
 
