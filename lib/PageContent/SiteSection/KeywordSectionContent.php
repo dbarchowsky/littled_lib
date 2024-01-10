@@ -219,7 +219,7 @@ abstract class KeywordSectionContent extends SectionContent
 		if ($fetch_from_database && $this->hasData()) {
 			$this->readKeywords();
 		}
-		return(stripslashes(join(', ', array_map('self::termCallback', $this->keywords))));
+		return(stripslashes(join(', ', array_map([self::class, 'termCallback'], $this->keywords))));
 	}
 
 	/**
