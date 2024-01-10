@@ -472,7 +472,7 @@ class SerializedContentUtilsTest extends TestCase
         $patterns = [];
         foreach ($expected as $property) {
             $p = $obj->$property;
-            $patterns[] = '/<input type="hidden" name="'.$p->key.'" value="'.$p->value.'" \/>\n/';
+            $patterns[] = '/<input type="hidden" name="'.$p->key.'" id="'.$p->key.'" value="'.$p->value.'" \/>\n/';
         }
         foreach($patterns as $pattern) {
             $this->assertMatchesRegularExpression($pattern, $content);

@@ -502,7 +502,8 @@ abstract class RoutedPageContent extends PageContent
         $this->content->collectRequestData();
 
         try {
-            $this->content->validateInput();
+            $exclude = ['content_properties'];
+            $this->content->validateInput($exclude);
         }
         catch(ContentValidationException $e) { /* continue */ }
 
