@@ -84,6 +84,7 @@ abstract class RoutedPageContent extends PageContent
             in_array($this->edit_action, [PageContentInterface::COMMIT_ACTION, PageContentInterface::CANCEL_ACTION])) {
             // load page selected to be the next page after editing and saving a record
             $page = $this->getUpdateResponsePage();
+            $page->setUpdateType($this->getUpdateType());
         }
         return $page;
     }
