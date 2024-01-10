@@ -1,7 +1,7 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
-use Littled\Tests\DataProvider\Request\StringInputTestData;
+use LittledTests\DataProvider\Request\StringInputTestData;
 use PHPUnit\Framework\TestCase;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
@@ -9,7 +9,7 @@ use Littled\Request\StringInput;
 
 /**
  * Class StringInputTest
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class StringInputTest extends TestCase
 {
@@ -50,7 +50,7 @@ class StringInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::renderTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringInputTestDataProvider::renderTestProvider()
      * @param StringInputTestData $data
      * @return void
      */
@@ -61,7 +61,7 @@ class StringInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::renderInputTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringInputTestDataProvider::renderInputTestProvider()
      * @param StringInputTestData $data
      * @return void
      */
@@ -74,7 +74,7 @@ class StringInputTest extends TestCase
 
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringInputTestDataProvider::setInputValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringInputTestDataProvider::setInputValueTestProvider()
      * @param StringInputTestData $data
      * @return void
      */

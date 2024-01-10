@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace LittledTests\PageContent;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidValueException;

@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
-use Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestExpectations;
-use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithQuery;
-use Littled\Tests\TestHarness\Filters\TestTableFilters;
+use LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestExpectations;
+use LittledTests\TestHarness\Filters\FilterCollectionChildWithQuery;
+use LittledTests\TestHarness\Filters\TestTableFilters;
 use Exception;
 
 /**
@@ -16,7 +16,7 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
 	public const TEST_LISTINGS_LENGTH = 5;
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::calculateRecordPositionOnPageTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::calculateRecordPositionOnPageTestProvider()
      * @return void
      * @throws Exception
      */
@@ -90,7 +90,7 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::retrieveNeighborIdsTestProvider()
      * @return void
      * @throws Exception
      */
@@ -113,7 +113,7 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::setOutOfBoundNeighborIdsTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::setOutOfBoundNeighborIdsTestProvider()
 	 * @param FilterCollectionTestExpectations $expected
 	 * @param int $record_id
 	 * @param int $page

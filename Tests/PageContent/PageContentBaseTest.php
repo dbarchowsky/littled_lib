@@ -1,17 +1,17 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace LittledTests\PageContent;
 
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 use Littled\Filters\FilterCollectionProperties;
 use Littled\PageContent\PageContentBase;
-use Littled\Tests\DataProvider\PageContent\PageContentBaseTestData;
-use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\PageContentBaseTestHarness;
-use Littled\Tests\TestHarness\PageContent\PageContentChild;
-use Littled\Tests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
+use LittledTests\DataProvider\PageContent\PageContentBaseTestData;
+use LittledTests\TestHarness\Filters\ContentFiltersChild;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\PageContent\PageContentBaseTestHarness;
+use LittledTests\TestHarness\PageContent\PageContentChild;
+use LittledTests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 class PageContentBaseTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentBaseTestDataProvider::formatQueryStringTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\PageContentBaseTestDataProvider::formatQueryStringTestProvider()
      * @throws NotImplementedException
      */
     function testFormatQueryString(PageContentBaseTestData $data)
@@ -46,7 +46,7 @@ class PageContentBaseTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\PageContentBaseTestDataProvider::getQueryStringTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\PageContentBaseTestDataProvider::getQueryStringTestProvider()
      * @throws NotImplementedException
      */
     function testGetQueryString(PageContentBaseTestData $data)
@@ -104,7 +104,7 @@ class PageContentBaseTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setRoutePartsTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::setRoutePartsTestProvider()
      * @param array $expected
      * @param array $route_parts
      * @return void
@@ -123,7 +123,7 @@ class PageContentBaseTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setSubRouteTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::setSubRouteTestProvider()
      * @throws InvalidTypeException
      */
     function testSetSubRoute(array $expected, $value, int $index=1, ?array $start_route=null)

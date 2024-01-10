@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
+namespace LittledTests\PageContent\SiteSection;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -11,9 +11,9 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\DataProvider\PageContent\SiteSection\ContentTemplateData;
+use LittledTests\DataProvider\PageContent\SiteSection\ContentTemplateData;
 use Littled\PageContent\SiteSection\ContentProperties;
-use Littled\Tests\TestHarness\PageContent\SiteSection\ContentPropertiesTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\ContentPropertiesTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

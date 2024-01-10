@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Validation;
+namespace LittledTests\DataProvider\Validation;
 
 
 class ContentConversionTestDataProvider

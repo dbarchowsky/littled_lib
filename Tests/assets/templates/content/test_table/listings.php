@@ -2,7 +2,7 @@
 use Littled\App\LittledGlobals;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Utility\LittledUtility;
 
 /** @var PageContent $page_data */

@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\App;
+namespace LittledTests\App;
 
 
 use Littled\App\LittledGlobals;

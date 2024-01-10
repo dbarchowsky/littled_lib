@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\PageContent\Serialized;
+namespace LittledTests\PageContent\Serialized;
 
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\Serialized\SerializedContentValidation;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentValidationChild;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentValidationChild;
 use PHPUnit\Framework\TestCase;
 
 

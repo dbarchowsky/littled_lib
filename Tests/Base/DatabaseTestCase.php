@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Base;
+namespace LittledTests\Base;
 
 use PHPUnit\Framework\TestCase;
 

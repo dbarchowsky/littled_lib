@@ -1,12 +1,12 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Littled\Request\IntegerInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Request\IntegerInputTestData;
+use LittledTests\DataProvider\Request\IntegerInputTestData;
 use PHPUnit\Framework\TestCase;
 use mysqli;
 
@@ -91,7 +91,7 @@ class IntegerInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::collectRequestDataTestProvider()
      * @param $expected
      * @param $value
      * @return void
@@ -242,7 +242,7 @@ class IntegerInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::escapeSQLTestProvider()
      * @param $expected
      * @param $value
      * @param mysqli $mysqli
@@ -262,7 +262,7 @@ class IntegerInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::renderTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::renderTestProvider()
      * @param IntegerInputTestData $data
      * @return void
      */
@@ -276,7 +276,7 @@ class IntegerInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::renderInputTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::renderInputTestProvider()
      * @param IntegerInputTestData $data
      * @return void
      */
@@ -308,7 +308,7 @@ class IntegerInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerInputTestDataProvider::setInputValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::setInputValueTestProvider()
      * @param ?int $expected
      * @param mixed $value
      * @param string $msg

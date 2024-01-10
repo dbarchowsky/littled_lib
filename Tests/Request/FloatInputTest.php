@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -7,8 +7,8 @@ use Littled\Exception\ConnectionException;
 use Littled\Request\FloatInput;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Request\FloatInputTestData;
-use Littled\Tests\TestExtensions\ContentValidationTestCase;
+use LittledTests\DataProvider\Request\FloatInputTestData;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 use mysqli;
 
 class FloatInputTest extends ContentValidationTestCase
@@ -41,7 +41,7 @@ class FloatInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::collectRequestDataTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::collectRequestDataTestProvider()
 	 * @param $expected
 	 * @param $value
 	 * @return void
@@ -66,7 +66,7 @@ class FloatInputTest extends ContentValidationTestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::escapeSQLTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */
@@ -81,7 +81,7 @@ class FloatInputTest extends ContentValidationTestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::renderTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::renderTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */
@@ -95,7 +95,7 @@ class FloatInputTest extends ContentValidationTestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::renderInputTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::renderInputTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */
@@ -109,7 +109,7 @@ class FloatInputTest extends ContentValidationTestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\FloatInputTestDataProvider::setInputValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::setInputValueTestProvider()
      * @param FloatInputTestData $data
      * @return void
      */

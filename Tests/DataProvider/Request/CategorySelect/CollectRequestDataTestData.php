@@ -1,7 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Request\CategorySelect;
-
-use Littled\Tests\DataProvider\Request\CategorySelect\CollectRequestDataTestExpectations;
+namespace LittledTests\DataProvider\Request\CategorySelect;
 
 class CollectRequestDataTestData
 {

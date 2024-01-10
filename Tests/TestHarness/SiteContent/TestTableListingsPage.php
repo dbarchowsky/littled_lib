@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\TestHarness\SiteContent;
+namespace LittledTests\TestHarness\SiteContent;
 
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use Littled\Utility\LittledUtility;
 
 

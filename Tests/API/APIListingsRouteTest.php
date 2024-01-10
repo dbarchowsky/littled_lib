@@ -12,11 +12,11 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\API\APIRouteTestBase;
-use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use LittledTests\API\APIRouteTestBase;
+use LittledTests\TestHarness\API\APIListingsRouteTestHarness;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 
 
 class APIListingsRouteTest extends APIRouteTestBase
@@ -58,7 +58,7 @@ class APIListingsRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::collectContentPropertiesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIListingsRouteTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param string $expected_exception
      * @param array $post_data
@@ -82,7 +82,7 @@ class APIListingsRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIListingsRouteTestDataProvider::collectRequestDataTestProvider()
      * @param array $expected
      * @param string $expected_exception
      * @param array $get_data
@@ -145,7 +145,7 @@ class APIListingsRouteTest extends APIRouteTestBase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectPageActionTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::collectPageActionTestProvider()
 	 * @param string $expected
 	 * @param array $post_data
 	 * @param string $ajax_stream
@@ -219,7 +219,7 @@ class APIListingsRouteTest extends APIRouteTestBase
     }
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIListingsRouteTestDataProvider::loadTemplateContentTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIListingsRouteTestDataProvider::loadTemplateContentTestProvider()
      * @param string $expected
      * @param array $post_data
      * @param string $template_path
@@ -255,7 +255,7 @@ class APIListingsRouteTest extends APIRouteTestBase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::lookupRouteTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::lookupRouteTestProvider()
      * @param string $operation
      * @param string $expected_route
      * @return void

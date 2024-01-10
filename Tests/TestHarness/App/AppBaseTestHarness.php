@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\App;
+namespace LittledTests\TestHarness\App;
 
 use Littled\App\AppBase;
 

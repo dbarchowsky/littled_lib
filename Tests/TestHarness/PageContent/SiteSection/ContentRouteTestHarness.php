@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent\SiteSection;
+namespace LittledTests\TestHarness\PageContent\SiteSection;
 
 use Littled\PageContent\SiteSection\ContentRoute;
 

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContent;
+namespace LittledTests\DataProvider\PageContent\Navigation\RoutedPageContent;
 
 
 class GetPageRouteTestData

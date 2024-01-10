@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\Account;
+namespace LittledTests\Account;
 
 
 use Littled\Account\LoginAuthenticator;

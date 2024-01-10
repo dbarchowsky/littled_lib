@@ -1,10 +1,10 @@
 <?php
-namespace Littled\Tests\PageContent\Navigation;
+namespace LittledTests\PageContent\Navigation;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Navigation\NavigationMenu;
-use Littled\Tests\DataProvider\PageContent\Navigation\NavigationMenuTestData;
+use LittledTests\DataProvider\PageContent\Navigation\NavigationMenuTestData;
 use PHPUnit\Framework\TestCase;
 
 class NavigationMenuTest extends TestCase
@@ -47,7 +47,7 @@ class NavigationMenuTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\NavigationMenuTestDataProvider::renderTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\NavigationMenuTestDataProvider::renderTestProvider()
 	 * @return void
 	 * @throws ResourceNotFoundException
 	 */

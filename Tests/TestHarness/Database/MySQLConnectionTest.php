@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\Database;
+namespace LittledTests\TestHarness\Database;
 
 use Exception;
 use Littled\Database\MySQLConnection;

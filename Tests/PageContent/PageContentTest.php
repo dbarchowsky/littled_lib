@@ -1,13 +1,13 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace LittledTests\PageContent;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\PageContent\PageContentChild;
-use Littled\Tests\TestHarness\PageContent\PageContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
+use LittledTests\TestHarness\PageContent\PageContentChild;
+use LittledTests\TestHarness\PageContent\PageContentTestHarness;
+use LittledTests\TestHarness\PageContent\PageContentWithFiltersTestHarness;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 

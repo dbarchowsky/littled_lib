@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\API;
+namespace LittledTests\TestHarness\API;
 
 use Littled\API\JSONField;
 use Littled\API\JSONResponse;

@@ -1,11 +1,11 @@
 <?php
-namespace Littled\Tests\DataProvider\PageContent\Navigation;
+namespace LittledTests\DataProvider\PageContent\Navigation;
 
 
-use Littled\Tests\DataProvider\PageContent\Navigation\SectionNavigationRoutes\GetPageRouteTestData;
-use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableEditPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
+use LittledTests\DataProvider\PageContent\Navigation\SectionNavigationRoutes\GetPageRouteTestData;
+use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
+use LittledTests\TestHarness\SiteContent\TestTableEditPage;
+use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 
 class SectionNavigationRoutesTestDataProvider
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Log;
+namespace LittledTests\Log;
 
 use Littled\Log\Log;
 use PHPUnit\Framework\TestCase;

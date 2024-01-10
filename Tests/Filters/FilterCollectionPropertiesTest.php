@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\FilterCollectionProperties;
-use Littled\Tests\TestHarness\Filters\FilterCollectionPropertiesChild;
+use LittledTests\TestHarness\Filters\FilterCollectionPropertiesChild;
 use PHPUnit\Framework\TestCase;
 
 class FilterCollectionPropertiesTest extends TestCase

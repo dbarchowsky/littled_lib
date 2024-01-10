@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent\Cache;
+namespace LittledTests\TestHarness\PageContent\Cache;
 
 use Littled\API\APIRoute;
 use Littled\API\JSONRecordResponse;

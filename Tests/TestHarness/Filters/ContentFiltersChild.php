@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\Filters;
+namespace LittledTests\TestHarness\Filters;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;

@@ -1,14 +1,14 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Request\IntegerSelect;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Request\IntegerSelectTestData;
+use LittledTests\DataProvider\Request\IntegerSelectTestData;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class StringSelectTest
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class IntegerSelectTest extends TestCase
 {
@@ -30,7 +30,7 @@ class IntegerSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\IntegerSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
      * @param bool $expected
      * @param int|int[]|null $selected_values
      * @param bool $allow_multiple
@@ -46,7 +46,7 @@ class IntegerSelectTest extends TestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\IntegerSelectTestDataProvider::renderTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::renderTestProvider()
 	 * @param IntegerSelectTestData $data
 	 * @return void
 	 */

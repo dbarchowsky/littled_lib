@@ -1,10 +1,10 @@
 <?php
 
-namespace Littled\Tests\DataProvider\PageContent\Serialized;
+namespace LittledTests\DataProvider\PageContent\Serialized;
 
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 
 class SerializedContentUtilsTestDataProvider
 {

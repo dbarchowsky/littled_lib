@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Keyword;
+namespace LittledTests\Keyword;
 
 use Exception;
 use Littled\Database\MySQLConnection;

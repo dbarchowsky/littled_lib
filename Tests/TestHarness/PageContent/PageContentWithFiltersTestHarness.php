@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent;
+namespace LittledTests\TestHarness\PageContent;
 
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 
 
 class PageContentWithFiltersTestHarness extends PageContent

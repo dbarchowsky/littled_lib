@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Request\RequestInput;
 use Littled\Request\BooleanCheckbox;
-use Littled\Tests\DataProvider\Request\BooleanInputTestData;
+use LittledTests\DataProvider\Request\BooleanInputTestData;
 use PHPUnit\Framework\TestCase;
 
 class BooleanCheckboxTest extends TestCase
@@ -22,7 +22,7 @@ class BooleanCheckboxTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::saveInFormProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::saveInFormProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -35,7 +35,7 @@ class BooleanCheckboxTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::renderTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::renderTestProvider()
      * @param BooleanInputTestData $data
      * @return void
      */

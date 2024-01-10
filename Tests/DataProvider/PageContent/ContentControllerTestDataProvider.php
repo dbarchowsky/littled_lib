@@ -1,15 +1,15 @@
 <?php
-namespace Littled\Tests\DataProvider\PageContent;
+namespace LittledTests\DataProvider\PageContent;
 
 use Littled\Exception\InvalidRouteException;
 use Littled\PageContent\ContentController;
-use Littled\Tests\PageContent\SiteSection\SectionContentTest;
-use Littled\Tests\TestHarness\API\APIListingsRouteTestHarness;
-use Littled\Tests\TestHarness\API\APIRecordRouteTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
-use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableEditPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
+use LittledTests\PageContent\SiteSection\SectionContentTest;
+use LittledTests\TestHarness\API\APIListingsRouteTestHarness;
+use LittledTests\TestHarness\API\APIRecordRouteTestHarness;
+use LittledTests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
+use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
+use LittledTests\TestHarness\SiteContent\TestTableEditPage;
+use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 use Littled\Utility\LittledUtility;
 
 

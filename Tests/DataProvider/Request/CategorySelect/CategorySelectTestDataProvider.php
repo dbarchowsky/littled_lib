@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\DataProvider\Request\CategorySelect;
+namespace LittledTests\DataProvider\Request\CategorySelect;
 
 use Littled\Exception\ContentValidationException;
-use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
-use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestExpectations;
+use LittledTests\DataProvider\Request\StringSelect\ValidateTestData;
+use LittledTests\DataProvider\Request\StringSelect\ValidateTestExpectations;
 
 class CategorySelectTestDataProvider
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\API;
+namespace LittledTests\API;
 
 use Exception;
 use Littled\API\APIRoute;
@@ -12,10 +12,10 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\DataProvider\API\APIRouteLoadTemplateContentTestData;
-use Littled\Tests\TestHarness\API\APIRecordRouteTestHarness;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use LittledTests\DataProvider\API\APIRouteLoadTemplateContentTestData;
+use LittledTests\TestHarness\API\APIRecordRouteTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 
 
 class APIRecordRouteTest extends APIRouteTestBase
@@ -27,7 +27,7 @@ class APIRecordRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRecordRouteTestDataProvider::collectContentPropertiesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRecordRouteTestDataProvider::collectContentPropertiesTestProvider()
      * @param array $expected
      * @param string $expected_exception
      * @param array $post_data
@@ -50,7 +50,7 @@ class APIRecordRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectPageActionTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::collectPageActionTestProvider()
      * @param string $expected
      * @param array $post_data
      * @param string $ajax_stream
@@ -122,7 +122,7 @@ class APIRecordRouteTest extends APIRouteTestBase
     }
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::loadTemplateContentTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::loadTemplateContentTestProvider()
      * @param APIRouteLoadTemplateContentTestData $data
      * @return void
      * @throws ConfigurationUndefinedException
@@ -150,7 +150,7 @@ class APIRecordRouteTest extends APIRouteTestBase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::lookupRouteTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::lookupRouteTestProvider()
 	 * @param string $operation
 	 * @param string $expected_route
 	 * @return void

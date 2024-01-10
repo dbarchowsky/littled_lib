@@ -1,17 +1,17 @@
 <?php
-namespace Littled\Tests\Account;
+namespace LittledTests\Account;
 
 use Littled\Account\UserAccount;
 use Littled\Account\UserLogin;
 use Littled\Exception\InvalidCredentialsException;
-use Littled\Tests\DataProvider\Account\UserLoginTestDataProvider;
+use LittledTests\DataProvider\Account\UserLoginTestDataProvider;
 use PHPUnit\Framework\TestCase;
 
 
 class UserLoginTest extends TestCase
 {
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Account\UserLoginTestDataProvider::requiresLoginTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Account\UserLoginTestDataProvider::requiresLoginTestProvider()
 	 * @param string $expected_exception
 	 * @param string $expected_pattern
 	 * @param string $username

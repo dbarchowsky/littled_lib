@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\TestHarness\API;
+namespace LittledTests\TestHarness\API;
 
 use Littled\API\APIListingsRoute;
-use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
+use LittledTests\TestHarness\PageContent\ContentControllerTestHarness;
 
 
 class APIListingsRouteTestHarness extends APIListingsRoute

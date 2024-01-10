@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;

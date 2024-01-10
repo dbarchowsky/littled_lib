@@ -1,8 +1,8 @@
 <?php
 
-namespace Littled\Tests\DataProvider\PageContent\Serialized;
+namespace LittledTests\DataProvider\PageContent\Serialized;
 
-use Littled\Tests\TestHarness\PageContent\Serialized\KeywordTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\KeywordTestHarness;
 
 class ReadListTestDataProvider
 {
@@ -24,7 +24,7 @@ class ReadListTestDataProvider
         return [
             [new ReadListTestDataProvider(
                 'keyword_list',
-                '\Littled\Tests\TestHarness\PageContent\Serialized\KeywordTestHarness',
+                '\LittledTests\TestHarness\PageContent\Serialized\KeywordTestHarness',
                 641,
                 [
                     new KeywordTestHarness(80435, 'sketchbooks', 641, 11),
@@ -34,7 +34,7 @@ class ReadListTestDataProvider
             )],
             [new ReadListTestDataProvider(
                 'keyword_list',
-                '\Littled\Tests\TestHarness\PageContent\Serialized\KeywordTestHarness',
+                '\LittledTests\TestHarness\PageContent\Serialized\KeywordTestHarness',
                 17,
                 [
                     new KeywordTestHarness(80069, 'sketchbooks', 17, 11),
@@ -43,7 +43,7 @@ class ReadListTestDataProvider
             )],
             [new ReadListTestDataProvider(
                 'keyword_list',
-                '\Littled\Tests\TestHarness\PageContent\Serialized\KeywordTestHarness',
+                '\LittledTests\TestHarness\PageContent\Serialized\KeywordTestHarness',
                 134,
                 []
             )]

@@ -1,13 +1,13 @@
 <?php
-namespace Littled\Tests\PageContent\Serialized;
+namespace LittledTests\PageContent\Serialized;
 
-use Littled\Tests\DataProvider\PageContent\Serialized\ReadListTestDataProvider;
-use Littled\Tests\PageContent\SiteSection\SectionContentTest;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentNameTestHarness;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTestUtility;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentNonDefaultColumn;
+use LittledTests\DataProvider\PageContent\Serialized\ReadListTestDataProvider;
+use LittledTests\PageContent\SiteSection\SectionContentTest;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentNameTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentTestUtility;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentNonDefaultColumn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -17,8 +17,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Tests\TestHarness\PageContent\Serialized\SketchbookTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\SketchbookTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -552,7 +552,7 @@ class SerializedContentTest extends TestCase
 	        return($o->vc_col->value);
 	    };
 	    $obj = new SerializedContentChild();
-    	$obj->readList('array_container', 'Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness', $query);
+    	$obj->readList('array_container', 'LittledTests\TestHarness\PageContent\Serialized\SerializedContentTitleTestHarness', $query);
     	$this->assertGreaterThan(0, count($obj->array_container));
     	$this->assertContains('test one', array_map($title_cb, $obj->array_container));
 	    $this->assertContains('test four', array_map($title_cb, $obj->array_container));
@@ -561,7 +561,7 @@ class SerializedContentTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\ReadListTestDataProvider::readListProvider
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\ReadListTestDataProvider::readListProvider
      * @return void
      * @throws InvalidTypeException
      * @throws NotImplementedException|ConfigurationUndefinedException

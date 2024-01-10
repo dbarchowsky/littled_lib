@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Database;
+namespace LittledTests\DataProvider\Database;
 
 class AppContentBaseTestDataProvider
 {

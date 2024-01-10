@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent\Navigation;
+namespace LittledTests\TestHarness\PageContent\Navigation;
 
 use Littled\Account\UserAccount;
 use Littled\PageContent\Navigation\RoutedPageContent;
-use Littled\Tests\PageContent\Navigation\RoutedPageContentTest;
+use LittledTests\PageContent\Navigation\RoutedPageContentTest;
 use Littled\Utility\LittledUtility;
 
 class RoutedPageContentTestHarness extends RoutedPageContent

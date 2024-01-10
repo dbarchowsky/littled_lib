@@ -1,12 +1,12 @@
 <?php
-namespace Littled\Tests\DataProvider\API;
+namespace LittledTests\DataProvider\API;
 
 
 use Littled\API\APIRoute;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
-use Littled\Tests\API\APIRouteTestBase;
+use LittledTests\API\APIRouteTestBase;
 use Littled\Utility\LittledUtility;
 
 class APIListingsRouteTestDataProvider

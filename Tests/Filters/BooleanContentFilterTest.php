@@ -1,6 +1,6 @@
 <?php /** @noinspection PhpUndefinedConstantInspection */
 
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\Filters\BooleanContentFilter;
 use PHPUnit\Framework\TestCase;
@@ -10,7 +10,7 @@ use mysqli;
 class BooleanContentFilterTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\BooleanContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\BooleanContentFilterTestDataProvider::escapeSQLTestProvider()
      * @param string|null $expected
      * @param $value
      * @param string $msg
@@ -34,7 +34,7 @@ class BooleanContentFilterTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\BooleanContentFilterTestDataProvider::formatQueryStringTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\BooleanContentFilterTestDataProvider::formatQueryStringTestProvider()
      * @param string $expected
      * @param $value
      * @param $msg

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Exception\ContentValidationException;
 use Littled\Request\EmailTextField;
@@ -10,7 +10,7 @@ use Littled\Database\MySQLConnection;
 
 /**
  * Class EmailTextField
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class EmailTextFieldTest extends TestCase
 {

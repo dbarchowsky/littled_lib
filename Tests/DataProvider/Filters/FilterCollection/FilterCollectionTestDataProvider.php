@@ -1,6 +1,6 @@
 <?php /** @noinspection PhpRedundantOptionalArgumentInspection */
 
-namespace Littled\Tests\DataProvider\Filters\FilterCollection;
+namespace LittledTests\DataProvider\Filters\FilterCollection;
 
 
 class FilterCollectionTestDataProvider

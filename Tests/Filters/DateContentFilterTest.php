@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\Filters\DateContentFilter;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class DateContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\DateContentFilterTestDataProvider::collectValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\DateContentFilterTestDataProvider::collectValueTestProvider()
      * @param ?string $value
      * @param ?string $expected
      * @param string $msg
@@ -43,7 +43,7 @@ class DateContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\DateContentFilterTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\DateContentFilterTestDataProvider::escapeSQLTestProvider()
      * @param $value
      * @param ?string $expected
      * @param string $msg

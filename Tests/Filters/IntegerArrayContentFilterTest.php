@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use PHPUnit\Framework\TestCase;
 use Littled\Filters\IntegerArrayContentFilter;

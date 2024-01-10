@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Validation;
+namespace LittledTests\Validation;
 
 use Exception;
 use Littled\App\AppBase;
@@ -7,10 +7,10 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
-use Littled\Tests\DataProvider\Validation\CheckSourceValueTestData;
-use Littled\Tests\DataProvider\Validation\CollectBooleanRequestVarTestData;
-use Littled\Tests\DataProvider\Validation\CollectStringArrayRequestVarTestData;
-use Littled\Tests\TestHarness\Validation\ValidationTestHarness;
+use LittledTests\DataProvider\Validation\CheckSourceValueTestData;
+use LittledTests\DataProvider\Validation\CollectBooleanRequestVarTestData;
+use LittledTests\DataProvider\Validation\CollectStringArrayRequestVarTestData;
+use LittledTests\TestHarness\Validation\ValidationTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -61,7 +61,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\CheckSourceValueTestDataProvider::checkSourceValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\CheckSourceValueTestDataProvider::checkSourceValueTestProvider()
      * @param CheckSourceValueTestData $data
      * @return void
      */
@@ -81,7 +81,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\CollectBooleanRequestVarTestDataProvider::collectBooleanRequestVarTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\CollectBooleanRequestVarTestDataProvider::collectBooleanRequestVarTestProvider()
      * @param CollectBooleanRequestVarTestData $data
      * @return void
      */
@@ -97,7 +97,7 @@ class ValidationTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::collectIntegerArrayRequestVarTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::collectIntegerArrayRequestVarTestProvider()
 	 * @param array $expected
 	 * @param string $key
 	 * @param mixed $values
@@ -115,7 +115,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
      * @param $expected
      * @param $value
      * @param string $msg
@@ -127,7 +127,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
      * @param $expected
      * @param $value
      * @param string $msg
@@ -141,7 +141,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\CollectStringArrayRequestVarTestDataProvider::collectStringArrayRequestVarMultipleTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\CollectStringArrayRequestVarTestDataProvider::collectStringArrayRequestVarMultipleTestProvider()
      * @param array $expected
      * @param string $key
      * @param array $post_data
@@ -167,7 +167,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getClientIPTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::getClientIPTestProvider()
      * @param bool $expected
      * @param string $ip
      * @param string $key
@@ -192,7 +192,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getClientLocationTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::getClientLocationTestProvider()
      * @param ?array $expected
      * @param string $ip
      * @param string $key
@@ -221,7 +221,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getDefaultInputSourceTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::getDefaultInputSourceTestProvider()
      * @param ?array $expected
      * @param array $get_data
      * @param array $post_data
@@ -250,7 +250,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::getClientLocationTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::getClientLocationTestProvider()
      * @param ?array $expected
      * @param string $ip
      * @param string $key
@@ -275,7 +275,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::isIntegerTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::isIntegerTestProvider()
      * @param $expected
      * @param $value
      * @return void
@@ -286,7 +286,7 @@ class ValidationTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::isStringWithContentTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::isStringWithContentTestProvider()
 	 * @param bool $expected
 	 * @param mixed $value
 	 * @return void
@@ -302,7 +302,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::isSubclassTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::isSubclassTestProvider()
 	 * @return void
 	 */
 	function testIsSubclass($sub, string $base, bool $expected)
@@ -311,7 +311,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseBooleanTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseBooleanTestProvider()
 	 * @param $expected
 	 * @param $value
 	 * @param string $msg
@@ -323,7 +323,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseIntegerTestProvider()
 	 * @param $expected
 	 * @param $value
 	 * @param string $msg
@@ -357,7 +357,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseNumericTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseNumericTestProvider()
      * @param $expected
      * @param $value
      * @return void
@@ -368,7 +368,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::parseRoutePartsTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseRoutePartsTestProvider()
 	 * @param array $expected
 	 * @param string $route
 	 * @param string $msg
@@ -380,7 +380,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-     * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::stripTagsTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::stripTagsTestProvider()
      * @return void
      * @throws Exception
      */
@@ -401,7 +401,7 @@ class ValidationTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::validateCSRFTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::validateCSRFTestProvider()
 	 * @param string $description
 	 * @param bool $expected
 	 * @param array $post_data
@@ -435,7 +435,7 @@ class ValidationTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ValidationTestDataProvider::validateDateStringTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::validateDateStringTestProvider()
 	 * @param string $expected
 	 * @param string $expected_exception
 	 * @param string $date_string

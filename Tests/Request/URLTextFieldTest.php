@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\TestCase;
@@ -8,7 +8,7 @@ use Littled\Request\URLTextField;
 
 /**
  * Class URLTextFieldTest
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class URLTextFieldTest extends TestCase
 {

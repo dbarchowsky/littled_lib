@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\VendorSupport;
+namespace LittledTests\TestHarness\VendorSupport;
 
 use Littled\VendorSupport\TinyMCEUploader;
 

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent\Serialized;
+namespace LittledTests\TestHarness\PageContent\Serialized;
 
 
 class SerializedContentTestUtility

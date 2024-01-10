@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Littled\Tests\Constraint;
+namespace LittledTests\Constraint;
 
 use Littled\Exception\ContentValidationException;
 use PHPUnit\Framework\Constraint\Constraint;

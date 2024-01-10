@@ -1,7 +1,6 @@
 <?php
-namespace Littled\Tests\DataProvider\Request;
+namespace LittledTests\DataProvider\Request;
 
-use TypeError;
 use Littled\Request\DateInput;
 
 

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\Metadata;
+namespace LittledTests\PageContent\Metadata;
 
 use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Metadata\PageMetadata;

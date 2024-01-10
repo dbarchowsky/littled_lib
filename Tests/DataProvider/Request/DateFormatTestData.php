@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Request;
+namespace LittledTests\DataProvider\Request;
 
 class DateFormatTestData
 {

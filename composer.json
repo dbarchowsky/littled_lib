@@ -6,7 +6,7 @@
     "autoload": {
         "psr-4": {
             "Littled\\": "lib/",
-            "Littled\\Tests\\": "Tests/"
+            "LittledTests\\": "Tests/"
         }
     },
     "require-dev": {

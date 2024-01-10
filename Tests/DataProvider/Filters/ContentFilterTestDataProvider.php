@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Filters;
+namespace LittledTests\DataProvider\Filters;
 
 use Littled\Filters\BooleanContentFilter;
 use Littled\Filters\ContentFilter;

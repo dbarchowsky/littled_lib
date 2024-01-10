@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
+namespace LittledTests\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -8,7 +8,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentRoute;
-use Littled\Tests\TestHarness\PageContent\SiteSection\ContentRouteTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\ContentRouteTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -42,7 +42,7 @@ class ContentRouteTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::explodeRouteStringTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::explodeRouteStringTestProvider()
      * @param array $expected
      * @param string $route
      * @param string $msg
@@ -80,7 +80,7 @@ class ContentRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::fetchRecordTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::fetchRecordTestProvider()
      * @throws ContentValidationException
      * @throws RecordNotFoundException
      * @throws NotImplementedException
@@ -133,7 +133,7 @@ class ContentRouteTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::hasDataTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\SiteSection\ContentRouteTestDataProvider::hasDataTestProvider()
      * @param bool $expected
      * @param ContentRoute $o
      * @param string $msg

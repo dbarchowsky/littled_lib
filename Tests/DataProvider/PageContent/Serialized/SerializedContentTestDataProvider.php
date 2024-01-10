@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\PageContent\Serialized;
+namespace LittledTests\DataProvider\PageContent\Serialized;
 
 class SerializedContentTestDataProvider
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
+namespace LittledTests\PageContent\SiteSection;
 
 use Littled\App\LittledGlobals;
 use Littled\Database\MySQLConnection;
@@ -9,7 +9,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentTemplate;
-use Littled\Tests\DataProvider\PageContent\SiteSection\ContentTemplateTestDataProvider;
+use LittledTests\DataProvider\PageContent\SiteSection\ContentTemplateTestDataProvider;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -132,7 +132,7 @@ class ContentTemplateTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\SiteSection\ContentTemplateTestDataProvider::formatFullPathTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\SiteSection\ContentTemplateTestDataProvider::formatFullPathTestProvider()
      * @return void
      * @throws Exception
      */

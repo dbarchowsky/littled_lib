@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -8,11 +8,11 @@ use Littled\Request\CategorySelect;
 use Littled\Request\RequestInput;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
-use Littled\Tests\DataProvider\Request\CategorySelect\CollectRequestDataTestData;
-use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
-use Littled\Tests\PageContent\SiteSection\SectionContentTest;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
-use Littled\Tests\TestHarness\Request\CategorySelectTestHarness;
+use LittledTests\DataProvider\Request\CategorySelect\CollectRequestDataTestData;
+use LittledTests\DataProvider\Request\StringSelect\ValidateTestData;
+use LittledTests\PageContent\SiteSection\SectionContentTest;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\Request\CategorySelectTestHarness;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +30,7 @@ class CategorySelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\CategorySelect\CategorySelectTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\CategorySelect\CategorySelectTestDataProvider::collectRequestDataTestProvider()
      * @param CollectRequestDataTestData $data
      * @throws ConfigurationUndefinedException
      */
@@ -232,7 +232,7 @@ class CategorySelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\CategorySelect\CategorySelectTestDataProvider::validateInputTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\CategorySelect\CategorySelectTestDataProvider::validateInputTestProvider()
      * @param ValidateTestData $data
      * @return void
      * @throws ConfigurationUndefinedException

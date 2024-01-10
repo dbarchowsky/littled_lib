@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\Validation;
+namespace LittledTests\TestHarness\Validation;
 
 use Littled\Validation\Validation;
 

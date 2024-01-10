@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Account;
+namespace LittledTests\Account;
 
 use Littled\Account\Address;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -10,14 +10,14 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Account\AddressTestData;
-use Littled\Tests\TestExtensions\ContentValidationTestCase;
+use LittledTests\DataProvider\Account\AddressTestData;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
 /**
  * Class AddressTest
  * Unit Tests for Littled\Account\Address
- * @package Littled\Tests\Account
+ * @package LittledTests\Account
  */
 class AddressTest extends ContentValidationTestCase
 {
@@ -409,7 +409,7 @@ class AddressTest extends ContentValidationTestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Account\AddressTestDataProvider::hasAddressDataTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Account\AddressTestDataProvider::hasAddressDataTestProvider()
 	 * @return void
 	 */
 	public function testHasAddressData(AddressTestData $data)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\PageContent\SiteSection;
+namespace LittledTests\DataProvider\PageContent\SiteSection;
 
 
 class ContentRouteTestDataProvider

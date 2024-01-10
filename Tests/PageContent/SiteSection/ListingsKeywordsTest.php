@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
+namespace LittledTests\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use PHPUnit\Framework\TestCase;

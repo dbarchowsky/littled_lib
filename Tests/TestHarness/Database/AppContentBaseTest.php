@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\Database;
+namespace LittledTests\TestHarness\Database;
 
 use Littled\Database\AppContentBase;
 use PHPUnit\Framework\TestCase;
@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 class AppContentBaseTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Database\AppContentBaseTestDataProvider::makePluralTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Database\AppContentBaseTestDataProvider::makePluralTestProvider()
      * @param string $str
      * @param string $expected
      * @return void

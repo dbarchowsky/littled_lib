@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Account;
+namespace LittledTests\DataProvider\Account;
 
 
 class AddressTestDataProvider

@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\API;
+namespace LittledTests\API;
 
 use Littled\API\JSONField;
-use Littled\Tests\TestHarness\API\JSONResponseSample;
+use LittledTests\TestHarness\API\JSONResponseSample;
 use PHPUnit\Framework\TestCase;
 
 class JSONFieldTest extends TestCase

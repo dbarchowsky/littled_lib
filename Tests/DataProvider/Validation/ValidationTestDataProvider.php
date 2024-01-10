@@ -1,14 +1,14 @@
 <?php
-namespace Littled\Tests\DataProvider\Validation;
+namespace LittledTests\DataProvider\Validation;
 
 use Littled\API\APIRoute;
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\API\APIRouteTestHarness;
-use Littled\Tests\TestHarness\Filters\ContentFiltersChild;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\API\APIRouteTestHarness;
+use LittledTests\TestHarness\Filters\ContentFiltersChild;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Utility\LittledUtility;
 
 

@@ -1,14 +1,14 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilter;
-use Littled\Tests\DataProvider\Filters\FilterCollection\FormatQueryStringTestData;
-use Littled\Tests\TestHarness\Filters\FilterCollectionAutoloadChild;
-use Littled\Tests\TestHarness\Filters\FilterCollectionChild;
-use Littled\Tests\TestHarness\Filters\FilterCollectionChildWithProcedure;
-use Littled\Tests\TestHarness\Filters\TestTableFilters;
+use LittledTests\DataProvider\Filters\FilterCollection\FormatQueryStringTestData;
+use LittledTests\TestHarness\Filters\FilterCollectionAutoloadChild;
+use LittledTests\TestHarness\Filters\FilterCollectionChild;
+use LittledTests\TestHarness\Filters\FilterCollectionChildWithProcedure;
+use LittledTests\TestHarness\Filters\TestTableFilters;
 
 class FilterCollectionTest extends FilterCollectionTestBase
 {
@@ -28,7 +28,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::calculateOffsetToPageTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::calculateOffsetToPageTestProvider()
 	 * @param int $page
 	 * @param int $listings_length
 	 * @param int $expected
@@ -63,7 +63,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
+	 * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithAutoload()
 	 * @param ?bool $expected
 	 * @param string $collection
 	 * @param $value
@@ -76,7 +76,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
+	 * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingsWithDefault()
 	 * @param ?bool $expected
 	 * @param string $collection
 	 * @param $value
@@ -89,7 +89,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectDisplayListingsSettingTestProvider()
      * @param bool|null $expected
      * @param array $post_data
      * @param array $get_data
@@ -117,7 +117,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectFilterValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::collectFilterValuesTestProvider()
      * @param array $expected
      * @param array $get_data
      * @param array $post_data
@@ -167,7 +167,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FormatQueryStringTestDataProvider::formatQueryStringTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FormatQueryStringTestDataProvider::formatQueryStringTestProvider()
      * @param FormatQueryStringTestData $data
      * @return void
      */
@@ -213,7 +213,7 @@ class FilterCollectionTest extends FilterCollectionTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::listingsDataContainsNeighborIdsTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\FilterCollection\FilterCollectionTestDataProvider::listingsDataContainsNeighborIdsTestProvider()
      * @param bool $expected
      * @param array $data
      * @param int $page_position

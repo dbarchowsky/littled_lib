@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Utility;
+namespace LittledTests\Utility;
 
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 class LittledUtilityTest extends TestCase
 {
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::joinPathsTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Utility\LittledUtilityTestDataProvider::joinPathsTestProvider()
 	 * @param string $expected
 	 * @param array $parts
 	 * @return void
@@ -19,7 +19,7 @@ class LittledUtilityTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::overlapTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Utility\LittledUtilityTestDataProvider::overlapTestProvider()
      * @param string $expected
      * @param string $a
      * @param string $b
@@ -31,7 +31,7 @@ class LittledUtilityTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Utility\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Utility\LittledUtilityTestDataProvider::stripPathLevelsTestProvider()
      * @param string $expected
      * @param string $path
      * @param int $levels

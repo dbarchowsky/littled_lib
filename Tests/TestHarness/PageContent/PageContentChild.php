@@ -1,9 +1,9 @@
 <?php
 
-namespace Littled\Tests\TestHarness\PageContent;
+namespace LittledTests\TestHarness\PageContent;
 
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
 
 class PageContentChild extends PageContent
 {

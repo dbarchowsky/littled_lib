@@ -1,9 +1,9 @@
 <?php /** @noinspection PhpUndefinedConstantInspection */
 
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 require_once(APP_BASE_DIR . "/Tests/Base/DatabaseTestCase.php");
 
-use Littled\Tests\DataProvider\Request\RequestInputTestDataProvider;
+use LittledTests\DataProvider\Request\RequestInputTestDataProvider;
 use mysqli;
 use Exception;
 use Littled\Request\RequestInput;
@@ -55,7 +55,7 @@ class RequestInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::escapeSQLTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::escapeSQLTestProvider()
      * @param $expected
      * @param $value
      * @param bool $include_quotes
@@ -71,7 +71,7 @@ class RequestInputTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::formatAttributeMarkupTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::formatAttributeMarkupTestProvider()
      * @param string $expected
      * @param array $attributes
      * @return void
@@ -86,7 +86,7 @@ class RequestInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::formatClassAttributeTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::formatClassAttributeTestProvider()
      * @param string $expected
      * @param string $css_class
      * @param string $class_override
@@ -150,7 +150,7 @@ class RequestInputTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\RequestInputTestDataProvider::isEmptyTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::isEmptyTestProvider()
      * @param bool $expected
      * @param $value
      * @return void

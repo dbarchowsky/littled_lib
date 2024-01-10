@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Request\StringSelect;
+namespace LittledTests\DataProvider\Request\StringSelect;
 
 class CollectRequestDataSingleTestData extends CollectRequestDataTestData
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Request\StringTextField;
 use PHPUnit\Framework\TestCase;
@@ -9,7 +9,7 @@ use Littled\Request\StringInput;
 
 /**
  * Class StringInputTest
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class StringTextFieldTest extends TestCase
 {

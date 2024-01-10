@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
+namespace LittledTests\PageContent\SiteSection;
 
 use Exception;
 use Littled\Database\DBUtils;
@@ -11,9 +11,9 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
-use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentWithoutTypeTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\SectionContentWithoutTypeTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class SectionContentTest extends TestCase

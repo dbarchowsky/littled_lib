@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Validation;
+namespace LittledTests\Validation;
 
 use Littled\Validation\ValidationErrors;
 use PHPUnit\Framework\TestCase;

@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\VendorSupport;
+namespace LittledTests\VendorSupport;
 
 use Littled\Exception\InvalidValueException;
-use Littled\Tests\TestHarness\VendorSupport\TinyMCEUploaderTestHarness;
+use LittledTests\TestHarness\VendorSupport\TinyMCEUploaderTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -76,7 +76,7 @@ class TinyMCEUploaderTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\VendorSupport\TinyMCEUploaderTestDataProvider::formatTargetPathTestProvider()
+     * @dataProvider \LittledTests\DataProvider\VendorSupport\TinyMCEUploaderTestDataProvider::formatTargetPathTestProvider()
      * @param string $expected
      * @param string $expected_exception
      * @param string $upload_path

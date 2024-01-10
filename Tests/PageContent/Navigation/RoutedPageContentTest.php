@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\Navigation;
+namespace LittledTests\PageContent\Navigation;
 
 use Exception;
 use Littled\Account\UserAccount;
@@ -8,18 +8,18 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\PageContent\Navigation\RoutedPageContent;
-use Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContent\GetPageRouteTestData;
-use Littled\Tests\TestHarness\Filters\KeywordContentFiltersTestHarness;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableSectionNavigationRoutes;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
-use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableEditPage;
+use LittledTests\DataProvider\PageContent\Navigation\RoutedPageContent\GetPageRouteTestData;
+use LittledTests\TestHarness\Filters\KeywordContentFiltersTestHarness;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
+use LittledTests\TestHarness\SiteContent\TestTableSectionNavigationRoutes;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\SectionContentTestHarness;
+use LittledTests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness;
+use LittledTests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\TestTableSectionContentTestHarness;
+use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
+use LittledTests\TestHarness\SiteContent\TestTableEditPage;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +30,7 @@ class RoutedPageContentTest extends TestCase
 	const TEST_TEMPLATE_FILENAME = 'my-template.txt';
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectActionFromRouteTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectActionFromRouteTestProvider()
      * @param string $expected_action
      * @param int|null $expected_record_id
      * @param array $route
@@ -44,7 +44,7 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectRecordIdFromRouteTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectRecordIdFromRouteTestProvider()
      * @param int|null $expected
      * @param array $route
      * @return void
@@ -176,7 +176,7 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getListingsURIWithFilters()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getListingsURIWithFilters()
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException|NotImplementedException
      */
@@ -210,7 +210,7 @@ class RoutedPageContentTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteTestProvider()
 	 * @param GetPageRouteTestData $data
 	 * @return void
 	 * @throws ConfigurationUndefinedException
@@ -223,7 +223,7 @@ class RoutedPageContentTest extends TestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteWithFiltersTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteWithFiltersTestProvider()
 	 * @param GetPageRouteTestData $data
 	 * @return void
 	 * @throws ConfigurationUndefinedException
@@ -237,7 +237,7 @@ class RoutedPageContentTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getRecordIdProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getRecordIdProvider()
      * @param int|null $record_id
      * @param int|null $expected
      * @return void
@@ -298,7 +298,7 @@ class RoutedPageContentTest extends TestCase
 			RoutedPageContentTestHarness::getValidatedRoutesClass();
 		}
 		catch(Exception $e) {
-			$this->assertEquals('Invalid route object in Littled\Tests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness.', $e->getMessage());
+			$this->assertEquals('Invalid route object in LittledTests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness.', $e->getMessage());
 		}
 
 		// tests class after assigning routes class

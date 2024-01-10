@@ -1,10 +1,10 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Exception\NotImplementedException;
 use Littled\Request\BooleanSelect;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Request\BooleanSelectTestData;
+use LittledTests\DataProvider\Request\BooleanSelectTestData;
 use PHPUnit\Framework\TestCase;
 
 class BooleanSelectTest extends TestCase
@@ -20,7 +20,7 @@ class BooleanSelectTest extends TestCase
         $o = new BooleanSelect('Test Input', 'boolKey');
 
         // always false for BooleanSelect
-        $o->allowMultiple(true);
+        $o->allowMultiple();
         $this->assertFalse($o->doesAllowMultiple());
 
         $o->allowMultiple(false);
@@ -35,7 +35,7 @@ class BooleanSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\BooleanSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\BooleanSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
      * @param bool $expected
      * @param null|bool|int|string $input_value
      * @param null|bool|int|string $test_value
@@ -52,7 +52,7 @@ class BooleanSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\BooleanSelectTestDataProvider::renderInputTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\BooleanSelectTestDataProvider::renderInputTestProvider()
      * @param BooleanSelectTestData $data
      * @return void
      * @throws NotImplementedException

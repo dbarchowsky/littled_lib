@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Database;
+namespace LittledTests\Database;
 
 use Exception;
 use Littled\Database\DBUtils;

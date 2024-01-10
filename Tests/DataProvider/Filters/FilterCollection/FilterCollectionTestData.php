@@ -1,9 +1,9 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Filters\FilterCollection;
+namespace LittledTests\DataProvider\Filters\FilterCollection;
 
 
-use Littled\Tests\Filters\FilterCollectionTest;
+use LittledTests\Filters\FilterCollectionTest;
 
 class FilterCollectionTestData
 {

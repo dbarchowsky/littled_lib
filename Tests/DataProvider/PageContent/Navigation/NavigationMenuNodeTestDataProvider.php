@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\PageContent\Navigation;
+namespace LittledTests\DataProvider\PageContent\Navigation;
 
 
 class NavigationMenuNodeTestDataProvider

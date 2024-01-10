@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\Account;
+namespace LittledTests\TestHarness\Account;
 
 use Littled\Account\UserAccount;
 use Littled\Exception\ContentValidationException;

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Filters\Samples;
+namespace LittledTests\Filters\Samples;
 
 use Littled\Filters\ContentFilters;
 

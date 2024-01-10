@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\PageContent\Metadata;
+namespace LittledTests\DataProvider\PageContent\Metadata;
 
 use Littled\PageContent\Metadata\MetadataElement;
 

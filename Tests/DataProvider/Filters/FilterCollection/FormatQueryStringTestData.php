@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Filters\FilterCollection;
+namespace LittledTests\DataProvider\Filters\FilterCollection;
 
 
 class FormatQueryStringTestData

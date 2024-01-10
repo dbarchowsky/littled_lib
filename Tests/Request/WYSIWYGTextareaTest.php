@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -32,7 +32,7 @@ class WYSIWYGTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\WYSIWYGTestDataProvider::collectRequestDataTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\WYSIWYGTestDataProvider::collectRequestDataTestProvider()
      * @param string $expected
      * @param string $key
      * @param string $src
@@ -60,7 +60,7 @@ class WYSIWYGTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\WYSIWYGTestDataProvider::renderInputTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\WYSIWYGTestDataProvider::renderInputTestProvider()
      * @param string $expected
      * @param string $editor_class
      * @param string $msg
@@ -80,7 +80,7 @@ class WYSIWYGTextareaTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\WYSIWYGTestDataProvider::setInputCSSClassTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\WYSIWYGTestDataProvider::setInputCSSClassTestProvider()
      * @param string $expected
      * @param string $editor_class
      * @param string $msg

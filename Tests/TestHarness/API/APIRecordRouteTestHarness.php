@@ -1,10 +1,10 @@
 <?php
-namespace Littled\Tests\TestHarness\API;
+namespace LittledTests\TestHarness\API;
 
 use Littled\API\APIRecordRoute;
 use Littled\API\APIRoute;
 use Littled\PageContent\PageContent;
-use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
+use LittledTests\TestHarness\PageContent\ContentControllerTestHarness;
 
 
 class APIRecordRouteTestHarness extends APIRecordRoute

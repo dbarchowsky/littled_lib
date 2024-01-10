@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Utility;
+namespace LittledTests\DataProvider\Utility;
 
 
 class LittledUtilityTestDataProvider

@@ -1,7 +1,7 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
-use Littled\Tests\TestHarness\Filters\SocialGalleryFiltersChild;
+use LittledTests\TestHarness\Filters\SocialGalleryFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

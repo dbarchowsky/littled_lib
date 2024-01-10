@@ -1,11 +1,11 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent\Navigation;
+namespace LittledTests\TestHarness\PageContent\Navigation;
 
 use Littled\PageContent\Navigation\SectionNavigationRoutes;
-use Littled\Tests\PageContent\Navigation\RoutedPageContentTest;
-use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableEditPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
+use LittledTests\PageContent\Navigation\RoutedPageContentTest;
+use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
+use LittledTests\TestHarness\SiteContent\TestTableEditPage;
+use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 
 
 class SectionNavigationRoutesTestHarness extends SectionNavigationRoutes

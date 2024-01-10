@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\Filters\GalleryFilters;
-use Littled\Tests\TestHarness\Filters\GalleryFiltersChild;
+use LittledTests\TestHarness\Filters\GalleryFiltersChild;
 use PHPUnit\Framework\TestCase;
 use Exception;
 

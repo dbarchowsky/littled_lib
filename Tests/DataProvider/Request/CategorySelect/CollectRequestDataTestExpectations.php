@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Request\CategorySelect;
+namespace LittledTests\DataProvider\Request\CategorySelect;
 
 class CollectRequestDataTestExpectations
 {

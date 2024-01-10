@@ -1,7 +1,7 @@
 <?php
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
-use Littled\Tests\TestHarness\Filters\KeywordContentFiltersTestHarness;
+use LittledTests\TestHarness\Filters\KeywordContentFiltersTestHarness;
 use PHPUnit\Framework\TestCase;
 
 

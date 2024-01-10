@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\PageContent;
+namespace LittledTests\DataProvider\PageContent;
 
 
 class PageContentBaseTestDataProvider

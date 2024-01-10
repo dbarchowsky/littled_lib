@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\Metadata;
+namespace LittledTests\PageContent\Metadata;
 
 use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Metadata\MetadataElement;
@@ -15,7 +15,7 @@ class MetadataElementTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Metadata\MetadataElementTestProvider::renderTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Metadata\MetadataElementTestProvider::renderTestProvider()
      * @param MetadataElement $o
      * @param string $expected
      * @return void

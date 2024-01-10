@@ -1,12 +1,12 @@
 <?php
-namespace Littled\Tests\TestHarness\Filters;
+namespace LittledTests\TestHarness\Filters;
 
 use Littled\Filters\BooleanContentFilter;
 use Littled\Filters\ContentFilters;
 use Littled\Filters\DateContentFilter;
 use Littled\Filters\IntegerContentFilter;
 use Littled\Filters\StringContentFilter;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 
 
 class TestTableContentFiltersTestHarness extends ContentFilters

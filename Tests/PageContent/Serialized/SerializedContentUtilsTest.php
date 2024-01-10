@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\Serialized;
+namespace LittledTests\PageContent\Serialized;
 
 use Exception;
 use Littled\Database\MySQLConnection;
@@ -10,11 +10,11 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContentUtils;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentChild;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentTestUtility;
-use Littled\Tests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentChild;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentTestUtility;
+use LittledTests\TestHarness\PageContent\Serialized\SerializedContentUtilsChild;
 use Littled\Request\RequestInput;
-use Littled\Tests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
 use PHPUnit\Framework\TestCase;
 
 
@@ -258,7 +258,7 @@ class SerializedContentUtilsTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListBooleanValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListBooleanValuesTestProvider()
      * @param bool|null $expected
      * @param $value
      * @return void
@@ -274,7 +274,7 @@ class SerializedContentUtilsTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListDateValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListDateValuesTestProvider()
      * @param string|null $expected
      * @param $value
      * @return void
@@ -290,7 +290,7 @@ class SerializedContentUtilsTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListIntegerValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListIntegerValuesTestProvider()
      * @param int|null $expected
      * @param $value
      * @return void
@@ -306,7 +306,7 @@ class SerializedContentUtilsTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListStringValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentTestDataProvider::formatDatabaseColumnListStringValuesTestProvider()
      * @throws ConnectionException
      * @throws ConfigurationUndefinedException
      */
@@ -452,7 +452,7 @@ class SerializedContentUtilsTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Serialized\SerializedContentUtilsTestDataProvider::preserveInFormTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentUtilsTestDataProvider::preserveInFormTestProvider()
      * @param array $expected
      * @param string $class
      * @param array $excluded

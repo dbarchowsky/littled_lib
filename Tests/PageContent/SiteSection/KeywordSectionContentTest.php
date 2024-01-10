@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\SiteSection;
+namespace LittledTests\PageContent\SiteSection;
 
 use Exception;
 use Littled\Database\MySQLConnection;
@@ -11,9 +11,9 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
-use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentNonDefaultKey;
-use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordSectionContentTestHarness;
-use Littled\Tests\TestHarness\PageContent\SiteSection\KeywordTestTableTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\KeywordSectionContentNonDefaultKey;
+use LittledTests\TestHarness\PageContent\SiteSection\KeywordSectionContentTestHarness;
+use LittledTests\TestHarness\PageContent\SiteSection\KeywordTestTableTestHarness;
 use PHPUnit\Framework\TestCase;
 
 

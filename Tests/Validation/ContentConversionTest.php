@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Validation;
+namespace LittledTests\Validation;
 
 use Littled\Validation\ContentConversion;
 use PHPUnit\Framework\TestCase;
@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 class ContentConversionTest extends TestCase
 {
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Validation\ContentConversionTestDataProvider::formatIndexMarkupProvider()
+	 * @dataProvider \LittledTests\DataProvider\Validation\ContentConversionTestDataProvider::formatIndexMarkupProvider()
 	 * @param string $expected
 	 * @param mixed $index
 	 * @return void

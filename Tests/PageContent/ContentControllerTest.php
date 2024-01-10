@@ -1,21 +1,21 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace LittledTests\PageContent;
 
 use Exception;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
-use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
+use LittledTests\TestHarness\PageContent\ContentControllerTestHarness;
+use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
+use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
 
 
 class ContentControllerTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\ContentControllerTestDataProvider::formatNavigationRouteTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\ContentControllerTestDataProvider::formatNavigationRouteTestProvider()
      * @throws InvalidValueException
      * @throws NotImplementedException
      */
@@ -34,7 +34,7 @@ class ContentControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\ContentControllerTestDataProvider::getAPIRouteClassNameTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\ContentControllerTestDataProvider::getAPIRouteClassNameTestProvider()
      * @param array $route_parts
      * @param string $expected_class
      * @param string $expected_exception
@@ -51,7 +51,7 @@ class ContentControllerTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\ContentControllerTestDataProvider::getAPIRouteClassNameTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\ContentControllerTestDataProvider::getAPIRouteClassNameTestProvider()
      * @param array $route_parts
      * @param string $expected_class
      * @param string $expected_exception

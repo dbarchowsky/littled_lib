@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\VendorSupport;
+namespace LittledTests\DataProvider\VendorSupport;
 
 use Littled\Exception\InvalidValueException;
 

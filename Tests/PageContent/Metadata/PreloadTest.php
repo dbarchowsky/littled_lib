@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\Metadata;
+namespace LittledTests\PageContent\Metadata;
 
 use Littled\PageContent\Metadata\Preload;
 use PHPUnit\Framework\TestCase;
@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 class PreloadTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\DataProvider\PageContent\Metadata\PreloadTestDataProvider::renderTestProvider()
+     * @dataProvider \LittledTests\DataProvider\PageContent\Metadata\PreloadTestDataProvider::renderTestProvider()
      * @param Preload $o
      * @param string $expected
      * @return void

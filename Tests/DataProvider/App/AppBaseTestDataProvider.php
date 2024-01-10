@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\DataProvider\App;
+namespace LittledTests\DataProvider\App;
 
 use Littled\API\APIRoute;
 use Littled\App\LittledGlobals;
-use Littled\Tests\API\APIRouteTestBase;
+use LittledTests\API\APIRouteTestBase;
 use Littled\Utility\LittledUtility;
 
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace Littled\Tests\TestExtensions;
+namespace LittledTests\TestExtensions;
 
-use Littled\Tests\Constraint\GotContentValidationException;
+use LittledTests\Constraint\GotContentValidationException;
 use PHPUnit\Framework\TestCase;
 
 class ContentValidationTestCase extends TestCase

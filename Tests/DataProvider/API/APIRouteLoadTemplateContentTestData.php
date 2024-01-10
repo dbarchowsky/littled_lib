@@ -1,8 +1,8 @@
 <?php
 
-namespace Littled\Tests\DataProvider\API;
+namespace LittledTests\DataProvider\API;
 
-use Littled\Tests\API\APIRouteTestBase;
+use LittledTests\API\APIRouteTestBase;
 
 
 class APIRouteLoadTemplateContentTestData

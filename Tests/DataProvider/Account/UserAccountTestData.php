@@ -1,7 +1,7 @@
 <?php
-namespace Littled\Tests\DataProvider\Account;
+namespace LittledTests\DataProvider\Account;
 
-use Littled\Tests\TestHarness\Account\UserAccountTestHarness;
+use LittledTests\TestHarness\Account\UserAccountTestHarness;
 use Littled\Account\UserAccount;
 
 

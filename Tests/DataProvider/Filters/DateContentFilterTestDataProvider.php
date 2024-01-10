@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\Filters;
+namespace LittledTests\DataProvider\Filters;
 
 class DateContentFilterTestDataProvider
 {

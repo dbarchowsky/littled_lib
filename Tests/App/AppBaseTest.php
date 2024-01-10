@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\App;
+namespace LittledTests\App;
 
 use Littled\App\AppBase;
-use Littled\Tests\TestHarness\App\AppBaseTestHarness;
+use LittledTests\TestHarness\App\AppBaseTestHarness;
 use Littled\Utility\LittledUtility;
 use PHPUnit\Framework\TestCase;
 use Exception;
@@ -37,7 +37,7 @@ class AppBaseTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\App\AppBaseTestDataProvider::getAjaxRequestDataTestProvider()
+     * @dataProvider \LittledTests\DataProvider\App\AppBaseTestDataProvider::getAjaxRequestDataTestProvider()
      * @param array|null $expected
      * @param string $ajax_stream
      * @param array $post_data

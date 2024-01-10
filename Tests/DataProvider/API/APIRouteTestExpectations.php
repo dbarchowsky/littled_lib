@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\API;
+namespace LittledTests\DataProvider\API;
 
 
 class APIRouteTestExpectations

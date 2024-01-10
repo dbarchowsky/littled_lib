@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\DataProvider\API;
+namespace LittledTests\DataProvider\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
@@ -9,10 +9,10 @@ use Littled\PageContent\PageConfig;
 use Littled\App\LittledGlobals;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\PageContentInterface;
-use Littled\Tests\API\APIRouteTestBase;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
-use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
-use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
+use LittledTests\API\APIRouteTestBase;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\PageContent\ContentControllerTestHarness;
+use LittledTests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
 use Littled\Utility\LittledUtility;
 
 

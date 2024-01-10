@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\DataProvider\Log;
+namespace LittledTests\DataProvider\Log;
 
 class LogTestDataProvider
 {

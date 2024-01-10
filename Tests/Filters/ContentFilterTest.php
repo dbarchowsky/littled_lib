@@ -1,12 +1,12 @@
 <?php /** @noinspection PhpUndefinedConstantInspection */
 
-namespace Littled\Tests\Filters;
+namespace LittledTests\Filters;
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilter;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider;
-use Littled\Tests\TestHarness\Filters\ContentFilterTestHarness;
+use LittledTests\DataProvider\Filters\ContentFilterTestDataProvider;
+use LittledTests\TestHarness\Filters\ContentFilterTestHarness;
 use PHPUnit\Framework\TestCase;
 use mysqli;
 use Exception;
@@ -34,7 +34,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::collectRequestValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\ContentFilterTestDataProvider::collectRequestValueTestProvider()
      * @param mixed $expected
      * @param string $key
      * @param array $get_data
@@ -64,7 +64,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::collectValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Filters\ContentFilterTestDataProvider::collectValueTestProvider()
      * @param $expected
      * @param string $key
      * @param bool $read_cookies
@@ -96,7 +96,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider
+     * @dataProvider \LittledTests\DataProvider\Filters\ContentFilterTestDataProvider::escapeSQLTestProvider
      * @return void
      * @throws Exception
      */
@@ -109,7 +109,7 @@ class ContentFilterTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider
+     * @dataProvider \LittledTests\DataProvider\Filters\ContentFilterTestDataProvider::formatQueryStringTestProvider
      * @param string $expected
      * @param $value
      * @param string $filter_class
@@ -124,7 +124,7 @@ class ContentFilterTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::saveInFormTestProvider
+	 * @dataProvider \LittledTests\DataProvider\Filters\ContentFilterTestDataProvider::saveInFormTestProvider
 	 * @param ContentFilterTestDataProvider $data
 	 * @return void
 	 * @throws ResourceNotFoundException
@@ -139,7 +139,7 @@ class ContentFilterTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Filters\ContentFilterTestDataProvider::safeValueTestProvider
+     * @dataProvider \LittledTests\DataProvider\Filters\ContentFilterTestDataProvider::safeValueTestProvider
      * @return void
      * @throws Exception
      */

@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\TestHarness\PageContent;
+namespace LittledTests\TestHarness\PageContent;
 
 use Littled\PageContent\PageContentBase;
 

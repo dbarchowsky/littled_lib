@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent;
+namespace LittledTests\PageContent;
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;

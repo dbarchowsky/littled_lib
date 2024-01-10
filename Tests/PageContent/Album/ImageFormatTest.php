@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\PageContent\Album;
+namespace LittledTests\PageContent\Album;
 
 use Exception;
 use Littled\Database\MySQLConnection;

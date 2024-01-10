@@ -1,14 +1,14 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ContentValidationException;
 use Littled\Request\DateInput;
 use Littled\Request\DateTextField;
 use Littled\Request\RequestInput;
-use Littled\Tests\DataProvider\Request\DateFormatTestData;
-use Littled\Tests\DataProvider\Request\DateTextFieldTestData;
-use Littled\Tests\TestExtensions\ContentValidationTestCase;
+use LittledTests\DataProvider\Request\DateFormatTestData;
+use LittledTests\DataProvider\Request\DateTextFieldTestData;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 use Exception;
 
 class DateInputTest extends ContentValidationTestCase
@@ -40,7 +40,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::escapeSQLProvider
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::escapeSQLProvider
 	 * @throws Exception
 	 */
 	public function testEscapeSQL(DateFormatTestData $data)
@@ -67,7 +67,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::formatDateValueProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::formatDateValueProvider()
 	 * @param string|null $date_string
 	 * @param string|null $format
 	 * @param string|null $expected
@@ -88,7 +88,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::formatDateValueUsingInvalidDateProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::formatDateValueUsingInvalidDateProvider()
 	 * @param string|null $date_string
 	 * @param string|null $format
 	 * @param string|null $expected
@@ -104,7 +104,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::formatDateValueProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::formatDateValueProvider()
 	 * @param string|null $date_string
 	 * @param string|null $format
 	 * @param string|null $expected
@@ -128,7 +128,7 @@ class DateInputTest extends ContentValidationTestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::renderTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::renderTestProvider()
 	 * @param DateTextFieldTestData $data
 	 * @return void
 	 */
@@ -142,7 +142,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::setInputValueProvider
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::setInputValueProvider
 	 * @param string|null $date_string
 	 * @param string|null $expected
 	 * @return void
@@ -161,7 +161,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::validateMissingDateValueProvider
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::validateMissingDateValueProvider
 	 * @param string|null $date_string
 	 * @param string|null $expected
 	 * @return void
@@ -178,7 +178,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::validateValidValuesProvider
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::validateValidValuesProvider
 	 * @throws ContentValidationException
 	 */
 	public function testValidateValidValues(?string $date_string, ?string $expected)
@@ -200,7 +200,7 @@ class DateInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\DateInputTestDataProvider::validateInvalidDateFormatsProvider
+	 * @dataProvider \LittledTests\DataProvider\Request\DateInputTestDataProvider::validateInvalidDateFormatsProvider
 	 * @param string|null $date_string
 	 * @param string|null $expected
 	 * @return void

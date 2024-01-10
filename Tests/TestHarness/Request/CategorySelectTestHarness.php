@@ -1,8 +1,8 @@
 <?php
-namespace Littled\Tests\TestHarness\Request;
+namespace LittledTests\TestHarness\Request;
 
 use Littled\Request\CategorySelect;
-use Littled\Tests\PageContent\SiteSection\SectionContentTest;
+use LittledTests\PageContent\SiteSection\SectionContentTest;
 
 
 class CategorySelectTestHarness extends CategorySelect

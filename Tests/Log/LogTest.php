@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Log;
+namespace LittledTests\Log;
 
 use Littled\Log\Log;
 use PHPUnit\Framework\TestCase;
@@ -9,7 +9,7 @@ use Throwable;
 class LogTest extends TestCase
 {
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Log\LogTestDataProvider::displayExceptionMessageTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Log\LogTestDataProvider::displayExceptionMessageTestProvider()
      * @param string $expected
      * @param bool $throw_exception
      * @param bool $is_verbose

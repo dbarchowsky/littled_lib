@@ -1,11 +1,11 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Tests\DataProvider\Request\BooleanInputTestData;
-use Littled\Tests\TestExtensions\ContentValidationTestCase;
+use LittledTests\DataProvider\Request\BooleanInputTestData;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 use mysqli;
 use Littled\Request\RequestInput;
 use Littled\Request\BooleanInput;
@@ -48,7 +48,7 @@ class BooleanInputTest extends ContentValidationTestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::escapeSQLProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::escapeSQLProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -61,7 +61,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::formatValueMarkupProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::formatValueMarkupProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class BooleanInputTest extends ContentValidationTestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::saveInFormProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::saveInFormProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */
@@ -120,7 +120,7 @@ class BooleanInputTest extends ContentValidationTestCase
 
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::setValidateProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::setValidateProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 * @throws ContentValidationException
@@ -189,7 +189,7 @@ class BooleanInputTest extends ContentValidationTestCase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\BooleanInputTestDataProvider::setInputValueProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::setInputValueProvider()
 	 * @param BooleanInputTestData $data
 	 * @return void
 	 */

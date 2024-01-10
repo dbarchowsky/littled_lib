@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\API;
+namespace LittledTests\API;
 
 use Littled\API\APIRoute;
 use Littled\App\AppBase;
@@ -10,8 +10,8 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Tests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
-use Littled\Tests\TestHarness\PageContent\ContentControllerTestHarness;
+use LittledTests\TestHarness\PageContent\Cache\ContentCacheTestHarness;
+use LittledTests\TestHarness\PageContent\ContentControllerTestHarness;
 use Littled\Validation\Validation;
 use PHPUnit\Framework\TestCase;
 

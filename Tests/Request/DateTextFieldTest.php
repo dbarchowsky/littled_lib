@@ -1,5 +1,5 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Database\MySQLConnection;
 use Littled\Request\DateTextField;
@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class DateTextFieldTest
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class DateTextFieldTest extends TestCase
 {

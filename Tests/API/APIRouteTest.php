@@ -1,7 +1,7 @@
 <?php
-namespace Littled\Tests\API;
+namespace LittledTests\API;
 
-use Littled\Tests\DataProvider\API\APIRouteTestExpectations;
+use LittledTests\DataProvider\API\APIRouteTestExpectations;
 use Littled\API\APIRoute;
 use Littled\App\AppBase;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -9,8 +9,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Tests\TestHarness\API\APIRouteTestHarness;
-use Littled\Tests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\API\APIRouteTestHarness;
+use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
 use Littled\Utility\LittledUtility;
 
 
@@ -33,7 +33,7 @@ class APIRouteTest extends APIRouteTestBase
 	}
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::collectFiltersRequestDataTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::collectFiltersRequestDataTestProvider()
 	 * @param APIRouteTestExpectations $expected
 	 * @param array|null $post_data
 	 * @param array|null $get_data
@@ -103,7 +103,7 @@ class APIRouteTest extends APIRouteTestBase
     /**
      * @runInSeparateProcess
      * @preserveGlobalState disabled
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::sendTextResponseTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::sendTextResponseTestProvider()
      * @param string $expected
      * @param string $response
      * @param string $override_response
@@ -124,7 +124,7 @@ class APIRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setCacheClassTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::setCacheClassTestProvider()
      * @param string $cache_class
      * @param string $exception_class
      * @param string $msg
@@ -143,7 +143,7 @@ class APIRouteTest extends APIRouteTestBase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\API\APIRouteTestDataProvider::setControllerClassTestProvider()
+     * @dataProvider \LittledTests\DataProvider\API\APIRouteTestDataProvider::setControllerClassTestProvider()
      * @param string $expected
      * @param string $class_name
      * @return void

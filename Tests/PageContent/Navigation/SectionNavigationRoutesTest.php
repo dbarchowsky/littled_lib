@@ -1,12 +1,12 @@
 <?php
-namespace Littled\Tests\PageContent\Navigation;
+namespace LittledTests\PageContent\Navigation;
 
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\SectionNavigationRoutes;
-use Littled\Tests\DataProvider\PageContent\Navigation\SectionNavigationRoutes\GetPageRouteTestData;
-use Littled\Tests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
-use Littled\Tests\TestHarness\SiteContent\TestTableDetailsPage;
-use Littled\Tests\TestHarness\SiteContent\TestTableListingsPage;
+use LittledTests\DataProvider\PageContent\Navigation\SectionNavigationRoutes\GetPageRouteTestData;
+use LittledTests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
+use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
+use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
 
 
@@ -23,7 +23,7 @@ class SectionNavigationRoutesTest extends TestCase
     }
 
 	/**
-	 * @dataProvider \Littled\Tests\DataProvider\PageContent\Navigation\SectionNavigationRoutesTestDataProvider::getPageRouteTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\SectionNavigationRoutesTestDataProvider::getPageRouteTestProvider()
 	 * @param GetPageRouteTestData $data
 	 * @return void
 	 * @throws InvalidTypeException

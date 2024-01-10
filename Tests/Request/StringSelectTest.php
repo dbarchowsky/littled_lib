@@ -1,16 +1,16 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Exception;
 use Littled\Request\RequestInput;
 use Littled\Request\StringSelect;
-use Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestData;
-use Littled\Tests\DataProvider\Request\StringSelect\ValidateTestData;
+use LittledTests\DataProvider\Request\StringSelect\StringSelectTestData;
+use LittledTests\DataProvider\Request\StringSelect\ValidateTestData;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class StringSelectTest
- * @package Littled\Tests\Request
+ * @package LittledTests\Request
  */
 class StringSelectTest extends TestCase
 {
@@ -44,7 +44,7 @@ class StringSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\CollectRequestDataSingleTestDataProvider::testProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringSelect\CollectRequestDataSingleTestDataProvider::testProvider()
      * @param ?string $expected
      * @param string $key
      * @param array $post_data
@@ -66,7 +66,7 @@ class StringSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\CollectRequestDataMultipleTestDataProvider::testProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringSelect\CollectRequestDataMultipleTestDataProvider::testProvider()
      * @param ?array $expected
      * @param string $key
      * @param array $post_data
@@ -91,7 +91,7 @@ class StringSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
      * @param bool $expected
      * @param bool $allow_multiple
      * @param $selections
@@ -107,7 +107,7 @@ class StringSelectTest extends TestCase
     }
 
     /**
-	 * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::renderTestProvider()
+	 * @dataProvider \LittledTests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::renderTestProvider()
 	 * @param StringSelectTestData $data
 	 * @return void
 	 */
@@ -120,7 +120,7 @@ class StringSelectTest extends TestCase
 	}
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::setInputValueTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::setInputValueTestProvider()
      * @param string|array $expected
      * @param bool $allow_multiple
      * @param string|array $value
@@ -135,7 +135,7 @@ class StringSelectTest extends TestCase
     }
 
     /**
-     * @dataProvider \Littled\Tests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::validateTestProvider()
+     * @dataProvider \LittledTests\DataProvider\Request\StringSelect\StringSelectTestDataProvider::validateTestProvider()
      * @param ValidateTestData $data
      * @return void
      */

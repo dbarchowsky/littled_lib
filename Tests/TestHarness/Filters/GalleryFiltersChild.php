@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\Tests\TestHarness\Filters;
+namespace LittledTests\TestHarness\Filters;
 
 use Littled\Filters\GalleryFilters;
 

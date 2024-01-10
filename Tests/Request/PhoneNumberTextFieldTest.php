@@ -1,9 +1,9 @@
 <?php
-namespace Littled\Tests\Request;
+namespace LittledTests\Request;
 
 use Littled\Exception\ContentValidationException;
 use Littled\Request\PhoneNumberTextField;
-use Littled\Tests\TestExtensions\ContentValidationTestCase;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 
 class PhoneNumberTextFieldTest extends ContentValidationTestCase
 {
