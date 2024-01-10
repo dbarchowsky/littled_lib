@@ -11,9 +11,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Validation\Validation;
 
 /**
- * Class page_utils_class
  * Class containing collection of static page manipulation methods.
- * @package Littled\PageContent
  */
 class PageUtils
 {
@@ -75,7 +73,7 @@ class PageUtils
 		if (!$date) {
 			return ($date);
 		}
-		return (strftime($format, $date));
+		return (date($format, $date));
 	}
 
 	/**
