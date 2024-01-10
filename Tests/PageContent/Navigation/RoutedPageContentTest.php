@@ -387,6 +387,17 @@ class RoutedPageContentTest extends TestCase
 		RoutedPageContentTestHarness::setTemplateFilename(RoutedPageContentTest::TEST_TEMPLATE_FILENAME);
 	}
 
+    function testSetUpdateConfirmationMessage()
+    {
+        $default = RoutedPageContentTestHarness::getUpdateConfirmationMessage();
+        $this->assertNotEmpty($default);
+
+        $new = "My new message.";
+        RoutedPageContentTestHarness::setUpdateConfirmationMessage($new);
+        $this->assertNotEmpty(RoutedPageContentTestHarness::getUpdateConfirmationMessage());
+        $this->assertNotEquals($default, RoutedPageContentTestHarness::getUpdateConfirmationMessage());
+    }
+
     protected static function formatRouteMessage(array $route): string
     {
         return "route: \"".implode("/", $route)."\"";

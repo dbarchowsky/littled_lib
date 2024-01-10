@@ -29,56 +29,45 @@ abstract class RoutedPageContent extends PageContent
      * @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place.
      */
     protected static string         $routes_class='';
-    /**
-     * @var SectionNavigationRoutes Section navigation routes.
-     * @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place.
-     */
+    /** @var SectionNavigationRoutes Section navigation routes. @todo Audit this property to see of $this->content->content_properties->routes or $this->filters->content_properties->routes couldn't be used in its place. */
     public SectionNavigationRoutes  $routes;
-	/**
-	 * @var string
-	 * @todo Audit the use of this property. It could potentially be replaced with a "content_route" record in the database dedicated to a route to add new records.
-	 */
+    /** @var int @todo Audit this property. Is this not already provided by some higher level class? */
+    protected static int            $access_level;
+    /** @var string @todo Audit the use of this property. It could potentially be replaced with a "content_route" record in the database dedicated to a route to add new records. */
     protected static string         $add_token = 'add';
-	/**
-	 * @var string
-	 * @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record.
-	 */
+    /** @var string @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record. */
     protected static string         $edit_token = 'edit';
-	protected static string         $template_filename='';
-	/**
-	 * @var int
-	 * @todo Audit this property. Is this not already provided by some higher level class?
-	 */
-	protected static int            $access_level;
+    protected static string         $template_filename='';
+    protected static string         $update_confirmation_msg = "The record was successfully updated.";
 
-	/**
-	 * @inheritDoc
-	 * @throws ConfigurationUndefinedException
-	 */
-	function __construct()
-	{
-		parent::__construct();
-		$this->verifyLogin();
-	}
+    /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     */
+    function __construct()
+    {
+        parent::__construct();
+        $this->verifyLogin();
+    }
 
-	/**
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 */
-	public function verifyLogin()
-	{
-		if (static::getAccessLevel() > 0) {
-			$login = new LoginAuthenticator();
-			$login->requireLogin(static::getAccessLevel());
-			unset($login);
-		}
-	}
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    public function verifyLogin()
+    {
+        if (static::getAccessLevel() > 0) {
+            $login = new LoginAuthenticator();
+            $login->requireLogin(static::getAccessLevel());
+            unset($login);
+        }
+    }
 
-	/**
-	 * Check the requested edit action. Commit updates if requested.
-	 * @return $this
-	 * @throws ConfigurationUndefinedException
-	 */
+    /**
+     * Check the requested edit action. Commit updates if requested.
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     */
     public function checkAndCommitUpdates(): RoutedPageContent
     {
         $page = $this;
@@ -138,16 +127,16 @@ abstract class RoutedPageContent extends PageContent
      */
     abstract public static function formatRoutePath(?int $record_id=null): string;
 
-	/**
-	 * Access level getter.
-	 * @return ?int
-	 */
-	public static function getAccessLevel(): ?int
-	{
-		return ((isset(static::$access_level)?(static::$access_level):(null)));
-	}
+    /**
+     * Access level getter.
+     * @return ?int
+     */
+    public static function getAccessLevel(): ?int
+    {
+        return ((isset(static::$access_level)?(static::$access_level):(null)));
+    }
 
-	/**
+    /**
      * Add token getter.
      * @return string
      */
@@ -269,40 +258,40 @@ abstract class RoutedPageContent extends PageContent
         return $this->getListingsURI().$this->formatQueryString($exclude_keys);
     }
 
-	/**
-	 * Returns route for a given RoutedPageContent class
-	 * @param string $class
-	 * @param int|null $record_id
-	 * @return string
-	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidTypeException
-	 */
-	public function getPageRoute(string $class, ?int $record_id=null): string
-	{
-		try {
-			$this->verifyAndLoadRoutes();
-		}
-		catch(ConfigurationUndefinedException $e) {
-			throw new ConfigurationUndefinedException('Routes class unavailable for edit uri.');
-		}
-		return $this->routes::getPageRoute($class, $record_id ?: $this->getRecordId());
-	}
+    /**
+     * Returns route for a given RoutedPageContent class
+     * @param string $class
+     * @param int|null $record_id
+     * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     */
+    public function getPageRoute(string $class, ?int $record_id=null): string
+    {
+        try {
+            $this->verifyAndLoadRoutes();
+        }
+        catch(ConfigurationUndefinedException $e) {
+            throw new ConfigurationUndefinedException('Routes class unavailable for edit uri.');
+        }
+        return $this->routes::getPageRoute($class, $record_id ?: $this->getRecordId());
+    }
 
-	/**
-	 * Returns route with query string storing current listings filters for a given RoutedPageContent class.
-	 * @param string $class
-	 * @param int|null $record_id
-	 * @param bool $force_query_update
-	 * @return string
-	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidTypeException
-	 */
-	public function getPageRouteWithFilters(string $class, ?int $record_id=null, bool $force_query_update=false): string
-	{
-		return $this->getPageRoute($class, $record_id ?: $this->getRecordId()).$this->getQueryString($force_query_update);
-	}
+    /**
+     * Returns route with query string storing current listings filters for a given RoutedPageContent class.
+     * @param string $class
+     * @param int|null $record_id
+     * @param bool $force_query_update
+     * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     */
+    public function getPageRouteWithFilters(string $class, ?int $record_id=null, bool $force_query_update=false): string
+    {
+        return $this->getPageRoute($class, $record_id ?: $this->getRecordId()).$this->getQueryString($force_query_update);
+    }
 
-	/**
+    /**
      * Record id getter.
      * @return int|null
      */
@@ -323,40 +312,49 @@ abstract class RoutedPageContent extends PageContent
         return static::$routes_class;
     }
 
-	/**
-	 * Template directory path getter.
-	 * @return string
-	 * @throws ConfigurationUndefinedException
-	 */
-	public static function getTemplateDir(): string
-	{
-		$routes_class = static::getValidatedRoutesClass('getTemplateDir');
-		/** @var SectionNavigationRoutes $routes_class */
-		return $routes_class::getTemplateDir();
-	}
+    /**
+     * Template directory path getter.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getTemplateDir(): string
+    {
+        $routes_class = static::getValidatedRoutesClass('getTemplateDir');
+        /** @var SectionNavigationRoutes $routes_class */
+        return $routes_class::getTemplateDir();
+    }
 
-	/**
-	 * Template directory path getter.
-	 * @return string
-	 */
-	public static function getTemplateFilename(): string
-	{
-		return static::$template_filename;
-	}
+    /**
+     * Template directory path getter.
+     * @return string
+     */
+    public static function getTemplateFilename(): string
+    {
+        return static::$template_filename;
+    }
 
-	/**
-	 * Template full path getter.
-	 * @return string
-	 * @throws ConfigurationUndefinedException
-	 */
-	public static function getTemplateFullPath(): string
-	{
-		$routes_class = static::getValidatedRoutesClass('getTemplateDir');
-		/** @var SectionNavigationRoutes $routes_class */
-		return LittledUtility::joinPaths($routes_class::getTemplateDir(), static::$template_filename);
-	}
+    /**
+     * Template full path getter.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getTemplateFullPath(): string
+    {
+        $routes_class = static::getValidatedRoutesClass('getTemplateDir');
+        /** @var SectionNavigationRoutes $routes_class */
+        return LittledUtility::joinPaths($routes_class::getTemplateDir(), static::$template_filename);
+    }
 
-	/**
+    /**
+     * Returns message to use to indicate that a record was successfully updated.
+     * @return string
+     */
+    public static function getUpdateConfirmationMessage(): string
+    {
+        return static::$update_confirmation_msg;
+    }
+
+    /**
      * Sets the page template to load after updating a database record.
      * @return RoutedPageContent
      * @throws ConfigurationUndefinedException
@@ -374,25 +372,25 @@ abstract class RoutedPageContent extends PageContent
         return $this;
     }
 
-	/**
-	 * Validates that the $routes_class property value is currently set to an appropriate class type before returning
-	 * the name of the routes class.
-	 * @param string $method Optional method name. If present, the class will be checked to make sure that the method
-	 * exists within the class.
-	 * @return string
-	 * @throws ConfigurationUndefinedException
-	 */
-	public static function getValidatedRoutesClass(string $method=''): string
-	{
-		$routes_class = static::$routes_class;
-		if (!class_exists($routes_class)) {
-			throw new ConfigurationUndefinedException('Invalid route object in '.get_called_class().'.');
-		}
-		if ($method && !method_exists($routes_class, $method)) {
-			throw new ConfigurationUndefinedException('Invalid interface.');
-		}
-		return $routes_class;
-	}
+    /**
+     * Validates that the $routes_class property value is currently set to an appropriate class type before returning
+     * the name of the routes class.
+     * @param string $method Optional method name. If present, the class will be checked to make sure that the method
+     * exists within the class.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getValidatedRoutesClass(string $method=''): string
+    {
+        $routes_class = static::$routes_class;
+        if (!class_exists($routes_class)) {
+            throw new ConfigurationUndefinedException('Invalid route object in '.get_called_class().'.');
+        }
+        if ($method && !method_exists($routes_class, $method)) {
+            throw new ConfigurationUndefinedException('Invalid interface.');
+        }
+        return $routes_class;
+    }
 
     /**
      * Instantiates filters and routes objects for the class.
@@ -433,17 +431,17 @@ abstract class RoutedPageContent extends PageContent
         $this->formatQueryString();
     }
 
-	/**
-	 * Access level setter.
-	 * @param int $access_level
-	 * @return void
-	 */
-	public static function setAccessLevel(int $access_level)
-	{
-		static::$access_level = $access_level;
-	}
+    /**
+     * Access level setter.
+     * @param int $access_level
+     * @return void
+     */
+    public static function setAccessLevel(int $access_level)
+    {
+        static::$access_level = $access_level;
+    }
 
-	/**
+    /**
      * Content class name setter.
      * @param string $class
      * @return void
@@ -473,25 +471,35 @@ abstract class RoutedPageContent extends PageContent
         static::$routes_class = $routes_class;
     }
 
-	/**
-	 * Template directory path setter.
-	 * @param string $path
-	 * @return void
-	 */
-	public static function setTemplateDir(string $path)
-	{
-		static::$template_dir = $path;
-	}
+    /**
+     * Template directory path setter.
+     * @param string $path
+     * @return void
+     */
+    public static function setTemplateDir(string $path)
+    {
+        static::$template_dir = $path;
+    }
 
-	/**
-	 * Template filename setter.
-	 * @param string $filename
-	 * @return void
-	 */
-	public static function setTemplateFilename(string $filename)
-	{
-		static::$template_filename = $filename;
-	}
+    /**
+     * Template filename setter.
+     * @param string $filename
+     * @return void
+     */
+    public static function setTemplateFilename(string $filename)
+    {
+        static::$template_filename = $filename;
+    }
+
+    /**
+     * Updates the message used to indicate that a record has been successfully updated.
+     * @param string $msg Message to display.
+     * @return void
+     */
+    public static function setUpdateConfirmationMessage(string $msg)
+    {
+        static::$update_confirmation_msg = $msg;
+    }
 
     /**
      * Save content edited within a page.
