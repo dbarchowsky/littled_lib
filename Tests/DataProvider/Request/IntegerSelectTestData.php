@@ -24,9 +24,10 @@ class IntegerSelectTestData extends SelectTestData
 		string $override_label='',
 		string $css_class='',
 		bool $allow_multiple=false,
-		?int $options_size=null)
+		?int $options_size=null,
+        array $selected=[])
 	{
-        parent::__construct($expected, $o, $options, $override_label, $css_class, $allow_multiple, $options_size);
+        parent::__construct($expected, $o, $options, $override_label, $css_class, $allow_multiple, $options_size, $selected);
         $this->input = $o;
 		if ($allow_multiple) {
 			$o->allowMultiple();

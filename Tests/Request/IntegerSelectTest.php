@@ -22,7 +22,7 @@ class IntegerSelectTest extends TestCase
     {
         $o = new IntegerSelect('Test Input', 'intKey');
 
-        $o->allowMultiple(true);
+        $o->allowMultiple();
         $this->assertTrue($o->doesAllowMultiple());
 
         $o->allowMultiple(false);
@@ -52,8 +52,7 @@ class IntegerSelectTest extends TestCase
 	 */
 	function testRender(IntegerSelectTestData $data)
 	{
-		$this->expectOutputRegex($data->expected);
-		$data->input->setOptions($data->options)->render($data->override_label, $data->css_class);
+        $this->_testRender($data);
 	}
 
     /**
@@ -63,7 +62,19 @@ class IntegerSelectTest extends TestCase
      */
     function testRenderUsingProcedure(IntegerSelectTestData $data)
     {
+        $this->_testRender($data);
+    }
+
+    /**
+     * @param IntegerSelectTestData $data
+     * @return void
+     */
+    protected function _testRender(IntegerSelectTestData $data)
+    {
         $this->expectOutputRegex($data->expected);
-        $data->input->setOptions($data->options)->render($data->override_label, $data->css_class);
+        $data->input->value = $data->selected;
+        $data->input
+            ->setOptions($data->options)
+            ->render($data->override_label, $data->css_class);
     }
 }

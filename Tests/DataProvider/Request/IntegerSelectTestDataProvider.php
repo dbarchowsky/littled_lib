@@ -46,22 +46,53 @@ class IntegerSelectTestDataProvider
 				new IntegerSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
 				IntegerSelectTestData::TEST_OPTIONS,
 				'', '', true)],
-			[new IntegerSelectTestData(
-				'/<'.'div class=\"form-cell\">(.|\n)*<'.'label(.|\n)*<'.'select.*multiple=\"multiple\" size=\"5\"(.|\n)*<'.'option value=\"2\">2<\/option>(.|\n)*<\/select>\n/',
-				new IntegerSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
-				IntegerSelectTestData::TEST_OPTIONS,
-				'', '', true, 5)],
+            [new IntegerSelectTestData(
+                '/<'.'div class=\"form-cell\">(.|\n)*<'.'label(.|\n)*<'.'select.*multiple=\"multiple\" size=\"5\"(.|\n)*<'.'option value=\"2\">2<\/option>(.|\n)*<\/select>\n/',
+                new IntegerSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
+                IntegerSelectTestData::TEST_OPTIONS,
+                '', '', true, 5)],
+            [new IntegerSelectTestData(
+                '/<'.'div class=\"form-cell\">(.|\n)*<'.
+                'label(.|\n)*<'.
+                'select.*multiple=\"multiple\" size=\"5\"(.|\n)*<'.
+                'option value=\"2\" selected="selected">2<\/option>(.|\n)*<'.
+                'option value=\"65\">65<\/option>(.|\n)*<'.
+                'option value=\"5\" selected="selected">5<\/option>(.|\n)*'.
+                '<\/select>\n/',
+                new IntegerSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
+                IntegerSelectTestData::TEST_OPTIONS,
+                '', '', true, 5,
+                [2,5,88])],
 		);
 	}
 
+    /**
+     * @throws Exception
+     */
     public static function renderUsingProcedureTestProvider(): array
     {
         $p = new PageContentTestHarness();
+        $query = 'SELECT id, name as `option` '.
+            'FROM test_table '.
+            'WHERE LOWER(name) LIKE \'%hello%\' '.
+            'ORDER BY IFNULL(`slot`, 999999), `name`';
         return array(
             [new IntegerSelectTestData(
-                '/<'.'div class=\"form-cell\">(.|\n)*<'.'label(.|\n)*<'.'select.*>(.|\n)*<'.'option value=\"2215\">hello<\/option>(.|\n)*<\/select>\n/',
+                '/<'.'div class=\"form-cell\">(.|\n)*<'.'label(.|\n)*<'.
+                'select.*>(.|\n)*<'.'option value=\"2215\">hello<\/option>(.|\n)*<\/select>\n/',
                 new IntegerSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
-                $p->fetchOptions('SELECT id, name as `option` FROM test_table where LOWER(name) LIKE \'%hello%\' ORDER BY name'))],
+                $p->fetchOptions($query))],
+            [new IntegerSelectTestData(
+                '/<'.'div class="form-cell">(.|\n)*<'.'label(.|\n)*<'.
+                'select.*>(.|\n)*<'.
+                'option value="2215" selected="selected">hello<\/option>(.|\n)*<'.
+                'option value="2217" selected="selected">hello hello hello<\/option>(.|\n)*'.
+                '<\/select>\n/',
+                new IntegerSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
+                $p->fetchOptions($query),
+                '', '', false, null,
+                [2215, 2217])],
+
         );
     }
 }
