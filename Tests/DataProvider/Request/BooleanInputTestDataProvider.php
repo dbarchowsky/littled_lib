@@ -82,9 +82,9 @@ class BooleanInputTestDataProvider
 	public static function saveInFormProvider(): array
 	{
 		return array(
-			[new BooleanInputTestData(null,'/<input type=\"hidden\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" value=\"\" \/>/', null)],
-			[new BooleanInputTestData(null,'/<input type=\"hidden\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" value=\"1\" \/>/', true)],
-			[new BooleanInputTestData(null,'/<input type=\"hidden\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" value=\"0\" \/>/', false)],
+			[new BooleanInputTestData(null,'/<input type=\"hidden\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" id=\"'.BooleanInputTestData::DEFAULT_KEY.'\" value=\"\" \/>/', null)],
+			[new BooleanInputTestData(null,'/<input type=\"hidden\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" id=\"'.BooleanInputTestData::DEFAULT_KEY.'\" value=\"1\" \/>/', true)],
+			[new BooleanInputTestData(null,'/<input type=\"hidden\" name=\"'.BooleanInputTestData::DEFAULT_KEY.'\" id=\"'.BooleanInputTestData::DEFAULT_KEY.'\" value=\"0\" \/>/', false)],
 		);
 	}
 

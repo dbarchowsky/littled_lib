@@ -400,6 +400,18 @@ class FilterCollection extends FilterCollectionProperties
 	}
 
     /**
+     * Assigns values to pagination properties.
+     * @param PaginationValues $values Stored pagination values
+     * @return void
+     */
+    protected function restorePaginationValues(PaginationValues $values)
+    {
+        $this->page->value = $values->page;
+        $this->listings_length->value = $values->listings_length;
+        $this->page_count = $values->page_count;
+    }
+
+    /**
      * Retrieves recordset containing codes or titles matching the current keyword filter that can then be used to populate autocomplete routines.
      * @return array Record set containing matching package records
      * @throws Exception
@@ -472,7 +484,7 @@ class FilterCollection extends FilterCollectionProperties
 		}
 
 		// At this point, either the previous or next record exist outside the set of listings representing the current page of listings.
-		$this->setOutOfBoundNeighborIds($record_id, $page_position);
+		$this->setOutOfBoundNeighborIds($data, $page_position);
 	}
 
 	/**
@@ -503,49 +515,49 @@ class FilterCollection extends FilterCollectionProperties
 
 	/**
 	 * Runs a query to retrieve the record ids of the previous and next records in listings when they aren't available in the current set of listings.
-	 * @param int $record_id The record id of the active record.
+	 * @param array $listings The current page of listings data.
 	 * @param int $page_position The position of the active record within the active page of listings.
 	 * @return void
 	 * @throws Exception
 	 */
-	protected function setOutOfBoundNeighborIds(int $record_id, int $page_position)
+	protected function setOutOfBoundNeighborIds(array $listings, int $page_position)
 	{
+        // Reset neighbor link values
+        $this->previous_record_id = $this->next_record_id = null;
+
 		// Save original settings.
-		$original = array(
-			'page' => $this->page->value,
-			'listings_length' => $this->listings_length->value,
-			'page_count' => $this->page_count
+		$original = new PaginationValues(
+			$this->page->value,
+			$this->listings_length->value,
+			$this->page_count
 		);
 
-		$listings_position = $this->calculateOffsetToPage()+$page_position;
-		if ($page_position === 1 && $this->page->value === 1) {
-			// active record is the first record in the entire set of listings
-			$this->listings_offset = 0;
-			$this->listings_length->value = 2;
-		}
-		elseif ($listings_position === $this->record_count) {
-			// active record is the last record in the entire set of listings
-			// minus one to shift from starting index of 1 to a starting index of 0
-			// minus one again to shift from active record to the record prior to the active record
-			$this->listings_offset = $listings_position-2;
-			$this->listings_length->value = 2;
-		}
-		else {
-			// active record is in the middle of the entire set of listings
-			// minus one to shift from starting index of 1 to a starting index of 0
-			// minus one again to shift from active record to the record prior to the active record
-			$this->listings_offset = $listings_position-2;
-			$this->listings_length->value = 3;
-		}
+        $listings_position = $this->calculateOffsetToPage()+$page_position;
 
-		// retrieve previous, current, and next records
-		$data = $this->retrieveListings(false);
-		$page_position = $this->calculateRecordPositionOnPage($record_id, $data);
-		$this->setNeighborIdsFromListingsData($data, $page_position);
+        if ($page_position === 1 && $this->page->value > 1) {
+            // The preceding record is the last one on the previous page of listings.
+            $this->page->value = $listings_position - 1;
+            $this->listings_length->value = 1;
+            $data = $this->retrieveListings();
+            $this->previous_record_id = ((count($data) > 0) ? $data[0]->id : null);
+            $this->restorePaginationValues($original);
+        }
+        elseif($page_position > 1 && count($listings) > $page_position-2) {
+            // The preceding record exists in the listings data that was already retrieved.
+            $this->previous_record_id = $listings[$page_position-2]->id;
+        }
 
-		// restore original listings settings
-		$this->page->value = $original['page'];
-		$this->listings_length->value = $original['listings_length'];
-		$this->page_count = $original['page_count'];
+        if ($page_position === $this->listings_length->value && $this->page->value < $this->page_count) {
+            // The following record is the first one on the next page of listings
+            $this->page->value = $listings_position+1;
+            $this->listings_length->value = 1;
+            $data = $this->retrieveListings();
+            $this->next_record_id = ((count($data) > 0) ? $data[0]->id : null);
+            $this->restorePaginationValues($original);
+        }
+        elseif(count($listings) > $page_position) {
+            // The following record exists within the listings data that was already retrieved.
+            $this->next_record_id = $listings[$page_position]->id;
+        }
 	}
 }

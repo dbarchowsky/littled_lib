@@ -63,13 +63,13 @@ class FilterCollectionChild extends FilterCollection
 	}
 
 	/**
-	 * @param int $record_id
+	 * @param array $listings
 	 * @param int $page_position
 	 * @return void
 	 * @throws Exception
 	 */
-	public function publicSetOutOfBoundNeighborIds(int $record_id, int $page_position)
+	public function publicSetOutOfBoundNeighborIds(array $listings, int $page_position)
 	{
-		$this->setOutOfBoundNeighborIds($record_id, $page_position);
+		$this->setOutOfBoundNeighborIds($listings, $page_position);
 	}
 }

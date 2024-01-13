@@ -55,4 +55,15 @@ class IntegerSelectTest extends TestCase
 		$this->expectOutputRegex($data->expected);
 		$data->input->setOptions($data->options)->render($data->override_label, $data->css_class);
 	}
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::renderUsingProcedureTestProvider()
+     * @param IntegerSelectTestData $data
+     * @return void
+     */
+    function testRenderUsingProcedure(IntegerSelectTestData $data)
+    {
+        $this->expectOutputRegex($data->expected);
+        $data->input->setOptions($data->options)->render($data->override_label, $data->css_class);
+    }
 }

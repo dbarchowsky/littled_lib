@@ -117,11 +117,14 @@ class FilterCollectionTestDataProvider
 					->setRetrieveNeighborIdsTestData(2217, 3, 12, '')
 					->setExpectations(null),
 				FilterCollectionTestData::newInstance()
-					->setRetrieveNeighborIdsTestData(2214, 2, 12, '')
+					->setRetrieveNeighborIdsTestData(2217, 2, 12, '')
 					->setExpectations(12),
+                FilterCollectionTestData::newInstance()
+                    ->setRetrieveNeighborIdsTestData(2214, 3, 12, '')
+                    ->setExpectations(1),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2217, 4, 6, '')
-					->setExpectations(5),
+					->setExpectations(6),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2624, 6, 5, '')
 					->setExpectations(3),
@@ -139,7 +142,7 @@ class FilterCollectionTestDataProvider
 					->setExpectations(1),
 				FilterCollectionTestData::newInstance()
 					->setRetrieveNeighborIdsTestData(2208, 2, 4, '%oo%')
-					->setExpectations(3),
+					->setExpectations(2),
 			)
 		);
 	}

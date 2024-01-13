@@ -6,6 +6,8 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidQueryException;
 use Exception;
+use Littled\Exception\InvalidValueException;
+use Littled\Validation\Validation;
 use mysqli;
 use mysqli_driver;
 use mysqli_sql_exception;
@@ -19,8 +21,8 @@ class MySQLConnection extends AppBase
 {
 	const DEFAULT_MYSQL_PORT = '3306';
 
-	/** @var mysqli Connection to database server. */
-	protected $mysqli;
+	/** @var ?mysqli Connection to database server. */
+	protected ?mysqli $mysqli;
 
     public function __construct()
     {
@@ -34,7 +36,7 @@ class MySQLConnection extends AppBase
 	 */
 	public function closeDatabaseConnection()
 	{
-		if (is_object($this->mysqli))
+		if (isset($this->mysqli) && Validation::isSubclass($this->mysqli, 'mysqli'))
 		{
 			$this->mysqli->close();
 			$this->mysqli = null;
@@ -112,7 +114,7 @@ class MySQLConnection extends AppBase
 	 */
 	public function connectToDatabase(string $host='', string $user='', string $password='', string $schema='', string $port=''): MySQLConnection
 	{
-		if (!is_object($this->mysqli)) {
+		if (!isset($this->mysqli)) {
 			try {
 				$this->connect(MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port));
 			}
@@ -148,6 +150,35 @@ class MySQLConnection extends AppBase
 		}
 		return "'".$this->mysqli->real_escape_string($value)."'";
 	}
+
+    /**
+     * Returns associative array retrieved with database query.
+     * @param string $query SQL query to execute
+     * @param string $types
+     * @param &...$vars
+     * @return array Array of generic objects holding the data returned by the query.
+     * @throws Exception
+     */
+    public function fetchOptions(string $query, string $types='', &...$vars): array
+    {
+        // $result = $this->fetchResult($query, $types, $vars);
+        if ($types) {
+            array_unshift($vars, $query, $types);
+            $result = call_user_func_array([$this, 'fetchResult'], $vars);
+        }
+        else {
+            $result = $this->fetchResult($query);
+        }
+        $rs = array();
+        while($row = $result->fetch_object()) {
+            if (count($rs) == 0 && (!property_exists($row, 'id') || !property_exists($row, 'option'))) {
+                throw new InvalidQueryException('Invalid query retrieving options.');
+            }
+            $rs[$row->id] = $row->option;
+        }
+        $result->free();
+        return ($rs);
+    }
 
 	/**
 	 * Returns records from database query. This routine will eat up all result sets returned by
@@ -239,11 +270,11 @@ class MySQLConnection extends AppBase
 	/**
 	 * Retrieves the value of a constant.
 	 * @param string $setting Name of the constant holding the setting value.
-	 * @param bool[optional] $required Specify if the setting is required or not. Defaults to TRUE.
+	 * @param bool $required (Optional) Specify if the setting is required or not. Defaults to TRUE.
 	 * @return mixed
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getAppSetting(string $setting, $required=true)
+	public static function getAppSetting(string $setting, bool $required=true)
 	{
 		if (!defined($setting)) {
 			if ($required===false) {
@@ -311,7 +342,7 @@ class MySQLConnection extends AppBase
      * @param ...$vars
 	 * @throws Exception
 	 */
-	public function query(string $query, string $types='', &...$vars)
+	public function query(string $query, string $types='', ...$vars)
 	{
         $this->connectToDatabase();
         if ($types) {

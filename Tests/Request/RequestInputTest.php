@@ -3,6 +3,7 @@
 namespace LittledTests\Request;
 require_once(APP_BASE_DIR . "/Tests/Base/DatabaseTestCase.php");
 
+use LittledTests\DataProvider\Request\RequestInputTestData;
 use LittledTests\DataProvider\Request\RequestInputTestDataProvider;
 use mysqli;
 use Exception;
@@ -168,34 +169,24 @@ class RequestInputTest extends TestCase
         $this->assertEquals('s', RequestInput::getPreparedStatementTypeIdentifier());
     }
 
-    public function testSaveInForm()
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::saveInFormTestProvider()
+     * @return void
+     */
+    public function testSaveInForm(RequestInputTestData $data)
     {
+        $original_path = RequestInput::getTemplateBasePath();
+        $original_template = RequestInput::getTemplateFilename();
 		RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
         RequestInput::setTemplateFilename('hidden-input.php');
 
         // test basic template output
-        $expected = "<input type=\"hidden\" name=\"{$this->obj->key}\" value=\"{$this->obj->value}\" />\n";
-        $this->expectOutputString($expected);
-        $this->obj->saveInForm();
+        $o = new RequestInput($data->label, $data->key, $data->required, $data->value, 20, $data->index);
+        $this->expectOutputRegex($data->expected);
+        $o->saveInForm();
 
-        // test output with index value set to 0
-        // N.B. output is cumulative
-        $this->obj->index = 0;
-        $expected = $expected."<input type=\"hidden\" name=\"{$this->obj->key}[{$this->obj->index}]\" value=\"{$this->obj->value}\" />\n";
-        $this->expectOutputString($expected);
-        $this->obj->saveInForm();
-
-        // test output with index value set to non-zero
-        $this->obj->index = 4;
-        $expected = $expected."<input type=\"hidden\" name=\"{$this->obj->key}[{$this->obj->index}]\" value=\"{$this->obj->value}\" />\n";
-        $this->expectOutputString($expected);
-        $this->obj->saveInForm();
-
-        // test output with index value set to string
-        $this->obj->index = 'hello';
-        $expected = $expected."<input type=\"hidden\" name=\"{$this->obj->key}['{$this->obj->index}']\" value=\"{$this->obj->value}\" />\n";
-        $this->expectOutputString($expected);
-        $this->obj->saveInForm();
+        RequestInput::setTemplateBasePath($original_path);
+        RequestInput::setTemplateFilename($original_template);
     }
 
     function testSetAttribute()

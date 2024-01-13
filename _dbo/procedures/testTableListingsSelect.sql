@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `testTableListingsSelect`;
 DELIMITER $$
 CREATE PROCEDURE `testTableListingsSelect`(
-    IN p_offset INT,
+    IN p_page INT,
     IN p_page_length INT,
     IN p_name_filter VARCHAR(50),
     IN p_int_filter INT,
@@ -17,7 +17,7 @@ BEGIN
     SET @bool_filter = p_bool_filter;
     SET @after_filter = p_after_date;
     SET @before_filter = p_before_date;
-    CALL udfValidatePageOffsets(p_offset, p_page_length, @offset, @limit);
+    CALL udfCalcPageLimits(p_page, p_page_length, @offset, @limit);
 
     PREPARE STMT FROM
         'SELECT SQL_CALC_FOUND_ROWS

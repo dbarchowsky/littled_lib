@@ -2,6 +2,8 @@
 
 namespace LittledTests\DataProvider\Request;
 
+use Littled\Request\RequestInput;
+
 class RequestInputTestDataProvider
 {
     /** @var string */
@@ -68,6 +70,23 @@ class RequestInputTestDataProvider
             array(false, -8),
             array(false, false),
             array(false, true),
+        );
+    }
+
+    public static function saveInFormTestProvider(): array
+    {
+        return array(
+            [new RequestInputTestData(
+                '/<'.'input type="hidden" name="'.RequestInputTestData::DEFAULT_KEY.'" id="'.RequestInputTestData::DEFAULT_KEY.'" value="" \/>/'
+            )],
+            [new RequestInputTestData(
+                '/<'.'input type="hidden" name="'.RequestInputTestData::DEFAULT_KEY.'\[0\]" id="'.RequestInputTestData::DEFAULT_KEY.'\[0\]" value="" \/>/',
+                0
+            )],
+            [new RequestInputTestData(
+                '/<'.'input type="hidden" name="'.RequestInputTestData::DEFAULT_KEY.'\[4\]" id="'.RequestInputTestData::DEFAULT_KEY.'\[4\]" value="" \/>/',
+                4
+            )],
         );
     }
 }
