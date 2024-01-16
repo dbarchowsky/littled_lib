@@ -576,6 +576,17 @@ class RequestInput
     }
 
     /**
+     * Chainable routine that sets the "is database field" flag to TRUE or FALSE.
+     * @param bool $is_field Value for "is database field".
+     * @return $this
+     */
+    public function setIsDatabaseField(bool $is_field): RequestInput
+    {
+        $this->is_database_field = $is_field;
+        return $this;
+    }
+
+    /**
      * Hidden template filename setter.
      * @param string $filename
      * @return void

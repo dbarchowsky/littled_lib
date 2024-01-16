@@ -240,6 +240,18 @@ class RequestInputTest extends TestCase
         $this->assertSame($returned, $o);
     }
 
+    public function testSetIsDatabaseField()
+    {
+        $o = new RequestInput('My label', 'myKey');
+        $this->assertTrue($o->is_database_field);
+
+        $o->setIsDatabaseField(false);
+        $this->assertFalse($o->is_database_field);
+
+        $o2 = (new RequestInput('Second Label','key2'))->setIsDatabaseField(false);
+        $this->assertFalse($o2->is_database_field);
+    }
+
 	public function testSetTemplatePath()
 	{
         $original = $this->obj::getInputTemplatePath();
