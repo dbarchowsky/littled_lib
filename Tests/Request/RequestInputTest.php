@@ -208,6 +208,20 @@ class RequestInputTest extends TestCase
         $this->assertEquals('red', $o->attributes['color']);
     }
 
+    public function testSetColumnName()
+    {
+        $o = new RequestInput('My label', 'myKey');
+        $this->assertEquals('', $o->column_name);
+
+        $new1 = 'my_column';
+        $o->setColumnName($new1);
+        $this->assertEquals($new1, $o->column_name);
+
+        $new2 = 'another_col';
+        $o2 = (new RequestInput('Second Label','key2'))->setColumnName($new2);
+        $this->assertEquals($new2, $o2->column_name);
+    }
+
     public function testSetContainerCSSClass()
     {
         $o = new RequestInput('Container Test', 'ctKey');

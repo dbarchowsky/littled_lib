@@ -534,6 +534,17 @@ class RequestInput
     }
 
     /**
+     * Chainable routine that sets column name property value.
+     * @param string $column_name Name of the column in the database corresponding to this object.
+     * @return $this
+     */
+    public function setColumnName(string $column_name): RequestInput
+    {
+        $this->column_name = $column_name;
+        return $this;
+    }
+
+    /**
      * Container CSS class setter.
      * @param string $class
      * @return RequestInput

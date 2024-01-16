@@ -18,11 +18,11 @@ class RequestInputTestData
 
     function __construct( string $expected, ?int $index=null, $value='', bool $required=false, string $key=self::DEFAULT_KEY, string $label=self::DEFAULT_LABEL)
     {
-        $this->expected = $expected;
-        $this->index = $index;
-        $this->value = $value;
-        $this->required = $required;
-        $this->key   = $key;
-        $this->label = $label;
+        $this->expected =   $expected;
+        $this->index =      $index;
+        $this->value =      $value;
+        $this->required =   $required;
+        $this->key   =      $key;
+        $this->label =      $label;
     }
 }
