@@ -73,7 +73,7 @@ class Validation
             return $src[$key];
         }
         else if ($filter==FILTER_UNSAFE_RAW) {
-            return strip_tags($src[$key]);
+            return strip_tags(''.$src[$key]);
         }
         else if ($filter===FILTER_VALIDATE_FLOAT) {
             if($src[$key]===true || $src[$key]===false) {

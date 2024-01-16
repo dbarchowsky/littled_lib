@@ -142,10 +142,7 @@ class ValidationTest extends TestCase
 
     /**
      * @dataProvider \LittledTests\DataProvider\Validation\CollectStringArrayRequestVarTestDataProvider::collectStringArrayRequestVarMultipleTestProvider()
-     * @param array $expected
-     * @param string $key
-     * @param array $post_data
-     * @param array|null $custom_data
+     * @param CollectStringArrayRequestVarTestData $data
      * @return void
      */
     public function testCollectStringArrayRequestVar(CollectStringArrayRequestVarTestData $data)
@@ -342,6 +339,17 @@ class ValidationTest extends TestCase
 		$this->assertEquals(null, ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'NonexistentKey'));
 		AppBase::setAjaxInputStream('php://input');
 	}
+
+    function testParseInput_CustomData()
+    {
+        $src = array(
+            'foo' => 'bar',
+            'biz' => 'bash'
+        );
+        $this->assertEquals('bar', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'foo', null, $src));
+        $this->assertEquals('bash', ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'biz', null, $src));
+        $this->assertEquals(null, ValidationTestHarness::_parseInput(FILTER_UNSAFE_RAW, 'doesnt-exist', null, $src));
+    }
 
 	function testParseInput_PostData()
     {
