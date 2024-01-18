@@ -414,6 +414,15 @@ abstract class RequestInput
     }
 
     /**
+     * Required flag value getter.
+     * @return bool
+     */
+    public function isRequired(): bool
+    {
+        return $this->required;
+    }
+
+    /**
      * Tests if the inherited class has defined a template to use to render the input element group.
      * @return bool TRUE if
      */

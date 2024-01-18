@@ -253,6 +253,15 @@ class RequestInputTest extends TestCase
         $this->assertFalse($o2->is_database_field);
     }
 
+    public function testIsRequired()
+    {
+        $o = new RequestInputTestHarness('My label', 'myKey', false);
+        self::assertFalse($o->isRequired());
+
+        $o2 = new RequestInputTestHarness('My label', 'myKey', true);
+        self::assertTrue($o2->isRequired());
+    }
+
 	public function testSetTemplatePath()
 	{
         $original = $this->obj::getInputTemplatePath();
