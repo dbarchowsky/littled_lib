@@ -33,7 +33,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @inheritDoc
      * @throws Exception
      */
-    protected function commitSaveQuery(string $query, string $types='', &...$vars)
+    protected function commitSaveQuery(string $query, string $types='', ...$vars)
     {
         $this->connectToDatabase();
         $s1 = $this->mysqli->prepare('SET @record_id = ?');
@@ -125,15 +125,6 @@ abstract class SerializedContent extends SerializedContentIO
         $args[] = $this->id->value;
 		$this->query($query, $type_str, ...$args);
 	}
-
-    /**
-     * Returns query string, type string, and values to be inserted into the query. The query
-     * will insert a new record or update an existing record depending on the value of object's id
-     * property. If the id property is null, a new record is inserted. IF the property value matches
-     * a record in the database, that record is updated.
-     * @return array|null
-     */
-    public abstract function generateUpdateQuery(): ?array;
 
     /**
      * Attempts to determine which column in a table holds title or name values.

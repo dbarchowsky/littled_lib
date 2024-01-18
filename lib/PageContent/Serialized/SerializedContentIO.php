@@ -50,9 +50,14 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @param string $query Query string to execute
      * @param string $types String describing parameter types, passed to mysqli prepared statement.
      * @param mixed $vars,... Variables to insert into the query
-     * @return mixed
+     * @throws ConfigurationUndefinedException|ConnectionException
      */
-    abstract protected function commitSaveQuery(string $query, string $types='', &...$vars);
+    protected function commitSaveQuery(string $query, string $types='', ...$vars)
+    {
+        $this->connectToDatabase();
+        array_unshift($vars, $query, $types);
+        call_user_func_array([$this, 'query'], $vars);
+    }
 
     /**
      * Deletes the record from the database. Uses the value object's id property to look up the record.
@@ -69,6 +74,15 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * Create a SQL update statement using the values of the object's input properties & execute the update statement.
      */
     abstract protected function executeUpdateQuery();
+
+    /**
+     * Returns query string, type string, and values to be inserted into the query. The query
+     * will insert a new record or update an existing record depending on the value of object's id
+     * property. If the id property is null, a new record is inserted. IF the property value matches
+     * a record in the database, that record is updated.
+     * @return array|null
+     */
+    public abstract function generateUpdateQuery(): ?array;
 
     /**
      * Table name getter.
@@ -124,11 +138,6 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Commits the values stored in the class instance's properties to the database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException Unable to establish database connection.
-     * @throws ContentValidationException Record contains invalid data.
-     * @throws NotImplementedException Table name value not set in inherited class.
-     * @throws RecordNotFoundException No record exists that matches the id value.
      * @throws Exception
      */
     public function save ()
