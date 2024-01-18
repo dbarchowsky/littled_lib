@@ -163,6 +163,19 @@ class RequestInputTest extends TestCase
         self::assertEquals('custom_name', $o2->getColumnName('my_property'));
     }
 
+    public function testIsDatabaseField()
+    {
+        // test defaults to true
+        $o = (new RequestInputTestHarness('My Input', 'inputKey'));
+        self::assertTrue($o->isDatabaseField());
+
+        $o2 = (new RequestInputTestHarness('My Input', 'inputKey'))->setIsDatabaseField(false);
+        self::assertFalse($o2->isDatabaseField());
+
+        $o3 = (new RequestInputTestHarness('My Input', 'inputKey'))->setIsDatabaseField(true);
+        self::assertTrue($o3->isDatabaseField());
+    }
+
     /**
      * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::isEmptyTestProvider()
      * @param bool $expected

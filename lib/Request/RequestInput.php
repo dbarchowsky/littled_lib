@@ -407,6 +407,15 @@ abstract class RequestInput
     }
 
     /**
+     * Returns flag indicating this object corresponds to a database field.
+     * @return bool
+     */
+    public function isDatabaseField(): bool
+    {
+        return $this->is_database_field;
+    }
+
+    /**
      * Tests if the value of the object is not currently set.
      * @return bool True/false depending on whether the value is set or not.
      */
