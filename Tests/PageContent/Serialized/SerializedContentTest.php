@@ -178,15 +178,15 @@ class SerializedContentTest extends TestCase
         $o->date->value =  '2/25/2023';
 
         $o->executeInsertQuery();
-        $this->assertGreaterThan(0, $o->getRecordId());
-        $this->assertNotContains($o->getRecordId(), array_map(function($e) { return $e->id; }, $original_ids));
+        self::assertGreaterThan(0, $o->getRecordId());
+        self::assertNotContains($o->getRecordId(), array_map(function($e) { return $e->id; }, $original_ids));
 
         $o2 = new TestTableSectionContentTestHarness($o->getRecordId());
         $o2->read();
-        $this->assertEquals(563, $o->int_col->value);
-        $this->assertEquals('foobar', $o->name->value);
-        $this->assertEquals('2/25/2023', $o->date->value);
-        $this->assertEquals(true, $o->bool_col->value);
+        self::assertEquals(563, $o->int_col->value);
+        self::assertEquals('foobar', $o->name->value);
+        self::assertEquals('2/25/2023', $o->date->value);
+        self::assertTrue($o->bool_col->value);
 
         $o2->delete();
     }
@@ -459,6 +459,16 @@ class SerializedContentTest extends TestCase
 	    $this->assertEquals('biz', $obj->vc_col2->value);
 	    $this->assertEquals(65, $obj->int_col->value);
 	    $this->assertFalse($obj->bool_col->value);
+    }
+
+    public function testSetIdKey()
+    {
+        $o = new SerializedContentChild();
+        self::assertEquals($o::getDefaultIdKey(), $o->id->key);
+
+        $new_key = 'myCustomKey';
+        $o2 = (new SerializedContentChild())->setIdKey($new_key);
+        self::assertEquals($new_key, $o2->id->key);
     }
 
 	/**

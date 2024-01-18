@@ -18,6 +18,8 @@ abstract class SerializedContent extends SerializedContentIO
 	/** @var IntegerInput Record id. */
 	public IntegerInput $id;
 
+    protected static string $default_id_key = 'id';
+
 
 	/**
 	 * SerializedContent constructor.
@@ -26,7 +28,7 @@ abstract class SerializedContent extends SerializedContentIO
 	function __construct(?int $id=null)
 	{
 		parent::__construct();
-		$this->id = new IntegerInput('id', 'id', false, $id);
+		$this->id = new IntegerInput('id', static::$default_id_key, false, $id);
 	}
 
     /**
@@ -125,6 +127,15 @@ abstract class SerializedContent extends SerializedContentIO
         $args[] = $this->id->value;
 		$this->query($query, $type_str, ...$args);
 	}
+
+    /**
+     * Default id input key getter.
+     * @return string
+     */
+    public static function getDefaultIdKey(): string
+    {
+        return static::$default_id_key;
+    }
 
     /**
      * Attempts to determine which column in a table holds title or name values.
@@ -232,6 +243,17 @@ abstract class SerializedContent extends SerializedContentIO
 			throw new RecordNotFoundException($error_msg);
 		} catch (Exception $e) {
         }
+    }
+
+    /**
+     * Chainable id input key setter.
+     * @param string $key
+     * @return $this
+     */
+    public function setIdKey(string $key): SerializedContent
+    {
+        $this->id->key = $key;
+        return $this;
     }
 
     /**
