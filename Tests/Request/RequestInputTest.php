@@ -151,6 +151,18 @@ class RequestInputTest extends TestCase
         $this->assertEquals("['str']", $this->obj->formatIndexMarkup());
     }
 
+    public function testGetColumnName()
+    {
+        $o = new RequestInputTestHarness('My Input', 'inputKey');
+        self::assertEquals('', $o->getColumnName());
+        self::assertEquals('my_property', $o->getColumnName('my_property'));
+
+        $o2 = (new RequestInputTestHarness('My Input', 'inputKey'))
+            ->setColumnName('custom_name');
+        self::assertEquals('custom_name', $o2->getColumnName());
+        self::assertEquals('custom_name', $o2->getColumnName('my_property'));
+    }
+
     /**
      * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::isEmptyTestProvider()
      * @param bool $expected

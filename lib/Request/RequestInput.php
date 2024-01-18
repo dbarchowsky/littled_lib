@@ -253,6 +253,17 @@ abstract class RequestInput
     }
 
     /**
+     * Column name getter, if the column_name property has been set in order to override the default column name,
+     * which is the name of the RequestInput variable itself. Pass in the variable name as a default.
+     * @param string $property (Optional) column name to use if the $column_name property value has not been set.
+     * @return string
+     */
+    public function getColumnName(string $property=''): string
+    {
+        return (trim($this->column_name) !== '' ? $this->column_name : $property);
+    }
+
+    /**
       * Container CSS class getter.
       * @return string
       */
