@@ -5,34 +5,19 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Request\RequestInput;
 use Littled\Request\IntegerInput;
 use Exception;
 
 /**
  * Routines for fetching and committing database records.
  */
-abstract class SerializedContent extends SerializedContentValidation
+abstract class SerializedContent extends SerializedContentIO
 {
 	/** @var IntegerInput Record id. */
 	public IntegerInput $id;
-	/** @var bool Flag to skip filling object values from input variables (GET or POST). */
-	public bool $bypassCollectFromInput = false;
-    /** @var string */
-    protected static string $table_name='';
 
-	/**
-	 * @throws NotImplementedException
-	 * @deprecated Use getTableName() instead.
-	 * Interface to retrieve table name associated with inherited classes.
-	 */
-	public static function TABLE_NAME(): string
-	{
-		return self::getTableName();
-	}
 
 	/**
 	 * SerializedContent constructor.
@@ -45,40 +30,7 @@ abstract class SerializedContent extends SerializedContentValidation
 	}
 
     /**
-     * Clears all form input values
-     */
-    public function clear()
-    {
-        foreach ($this as $p)
-        {
-            if ($p instanceof RequestInput)
-            {
-                $p->clearValue();
-            }
-        }
-    }
-
-    /**
-     * Check if a column exists in a given database table in the content item's database table.
-     * @param string $column_name Name of the column to check for.
-     * @param string $table_name (Optional) This parameter is ignored in this class's implementation of the routine.
-     * @return boolean True/false depending on if the column is found.
-     * @throws Exception
-     */
-	public function columnExists(string $column_name, string $table_name=''): bool
-	{
-		if (''===$table_name) {
-			$table_name = $this::getTableName();
-		}
-		return(parent::columnExists($column_name, $table_name));
-	}
-
-    /**
-     * Execute query that will commit object properties to the database.
-     * @param string $query
-     * @param string $types
-     * @param mixed ...$vars
-     * @return void
+     * @inheritDoc
      * @throws Exception
      */
     protected function commitSaveQuery(string $query, string $types='', &...$vars)
@@ -102,8 +54,7 @@ abstract class SerializedContent extends SerializedContentValidation
     }
 
     /**
-     * Deletes the record from the database. Uses the value object's id property to look up the record.
-     * @return string Message indicating result of the deletion.
+     * @inheritDoc
      * @throws ContentValidationException Record id not provided.
      * @throws NotImplementedException Table name not set in inherited class.
      * @throws Exception
@@ -124,7 +75,7 @@ abstract class SerializedContent extends SerializedContentValidation
 	}
 
     /**
-     * Create a SQL insert statement using the values of the object's input properties & execute the insert statement.
+     * @inheritDoc
      * @throws ConnectionException On connection error.
      * @throws ConfigurationUndefinedException Database connection properties not set.
      * @throws Exception
@@ -240,19 +191,6 @@ abstract class SerializedContent extends SerializedContentValidation
 		}
 	}
 
-    /**
-     * Table name getter.
-     * @return string
-     * @throws NotImplementedException
-     */
-    public static function getTableName(): string
-    {
-        if ('' === static::$table_name) {
-            throw new NotImplementedException('Table name not set.');
-        }
-        return static::$table_name;
-    }
-
 	/**
 	 * Retrieves the name of the record represented by the provided id value.
 	 * @param string $table Name of the table containing the records.
@@ -268,8 +206,8 @@ abstract class SerializedContent extends SerializedContentValidation
 			return null;
 		}
 
-		$query = "SEL"."ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = $id";
-		$data = $this->fetchRecords($query);
+		$query = "SEL"."ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
+		$data = $this->fetchRecords($query, 'i', $id);
 		$ret_value = $data[0]->result;
 		return($ret_value);
 	}
@@ -306,68 +244,6 @@ abstract class SerializedContent extends SerializedContentValidation
     }
 
     /**
-     * Retrieves a list of records from the database using $query. Converts each
-     * row in the result to an object of type $type. Stores the objects as an
-     * array in the object's property specified with $property.
-     * @param string $property Name of property to use to store list.
-     * @param string $type Object type to push onto the array.
-     * @param string $query Query string
-     * @param string $types String containing types used to bind variables to query.
-     * @param ...$vars
-     * @throws NotImplementedException Currently only stored procedures are supported.
-     * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
-     * @throws Exception
-     */
-	public function readList( string $property, string $type, string $query, string $types='', &...$vars )
-	{
-		if (stripos($query, "call")===0) {
-            array_unshift($vars, $query, $types);
-            $data = call_user_func_array([$this, 'fetchRecords'], $vars);
-			// $data = $this->fetchRecords($query, $types, $vars);
-		}
-		else {
-			throw new NotImplementedException("Unsupported query type for retrieving record list.");
-		}
-
-		$this->$property = array();
-		foreach($data as $row) {
-			$obj = new $type;
-			if (!($obj instanceof SerializedContent)) {
-				throw new InvalidTypeException("Cannot store records in object provided.");
-			}
-			$obj->fill($row);
-			$this->$property[] = $obj;
-		}
-	}
-
-	/**
-	 * Commits the values stored in the class instance's properties to the database.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException Unable to establish database connection.
-	 * @throws ContentValidationException Record contains invalid data.
-     * @throws NotImplementedException Table name value not set in inherited class.
-	 * @throws RecordNotFoundException No record exists that matches the id value.
-     * @throws Exception
-	 */
-	public function save ()
-	{
-		if (!$this->hasData()) {
-			throw new ContentValidationException("Record has no data to save.");
-		}
-        $vars = $this->generateUpdateQuery();
-        if ($vars) {
-            call_user_func_array([$this, 'commitSaveQuery'], $vars);
-        }
-        else {
-            if (is_numeric($this->id->value)) {
-                $this->executeUpdateQuery();
-            } else {
-                $this->executeInsertQuery();
-            }
-        }
-	}
-
-    /**
      * Record id setter.
      * @param int $id
      * @return void
@@ -393,16 +269,6 @@ abstract class SerializedContent extends SerializedContentValidation
 		$data = $this->fetchRecords($query, 'i', $this->id->value);
 		return ((int)("0".$data[0]->record_exists) === 1);
 	}
-
-    /**
-     * Table name setter.
-     * @param string $table_name
-     * @return void
-     */
-    public static function setTableName(string $table_name)
-    {
-        static::$table_name = $table_name;
-    }
 
 	/**
 	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
