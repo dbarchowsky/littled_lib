@@ -5,6 +5,7 @@ require_once(APP_BASE_DIR . "/Tests/Base/DatabaseTestCase.php");
 
 use LittledTests\DataProvider\Request\RequestInputTestData;
 use LittledTests\DataProvider\Request\RequestInputTestDataProvider;
+use LittledTests\TestHarness\Request\RequestInputTestHarness;
 use mysqli;
 use Exception;
 use Littled\Request\RequestInput;
@@ -35,7 +36,7 @@ class RequestInputTest extends TestCase
 	{
 		parent::setUp();
         RequestInput::setTemplateBasePath(SHARED_CMS_TEMPLATE_DIR);
-		$this->obj = new RequestInput("Test", "test_param");
+		$this->obj = new RequestInputTestHarness("Test", "test_param");
 	}
 
     public function testClearValidationErrors()
@@ -64,7 +65,7 @@ class RequestInputTest extends TestCase
      */
 	public function testEscapeSQL($expected, $value, bool $include_quotes=false)
 	{
-        $i = new RequestInput('Test Input', 'ti');
+        $i = new RequestInputTestHarness('Test Input', 'ti');
         if ($value !== '[use default]') {
             $i->value = $value;
         }
@@ -79,7 +80,7 @@ class RequestInputTest extends TestCase
      */
     function testFormatAttributeMarkup(string $expected, array $attributes)
     {
-        $o = new RequestInput('Test Label', 'testKey');
+        $o = new RequestInputTestHarness('Test Label', 'testKey');
         foreach($attributes as $key => $value) {
             $o->setAttribute($key, $value);
         }
@@ -97,7 +98,7 @@ class RequestInputTest extends TestCase
      */
     function testFormatClassAttribute(string $expected, string $css_class='', string $class_override='', bool $has_error=false, string $element='default')
     {
-        $o = new RequestInput(RequestInputTestDataProvider::TEST_LABEL, RequestInputTestDataProvider::TEST_KEY);
+        $o = new RequestInputTestHarness(RequestInputTestDataProvider::TEST_LABEL, RequestInputTestDataProvider::TEST_KEY);
         if ($element==='default' || $element==='input') {
             $o->setInputCSSClass($css_class);
         }
@@ -181,7 +182,7 @@ class RequestInputTest extends TestCase
         RequestInput::setTemplateFilename('hidden-input.php');
 
         // test basic template output
-        $o = new RequestInput($data->label, $data->key, $data->required, $data->value, 20, $data->index);
+        $o = new RequestInputTestHarness($data->label, $data->key, $data->required, $data->value, 20, $data->index);
         $this->expectOutputRegex($data->expected);
         $o->saveInForm();
 
@@ -191,7 +192,7 @@ class RequestInputTest extends TestCase
 
     function testSetAttribute()
     {
-        $o = new RequestInput('Input Test', 'testKey');
+        $o = new RequestInputTestHarness('Input Test', 'testKey');
         $this->assertCount(0, $o->attributes);
 
         $r = $o->setAttribute('data-tid', 3);
@@ -210,7 +211,7 @@ class RequestInputTest extends TestCase
 
     public function testSetColumnName()
     {
-        $o = new RequestInput('My label', 'myKey');
+        $o = new RequestInputTestHarness('My label', 'myKey');
         $this->assertEquals('', $o->column_name);
 
         $new1 = 'my_column';
@@ -218,13 +219,13 @@ class RequestInputTest extends TestCase
         $this->assertEquals($new1, $o->column_name);
 
         $new2 = 'another_col';
-        $o2 = (new RequestInput('Second Label','key2'))->setColumnName($new2);
+        $o2 = (new RequestInputTestHarness('Second Label','key2'))->setColumnName($new2);
         $this->assertEquals($new2, $o2->column_name);
     }
 
     public function testSetContainerCSSClass()
     {
-        $o = new RequestInput('Container Test', 'ctKey');
+        $o = new RequestInputTestHarness('Container Test', 'ctKey');
         $original_class = $o->container_css_class;
         $returned = $o->setContainerCSSClass('new-container-class');
         $this->assertNotEquals($original_class, $o->container_css_class);
@@ -233,7 +234,7 @@ class RequestInputTest extends TestCase
 
     public function testSetInputCSSClass()
     {
-        $o = new RequestInput('Test Label', 'testKey');
+        $o = new RequestInputTestHarness('Test Label', 'testKey');
         $original_class = $o->input_css_class;
         $returned = $o->setInputCSSClass('new-class');
         $this->assertNotEquals($original_class, $o->input_css_class);
@@ -242,13 +243,13 @@ class RequestInputTest extends TestCase
 
     public function testSetIsDatabaseField()
     {
-        $o = new RequestInput('My label', 'myKey');
+        $o = new RequestInputTestHarness('My label', 'myKey');
         $this->assertTrue($o->is_database_field);
 
         $o->setIsDatabaseField(false);
         $this->assertFalse($o->is_database_field);
 
-        $o2 = (new RequestInput('Second Label','key2'))->setIsDatabaseField(false);
+        $o2 = (new RequestInputTestHarness('Second Label','key2'))->setIsDatabaseField(false);
         $this->assertFalse($o2->is_database_field);
     }
 
@@ -260,7 +261,7 @@ class RequestInputTest extends TestCase
 		$this->obj::setTemplateBasePath($path);
 		$this->assertEquals($path, $this->obj::getTemplateBasePath());
 
-		$new_obj = new RequestInput("New label", "new_param");
+		$new_obj = new RequestInputTestHarness("New label", "new_param");
 		$this->assertEquals($path, $new_obj::getTemplateBasePath());
 
         $this->obj::setTemplateBasePath($original);

@@ -5,7 +5,7 @@ namespace Littled\Request;
 
 use Littled\PageContent\ContentUtils;
 
-class RenderedInput extends RequestInput
+abstract class RenderedInput extends RequestInput
 {
 	/**
 	 * Returns string containing HTML to render the input elements in a form.

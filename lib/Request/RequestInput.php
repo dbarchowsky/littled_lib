@@ -2,7 +2,6 @@
 namespace Littled\Request;
 
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
 use Littled\Utility\LittledUtility;
@@ -16,7 +15,7 @@ use mysqli;
  * Base class for all varieties of request input
  * @package Littled\Request
  */
-class RequestInput
+abstract class RequestInput
 {
     /** @var string             Path to form input templates. */
     protected static string     $template_base_path = '';
@@ -124,12 +123,8 @@ class RequestInput
 
     /**
      * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
-     * @throws NotImplementedException
      */
-    public function collectRequestData(?array $src=null)
-    {
-        throw new NotImplementedException("\"".__METHOD__."\" not implemented.");
-    }
+    abstract public function collectRequestData(?array $src=null);
 
     /**
      * Escapes the object's value property for inclusion in SQL queries.
@@ -440,25 +435,14 @@ class RequestInput
      * Renders the corresponding form field with a label to collect the input data.
      * @param string $label
      * @param string $css_class
-     * @throws NotImplementedException
      */
-    public function render( string $label='', string $css_class='' )
-    {
-        if (!$label) {
-            $label = $this->label;
-        }
-        throw new NotImplementedException(__METHOD__."() not implemented for $label. $css_class ");
-    }
+    abstract public function render( string $label='', string $css_class='');
 
     /**
      * Renders the corresponding form field with a label to collect the input data.
      * @param ?string $label Label to display with input element.
-     * @throws NotImplementedException
      */
-    public function renderInput(?string $label=null)
-    {
-        throw new NotImplementedException(__METHOD__."() not implemented.");
-    }
+    abstract public function renderInput(?string $label=null);
 
     /**
      * Wrapper for render() method that prints error message if an exception is thrown rendering the form input element.

@@ -5,7 +5,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 
-class BooleanInput extends RequestInput
+class BooleanInput extends RenderedInput
 {
 	/** @var string */
 	protected static string $template_filename = 'hidden-input.php';
@@ -72,7 +72,7 @@ class BooleanInput extends RequestInput
 	 * @param string $label If a value is provided, it will override the object's internal $label property value.
 	 * @param string $css_class CSS class name to apply to the form input element.
 	 */
-	public function render(string $label='', string $css_class='')
+	public function render(string $label='', string $css_class='', array $context=[])
 	{
 		if (false === $this->isTemplateDefined()) {
 			ContentUtils::printError("\"".__METHOD__."\" not implemented.");
