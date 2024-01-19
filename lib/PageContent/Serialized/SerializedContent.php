@@ -140,6 +140,21 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
+     * Returns a list of all the properties of the object that represent foreign keys.
+     * @return array
+     */
+    protected function getForeignKeyPropertyList(): array
+    {
+        $fk = [];
+        foreach($this as $key => $property) {
+            if (is_object($property) && Validation::isSubclass($property, ForeignKeyInput::class)) {
+                $fk[] = $key;
+            }
+        }
+        return $fk;
+    }
+
+    /**
      * Attempts to determine which column in a table holds title or name values.
      * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
      * @throws InvalidQueryException Error executing query.*@throws Exception
@@ -158,21 +173,6 @@ abstract class SerializedContent extends SerializedContentIO
 				return('');
 		}
 	}
-
-    /**
-     * Returns a list of all the properties of the object that represent foreign keys.
-     * @return array
-     */
-    protected function getForeignKeyPropertyList(): array
-    {
-        $fk = [];
-        foreach($this as $key => $property) {
-            if (is_object($property) && Validation::isSubclass($property, ForeignKeyInput::class)) {
-                $fk[] = $key;
-            }
-        }
-        return $fk;
-    }
 
     /**
      * Record id getter.
