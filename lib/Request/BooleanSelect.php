@@ -12,29 +12,8 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
     public static string    $template_filename = 'string-select-field.php';
     /** @var string         Form input element template filename */
     public static string    $input_template_filename = 'string-select-input.php';
-    protected bool          $allow_multiple=false;
     /** @var bool[]|int[]|string[] List of available options to include in dropdown menus */
     protected array         $options;
-
-    /**
-     * @inheritDoc
-     */
-    public function allowMultiple(bool $allow = true)
-    {
-        if ($allow) {
-            $allow = false; // always false for boolean
-        }
-        $this->allow_multiple = $allow;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function doesAllowMultiple(): bool
-    {
-        // always false for boolean dropdowns
-        return false;
-    }
 
     /**
      * Returns input size attribute markup to inject into template.

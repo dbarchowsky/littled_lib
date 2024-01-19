@@ -25,10 +25,10 @@ class StringSelectTest extends TestCase
         $o = new StringSelect('Label', 'key');
         $this->assertFalse($o->allow_multiple);
 
-        $o->allowMultiple();
+        $o->setAllowMultiple();
         $this->assertTrue($o->allow_multiple);
 
-        $o->allowMultiple(false);
+        $o->setAllowMultiple(false);
         $this->assertFalse($o->allow_multiple);
     }
 
@@ -36,11 +36,11 @@ class StringSelectTest extends TestCase
     {
         $o = new StringSelect('Test Input', 'intKey');
 
-        $o->allowMultiple(true);
-        $this->assertTrue($o->doesAllowMultiple());
+        $o->setAllowMultiple(true);
+        $this->assertTrue($o->allowMultiple());
 
-        $o->allowMultiple(false);
-        $this->assertFalse($o->doesAllowMultiple());
+        $o->setAllowMultiple(false);
+        $this->assertFalse($o->allowMultiple());
     }
 
     /**
@@ -82,7 +82,7 @@ class StringSelectTest extends TestCase
         $_POST = $post_data;
 
         $o = new StringSelect('Test select', 'testKey', false, [], 100);
-        $o->allowMultiple();
+        $o->setAllowMultiple();
         $o->collectRequestData($custom_data);
         $this->assertEquals($expected, $o->value);
 
@@ -101,7 +101,7 @@ class StringSelectTest extends TestCase
     function testLookupValueInSelectedValues(bool $expected, bool $allow_multiple, $selections, $value)
     {
         $o = new StringSelect('Test Input', 'testInput', false, '', 100);
-        $o->allowMultiple($allow_multiple);
+        $o->setAllowMultiple($allow_multiple);
         $o->value = $selections;
         $this->assertSame($expected, $o->lookupValueInSelectedValues($value));
     }
@@ -129,7 +129,7 @@ class StringSelectTest extends TestCase
     function testSetInputValue($expected, bool $allow_multiple, $value)
     {
         $o = new StringSelect('Select test', 'testKey', false, [], 100);
-        $o->allowMultiple($allow_multiple);
+        $o->setAllowMultiple($allow_multiple);
         $o->setInputValue($value);
         $this->assertEquals($expected, $o->value);
     }
@@ -143,7 +143,7 @@ class StringSelectTest extends TestCase
     {
         $_POST = $data->post_data;
         $o = new StringSelect('Label', $data->key, $data->required, '', 100);
-        $o->allowMultiple($data->allow_multiple);
+        $o->setAllowMultiple($data->allow_multiple);
         $o->collectRequestData();
         try {
             $o->validate();

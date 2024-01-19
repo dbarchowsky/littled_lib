@@ -29,7 +29,7 @@ class CategorySelect extends MySQLConnection
     {
         parent::__construct();
         $this->category_input = new StringSelect('Category', 'catTerm', false, [], 100);
-        $this->category_input->allowMultiple();
+        $this->category_input->setAllowMultiple();
         $this->new_category = new StringTextField('New category', 'catNew', false, '', 100);
         $this->validation_errors = new ValidationErrors();
     }
@@ -39,9 +39,9 @@ class CategorySelect extends MySQLConnection
      * @param bool $allow Optional flag indicating if multiple values are allowed. Defaults to TRUE.
      * @return void
      */
-    public function allowMultiple(bool $allow=true)
+    public function setAllowMultiple(bool $allow=true)
     {
-        $this->category_input->allowMultiple($allow);
+        $this->category_input->setAllowMultiple($allow);
     }
 
     /**

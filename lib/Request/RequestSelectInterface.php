@@ -5,19 +5,6 @@ namespace Littled\Request;
 interface RequestSelectInterface
 {
     /**
-     * Allow multiple setter. If set to true, multiple choices can be selected from the drop-down options.
-     * @param bool $allow Flag indicating if multiple values are allowed or not.
-     * @return void
-     */
-    public function allowMultiple(bool $allow=true);
-
-    /**
-     * Allow multiple flag getter.
-     * @return bool
-     */
-    public function doesAllowMultiple(): bool;
-
-    /**
      * Dropdown menu options.
      * @return array
      */

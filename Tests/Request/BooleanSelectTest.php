@@ -20,11 +20,11 @@ class BooleanSelectTest extends TestCase
         $o = new BooleanSelect('Test Input', 'boolKey');
 
         // always false for BooleanSelect
-        $o->allowMultiple();
-        $this->assertFalse($o->doesAllowMultiple());
+        $o->setAllowMultiple();
+        $this->assertFalse($o->allowMultiple());
 
-        $o->allowMultiple(false);
-        $this->assertFalse($o->doesAllowMultiple());
+        $o->setAllowMultiple(false);
+        $this->assertFalse($o->allowMultiple());
     }
 
     public function testLookupValueInSelectedValuesWhenUninitialized()

@@ -38,15 +38,16 @@ abstract class RequestInput
     public string               $container_css_class='form-cell';
     /** @var string             Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
     public string               $content_type='text';
-    /** @var bool                If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE. */
+    /** @var bool               If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE. */
     public bool                 $is_database_field=true;
-    /** @var string              Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class. */
+    /** @var string             Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class. */
     public string               $column_name='';
     /** @var bool               Flag indicating that the object value should not be assigned from request variable values. */
     public bool                 $bypass_collect_request_data=false;
 
     public array                $attributes=[];
 
+    public bool                 $allow_multiple = false;
     /**
      * @var boolean Flag to control the insertion of a "placeholder" attribute
      * when rendering the input. If TRUE, a placeholder attribute will be added
@@ -97,6 +98,15 @@ abstract class RequestInput
         $this->required           = $required;
         $this->index              = $index;
         $this->value              = $value;
+    }
+
+    /**
+     * "Allow multiple" setter
+     * @return bool
+     */
+    public function allowMultiple(): bool
+    {
+        return $this->allow_multiple;
     }
 
     /**
@@ -519,19 +529,35 @@ abstract class RequestInput
     }
 
     /**
-     * Sets flag to indicate that this input value is not required.
+     * Chainable "allow multiple" property setter.
+     * @param bool $allow
+     * @return RequestInput
      */
-    public function setAsNotRequired()
+    public function setAllowMultiple(bool $allow=true): RequestInput
+    {
+        $this->allow_multiple = $allow;
+        return $this;
+    }
+
+
+    /**
+     * Sets flag to indicate that this input value is not required.
+     * @return RequestInput
+     */
+    public function setAsNotRequired(): RequestInput
     {
         $this->required = false;
+        return $this;
     }
 
     /**
      * Sets flag to indicate that this input value is required.
+     * @return RequestInput
      */
-    public function setAsRequired()
+    public function setAsRequired(): RequestInput
     {
         $this->required = true;
+        return $this;
     }
 
     /**

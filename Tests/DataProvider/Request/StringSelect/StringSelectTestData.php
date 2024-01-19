@@ -30,7 +30,7 @@ class StringSelectTestData extends SelectTestData
         parent::__construct($expected, $o, $options, $override_label, $css_class, $allow_multiple, $options_size);
         $this->input = $o;
 		if ($allow_multiple) {
-			$o->allowMultiple();
+			$o->setAllowMultiple();
 		}
 		if (0 < $options_size) {
 			$o->setOptionsLength($options_size);

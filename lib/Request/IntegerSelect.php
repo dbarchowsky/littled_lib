@@ -6,28 +6,11 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
 {
     public static string    $input_template_filename = 'string-select-input.php';
     protected static string $template_filename = 'string-select-field.php';
-    public bool             $allow_multiple = false;
     public ?int             $options_length = null;
     /** @var int|int[] */
     public $value;
     /** @var int[]          List of available options to include in dropdown menus */
     public array            $options;
-
-    /**
-     * @inheritDoc
-     */
-    public function allowMultiple(bool $allow=true)
-    {
-        $this->allow_multiple = $allow;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function doesAllowMultiple(): bool
-    {
-        return $this->allow_multiple;
-    }
 
     /**
      * Returns input size attribute markup to inject into template.

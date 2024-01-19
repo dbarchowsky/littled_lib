@@ -6,7 +6,6 @@ use Littled\Validation\Validation;
 
 class StringSelect extends StringInput implements RequestSelectInterface
 {
-    public bool                 $allow_multiple = false;
 	protected static string     $input_template_filename = 'string-select-input.php';
 	protected static string     $template_filename = 'string-select-field.php';
     /** @var int[]              List of available options to include in dropdown menus */
@@ -14,14 +13,6 @@ class StringSelect extends StringInput implements RequestSelectInterface
 	public ?int                 $options_length = null;
     /** @var string[]|string */
     public                      $value;
-
-	/**
-	 * @inheritDoc
-	 */
-	public function allowMultiple(bool $allow=true)
-	{
-		$this->allow_multiple = $allow;
-	}
 
     /**
      * @inheritDoc
@@ -49,14 +40,6 @@ class StringSelect extends StringInput implements RequestSelectInterface
                 $this->value = '';
             }
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function doesAllowMultiple(): bool
-    {
-        return $this->allow_multiple;
     }
 
     /**

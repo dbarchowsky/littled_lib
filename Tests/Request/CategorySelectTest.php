@@ -39,7 +39,7 @@ class CategorySelectTest extends TestCase
         $_POST = $data->post_data;
 
         $o = new CategorySelectTestHarness();
-        $o->allowMultiple($data->allow_multiple);
+        $o->setAllowMultiple($data->allow_multiple);
         $o->collectRequestData();
         $this->assertEquals($data->expected->category_input, $o->category_input->value);
         $this->assertEquals($data->expected->terms, $o->getCategoryTermList());
@@ -243,7 +243,7 @@ class CategorySelectTest extends TestCase
 
         $o = new CategorySelectTestHarness();
         $o->category_input->required = $data->required;
-        $o->allowMultiple($data->allow_multiple);
+        $o->setAllowMultiple($data->allow_multiple);
         $o->collectRequestData();
 
         try {

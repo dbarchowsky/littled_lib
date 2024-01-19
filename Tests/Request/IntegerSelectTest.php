@@ -22,11 +22,11 @@ class IntegerSelectTest extends TestCase
     {
         $o = new IntegerSelect('Test Input', 'intKey');
 
-        $o->allowMultiple();
-        $this->assertTrue($o->doesAllowMultiple());
+        $o->setAllowMultiple();
+        $this->assertTrue($o->allowMultiple());
 
-        $o->allowMultiple(false);
-        $this->assertFalse($o->doesAllowMultiple());
+        $o->setAllowMultiple(false);
+        $this->assertFalse($o->allowMultiple());
     }
 
     /**
