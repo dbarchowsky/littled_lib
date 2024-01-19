@@ -141,14 +141,14 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Returns a list of all the properties of the object that represent foreign keys.
-     * @return array
+     * @return array[ForeignKeyInput]
      */
     protected function getForeignKeyPropertyList(): array
     {
         $fk = [];
-        foreach($this as $key => $property) {
+        foreach($this as $property) {
             if (is_object($property) && Validation::isSubclass($property, ForeignKeyInput::class)) {
-                $fk[] = $key;
+                $fk[] = $property;
             }
         }
         return $fk;

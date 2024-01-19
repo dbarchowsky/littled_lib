@@ -14,11 +14,13 @@ class SerializedLinkedTestHarness extends SerializedContent
 
     protected static string $table_name = 'test_parent1';
 
+    public const LINK_KEY = 'p2Key';
+
     public function __construct(?int $id = null)
     {
         parent::__construct($id);
         $this->name = new StringTextField('Name', 'p1Name', true, '', 50);
-        $this->parent2 = new ForeignKeyInput('Parent 2', 'p2Key');
+        $this->parent2 = new ForeignKeyInput('Parent 2', self::LINK_KEY);
     }
 
     /**
