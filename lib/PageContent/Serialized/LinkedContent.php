@@ -3,6 +3,7 @@
 namespace Littled\PageContent\Serialized;
 
 use Exception;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
@@ -12,6 +13,16 @@ use Littled\Validation\Validation;
 
 class LinkedContent extends SerializedContentIO
 {
+    public IntegerInput $primary_id;
+    public IntegerInput $foreign_id;
+
+    public function setPrimaryId(int $value): LinkedContent
+    {
+        if (!isset($this->primary_id)) {
+            throw new ConfigurationUndefinedException("Primary id object is not initialized.");
+        }
+    }
+
     /**
      * @inheritDoc
      * @throws NotImplementedException
