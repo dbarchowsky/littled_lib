@@ -7,8 +7,10 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerInput;
 use Exception;
+use Littled\Validation\Validation;
 
 /**
  * Routines for fetching and committing database records.
@@ -158,6 +160,21 @@ abstract class SerializedContent extends SerializedContentIO
 	}
 
     /**
+     * Returns a list of all the properties of the object that represent foreign keys.
+     * @return array
+     */
+    protected function getForeignKeyPropertyList(): array
+    {
+        $fk = [];
+        foreach($this as $key => $property) {
+            if (is_object($property) && Validation::isSubclass($property, ForeignKeyInput::class)) {
+                $fk[] = $key;
+            }
+        }
+        return $fk;
+    }
+
+    /**
      * Record id getter.
      * @return int
      */
@@ -283,7 +300,33 @@ abstract class SerializedContent extends SerializedContentIO
 		return ((int)("0".$data[0]->record_exists) === 1);
 	}
 
-	/**
+    /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+    public function save()
+    {
+        if (!$this->hasData()) {
+            throw new ContentValidationException("Record has no data to save.");
+        }
+        $vars = $this->generateUpdateQuery();
+        if ($vars) {
+            call_user_func_array([$this, 'commitSaveQuery'], $vars);
+        }
+        else {
+            if (is_numeric($this->id->value)) {
+                $this->executeUpdateQuery();
+            } else {
+                $this->executeInsertQuery();
+            }
+        }
+    }
+
+    /**
 	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg Optional informational message to prepend to error message thrown when a valid parent id is not found.
 	 * @throws ContentValidationException

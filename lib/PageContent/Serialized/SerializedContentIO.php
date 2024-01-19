@@ -7,7 +7,6 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
 use Littled\Request\RequestInput;
 use Exception;
 
@@ -138,25 +137,8 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Commits the values stored in the class instance's properties to the database.
-     * @throws Exception
      */
-    public function save ()
-    {
-        if (!$this->hasData()) {
-            throw new ContentValidationException("Record has no data to save.");
-        }
-        $vars = $this->generateUpdateQuery();
-        if ($vars) {
-            call_user_func_array([$this, 'commitSaveQuery'], $vars);
-        }
-        else {
-            if (is_numeric($this->id->value)) {
-                $this->executeUpdateQuery();
-            } else {
-                $this->executeInsertQuery();
-            }
-        }
-    }
+    abstract public function save ();
 
     /**
      * Confirm that a record with id value matching the current id value of the object currently exists in the database.

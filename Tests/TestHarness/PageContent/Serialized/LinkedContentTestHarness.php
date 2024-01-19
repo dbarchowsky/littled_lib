@@ -100,7 +100,11 @@ class LinkedContentTestHarness extends LinkedContent
             'VALUES '.
             '(1, \'foo\'),'.
             '(2, \'bar\'),'.
-            '(3, \'biz\');',
+            '(3, \'biz\')'.
+            '(44, \'foo foo\')'.
+            '(45, \'biz bash\')'.
+            '(47, \'pricey prince\')'.
+            '(58, \'ipsum lorem\')',
             'INS'.'ERT INTO `test_parent2` '.
             '(`id`, `name`) '.
             'VALUES '.

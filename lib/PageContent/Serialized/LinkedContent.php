@@ -3,6 +3,7 @@
 namespace Littled\PageContent\Serialized;
 
 use Exception;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
@@ -30,17 +31,18 @@ class LinkedContent extends SerializedContentIO
      */
     protected function executeInsertQuery()
     {
-        list($query, $arg_types, $args) = $this->generateUpdateQuery();
-        $this->query($query, $arg_types, ...$args);
+        $this->executeUpdateQuery();
     }
 
     /**
      * @inheritDoc
      * @throws NotImplementedException
+     * @throws Exception
      */
     protected function executeUpdateQuery()
     {
-        $this->executeInsertQuery();
+        list($query, $arg_types, $args) = $this->generateUpdateQuery();
+        $this->query($query, $arg_types, ...$args);
     }
 
     /**
@@ -130,5 +132,24 @@ class LinkedContent extends SerializedContentIO
         list($query, $arg_types, $args) = $this->formatRecordLookupQuery('SEL'.'ECT COUNT(1) as `count` FROM `'.static::getTableName().'` ');
         $result = $this->fetchRecords($query, $arg_types, ...$args);
         return Validation::parseBoolean($result[0]->count);
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     */
+    public function save()
+    {
+        if (!$this->hasData()) {
+            throw new ContentValidationException("Record has no data to save.");
+        }
+        $vars = $this->generateUpdateQuery();
+        if ($vars) {
+            call_user_func_array([$this, 'commitSaveQuery'], $vars);
+        }
+        else {
+            $this->executeUpdateQuery();
+        }
     }
 }
