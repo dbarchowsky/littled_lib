@@ -3,9 +3,10 @@
 namespace Littled\PageContent\Serialized;
 
 use Exception;
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 use Littled\Request\RequestInput;
@@ -15,13 +16,6 @@ class LinkedContent extends SerializedContentIO
 {
     public IntegerInput $primary_id;
     public IntegerInput $foreign_id;
-
-    public function setPrimaryId(int $value): LinkedContent
-    {
-        if (!isset($this->primary_id)) {
-            throw new ConfigurationUndefinedException("Primary id object is not initialized.");
-        }
-    }
 
     /**
      * @inheritDoc
@@ -33,6 +27,37 @@ class LinkedContent extends SerializedContentIO
         list($query, $arg_types, $args) = $this->formatRecordLookupQuery('DEL'.'ETE FROM `'.static::getTableName().'` ');
         $this->query($query, $arg_types, ...$args);
         return ('The requested '.static::getTableName().' record was deleted.');
+    }
+
+    /**
+     * Deletes any stale links between the two tables.
+     * @throws NotImplementedException
+     * @throws InvalidQueryException
+     */
+    public function deleteStaleLinks(array $valid_foreign_ids)
+    {
+        if (count($valid_foreign_ids) < 1) {
+            return;
+        }
+
+        $query = 'DEL'.'ETE FROM `'.static::getTableName().'` '.
+            'WHERE `'.$this->primary_id->getColumnName('primary_id').'` = ? '.
+            'AND `'.$this->foreign_id->getColumnName('foreign_id').'` NOT IN (';
+        $first = true;
+        $arg_types = 'i';
+        foreach($valid_foreign_ids as $id) {
+            $query .= ($first ? '' : ',').'?';
+            $arg_types .= 'i';
+            $first = false;
+        }
+        $query .= ')';
+        $args = array_merge([$this->primary_id->value], $valid_foreign_ids);
+        try {
+            $this->query($query, $arg_types, ...$args);
+        }
+        catch (Exception $e) {
+            throw new InvalidQueryException("Error deleting stale links. \n".$e->getMessage());
+        }
     }
 
     /**
@@ -123,6 +148,7 @@ class LinkedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
+     * @throws RecordNotFoundException|NotImplementedException
      * @throws Exception
      */
     public function read()
@@ -162,5 +188,44 @@ class LinkedContent extends SerializedContentIO
         else {
             $this->executeUpdateQuery();
         }
+    }
+
+    /**
+     * Foreign id setter.
+     * @throws NotInitializedException
+     */
+    public function setForeignID(int $value): LinkedContent
+    {
+        if (!isset($this->foreign_id)) {
+            throw new NotInitializedException("Foreign id object is not initialized.");
+        }
+        $this->foreign_id->setInputValue($value);
+        return $this;
+    }
+
+    /**
+     * Primary id setter.
+     * @throws NotInitializedException
+     */
+    public function setPrimaryId(int $value): LinkedContent
+    {
+        if (!isset($this->primary_id)) {
+            throw new NotInitializedException("Primary id object is not initialized.");
+        }
+        $this->primary_id->setInputValue($value);
+        return $this;
+    }
+
+    /**
+     * @throws ContentValidationException
+     * @throws NotInitializedException
+     * @throws NotImplementedException
+     */
+    public function setValuesAndCommit(int $primary_id, int $foreign_id)
+    {
+        $this
+            ->setPrimaryId($primary_id)
+            ->setForeignID($foreign_id)
+            ->save();
     }
 }

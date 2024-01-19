@@ -3,9 +3,13 @@
 namespace LittledTests\PageContent\Serialized;
 
 
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
-use LittledTests\TestHarness\PageContent\Serialized\LinkedContentTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\LinkedContent\LinkedContentTestHarness;
+use LittledTests\TestHarness\PageContent\Serialized\LinkedContent\LinkedContentUninitializedTestHarness;
 use PHPUnit\Framework\TestCase;
 use Exception;
 
@@ -36,15 +40,44 @@ class LinkedContentTest extends TestCase
     }
 
     /**
+     * @throws NotImplementedException|NotInitializedException
+     * @throws ContentValidationException|InvalidQueryException
+     * @throws Exception
+     */
+    public function testDeleteStaleLinks()
+    {
+        $primary_id = 45;
+        $o = new LinkedContentTestHarness();
+
+        // retrieve the initial count
+        $original_count = static::getLinkCount($primary_id);
+        self::assertEquals(0, $original_count);
+
+        // populate with test link records
+        $o->setPrimaryId($primary_id)->setForeignID(108)->save();
+        $o->setForeignID(109)->save();
+        $o->setForeignID(13)->save();
+        self::assertEquals($original_count+3, static::getLinkCount($primary_id));
+
+        // remove link to FK with value of 109
+        $o->deleteStaleLinks([108,13]);
+        self::assertEquals($original_count+2, static::getLinkCount($primary_id));
+
+        // clean up
+        $query = 'DEL'.'ETE FROM `'.LinkedContentTestHarness::getTableName().'` WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ?';
+        $o->query($query, 'i', $primary_id);
+    }
+
+    /**
      * @throws NotImplementedException
      */
     public function testFormatRecordLookupQuery()
     {
         $o = new LinkedContentTestHarness();
-        $o->parent1_id->setInputValue(3);
-        $o->parent2_id->setInputValue(23);
+        $o->primary_id->setInputValue(3);
+        $o->foreign_id->setInputValue(23);
         $expected = '/^SELECT .*`'.LinkedContentTestHarness::getTableName().
-            '` WHERE `parent1_id` = \? AND `parent2_id` = \?/';
+            '` WHERE `primary_id` = \? AND `foreign_id` = \?/';
         list($query, $arg_types, $args) =
             $o->formatRecordLookupQuery_public(
                 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'`');
@@ -62,8 +95,8 @@ class LinkedContentTest extends TestCase
         $properties = $o->getLinkedProperties_public();
         self::assertIsArray($properties);
         self::assertGreaterThan(0, count($properties));
-        self::assertContains('parent1_id', $properties);
-        self::assertContains('parent2_id', $properties);
+        self::assertContains('primary_id', $properties);
+        self::assertContains('foreign_id', $properties);
         self::assertNotContains('label', $properties);
     }
 
@@ -73,8 +106,8 @@ class LinkedContentTest extends TestCase
     public function testInsertUpdateAndDelete()
     {
         $o = new LinkedContentTestHarness();
-        $o->parent1_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent1']);
-        $o->parent2_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent2']);
+        $o->primary_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent1']);
+        $o->foreign_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent2']);
 
         // confirm there is no pre-existing record
         $result = static::lookupRecord($o);
@@ -116,8 +149,8 @@ class LinkedContentTest extends TestCase
     public function testRead()
     {
         $o = new LinkedContentTestHarness();
-        $o->parent1_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
-        $o->parent2_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
+        $o->primary_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
+        $o->foreign_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
         $o->read();
         self::assertEquals(LinkedContentTestHarness::EXISTING_LINK_IDS['label'], $o->label->value);
     }
@@ -129,8 +162,8 @@ class LinkedContentTest extends TestCase
     public function testReadNonexistentRecord()
     {
         $o = new LinkedContentTestHarness();
-        $o->parent1_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1']);
-        $o->parent2_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent2']);
+        $o->primary_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1']);
+        $o->foreign_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent2']);
         try {
             $o->read();
             self::fail('Expected RecordNotFoundException not thrown.');
@@ -145,12 +178,81 @@ class LinkedContentTest extends TestCase
     public function testRecordExists()
     {
         $o = new LinkedContentTestHarness();
-        $o->parent1_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
-        $o->parent2_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
+        $o->primary_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
+        $o->foreign_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
         self::assertTrue($o->recordExists());
 
-        $o->parent1_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1']);
+        $o->primary_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1']);
         self::assertFalse($o->recordExists());
+    }
+
+    /**
+     * @throws NotInitializedException
+     */
+    public function testSetForeignId()
+    {
+        $o = new LinkedContentTestHarness();
+        self::assertNull($o->foreign_id->value);
+        $new_id = 14;
+        $o->setForeignID($new_id);
+        self::assertEquals($new_id, $o->foreign_id->value);
+    }
+
+    public function testSetForeignIdWhenUninitialized()
+    {
+        $o = new LinkedContentUninitializedTestHarness();
+        try {
+            $o->setForeignID(12);
+            self::fail('Expected NotInitializedException not thrown.');
+        }
+        catch(NotInitializedException $e) {
+            $expected = '/foreign.* not initialized/i';
+            self::assertMatchesRegularExpression($expected, $e->getMessage());
+        }
+    }
+
+    public function testSetPrimaryIdWhenUninitialized()
+    {
+        $o = new LinkedContentUninitializedTestHarness();
+        try {
+            $o->setPrimaryId(25);
+            self::fail('Expected NotInitializedException not thrown.');
+        }
+        catch(NotInitializedException $e) {
+            $expected = '/primary.* not initialized/i';
+            self::assertMatchesRegularExpression($expected, $e->getMessage());
+        }
+    }
+
+    /**
+     * @throws NotInitializedException
+     */
+    public function testSetPrimaryId()
+    {
+        $o = new LinkedContentTestHarness();
+        self::assertNull($o->primary_id->value);
+        $new_id = 12;
+        $o->setPrimaryId($new_id);
+        self::assertEquals($new_id, $o->primary_id->value);
+    }
+
+    /**
+     * @param ?int $primary_id
+     * @return int
+     * @throws NotImplementedException
+     * @throws Exception
+     */
+    protected function getLinkCount(?int $primary_id=null): int
+    {
+        $o = new LinkedContentTestHarness();
+        $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'`';
+        if ($primary_id === NULL) {
+            $result = $o->fetchRecords($query);
+        } else {
+            $query .= ' WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ?';
+            $result = $o->fetchRecords($query, 'i', $primary_id);
+        }
+        return $result[0]->count;
     }
 
     /**
@@ -158,8 +260,8 @@ class LinkedContentTest extends TestCase
      */
     protected static function lookupRecord(LinkedContentTestHarness $o): array
     {
-        $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.$o::getTableName().'` WHERE parent1_id = ? AND parent2_id = ?';
-        return $o->fetchRecords($query, 'ii', $o->parent1_id->value, $o->parent2_id->value);
+        $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.$o::getTableName().'` WHERE primary_id = ? AND foreign_id = ?';
+        return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->foreign_id->value);
     }
 
     /**
@@ -168,7 +270,7 @@ class LinkedContentTest extends TestCase
      */
     protected static function lookupLabel(LinkedContentTestHarness $o): array
     {
-        $query = 'SEL'.'ECT `label` FROM `'.$o::getTableName().'` WHERE parent1_id = ? AND parent2_id = ?';
-        return $o->fetchRecords($query, 'ii', $o->parent1_id->value, $o->parent2_id->value);
+        $query = 'SEL'.'ECT `label` FROM `'.$o::getTableName().'` WHERE primary_id = ? AND foreign_id = ?';
+        return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->foreign_id->value);
     }
 }

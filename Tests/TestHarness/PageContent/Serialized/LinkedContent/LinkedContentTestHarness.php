@@ -1,6 +1,6 @@
 <?php
 
-namespace LittledTests\TestHarness\PageContent\Serialized;
+namespace LittledTests\TestHarness\PageContent\Serialized\LinkedContent;
 
 
 use Littled\PageContent\Serialized\LinkedContent;
@@ -16,16 +16,16 @@ class LinkedContentTestHarness extends LinkedContent
 
     public static string $table_name = 'test_link';
 
-    public IntegerTextField $parent1_id;
-    public IntegerTextField $parent2_id;
     public StringTextField $label;
     public StringTextField $extra;
 
     public function __construct()
     {
         parent::__construct();
-        $this->parent1_id = new IntegerTextField('Foo', 'linkFoo', true);
-        $this->parent2_id = new IntegerTextField('Bar', 'linkBar', true);
+        $this->primary_id = (new IntegerTextField('Foo', 'linkFoo', true))
+            ->setColumnName('parent1_id');
+        $this->foreign_id = (new IntegerTextField('Bar', 'linkBar', true))
+            ->setColumnName('parent2_id');
         $this->label = new StringTextField('Name', 'linkName', true, '', 50);
         $this->extra = (new StringTextField('Name', 'linkName', false, '', 50))
             ->setIsDatabaseField(false);
@@ -100,16 +100,18 @@ class LinkedContentTestHarness extends LinkedContent
             'VALUES '.
             '(1, \'foo\'),'.
             '(2, \'bar\'),'.
-            '(3, \'biz\')'.
-            '(44, \'foo foo\')'.
-            '(45, \'biz bash\')'.
-            '(47, \'pricey prince\')'.
+            '(3, \'biz\'),'.
+            '(44, \'foo foo\'),'.
+            '(45, \'biz bash\'),'.
+            '(47, \'pricey prince\'),'.
             '(58, \'ipsum lorem\')',
             'INS'.'ERT INTO `test_parent2` '.
             '(`id`, `name`) '.
             'VALUES '.
             '(13, \'bash\'),'.
             '(14, \'zim\'),'.
+            '(108, \'zip a dee do\'),'.
+            '(109, \'zip a dee day\'),'.
             '(15, \'za\');',
             'INS'.'ERT INTO `'.static::getTableName().'` (parent1_id, parent2_id, `label`) '.
             'VALUES '.
