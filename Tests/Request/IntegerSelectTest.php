@@ -1,6 +1,7 @@
 <?php
 namespace LittledTests\Request;
 
+use Exception;
 use Littled\Request\IntegerSelect;
 use Littled\Request\RequestInput;
 use LittledTests\DataProvider\Request\IntegerSelectTestData;
@@ -27,6 +28,50 @@ class IntegerSelectTest extends TestCase
 
         $o->setAllowMultiple(false);
         $this->assertFalse($o->allowMultiple());
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::collectRequestDataTestProvider()
+     * @param null|int|int[] $expected
+     * @param string $method
+     * @param bool $allow_multiple
+     * @param array $input
+     * @return void
+     * @throws Exception
+     */
+    public function testCollectRequestData($expected, string $method, bool $allow_multiple, array $input)
+    {
+        // save state
+        $post = $_POST;
+        $get = $_GET;
+
+        $src = null;
+        switch($method) {
+            case 'POST':
+                $_POST = array_merge($_POST, $input);
+                break;
+            case 'GET':
+                $_GET = array_merge($_GET, $input);
+                break;
+            case 'manual':
+                $src = $input;
+                break;
+            default:
+                throw new Exception('Bad source value.');
+        }
+        $o = (new IntegerSelect('Label', IntegerSelectTestData::TEST_KEY))
+            ->setAllowMultiple($allow_multiple);
+        $o->collectRequestData($src);
+        if ($o->allowMultiple()) {
+            self::assertEquals($expected, $o->value);
+        }
+        else {
+            self::assertEqualsCanonicalizing($expected, $o->value);
+        }
+
+        // restore
+        $_POST = $post;
+        $_GET = $get;
     }
 
     /**

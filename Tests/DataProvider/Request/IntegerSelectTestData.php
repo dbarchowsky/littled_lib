@@ -6,6 +6,8 @@ use Littled\Request\IntegerSelect;
 
 class IntegerSelectTestData extends SelectTestData
 {
+    public const TEST_KEY = 'isKey';
+
     /** @var array */
 	public const TEST_OPTIONS = array(
 		3 => 3,

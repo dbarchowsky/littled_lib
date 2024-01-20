@@ -8,6 +8,29 @@ use Exception;
 
 class IntegerSelectTestDataProvider
 {
+    public static function collectRequestDataTestProvider(): array
+    {
+        return array(
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => null]],
+            [0, 'POST', false, [IntegerSelectTestData::TEST_KEY => 0]],
+            [1, 'POST', false, [IntegerSelectTestData::TEST_KEY => 1]],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => true]],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => false]],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => 'str']],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => 'one']],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => 'true']],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => 'false']],
+            [null, 'POST', false, [IntegerSelectTestData::TEST_KEY => [3,5]]],
+            [[3,5], 'POST', true, [IntegerSelectTestData::TEST_KEY => [3,5]]],
+            [[0,1,4,8], 'POST', true, [IntegerSelectTestData::TEST_KEY => [0,'zero', null, 'one', 1, 'false', 4, 8]]],
+            [[3,6,9], 'POST', true, [IntegerSelectTestData::TEST_KEY => [3, 6.4, 9]]],
+            [7, 'GET', false, [IntegerSelectTestData::TEST_KEY => 7]],
+            [[3,5], 'GET', true, [IntegerSelectTestData::TEST_KEY => [3,5]]],
+            [7, 'manual', false, [IntegerSelectTestData::TEST_KEY => 7]],
+            [[3,5], 'manual', true, [IntegerSelectTestData::TEST_KEY => [3,5]]],
+        );
+    }
+
     public static function hasDataAsArrayTestProvider(): array
     {
         return array(

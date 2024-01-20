@@ -2,6 +2,8 @@
 namespace Littled\Request;
 
 
+use Littled\Validation\Validation;
+
 class IntegerSelect extends IntegerInput implements RequestSelectInterface
 {
     public static string    $input_template_filename = 'string-select-input.php';
@@ -11,6 +13,19 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
     public $value;
     /** @var int[]          List of available options to include in dropdown menus */
     public array            $options;
+
+    /**
+     * @inheritDoc
+     */
+    public function collectRequestData(?array $src = null, ?string $key = null)
+    {
+        if ($this->allowMultiple()) {
+            $this->value = Validation::collectIntegerArrayRequestVar($key ?? $this->key, $src);
+        }
+        else {
+            parent::collectRequestData($src, $key);
+        }
+    }
 
     /**
      * Returns input size attribute markup to inject into template.
