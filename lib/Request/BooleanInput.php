@@ -60,6 +60,14 @@ class BooleanInput extends RenderedInput
     }
 
     /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return is_bool($this->value);
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	public function isEmpty(): bool

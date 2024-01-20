@@ -18,6 +18,14 @@ class RequestInputTestHarness extends RequestInput
     /**
      * @inheritDoc
      */
+    public function hasData(): bool
+    {
+        return ($this->value !== null);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function render(string $label = '', string $css_class = '')
     {
         /* abstract method stub to allow this class to be instantiated */

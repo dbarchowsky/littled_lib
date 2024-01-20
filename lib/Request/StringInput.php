@@ -53,6 +53,14 @@ class StringInput extends RenderedInput
 	}
 
     /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return ('' !== ''.$this->value);
+    }
+
+    /**
 	 * Sets the internal value of the object. Casts any values as strings.
 	 * @param mixed $value
 	 */

@@ -52,6 +52,14 @@ class FloatInput extends RenderedInput
 		return Validation::parseNumeric($this->value);
 	}
 
+    /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return is_numeric($this->value);
+    }
+
 	/**
 	 * @param integer $value Value to assign as the value of the object.
 	 */

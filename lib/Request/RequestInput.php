@@ -400,6 +400,12 @@ abstract class RequestInput
     }
 
     /**
+     * Returns TRUE if a valid stored value is detected.
+     * @return bool
+     */
+    abstract function hasData(): bool;
+
+    /**
      * Sets flag that will cause this variable to be ignored when processing request data sent to the page.
      */
     public function ignoreRequestData()

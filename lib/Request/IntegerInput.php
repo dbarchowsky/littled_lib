@@ -52,6 +52,14 @@ class IntegerInput extends RenderedInput
 	}
 
     /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return is_numeric($this->value);
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function safeValue($options=[]): string
