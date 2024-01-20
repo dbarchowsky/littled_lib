@@ -8,6 +8,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -15,7 +16,7 @@ use Littled\Validation\Validation;
 class LinkedContent extends SerializedContentIO
 {
     public IntegerInput $primary_id;
-    public IntegerInput $foreign_id;
+    public ForeignKeyInput $foreign_id;
 
     /**
      * @inheritDoc
@@ -45,13 +46,15 @@ class LinkedContent extends SerializedContentIO
             'AND `'.$this->foreign_id->getColumnName('foreign_id').'` NOT IN (';
         $first = true;
         $arg_types = 'i';
+        $ids = [];
         foreach($valid_foreign_ids as $id) {
+            $ids[] = $id;
             $query .= ($first ? '' : ',').'?';
             $arg_types .= 'i';
             $first = false;
         }
         $query .= ')';
-        $args = array_merge([$this->primary_id->value], $valid_foreign_ids);
+        $args = array_merge([$this->primary_id->value], $ids);
         try {
             $this->query($query, $arg_types, ...$args);
         }

@@ -77,7 +77,8 @@ class LinkedContentTest extends TestCase
         $o->primary_id->setInputValue(3);
         $o->foreign_id->setInputValue(23);
         $expected = '/^SELECT .*`'.LinkedContentTestHarness::getTableName().
-            '` WHERE `primary_id` = \? AND `foreign_id` = \?/';
+            '` WHERE `'.$o->primary_id->getColumnName('primary_id').'` = \? '.
+            'AND `'.$o->foreign_id->getColumnName('foreign_id').'` = \?/';
         list($query, $arg_types, $args) =
             $o->formatRecordLookupQuery_public(
                 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'`');
@@ -260,7 +261,9 @@ class LinkedContentTest extends TestCase
      */
     protected static function lookupRecord(LinkedContentTestHarness $o): array
     {
-        $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.$o::getTableName().'` WHERE primary_id = ? AND foreign_id = ?';
+        $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.$o::getTableName().'` '.
+            'WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ? '.
+            'AND `'.$o->foreign_id->getColumnName('foreign_id').'` = ?';
         return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->foreign_id->value);
     }
 
@@ -270,7 +273,9 @@ class LinkedContentTest extends TestCase
      */
     protected static function lookupLabel(LinkedContentTestHarness $o): array
     {
-        $query = 'SEL'.'ECT `label` FROM `'.$o::getTableName().'` WHERE primary_id = ? AND foreign_id = ?';
+        $query = 'SEL'.'ECT `label` FROM `'.$o::getTableName().'` '.
+            'WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ? '.
+            'AND `'.$o->foreign_id->getColumnName('foreign_id').'` = ?';
         return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->foreign_id->value);
     }
 }

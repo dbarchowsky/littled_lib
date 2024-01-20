@@ -4,6 +4,7 @@ namespace LittledTests\TestHarness\PageContent\Serialized\LinkedContent;
 
 
 use Littled\PageContent\Serialized\LinkedContent;
+use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerTextField;
 use Littled\Request\StringTextField;
 use Exception;
@@ -24,7 +25,7 @@ class LinkedContentTestHarness extends LinkedContent
         parent::__construct();
         $this->primary_id = (new IntegerTextField('Foo', 'linkFoo', true))
             ->setColumnName('parent1_id');
-        $this->foreign_id = (new IntegerTextField('Bar', 'linkBar', true))
+        $this->foreign_id = (new ForeignKeyInput('Bar', 'linkBar', true))
             ->setColumnName('parent2_id');
         $this->label = new StringTextField('Name', 'linkName', true, '', 50);
         $this->extra = (new StringTextField('Name', 'linkName', false, '', 50))
