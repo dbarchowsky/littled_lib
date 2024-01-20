@@ -1,6 +1,7 @@
 <?php
 namespace LittledTests\PageContent\Serialized;
 
+use Littled\Exception\NotInitializedException;
 use LittledTests\DataProvider\PageContent\Serialized\ReadListTestDataProvider;
 use LittledTests\PageContent\SiteSection\SectionContentTest;
 use LittledTests\TestHarness\PageContent\Serialized\SerializedContentChild;
@@ -634,28 +635,14 @@ class SerializedContentTest extends TestCase
     }
 
 	/**
-     * @throws InvalidQueryException
-	 */
-    public function testGetNameColumnIdentifier()
-    {
-    	/* test when there is no matching column */
-	    $c = new SerializedContentChild();
-    	$this->assertEquals('', $c->getNameColumnIdentifier());
-
-    	$title = new SerializedContentTitleTestHarness();
-		$this->assertEquals('title', $title->getNameColumnIdentifier());
-
-	    $name = new SerializedContentNameTestHarness();
-	    $this->assertEquals('name', $name->getNameColumnIdentifier());
-    }
-
-	/**
 	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
      * @throws NotImplementedException
-	 * @throws RecordNotFoundException
-	 */
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     */
     public function testDelete()
     {
     	$obj = new SerializedContentChild();
@@ -663,8 +650,8 @@ class SerializedContentTest extends TestCase
     	/* test valid id value */
 	    $obj->id->setInputValue(null);
 	    $obj->vc_col1->setInputValue('bar');
-	    $obj->save();
-	    $result = $obj->delete();
+        $obj->save();
+        $result = $obj->delete();
 	    $this->assertMatchesRegularExpression("/has been deleted/", $result);
     }
 

@@ -186,25 +186,6 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * @todo remove this routine
-     * Attempts to determine which column in a table holds title or name values.
-     * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
-     * @throws InvalidQueryException Error executing query.*@throws Exception
-     * @throws Exception
-     */
-    public function getNameColumnIdentifier(): string
-	{
-		switch(1) {
-			case ($this->columnExists('name')):
-				return ('name');
-			case ($this->columnExists('title')):
-				return('title');
-			default:
-				return('');
-		}
-	}
-
-    /**
      * Record id getter.
      * @return int
      */
@@ -213,35 +194,7 @@ abstract class SerializedContent extends SerializedContentIO
         return $this->id->value;
     }
 
-	/**
-     * @todo remove this routine
-	 * Attempts to read the title or name from a record in the database and use
-	 * its value to set the title or name property of the class instance. Uses the
-	 * value of the internal TABLE_NAME() property to determine which table to search.
-     * @throws RecordNotFoundException Requested data not found.
-	 * @throws InvalidQueryException Error executing SQL queries.
-     * @throws Exception
-	 */
-	function getRecordLabel()
-	{
-		$column = $this->getNameColumnIdentifier();
-
-		$query = "SEL"."ECT `$column` AS `column_name` FROM `".$this::getTableName()."` WHERE `id` = ?";
-		$data = $this->fetchRecords($query, 'i', $this->id->value);
-		if (count($data) < 1) {
-			throw new RecordNotFoundException('Column value not found');
-		}
-
-		$column_options = array('name', 'title');
-		foreach($column_options as $prop) {
-			if (property_exists($this, $prop)) {
-				$this->$prop->value = $data[0]->column_name;
-				break;
-			}
-		}
-	}
-
-	/**
+    /**
 	 * Retrieves the name of the record represented by the provided id value.
 	 * @param string $table Name of the table containing the records.
 	 * @param int $id ID value of the record.
