@@ -64,8 +64,9 @@ class IntegerInput extends RenderedInput
 
     /**
 	 * @param null|int|int[] $value Value to assign as the value of the object.
+     * @return IntegerInput
 	 */
-	public function setInputValue($value)
+	public function setInputValue($value): IntegerInput
 	{
         if (is_array($value)) {
             $this->value = [];
@@ -79,6 +80,7 @@ class IntegerInput extends RenderedInput
         else {
             $this->value = Validation::parseInteger($value);
         }
+        return $this;
 	}
 
 	/**
