@@ -30,6 +30,7 @@ class ForeignKeyInput extends IntegerSelect
     /**
      * Content class getter.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getContentClass():string
     {

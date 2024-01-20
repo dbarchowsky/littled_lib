@@ -140,7 +140,7 @@ class IntegerInputTestDataProvider
 	{
 		return array(
 			[new HiddenInputTestData('',
-				'/<'.'input type="hidden" name="'.HiddenInputTestData::DEFAULT_KEY.'" id="'.HiddenInputTestData::DEFAULT_KEY.'" value="" \/>/',
+				'/<'.'input type="hidden" name="'. IntegerInputTestData::DEFAULT_KEY.'" id="'. IntegerInputTestData::DEFAULT_KEY.'" value="" \/>/',
 				'default', '[use default]')],
 			[new HiddenInputTestData('',
 				'/<'.'input.* value="45" \/>/',
@@ -192,6 +192,19 @@ class IntegerInputTestDataProvider
                 '/<input.* value=\"45\".* maxlength=\"50\" \/>/',
                 'css override',
                 45, false, null, '', '', 'my-special-class')],
+        );
+    }
+
+    public static function setInputValueAsArrayTestProvider(): array
+    {
+        return array(
+            [[], [], 'empty array'],
+            [[3], [3], 'single element'],
+            [[1], [1], 'single element value 1'],
+            [[0], [0], 'single element value 0'],
+            [[0, 1, 3], [0, 1, 3], 'multiple integers'],
+            [[6, 8, 9, 10], [6, 8.2, 9, 10], 'multiple mixed float and integer'],
+            [[6, 9, 10], [6, 'two', 9, 10], 'multiple mixed float and string'],
         );
     }
 }

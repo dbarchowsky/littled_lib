@@ -344,6 +344,20 @@ class IntegerInputTest extends TestCase
     }
 
     /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::setInputValueAsArrayTestProvider()
+     * @param array $expected
+     * @param array $value
+     * @param string $msg
+     * @return void
+     */
+    public function testSetInputValueAsArray(array $expected, array $value, string $msg='')
+    {
+        $o = new IntegerInput(IntegerInputTestData::DEFAULT_LABEL, IntegerInputTestData::DEFAULT_KEY);
+        $o->setInputValue($value);
+        self::assertEqualsCanonicalizing($expected, $o->value, $msg);
+    }
+
+    /**
      * @throws GuzzleException
      */
     public function testValidatePostDataUsingNull()

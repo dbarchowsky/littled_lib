@@ -56,18 +56,29 @@ class IntegerInput extends RenderedInput
      */
     public function safeValue($options=[]): string
     {
-        if (!is_numeric($this->value)) {
+        if (!is_numeric($this->value) && !is_array($this->value)) {
             return ('');
         }
         return parent::safeValue($options);
     }
 
     /**
-	 * @param ?int $value Value to assign as the value of the object.
+	 * @param null|int|int[] $value Value to assign as the value of the object.
 	 */
 	public function setInputValue($value)
 	{
-		$this->value = Validation::parseInteger($value);
+        if (is_array($value)) {
+            $this->value = [];
+            foreach($value as $el) {
+                $el = Validation::parseInteger($el);
+                if (is_int($el)) {
+                    $this->value[] = $el;
+                }
+            }
+        }
+        else {
+            $this->value = Validation::parseInteger($value);
+        }
 	}
 
 	/**
