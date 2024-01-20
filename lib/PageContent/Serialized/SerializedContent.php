@@ -6,6 +6,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerInput;
@@ -32,6 +33,36 @@ abstract class SerializedContent extends SerializedContentIO
 		parent::__construct();
 		$this->id = new IntegerInput('id', static::$default_id_key, false, $id);
 	}
+
+    /**
+     * Looks up any foreign key properties in the object and commits the links to the database.
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     * @throws NotInitializedException|InvalidQueryException
+     */
+    protected function commitForeignKeys()
+    {
+        $fkp = $this->getForeignKeyPropertyList();
+        foreach ($fkp as $property) {
+            /** @var ForeignKeyInput $property */
+            /** @var LinkedContent $linked */
+            $ids = [];
+            $class = $property->getContentClass();
+            $linked = new $class();
+            if (is_array($property->value)) {
+                foreach($property->value as $id) {
+                    $linked->setValuesAndCommit($this->id->value, $id);
+                    $ids[] = $id;
+                }
+            }
+            else {
+                $linked->setValuesAndCommit($this->id->value, $property->value);
+                $ids[] = $property->value;
+            }
+            $linked->deleteStaleLinks($ids);
+        }
+    }
 
     /**
      * @inheritDoc
@@ -141,7 +172,7 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Returns a list of all the properties of the object that represent foreign keys.
-     * @return array[ForeignKeyInput]
+     * @return ForeignKeyInput[]
      */
     protected function getForeignKeyPropertyList(): array
     {
@@ -155,12 +186,11 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
+     * @todo remove this routine
      * Attempts to determine which column in a table holds title or name values.
      * @return string Name of the column holding title or name values. Returns empty string if an identifier column couldn't be found.
      * @throws InvalidQueryException Error executing query.*@throws Exception
      * @throws Exception
-     * @todo be implemented in inherited classes, then this routine is no longer necessary and can be removed.
-     * @todo This routine exists for the benefit of the getRecordName() routine. If the switch that is in that routine
      */
     public function getNameColumnIdentifier(): string
 	{
@@ -184,6 +214,7 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
 	/**
+     * @todo remove this routine
 	 * Attempts to read the title or name from a record in the database and use
 	 * its value to set the title or name property of the class instance. Uses the
 	 * value of the internal TABLE_NAME() property to determine which table to search.
@@ -276,11 +307,12 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * Record id setter.
      * @param int $id
-     * @return void
+     * @return SerializedContent
      */
-    public function setRecordId(int $id)
+    public function setRecordId(int $id): SerializedContent
     {
         $this->id->setInputValue($id);
+        return $this;
     }
 
 	/**
@@ -307,6 +339,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ContentValidationException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws NotInitializedException|InvalidQueryException
      */
     public function save()
     {
@@ -324,6 +357,8 @@ abstract class SerializedContent extends SerializedContentIO
                 $this->executeInsertQuery();
             }
         }
+
+        $this->commitForeignKeys();
     }
 
     /**

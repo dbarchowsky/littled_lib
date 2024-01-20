@@ -242,7 +242,7 @@ class LinkedContentTest extends TestCase
      * @throws NotImplementedException
      * @throws Exception
      */
-    protected function getLinkCount(?int $primary_id=null): int
+    public static function getLinkCount(?int $primary_id=null): int
     {
         $o = new LinkedContentTestHarness();
         $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'`';
