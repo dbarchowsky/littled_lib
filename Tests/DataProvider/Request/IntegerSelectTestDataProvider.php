@@ -8,6 +8,23 @@ use Exception;
 
 class IntegerSelectTestDataProvider
 {
+    public static function hasDataAsArrayTestProvider(): array
+    {
+        return array(
+            [false, []],
+            [true, [1]],
+            [true, [0]],
+            [true, [1,2,3]],
+            [true, [65,23,99]],
+            [true, [6.1, 8.2]],
+            [false, 'nan'],
+            [true, ['nan']],
+            [true, ['a', 'b', 'c']],
+            [true, ['foo' => 'bar']],
+            [true, 73],
+        );
+    }
+
     public static function lookupValueInSelectedValuesTestProvider(): array
     {
         return array(

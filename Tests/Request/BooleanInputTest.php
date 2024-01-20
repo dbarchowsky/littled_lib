@@ -73,6 +73,19 @@ class BooleanInputTest extends ContentValidationTestCase
 	    $this->assertEquals($data->expected, $data->obj->formatValueMarkup());
     }
 
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\BooleanInputTestDataProvider::hasDataTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testHasValue(bool $expected, $value)
+    {
+        $o = new BooleanInput('Label','key');
+        $o->value = $value;
+        self::assertEquals($expected, $o->hasData());
+    }
+
 	public function testIsEmpty()
 	{
 		$o = new BooleanInput('Test', 'test');

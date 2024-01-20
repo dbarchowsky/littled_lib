@@ -263,6 +263,19 @@ class IntegerInputTest extends TestCase
     }
 
     /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::hasDataTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testHasValue(bool $expected, $value)
+    {
+        $o = new IntegerInput('Label','key');
+        $o->value = $value;
+        self::assertEquals($expected, $o->hasData());
+    }
+
+    /**
      * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::renderTestProvider()
      * @param IntegerInputTestData $data
      * @return void

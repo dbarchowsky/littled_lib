@@ -50,6 +50,19 @@ class StringInputTest extends TestCase
     }
 
     /**
+     * @dataProvider \LittledTests\DataProvider\Request\StringInputTestDataProvider::hasDataTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testHasValue(bool $expected, $value)
+    {
+        $o = new StringInput('Label','key');
+        $o->value = $value;
+        self::assertEquals($expected, $o->hasData());
+    }
+
+    /**
      * @dataProvider \LittledTests\DataProvider\Request\StringInputTestDataProvider::renderTestProvider()
      * @param StringInputTestData $data
      * @return void

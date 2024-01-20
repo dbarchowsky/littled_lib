@@ -39,6 +39,14 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
 
     /**
      * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return (is_numeric($this->value) || (is_array($this->value) && count($this->value) > 0));
+    }
+
+    /**
+     * @inheritDoc
      * @param null|int $value
      */
     public function lookupValueInSelectedValues($value): bool

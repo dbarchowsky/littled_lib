@@ -25,6 +25,23 @@ class StringInputTestDataProvider
         );
     }
 
+    public static function hasDataTestProvider(): array
+    {
+        return array(
+            [false, null],
+            [true, 1],
+            [true, 0],
+            [false, true],
+            [false, false],
+            [true, 'true'],
+            [true, 'false'],
+            [true, 'crap'],
+            [false, ''],
+            [true, 22],
+            [true, 22.6],
+        );
+    }
+
 	public static function saveInFormTestProvider(): array
 	{
 		return array(

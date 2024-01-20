@@ -64,7 +64,7 @@ class BooleanInput extends RenderedInput
      */
     public function hasData(): bool
     {
-        return is_bool($this->value);
+        return is_bool(Validation::parseBoolean($this->value));
     }
 
     /**

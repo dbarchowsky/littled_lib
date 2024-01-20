@@ -56,6 +56,25 @@ class IntegerInputTestDataProvider
         );
     }
 
+    public static function hasDataTestProvider(): array
+    {
+        return array(
+            [false, null],
+            [true, 1],
+            [true, 0],
+            [false, true],
+            [false, false],
+            [false, 'true'],
+            [false, 'false'],
+            [false, 'crap'],
+            [false, ''],
+            [true, 22],
+            [true, 22.6],
+            [false, []],
+            [false, [4, 7, 9]],
+        );
+    }
+
 	public static function saveInFormTestProvider(): array
 	{
 		return array(

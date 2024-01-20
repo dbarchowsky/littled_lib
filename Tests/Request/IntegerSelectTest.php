@@ -30,6 +30,37 @@ class IntegerSelectTest extends TestCase
     }
 
     /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::hasDataTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testHasValue(bool $expected, $value)
+    {
+        if (!is_array($value)) {
+            $o = new IntegerSelect('Label', 'key');
+            $o->value = $value;
+            self::assertEquals($expected, $o->hasData());
+        }
+        else {
+            self::assertTrue(true);
+        }
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::hasDataAsArrayTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testHasValueAsArray(bool $expected, $value)
+    {
+        $o = new IntegerSelect('Label','key');
+        $o->value = $value;
+        self::assertEquals($expected, $o->hasData());
+    }
+
+    /**
      * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::lookupValueInSelectedValuesTestProvider()
      * @param bool $expected
      * @param int|int[]|null $selected_values

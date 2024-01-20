@@ -41,6 +41,22 @@ class BooleanInputTestDataProvider
 		);
 	}
 
+    public static function hasDataTestProvider(): array
+    {
+        return array(
+            [false, null],
+            [true, 1],
+            [true, 0],
+            [true, true],
+            [true, false],
+            [true, 'true'],
+            [true, 'false'],
+            [false, 'crap'],
+            [false, ''],
+            [false, 22],
+        );
+    }
+
     public static function renderTestProvider(): array
     {
         return array(
