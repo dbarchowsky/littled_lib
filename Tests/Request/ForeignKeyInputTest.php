@@ -28,7 +28,7 @@ class ForeignKeyInputTest extends TestCase
     public function testIsDatabaseFieldDefault()
     {
         $o = new ForeignKeyInput('DB field default', 'testKey');
-        self::assertFalse($o->isDatabaseField());
+        self::assertTrue($o->isDatabaseField());
     }
 
     /**

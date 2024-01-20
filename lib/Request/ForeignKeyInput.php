@@ -15,18 +15,6 @@ class ForeignKeyInput extends IntegerSelect
 {
     protected string $content_class;
 
-    public function __construct(
-        string  $label,
-        string  $key,
-        bool    $required = false,
-                $value = null,
-        int     $size_limit = 0,
-        ?int    $index = null)
-    {
-        parent::__construct($label, $key, $required, $value, $size_limit, $index);
-        $this->setIsDatabaseField(false);
-    }
-
     /**
      * Content class getter.
      * @return string
