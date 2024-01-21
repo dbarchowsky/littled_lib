@@ -84,6 +84,23 @@ abstract class SerializedContentIO extends SerializedContentValidation
     public abstract function generateUpdateQuery(): ?array;
 
     /**
+     * Returns a descriptive label of the content type suitable to insert into a sentence.
+     * @param bool $make_plural Makes the label plural if TRUE.
+     * @return string
+     */
+    public function getInlineLabel(bool $make_plural=false): string
+    {
+        return strtolower($make_plural ? static::makePlural($this->getLabel()) : $this->getLabel());
+    }
+
+    /**
+     * Returns a descriptive label for the object, usually corresponding to the name of the database table holding
+     * object records.
+     * @return string
+     */
+    abstract function getLabel(): string;
+
+    /**
      * Table name getter.
      * @return string
      * @throws NotImplementedException
