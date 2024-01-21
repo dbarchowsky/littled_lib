@@ -38,6 +38,9 @@ class LittledGlobalsTest extends TestCase
 		self::assertEquals('', LittledGlobals::getCMSRootURI());
 	}
 
+    /**
+     * @throws ConfigurationUndefinedException
+     */
     public function testGetAppBaseDir()
     {
         try {
