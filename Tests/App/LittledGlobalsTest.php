@@ -5,6 +5,7 @@ namespace LittledTests\App;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use LittledTests\TestHarness\App\LittledGlobalsTestHarness;
 use PHPUnit\Framework\TestCase;
 
 class LittledGlobalsTest extends TestCase
@@ -36,6 +37,19 @@ class LittledGlobalsTest extends TestCase
 		LittledGlobals::setCMSRootURI('');
 		self::assertEquals('', LittledGlobals::getCMSRootURI());
 	}
+
+    public function testGetAppBaseDir()
+    {
+        try {
+            LittledGlobals::getAppBaseDir();
+            self::fail('Expected ' . ConfigurationUndefinedException::class . ' exception not thrown.');
+        }
+        catch(ConfigurationUndefinedException $e) {
+            self::assertTrue(true);
+        }
+
+        self::assertStringContainsString('/path/to/', LittledGlobalsTestHarness::getAppBaseDir());
+    }
 
 	public function testMySQLKeysPath()
 	{

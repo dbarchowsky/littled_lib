@@ -6,46 +6,62 @@ use Littled\Exception\ConfigurationUndefinedException;
 
 class LittledGlobals
 {
-	/** @var string App domain name. */
-	protected static string $app_domain = '';
-	/** @var string Root URI for CMS pages. */
-	protected static string $cms_root_uri = '';
-	/** @var string Path to directory containing mysql authentication (outside public access). */
-	protected static string $mysql_keys_path = '';
-	/** @var string Path to directory containing app templates. */
-	protected static string $local_template_path = '';
-    /** @var string Path to directory containing app templates. */
-    protected static string $shared_template_path = '';
+    /** @var string             Path to app's root directory. */
+    protected static string     $app_base_dir;
+	/** @var string             App domain name. */
+	protected static string     $app_domain = '';
+	/** @var string             Root URI for CMS pages. */
+	protected static string     $cms_root_uri = '';
+	/** @var string             Path to directory containing mysql authentication (outside public access). */
+	protected static string     $mysql_keys_path = '';
+	/** @var string             Path to directory containing app templates. */
+	protected static string     $local_template_path = '';
+    /** @var string             Path to directory containing app templates. */
+    protected static string     $shared_template_path = '';
 
-	/** @var string Name of session variable use dto store CSRF tokens. */
-	const CSRF_SESSION_KEY = 'csrfToken';
-    /** @var string Name of request header transmitting csrf token. */
-    const CSRF_HEADER_KEY = 'X_CSRF_TOKEN';
+	/** @var string             Name of session variable use dto store CSRF tokens. */
+	const CSRF_SESSION_KEY =    'csrfToken';
+    /** @var string             Name of request header transmitting csrf token. */
+    const CSRF_HEADER_KEY =     'X_CSRF_TOKEN';
 
-    /** @var string Request variable name to cancel operations. */
-    const CANCEL_KEY = 'cancel';
-    /** @var string Request variable name to commit operations. */
-    const COMMIT_KEY = 'commit';
-	/** @var string Key of the content type id request variable. */
-	const CONTENT_TYPE_KEY = 'tid';
-	/** @var string Cookie variable containing value of flag indicating the user's consent to collecting cookie data  */
+    /** @var string             Request variable name to cancel operations. */
+    const CANCEL_KEY =          'cancel';
+    /** @var string             Request variable name to commit operations. */
+    const COMMIT_KEY =          'commit';
+	/** @var string             Key of the content type id request variable. */
+	const CONTENT_TYPE_KEY =    'tid';
+	/** @var string             Cookie variable containing value of flag indicating the user's consent to
+     *                          collecting cookie data
+     */
 	const COOKIE_CONSENT_KEY = 'hasCookieConsent';
-	/** @var string Key of request variable used to pass CSRF tokens. */
-	const CSRF_TOKEN_KEY = 'csrf';
-	/** @var string Key of request variable used to pass error messages. */
-	const ERROR_MSG_KEY = 'err';
-    /** @var string Request variable flag indicating that listings are being filtered. */
-    const FILTER_KEY = 'filter';
-    /** @var string Key of the record id request variable. */
-    const ID_KEY = 'id';
-    /** @var string Request variable containing status message. */
-    const INFO_MESSAGE_KEY = 'msg';
-    /** @var string Key of the parent id request variable. */
-    const PARENT_ID_KEY = 'pid';
-	/** @var string Request variable name containing referring URLs. */
-	const REFERER_KEY = 'ref';
+	/** @var string             Key of request variable used to pass CSRF tokens. */
+	const CSRF_TOKEN_KEY =      'csrf';
+	/** @var string             Key of request variable used to pass error messages. */
+	const ERROR_MSG_KEY =       'err';
+    /** @var string             Request variable flag indicating that listings are being filtered. */
+    const FILTER_KEY =          'filter';
+    /** @var string             Key of the record id request variable. */
+    const ID_KEY =              'id';
+    /** @var string             Request variable containing status message. */
+    const INFO_MESSAGE_KEY =    'msg';
+    /** @var string             Key of the parent id request variable. */
+    const PARENT_ID_KEY =       'pid';
+	/** @var string             Request variable name containing referring URLs. */
+	const REFERER_KEY =         'ref';
     /** @var string */
-    const OPERATION_KEY = 'op';
+    const OPERATION_KEY =       'op';
+
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getAppBaseDir(): string
+    {
+        if (!isset(static::$app_base_dir)) {
+            throw new ConfigurationUndefinedException(
+                'Application\'s base directory was not configured within the app.');
+        }
+        return static::$app_base_dir;
+    }
 
 	/**
 	 * Gets app domain name.
@@ -59,6 +75,7 @@ class LittledGlobals
 	/**
 	 * Gets path to current CMS root URI.
 	 * @return string CMS root URI.
+     * TODO refactor to remove
 	 */
 	public static function getCMSRootURI(): string
 	{
@@ -112,6 +129,7 @@ class LittledGlobals
 	/**
 	 * Sets path to current CMS URI root.
 	 * @param string $uri CMS URI root.
+     * TODO refactor to remove
 	 */
 	public static function setCMSRootURI(string $uri)
 	{
