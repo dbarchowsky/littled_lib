@@ -66,4 +66,14 @@ class ForeignKeyInputTest extends TestCase
             self::assertMatchesRegularExpression($expected, $e->getMessage());
         }
     }
+
+    public function testSetLinkedListingsCB()
+    {
+        $o = new ForeignKeyInput('FK input', 'fkKey');
+        self::assertFalse($o->getLinkedListingsCB());
+
+        $cb = 'linkedListingsSelect';
+        $o->setLinkedListingsCB($cb);
+        self::assertEquals($cb, $o->getLinkedListingsCB());
+    }
 }
