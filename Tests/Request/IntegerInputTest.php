@@ -8,10 +8,11 @@ use Littled\Exception\ContentValidationException;
 use Littled\Request\RequestInput;
 use LittledTests\DataProvider\Request\HiddenInputTestData;
 use LittledTests\DataProvider\Request\IntegerInputTestData;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 use PHPUnit\Framework\TestCase;
 use mysqli;
 
-class IntegerInputTest extends TestCase
+class IntegerInputTest extends ContentValidationTestCase
 {
     public IntegerInput $obj;
     /** @var bool */
@@ -24,9 +25,9 @@ class IntegerInputTest extends TestCase
 	/** @var string Name of variable used to pass form data to test harness page. */
 	const TEST_HARNESS_VARIABLE_NAME = 'var';
 
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        parent::setUp();
+        parent::setUpBeforeClass();
         RequestInput::setTemplateBasePath(LITTLED_TEMPLATE_DIR.'forms/input-elements/');
     }
 
@@ -268,7 +269,7 @@ class IntegerInputTest extends TestCase
      * @param $value
      * @return void
      */
-    public function testHasValue(bool $expected, $value)
+    public function testHasData(bool $expected, $value)
     {
         $o = new IntegerInput('Label','key');
         $o->value = $value;
@@ -514,89 +515,15 @@ class IntegerInputTest extends TestCase
         }
 	}
 
-	public function testValidateValidValues()
-	{
-		$o = new IntegerInput("Test", "test");
-
-		/* not required, default value (null) */
-		$o->required = false;
-		$this->expectValidValue($o);
-
-		/* not required, empty string value */
-		$o->required = false;
-		$o->value = '';
-		$this->expectValidValue($o);
-
-		/* not required, valid integer value of 1 */
-		$o->required = false;
-		$o->value = 1;
-		$this->expectValidValue($o);
-
-		/* not required, valid integer value */
-		$o->required = false;
-		$o->value = 765;
-		$this->expectValidValue($o);
-
-		/* required, valid integer value of 1 */
-		$o->required = true;
-		$o->value = 1;
-		$this->expectValidValue($o);
-
-		/* required, valid integer value of 0 */
-		$o->required = true;
-		$o->value = 0;
-		$this->expectValidValue($o);
-
-		/* required, valid integer value */
-		$o->required = true;
-		$o->value = 5248;
-		$this->expectValidValue($o);
-
-		/* not required, null value */
-		$o->required = false;
-		$o->value = null;
-		$this->expectValidValue($o);
-
-		/* required, integer string */
-		$o->required = true;
-		$o->value = '1';
-		$this->expectValidValue($o);
-
-		/* required, integer string */
-		$o->required = true;
-		$o->value = '0';
-		$this->expectValidValue($o);
-
-		/* required, integer string */
-		$o->required = true;
-		$o->value = '8356';
-		$this->expectValidValue($o);
-	}
-
-	public function testValidateRequiredDefaultValue()
-	{
-		$o = new IntegerInput('test label', 'ptest', true);
-		$this->expectInvalidValue($o, 'Test label is required.');
-	}
-
-	public function testValidateRequiredEmptyStringValue()
-	{
-		$o = new IntegerInput('test label', 'ptest', true);
-		$o->value = '';
-		$this->expectInvalidValue($o, 'Test label is required.');
-	}
-
-	public function testValidateRequiredStringValue()
-	{
-		$o = new IntegerInput('test label', 'ptest', true);
-		$o->value = 'foo';
-		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
-	}
-
-	public function testValidateNotRequiredStringValue()
-	{
-		$o = new IntegerInput('test label', 'ptest', false);
-		$o->value = 'foo';
-		$this->expectInvalidValue($o, 'Test label is in unrecognized format.');
-	}
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerInputTestDataProvider::validateTestProvider()
+     * @param string $expected_exception
+     * @param $value
+     * @param bool $required
+     */
+    public function testValidate(string $expected_exception, $value, bool $required)
+    {
+        $o = new IntegerInput('Label', 'key', $required);
+        $this->_testValidate($expected_exception, $value, $o);
+    }
 }

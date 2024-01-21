@@ -71,11 +71,14 @@ class FloatInput extends RenderedInput
 	/**
 	 * {@inheritDoc}
 	 */
-	public function validate()
-	{
-		if (($this->isEmpty()===false) && (Validation::parseNumeric($this->value)===null)) {
-			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
-		}
-		parent::validate();
-	}
+    public function validate()
+    {
+        if ((trim(''.$this->value) !== '') &&
+            (Validation::parseInteger($this->value) === null)) {
+            $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
+        }
+        if ($this->isRequired() && !$this->hasData()) {
+            $this->throwValidationError(ucfirst($this->label) . " is required.");
+        }
+    }
 }

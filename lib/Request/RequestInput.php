@@ -400,12 +400,6 @@ abstract class RequestInput
     }
 
     /**
-     * Returns TRUE if a valid stored value is detected.
-     * @return bool
-     */
-    abstract function hasData(): bool;
-
-    /**
      * Sets flag that will cause this variable to be ignored when processing request data sent to the page.
      */
     public function ignoreRequestData()
@@ -435,10 +429,7 @@ abstract class RequestInput
      * Tests if the value of the object is not currently set.
      * @return bool True/false depending on whether the value is set or not.
      */
-    public function isEmpty(): bool
-    {
-        return ($this->value===null || ($this->value !== false && trim($this->value)===''));
-    }
+    abstract public function hasData(): bool;
 
     /**
      * Tests if the inherited class has defined a template to use to render the input element group.
@@ -737,7 +728,7 @@ abstract class RequestInput
     public function validate()
     {
         if ($this->required) {
-            if ($this->isEmpty()) {
+            if (!$this->hasData()) {
                 $this->throwValidationError($this->formatErrorLabel()." is required.");
             }
         }

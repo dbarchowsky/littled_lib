@@ -43,6 +43,24 @@ class FloatInputTestDataProvider
         );
     }
 
+    public static function hasDataTestProvider(): array
+    {
+        return array(
+            [false, null],
+            [false, ''],
+            [false, ' '],
+            [true, '0.6'],
+            [true, 0.6],
+            [true, 14],
+            [false, 'string value'],
+            [false, 'true'],
+            [false, 'false'],
+            [false, 'one'],
+            [true, '1'],
+            [false, [1.5, 2.6]],
+        );
+    }
+
 	public static function saveInFormTestProvider(): array
 	{
 		return array(
@@ -164,6 +182,31 @@ class FloatInputTestDataProvider
                 '/<input.* value=\"45.37\".* class=\"my-input-class\" \/>/',
                 'input class set',
                 45.37, false, null, 'my-input-class')],
+        );
+    }
+
+    public static function validateTestProvider(): array
+    {
+        return array(
+            ['', '[use default]', false],
+            ['/required/', '[use default]', true],
+            ['', '', false],
+            ['/required/', '', true],
+            ['', '   ', false],
+            ['/required/', '   ', true],
+            ['', 1, false],
+            ['', 765, false],
+            ['', 0, true],
+            ['', 5248, true],
+            ['', null, false],
+            ['/required/', null, true],
+            ['', '1', true],
+            ['', '0', true],
+            ['', '8356', true],
+            ['', 99.06, true],
+            ['', '99.06', true],
+            ['/unrecognized format/', 'string value', false],
+            ['/unrecognized format/', 'string value', true],
         );
     }
 }

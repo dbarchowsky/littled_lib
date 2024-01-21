@@ -76,7 +76,7 @@ class SerializedContentValidation extends SerializedContentUtils
 		foreach($this as $property)
 		{
 			if ($property instanceof RequestInput && $property->required===true) {
-				if ($property->isEmpty()===false) {
+				if ($property->hasData()) {
 					return true;
 				}
 			}

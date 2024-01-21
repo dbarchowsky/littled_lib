@@ -176,20 +176,6 @@ class RequestInputTest extends TestCase
         self::assertTrue($o3->isDatabaseField());
     }
 
-    /**
-     * @dataProvider \LittledTests\DataProvider\Request\RequestInputTestDataProvider::isEmptyTestProvider()
-     * @param bool $expected
-     * @param $value
-     * @return void
-     */
-    public function testIsEmpty(bool $expected, $value)
-	{
-        if ($value!==null) {
-            $this->obj->value = $value;
-        }
-        $this->assertSame($expected, $this->obj->isEmpty());
-	}
-
     function testGetPreparedStatementTypeIdentifier()
     {
         $this->assertEquals('s', RequestInput::getPreparedStatementTypeIdentifier());

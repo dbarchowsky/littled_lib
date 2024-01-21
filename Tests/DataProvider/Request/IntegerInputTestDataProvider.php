@@ -6,6 +6,7 @@ namespace LittledTests\DataProvider\Request;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
 
 class IntegerInputTestDataProvider
 {
@@ -224,6 +225,35 @@ class IntegerInputTestDataProvider
             [[0, 1, 3], [0, 1, 3], 'multiple integers'],
             [[6, 8, 9, 10], [6, 8.2, 9, 10], 'multiple mixed float and integer'],
             [[6, 9, 10], [6, 'two', 9, 10], 'multiple mixed float and string'],
+        );
+    }
+
+    public static function validateTestProvider(): array
+    {
+        return array(
+            ['', '[use default]', false],
+            ['/is required/', '[use default]', true],
+            ['', null, false],
+            ['/is required/', null, true],
+            ['', '', false],
+            ['/is required/', '', true],
+            ['', ' ', false],
+            ['/is required/', ' ', true],
+            ['', 1, false],
+            ['', 1, true],
+            ['', '1', false],
+            ['', '1', true],
+            ['', 765, false],
+            ['', 0, false],
+            ['', 0, true],
+            ['', '0', false],
+            ['', '0', true],
+            ['', 5248, true],
+            ['', '8356', true],
+            ['', 12.6, false],
+            ['', 12.6, true],
+            ['/unrecognized format/', 'foo', false],
+            ['/unrecognized format/', 'foo', true],
         );
     }
 }

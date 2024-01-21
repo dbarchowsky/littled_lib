@@ -80,7 +80,7 @@ class IntegerSelectTest extends TestCase
      * @param $value
      * @return void
      */
-    public function testHasValue(bool $expected, $value)
+    public function testHasData(bool $expected, $value)
     {
         if (!is_array($value)) {
             $o = new IntegerSelect('Label', 'key');

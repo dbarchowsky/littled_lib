@@ -57,7 +57,7 @@ class StringInput extends RenderedInput
      */
     public function hasData(): bool
     {
-        return ('' !== ''.$this->value && false !== $this->value && true !== $this->value);
+        return ('' !== trim(''.$this->value) && false !== $this->value && true !== $this->value);
     }
 
     /**

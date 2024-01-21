@@ -37,6 +37,7 @@ class StringInputTestDataProvider
             [true, 'false'],
             [true, 'crap'],
             [false, ''],
+            [false, '    '],
             [true, 22],
             [true, 22.6],
         );

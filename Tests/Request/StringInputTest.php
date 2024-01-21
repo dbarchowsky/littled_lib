@@ -55,7 +55,7 @@ class StringInputTest extends TestCase
      * @param $value
      * @return void
      */
-    public function testHasValue(bool $expected, $value)
+    public function testHasData(bool $expected, $value)
     {
         $o = new StringInput('Label','key');
         $o->value = $value;

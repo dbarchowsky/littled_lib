@@ -57,22 +57,6 @@ class RequestInputTestDataProvider
         );
     }
 
-    public static function isEmptyTestProvider(): array
-    {
-        return array(
-            array(true, null),
-            array(true, ''),
-            array(true, ' '),
-            array(false, 1),
-            array(false, 0),
-            array(false, 16),
-            array(false, 16.23),
-            array(false, -8),
-            array(false, false),
-            array(false, true),
-        );
-    }
-
     public static function saveInFormTestProvider(): array
     {
         return array(

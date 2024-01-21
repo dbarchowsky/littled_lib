@@ -13,25 +13,25 @@ use mysqli;
 
 class FloatInputTest extends ContentValidationTestCase
 {
-    public MySQLConnection $conn;
-    public mysqli $mysqli;
+    public static MySQLConnection $conn;
+    public static mysqli $mysqli;
 
-	/**
-	 * @throws ConnectionException
-	 * @throws ConfigurationUndefinedException
-	 */
-	protected function setUp(): void
+    /**
+     * @throws ConnectionException
+     * @throws ConfigurationUndefinedException
+     */
+    public static function setUpBeforeClass(): void
     {
-        parent::setUp();
-        $this->conn = new MySQLConnection();
-        $this->conn->connectToDatabase();
-        $this->mysqli = $this->conn->getMysqli();
+        parent::setUpBeforeClass();
+        static::$conn = new MySQLConnection();
+        static::$conn->connectToDatabase();
+        static::$mysqli = static::$conn->getMysqli();
     }
 
-    protected function tearDown(): void
+    public static function tearDownAfterClass(): void
     {
-        parent::tearDown();
-        $this->conn->closeDatabaseConnection();
+        parent::tearDownAfterClass();
+        static::$conn->closeDatabaseConnection();
     }
 
 	public function __construct(?string $name = null, array $data = [], $dataName = '')
@@ -72,12 +72,25 @@ class FloatInputTest extends ContentValidationTestCase
      */
     public function testEscapeSQL(FloatInputTestData $data)
 	{
-        $this->assertSame($data->expected, $data->obj->escapeSQL($this->mysqli));
+        $this->assertSame($data->expected, $data->obj->escapeSQL(static::$mysqli));
 	}
 
     function testGetPreparedStatementTypeIdentifier()
     {
         $this->assertEquals('d', FloatInput::getPreparedStatementTypeIdentifier());
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::hasDataTestProvider()
+     * @param bool $expected
+     * @param $value
+     * @return void
+     */
+    public function testHasData(bool $expected, $value)
+    {
+        $o = new FloatInput('Label','key');
+        $o->value = $value;
+        self::assertEquals($expected, $o->hasData());
     }
 
     /**
@@ -124,130 +137,14 @@ class FloatInputTest extends ContentValidationTestCase
     }
 
 	/**
-	 * @throws ContentValidationException
+     * @dataProvider \LittledTests\DataProvider\Request\FloatInputTestDataProvider::validateTestProvider()
+     * @param string $expected_exception
+     * @param $value
+     * @param bool $required
 	 */
-	public function testValidateValidValues()
-	{
-		$o = new FloatInput("Test", "test");
-
-		/* not required, default value (null) */
-		$o->required = false;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* not required, empty string value */
-		$o->required = false;
-		$o->value = '';
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* not required, valid integer value of 1 */
-		$o->required = false;
-		$o->value = 1;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* not required, valid integer value */
-		$o->required = false;
-		$o->value = 765;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, valid integer value of 1 */
-		$o->required = true;
-		$o->value = 1;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, valid integer value of 1 */
-		$o->required = true;
-		$o->value = 0;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, valid integer value */
-		$o->required = true;
-		$o->value = 5248;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* not required, null value */
-		$o->required = false;
-		$o->value = null;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, integer string */
-		$o->required = true;
-		$o->value = '1';
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, integer string */
-		$o->required = true;
-		$o->value = '0';
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, integer string */
-		$o->required = true;
-		$o->value = '8356';
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, float value */
-		$o->required = true;
-		$o->value = 99.06;
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-
-		/* required, float string */
-		$o->required = true;
-		$o->value = '99.06';
-		$o->validate();
-		$this->assertFalse($o->has_errors);
-	}
-
-	/**
-	 * @throws ContentValidationException
-	 */
-	public function testValidateRequiredDefaultValue()
-	{
-		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, true);
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
-	}
-
-	/**
-	 * @throws ContentValidationException
-	 */
-	public function testValidateRequiredEmptyStringValue()
-	{
-		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, true);
-		$o->value = '';
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
-	}
-
-	/**
-	 * @throws ContentValidationException
-	 */
-	public function testValidateRequiredStringValue()
-	{
-		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, true);
-		$o->value = 'foo';
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
-	}
-
-	/**
-	 * @throws ContentValidationException
-	 */
-	public function testValidateNotRequiredStringValue()
-	{
-		$o = new FloatInput(FloatInputTestData::DEFAULT_LABEL, FloatInputTestData::DEFAULT_KEY, false);
-		$o->value = 'foo';
-		$this->expectException(ContentValidationException::class);
-		$o->validate();
-	}
+    public function testValidate(string $expected_exception, $value, bool $required)
+    {
+        $o = new FloatInput('Label', 'key', $required);
+        $this->_testValidate($expected_exception, $value, $o);
+    }
 }

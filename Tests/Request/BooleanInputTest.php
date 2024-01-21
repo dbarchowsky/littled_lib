@@ -79,23 +79,12 @@ class BooleanInputTest extends ContentValidationTestCase
      * @param $value
      * @return void
      */
-    public function testHasValue(bool $expected, $value)
+    public function testHasData(bool $expected, $value)
     {
         $o = new BooleanInput('Label','key');
         $o->value = $value;
         self::assertEquals($expected, $o->hasData());
     }
-
-	public function testIsEmpty()
-	{
-		$o = new BooleanInput('Test', 'test');
-
-		$o->value = true;
-		self::assertTrue($o->isEmpty());
-
-		$o->value = false;
-		self::assertTrue($o->isEmpty());
-	}
 
     function testGetPreparedStatementTypeIdentifier()
     {

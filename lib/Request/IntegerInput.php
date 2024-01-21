@@ -96,9 +96,12 @@ class IntegerInput extends RenderedInput
 	 */
 	public function validate()
 	{
-		if ((false === $this->isEmpty()) && (null === Validation::parseInteger($this->value))) {
-			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
-		}
-		parent::validate();
+        if ((trim(''.$this->value) !== '') &&
+            (Validation::parseInteger($this->value) === null)) {
+            $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
+        }
+        if ($this->isRequired() && !$this->hasData()) {
+            $this->throwValidationError(ucfirst($this->label) . " is required.");
+        }
 	}
 }
