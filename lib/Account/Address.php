@@ -584,10 +584,10 @@ class Address extends SerializedContent
 
     /**
 	 * Validates address form data.
-     * @param array[optional] $exclude_properties List of properties to exclude from validation.
+     * @param string[] $exclude_properties List of properties to exclude from validation.
 	 * @throws Exception Throws exception if any invalid form data is detected. A detailed description of the errors is found through the GetMessage() routine of the Exception object.
 	 */
-	public function validateInput ($exclude_properties=[])
+	public function validateInput (array $exclude_properties=[])
 	{
 		try {
 		    parent::validateInput();
@@ -596,7 +596,7 @@ class Address extends SerializedContent
 		    /* continue */
 		}
 
-		if ($this->validationErrors) {
+		if ($this->hasValidationErrors()) {
 			throw new ContentValidationException("Error validating address.");
 		}
         return null;

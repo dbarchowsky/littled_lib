@@ -33,9 +33,9 @@ class LoginAuthenticator extends UserLogin
 
 	/**
 	 * LoginAuthenticator constructor.
-	 * @param null[optional] $id Optional user account record id value.
+	 * @param null|int $id Optional user account record id value.
 	 */
-	public function __construct($id = null)
+	public function __construct(?int $id = null)
 	{
 		parent::__construct($id);
 		$this->bypass_login = false;
@@ -47,7 +47,7 @@ class LoginAuthenticator extends UserLogin
 	 * Verifies login credentials using interal values of the login object.
 	 * @param int $access_level (Optional) Token representing the level of access required to view the current page.
 	 */
-	public function authenticate($access_level=100)
+	public function authenticate(int $access_level=100)
 	{
 		if (!$this->uname->value || !$this->password->value || $this->access->value>$access_level)
 		{
@@ -144,7 +144,7 @@ class LoginAuthenticator extends UserLogin
 	 * @param string $msg (Optional) Message to be displayed with the login form.
 	 * @throws ConfigurationUndefinedException
 	 */
-	public function requireLogin($access_level=100, $msg="" )
+	public function requireLogin(int $access_level=100, string $msg='')
 	{
 		$login_uri = $this->getLoginURI();
 		if ($login_uri === null | strlen($login_uri) < 1) {
@@ -176,10 +176,10 @@ class LoginAuthenticator extends UserLogin
 	/**
 	 * Validates form data submitted from login form.
 	 * Throws exception if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
-	 * @param array $exclude_properties (Optional) List of property names to exclude from validation.
+	 * @param string[] $exclude_properties (Optional) List of property names to exclude from validation.
 	 * @throws ContentValidationException
 	 */
-	public function validateInput($exclude_properties=[])
+	public function validateInput(array $exclude_properties=[])
 	{
 		try
 		{
@@ -207,12 +207,12 @@ class LoginAuthenticator extends UserLogin
 	 * Looks up user in database to confirm that the login and password match an existing and valid login record.
 	 * Sets the values of the object's logged_in property to indicate if valid login settings were detected.
 	 * Logs the user in if a valid database record is found.
-	 * @param int[optional] $accessLevel Token representing the level of access required to view the current page.
+	 * @param int $accessLevel Token representing the level of access required to view the current page.
 	 * @throws Exception
      * @throws InvalidCredentialsException
      * @throws ConfigurationUndefinedException
 	 */
-	public function validateOnDatabase( $accessLevel=100 )
+	public function validateOnDatabase(int $accessLevel=100)
 	{
 		$this->connectToDatabase();
 		$query = "SELECT l.id, c.firstname, c.lastname, c.email, l.access ".
@@ -254,7 +254,7 @@ class LoginAuthenticator extends UserLogin
 	 * @param int $accessLevel (Optional) Token representing the level of access required to view the current page.
 	 * @return void
 	 */
-	public function validateOnSession( $accessLevel=100 )
+	public function validateOnSession(int $accessLevel=100)
 	{
 		if (isset($_SESSION[$this->id->key]) && ($_SESSION[$this->id->key]>0) &&
 			isset($_SESSION[$this->uname->key]) && (strlen($_SESSION[$this->uname->key])>0) &&

@@ -2,23 +2,27 @@
 
 namespace Littled\Account;
 
+use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
+use Littled\Request\StringPasswordField;
 
 class PasswordUpdate extends UserAccount
 {
-	/**
-	 * Validates new passwords to make sure that the password is different from the current password, that it matches the confirmation password, and that both the password and confirmation password were entered in the form in situations where they are both required.
-	 * Throws exception if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
-	 * @param array[optional] $exclude_properties Associative list of properties to exclude from validation.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException|NotImplementedException
-	 */
-	public function validateInput ($exclude_properties=[])
+    public StringPasswordField $new_password;
+
+    /**
+     * Validates new passwords to make sure that the password is different from the current password, that it matches the confirmation password, and that both the password and confirmation password were entered in the form in situations where they are both required.
+     * Throws exception if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
+     * @param array $exclude_properties Associative list of properties to exclude from validation.
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException|NotImplementedException
+     * @throws Exception
+     */
+	public function validateInput (array $exclude_properties=[])
 	{
 		if ($this->id->value>0 && $this->password->value)
 		{
@@ -80,4 +84,15 @@ class PasswordUpdate extends UserAccount
 			throw new ContentValidationException("Password update errors found.");
 		}
 	}
+
+    function getLabel(): string
+    {
+        // TODO: Implement getLabel() method.
+        return '';
+    }
+
+    public function validateUsername(): void
+    {
+        // TODO: Implement validateUsername() method.
+    }
 }

@@ -5,7 +5,6 @@ namespace Littled\Account;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\PageUtils;
@@ -46,7 +45,7 @@ class PasswordReset extends UserAccount
 	 * @return string Modify account uri.
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getModifyAccountURI()
+	public static function getModifyAccountURI(): string
 	{
 		if (static::$modifyAccountURI == '')
 		{
@@ -60,7 +59,7 @@ class PasswordReset extends UserAccount
 	 * @return string Reset password email template path.
 	 * @throws ConfigurationUndefinedException
 	 */
-	public static function getResetPasswordEmailTemplate()
+	public static function getResetPasswordEmailTemplate(): string
 	{
 		if (static::$resetPasswordEmailTemplate == '')
 		{
@@ -69,10 +68,11 @@ class PasswordReset extends UserAccount
 		return (static::$resetPasswordEmailTemplate);
 	}
 
-	/**
-	 * Resets password to string of random characters.
-	 * @throws ConfigurationUndefinedException|NotImplementedException
-	 */
+    /**
+     * Resets password to string of random characters.
+     * @throws ConfigurationUndefinedException|NotImplementedException
+     * @throws Exception
+     */
 	public function resetPassword ( )
 	{
 		if ($this->id->value===null || $this->id->value<1)
@@ -148,7 +148,7 @@ class PasswordReset extends UserAccount
 	 * Setter for modify account uri
 	 * @param string $uri Modify account uri
 	 */
-	public static function setModifyAccountURI($uri )
+	public static function setModifyAccountURI(string $uri)
 	{
 		static::$modifyAccountURI = $uri;
 	}
@@ -158,7 +158,7 @@ class PasswordReset extends UserAccount
 	 * @param string $path Path to reset password email template.
 	 * @throws ResourceNotFoundException
 	 */
-	public static function setResetPasswordEmailTemplate( $path )
+	public static function setResetPasswordEmailTemplate(string $path)
 	{
 		if (!file_exists($path))
 		{
@@ -169,13 +169,13 @@ class PasswordReset extends UserAccount
 
 	/**
 	 * Validates form data submitted from reset password form.
-	 * @param array[optional] $exclude_properties List of variable names to exclude from validation.
+	 * @param string[] $exclude_properties List of variable names to exclude from validation.
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
 	 * @throws Exception
 	 */
-	public function validateInput($exclude_properties=[])
+	public function validateInput(array $exclude_properties=[])
 	{
 		$this->connectToDatabase();
 
@@ -212,4 +212,15 @@ class PasswordReset extends UserAccount
 			throw new ContentValidationException("Errors found in password reset information.");
 		}
 	}
+
+    function getLabel(): string
+    {
+        // TODO: Implement getLabel() method.
+        return '';
+    }
+
+    public function validateUsername(): void
+    {
+        // TODO: Implement validateUsername() method.
+    }
 }

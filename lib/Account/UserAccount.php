@@ -73,7 +73,7 @@ abstract class UserAccount extends SerializedContent
 	 * UserAccount constructor.
 	 * @param int|null $id (Optional) Record id value.
 	 */
-    public function __construct($id = null)
+    public function __construct(?int $id = null)
     {
 	    parent::__construct($id);
 	    $this->id = new IntegerInput("Announcement id", self::ID_KEY, false);
