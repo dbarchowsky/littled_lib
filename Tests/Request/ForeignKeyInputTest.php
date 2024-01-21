@@ -73,7 +73,8 @@ class ForeignKeyInputTest extends TestCase
         self::assertFalse($o->getLinkedListingsCB());
 
         $cb = 'linkedListingsSelect';
-        $o->setLinkedListingsCB($cb);
+        $o2 = $o->setLinkedListingsCB($cb);
         self::assertEquals($cb, $o->getLinkedListingsCB());
+        self::assertEquals($cb, $o2->getLinkedListingsCB());
     }
 }

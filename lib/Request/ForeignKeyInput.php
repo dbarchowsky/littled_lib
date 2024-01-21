@@ -46,7 +46,7 @@ class ForeignKeyInput extends IntegerSelect
     /**
      * Content class setter.
      * @param string $class
-     * @return void
+     * @return ForeignKeyInput
      * @throws InvalidTypeException
      */
     public function setContentClass(string $class): ForeignKeyInput
@@ -62,10 +62,11 @@ class ForeignKeyInput extends IntegerSelect
     /**
      * Linked listings callback setter
      * @param string $procedure Name of database procedure to run to retrieve list of records linked to the parent.
-     * @return void
+     * @return ForeignKeyInput
      */
-    public function setLinkedListingsCB(string $procedure)
+    public function setLinkedListingsCB(string $procedure): ForeignKeyInput
     {
         $this->linked_lisings_cb = $procedure;
+        return $this;
     }
 }
