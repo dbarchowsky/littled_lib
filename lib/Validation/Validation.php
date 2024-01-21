@@ -576,6 +576,14 @@ class Validation
 		return null;
 	}
 
+    public static function parseNumericArray(array $arr): array
+    {
+        return array_values(
+            array_map(
+                fn($el) => Validation::parseNumeric($el),
+                array_filter($arr, fn($el) => is_numeric($el))));
+    }
+
 	/**
 	 * Deprecated. Use collectNumericArrayRequestVar() instead.
 	 * @param string $key

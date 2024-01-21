@@ -240,6 +240,27 @@ class ValidationTestDataProvider
         );
     }
 
+    public static function parseNumericArrayTestProvider(): array
+    {
+        return array(
+            [[], []],
+            [[], ['null']],
+            [[], [null]],
+            [[1], [1]],
+            [[0], [0]],
+            [[2,3,6], [2,3,6]],
+            [[2,88,6], [2,88,6]],
+            [[], ['foo']],
+            [[], ['foo', 'bar']],
+            [[1], ['foo', 1, 'bar']],
+            [[0], ['foo', 0, 'bar']],
+            [[21.38], [21.38]],
+            [[3, 5.4, 12, 6.32], [3, 5.4, 12, 6.32]],
+            [[3, 5.4, 12, 6.32], [3, 'foo', 5.4, 'one', 12, 'bar', 6.32]],
+            [[3, 1, 5.4, 0, 12, 6.32], [3, '1', 5.4, '0', 12, 'null', 6.32]],
+        );
+    }
+
 	public static function parseRoutePartsTestProvider(): array
 	{
 		return array(
@@ -257,14 +278,14 @@ class ValidationTestDataProvider
 		return array(
 			array('/^$/', '', '', [], 'no data'),
 			array('/^this is the original source$/', 'p1', 'this is the original source', [], '', 'nothing to strip'),
-			array('/^this is the original sourcediv content$/', 'p1', '<p>this is the original source</p><div>div content</div>', [], '', 'strip all tags'),
-			array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], '', 'p tag whitelisted'),
-			array('/^this is the original source<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['div'], '', 'div tag whitelisted'),
-			array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'POST', 'reading from POST data'),
-			array('/^<p>this is the original source<\/p>div content$/', 'p1', '<p>this is the original source</p><div>div content</div>', ['p'], 'REQUEST', 'reading from REQUEST data'),
-			array('/^<p>this is the original source<\/p><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><im'. 'g src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'div'], '', 'strip img tag'),
-			array('/^<p>this is the original source<\/p><img.*\/><div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><div>div content</div>', ['p', 'img', 'div'], '', 'allow img tag'),
-			array('/^<p>this is the original source<\/p><img.*\/>alert.*\)<div>div content<\/div>$/', 'p1', '<p>this is the original source</p><img src="/assets/images/image.jpg" alt="test" /><script>alert("hello there!")</script><div>div content</div>', ['p', 'img', 'div'], '', 'strip script tag'),
+			array('/^this is the original sourcediv content$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'div>div content<'.'/div>', [], '', 'strip all tags'),
+			array('/^<'.'p>this is the original source<\/p>div content$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'div>div content<'.'/div>', ['p'], '', 'p tag whitelisted'),
+			array('/^this is the original source<'.'div>div content<\/div>$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'div>div content<'.'/div>', ['div'], '', 'div tag whitelisted'),
+			array('/^<'.'p>this is the original source<\/p>div content$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'div>div content<'.'/div>', ['p'], 'POST', 'reading from POST data'),
+			array('/^<'.'p>this is the original source<\/p>div content$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'div>div content<'.'/div>', ['p'], 'REQUEST', 'reading from REQUEST data'),
+			array('/^<'.'p>this is the original source<\/p><'.'div>div content<\/div>$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'img src="/assets/images/image.jpg" alt="test" /><'.'div>div content<'.'/div>', ['p', 'div'], '', 'strip img tag'),
+			array('/^<'.'p>this is the original source<\/p><'.'img.*\/><'.'div>div content<\/div>$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'img src="/assets/images/image.jpg" alt="test" /><'.'div>div content<'.'/div>', ['p', 'img', 'div'], '', 'allow img tag'),
+			array('/^<'.'p>this is the original source<\/p><'.'img.*\/>alert.*\)<'.'div>div content<\/div>$/', 'p1', '<'.'p>this is the original source<'.'/p><'.'img src="/assets/images/image.jpg" alt="test" /><'.'script>alert("hello there!")<'.'/script><'.'div>div content<'.'/div>', ['p', 'img', 'div'], '', 'strip script tag'),
 		);
 	}
 

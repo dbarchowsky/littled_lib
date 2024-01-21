@@ -375,6 +375,17 @@ class ValidationTest extends TestCase
         $this->assertEquals($expected, Validation::parseNumeric($value));
 	}
 
+    /**
+     * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseNumericArrayTestProvider()
+     * @param array $expected
+     * @param array $array
+     * @return void
+     */
+    function testParseNumericArray(array $expected, array $array)
+    {
+        $this->assertEqualsCanonicalizing($expected, Validation::parseNumericArray($array));
+    }
+
 	/**
 	 * @dataProvider \LittledTests\DataProvider\Validation\ValidationTestDataProvider::parseRoutePartsTestProvider()
 	 * @param array $expected
