@@ -4,7 +4,7 @@ namespace Littled\App;
 
 use Littled\Exception\ConfigurationUndefinedException;
 
-class LittledGlobals
+abstract class LittledGlobals
 {
     /** @var string             Path to app's root directory. */
     protected static string     $app_base_dir;
@@ -18,6 +18,10 @@ class LittledGlobals
 	protected static string     $local_template_path = '';
     /** @var string             Path to directory containing app templates. */
     protected static string     $shared_template_path = '';
+    /** @var bool               Flag controlling adding verbose information to error messages displayed on the front
+     *                          end. Override the default value in inherited classes within client apps.
+     */
+    protected static bool       $show_verbose_errors = false;
 
 	/** @var string             Name of session variable use dto store CSRF tokens. */
 	const CSRF_SESSION_KEY =    'csrfToken';
@@ -162,4 +166,24 @@ class LittledGlobals
 	{
 		static::$shared_template_path = (($path) ? (rtrim($path, '/').'/') : (''));
 	}
+
+    /**
+     * "Show verbose errors" app setting getter. Inherited classes can adjust the LittledGlobals::$show_verbose_errors
+     * property value to override the default behavior.
+     * @return bool
+     */
+    public static function showVerboseErrors(): bool
+    {
+        return static::$show_verbose_errors;
+    }
+
+    /**
+     * "Show verbose errors" app setting setter.
+     * @param bool $flag
+     * @return void
+     */
+    public static function setVerboseErrors(bool $flag)
+    {
+        static::$show_verbose_errors = $flag;
+    }
 }

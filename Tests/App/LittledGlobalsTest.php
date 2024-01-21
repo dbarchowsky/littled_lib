@@ -71,6 +71,17 @@ class LittledGlobalsTest extends TestCase
 		self::assertEquals('', LittledGlobals::getMySQLKeysPath());
 	}
 
+    public function testShowVerboseErrors()
+    {
+        self::assertFalse(LittledGlobals::showVerboseErrors());
+        self::assertTrue(LittledGlobalsTestHarness::showVerboseErrors());
+        LittledGlobals::setVerboseErrors(true);
+        LittledGlobalsTestHarness::setVerboseErrors(false);
+        self::assertTrue(LittledGlobals::showVerboseErrors());
+        self::assertFalse(LittledGlobalsTestHarness::showVerboseErrors());
+    }
+
+
     /**
      * @return void
      * @throws ConfigurationUndefinedException
