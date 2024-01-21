@@ -135,4 +135,60 @@ class IntegerSelectTestDataProvider
 
         );
     }
+
+    public static function validateArrayWithAllowMultipleTestProvider(): array
+    {
+        return array(
+            ['', '[use default]', false],
+            ['/is required/', '[use default]', true],
+            ['', [], false],
+            ['/required/', [], true],
+            ['', [4, 5, 16], false],
+            ['', [4, 5, 16], true],
+            ['/unrecognized format/i', ['foo', 'bar'], false],
+            ['/is required/', ['foo', 'bar'], true],
+        );
+    }
+
+    public static function validateArrayWithoutAllowMultipleTestProvider(): array
+    {
+        return array(
+            ['', '[use default]', false],
+            ['/is required/', '[use default]', true],
+            ['', '', false],
+            ['/bad value/i', [], false],
+            ['/bad value/i', [], true],
+            ['/bad value/i', [4, 5, 16], false],
+            ['/bad value/i', [4, 5, 16], true],
+        );
+    }
+
+    public static function validateSingleValueTestProvider(): array
+    {
+        return array(
+            ['', '[use default]', false],
+            ['/is required/', '[use default]', true],
+            ['', null, false],
+            ['/is required/', null, true],
+            ['', '', false],
+            ['/is required/', '', true],
+            ['', ' ', false],
+            ['/is required/', ' ', true],
+            ['', 1, false],
+            ['', 1, true],
+            ['', '1', false],
+            ['', '1', true],
+            ['', 765, false],
+            ['', 0, false],
+            ['', 0, true],
+            ['', '0', false],
+            ['', '0', true],
+            ['', 5248, true],
+            ['', '8356', true],
+            ['', 12.6, false],
+            ['', 12.6, true],
+            ['/unrecognized format/', 'foo', false],
+            ['/unrecognized format/', 'foo', true],
+        );
+    }
 }

@@ -254,6 +254,8 @@ class IntegerInputTestDataProvider
             ['', 12.6, true],
             ['/unrecognized format/', 'foo', false],
             ['/unrecognized format/', 'foo', true],
+            ['/unrecognized format/', [4,5,16], false],
+            ['/unrecognized format/', [4,5,16], true],
         );
     }
 }

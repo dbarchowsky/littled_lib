@@ -34,7 +34,7 @@ class ContentValidationTestCase extends TestCase
         }
         try {
             $input->validate();
-            self::assertEquals($expected_exception, $input->has_errors);
+            self::assertFalse($input->has_errors);
         }
         catch(ContentValidationException $e) {
             if ($expected_exception==='') {

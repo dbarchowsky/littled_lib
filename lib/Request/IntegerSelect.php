@@ -103,4 +103,23 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
         $this->options = $options;
         return $this;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function validate()
+    {
+        if (!is_array($this->value)) {
+            parent::validate();
+        }
+        elseif ($this->allowMultiple()===false) {
+            $this->throwValidationError("Bad value for $this->label.");
+        }
+        elseif($this->isRequired()) {
+            $parsed = Validation::parseNumericArray($this->value);
+            if (count($parsed) < 1) {
+                $this->throwValidationError(ucfirst($this->label).' is required.');
+            }
+        }
+    }
 }

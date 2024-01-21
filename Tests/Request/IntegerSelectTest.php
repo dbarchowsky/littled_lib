@@ -5,13 +5,13 @@ use Exception;
 use Littled\Request\IntegerSelect;
 use Littled\Request\RequestInput;
 use LittledTests\DataProvider\Request\IntegerSelectTestData;
-use PHPUnit\Framework\TestCase;
+use LittledTests\TestExtensions\ContentValidationTestCase;
 
 /**
  * Class StringSelectTest
  * @package LittledTests\Request
  */
-class IntegerSelectTest extends TestCase
+class IntegerSelectTest extends ContentValidationTestCase
 {
     protected function setUp(): void
     {
@@ -139,6 +139,58 @@ class IntegerSelectTest extends TestCase
     function testRenderUsingProcedure(IntegerSelectTestData $data)
     {
         $this->_testRender($data);
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::validateArrayWithAllowMultipleTestProvider()
+     * @param string $expected_exception
+     * @param $value
+     * @param bool $required
+     */
+    public function testValidateArrayWithAllowMultiple(string $expected_exception, $value, bool $required)
+    {
+        $o = (new IntegerSelect('test input', 'key', $required))
+            ->setAllowMultiple();
+        $this->_testValidate($expected_exception, $value, $o);
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::validateArrayWithoutAllowMultipleTestProvider()
+     * @param string $expected_exception
+     * @param $value
+     * @param bool $required
+     */
+    public function testValidateArrayWithoutAllowMultiple(string $expected_exception, $value, bool $required)
+    {
+        $o = (new IntegerSelect('Test input', 'key', $required))
+            ->setAllowMultiple(false);
+        $this->_testValidate($expected_exception, $value, $o);
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::validateSingleValueTestProvider()
+     * @param string $expected_exception
+     * @param $value
+     * @param bool $required
+     */
+    public function testValidateSingleValue(string $expected_exception, $value, bool $required)
+    {
+        $o = (new IntegerSelect('Label', 'key', $required))
+            ->setAllowMultiple(false);
+        $this->_testValidate($expected_exception, $value, $o);
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\Request\IntegerSelectTestDataProvider::validateSingleValueTestProvider()
+     * @param string $expected_exception
+     * @param $value
+     * @param bool $required
+     */
+    public function testValidateSingleValueWithAllowMultiple(string $expected_exception, $value, bool $required)
+    {
+        $o = (new IntegerSelect('Label', 'key', $required))
+            ->setAllowMultiple();
+        $this->_testValidate($expected_exception, $value, $o);
     }
 
     /**
