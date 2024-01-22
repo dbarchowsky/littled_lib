@@ -653,12 +653,14 @@ abstract class RequestInput
     }
 
     /**
-     * Sets the input's key value
+     * Chainable input key setter.
      * @param string $key
+     * @return RequestInput
      */
-    public function setKey( string $key )
+    public function setKey( string $key ): RequestInput
     {
         $this->key = $key;
+        return $this;
     }
 
     /**

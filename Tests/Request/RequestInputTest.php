@@ -273,6 +273,17 @@ class RequestInputTest extends TestCase
         self::assertTrue($o2->isRequired());
     }
 
+    public function testSetKey()
+    {
+        $o = new RequestInputTestHarness('Label', 'originalKey');
+        self::assertEquals('originalKey', $o->key);
+        $o->setKey('newKey');
+        self::assertEquals('newKey', $o->key);
+
+        $o2 = (new RequestInputTestHarness('New Label', 'secondKey'))->setKey('modKey');
+        self::assertEquals('modKey', $o2->key);
+    }
+
 	public function testSetTemplatePath()
 	{
         $original = $this->obj::getInputTemplatePath();
