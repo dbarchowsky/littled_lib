@@ -11,25 +11,72 @@ use Exception;
 
 class LinkedContentTestHarness extends LinkedContent
 {
+    public StringTextField $label;
+    public StringTextField $extra;
+
+    public static string $table_name = 'test_link';
+
+    public const LINK_KEY = 'linkedId';
     public const CREATE_LINK_IDS = ['parent1' => 3, 'parent2' => 15];
     public const EXISTING_LINK_IDS = ['parent1' => 2, 'parent2' => 13, 'label' => 'my label'];
     public const NONEXISTENT_LINK_IDS = ['parent1' => 8, 'parent2' => 88];
 
-    public static string $table_name = 'test_link';
-
-    public StringTextField $label;
-    public StringTextField $extra;
 
     public function __construct()
     {
         parent::__construct();
-        $this->primary_id = (new IntegerTextField('Foo', 'linkFoo', true))
-            ->setColumnName('parent1_id');
-        $this->foreign_id = (new ForeignKeyInput('Bar', 'linkBar', true))
-            ->setColumnName('parent2_id');
+        $this->primary_id = (
+            new IntegerTextField('Parent id', SerializedLinkedTestHarness::PRIMARY_KEY, true))
+                ->setColumnName('parent1_id');
+        $this->foreign_id = (
+            new ForeignKeyInput('Linked content', self::LINK_KEY, true))
+                ->setColumnName('parent2_id')
+                ->setAllowMultiple();
+
         $this->label = new StringTextField('Name', 'linkName', true, '', 50);
         $this->extra = (new StringTextField('Name', 'linkName', false, '', 50))
             ->setIsDatabaseField(false);
+    }
+
+    /**
+     * Public interface for testing purposes.
+     * @param int $link_id
+     * @return bool
+     */
+    public function containsLinkId_public(int $link_id): bool
+    {
+        return parent::containsLinkId($link_id);
+    }
+
+    public function getLabel(): string
+    {
+        return ("Test linked content");
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function generateListingsPreparedStmt(): array
+    {
+        return ['CALL linkedParent2ListingsSelect(?)', 'i', $this->primary_id->value];
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function createProcedures()
+    {
+        $query = 'DELIMITER $$ '.
+            'CREATE OR UPDATE PROCEDURE `linkedParent2ListingsSelect` ('.
+            'IN p_parent1_id INT ) '.
+            'BEGIN '.
+            'SELECT l.parent2_id, '.
+            '    p2.name '.
+            'FROM link_test l '.
+            'INNER JOIN test_parent2 p2 ON l.parent2_id = p2.id '.
+            'WHERE l.parent1_id = p_parent1_id; '.
+            'END $$';
+        $this->query($query);
     }
 
     /**
@@ -39,8 +86,8 @@ class LinkedContentTestHarness extends LinkedContent
     {
         $queries = [
             'CRE'.'ATE TABLE `test_parent1` ('.
-            '`id` INT PRIMARY KEY,'.
-            '`name` VARCHAR(50) NULL);',
+            '    `id` INT PRIMARY KEY,'.
+            '    `name` VARCHAR(50) NULL);',
             'CRE'.'ATE TABLE `test_parent2` ('.
             '    `id` INT PRIMARY KEY,'.
             '    `name` VARCHAR(50) NULL);',
@@ -115,10 +162,11 @@ class LinkedContentTestHarness extends LinkedContent
             '(109, \'zip a dee day\'),'.
             '(15, \'za\');',
             'INS'.'ERT INTO `'.static::getTableName().'` (parent1_id, parent2_id, `label`) '.
-            'VALUES '.
-            '('.self::EXISTING_LINK_IDS['parent1'].
-            ', '.self::EXISTING_LINK_IDS['parent2'].
-            ', \''.self::EXISTING_LINK_IDS['label'].'\'),'.
+            'VALUES ('.
+            self::EXISTING_LINK_IDS['parent1'].', '.
+            self::EXISTING_LINK_IDS['parent2'].', '.
+            '\''.self::EXISTING_LINK_IDS['label'].'\'), '.
+            '('.self::EXISTING_LINK_IDS['parent1'].', 109, \'test link too\'),'.
             '(1, 14, \'\');'
         ];
         foreach($queries as $query) {
