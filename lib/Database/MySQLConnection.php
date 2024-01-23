@@ -5,9 +5,8 @@ use Littled\App\AppBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidQueryException;
-use Exception;
-use Littled\Exception\InvalidValueException;
 use Littled\Validation\Validation;
+use Exception;
 use mysqli;
 use mysqli_driver;
 use mysqli_sql_exception;
@@ -157,14 +156,15 @@ class MySQLConnection extends AppBase
      * @param string $types
      * @param &...$vars
      * @return array Array of generic objects holding the data returned by the query.
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
     public function fetchOptions(string $query, string $types='', &...$vars): array
     {
-        // $result = $this->fetchResult($query, $types, $vars);
         if ($types) {
             array_unshift($vars, $query, $types);
-            $result = call_user_func_array([$this, 'fetchResult'], $vars);
+            $result = $this->fetchResult(...$vars);
         }
         else {
             $result = $this->fetchResult($query);
@@ -187,14 +187,13 @@ class MySQLConnection extends AppBase
      * @param string $types
      * @param &...$vars
 	 * @return array Array of generic objects holding the data returned by the query.
-	 * @throws Exception
+     * @throws ConfigurationUndefinedException|ConnectionException|InvalidQueryException
 	 */
 	public function fetchRecords(string $query, string $types='', &...$vars): array
 	{
-        // $result = $this->fetchResult($query, $types, $vars);
         if ($types) {
             array_unshift($vars, $query, $types);
-            $result = call_user_func_array([$this, 'fetchResult'], $vars);
+            $result = $this->fetchResult(...$vars);
         }
         else {
             $result = $this->fetchResult($query);
@@ -215,7 +214,7 @@ class MySQLConnection extends AppBase
      * @return mysqli_result
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws Exception
+     * @throws InvalidQueryException
      */
     public function fetchResult(string $query, string $types='', &...$vars): mysqli_result
     {
@@ -223,12 +222,12 @@ class MySQLConnection extends AppBase
         if ($types) {
             $stmt = $this->mysqli->prepare($query);
             if (!$stmt) {
-                throw new Exception('Could not prepare statement: '.$this->mysqli->error);
+                throw new InvalidQueryException('Could not prepare statement: '.$this->mysqli->error);
             }
             array_unshift($vars, $types);
             call_user_func_array([$stmt, 'bind_param'], $vars);
             if(!$stmt->execute()) {
-                throw new Exception('Error fetching records: '.$stmt->error);
+                throw new InvalidQueryException('Error fetching records: '.$stmt->error);
             }
             $result = $stmt->get_result();
             $stmt->close();
@@ -236,7 +235,7 @@ class MySQLConnection extends AppBase
         else {
             $result = $this->mysqli->query($query);
             if(!$result) {
-                throw new Exception('Error fetching records: '.$this->mysqli->error);
+                throw new InvalidQueryException('Error fetching records: '.$this->mysqli->error);
             }
         }
         return $result;
@@ -340,7 +339,7 @@ class MySQLConnection extends AppBase
 	 * @param string $query SQL statement to execute.
      * @param string $types
      * @param ...$vars
-	 * @throws Exception
+	 * @throws ConnectionException|ConfigurationUndefinedException|InvalidQueryException
 	 */
 	public function query(string $query, string $types='', ...$vars)
 	{
@@ -348,12 +347,12 @@ class MySQLConnection extends AppBase
         if ($types) {
             $stmt = $this->mysqli->prepare($query);
             if(!$stmt) {
-                throw new Exception('Could not prepare statement: '.$this->mysqli->error);
+                throw new InvalidQueryException('Could not prepare statement: '.$this->mysqli->error);
             }
             $stmt->bind_param($types, ...$vars);
 
             if(!$stmt->execute()) {
-                throw new Exception('Error executing query: '.$this->mysqli->error);
+                throw new InvalidQueryException('Error executing query: '.$this->mysqli->error);
             }
             $stmt->close();
         }
