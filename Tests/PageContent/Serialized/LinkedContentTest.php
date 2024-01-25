@@ -57,7 +57,7 @@ class LinkedContentTest extends TestCase
         if (!is_array($data->foreign_id)) {
             $data->foreign_id = [$data->foreign_id];
         }
-        self::assertEqualsCanonicalizing($data->foreign_id, $o->foreign_id->value);
+        self::assertEqualsCanonicalizing($data->foreign_id, $o->link_id->value);
         self::assertEquals($data->label, $o->label->value);
         $_POST = $saved_post;
     }
@@ -141,7 +141,7 @@ class LinkedContentTest extends TestCase
         $query = 'SEL'."ECT `$label_col`".
             ' FROM `'.$o::getTableName().'`'.
             ' WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ?'.
-            ' AND `'.$o->foreign_id->getColumnName('link_id').'` = ?';
+            ' AND `'.$o->link_id->getColumnName('link_id').'` = ?';
         $result = $o->fetchRecords($query, 'ii', $o->primary_id->value, $link_id);
         self::assertCount(1, $result);
         self::assertEquals($new_label, $result[0]->$label_col);
@@ -218,9 +218,9 @@ class LinkedContentTest extends TestCase
         $o->deleteLink($del_link_id);
         self::assertEquals(2, static::getLinkCount($primary_id));
 
-        $query = 'SEL'.'ECT `'.$o->foreign_id->getColumnName('link_id').'` FROM `'.$o::getTableName().'`'.
+        $query = 'SEL'.'ECT `'.$o->link_id->getColumnName('link_id').'` FROM `'.$o::getTableName().'`'.
             ' WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ?'.
-            ' AND `'.$o->foreign_id->getColumnName('primary_id').'` NOT IN (?,?)';
+            ' AND `'.$o->link_id->getColumnName('primary_id').'` NOT IN (?,?)';
         $result = $o->fetchRecords($query, 'iii', $primary_id, $link1_id, $link2_id);
         self::assertCount(0, $result);
 
@@ -261,10 +261,10 @@ class LinkedContentTest extends TestCase
     {
         $o = new LinkedContentTestHarness();
         $o->primary_id->setInputValue(3);
-        $o->foreign_id->setInputValue(23);
+        $o->link_id->setInputValue(23);
         $expected = '/^SELECT .*`'.LinkedContentTestHarness::getTableName().
             '` WHERE `'.$o->primary_id->getColumnName('primary_id').'` = \? '.
-            'AND `'.$o->foreign_id->getColumnName('foreign_id').'` = \?/';
+            'AND `'.$o->link_id->getColumnName('foreign_id').'` = \?/';
         list($query, $arg_types, $args) =
             $o->formatRecordLookupQuery_public(
                 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'`');
@@ -283,7 +283,7 @@ class LinkedContentTest extends TestCase
         self::assertIsArray($properties);
         self::assertGreaterThan(0, count($properties));
         self::assertContains('primary_id', $properties);
-        self::assertContains('foreign_id', $properties);
+        self::assertContains('link_id', $properties);
         self::assertNotContains('label', $properties);
     }
 
@@ -294,7 +294,7 @@ class LinkedContentTest extends TestCase
     {
         $o = new LinkedContentTestHarness();
         $o->primary_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent1']);
-        $o->foreign_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent2']);
+        $o->link_id->setInputValue(LinkedContentTestHarness::CREATE_LINK_IDS['parent2']);
 
         // confirm there is no pre-existing record
         $result = static::lookupRecord($o);
@@ -337,7 +337,7 @@ class LinkedContentTest extends TestCase
     {
         $o = new LinkedContentTestHarness();
         $o->primary_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
-        $o->foreign_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
+        $o->link_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
         $o->read();
         self::assertEquals(LinkedContentTestHarness::EXISTING_LINK_IDS['label'], $o->label->value);
     }
@@ -350,7 +350,7 @@ class LinkedContentTest extends TestCase
     {
         $o = new LinkedContentTestHarness();
         $o->primary_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1']);
-        $o->foreign_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent2']);
+        $o->link_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent2']);
         try {
             $o->read();
             self::fail('Expected RecordNotFoundException not thrown.');
@@ -366,7 +366,7 @@ class LinkedContentTest extends TestCase
     {
         $o = new LinkedContentTestHarness();
         $o->primary_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
-        $o->foreign_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
+        $o->link_id->setInputValue(LinkedContentTestHarness::EXISTING_LINK_IDS['parent2']);
         self::assertTrue($o->recordExists());
 
         $o->primary_id->setInputValue(LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1']);
@@ -399,7 +399,7 @@ class LinkedContentTest extends TestCase
         $label_col = $o->label->getColumnName('label');
         $query = 'SEL'."ECT `$label_col` FROM `".$o::getTableName().'` '.
             ' WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ?'.
-            ' AND `'.$o->foreign_id->getColumnName('link_id').'` = ?';
+            ' AND `'.$o->link_id->getColumnName('link_id').'` = ?';
         $result = $o->fetchRecords($query, 'ii', $parent_id, $link_id);
         self::assertGreaterThan(0, count($result));
         self::assertEquals($label, $result[0]->$label_col);
@@ -414,10 +414,10 @@ class LinkedContentTest extends TestCase
     public function testSetLinkIdAsInteger()
     {
         $o = new LinkedContentTestHarness();
-        self::assertNull($o->foreign_id->value);
+        self::assertNull($o->link_id->value);
         $new_id = 14;
         $o->setLinkId($new_id);
-        self::assertEquals($new_id, $o->foreign_id->value);
+        self::assertEquals($new_id, $o->link_id->value);
     }
 
     /**
@@ -426,10 +426,10 @@ class LinkedContentTest extends TestCase
     public function testSetLinkIdAsArray()
     {
         $o = new LinkedContentTestHarness();
-        self::assertNull($o->foreign_id->value);
+        self::assertNull($o->link_id->value);
         $new_id = [14, 108, 109];
         $o->setLinkId($new_id);
-        self::assertEqualsCanonicalizing($new_id, $o->foreign_id->value);
+        self::assertEqualsCanonicalizing($new_id, $o->link_id->value);
     }
 
     public function testSetForeignIdWhenUninitialized()
@@ -495,9 +495,9 @@ class LinkedContentTest extends TestCase
     {
         $o = new LinkedContentTestHarness();
         if ($data->required) {
-            $o->foreign_id->setAsRequired();
+            $o->link_id->setAsRequired();
         } else {
-            $o->foreign_id->setAsNotRequired();
+            $o->link_id->setAsNotRequired();
         }
         $saved_post = static::setUpPostData($o, $data);
         $o->collectRequestData();
@@ -528,7 +528,7 @@ class LinkedContentTest extends TestCase
             if ($link_id > 1) {
                 $args[] = $link_id;
                 $arg_types .= 'i';
-                $query .= ' AND `'.$o->foreign_id->getColumnName('foreign_id').'` = ?';
+                $query .= ' AND `'.$o->link_id->getColumnName('foreign_id').'` = ?';
             }
             $result = $o->fetchRecords($query, $arg_types, ...$args);
         }
@@ -542,8 +542,8 @@ class LinkedContentTest extends TestCase
     {
         $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.$o::getTableName().'` '.
             'WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ? '.
-            'AND `'.$o->foreign_id->getColumnName('foreign_id').'` = ?';
-        return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->foreign_id->value);
+            'AND `'.$o->link_id->getColumnName('foreign_id').'` = ?';
+        return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->link_id->value);
     }
 
     /**
@@ -554,8 +554,8 @@ class LinkedContentTest extends TestCase
     {
         $query = 'SEL'.'ECT `label` FROM `'.$o::getTableName().'` '.
             'WHERE `'.$o->primary_id->getColumnName('primary_id').'` = ? '.
-            'AND `'.$o->foreign_id->getColumnName('foreign_id').'` = ?';
-        return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->foreign_id->value);
+            'AND `'.$o->link_id->getColumnName('foreign_id').'` = ?';
+        return $o->fetchRecords($query, 'ii', $o->primary_id->value, $o->link_id->value);
     }
 
     protected static function setUpPostData(LinkedContentTestHarness $o, LinkedContentTestData $data): array
@@ -563,7 +563,7 @@ class LinkedContentTest extends TestCase
         $saved_post = $_POST;
         $_POST = array_merge($_POST, array(
             $o->primary_id->key => $data->primary_id,
-            $o->foreign_id->key => $data->foreign_id,
+            $o->link_id->key => $data->foreign_id,
             $o->label->key => $data->label,
         ));
         return $saved_post;

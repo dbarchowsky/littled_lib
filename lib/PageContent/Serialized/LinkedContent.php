@@ -20,7 +20,7 @@ use Littled\Validation\Validation;
 abstract class LinkedContent extends SerializedContentIO
 {
     public IntegerInput         $primary_id;
-    public ForeignKeyInput      $foreign_id;
+    public ForeignKeyInput      $link_id;
     public array                $listings_data;
 
     /**
@@ -72,7 +72,7 @@ abstract class LinkedContent extends SerializedContentIO
         }
         $query = 'DEL'.'ETE FROM `'.static::getTableName().'`'.
             ' WHERE `'.$this->primary_id->getColumnName('primary_id').'` = ?'.
-            ' AND `'.$this->foreign_id->getColumnName('link_id').'` = ?';
+            ' AND `'.$this->link_id->getColumnName('link_id').'` = ?';
         $this->query($query, 'ii', $this->primary_id->value, $link_id);
         return ('The requested '.static::getTableName().' record was deleted.');
     }
@@ -84,11 +84,11 @@ abstract class LinkedContent extends SerializedContentIO
      */
     protected function containsLinkId(int $link_id): bool
     {
-        if (is_array($this->foreign_id->value)) {
-            return in_array($link_id, $this->foreign_id->value);
+        if (is_array($this->link_id->value)) {
+            return in_array($link_id, $this->link_id->value);
         }
         else {
-            return ($this->foreign_id->value === $link_id);
+            return ($this->link_id->value === $link_id);
         }
     }
 
@@ -105,7 +105,7 @@ abstract class LinkedContent extends SerializedContentIO
 
         $query = 'DEL'.'ETE FROM `'.static::getTableName().'` '.
             'WHERE `'.$this->primary_id->getColumnName('primary_id').'` = ? '.
-            'AND `'.$this->foreign_id->getColumnName('foreign_id').'` NOT IN (';
+            'AND `'.$this->link_id->getColumnName('foreign_id').'` NOT IN (';
         $first = true;
         $arg_types = 'i';
         $ids = [];
@@ -202,9 +202,9 @@ abstract class LinkedContent extends SerializedContentIO
      */
     public function generateUpdateQuery(): ?array
     {
-        if (is_array($this->foreign_id->value)) {
-            if (count($this->foreign_id->value)===1) {
-                return $this->generateLinkUpdatePreparedStmt($this->foreign_id->value[0]);
+        if (is_array($this->link_id->value)) {
+            if (count($this->link_id->value)===1) {
+                return $this->generateLinkUpdatePreparedStmt($this->link_id->value[0]);
             }
             else {
                 $err_msg =
@@ -213,7 +213,7 @@ abstract class LinkedContent extends SerializedContentIO
             }
         }
         else {
-            return $this->generateLinkUpdatePreparedStmt($this->foreign_id->value);
+            return $this->generateLinkUpdatePreparedStmt($this->link_id->value);
         }
     }
 
@@ -225,14 +225,14 @@ abstract class LinkedContent extends SerializedContentIO
     protected function generateLinkUpdatePreparedStmt(int $link_id): array
     {
         $col_str = '`'.$this->primary_id->getColumnName('primary_id').'`,'.
-            '`'.$this->foreign_id->getColumnName('link_id').'`';
+            '`'.$this->link_id->getColumnName('link_id').'`';
         $val_str = '?,?';
         $arg_types = 'ii';
         $args = [$this->primary_id->value, $link_id];
         $update_str = '`'.$this->primary_id->getColumnName('primary_id').'` = '.
             '`'.$this->primary_id->getColumnName('primary_id').'`, '.
-            '`'.$this->foreign_id->getColumnName('link_id').'` = '.
-            '`'.$this->foreign_id->getColumnName('link_id').'`';
+            '`'.$this->link_id->getColumnName('link_id').'` = '.
+            '`'.$this->link_id->getColumnName('link_id').'`';
         foreach($this as $key => $property) {
             /** @var RequestInput $property */
             if ($this->isExtraField($property)) {
@@ -262,7 +262,7 @@ abstract class LinkedContent extends SerializedContentIO
         return (
             Validation::isSubclass($property, RequestInput::class) &&
             $property !== $this->primary_id &&
-            $property !== $this->foreign_id &&
+            $property !== $this->link_id &&
             $property->isDatabaseField());
     }
 
@@ -338,10 +338,10 @@ abstract class LinkedContent extends SerializedContentIO
         if (!$this->primary_id->hasData()) {
             throw new ContentValidationException(get_class($this)." primary content not specified.");
         }
-        if (!$this->foreign_id->hasData()) {
+        if (!$this->link_id->hasData()) {
             throw new ContentValidationException("Record has no data to save.");
         }
-        $fk_ids = (is_array($this->foreign_id->value) ? $this->foreign_id->value : [$this->foreign_id->value]);
+        $fk_ids = (is_array($this->link_id->value) ? $this->link_id->value : [$this->link_id->value]);
         foreach($fk_ids as $id) {
             $this->commitSingleLink($id);
         }
@@ -356,10 +356,10 @@ abstract class LinkedContent extends SerializedContentIO
      */
     public function setLinkId($value): LinkedContent
     {
-        if (!isset($this->foreign_id)) {
+        if (!isset($this->link_id)) {
             throw new NotInitializedException("Link id object is not initialized.");
         }
-        $this->foreign_id->setInputValue($value);
+        $this->link_id->setInputValue($value);
         return $this;
     }
 

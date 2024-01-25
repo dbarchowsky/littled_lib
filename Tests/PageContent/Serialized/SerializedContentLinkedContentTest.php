@@ -52,7 +52,7 @@ class SerializedContentLinkedContentTest extends TestCase
         $fkp = $o->getForeignKeyPropertyList_public();
         self::assertCount(1, $fkp);
         self::assertInstanceOf(LinkedContent::class, $fkp[0]);
-        self::assertEquals(LinkedContentTestHarness::LINK_KEY, $fkp[0]->foreign_id->key);
+        self::assertEquals(LinkedContentTestHarness::LINK_KEY, $fkp[0]->link_id->key);
     }
 
     /**
@@ -68,10 +68,10 @@ class SerializedContentLinkedContentTest extends TestCase
         self::assertEquals($data->primary_id, $o->id->value);
         self::assertEquals($data->primary_id, $o->linked->primary_id->value);
         if (is_array($data->foreign_id)) {
-            self::assertEqualsCanonicalizing($data->foreign_id, $o->linked->foreign_id->value);
+            self::assertEqualsCanonicalizing($data->foreign_id, $o->linked->link_id->value);
         }
         else {
-            self::assertEqualsCanonicalizing([$data->foreign_id], $o->linked->foreign_id->value);
+            self::assertEqualsCanonicalizing([$data->foreign_id], $o->linked->link_id->value);
         }
         self::assertEquals($data->name, $o->name->value);
         self::assertEquals($data->label, $o->linked->label->value);
@@ -90,7 +90,7 @@ class SerializedContentLinkedContentTest extends TestCase
         $primary_id = 45;
         $o = new SerializedLinkedTestHarness();
         $o->setRecordId($primary_id);
-        $o->linked->foreign_id->setInputValue([13, 14, 109]);
+        $o->linked->link_id->setInputValue([13, 14, 109]);
 
         // confirm initial number of links
         $start_count = LinkedContentTest::getLinkCount($o->id->value);
@@ -183,9 +183,9 @@ class SerializedContentLinkedContentTest extends TestCase
     {
         $o = new SerializedLinkedTestHarness();
         if ($data->required) {
-            $o->linked->foreign_id->setAsRequired();
+            $o->linked->link_id->setAsRequired();
         } else {
-            $o->linked->foreign_id->setAsNotRequired();
+            $o->linked->link_id->setAsNotRequired();
         }
 
         $saved_post = static::setUpPostData($o, $data);
@@ -206,9 +206,9 @@ class SerializedContentLinkedContentTest extends TestCase
     {
         $o = new SerializedLinkedTestHarness();
         if ($data->required) {
-            $o->linked->foreign_id->setAsRequired();
+            $o->linked->link_id->setAsRequired();
         } else {
-            $o->linked->foreign_id->setAsNotRequired();
+            $o->linked->link_id->setAsNotRequired();
         }
 
         $saved_post = static::setUpPostData($o, $data);
@@ -227,8 +227,8 @@ class SerializedContentLinkedContentTest extends TestCase
     {
         $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'` '.
             'WHERE `'.$o->id->getColumnName('primary_id').'` = ? '.
-            'AND `'.$o->linked->foreign_id->getColumnName().'` = ?';
-        $result = $o->fetchRecords($query, 'ii', $o->id->value, $o->linked->foreign_id->value[$link_index]);
+            'AND `'.$o->linked->link_id->getColumnName().'` = ?';
+        $result = $o->fetchRecords($query, 'ii', $o->id->value, $o->linked->link_id->value[$link_index]);
         return $result[0]->count;
     }
 
@@ -263,7 +263,7 @@ class SerializedContentLinkedContentTest extends TestCase
         $saved_post = $_POST;
         $_POST = array_merge($_POST, array(
             $o->id->key => $data->primary_id,
-            $o->linked->foreign_id->key => $data->foreign_id,
+            $o->linked->link_id->key => $data->foreign_id,
             $o->name->key => $data->name,
             $o->linked->label->key => $data->label
         ));

@@ -31,7 +31,7 @@ class LinkedContentTestHarness extends LinkedContent
         $this->primary_id = (
             new IntegerTextField('Parent id', SerializedLinkedTestHarness::PRIMARY_KEY, true))
                 ->setColumnName('parent1_id');
-        $this->foreign_id = (
+        $this->link_id = (
             new ForeignKeyInput('Linked content', self::LINK_KEY, true))
                 ->setColumnName('parent2_id')
                 ->setAllowMultiple();
