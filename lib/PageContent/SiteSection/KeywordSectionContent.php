@@ -5,6 +5,8 @@ use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -14,7 +16,8 @@ use Littled\Request\StringTextarea;
 
 
 /**
- * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms associated with a content record.
+ * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms
+ * associated with a content record.
  */
 abstract class KeywordSectionContent extends SectionContent
 {
@@ -24,7 +27,9 @@ abstract class KeywordSectionContent extends SectionContent
 	public array                $keywords=[];
 	/** @var string             Path to template used to display individual keyword terms on frontend pages */
 	protected static string     $keyword_cell_template = '';
-	/** @var string             Path to template used on frontend pages to display all keyword terms linked to the parent record. */
+	/** @var string             Path to template used on frontend pages to display all keyword terms linked to the
+     *                          parent record.
+     */
 	protected static string     $keyword_list_template = '';
     protected static string     $keyword_key = 'kw';
 	/** @var int                Keyword category record id */
@@ -328,9 +333,8 @@ abstract class KeywordSectionContent extends SectionContent
 	/**
 	 * Retrieve record data.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException|ConnectionException|ContentValidationException
+     * @throws InvalidQueryException|InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -370,6 +374,7 @@ abstract class KeywordSectionContent extends SectionContent
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
+     * @throws InvalidQueryException|InvalidValueException
      * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */

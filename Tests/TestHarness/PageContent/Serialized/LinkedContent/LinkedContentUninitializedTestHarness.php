@@ -13,7 +13,7 @@ class LinkedContentUninitializedTestHarness extends LinkedContent
         return [];
     }
 
-    function getLabel(): string
+    function getContentLabel(): string
     {
         /* stub */
         return 'Uninitialized linked content test harness';

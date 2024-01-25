@@ -118,11 +118,11 @@ class SectionContentTest extends TestCase
 
 	function testGetContentLabel()
 	{
-		$o = new SectionContentTestHarness();
+        $o = new SectionContentTestHarness();
 		$this->assertEquals('', $o->getContentLabel());
 
 		$o->content_properties->name->value = 'my assigned value';
-		$o->content_properties->label->value = '';
+        $o->content_properties->label->value = '';
 		$this->assertEquals($o->content_properties->name->value, $o->getContentLabel());
 		$this->assertEquals($o->content_properties->label->value, $o->getLabel());
 

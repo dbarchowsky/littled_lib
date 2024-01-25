@@ -76,7 +76,7 @@ abstract class PageContent extends PageContentBase
     public function getLabel(): string
     {
         if (isset($this->content)) {
-            return $this->content->getLabel();
+            return $this->content->getContentLabel();
         }
         return '';
     }

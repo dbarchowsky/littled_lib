@@ -6,6 +6,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -217,6 +218,8 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws RecordNotFoundException
 	 * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
 	 * @throws NotImplementedException
 	 * @throws ConfigurationUndefinedException
 	 */
@@ -233,6 +236,8 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
      * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
@@ -343,7 +348,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testClearValues()
@@ -374,7 +381,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	function testGetContentLabel()
@@ -445,7 +454,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	function testGetContentRouteByOperation()
@@ -469,7 +480,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
     function testGetContentTemplateByName()
@@ -492,15 +505,15 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
 	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
-	 */
+	 * @throws RecordNotFoundException|InvalidValueException
+     */
 	public function testGetParentID()
 	{
 		$p = new ContentProperties();
 		$p->name->setInputValue(self::UNIT_TEST_IDENTIFIER." parent record");
 		$p->save();
 
-		$c = new ContentProperties(self::TEST_ID_FOR_READ);
+		$c = (new ContentProperties)->setRecordId(self::TEST_ID_FOR_READ);
 		$c->read();
 		$c->parent_id->setInputValue($p->id->value);
 		$c->save();
@@ -511,27 +524,21 @@ class ContentPropertiesTest extends TestCase
 		$p->delete();
 	}
 
-	public function testHasData()
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\SiteSection\ContentPropertiesTestDataProvider::hasDataTestDataProvider()
+     * @param bool $expected
+     * @param int|null $id
+     * @param string|null $name
+     * @return void
+     */
+	public function testHasData(bool $expected, ?int $id, ?string $name)
 	{
-		$obj = new ContentProperties();
-		$this->assertFalse($obj->hasData());
-
-		$obj->id->setInputValue(839);
-		$this->assertTrue($obj->hasData());
-
-		$obj->id->setInputValue(null);
-		$obj->name->setInputValue(self::UNIT_TEST_IDENTIFIER);
-		$this->assertTrue($obj->hasData());
-
-		$obj->name->setInputValue('');
-		$this->assertFalse($obj->hasData());
-
-		$obj->name->setInputValue(null);
-		$this->assertFalse($obj->hasData());
-
-		$obj->id->setInputValue(8267);
-		$obj->name->setInputValue('foo bar biz');
-		$this->assertTrue($obj->hasData());
+		$o = new ContentProperties();
+        if ($name !== '[use defaults]') {
+            $o->id->setInputValue($id);
+            $o->name->setInputValue($name);
+        }
+		self::assertEquals($expected, $o->hasData());
 	}
 
     public function testNewRouteInstance()
@@ -574,7 +581,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
     public function testRead()
@@ -588,8 +597,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadRoutes()
@@ -626,8 +636,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadTemplates()
@@ -651,8 +662,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithoutTemplatesOrExtraProperties()
@@ -670,8 +682,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithTemplates()
@@ -693,8 +706,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithExtraProperties()
@@ -717,8 +731,9 @@ class ContentPropertiesTest extends TestCase
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadWithTemplatesAndExtraProperties()

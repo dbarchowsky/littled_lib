@@ -293,7 +293,7 @@ abstract class LinkedContent extends SerializedContentIO
     {
         if (!isset($this->listings_data)) {
             throw new NotInitializedException(
-                'Attempt to access '.$this->getLabel().' listings data before it has been retrieved.');
+                'Attempt to access '.$this->getContentLabel().' listings data before it has been retrieved.');
         }
         return $this->listings_data;
     }

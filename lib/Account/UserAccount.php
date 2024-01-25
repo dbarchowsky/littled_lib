@@ -128,7 +128,7 @@ abstract class UserAccount extends SerializedContent
 	{
 		$key = static::getAESKey();
 		return array(
-			'userAccountUpdate(@record_id,?,?,?,?,?,?,?)',
+			'userAccountUpdate(@insert_id,?,?,?,?,?,?,?)',
 			'ssiiiis',
 			&$this->username->value,
 			&$this->password->value,

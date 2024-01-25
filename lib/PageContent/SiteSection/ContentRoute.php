@@ -100,13 +100,21 @@ class ContentRoute extends SerializedContent
 	 */
 	public function generateUpdateQuery(): ?array
 	{
-		return array('CALL contentRouteUpdate(@record_id,?,?,?,?)',
+		return array('CALL contentRouteUpdate(@insert_id,?,?,?,?)',
 			'isss',
 			&$this->site_section_id->value,
 			&$this->operation->value,
             &$this->route->value,
 			&$this->api_route->value);
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function getContentLabel(): string
+    {
+        return 'Content route';
+    }
 
     /**
      * Returns the values of the RequestInput properties.

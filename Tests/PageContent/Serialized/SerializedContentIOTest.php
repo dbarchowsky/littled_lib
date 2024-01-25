@@ -24,9 +24,9 @@ class SerializedContentIOTest extends TestCase
         self::assertEquals($expected, $o->getInlineLabel(true));
     }
 
-    public function testGetLabel()
+    public function testGetContentLabel()
     {
         $o = new SerializedContentIOTestHarness();
-        self::assertEquals(self::LABEL_VALUE, $o->getLabel());
+        self::assertEquals(self::LABEL_VALUE, $o->getContentLabel());
     }
 }

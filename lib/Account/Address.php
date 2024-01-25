@@ -123,7 +123,7 @@ class Address extends SerializedContent
      */
     public function checkForDuplicate (): bool
     {
-        $query = "SELECT id FROM `address` ".
+        $query = "SEL'.'ECT id FROM `address` ".
             "WHERE (IFNULL(location, '') = ".$this->location->escapeSQL($this->mysqli).") ".
             "AND (IFNULL(address1, '') = ".$this->address1->escapeSQL($this->mysqli).") ".
             "AND (IFNULL(zip, '') = ".$this->zip->escapeSQL($this->mysqli).") ";
@@ -283,7 +283,7 @@ class Address extends SerializedContent
     public function generateUpdateQuery(): array
     {
         $this->connectToDatabase();
-        return array('CALL addressUpdate(@record_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+        return array('CALL addressUpdate(@insert_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
             'ssssssisssssssssssii',
             &$this->salutation->value,
             &$this->first_name->value,
@@ -314,6 +314,15 @@ class Address extends SerializedContent
     public static function getAddressDataTemplate(): string
     {
         return static::$address_data_template;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getContentLabel(): string
+    {
+        /* consider removing hard-coding */
+        return 'Address';
     }
 
     /**

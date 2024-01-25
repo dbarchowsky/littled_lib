@@ -3,12 +3,17 @@
 namespace LittledTests\PageContent\Serialized;
 
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
-use Littled\Request\ForeignKeyInput;
+use Littled\Exception\RecordNotFoundException;
+use Littled\PageContent\Serialized\LinkedContent;
+use LittledTests\DataProvider\PageContent\Serialized\SerializedContentLinkedContentTestData;
 use LittledTests\TestHarness\PageContent\Serialized\LinkedContent\LinkedContentTestHarness;
 use LittledTests\TestHarness\PageContent\Serialized\LinkedContent\SerializedLinkedTestHarness;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +30,7 @@ class SerializedContentLinkedContentTest extends TestCase
     {
         parent::setUp();
         if (!static::$initialized) {
+            LittledGlobals::setVerboseErrors(true);
             $o = new LinkedContentTestHarness();
             $o->setUpTestData();
             static::$initialized = true;
@@ -45,38 +51,82 @@ class SerializedContentLinkedContentTest extends TestCase
         $o = new SerializedLinkedTestHarness();
         $fkp = $o->getForeignKeyPropertyList_public();
         self::assertCount(1, $fkp);
-        self::assertInstanceOf(ForeignKeyInput::class, $fkp[0]);
-        self::assertEquals(SerializedLinkedTestHarness::LINK_KEY, $fkp[0]->key);
+        self::assertInstanceOf(LinkedContent::class, $fkp[0]);
+        self::assertEquals(LinkedContentTestHarness::LINK_KEY, $fkp[0]->foreign_id->key);
     }
 
     /**
-     * @throws ConfigurationUndefinedException
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentLinkedContentTestDataProvider::collectRequestDataTestProvider()
+     * @param SerializedContentLinkedContentTestData $data
+     * @return void
+     */
+    public function testCollectRequestData(SerializedContentLinkedContentTestData $data)
+    {
+        $o = new SerializedLinkedTestHarness();
+        $saved_post = static::setUpPostData($o, $data);
+        $o->collectRequestData();
+        self::assertEquals($data->primary_id, $o->id->value);
+        self::assertEquals($data->primary_id, $o->linked->primary_id->value);
+        if (is_array($data->foreign_id)) {
+            self::assertEqualsCanonicalizing($data->foreign_id, $o->linked->foreign_id->value);
+        }
+        else {
+            self::assertEqualsCanonicalizing([$data->foreign_id], $o->linked->foreign_id->value);
+        }
+        self::assertEquals($data->name, $o->name->value);
+        self::assertEquals($data->label, $o->linked->label->value);
+        $_POST = $saved_post;
+    }
+
+    /**
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws NotInitializedException
      * @throws Exception
      */
-    public function testCommitForeignKeys()
+    public function testCommitLinkedRecords()
     {
         $primary_id = 45;
         $o = new SerializedLinkedTestHarness();
-        $o->id->setInputValue($primary_id);
-        $o->parent2->setInputValue([13, 14, 109]);
+        $o->setRecordId($primary_id);
+        $o->linked->foreign_id->setInputValue([13, 14, 109]);
 
         // confirm initial number of links
-        $count = LinkedContentTest::getLinkCount($o->id->value);
-        self::assertEquals(0, $count);
+        $start_count = LinkedContentTest::getLinkCount($o->id->value);
+        self::assertEquals(0, $start_count);
 
         // confirm newly saved number of links
-        $o->commitForeignKeys_public();
-        self::assertEquals($count+3, LinkedContentTest::getLinkCount($o->id->value));
+        $o->commitLinkedRecords_public();
+        self::assertEquals($start_count+3, LinkedContentTest::getLinkCount($o->id->value));
 
         // confirm value in new record
         self::assertEquals(1, static::confirmLinkById($o, 1));
 
         // cleanup
-        static::deleteLinkRecords($o);
+        $o->deleteLinked();
+    }
+
+    /**
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
+     * @throws NotInitializedException
+     */
+    public function testRead()
+    {
+        $primary_id = LinkedContentTestHarness::EXISTING_LINK_IDS['parent1'];
+        $expected_link_count = 2;
+
+        $o = (new SerializedLinkedTestHarness())
+            ->setRecordId($primary_id);
+        $o->read();
+
+        self::assertCount($expected_link_count, $o->linked->listingsData());
     }
 
     /**
@@ -85,13 +135,12 @@ class SerializedContentLinkedContentTest extends TestCase
     public function testSave()
     {
         $primary_id = LinkedContentTestHarness::NONEXISTENT_LINK_IDS['parent1'];
-        $o = new SerializedLinkedTestHarness();
-        $o->id->setInputValue($primary_id);
-        $o->parent2->setInputValue([13, 14, 109]);
+        $o = (new SerializedLinkedTestHarness())
+            ->setRecordId($primary_id);
+        $o->linked->setLinkId([13, 14, 109]);
 
         // confirm no existing record
-        $count = static::getPrimaryRecordCount($primary_id);
-        self::assertEquals(0, $count);
+        self::assertEquals(0, static::getPrimaryRecordCount($primary_id));
 
         $o->save();
 
@@ -103,7 +152,71 @@ class SerializedContentLinkedContentTest extends TestCase
         self::assertEquals(1, static::confirmLinkById($o, 1));
 
         // cleanup
-        static::deleteParentRecord($o);
+        $o->delete();
+    }
+
+    public function testSetRecordId()
+    {
+        $test_id = 37394;
+        $o = new SerializedLinkedTestHarness();
+        $o->setRecordId($test_id);
+        self::assertEquals($test_id, $o->id->value);
+        self::assertEquals($test_id, $o->linked->primary_id->value);
+    }
+
+    public function testSetRecordIdChained()
+    {
+        $test_id = 37394;
+        $o = (new SerializedLinkedTestHarness())
+            ->setRecordId($test_id);
+        self::assertEquals($test_id, $o->id->value);
+        self::assertEquals($test_id, $o->linked->primary_id->value);
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentLinkedContentTestDataProvider::validateInputFailTestDataProvider()
+     * @param SerializedContentLinkedContentTestData $data
+     * @return void
+     * @throws ContentValidationException
+     */
+    public function testValidateInputFail(SerializedContentLinkedContentTestData $data)
+    {
+        $o = new SerializedLinkedTestHarness();
+        if ($data->required) {
+            $o->linked->foreign_id->setAsRequired();
+        } else {
+            $o->linked->foreign_id->setAsNotRequired();
+        }
+
+        $saved_post = static::setUpPostData($o, $data);
+        $o->collectRequestData();
+        self::expectException(ContentValidationException::class);
+        $o->validateInput();
+
+        $_POST = $saved_post;
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\SerializedContentLinkedContentTestDataProvider::validateInputPassTestDataProvider()
+     * @param SerializedContentLinkedContentTestData $data
+     * @return void
+     * @throws ContentValidationException
+     */
+    public function testValidateInputPass(SerializedContentLinkedContentTestData $data)
+    {
+        $o = new SerializedLinkedTestHarness();
+        if ($data->required) {
+            $o->linked->foreign_id->setAsRequired();
+        } else {
+            $o->linked->foreign_id->setAsNotRequired();
+        }
+
+        $saved_post = static::setUpPostData($o, $data);
+        $o->collectRequestData();
+        $o->validateInput();
+        self::assertFalse($o->hasValidationErrors());
+
+        $_POST = $saved_post;
     }
 
     /**
@@ -114,30 +227,9 @@ class SerializedContentLinkedContentTest extends TestCase
     {
         $query = 'SEL'.'ECT COUNT(1) AS `count` FROM `'.LinkedContentTestHarness::getTableName().'` '.
             'WHERE `'.$o->id->getColumnName('primary_id').'` = ? '.
-            'AND `'.$o->parent2->getColumnName().'` = ?';
-        $result = $o->fetchRecords($query, 'ii', $o->id->value, $o->parent2->value[$link_index]);
+            'AND `'.$o->linked->foreign_id->getColumnName().'` = ?';
+        $result = $o->fetchRecords($query, 'ii', $o->id->value, $o->linked->foreign_id->value[$link_index]);
         return $result[0]->count;
-    }
-
-    /**
-     * @throws NotImplementedException
-     * @throws Exception
-     */
-    public static function deleteLinkRecords(SerializedLinkedTestHarness $o)
-    {
-        $query = 'DEL'.'ETE FROM `'.LinkedContentTestHarness::getTableName().'` '.
-            'WHERE `'.$o->id->getColumnName('primary_id').'` = ?';
-        $o->query($query, 'i', $o->id->value);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public static function deleteParentRecord(SerializedLinkedTestHarness $o)
-    {
-        // ON DELETE CASCADE will take care of links
-        $query = 'DEL'.'ETE FROM `test_parent1` WHERE `id` = ?';
-        $o->query($query, 'i', $o->id->value);
     }
 
     /**
@@ -155,5 +247,26 @@ class SerializedContentLinkedContentTest extends TestCase
             $result = $o->fetchRecords($query, 'i', $id);
         }
         return $result[0]->count;
+    }
+
+    /**
+     * Configure POST data for test.
+     * @param SerializedLinkedTestHarness $o
+     * @param SerializedContentLinkedContentTestData $data
+     * @return array Original POST data to be restored after test
+     */
+    protected static function setUpPostData(
+        SerializedLinkedTestHarness $o,
+        SerializedContentLinkedContentTestData $data
+    ): array
+    {
+        $saved_post = $_POST;
+        $_POST = array_merge($_POST, array(
+            $o->id->key => $data->primary_id,
+            $o->linked->foreign_id->key => $data->foreign_id,
+            $o->name->key => $data->name,
+            $o->linked->label->key => $data->label
+        ));
+        return $saved_post;
     }
 }

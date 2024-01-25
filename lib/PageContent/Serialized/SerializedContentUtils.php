@@ -4,6 +4,7 @@ namespace Littled\PageContent\Serialized;
 use Littled\Database\AppContentBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\InvalidTypeException;
@@ -232,13 +233,13 @@ class SerializedContentUtils extends AppContentBase
      * Assign values contained in array to object input properties.
      * @param string $query SQL SELECT statement to use to hydrate object property values.
      * @throws RecordNotFoundException
-     * @throws Exception
+     * @throws ConnectionException|ConfigurationUndefinedException|InvalidQueryException
      */
-	protected function hydrateFromQuery( string $query, string $types='', &...$vars )
+	protected function hydrateFromQuery(string $query, string $arg_types='', &...$args )
 	{
-		if ($types) {
-			array_unshift($vars, $query, $types);
-			$data = call_user_func_array([$this, 'fetchRecords'], $vars);
+		if ($arg_types) {
+			array_unshift($args, $query, $arg_types);
+			$data = $this->fetchRecords(...$args);
 		}
 		else {
 			$data = $this->fetchRecords($query);
@@ -286,9 +287,9 @@ class SerializedContentUtils extends AppContentBase
 	protected function isInput(string $key, $item, array &$used_keys): bool
 	{
 		$is_input = (($item instanceof RequestInput) &&
-			($key != "id") &&
-			($key != "index") &&
-			($item->is_database_field==true));
+			($key !== 'id') &&
+			($key !== 'index') &&
+			($item->isDatabaseField()));
 		if ($is_input) {
 			/* Check if this item has already been used as in input property.
 			 * This prevents references used as aliases of existing properties

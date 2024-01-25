@@ -1,7 +1,7 @@
 <?php
 namespace LittledTests\PageContent\Serialized;
 
-use Littled\Exception\NotInitializedException;
+use Littled\Exception\InvalidValueException;
 use LittledTests\DataProvider\PageContent\Serialized\ReadListTestDataProvider;
 use LittledTests\PageContent\SiteSection\SectionContentTest;
 use LittledTests\TestHarness\PageContent\Serialized\SerializedContentChild;
@@ -37,10 +37,10 @@ class SerializedContentTest extends TestCase
 	{
 		$c = new MySQLConnection();
 
-		$query = "DR"."OP TABLE IF EXISTS `".SerializedContentChild::getTableName()."`";
+		$query = 'DR'.'OP TABLE IF EXISTS `'.SerializedContentChild::getTableName().'`';
         $c->query($query);
 
-        $query = 'CREATE TABLE `'.SerializedContentChild::getTableName().'` ('.
+        $query = 'CRE'.'ATE TABLE `'.SerializedContentChild::getTableName().'` ('.
 			'`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,'.
 			'`vc_col1` VARCHAR(50),'.
 			'`vc_col2` VARCHAR(255),'.
@@ -49,53 +49,53 @@ class SerializedContentTest extends TestCase
             '`date_col` DATETIME);';
 		$c->query($query);
 
-		$query = "DROP TABLE IF EXISTS `".SerializedContentTitleTestHarness::getTableName();
+		$query = 'DR'.'OP TABLE IF EXISTS `'.SerializedContentTitleTestHarness::getTableName();
         $c->query($query);
 
-        $query = "CREATE TABLE `".SerializedContentTitleTestHarness::getTableName()."` (".
-			"`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,".
-			"`title` VARCHAR(50),".
-			"`vc_col` VARCHAR(255),".
-			"`int_col` INT);";
+        $query = 'CRE'.'ATE TABLE `'.SerializedContentTitleTestHarness::getTableName().'` ('.
+			'`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,'.
+			'`title` VARCHAR(50),'.
+			'`vc_col` VARCHAR(255),'.
+			'`int_col` INT);';
 		$c->query($query);
 
-		$query = "DROP TABLE IF EXISTS `".SerializedContentNameTestHarness::getTableName();
+		$query = 'DR'.'OP TABLE IF EXISTS `'.SerializedContentNameTestHarness::getTableName();
         $c->query($query);
 
-        $query ="CREATE TABLE `".SerializedContentNameTestHarness::getTableName()."` (".
-			"`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,".
-			"`name` VARCHAR(50),".
-			"`vc_col` VARCHAR(255),".
-			"`bool_col` BOOLEAN,".
-			"`date_col` DATE);";
+        $query = 'CRE'.'ATE TABLE `'.SerializedContentNameTestHarness::getTableName().'` ('.
+			'`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,'.
+			'`name` VARCHAR(50),'.
+			'`vc_col` VARCHAR(255),'.
+			'`bool_col` BOOLEAN,'.
+			'`date_col` DATE);';
 		$c->query($query);
 
-		$query = "DROP TABLE IF EXISTS `".SerializedContentNonDefaultColumn::getTableName();
+		$query = 'DR'.'OP TABLE IF EXISTS `'.SerializedContentNonDefaultColumn::getTableName();
         $c->query($query);
 
-		$query = "CREATE TABLE `".SerializedContentNonDefaultColumn::getTableName()."` (".
-			"`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,".
-			"`name` VARCHAR(50),".
-			"`vc_col` VARCHAR(255),".
-			"`bool_col` BOOLEAN,".
-			"`date_col` DATE,".
-			"`non_default` VARCHAR(50));";
+		$query = 'CRE'.'ATE TABLE `'.SerializedContentNonDefaultColumn::getTableName().'` ('.
+			'`id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,'.
+			'`name` VARCHAR(50),'.
+			'`vc_col` VARCHAR(255),'.
+			'`bool_col` BOOLEAN,'.
+			'`date_col` DATE,'.
+			'`non_default` VARCHAR(50));';
 		$c->query($query);
 
-		$query = "DROP PROCEDURE IF EXISTS `testListSelect`;";
+		$query = 'DROP PROCEDURE IF EXISTS `testListSelect`;';
 		$c->query($query);
 
-		$query = "CRE"."ATE PROCEDURE `testListSelect`() ".
-			"BEGIN ".
-			"SEL"."ECT * from `".SerializedContentTitleTestHarness::getTableName()."` ".
-			"ORDER BY `title`; ".
-			"END;";
+		$query = 'CRE'.'ATE PROCEDURE `testListSelect`() '.
+			'BEGIN '.
+			'SEL'.'ECT * from `'.SerializedContentTitleTestHarness::getTableName().'` '.
+			'ORDER BY `title`; '.
+			'END;';
 		$c->query($query);
 
-		$c->query("INS"."ERT INTO `".SerializedContentTitleTestHarness::getTableName()."` (`title`,`vc_col`,`int_col`) VALUES ('test one','foo',67);");
-        $c->query("INS"."ERT INTO `".SerializedContentTitleTestHarness::getTableName()."` (`title`,`vc_col`,`int_col`) VALUES ('test two','bar',860);");
-        $c->query("INS"."ERT INTO `".SerializedContentTitleTestHarness::getTableName()."` (`title`,`vc_col`,`int_col`) VALUES ('test three','biz',1032);");
-        $c->query("INS"."ERT INTO `".SerializedContentTitleTestHarness::getTableName()."` (`title`,`vc_col`,`int_col`) VALUES ('test four','bash',94);");
+		$c->query('INS'.'ERT INTO `'.SerializedContentTitleTestHarness::getTableName().'` (`title`,`vc_col`,`int_col`) VALUES (\'test one\',\'foo\',67);');
+        $c->query('INS'.'ERT INTO `'.SerializedContentTitleTestHarness::getTableName().'` (`title`,`vc_col`,`int_col`) VALUES (\'test two\',\'bar\',860);');
+        $c->query('INS'.'ERT INTO `'.SerializedContentTitleTestHarness::getTableName().'` (`title`,`vc_col`,`int_col`) VALUES (\'test three\',\'biz\',1032);');
+        $c->query('INS'.'ERT INTO `'.SerializedContentTitleTestHarness::getTableName().'` (`title`,`vc_col`,`int_col`) VALUES (\'test four\',\'bash\',94);');
 	}
 
     /**
@@ -105,7 +105,7 @@ class SerializedContentTest extends TestCase
 	public static function tearDownAfterClass(): void
 	{
 		$c = new MySQLConnection();
-		$c->query("DROP PROCEDURE IF EXISTS `testListSelect`");
+		$c->query('DROP PROCEDURE IF EXISTS `testListSelect`');
 		$c->query('D'.'ROP TABLE `'.SerializedContentChild::getTableName().'`');
 		$c->query('D'.'ROP TABLE `'.SerializedContentNameTestHarness::getTableName().'`');
 		$c->query('D'.'ROP TABLE `'.SerializedContentTitleTestHarness::getTableName().'`');
@@ -137,7 +137,7 @@ class SerializedContentTest extends TestCase
         $this->assertCount(0, $obj->validationErrors());
 
         // pass explicit TRUE value to bypassValidation()
-        $obj->bypassValidation(true);
+        $obj->bypassValidation();
         $obj->validateInput();
         $this->assertCount(0, $obj->validationErrors());
 
@@ -159,6 +159,68 @@ class SerializedContentTest extends TestCase
 		/* test that internal table name value cannot be overridden */
 		$this->assertFalse($obj->columnExists('name', 'video_reel'));
 	}
+
+    /**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+    public function testDelete()
+    {
+        $obj = new SerializedContentChild();
+
+        /* test valid id value */
+        $obj->id->setInputValue(null);
+        $obj->vc_col1->setInputValue('bar');
+        $obj->save();
+        $result = $obj->delete();
+        $this->assertMatchesRegularExpression("/has been deleted/", $result);
+    }
+
+    /**
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     */
+    public function testDeleteDefaultIDValue()
+    {
+        $obj = new SerializedContentChild();
+
+        /* test default id value (null) */
+        $this->expectException(ContentValidationException::class);
+        $obj->delete();
+    }
+
+    /**
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     */
+    public function testDeleteInvalidIDValue()
+    {
+        $obj = new SerializedContentChild();
+
+        /* test invalid id value */
+        $obj->id->setInputValue(0);
+        $this->expectException(ContentValidationException::class);
+        $obj->delete();
+    }
+
+    /**
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     */
+    public function testDeleteNonexistentID()
+    {
+        $obj = new SerializedContentChild();
+
+        /* test invalid id value */
+        $obj->id->setInputValue(997799);
+        $status = $obj->delete();
+        $this->assertMatchesRegularExpression("/could not be found/", $status);
+    }
 
     /**
      * @throws NotImplementedException
@@ -197,6 +259,8 @@ class SerializedContentTest extends TestCase
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -280,7 +344,9 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
@@ -376,12 +442,12 @@ class SerializedContentTest extends TestCase
 	public function testSaveNonDefaultColumns()
 	{
 		$o1 = new SerializedContentNonDefaultColumn();
-		$o1->name->setInputValue('foozizzle');
-		$o1->nonDefaultCol->setInputValue('drooplizzle');
+		$o1->name->setInputValue('fooZizZle');
+		$o1->nonDefaultCol->setInputValue('droPizLe');
 		$o1->save();
 
-		$query = "SEL"."ECT * FROM `".SerializedContentNonDefaultColumn::getTableName()."` WHERE `id` = {$o1->id->value}";
-		$data = $this->conn->fetchRecords($query);
+		$query = 'SEL'.'ECT * FROM `'.SerializedContentNonDefaultColumn::getTableName().'` WHERE `id` = ?';
+		$data = $this->conn->fetchRecords($query, 'i', $o1->id->value);
 
 		$this->assertEquals($o1->nonDefaultCol->value, $data[0]->non_default);
 	}
@@ -421,47 +487,6 @@ class SerializedContentTest extends TestCase
 	    $this->assertNull($data[0]->bool_col);
     }
 
-	/**
-	 * @throws ContentValidationException
-	 * @throws NotImplementedException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-     * @throws RecordNotFoundException No record exists that matches the id value.
-	 */
-    public function testUpdate()
-    {
-	    $obj = new SerializedContentChild();
-	    $obj->vc_col1->value = 'foo';
-	    $obj->vc_col2->value = 'bar';
-	    $obj->save();
-	    $original_id = $obj->id->value;
-
-	    $obj->vc_col2->value = 'biz';
-	    $obj->save();
-	    $this->assertEquals($original_id, $obj->id->value);
-	    $this->assertEquals('foo', $obj->vc_col1->value);
-	    $this->assertEquals('biz', $obj->vc_col2->value);
-	    $this->assertNull($obj->int_col->value);
-	    $this->assertNull($obj->bool_col->value);
-
-	    $obj->int_col->value = 65;
-	    $obj->save();
-	    $this->assertEquals($original_id, $obj->id->value);
-	    $this->assertEquals('foo', $obj->vc_col1->value);
-	    $this->assertEquals('biz', $obj->vc_col2->value);
-	    $this->assertEquals(65, $obj->int_col->value);
-	    $this->assertNull($obj->bool_col->value);
-
-	    $obj->vc_col1->value = '';
-	    $obj->bool_col->value = false;
-	    $obj->save();
-	    $this->assertEquals($original_id, $obj->id->value);
-	    $this->assertEquals('', $obj->vc_col1->value);
-	    $this->assertEquals('biz', $obj->vc_col2->value);
-	    $this->assertEquals(65, $obj->int_col->value);
-	    $this->assertFalse($obj->bool_col->value);
-    }
-
     public function testSetIdKey()
     {
         $o = new SerializedContentChild();
@@ -474,10 +499,12 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
 	 */
     public function testRead()
     {
@@ -501,40 +528,10 @@ class SerializedContentTest extends TestCase
 
 	/**
 	 * @throws ContentValidationException
-     * @throws RecordNotFoundException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-     * @throws NotImplementedException
-     */
-    public function testReadNonExistentRecord()
-    {
-    	$obj = new SerializedContentChild();
-	    $obj->id->setInputValue(99988999);
-	    $this->expectException(RecordNotFoundException::class);
-	    $obj->read();
-    }
-
-	/**
-     * @throws RecordNotFoundException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-     * @throws NotImplementedException
-     */
-	public function testReadNullID()
-	{
-		$obj = new SerializedContentChild();
-		try {
-			$obj->read();
-		}
-		catch(ContentValidationException $ex) {
-			$this->assertEquals("Record id not set.", $ex->getMessage());
-		}
-	}
-
-	/**
-	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException|NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
      */
 	public function testReadInvalidObject()
 	{
@@ -588,11 +585,49 @@ class SerializedContentTest extends TestCase
         }
     }
 
+    /**
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+    public function testReadNonExistentRecord()
+    {
+        $obj = new SerializedContentChild();
+        $obj->id->setInputValue(99988999);
+        $this->expectException(RecordNotFoundException::class);
+        $obj->read();
+    }
+
+    /**
+     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     */
+    public function testReadNullID()
+    {
+        $obj = new SerializedContentChild();
+        try {
+            $obj->read();
+        }
+        catch(ContentValidationException $ex) {
+            $this->assertEquals("Record id not set.", $ex->getMessage());
+        }
+    }
+
 	/**
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function testReadNullValues()
@@ -614,10 +649,55 @@ class SerializedContentTest extends TestCase
 		$this->assertNull($o2->bool_col->value);
 	}
 
-	/**
+    /**
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException No record exists that matches the id value.
+     */
+    public function testUpdate()
+    {
+        $obj = new SerializedContentChild();
+        $obj->vc_col1->value = 'foo';
+        $obj->vc_col2->value = 'bar';
+        $obj->save();
+        $original_id = $obj->id->value;
+
+        $obj->vc_col2->value = 'biz';
+        $obj->save();
+        $this->assertEquals($original_id, $obj->id->value);
+        $this->assertEquals('foo', $obj->vc_col1->value);
+        $this->assertEquals('biz', $obj->vc_col2->value);
+        $this->assertNull($obj->int_col->value);
+        $this->assertNull($obj->bool_col->value);
+
+        $obj->int_col->value = 65;
+        $obj->save();
+        $this->assertEquals($original_id, $obj->id->value);
+        $this->assertEquals('foo', $obj->vc_col1->value);
+        $this->assertEquals('biz', $obj->vc_col2->value);
+        $this->assertEquals(65, $obj->int_col->value);
+        $this->assertNull($obj->bool_col->value);
+
+        $obj->vc_col1->value = '';
+        $obj->bool_col->value = false;
+        $obj->save();
+        $this->assertEquals($original_id, $obj->id->value);
+        $this->assertEquals('', $obj->vc_col1->value);
+        $this->assertEquals('biz', $obj->vc_col2->value);
+        $this->assertEquals(65, $obj->int_col->value);
+        $this->assertFalse($obj->bool_col->value);
+    }
+
+    /**
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
      * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
@@ -633,66 +713,4 @@ class SerializedContentTest extends TestCase
 
         $this->assertEquals(999999, $obj->id->value);
     }
-
-	/**
-	 * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
-     */
-    public function testDelete()
-    {
-    	$obj = new SerializedContentChild();
-
-    	/* test valid id value */
-	    $obj->id->setInputValue(null);
-	    $obj->vc_col1->setInputValue('bar');
-        $obj->save();
-        $result = $obj->delete();
-	    $this->assertMatchesRegularExpression("/has been deleted/", $result);
-    }
-
-	/**
-	 * @throws ContentValidationException
-	 * @throws NotImplementedException
-     */
-    public function testDeleteDefaultIDValue()
-    {
-	    $obj = new SerializedContentChild();
-
-	    /* test default id value (null) */
-	    $this->expectException(ContentValidationException::class);
-	    $obj->delete();
-    }
-
-	/**
-	 * @throws ContentValidationException
-	 * @throws NotImplementedException
-     */
-    public function testDeleteInvalidIDValue()
-    {
-	    $obj = new SerializedContentChild();
-
-	    /* test invalid id value */
-	    $obj->id->setInputValue(0);
-	    $this->expectException(ContentValidationException::class);
-	    $obj->delete();
-    }
-
-	/**
-	 * @throws ContentValidationException
-	 * @throws NotImplementedException
-     */
-	public function testDeleteNonexistentID()
-	{
-		$obj = new SerializedContentChild();
-
-		/* test invalid id value */
-		$obj->id->setInputValue(997799);
-		$status = $obj->delete();
-		$this->assertMatchesRegularExpression("/could not be found/", $status);
-	}
 }

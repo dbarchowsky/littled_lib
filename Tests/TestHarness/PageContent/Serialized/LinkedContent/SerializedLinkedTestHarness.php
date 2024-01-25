@@ -4,50 +4,56 @@ namespace LittledTests\TestHarness\PageContent\Serialized\LinkedContent;
 
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Request\ForeignKeyInput;
 use Littled\Request\StringTextField;
 
 class SerializedLinkedTestHarness extends SerializedContent
 {
-    public StringTextField $name;
-    public ForeignKeyInput $parent2;
+    public StringTextField              $name;
+    public LinkedContentTestHarness     $linked;
 
-    protected static string $table_name = 'test_parent1';
+    protected static string             $table_name = 'test_parent1';
 
-    public const LINK_KEY = 'p2Key';
+    public const PRIMARY_KEY = 'pId';
 
-    /**
-     * @throws InvalidTypeException
-     */
     public function __construct(?int $id = null)
     {
         parent::__construct($id);
-        $this->id->setColumnName('parent1_id');
+        $this->id->setKey('pId')->setColumnName('parent1_id');
         $this->name = new StringTextField('Name', 'p1Name', true, '', 50);
-        $this->parent2 = (new ForeignKeyInput('Parent 2', self::LINK_KEY))
-            ->setContentClass(LinkedContentTestHarness::class)
-            ->setColumnName('parent2_id')
-            ->setAllowMultiple();
+        $this->linked = new LinkedContentTestHarness();
+    }
+
+    /**
+     * @throws NotInitializedException
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     */
+    public function deleteLinked()
+    {
+        $this->linked->setPrimaryId($this->id->value)->delete();
     }
 
     /**
      * Public interface for testing.
      * @return void
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws NotImplementedException
-     * @throws NotInitializedException
+     * @throws NotImplementedException|InvalidValueException
      */
-    public function commitForeignKeys_public()
+    public function commitLinkedRecords_public()
     {
-        parent::commitForeignKeys();
+        parent::commitLinkedRecords();
     }
 
     /**
@@ -56,7 +62,7 @@ class SerializedLinkedTestHarness extends SerializedContent
      */
     public function getForeignKeyPropertyList_public(): array
     {
-        return parent::getForeignKeyPropertyList();
+        return parent::getLinkedContentPropertyList();
     }
 
     /**
@@ -73,6 +79,16 @@ class SerializedLinkedTestHarness extends SerializedContent
 
     public function hasData(): bool
     {
-        return (is_int($this->id->hasData()) || $this->parent2->hasData());
+        return (is_int($this->id->hasData()) || $this->linked->hasData());
+    }
+
+    function getContentLabel(): string
+    {
+        return 'Serialized link test harness';
+    }
+
+    function save()
+    {
+        parent::save();
     }
 }

@@ -117,7 +117,15 @@ class ContentTemplate extends SerializedContent
 		return null;
 	}
 
-	/**
+    /**
+     * @inheritDoc
+     */
+    public function getContentLabel(): string
+    {
+        return 'Content template';
+    }
+
+    /**
 	 * Local path token getter.
 	 * @return string
 	 */

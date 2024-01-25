@@ -134,7 +134,10 @@ class FilterCollectionRetrievalTest extends FilterCollectionTestBase
 		$data = $f->retrieveListings();
 		$page_count = $f->page_count;
 
-		$f->publicSetOutOfBoundNeighborIds($data, $f->publicCalculateRecordPositionOnPage($record_id, $data));
+        // $pos will be null if the $record_id is not found within the set of records representing this page
+        $pos = $f->publicCalculateRecordPositionOnPage($record_id, $data);
+        self::assertNotNull($pos);
+		$f->publicSetOutOfBoundNeighborIds($data, $pos);
 
 		$this->assertEquals($page, $f->page->value);
 		$this->assertEquals($listings_length, $f->listings_length->value);

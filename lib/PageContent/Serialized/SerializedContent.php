@@ -5,13 +5,12 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerInput;
-use Exception;
 use Littled\Validation\Validation;
+use Exception;
 
 /**
  * Routines for fetching and committing database records.
@@ -37,30 +36,16 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * Looks up any foreign key properties in the object and commits the links to the database.
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws NotImplementedException
-     * @throws NotInitializedException|InvalidQueryException
+     * @throws InvalidQueryException
+     * @throws NotImplementedException|InvalidValueException
      */
-    protected function commitForeignKeys()
+    protected function commitLinkedRecords()
     {
-        $fkp = $this->getForeignKeyPropertyList();
-        foreach ($fkp as $property) {
-            /** @var ForeignKeyInput $property */
-            /** @var LinkedContent $linked */
-            $ids = [];
-            $class = $property->getContentClass();
-            $linked = new $class();
-            if (is_array($property->value)) {
-                foreach($property->value as $id) {
-                    $linked->setValuesAndCommit($this->id->value, $id);
-                    $ids[] = $id;
-                }
-            }
-            else {
-                $linked->setValuesAndCommit($this->id->value, $property->value);
-                $ids[] = $property->value;
-            }
-            $linked->deleteStaleLinks($ids);
+        $lc = $this->getLinkedContentPropertyList();
+        foreach ($lc as $property) {
+            $property->save();
         }
     }
 
@@ -68,18 +53,18 @@ abstract class SerializedContent extends SerializedContentIO
      * @inheritDoc
      * @throws Exception
      */
-    protected function commitSaveQuery(string $query, string $types='', ...$vars)
+    protected function commitSaveQuery(string $query, string $arg_types='', ...$args)
     {
         $this->connectToDatabase();
-        $s1 = $this->mysqli->prepare('SET @record_id = ?');
+        $s1 = $this->mysqli->prepare('SET @insert_id = ?');
         $s1->bind_param('i', $this->id->value);
         $s1->execute();
 
-        array_unshift($vars, $query, $types);
-        call_user_func_array([$this, 'query'], $vars);
+        array_unshift($args, $query, $arg_types);
+        call_user_func_array([$this, 'query'], $args);
 
         if (null === $this->id->value || 1 > $this->id->value) {
-            $data = $this->fetchRecords('SELECT @record_id as `insert_id`');
+            $data = $this->fetchRecords('SELECT @insert_id as `insert_id`');
             if (1 > count($data)) {
                 throw new Exception('New record id not found.');
             }
@@ -172,17 +157,17 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Returns a list of all the properties of the object that represent foreign keys.
-     * @return ForeignKeyInput[]
+     * @return LinkedContent[]
      */
-    protected function getForeignKeyPropertyList(): array
+    protected function getLinkedContentPropertyList(): array
     {
-        $fk = [];
+        $lc = [];
         foreach($this as $property) {
-            if (is_object($property) && Validation::isSubclass($property, ForeignKeyInput::class)) {
-                $fk[] = $property;
+            if (is_object($property) && Validation::isSubclass($property, LinkedContent::class)) {
+                $lc[] = $property;
             }
         }
-        return $fk;
+        return $lc;
     }
 
     /**
@@ -215,6 +200,30 @@ abstract class SerializedContent extends SerializedContentIO
 		return($ret_value);
 	}
 
+    /**
+     * Tests if query string is a procedure call.
+     * @param string $query
+     * @return bool
+     */
+    protected function isQueryProcedure(string $query): bool
+    {
+        return (strtolower(substr($query, 0, 5))==='call ');
+    }
+
+    /**
+     * Create MySQL session variable to hold the value of the insert id resulting from a procedure call.
+     * @return void
+     * @throws ConfigurationUndefinedException|ConnectionException
+     */
+    protected function prepareInsertIdSession()
+    {
+        // insure there is a valid mysqli object
+        $this->connectToDatabase();
+        $stmt = $this->mysqli->prepare('SET @insert_id := ?');
+        $stmt->bind_param('i', $this->id->value);
+        $stmt->execute();
+    }
+
 	/**
 	 * Retrieves data from the database based on the internal properties of the
 	 * class instance. Sets the values of the internal properties of the class
@@ -223,7 +232,7 @@ abstract class SerializedContent extends SerializedContentIO
 	 * @throws ConnectionException
 	 * @throws ContentValidationException Record id not set.
 	 * @throws RecordNotFoundException Requested record not available.
-	 * @throws NotImplementedException
+	 * @throws NotImplementedException|InvalidQueryException|InvalidValueException
 	 */
 	public function read ()
 	{
@@ -242,8 +251,73 @@ abstract class SerializedContent extends SerializedContentIO
 		catch(RecordNotFoundException $ex) {
 			$error_msg = "The requested ".$this::getTableName()." record could not be found.";
 			throw new RecordNotFoundException($error_msg);
-		} catch (Exception $e) {
+		}
+
+        $this->readLinked();
+    }
+
+    /**
+     * Retrieve all record data belonging to tables linked to this content type.
+     * @throws InvalidValueException
+     * @throws InvalidQueryException
+     */
+    public function readLinked()
+    {
+        $lc = $this->getLinkedContentPropertyList();
+        foreach($lc as $property) {
+            $property->fetchLinkedListings();
         }
+    }
+
+    /**
+     * Confirm that a record with id value matching the current id value of the object currently exists in the database.
+     * @return bool True/False depending on if a matching record is found.
+     * @throws NotImplementedException
+     * @throws Exception
+     */
+    public function recordExists(): bool
+    {
+        if ($this->id->value===null || $this->id->value==='' || $this->id->value < 1) {
+            return (false);
+        }
+
+        $query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this::getTableName()."` WHERE `id` = ?) AS `record_exists`";
+        $data = $this->fetchRecords($query, 'i', $this->id->value);
+        return ((int)("0".$data[0]->record_exists) === 1);
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     * @throws InvalidQueryException|InvalidValueException
+     */
+    public function save()
+    {
+        if (!$this->hasData()) {
+            throw new ContentValidationException("Record has no data to save.");
+        }
+
+        $args = $this->generateUpdateQuery();
+        if ($args) {
+            if ($this->isQueryProcedure($args[0])) {
+                $this->prepareInsertIdSession();
+            }
+            $this->query(...$args);
+            $this->updateIdAfterCommit($args[0]);
+        }
+        else {
+            if (is_numeric($this->id->value)) {
+                $this->executeUpdateQuery();
+            } else {
+                $this->executeInsertQuery();
+            }
+        }
+
+        $this->commitLinkedRecords();
     }
 
     /**
@@ -265,53 +339,11 @@ abstract class SerializedContent extends SerializedContentIO
     public function setRecordId(int $id): SerializedContent
     {
         $this->id->setInputValue($id);
+        $linked = $this->getLinkedContentPropertyList();
+        foreach($linked as $link) {
+            $link->primary_id->setInputValue($id);
+        }
         return $this;
-    }
-
-	/**
-	 * Confirm that a record with id value matching the current id value of the object currently exists in the database.
-	 * @return bool True/False depending on if a matching record is found.
-     * @throws NotImplementedException
-     * @throws Exception
-	 */
-	public function recordExists(): bool
-	{
-		if ($this->id->value===null || $this->id->value==='' || $this->id->value < 1) {
-			return (false);
-		}
-
-		$query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this::getTableName()."` WHERE `id` = ?) AS `record_exists`";
-		$data = $this->fetchRecords($query, 'i', $this->id->value);
-		return ((int)("0".$data[0]->record_exists) === 1);
-	}
-
-    /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     * @throws NotInitializedException|InvalidQueryException
-     */
-    public function save()
-    {
-        if (!$this->hasData()) {
-            throw new ContentValidationException("Record has no data to save.");
-        }
-        $vars = $this->generateUpdateQuery();
-        if ($vars) {
-            call_user_func_array([$this, 'commitSaveQuery'], $vars);
-        }
-        else {
-            if (is_numeric($this->id->value)) {
-                $this->executeUpdateQuery();
-            } else {
-                $this->executeInsertQuery();
-            }
-        }
-
-        $this->commitForeignKeys();
     }
 
     /**
@@ -328,16 +360,24 @@ abstract class SerializedContent extends SerializedContentIO
 	}
 
     /**
-     * Update the internal id property value after committing object property
-     * values to the database.
-     * @throws Exception
+     * Update the internal id property value after committing object property values to the database.
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
-    protected function updateIdAfterCommit()
+    protected function updateIdAfterCommit(string $query)
     {
-        $data = $this->fetchRecords("SELECT p_insert_id AS `id`");
-        if (1 > count($data)) {
-            throw new Exception('Could not retrieve new record id.');
+        if ($this->isQueryProcedure($query)) {
+            // query was a procedure
+            $data = $this->fetchRecords("SELECT @insert_id AS `id`");
+            if (1 > count($data)) {
+                throw new InvalidQueryException('Could not retrieve new record id.');
+            }
+            $this->id->setInputValue($data[0]->id);
         }
-        $this->id->value = $data[0]->id;
+        elseif (!$this->id->hasData() && strtolower(substr($query, 0, 7)) === 'insert ') {
+            // query was a query string
+            $this->id->setInputValue($this->retrieveInsertID());
+        }
     }
 }

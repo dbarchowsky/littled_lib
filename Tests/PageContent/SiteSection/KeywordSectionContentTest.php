@@ -11,6 +11,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
+use LittledTests\DataProvider\PageContent\SiteSection\KeywordSectionContentTestData;
 use LittledTests\TestHarness\PageContent\SiteSection\KeywordSectionContentNonDefaultKey;
 use LittledTests\TestHarness\PageContent\SiteSection\KeywordSectionContentTestHarness;
 use LittledTests\TestHarness\PageContent\SiteSection\KeywordTestTableTestHarness;
@@ -51,17 +52,17 @@ class KeywordSectionContentTest extends TestCase
         $term = 'test_read_2';
         $stmt->execute();
 
-        $term = 'testread3';
+        $term = 'test-read3';
         $stmt->execute();
 
         $parent_id = self::TEST_PARENT_ID_FOR_DELETE;
         $term = 'test del 01';
         $stmt->execute();
 
-        $term = 'testdel_02';
+        $term = 'test-del_02';
         $stmt->execute();
 
-        $term = 'testdel_03';
+        $term = 'test-del_03';
         $stmt->execute();
 	}
 
@@ -81,13 +82,6 @@ class KeywordSectionContentTest extends TestCase
 		$conn->query($query);
 	}
 
-	function __construct()
-	{
-		parent::__construct();
-		$this->conn = new MySQLConnection();
-		$this->obj = new KeywordSectionContentTestHarness();
-	}
-
 	/**
 	 * @param int $parent_id
 	 * @param int $type_id
@@ -96,95 +90,74 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function getKeywordCount(int $parent_id, int $type_id): int
     {
-		$query = "SELECT COUNT(1) as `count` FROM `keyword`".
+		$query = 'SEL'.'ECT COUNT(1) as `count` FROM `keyword`'.
 			" WHERE `parent_id` = $parent_id AND `type_id` = $type_id";
-		return($this->conn->fetchRecords($query)[0]->count);
-	}
-
-	public function testConstructorDefaultValues()
-	{
-		$this->assertNull($this->obj->id->value);
-		$this->assertNotNull($this->obj->content_properties->id->value);
-		$this->assertEquals('', $this->obj->keyword_input->value);
-		$this->assertEquals('kwText', $this->obj->keyword_input->key);
-		$this->assertFalse($this->obj->keyword_input->is_database_field);
-		$this->assertTrue(is_array($this->obj->keywords));
-		$this->assertCount(0, $this->obj->keywords);
-		$this->assertFalse($this->obj->hasKeywordData());
-	}
-
-	/**
-	 * @throws ConfigurationUndefinedException
-	 */
-	public function testConstructorPassedValues()
-	{
-		$obj = new KeywordSectionContentTestHarness(83, 629);
-		$this->assertEquals(83, $obj->id->value);
-		$this->assertEquals(629, $obj->content_properties->id->value);
-		$this->assertEquals('kwText', $obj->keyword_input->key);
+		return((new MySQLConnection())->fetchRecords($query)[0]->count);
 	}
 
     /**
      * @return void
      * @throws Exception
      */
-	public function testAddKeyword()
-	{
-        $obj = new KeywordSectionContentTestHarness();
-        $prev_count = count($obj->keywords);
+    public function testAddKeyword()
+    {
+        $o = new KeywordSectionContentTestHarness();
+        $prev_count = count($o->keywords);
 
         try {
-            $obj->addKeyword('test new term');
-			$this->assertEquals(false, true, 'Expected exception not thrown.');
+            $o->addKeyword('test new term');
+            self::fail('Expected exception not thrown.');
         }
         catch(Exception $ex) {
-            $this->assertMatchesRegularExpression('/parent record was not provided/i', $ex->getMessage());
+            self::assertMatchesRegularExpression('/parent record was not provided/i', $ex->getMessage());
         }
 
-        $obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
-        $obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
-		$obj->addKeyword('test new term');
-		$this->assertCount($prev_count + 1, $obj->keywords);
-		$this->assertEquals('test new term', $obj->keywords[0]->term->value);
+        $o->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+        $o->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+        $o->addKeyword('test new term');
+        self::assertCount($prev_count + 1, $o->keywords);
+        self::assertEquals('test new term', $o->keywords[0]->term->value);
 
-		$obj->addKeyword('test II new term');
-		$this->assertCount($prev_count + 2, $obj->keywords);
-		$this->assertEquals('test II new term', $obj->keywords[1]->term->value);
-		$this->assertTrue($obj->keywords[1]->parent_id->required);
+        $o->addKeyword('test II new term');
+        self::assertCount($prev_count + 2, $o->keywords);
+        self::assertEquals('test II new term', $o->keywords[1]->term->value);
+        self::assertTrue($o->keywords[1]->parent_id->required);
 
-		$obj->addKeyword('3rd term', false);
-		$this->assertCount($prev_count + 3, $obj->keywords);
-		$this->assertEquals('3rd term', $obj->keywords[2]->term->value);
-		$this->assertFalse($obj->keywords[2]->parent_id->required);
-	}
+        $o->addKeyword('3rd term', false);
+        self::assertCount($prev_count + 3, $o->keywords);
+        self::assertEquals('3rd term', $o->keywords[2]->term->value);
+        self::assertFalse($o->keywords[2]->parent_id->required);
+    }
 
-	public function testClearKeywordData()
-	{
-		$this->obj->keyword_input->value = "foo,bar,biz,bash";
-		$this->obj->keywords = array('foo', 'bar', 'biz', 'bash');
+    public function testClearKeywordData()
+    {
+        $o = new KeywordSectionContentTestHarness();
+        $o->keyword_input->value = "foo,bar,biz,bash";
+        $o->keywords = array('foo', 'bar', 'biz', 'bash');
 
-		$this->obj->clearKeywordData();
+        $o->clearKeywordData();
 
-		$this->assertEquals('', $this->obj->keyword_input->value);
-		$this->assertTrue(is_array($this->obj->keywords));
-		$this->assertCount(0, $this->obj->keywords);
-		$this->assertFalse($this->obj->hasKeywordData());
-	}
+        self::assertEquals('', $o->keyword_input->value);
+        self::assertIsArray($o->keywords);
+        self::assertCount(0, $o->keywords);
+        self::assertFalse($o->hasKeywordData());
+    }
 
 	/**
 	 * @throws Exception
 	 */
 	public function testCollectFromInput()
 	{
+        $o = new KeywordSectionContentTestHarness();
 		$input = array(
-			$this->obj->id->key => '47',
-			$this->obj->content_properties->id->key => '629'
+			$o->id->key => '47',
+			$o->content_properties->id->key => '629'
 		);
 
-		$this->obj->collectRequestData($input);
+		$o->collectRequestData($input);
 
-		$this->assertEquals(47, $this->obj->id->value);
-		$this->assertEquals(629, $this->obj->content_properties->id->value);
+		self::assertEquals(47, $o->id->value);
+		self::assertEquals(629, $o->content_properties->id->value);
 	}
 
 	/**
@@ -192,11 +165,12 @@ class KeywordSectionContentTest extends TestCase
 	 */
 	public function testCollectKeywordInputWhenEmpty()
 	{
-		$this->obj->collectKeywordInput();
-		$this->assertEquals('', $this->obj->keyword_input->value);
-		$this->assertTrue(is_array($this->obj->keywords));
-		$this->assertCount(0, $this->obj->keywords);
-		$this->assertFalse($this->obj->hasKeywordData());
+        $o = new KeywordSectionContentTestHarness();
+		$o->collectKeywordInput();
+		self::assertEquals('', $o->keyword_input->value);
+		self::assertIsArray($o->keywords);
+		self::assertCount(0, $o->keywords);
+		self::assertFalse($o->hasKeywordData());
 	}
 
 	/**
@@ -207,20 +181,21 @@ class KeywordSectionContentTest extends TestCase
 	 */
 	public function testCollectKeywordInput()
 	{
-		$src = array($this->obj->keyword_input->key => "foo , bar, biz,bash, hhoo,haa dee,didly, dah ");
-		$this->obj->collectKeywordInput($src);
-		$keywords = $this->obj->getKeywordTermsArray(false);
-		$this->assertContains('foo', $keywords);
-		$this->assertContains('bar', $keywords);
-		$this->assertContains('biz', $keywords);
-		$this->assertContains('bash', $keywords);
-		$this->assertContains('hhoo', $keywords);
-		$this->assertContains('haa dee', $keywords);
-		$this->assertContains('didly', $keywords);
-		$this->assertContains('dah', $keywords);
+        $o = new KeywordSectionContentTestHarness();
+		$src = array($o->keyword_input->key => "foo , bar, biz,bash, hhoo,haa dee,didly, dah ");
+		$o->collectKeywordInput($src);
+		$keywords = $o->getKeywordTermsArray(false);
+		self::assertContains('foo', $keywords);
+		self::assertContains('bar', $keywords);
+		self::assertContains('biz', $keywords);
+		self::assertContains('bash', $keywords);
+		self::assertContains('hhoo', $keywords);
+		self::assertContains('haa dee', $keywords);
+		self::assertContains('didly', $keywords);
+		self::assertContains('dah', $keywords);
 
-		$this->assertFalse($this->obj->keywords[0]->parent_id->required);
-		$this->assertFalse($this->obj->keywords[count($this->obj->keywords)-1]->parent_id->required);
+		self::assertFalse($o->keywords[0]->parent_id->required);
+		self::assertFalse($o->keywords[count($o->keywords)-1]->parent_id->required);
 	}
 
 	/**
@@ -231,40 +206,66 @@ class KeywordSectionContentTest extends TestCase
 	 */
 	public function testCollectKeywordInputWithBadValues()
 	{
-        $inject_test = "[before script]<script>alert('what');</script>[after script]";
+        $o = new KeywordSectionContentTestHarness();
+        $inject_test = "[before script]<'.'script>alert('what');<'.'/script>[after script]";
         $key = ",foo , bar, 0,,625,$inject_test, dah ,";
-		$src = array($this->obj->keyword_input->key => $key);
-		$this->obj->collectKeywordInput($src);
-		$keywords = $this->obj->getKeywordTermsArray(false);
-		$this->assertCount(6, $keywords);
-		$this->assertContains('foo', $keywords);
-		$this->assertContains('0', $keywords);
-		$this->assertContains('625', $keywords);
-		$this->assertContains("[before script]alert(&#039;what&#039;);[after script]", $keywords);
-		$this->assertContains('dah', $keywords);
+		$src = array($o->keyword_input->key => $key);
+		$o->collectKeywordInput($src);
+		$keywords = $o->getKeywordTermsArray(false);
+		self::assertCount(6, $keywords);
+		self::assertContains('foo', $keywords);
+		self::assertContains('0', $keywords);
+		self::assertContains('625', $keywords);
+		self::assertContains("[before script]alert(&#039;what&#039;);[after script]", $keywords);
+		self::assertContains('dah', $keywords);
 	}
 
-	/**
+    public function testConstructorDefaultValues()
+    {
+        $o = new KeywordSectionContentTestHarness();
+        self::assertNull($o->id->value);
+        self::assertNotNull($o->content_properties->id->value);
+        self::assertEquals('', $o->keyword_input->value);
+        self::assertEquals('kwText', $o->keyword_input->key);
+        self::assertFalse($o->keyword_input->is_database_field);
+        self::assertIsArray($o->keywords);
+        self::assertCount(0, $o->keywords);
+        self::assertFalse($o->hasKeywordData());
+    }
+
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    public function testConstructorPassedValues()
+    {
+        $o = new KeywordSectionContentTestHarness(83, 629);
+        self::assertEquals(83, $o->id->value);
+        self::assertEquals(629, $o->content_properties->id->value);
+        self::assertEquals('kwText', $o->keyword_input->key);
+    }
+
+    /**
 	 * @throws ContentValidationException
 	 * @throws NotImplementedException
      */
 	public function testDelete()
 	{
+        $o = new KeywordSectionContentTestHarness();
         // record id not provided
 		try {
-			$this->obj->delete();
+			$o->delete();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals('Id not provided.', $ex->getMessage());
+			self::assertEquals('Id not provided.', $ex->getMessage());
 		}
 
         // content type not provided
-		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
+		$o->id->value = self::TEST_PARENT_ID_FOR_DELETE;
 		try {
-			$this->obj->delete();
+			$o->delete();
 		}
 		catch(NotImplementedException $ex) {
-			$this->assertMatchesRegularExpression('/Table name not set./', $ex->getMessage());
+			self::assertMatchesRegularExpression('/Table name not set./', $ex->getMessage());
 		}
 	}
 
@@ -275,44 +276,45 @@ class KeywordSectionContentTest extends TestCase
 	 */
 	public function testDeleteKeywords()
 	{
+        $o = new KeywordSectionContentTestHarness();
         $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID);
 
         // Attempting to delete keywords without specifying their parent record or content type.
 		try {
-			$this->obj->deleteKeywords();
+			$o->deleteKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertMatchesRegularExpression("/A parent record was not provided/", $ex->getMessage());
+			self::assertMatchesRegularExpression("/A parent record was not provided/", $ex->getMessage());
 		}
 
         // Attempting to delete keywords without specifying a content type.
-		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
-		$this->obj->content_properties->id->value = null;
+		$o->id->value = self::TEST_PARENT_ID_FOR_DELETE;
+		$o->content_properties->id->value = null;
 		try {
-			$this->obj->deleteKeywords();
+			$o->deleteKeywords();
 		}
 		catch(Exception $ex) {
-			$this->assertMatchesRegularExpression("/A content type was not specified/", $ex->getMessage());
+			self::assertMatchesRegularExpression("/A content type was not specified/", $ex->getMessage());
 		}
 
         // Attempting to delete keyword while specifying content type but not parent record id
-		$this->obj->id->value = null;
-		$this->obj->content_properties->id->value = self::TEST_CONTENT_TYPE_ID;
+		$o->id->value = null;
+		$o->content_properties->id->value = self::TEST_CONTENT_TYPE_ID;
 		try {
-			$this->obj->deleteKeywords();
+			$o->deleteKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertMatchesRegularExpression("/A parent record was not provided/", $ex->getMessage());
+			self::assertMatchesRegularExpression("/A parent record was not provided/", $ex->getMessage());
 		}
 
         // Confirm that the object still retains keyword list after attempts to delete them fail.
-		$this->assertGreaterThan(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
+		self::assertGreaterThan(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
 
         // Confirm object's keyword list is empty after deleting keyword database records
-		$this->obj->id->value = self::TEST_PARENT_ID_FOR_DELETE;
-		$this->obj->content_properties->id->value = self::TEST_CONTENT_TYPE_ID;
-		$this->obj->deleteKeywords();
-		$this->assertEquals(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
+		$o->id->value = self::TEST_PARENT_ID_FOR_DELETE;
+		$o->content_properties->id->value = self::TEST_CONTENT_TYPE_ID;
+		$o->deleteKeywords();
+		self::assertEquals(0, $this->getKeywordCount(self::TEST_PARENT_ID_FOR_DELETE, self::TEST_CONTENT_TYPE_ID));
 	}
 
 	/**
@@ -322,20 +324,21 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function testFormatKeywordListFromObjectProperties()
 	{
-		$keywords = $this->obj->formatKeywordList(false);
-		$this->assertEquals("", $keywords);
+        $o = new KeywordSectionContentTestHarness();
+		$keywords = $o->formatKeywordList(false);
+		self::assertEquals("", $keywords);
 
-		$this->obj->keywords[] = new Keyword('foo',
+		$o->keywords[] = new Keyword('foo',
             self::TEST_PARENT_ID_FOR_DELETE,
             self::TEST_CONTENT_TYPE_ID);
-		$this->obj->keywords[] = new Keyword('biz bash',
+		$o->keywords[] = new Keyword('biz bash',
             self::TEST_PARENT_ID_FOR_DELETE,
             self::TEST_CONTENT_TYPE_ID);
-		$this->obj->keywords[] = new Keyword('6425',
+		$o->keywords[] = new Keyword('6425',
             self::TEST_PARENT_ID_FOR_DELETE,
             self::TEST_CONTENT_TYPE_ID);
-		$keywords = $this->obj->formatKeywordList(false);
-		$this->assertEquals("foo, biz bash, 6425", $keywords);
+		$keywords = $o->formatKeywordList(false);
+		self::assertEquals("foo, biz bash, 6425", $keywords);
 	}
 
 	/**
@@ -345,27 +348,28 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function testFormatKeywordListFromDatabase()
 	{
+        $o = new KeywordSectionContentTestHarness();
 		try {
-			$this->obj->formatKeywordList();
+			$o->formatKeywordList();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertMatchesRegularExpression("/could not perform operation.*parent record .*not provided/i", $ex->getMessage());
+			self::assertMatchesRegularExpression("/could not perform operation.*parent record .*not provided/i", $ex->getMessage());
 		}
 
-		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+		$o->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
 		try {
-			$this->obj->formatKeywordList();
+			$o->formatKeywordList();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Could not perform operation. Content type not specified.", $ex->getMessage());
+			self::assertEquals("Could not perform operation. Content type not specified.", $ex->getMessage());
 		}
 
-		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ+1);
-		$this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
-		$this->assertEquals("", $this->obj->formatKeywordList());
+		$o->id->setInputValue(self::TEST_PARENT_ID_FOR_READ+1);
+		$o->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+		self::assertEquals("", $o->formatKeywordList());
 
-		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
-		$this->assertEquals("test read 1, testread3, test_read_2", $this->obj->formatKeywordList());
+		$o->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+		self::assertEquals("test read 1, test-read3, test_read_2", $o->formatKeywordList());
 	}
 
     /**
@@ -378,43 +382,20 @@ class KeywordSectionContentTest extends TestCase
         $o = new KeywordSectionContentTestHarness();
         $o->setRecordId(889988);
         $terms = $o->getKeywordTermsArray();
-        $this->assertGreaterThan(0, count($terms));
-        $this->assertMatchesRegularExpression('/test/i', $terms[0]);
+        self::assertGreaterThan(0, count($terms));
+        self::assertMatchesRegularExpression('/test/i', $terms[0]);
     }
 
     /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\SiteSection\KeywordSectionContentTestDataProvider::hasKeywordDataTestProvider()
+     * @param KeywordSectionContentTestData $data
      * @return void
-     * @throws Exception
      */
-	public function testHasKeywordData()
+	public function testHasKeywordData(KeywordSectionContentTestData $data)
 	{
-		$this->assertFalse($this->obj->hasKeywordData());
-
-		$this->obj->keyword_input->setInputValue('a');
-		$this->assertTrue($this->obj->hasKeywordData());
-
-		$this->obj->keyword_input->setInputValue('0');
-		$this->assertTrue($this->obj->hasKeywordData());
-
-		$this->obj->keyword_input->setInputValue(' first, second,,third, last ');
-		$this->assertTrue($this->obj->hasKeywordData());
-
-		$this->obj->keyword_input->setInputValue(null);
-		$this->assertFalse($this->obj->hasKeywordData());
-
-        $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
-        $this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
-        $this->obj->addKeyword('a');
-        $this->assertTrue($this->obj->hasKeywordData());
-
-		$this->obj->keywords[0]->term->setInputValue('');
-		$this->assertFalse($this->obj->hasKeywordData());
-
-		$this->obj->keywords[] = new Keyword('test keyword', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ);
-		$this->assertTrue($this->obj->hasKeywordData());
-
-		$this->obj->keywords[] = new Keyword(' spaced  ', self::TEST_CONTENT_TYPE_ID, self::TEST_PARENT_ID_FOR_READ);
-		$this->assertTrue($this->obj->hasKeywordData());
+        $o = new KeywordSectionContentTestHarness();
+        $data->copy($o);
+        self::assertEquals($data->expected, $o->hasKeywordData());
 	}
 
     /**
@@ -424,19 +405,19 @@ class KeywordSectionContentTest extends TestCase
      * @throws NotImplementedException
      * @throws ConfigurationUndefinedException
      */
-    function testRead()
+    public function testRead()
     {
         $o = new KeywordTestTableTestHarness();
-        $o->setRecordId(self::TEST_PARENT_ID_FOR_READ);
+        $o->setRecordId(KeywordTestTableTestHarness::EXISTING_PARENT_ID);
         $o->read();
 
         // confirm that keywords are retrieved from the database when retrieving record data
-        $this->assertGreaterThan(0, $o->keywords);
+        self::assertGreaterThan(0, $o->keywords);
 
         // confirm that the keyword_input property value contains the keyword terms retrieved from the database
-        $this->assertNotEmpty($o->keyword_input->value);
+        self::assertNotEmpty($o->keyword_input->value);
         foreach($o->keywords as $keyword) {
-            $this->assertStringContainsString($keyword->term->value, $o->keyword_input->value);
+            self::assertStringContainsString($keyword->term->value, $o->keyword_input->value);
         }
     }
 
@@ -447,23 +428,24 @@ class KeywordSectionContentTest extends TestCase
 	 */
 	public function testSave()
 	{
+        $o = new KeywordSectionContentTestHarness();
 		try {
-			$this->obj->save();
+			$o->save();
 		}
 		catch (Exception $e) {
-			$this->assertInstanceOf(NotImplementedException::class, $e);
-			$this->assertMatchesRegularExpression("/table name not set/i", $e->getMessage());
+			self::assertInstanceOf(NotImplementedException::class, $e);
+			self::assertMatchesRegularExpression("/table name not set/i", $e->getMessage());
 		}
 
-		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+		$o->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
 		try {
-			$this->obj->save();
+			$o->save();
 		}
 		catch (NotImplementedException $ex) {
-			$this->assertMatchesRegularExpression("/table name not set/i", $ex->getMessage());
+			self::assertMatchesRegularExpression("/table name not set/i", $ex->getMessage());
 		}
         catch(ContentValidationException $ex) {
-            $this->assertMatchesRegularExpression('/content type was not specified/i', $ex->getMessage());
+            self::assertMatchesRegularExpression('/content type was not specified/i', $ex->getMessage());
         }
     }
 
@@ -473,42 +455,43 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function testSaveKeywords()
 	{
+        $o = new KeywordSectionContentTestHarness();
 		try {
-			$this->obj->saveKeywords();
+			$o->saveKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertMatchesRegularExpression("/could not serialize keyword/i", $ex->getMessage());
-			$this->assertMatchesRegularExpression("/parent record.* not provided/i", $ex->getMessage());
+			self::assertMatchesRegularExpression("/could not serialize keyword/i", $ex->getMessage());
+			self::assertMatchesRegularExpression("/parent record.* not provided/i", $ex->getMessage());
 		}
 
-		$this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
+		$o->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
 		try {
-			$this->obj->saveKeywords();
+			$o->saveKeywords();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertMatchesRegularExpression("/content type was not specified/i", $ex->getMessage());
+			self::assertMatchesRegularExpression("/content type was not specified/i", $ex->getMessage());
 		}
 
 		/* test it silently skips over saving if there are no terms to save */
-		$this->obj->content_properties->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
-		$this->obj->saveKeywords();
+		$o->content_properties->id->setInputValue(self::TEST_PARENT_ID_FOR_DELETE);
+		$o->saveKeywords();
 
-		$this->assertCount(0, $this->obj->keywords);
+		self::assertCount(0, $o->keywords);
 
-		$this->obj->addKeyword('test new term');
+		$o->addKeyword('test new term');
 
-        $this->obj->saveKeywords();
+        $o->saveKeywords();
     }
 
     function testSetKeywordKey()
     {
         $o = new KeywordSectionContentTestHarness();
-        $this->assertEquals('kw', $o->getKeywordKey());
-        $this->assertEquals('kwText', $o->keyword_input->key);
+        self::assertEquals('kw', $o->getKeywordKey());
+        self::assertEquals('kwText', $o->keyword_input->key);
 
         $c = new KeywordSectionContentNonDefaultKey();
-        $this->assertEquals('ckw', $c->getKeywordKey());
-        $this->assertEquals('ckwText', $c->keyword_input->key);
+        self::assertEquals('ckw', $c->getKeywordKey());
+        self::assertEquals('ckwText', $c->keyword_input->key);
     }
 
     /**
@@ -517,29 +500,30 @@ class KeywordSectionContentTest extends TestCase
      */
 	public function testValidateInput()
 	{
+        $o = new KeywordSectionContentTestHarness();
 		try {
-			$this->obj->validateInput();
+			$o->validateInput();
 		}
 		catch(ContentValidationException $ex) {
-			$this->assertEquals("Errors were found in the content.", $ex->getMessage());
-			$this->assertGreaterThan(0, count($this->obj->validationErrors()));
+			self::assertEquals("Errors were found in the content.", $ex->getMessage());
+			self::assertGreaterThan(0, count($o->validationErrors()));
 		}
 
-        $this->obj->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
-		$this->obj->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
-        $this->obj->content_properties->read();
-        $this->obj->validateInput();
-		$this->assertCount(0, $this->obj->validationErrors());
+        $o->id->setInputValue(self::TEST_PARENT_ID_FOR_READ);
+		$o->content_properties->id->setInputValue(self::TEST_CONTENT_TYPE_ID);
+        $o->content_properties->read();
+        $o->validateInput();
+		self::assertCount(0, $o->validationErrors());
 
-		$this->obj->addKeyword('test');
-		$this->obj->keywords[0]->term->value = '';
+		$o->addKeyword('test');
+		$o->keywords[0]->term->value = '';
 		try {
-		    $this->obj->validateInput();
+		    $o->validateInput();
         }
         catch(ContentValidationException $ex) {
 			$expected_err = "Keyword is required.";
-		    $this->assertEquals($this->obj->validation_message, $ex->getMessage());
-		    $this->assertContains($expected_err, $this->obj->validationErrors());
+		    self::assertEquals($o->validation_message, $ex->getMessage());
+		    self::assertContains($expected_err, $o->validationErrors());
         }
 	}
 }

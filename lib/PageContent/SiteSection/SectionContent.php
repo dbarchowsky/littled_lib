@@ -5,6 +5,8 @@ namespace Littled\PageContent\SiteSection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -92,22 +94,24 @@ abstract class SectionContent extends SerializedContent
 	}
 
 	/**
-     * Content label getter.
+     * Content label getter. Will attempt to return the content name value if the content label value is not set.
+     * @return string
+     */
+    public function getContentLabel(): string
+    {
+        return (trim(''.$this->content_properties->label->value) ?
+            $this->content_properties->label->value :
+            $this->content_properties->name->value);
+    }
+
+    /**
+     * Content label getter. Returns only the content label value.
      * @return string
      */
     public function getLabel(): string
     {
         return $this->content_properties->label->value;
     }
-
-	/**
-	 * Content label getter.
-	 * @return string
-	 */
-	public function getContentLabel(): string
-	{
-		return $this->content_properties->getContentLabel();
-	}
 
 	/**
 	 * Returns the path to the "listings" template for this type of content.
@@ -131,13 +135,15 @@ abstract class SectionContent extends SerializedContent
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
 	 * @throws RecordNotFoundException
 	 * @throws NotImplementedException
 	 */
 	public function read()
 	{
-		parent::read();
-		$this->retrieveSectionProperties();
+        parent::read();
+        $this->retrieveSectionProperties();
 	}
 
 	/**
@@ -162,10 +168,11 @@ abstract class SectionContent extends SerializedContent
 
 	/**
 	 * Retrieves site section properties and stores that data in object properties.
-=	 * @throws ConfigurationUndefinedException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
 	 * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
@@ -174,14 +181,16 @@ abstract class SectionContent extends SerializedContent
 		if ($this->content_properties->id->value===null || $this->content_properties->id->value < 1) {
 			$this->content_properties->id->value = static::getContentTypeId();
 		}
-		$this->content_properties->read();
-	}
+        $this->content_properties->read();
+    }
 
 	/**
 	 * @throws ContentValidationException
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
-	 * @throws NotImplementedException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
 	 */
 	public function save()

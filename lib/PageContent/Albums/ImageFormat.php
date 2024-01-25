@@ -67,6 +67,12 @@ class ImageFormat extends SerializedContent
             &$this->path->value);
     }
 
+    public function getContentLabel(): string
+    {
+        /* replace this with content properties value when this class gets refactored. */
+        return 'Image format';
+    }
+
     /**
      * Section name getter.
      * @return string

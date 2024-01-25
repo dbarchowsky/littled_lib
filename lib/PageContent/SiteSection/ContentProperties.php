@@ -104,7 +104,7 @@ class ContentProperties extends SerializedContent
 
     public function generateUpdateQuery(): ?array
     {
-        return array('CALL siteSectionUpdate(@record_id,?,?,?,?,?,?,?,?,?,?)',
+        return array('CALL siteSectionUpdate(@insert_id,?,?,?,?,?,?,?,?,?,?)',
             'ssssssiiii',
             &$this->name->value,
 	        &$this->label->value,
@@ -155,7 +155,7 @@ class ContentProperties extends SerializedContent
 		return $this->label->value ?: $this->name->value;
 	}
 
-	/**
+    /**
 	 * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
 	 * @return ?int Record id of parent record.
 	 * @throws InvalidQueryException|Exception

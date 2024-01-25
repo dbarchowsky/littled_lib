@@ -37,12 +37,13 @@ class SerializedContentIOTestHarness extends SerializedContentIO
     public function generateUpdateQuery(): ?array
     {
         /* stub */
+        return [];
     }
 
     /**
      * @inheritDoc
      */
-    function getLabel(): string
+    function getContentLabel(): string
     {
         return ('Test serialized content');
     }

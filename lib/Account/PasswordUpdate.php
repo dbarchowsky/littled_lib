@@ -85,7 +85,7 @@ class PasswordUpdate extends UserAccount
 		}
 	}
 
-    function getLabel(): string
+    function getContentLabel(): string
     {
         // TODO: Implement getLabel() method.
         return '';

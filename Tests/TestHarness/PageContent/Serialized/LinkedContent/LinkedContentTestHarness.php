@@ -3,6 +3,9 @@
 namespace LittledTests\TestHarness\PageContent\Serialized\LinkedContent;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\PageContent\Serialized\LinkedContent;
 use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerTextField;
@@ -48,7 +51,7 @@ class LinkedContentTestHarness extends LinkedContent
         return parent::containsLinkId($link_id);
     }
 
-    public function getLabel(): string
+    public function getContentLabel(): string
     {
         return ("Test linked content");
     }
@@ -66,16 +69,15 @@ class LinkedContentTestHarness extends LinkedContent
      */
     protected function createProcedures()
     {
-        $query = 'DELIMITER $$ '.
-            'CREATE OR UPDATE PROCEDURE `linkedParent2ListingsSelect` ('.
+        $query = 'CREATE OR REPLACE PROCEDURE `linkedParent2ListingsSelect` ('.
             'IN p_parent1_id INT ) '.
             'BEGIN '.
             'SELECT l.parent2_id, '.
             '    p2.name '.
-            'FROM link_test l '.
-            'INNER JOIN test_parent2 p2 ON l.parent2_id = p2.id '.
+            'FROM `test_link` l '.
+            'INNER JOIN `test_parent2` p2 ON l.parent2_id = p2.id '.
             'WHERE l.parent1_id = p_parent1_id; '.
-            'END $$';
+            'END';
         $this->query($query);
     }
 
@@ -102,6 +104,16 @@ class LinkedContentTestHarness extends LinkedContent
         foreach($queries as $query) {
             $this->query($query);
         }
+    }
+
+    /**
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     */
+    protected function dropProcedures()
+    {
+        $this->query('DROP PROCEDURE `linkedParent2ListingsSelect`');
     }
 
     /**
@@ -181,6 +193,7 @@ class LinkedContentTestHarness extends LinkedContent
     {
         $this->createTestTables();
         $this->insertTestData();
+        $this->createProcedures();
     }
 
     /**
@@ -189,5 +202,6 @@ class LinkedContentTestHarness extends LinkedContent
     public function tearDownTestData()
     {
         $this->dropTestTables();
+        $this->dropProcedures();
     }
 }

@@ -1,6 +1,8 @@
 <?php
 namespace LittledTests\DataProvider\PageContent\Serialized;
 
+use Littled\Exception\InvalidQueryException;
+
 class SerializedContentTestDataProvider
 {
     public static function formatDatabaseColumnListBooleanValuesTestProvider(): array
@@ -71,6 +73,18 @@ class SerializedContentTestDataProvider
             array('one', 'one'),
             array('1', 1),
             array('0', 0),
+        );
+    }
+
+    public static function updateIdAfterCommitTestDataProvider(): array
+    {
+        return array(
+            [InvalidQueryException::class, null, 'UPD'.'ATE `my_table` SET id = ?'],
+            [InvalidQueryException::class, 5642, 'UPD'.'ATE `my_table` SET id = ?'],
+            [InvalidQueryException::class, null, 'INS'.'ERT INTO `my_table` (`code`, `name`) VALUES (?,?))'],
+            [InvalidQueryException::class, 5685, 'INS'.'ERT INTO `my_table` (`code`, `name`) VALUES (?,?))'],
+            [InvalidQueryException::class, null, 'ins'.'ert into `my_table` (`code`, `name`) values (?,?))'],
+            [InvalidQueryException::class, 5685, 'ins'.'ert into `my_table` (`code`, `name`) values (?,?))'],
         );
     }
 }

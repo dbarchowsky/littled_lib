@@ -4,7 +4,7 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Request\RequestInput;
@@ -47,15 +47,15 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Execute query that commits data stored in object instance to the database.
      * @param string $query Query string to execute
-     * @param string $types String describing parameter types, passed to mysqli prepared statement.
-     * @param mixed $vars,... Variables to insert into the query
-     * @throws ConfigurationUndefinedException|ConnectionException
+     * @param string $arg_types String describing parameter types, passed to mysqli prepared statement.
+     * @param mixed $args,... Variables to insert into the query
+     * @throws ConfigurationUndefinedException|ConnectionException|InvalidQueryException
      */
-    protected function commitSaveQuery(string $query, string $types='', ...$vars)
+    protected function commitSaveQuery(string $query, string $arg_types='', ...$args)
     {
         $this->connectToDatabase();
-        array_unshift($vars, $query, $types);
-        call_user_func_array([$this, 'query'], $vars);
+        array_unshift($args, $query, $arg_types);
+        $this->query(...$args);
     }
 
     /**
@@ -90,7 +90,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      */
     public function getInlineLabel(bool $make_plural=false): string
     {
-        return strtolower($make_plural ? static::makePlural($this->getLabel()) : $this->getLabel());
+        return strtolower($make_plural ? static::makePlural($this->getContentLabel()) : $this->getContentLabel());
     }
 
     /**
@@ -98,7 +98,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * object records.
      * @return string
      */
-    abstract function getLabel(): string;
+    abstract function getContentLabel(): string;
 
     /**
      * Table name getter.

@@ -11,11 +11,11 @@ class KeywordTestHarness extends SerializedContent
     /** @var string */
     protected static string $table_name='keyword';
     /** @var StringInput */
-    public $term;
+    public StringInput $term;
     /** @var IntegerInput */
-    public $parent_id;
+    public IntegerInput $parent_id;
     /** @var IntegerInput */
-    public $type_id;
+    public IntegerInput $type_id;
 
     /**
      * Class constructor.
@@ -28,8 +28,8 @@ class KeywordTestHarness extends SerializedContent
     {
         parent::__construct($id);
         $this->term = new StringInput('term', 'kwTerm', false, $term, 50);
-        $this->parent_id = new IntegerInput('parent id', 'kwpid', false, $parent_id);
-        $this->type_id = new IntegerInput('type id', 'kwtid', false, $parent_id);
+        $this->parent_id = new IntegerInput('parent id', 'kwPid', false, $parent_id);
+        $this->type_id = new IntegerInput('type id', 'kwTid', false, $type_id);
     }
 
     public function generateUpdateQuery(): ?array
@@ -38,5 +38,11 @@ class KeywordTestHarness extends SerializedContent
          * Implement abstract method not referenced for unit test purposes.
          */
         return array();
+    }
+
+    function getContentLabel(): string
+    {
+        /* stub */
+        return 'Keyword test harness';
     }
 }

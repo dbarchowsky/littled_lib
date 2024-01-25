@@ -5,6 +5,7 @@ namespace LittledTests\TestHarness\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanInput;
@@ -71,6 +72,9 @@ class TestTableSerializedContentTestHarness extends SerializedContent
 	}
 
 	/**
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
 	 * @throws RecordNotFoundException
 	 */
 	public function hydrateFromQueryPublic(string $query, string $types='', &...$vars)
@@ -80,7 +84,13 @@ class TestTableSerializedContentTestHarness extends SerializedContent
 			call_user_func_array([$this, 'hydrateFromQuery'], $vars);
 		}
 		else {
-			$this->hydrateFromQuery($query, $types, $vars);
-		}
+            $this->hydrateFromQuery($query, $types, $vars);
+        }
 	}
+
+    function getContentLabel(): string
+    {
+        /* stub */
+        return 'Test table serialized content test harness';
+    }
 }
