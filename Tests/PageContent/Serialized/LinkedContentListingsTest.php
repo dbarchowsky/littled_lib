@@ -10,6 +10,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotInitializedException;
 use LittledTests\TestHarness\PageContent\Serialized\LinkedContent\LinkedContentTestHarness;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use TypeError;
 
 class LinkedContentListingsTest extends TestCase
@@ -64,6 +65,31 @@ class LinkedContentListingsTest extends TestCase
         $o->fetchLinkedListings();
         $listings_data = $o->listingsData();
         self::assertGreaterThan(0, count($listings_data));
+
+        $listings_id = [];
+        $id_property = $o->lookupIdPropertyName_public($listings_data[0]);
+        foreach($listings_data as $row) {
+            $listings_id[] = $row->$id_property;
+        }
+        self::assertEqualsCanonicalizing($listings_id, $o->link_id->value);
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\LinkedContentListingsTestDataProvider::fillLinkInputFromListingsDataTestProvider()
+     * @param array $expected
+     * @param array $listings_data
+     * @return void
+     * @throws InvalidValueException
+     */
+    public function testFillLinkInputFromListingsData(array $expected, array $listings_data)
+    {
+        $o = new LinkedContentTestHarness();
+        $o->listings_data = $listings_data;
+        if (count($expected)===0) {
+            self::expectException(InvalidValueException::class);
+        }
+        $o->fillLinkInputFromListingsData_public();
+        self::assertEqualsCanonicalizing($expected, $o->link_id->value);
     }
 
     /**
@@ -119,6 +145,18 @@ class LinkedContentListingsTest extends TestCase
         $o = (new LinkedContentTestHarness())->setPrimaryId(LinkedContentTestHarness::EXISTING_LINK_IDS['parent1']);
         self::expectException(NotInitializedException::class);
         $o->listingsData();
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\Serialized\LinkedContentListingsTestDataProvider::lookupIdPropertyNameTestProvider()
+     * @param string $expected
+     * @param stdClass $o
+     * @return void
+     */
+    public function testLookupIdPropertyName(string $expected, stdClass $o)
+    {
+        $lc = new LinkedContentTestHarness();
+        self::assertEquals($expected, $lc->lookupIdPropertyName_public($o));
     }
 
     /**

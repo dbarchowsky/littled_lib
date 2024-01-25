@@ -6,11 +6,13 @@ namespace LittledTests\TestHarness\PageContent\Serialized\LinkedContent;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\PageContent\Serialized\LinkedContent;
 use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerTextField;
 use Littled\Request\StringTextField;
 use Exception;
+use stdClass;
 
 class LinkedContentTestHarness extends LinkedContent
 {
@@ -52,6 +54,16 @@ class LinkedContentTestHarness extends LinkedContent
         return parent::containsLinkId($link_id);
     }
 
+    /**
+     * Public interface for testing purposes.
+     * @return void
+     * @throws InvalidValueException
+     */
+    public function fillLinkInputFromListingsData_public()
+    {
+        parent::fillLinkInputFromListingsData();
+    }
+
     public function getContentLabel(): string
     {
         return ("Test linked content");
@@ -74,6 +86,16 @@ class LinkedContentTestHarness extends LinkedContent
             'CALL linkedParent2ListingsSelect(?,?)',
             static::mergeArgTypeStrings('i', $arg_types),
             static::mergeArgLists([$this->primary_id->value], $args)];
+    }
+
+    /**
+     * Public interface for testing purposes.
+     * @param stdClass $o
+     * @return string
+     */
+    public function lookupIdPropertyName_public(stdClass $o): string
+    {
+        return parent::lookupIdPropertyName($o);
     }
 
     /**

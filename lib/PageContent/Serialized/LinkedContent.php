@@ -16,6 +16,7 @@ use Littled\Request\ForeignKeyInput;
 use Littled\Request\IntegerInput;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
+use stdClass;
 
 abstract class LinkedContent extends SerializedContentIO
 {
@@ -178,6 +179,26 @@ abstract class LinkedContent extends SerializedContentIO
             $err_msg .= (LittledGlobals::showVerboseErrors() ? " \n".$e->getMessage() : '');
             throw new InvalidQueryException($err_msg);
         }
+        $this->fillLinkInputFromListingsData();
+    }
+
+    /**
+     * Uses object's internal listings data property to assign values to the link_id input property.
+     * @return void
+     * @throws InvalidValueException
+     */
+    protected function fillLinkInputFromListingsData()
+    {
+        $this->link_id->value = [];
+        if (isset($this->listings_data) && count($this->listings_data) > 0) {
+            $id_property = $this->lookupIdPropertyName($this->listings_data[0]);
+            if ($id_property==='') {
+                throw new InvalidValueException('Id property could not be determined.');
+            }
+            foreach($this->listings_data as $item) {
+                $this->link_id->value[] = $item->$id_property;
+            }
+        }
     }
 
     /**
@@ -263,6 +284,22 @@ abstract class LinkedContent extends SerializedContentIO
         $arg_types = $arg_types.substr($arg_types,2);
         array_unshift($args, $query, $arg_types);
         return $args;
+    }
+
+    /**
+     * Confirm the id property of an object, typically an object representing a row returned from a database query.
+     * @param stdClass $o Instance to search
+     * @return string Name of the object's id property.
+     */
+    protected function lookupIdPropertyName(stdClass $o): string
+    {
+        $options = ['id', $this->link_id->getColumnName('link_id')];
+        foreach($options as $option) {
+            if (property_exists($o, $option)) {
+                return $option;
+            }
+        }
+        return '';
     }
 
     /**
