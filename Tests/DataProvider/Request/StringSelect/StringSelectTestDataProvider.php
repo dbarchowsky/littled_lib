@@ -40,12 +40,18 @@ class StringSelectTestDataProvider
 				StringSelectTestData::TEST_OPTIONS,
 				'', 'my-special-class')],
 			[new StringSelectTestData(
-				'/<div class=\"form-cell\">(.|\n)*<label(.|\n)*<select.*multiple=\"multiple\"/',
-				new StringSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
+				'/<'.'div class=\"form-cell\">(.|\n)*'.
+                '<'.'label for=\"'.SelectTestData::TEST_KEY.'\[\]\"(.|\n)*<select.*multiple=\"multiple\"/',
+				(new StringSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY))
+                    ->setAllowMultiple(true),
 				StringSelectTestData::TEST_OPTIONS,
-				'', '', true)],
+				'', '')],
 			[new StringSelectTestData(
-				'/<div class=\"form-cell\">(.|\n)*<label(.|\n)*<select.*multiple=\"multiple\" size=\"5\"(.|\n)*<option value=\"2\">option two<\/option>(.|\n)*<\/select>\n/',
+				'/<'.'div class=\"form-cell\">(.|\n)*'.
+                '<'.'label(.|\n)*'.
+                '<'.'select name=\"'.SelectTestData::TEST_KEY.'\[\]\" id=\"'.SelectTestData::TEST_KEY.'\[\]\" .*'.
+                'multiple=\"multiple\" size=\"5\"(.|\n)*'.
+                '<'.'option value=\"2\">option two<\/option>(.|\n)*<\/select>\n/',
 				new StringSelect(SelectTestData::TEST_LABEL, SelectTestData::TEST_KEY),
 				StringSelectTestData::TEST_OPTIONS,
 				'', '', true, 5)],
