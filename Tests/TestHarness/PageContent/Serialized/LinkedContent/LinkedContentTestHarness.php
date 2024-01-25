@@ -23,6 +23,7 @@ class LinkedContentTestHarness extends LinkedContent
     public const CREATE_LINK_IDS = ['parent1' => 3, 'parent2' => 15];
     public const EXISTING_LINK_IDS = ['parent1' => 2, 'parent2' => 13, 'label' => 'my label'];
     public const NONEXISTENT_LINK_IDS = ['parent1' => 8, 'parent2' => 88];
+    public const MATCHING_NAME_FILTER = 'bash';
 
 
     public function __construct()
@@ -59,9 +60,20 @@ class LinkedContentTestHarness extends LinkedContent
     /**
      * @inheritDoc
      */
-    public function generateListingsPreparedStmt(): array
+    public function generateListingsPreparedStmt(string $arg_types='', ...$args): array
     {
-        return ['CALL linkedParent2ListingsSelect(?)', 'i', $this->primary_id->value];
+        /* this is just for testing purposes, allowing the routine to be called with or without default values */
+        if ($arg_types==='') {
+            $arg_types = 's';
+        }
+        if (!$args) {
+            $args = [''];
+        }
+
+        return [
+            'CALL linkedParent2ListingsSelect(?,?)',
+            static::mergeArgTypeStrings('i', $arg_types),
+            static::mergeArgLists([$this->primary_id->value], $args)];
     }
 
     /**
@@ -70,13 +82,16 @@ class LinkedContentTestHarness extends LinkedContent
     protected function createProcedures()
     {
         $query = 'CREATE OR REPLACE PROCEDURE `linkedParent2ListingsSelect` ('.
-            'IN p_parent1_id INT ) '.
+            'IN p_parent1_id INT, '.
+            'IN p_name_filter VARCHAR(50)) '.
             'BEGIN '.
+            'SET @name_filter = udfAddWildcards(p_name_filter); '.
             'SELECT l.parent2_id, '.
             '    p2.name '.
             'FROM `test_link` l '.
             'INNER JOIN `test_parent2` p2 ON l.parent2_id = p2.id '.
-            'WHERE l.parent1_id = p_parent1_id; '.
+            'WHERE l.parent1_id = p_parent1_id '.
+            'AND (@name_filter = \'\' OR p2.name LIKE @name_filter); '.
             'END';
         $this->query($query);
     }
@@ -184,6 +199,28 @@ class LinkedContentTestHarness extends LinkedContent
         foreach($queries as $query) {
             $this->query($query);
         }
+    }
+
+    /**
+     * Public interface for testing purposes.
+     * @param array $base
+     * @param ?array $args
+     * @return array
+     */
+    public static function mergeArgLists_public(array $base, ?array $args): array
+    {
+        return parent::mergeArgLists($base, $args);
+    }
+
+    /**
+     * Public interface for testing purposes.
+     * @param string $base
+     * @param ?string $arg_types
+     * @return string
+     */
+    public static function mergeArgTypeStrings_public(string $base, ?string $arg_types): string
+    {
+        return parent::mergeArgTypeStrings($base, $arg_types);
     }
 
     /**

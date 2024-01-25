@@ -147,10 +147,15 @@ abstract class LinkedContent extends SerializedContentIO
     }
 
     /**
+     * Executes query defined in generateListingsPreparedStmt() and stores results in $listings_data property.
+     * The listings data can subsequently be retrieved with the object's listingsData() method.
+     * @param string $arg_types (optional) Argument types string allowing additional variables to be passed to the
+     * prepared statement.
+     * @param mixed $args,... List of additional variables to pass to the prepared statement.
      * @throws InvalidValueException
      * @throws InvalidQueryException
      */
-    public function fetchLinkedListings()
+    public function fetchLinkedListings(string $arg_types='', ...$args)
     {
         if (!$this->primary_id->hasData()) {
             $err_msg = 'The '.strtolower($this->primary_id->label).' was not provided '.
@@ -158,9 +163,14 @@ abstract class LinkedContent extends SerializedContentIO
             throw new InvalidValueException($err_msg);
         }
         try {
-            $ps = $this->generateListingsPreparedStmt();
+            $ps = $this->generateListingsPreparedStmt($arg_types, ...$args);
             if ($ps) {
-                $this->listings_data = $this->fetchRecords(...$ps);
+                if (count($ps) > 2) {
+                    $this->listings_data = $this->fetchRecords($ps[0], $ps[1], ...$ps[2]);
+                }
+                else {
+                    $this->listings_data = $this->fetchRecords($ps[0]);
+                }
             }
         }
         catch (Exception $e) {
@@ -191,9 +201,12 @@ abstract class LinkedContent extends SerializedContentIO
 
     /**
      * Returns mysql prepared statement, type string, and arguments that can be used to retrieve linked record listings.
+     * @param string $arg_types (optional) Argument types string allowing additional variables to be passed to the
+     * prepared statement.
+     * @param mixed $args,... List of additional variables to pass to the prepared statement.
      * @return array
      */
-    abstract public function generateListingsPreparedStmt(): array;
+    abstract public function generateListingsPreparedStmt(string $arg_types='', ...$args): array;
 
     /**
      * @inheritDoc
@@ -296,6 +309,29 @@ abstract class LinkedContent extends SerializedContentIO
                 'Attempt to access '.$this->getContentLabel().' listings data before it has been retrieved.');
         }
         return $this->listings_data;
+    }
+
+    /**
+     * Combines two prepared statement argument lists.
+     * @param array $base
+     * @param ?array $args
+     * @return array
+     */
+    protected static function mergeArgLists(array $base, ?array $args): array
+    {
+        $args ??= [];
+        return array_merge($base, $args);
+    }
+
+    /**
+     * Combines two prepared statement argument type strings.
+     * @param string $base
+     * @param ?string $arg_types
+     * @return string
+     */
+    protected static function mergeArgTypeStrings(string $base, ?string $arg_types): string
+    {
+        return $base.$arg_types;
     }
 
     /**

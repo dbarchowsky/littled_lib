@@ -7,7 +7,7 @@ use Littled\PageContent\Serialized\LinkedContent;
 
 class LinkedContentUninitializedTestHarness extends LinkedContent
 {
-    public function generateListingsPreparedStmt(): array
+    public function generateListingsPreparedStmt(string $arg_types = '', ...$args): array
     {
         /* stub */
         return [];

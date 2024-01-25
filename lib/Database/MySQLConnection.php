@@ -154,7 +154,7 @@ class MySQLConnection extends AppBase
      * Returns associative array retrieved with database query.
      * @param string $query SQL query to execute
      * @param string $types
-     * @param &...$vars
+     * @param mixed $vars,...
      * @return array Array of generic objects holding the data returned by the query.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -185,8 +185,8 @@ class MySQLConnection extends AppBase
 	 * the execution of the query. Use fetchRecordsNonExhaustive() to return only the first result.
 	 * @param string $query SQL query to execute
      * @param string $types
-     * @param &...$vars
-	 * @return array Array of generic objects holding the data returned by the query.
+     * @param mixed $vars,...
+     * @return array Array of generic objects holding the data returned by the query.
      * @throws ConfigurationUndefinedException|ConnectionException|InvalidQueryException
 	 */
 	public function fetchRecords(string $query, string $types='', &...$vars): array
@@ -210,7 +210,7 @@ class MySQLConnection extends AppBase
      * Returns mysqli_result object containing data matching query.
      * @param string $query
      * @param string $types
-     * @param &...$vars
+     * @param mixed $vars,...
      * @return mysqli_result
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
