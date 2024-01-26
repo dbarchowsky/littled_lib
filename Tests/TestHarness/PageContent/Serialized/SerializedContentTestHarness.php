@@ -15,7 +15,7 @@ class SerializedContentTestHarness extends SerializedContent
 {
     protected static string $table_name = 'test_table';
 
-	/**
+    /**
      * @inheritDoc
      */
     public function generateUpdateQuery(): ?array

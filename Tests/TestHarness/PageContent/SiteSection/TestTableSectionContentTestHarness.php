@@ -1,4 +1,5 @@
 <?php
+
 namespace LittledTests\TestHarness\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
@@ -12,14 +13,13 @@ use Littled\Request\StringInput;
 class TestTableSectionContentTestHarness extends parentAlias
 {
     public const                ID_KEY = 'testId';
-	protected static int        $content_type_id = 6037;
-	protected static string     $table_name = 'test_table';
-
-    public StringInput          $name;
-    public IntegerInput         $int_col;
-    public BooleanInput         $bool_col;
-    public DateInput            $date;
-    public IntegerInput         $slot;
+    protected static int $content_type_id = 6037;
+    protected static string $table_name = 'test_table';
+    public StringInput $name;
+    public IntegerInput $int_col;
+    public BooleanInput $bool_col;
+    public DateInput $date;
+    public IntegerInput $slot;
 
     /**
      * Class constructor.
@@ -32,17 +32,17 @@ class TestTableSectionContentTestHarness extends parentAlias
      * @throws ConfigurationUndefinedException
      */
     public function __construct(
-        ?int $id = null,
-        string $name='',
-        ?int $int_col=null,
-        ?bool $bool_col=null,
-        ?string $date=null,
-        ?int $slot=null)
+        ?int    $id = null,
+        string  $name = '',
+        ?int    $int_col = null,
+        ?bool   $bool_col = null,
+        ?string $date = null,
+        ?int    $slot = null)
     {
         parent::__construct($id);
         $this->name = new StringInput('Name', 'name', false, $name, 50);
-        $this->int_col = new IntegerInput('Integer column', 'intCol', false, $int_col);
         $this->bool_col = new BooleanInput('Boolean column', 'boolCol', false, $bool_col);
+        $this->int_col = new IntegerInput('Integer column', 'intCol', false, $int_col);
         $this->date = new DateInput('Date', 'Date column', false, $date);
         $this->slot = new IntegerInput('Slot', 'slot', false, $slot);
     }

@@ -17,7 +17,7 @@ BEGIN
         ss.`gallery_thumbnail`,
         so.`id_key`,
         IFNULL(so.`label`, ss.`name`) AS `label`,
-        p.`name` `parent`
+        IFNULL(p.`name`, '') `parent`
     FROM `site_section` ss
     LEFT JOIN `section_operations` so ON ss.id = so.section_id
     LEFT JOIN `site_section` p ON ss.parent_id = p.id

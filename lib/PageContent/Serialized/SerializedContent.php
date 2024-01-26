@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
@@ -17,21 +18,19 @@ use Exception;
  */
 abstract class SerializedContent extends SerializedContentIO
 {
-	/** @var IntegerInput Record id. */
-	public IntegerInput $id;
-
+    /** @var IntegerInput Record id. */
+    public IntegerInput $id;
     protected static string $default_id_key = 'id';
 
-
-	/**
-	 * SerializedContent constructor.
-	 * @param ?int $id Optional initial value to assign to the object's id property.
-	 */
-	function __construct(?int $id=null)
-	{
-		parent::__construct();
-		$this->id = new IntegerInput('id', static::$default_id_key, false, $id);
-	}
+    /**
+     * SerializedContent constructor.
+     * @param ?int $id Optional initial value to assign to the object's id property.
+     */
+    function __construct(?int $id = null)
+    {
+        parent::__construct();
+        $this->id = new IntegerInput('id', static::$default_id_key, false, $id);
+    }
 
     /**
      * Looks up any foreign key properties in the object and commits the links to the database.
@@ -53,7 +52,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @inheritDoc
      * @throws Exception
      */
-    protected function commitSaveQuery(string $query, string $arg_types='', ...$args)
+    protected function commitSaveQuery(string $query, string $arg_types = '', ...$args)
     {
         $this->connectToDatabase();
         $s1 = $this->mysqli->prepare('SET @insert_id = ?');
@@ -79,20 +78,20 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws NotImplementedException Table name not set in inherited class.
      * @throws Exception
      */
-	public function delete ( ): string
-	{
-		if (null === $this->id->value || 1 > $this->id->value) {
-			throw new ContentValidationException("Id not provided.");
-		}
+    public function delete(): string
+    {
+        if (null === $this->id->value || 1 > $this->id->value) {
+            throw new ContentValidationException("Id not provided.");
+        }
 
-		if (!$this->recordExists()) {
-			return("The requested record could not be found. \n");
-		}
+        if (!$this->recordExists()) {
+            return ("The requested record could not be found. \n");
+        }
 
-		$query = "DEL"."ETE FROM `".$this::getTableName()."` WHERE `id` = ?";
-		$this->query($query, 'i', $this->id->value);
-		return ("The record has been deleted. \n");
-	}
+        $query = "DEL" . "ETE FROM `" . $this::getTableName() . "` WHERE `id` = ?";
+        $this->query($query, 'i', $this->id->value);
+        return ("The record has been deleted. \n");
+    }
 
     /**
      * @inheritDoc
@@ -100,51 +99,65 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ConfigurationUndefinedException Database connection properties not set.
      * @throws Exception
      */
-	protected function executeInsertQuery()
-	{
-		$fields = $this->formatDatabaseColumnList();
+    protected function executeInsertQuery()
+    {
+        $fields = $this->formatDatabaseColumnList();
 
-		/* build sql statement */
-		$query = "INS"."ERT INTO `".$this::getTableName()."` (`".
-			implode('`,`', array_map(function($e) { return $e->key; }, $fields)).
-			"`) VALUES (".
-			implode(',', array_map(function() { return '?'; }, $fields)).
-			")";
-        $type_str = implode('', array_map(function($e) { return $e->type; }, $fields));
-        $args = array_map(function($e) { return $e->value; }, $fields);
+        /* build sql statement */
+        $query = "INS" . "ERT INTO `" . $this::getTableName() . "` (`" .
+            implode('`,`', array_map(function ($e) {
+                return $e->key;
+            }, $fields)) .
+            "`) VALUES (" .
+            implode(',', array_map(function () {
+                return '?';
+            }, $fields)) .
+            ")";
+        $type_str = implode('', array_map(function ($e) {
+            return $e->type;
+        }, $fields));
+        $args = array_map(function ($e) {
+            return $e->value;
+        }, $fields);
 
-		/* execute sql and store id value of the new record. */
+        /* execute sql and store id value of the new record. */
         $this->query($query, $type_str, ...$args);
         // call_user_func_array([$this, 'query'], [$query, $type_str, $args]);
-		$this->id->value = $this->retrieveInsertID();
-	}
+        $this->id->value = $this->retrieveInsertID();
+    }
 
-	/**
-	 * Create a SQL update statement using the values of the object's input properties & execute the update statement.
-	 * @throws ConnectionException On connection error.
-	 * @throws ConfigurationUndefinedException Database connection properties not set.
+    /**
+     * Create a SQL update statement using the values of the object's input properties & execute the update statement.
+     * @throws ConnectionException On connection error.
+     * @throws ConfigurationUndefinedException Database connection properties not set.
      * @throws NotImplementedException Table name not specified in inherited class.
-	 * @throws RecordNotFoundException No record exists that matches the id value.
+     * @throws RecordNotFoundException No record exists that matches the id value.
      * @throws Exception
-	 */
-	protected function executeUpdateQuery()
-	{
-		$fields = $this->formatDatabaseColumnList();
+     */
+    protected function executeUpdateQuery()
+    {
+        $fields = $this->formatDatabaseColumnList();
 
-		/* confirm that the record exists */
-		if (!$this->recordExists()) {
-			throw new RecordNotFoundException("Requested record not available for update.");
-		}
+        /* confirm that the record exists */
+        if (!$this->recordExists()) {
+            throw new RecordNotFoundException("Requested record not available for update.");
+        }
 
-		/* build and execute sql statement */
-		$query = "UPDATE `".$this::getTableName()."` SET ".
-			implode(',', array_map(function($e) { return "$e->key=?"; }, $fields))." ".
-			"WHERE id = ?;";
-        $type_str = implode('', array_map(function($e) { return $e->type; }, $fields)).'i';
-        $args = array_map(function($e) { return $e->value; }, $fields);
+        /* build and execute sql statement */
+        $query = "UPDATE `" . $this::getTableName() . "` SET " .
+            implode(',', array_map(function ($e) {
+                return "$e->key=?";
+            }, $fields)) . " " .
+            "WHERE id = ?;";
+        $type_str = implode('', array_map(function ($e) {
+                return $e->type;
+            }, $fields)) . 'i';
+        $args = array_map(function ($e) {
+            return $e->value;
+        }, $fields);
         $args[] = $this->id->value;
-		$this->query($query, $type_str, ...$args);
-	}
+        $this->query($query, $type_str, ...$args);
+    }
 
     /**
      * Default id input key getter.
@@ -162,7 +175,7 @@ abstract class SerializedContent extends SerializedContentIO
     protected function getLinkedContentPropertyList(): array
     {
         $lc = [];
-        foreach($this as $property) {
+        foreach ($this as $property) {
             if (is_object($property) && Validation::isSubclass($property, LinkedContent::class)) {
                 $lc[] = $property;
             }
@@ -180,25 +193,25 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-	 * Retrieves the name of the record represented by the provided id value.
-	 * @param string $table Name of the table containing the records.
-	 * @param int $id ID value of the record.
-	 * @param string $field Optional column name containing the value to retrieve. Defaults to "name".
-	 * @param string $id_field Optional column name containing the id value to retrieve. Defaults to "id".
-	 * @throws InvalidQueryException|Exception SQL error raised running insert query.
-	 * @return string|null Retrieved value.
-	 */
-	public function getTypeName(string $table, int $id, string $field="name", string $id_field="id" ): ?string
-	{
-		if ($id<1) {
-			return null;
-		}
+     * Retrieves the name of the record represented by the provided id value.
+     * @param string $table Name of the table containing the records.
+     * @param int $id ID value of the record.
+     * @param string $field Optional column name containing the value to retrieve. Defaults to "name".
+     * @param string $id_field Optional column name containing the id value to retrieve. Defaults to "id".
+     * @throws InvalidQueryException|Exception SQL error raised running insert query.
+     * @return string|null Retrieved value.
+     */
+    public function getTypeName(string $table, int $id, string $field = "name", string $id_field = "id"): ?string
+    {
+        if ($id < 1) {
+            return null;
+        }
 
-		$query = "SEL"."ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
-		$data = $this->fetchRecords($query, 'i', $id);
-		$ret_value = $data[0]->result;
-		return($ret_value);
-	}
+        $query = "SEL" . "ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
+        $data = $this->fetchRecords($query, 'i', $id);
+        $ret_value = $data[0]->result;
+        return ($ret_value);
+    }
 
     /**
      * Tests if query string is a procedure call.
@@ -207,7 +220,7 @@ abstract class SerializedContent extends SerializedContentIO
      */
     protected function isQueryProcedure(string $query): bool
     {
-        return (strtolower(substr($query, 0, 5))==='call ');
+        return (strtolower(substr($query, 0, 5)) === 'call ');
     }
 
     /**
@@ -224,34 +237,45 @@ abstract class SerializedContent extends SerializedContentIO
         $stmt->execute();
     }
 
-	/**
-	 * Retrieves data from the database based on the internal properties of the
-	 * class instance. Sets the values of the internal properties of the class
-	 * instance using the database data.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException Record id not set.
-	 * @throws RecordNotFoundException Requested record not available.
-	 * @throws NotImplementedException|InvalidQueryException|InvalidValueException
-	 */
-	public function read ()
-	{
-		if ($this->id->value===null || $this->id->value<1) {
-			throw new ContentValidationException("Record id not set.");
-		}
+    /**
+     * Allow inherited classes to override prepared statement created in the object's read() routine.
+     * @return array
+     * @throws ConnectionException|ConfigurationUndefinedException|NotImplementedException
+     */
+    protected function formatRecordSelectPreparedStmt(): array
+    {
+        $fields = $this->formatDatabaseColumnList();
+        $query = "SELECT `" .
+            implode('`,`', array_map(function ($e) {
+                return $e->key;
+            }, $fields)) . "` " .
+            "FROM `" . $this::getTableName() . "` " .
+            "WHERE id = ?";
+        return [$query, 'i', $this->id->value];
+    }
 
-		$fields = $this->formatDatabaseColumnList();
-		$query = "SELECT `".
-			implode('`,`', array_map(function($e) { return $e->key; }, $fields))."` ".
-			"FROM `".$this::getTableName()."` ".
-			"WHERE id = ?";
-		try {
-			$this->hydrateFromQuery($query, 'i', $this->id->value);
-		}
-		catch(RecordNotFoundException $ex) {
-			$error_msg = "The requested ".$this::getTableName()." record could not be found.";
-			throw new RecordNotFoundException($error_msg);
-		}
+    /**
+     * Retrieves data from the database based on the internal properties of the
+     * class instance. Sets the values of the internal properties of the class
+     * instance using the database data.
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException Record id not set.
+     * @throws RecordNotFoundException Requested record not available.
+     * @throws NotImplementedException|InvalidQueryException|InvalidValueException
+     */
+    public function read()
+    {
+        if ($this->id->value === null || $this->id->value < 1) {
+            throw new ContentValidationException("Record id not set.");
+        }
+
+        try {
+            $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
+        } catch (RecordNotFoundException $ex) {
+            $error_msg = "The requested " . $this::getTableName() . " record could not be found.";
+            throw new RecordNotFoundException($error_msg);
+        }
 
         $this->readLinked();
     }
@@ -264,7 +288,7 @@ abstract class SerializedContent extends SerializedContentIO
     public function readLinked()
     {
         $lc = $this->getLinkedContentPropertyList();
-        foreach($lc as $property) {
+        foreach ($lc as $property) {
             $property->fetchLinkedListings();
         }
     }
@@ -277,13 +301,13 @@ abstract class SerializedContent extends SerializedContentIO
      */
     public function recordExists(): bool
     {
-        if ($this->id->value===null || $this->id->value==='' || $this->id->value < 1) {
+        if ($this->id->value === null || $this->id->value === '' || $this->id->value < 1) {
             return (false);
         }
 
-        $query = "SEL"."ECT EXISTS(SELECT 1 FROM `".$this::getTableName()."` WHERE `id` = ?) AS `record_exists`";
+        $query = "SEL" . "ECT EXISTS(SELECT 1 FROM `" . $this::getTableName() . "` WHERE `id` = ?) AS `record_exists`";
         $data = $this->fetchRecords($query, 'i', $this->id->value);
-        return ((int)("0".$data[0]->record_exists) === 1);
+        return ((int)("0" . $data[0]->record_exists) === 1);
     }
 
     /**
@@ -308,8 +332,7 @@ abstract class SerializedContent extends SerializedContentIO
             }
             $this->query(...$args);
             $this->updateIdAfterCommit($args[0]);
-        }
-        else {
+        } else {
             if (is_numeric($this->id->value)) {
                 $this->executeUpdateQuery();
             } else {
@@ -340,24 +363,24 @@ abstract class SerializedContent extends SerializedContentIO
     {
         $this->id->setInputValue($id);
         $linked = $this->getLinkedContentPropertyList();
-        foreach($linked as $link) {
+        foreach ($linked as $link) {
             $link->primary_id->setInputValue($id);
         }
         return $this;
     }
 
     /**
-	 * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
+     * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg Optional informational message to prepend to error message thrown when a valid parent id is not found.
-	 * @throws ContentValidationException
-	 */
-	protected function testForParentID(string $msg='')
-	{
-		if ($this->id->value === null || $this->id->value < 0) {
-            $msg = ($msg)?("$msg "):('Could not perform operation. ');
-			throw new ContentValidationException("{$msg}A parent record was not provided.");
-		}
-	}
+     * @throws ContentValidationException
+     */
+    protected function testForParentID(string $msg = '')
+    {
+        if ($this->id->value === null || $this->id->value < 0) {
+            $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');
+            throw new ContentValidationException("{$msg}A parent record was not provided.");
+        }
+    }
 
     /**
      * Update the internal id property value after committing object property values to the database.
@@ -374,8 +397,7 @@ abstract class SerializedContent extends SerializedContentIO
                 throw new InvalidQueryException('Could not retrieve new record id.');
             }
             $this->id->setInputValue($data[0]->id);
-        }
-        elseif (!$this->id->hasData() && strtolower(substr($query, 0, 7)) === 'insert ') {
+        } elseif (!$this->id->hasData() && strtolower(substr($query, 0, 7)) === 'insert ') {
             // query was a query string
             $this->id->setInputValue($this->retrieveInsertID());
         }
