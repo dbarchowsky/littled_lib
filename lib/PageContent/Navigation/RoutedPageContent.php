@@ -184,7 +184,8 @@ abstract class RoutedPageContent extends PageContent
      */
     public function getDetailsURIWithFilters(?int $record_id=null): string
     {
-        return $this->getDetailsURI($record_id).$this->getQueryString(true);
+        $url = $this->getDetailsURI($record_id);
+        return ($url ? $url.$this->getQueryString(true) : '');
     }
 
     /**
@@ -221,7 +222,8 @@ abstract class RoutedPageContent extends PageContent
      */
     public function getEditURIWithFilters(?int $record_id=null): string
     {
-        return $this->getEditURI($record_id).$this->getQueryString(true);
+        $url = $this->getEditURI($record_id);
+        return ($url ? $url.$this->getQueryString(true) : '');
     }
 
     /**
@@ -260,7 +262,8 @@ abstract class RoutedPageContent extends PageContent
         if (!isset($this->routes)) {
             return '';
         }
-        return $this->getListingsURI().$this->formatQueryString($exclude_keys);
+        $url = $this->getListingsURI();
+        return ($url ? $url.$this->formatQueryString($exclude_keys) : '');
     }
 
     /**

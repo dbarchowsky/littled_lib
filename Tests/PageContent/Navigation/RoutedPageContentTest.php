@@ -1,4 +1,5 @@
 <?php
+
 namespace LittledTests\PageContent\Navigation;
 
 use Exception;
@@ -7,10 +8,12 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
+use Littled\Filters\FilterCollectionProperties;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use LittledTests\DataProvider\PageContent\Navigation\RoutedPageContent\GetPageRouteTestData;
 use LittledTests\TestHarness\Filters\KeywordContentFiltersTestHarness;
 use LittledTests\TestHarness\Filters\TestTableContentFiltersTestHarness;
+use LittledTests\TestHarness\PageContent\Navigation\RoutedPageUndefinedTestHarness;
 use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 use LittledTests\TestHarness\SiteContent\TestTableSectionNavigationRoutes;
 use LittledTests\TestHarness\PageContent\Serialized\TestTableSerializedContentTestHarness;
@@ -26,8 +29,8 @@ use PHPUnit\Framework\TestCase;
 
 class RoutedPageContentTest extends TestCase
 {
-	const TEST_TEMPLATE_DIR = '/path/to/templates/';
-	const TEST_TEMPLATE_FILENAME = 'my-template.txt';
+    const TEST_TEMPLATE_DIR = '/path/to/templates/';
+    const TEST_TEMPLATE_FILENAME = 'my-template.txt';
 
     /**
      * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::collectActionFromRouteTestProvider()
@@ -71,9 +74,9 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
-	 * @throws InvalidTypeException|ConfigurationUndefinedException
+     * @throws InvalidTypeException|ConfigurationUndefinedException
      */
-	function testGetDetailsURI()
+    function testGetDetailsURI()
     {
         $record_id = 123;
         $o = new RoutedPageContentTestHarness();
@@ -85,10 +88,19 @@ class RoutedPageContentTest extends TestCase
         $this->assertEquals($expected, $o->getDetailsURI($record_id));
     }
 
-	/**
-	 * @throws InvalidTypeException|ConfigurationUndefinedException
+    /**
+     * @return void
+     * @throws InvalidTypeException
      */
-	function testGetEditURIWithFilters()
+    public function testGetDetailsURIWithoutRouteWithFilters()
+    {
+        self::runGetURIWithoutRouteWithFiltersTests('getDetailsURIWithFilters');
+    }
+
+    /**
+     * @throws InvalidTypeException|ConfigurationUndefinedException
+     */
+    function testGetEditURIWithFilters()
     {
         $test_record_id = 643;
         $o = new RoutedPageContentTestHarness();
@@ -101,25 +113,25 @@ class RoutedPageContentTest extends TestCase
 
         // edit uri without a record id
         $expected = LittledUtility::joinPaths('/', TestTableEditPage::getBaseRoute(), RoutedPageContentTestHarness::getAddToken());
-        $pattern = '/'.preg_quote($expected, '/').'/';
-        $this->assertMatchesRegularExpression($pattern,  $o->getEditURIWithFilters());
+        $pattern = '/' . preg_quote($expected, '/') . '/';
+        $this->assertMatchesRegularExpression($pattern, $o->getEditURIWithFilters());
 
-        $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
-        $this->assertMatchesRegularExpression($pattern,  $o->getEditURIWithFilters());
+        $pattern = '/' . preg_quote($o->filters->display_listings->key . '=1', '/') . '/';
+        $this->assertMatchesRegularExpression($pattern, $o->getEditURIWithFilters());
 
         // edit uri with a record id
         $expected = LittledUtility::joinPaths(TestTableEditPage::getBaseRoute(), $test_record_id, RoutedPageContentTestHarness::getEditToken());
-        $pattern = '/'.preg_quote($expected, '/').'/';
+        $pattern = '/' . preg_quote($expected, '/') . '/';
         $this->assertMatchesRegularExpression($pattern, $o->getEditURIWithFilters($test_record_id));
 
-        $expected = $o->filters->display_listings->key.'=1';
-        $pattern = '/'.preg_quote($expected, '/').'/';
+        $expected = $o->filters->display_listings->key . '=1';
+        $pattern = '/' . preg_quote($expected, '/') . '/';
         $this->assertMatchesRegularExpression($pattern, $o->getEditURIWithFilters($test_record_id));
 
         // edit uri without the filter's value being set
         $o->filters->display_listings->value = null;
         $o->formatQueryString();
-        $pattern = '/'.preg_quote($o->filters->display_listings->key.'=1', '/').'/';
+        $pattern = '/' . preg_quote($o->filters->display_listings->key . '=1', '/') . '/';
         $this->assertDoesNotMatchRegularExpression($pattern, $o->getEditURIWithFilters($test_record_id));
     }
 
@@ -127,7 +139,7 @@ class RoutedPageContentTest extends TestCase
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      */
-	function testGetEditURIWithoutRecordId()
+    function testGetEditURIWithoutRecordId()
     {
         $o = new RoutedPageContentTestHarness();
         $o::setContentClassName(SectionContentTestHarness::class);
@@ -143,10 +155,19 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
+     * @return void
+     * @throws InvalidTypeException
+     */
+    public function testGetEditURIWithoutRouteWithFilters()
+    {
+        self::runGetURIWithoutRouteWithFiltersTests('getEditURIWithFilters');
+    }
+
+    /**
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      */
-	function testGetEditURIWithRecordId()
+    function testGetEditURIWithRecordId()
     {
         $record_id = 123;
         $o = new RoutedPageContentTestHarness();
@@ -181,10 +202,10 @@ class RoutedPageContentTest extends TestCase
      * @throws InvalidTypeException|NotImplementedException
      */
     function testGetListingsURIWithFilters(
-        array $expected_pairs=[],
-        array $expected_excluded_keys=[],
-        array $post_data=[],
-        array $exclude_keys=[])
+        array $expected_pairs = [],
+        array $expected_excluded_keys = [],
+        array $post_data = [],
+        array $exclude_keys = [])
     {
         $_POST = $post_data;
 
@@ -197,7 +218,7 @@ class RoutedPageContentTest extends TestCase
 
         $expected = LittledUtility::joinPaths('/', TestTableListingsPage::getBaseRoute());
         $url = $route->getListingsURIWithFilters($exclude_keys);
-        $this->assertStringStartsWith($expected.'?', $url);
+        $this->assertStringStartsWith($expected . '?', $url);
         foreach ($expected_pairs as $pair) {
             $this->assertMatchesRegularExpression("/[?|&]$pair/", $url);
         }
@@ -209,32 +230,41 @@ class RoutedPageContentTest extends TestCase
         $_POST = [];
     }
 
-	/**
-	 * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteTestProvider()
-	 * @param GetPageRouteTestData $data
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidTypeException
-	 */
-	function testGetPageRoute(GetPageRouteTestData $data)
-	{
-		$o = new TestTableListingsPage();
-		$this->assertEquals($data->expected, $o->getPageRoute($data->class, $data->record_id));
-	}
+    /**
+     * @return void
+     * @throws InvalidTypeException
+     */
+    public function testGetListingsURIWithoutRouteWithFilters()
+    {
+        self::runGetURIWithoutRouteWithFiltersTests('getListingsURIWithFilters');
+    }
 
-	/**
-	 * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteWithFiltersTestProvider()
-	 * @param GetPageRouteTestData $data
-	 * @return void
-	 * @throws ConfigurationUndefinedException
-	 * @throws InvalidTypeException
-	 */
-	function testGetPageRouteWithFilters(GetPageRouteTestData $data)
-	{
-		$o = new TestTableListingsPage();
-		$o->filters = new TestTableContentFiltersTestHarness();
-		$this->assertEquals($data->expected, $o->getPageRouteWithFilters($data->class, $data->record_id, $data->force_update));
-	}
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteTestProvider()
+     * @param GetPageRouteTestData $data
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     */
+    function testGetPageRoute(GetPageRouteTestData $data)
+    {
+        $o = new TestTableListingsPage();
+        $this->assertEquals($data->expected, $o->getPageRoute($data->class, $data->record_id));
+    }
+
+    /**
+     * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getPageRouteWithFiltersTestProvider()
+     * @param GetPageRouteTestData $data
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     */
+    function testGetPageRouteWithFilters(GetPageRouteTestData $data)
+    {
+        $o = new TestTableListingsPage();
+        $o->filters = new TestTableContentFiltersTestHarness();
+        $this->assertEquals($data->expected, $o->getPageRouteWithFilters($data->class, $data->record_id, $data->force_update));
+    }
 
     /**
      * @dataProvider \LittledTests\DataProvider\PageContent\Navigation\RoutedPageContentTestDataProvider::getRecordIdProvider()
@@ -253,74 +283,70 @@ class RoutedPageContentTest extends TestCase
     }
 
     /**
-	 * @throws ConfigurationUndefinedException
-	 */
-	function testGetTemplateDir()
-	{
-		$this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTestHarness::getTemplateDir());
-	}
+     * @throws ConfigurationUndefinedException
+     */
+    function testGetTemplateDir()
+    {
+        $this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTestHarness::getTemplateDir());
+    }
 
-	function testGetTemplateFilename()
-	{
-		$this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_FILENAME, RoutedPageContentTestHarness::getTemplateFilename());
-	}
+    function testGetTemplateFilename()
+    {
+        $this->assertEquals(RoutedPageContentTest::TEST_TEMPLATE_FILENAME, RoutedPageContentTestHarness::getTemplateFilename());
+    }
 
-	/**
-	 * @throws ConfigurationUndefinedException
-	 */
-	function testGetTemplateFullPath()
-	{
-		try {
-			$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
-		}
-		catch(Exception $e) {
-			$this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
-		}
-		RoutedPageContentTestHarness::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
-		$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
-	}
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    function testGetTemplateFullPath()
+    {
+        try {
+            $this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
+        } catch (Exception $e) {
+            $this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
+        }
+        RoutedPageContentTestHarness::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
+        $this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, RoutedPageContentTest::TEST_TEMPLATE_FILENAME), RoutedPageContentTestHarness::getTemplateFullPath());
+    }
 
-	/**
-	 * @throws ConfigurationUndefinedException
-	 */
-	function testGetValidatedRoutesClass()
-	{
-		// Tests unassigned routes class
-		try {
-			RoutedPageContent::getValidatedRoutesClass();
-		}
-		catch(Exception $e) {
-			$this->assertEquals('Invalid route object in Littled\PageContent\Navigation\RoutedPageContent.', $e->getMessage());
-		}
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    function testGetValidatedRoutesClass()
+    {
+        // Tests unassigned routes class
+        try {
+            RoutedPageContent::getValidatedRoutesClass();
+        } catch (Exception $e) {
+            $this->assertEquals('Invalid route object in Littled\PageContent\Navigation\RoutedPageContent.', $e->getMessage());
+        }
 
-		// Tests unassigned routes class in child class
-		try {
-			RoutedPageContentTestHarness::getValidatedRoutesClass();
-		}
-		catch(Exception $e) {
-			$this->assertEquals('Invalid route object in LittledTests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness.', $e->getMessage());
-		}
+        // Tests unassigned routes class in child class
+        try {
+            RoutedPageContentTestHarness::getValidatedRoutesClass();
+        } catch (Exception $e) {
+            $this->assertEquals('Invalid route object in LittledTests\TestHarness\PageContent\Navigation\RoutedPageContentTestHarness.', $e->getMessage());
+        }
 
-		// tests class after assigning routes class
-		$routes_class = SectionNavigationRoutesTestHarness::class;
-		RoutedPageContentTestHarness::setRoutesClassName($routes_class);
-		$this->assertEquals($routes_class, RoutedPageContentTestHarness::getValidatedRoutesClass());
+        // tests class after assigning routes class
+        $routes_class = SectionNavigationRoutesTestHarness::class;
+        RoutedPageContentTestHarness::setRoutesClassName($routes_class);
+        $this->assertEquals($routes_class, RoutedPageContentTestHarness::getValidatedRoutesClass());
 
-		// Tests non-existent method
-		try {
-			RoutedPageContentTestHarness::getValidatedRoutesClass('nonExistentMethod');
-		}
-		catch (Exception $e) {
-			$this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
-			$this->assertStringStartsWith('Invalid interface', $e->getMessage());
-		}
+        // Tests non-existent method
+        try {
+            RoutedPageContentTestHarness::getValidatedRoutesClass('nonExistentMethod');
+        } catch (Exception $e) {
+            $this->assertInstanceOf(ConfigurationUndefinedException::class, $e);
+            $this->assertStringStartsWith('Invalid interface', $e->getMessage());
+        }
 
-		// Tests valid existing method
-		$this->assertEquals($routes_class, RoutedPageContentTestHarness::getValidatedRoutesClass('methodAvailableForTestPurposes'));
+        // Tests valid existing method
+        $this->assertEquals($routes_class, RoutedPageContentTestHarness::getValidatedRoutesClass('methodAvailableForTestPurposes'));
 
-		// Reset routes class name
-		RoutedPageContentTestHarness::setRoutesClassName('');
-	}
+        // Reset routes class name
+        RoutedPageContentTestHarness::setRoutesClassName('');
+    }
 
     function testHasContentUpdates()
     {
@@ -334,70 +360,69 @@ class RoutedPageContentTest extends TestCase
         $this->assertTrue($p->hasContentUpdates());
     }
 
-	/**
-	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
-	 */
-	function testSetFilters()
-	{
-		$_POST = array(
-			LittledGlobals::CONTENT_TYPE_KEY => TestTableSerializedContentTestHarness::CONTENT_TYPE_ID,
-			'name' => 'foo',
-			'dateAfter' => '2023-02-14',
-			'dateBefore' => '2023-02-28',
-			);
+    /**
+     * @throws InvalidTypeException
+     * @throws NotImplementedException
+     */
+    function testSetFilters()
+    {
+        $_POST = array(
+            LittledGlobals::CONTENT_TYPE_KEY => TestTableSerializedContentTestHarness::CONTENT_TYPE_ID,
+            'name' => 'foo',
+            'dateAfter' => '2023-02-14',
+            'dateBefore' => '2023-02-28',
+        );
 
-		$rpc = new RoutedPageContentTestHarness();
+        $rpc = new RoutedPageContentTestHarness();
         $rpc::setFiltersClassName(TestTableContentFiltersTestHarness::class);
-		$rpc->instantiateProperties();
-		$this->assertTrue(isset($rpc->filters));
+        $rpc->instantiateProperties();
+        $this->assertTrue(isset($rpc->filters));
 
-		/** @var TestTableContentFiltersTestHarness $f1 */
-		$f1 = $rpc->filters;
-		$this->assertEquals('', $f1->name_filter->value);
-		$this->assertEquals('', $f1->date_after->value);
+        /** @var TestTableContentFiltersTestHarness $f1 */
+        $f1 = $rpc->filters;
+        $this->assertEquals('', $f1->name_filter->value);
+        $this->assertEquals('', $f1->date_after->value);
 
-		$rpc->loadFilters();
-		$this->assertEquals('foo', $f1->name_filter->value);
-		$this->assertEquals('02/14/2023', $f1->date_after->value);
-		$this->assertEquals('02/28/2023', $f1->date_before->value);
+        $rpc->loadFilters();
+        $this->assertEquals('foo', $f1->name_filter->value);
+        $this->assertEquals('02/14/2023', $f1->date_after->value);
+        $this->assertEquals('02/28/2023', $f1->date_before->value);
 
-		$new_filters = new TestTableContentFiltersTestHarness();
-		$new_filters->name_filter->value = 'bar';
-		$new_filters->date_after->value = '06/01/2022';
-		$rpc->setFilters($new_filters);
+        $new_filters = new TestTableContentFiltersTestHarness();
+        $new_filters->name_filter->value = 'bar';
+        $new_filters->date_after->value = '06/01/2022';
+        $rpc->setFilters($new_filters);
 
-		/** @var TestTableContentFiltersTestHarness $f2 */
-		$f2 = $rpc->filters;
-		$this->assertEquals('bar', $f2->name_filter->value);
-		$this->assertEquals('06/01/2022', $f2->date_after->value);
-		$this->assertEquals('', $f2->date_before->value);
+        /** @var TestTableContentFiltersTestHarness $f2 */
+        $f2 = $rpc->filters;
+        $this->assertEquals('bar', $f2->name_filter->value);
+        $this->assertEquals('06/01/2022', $f2->date_after->value);
+        $this->assertEquals('', $f2->date_before->value);
 
-		$_POST = [];
-	}
+        $_POST = [];
+    }
 
-	/**
-	 * @throws ConfigurationUndefinedException
-	 */
-	function testSetTemplateFilename()
-	{
-		$new_filename = '/new-template.txt';
-		RoutedPageContentTestHarness::setTemplateFilename($new_filename);
-		$this->assertEquals($new_filename, RoutedPageContentTestHarness::getTemplateFilename());
+    /**
+     * @throws ConfigurationUndefinedException
+     */
+    function testSetTemplateFilename()
+    {
+        $new_filename = '/new-template.txt';
+        RoutedPageContentTestHarness::setTemplateFilename($new_filename);
+        $this->assertEquals($new_filename, RoutedPageContentTestHarness::getTemplateFilename());
 
-		try {
-			$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
-		}
-		catch(ConfigurationUndefinedException $e) {
-			$this->assertStringStartsWith('Invalid route object', $e->getMessage());
-		}
+        try {
+            $this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
+        } catch (ConfigurationUndefinedException $e) {
+            $this->assertStringStartsWith('Invalid route object', $e->getMessage());
+        }
 
-		RoutedPageContentTestHarness::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
-		$this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
+        RoutedPageContentTestHarness::setRoutesClassName(SectionNavigationRoutesTestHarness::class);
+        $this->assertEquals(LittledUtility::joinPaths(RoutedPageContentTest::TEST_TEMPLATE_DIR, $new_filename), RoutedPageContentTestHarness::getTemplateFullPath());
 
-		// reset
-		RoutedPageContentTestHarness::setTemplateFilename(RoutedPageContentTest::TEST_TEMPLATE_FILENAME);
-	}
+        // reset
+        RoutedPageContentTestHarness::setTemplateFilename(RoutedPageContentTest::TEST_TEMPLATE_FILENAME);
+    }
 
     function testSetUpdateType()
     {
@@ -410,6 +435,32 @@ class RoutedPageContentTest extends TestCase
 
     protected static function formatRouteMessage(array $route): string
     {
-        return "route: \"".implode("/", $route)."\"";
+        return "route: \"" . implode("/", $route) . "\"";
+    }
+
+    /**
+     * @param string $get_uri_method
+     * @return void
+     * @throws InvalidTypeException
+     */
+    protected static function runGetURIWithoutRouteWithFiltersTests(string $get_uri_method)
+    {
+        $_POST = [FilterCollectionProperties::PAGE_KEY => 'p'];
+
+        // set up
+        $o = new RoutedPageUndefinedTestHarness();
+        $o::setFiltersClassName(TestTableContentFiltersTestHarness::class);
+        $o::setContentClassName(SectionContentTestHarness::class);
+        $o->instantiateProperties();
+        $o->collectRequestData();
+
+        // test for query string containing filters variables
+        self::assertNotEmpty($o->getQueryString(true));
+
+        // test for empty string response with no edit route defined
+        self::assertEquals('', $o->$get_uri_method());
+
+        // restore state
+        $_POST = [];
     }
 }

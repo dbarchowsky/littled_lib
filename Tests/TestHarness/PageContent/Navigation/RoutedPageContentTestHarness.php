@@ -1,4 +1,5 @@
 <?php
+
 namespace LittledTests\TestHarness\PageContent\Navigation;
 
 use Littled\Account\UserAccount;
@@ -8,29 +9,29 @@ use Littled\Utility\LittledUtility;
 
 class RoutedPageContentTestHarness extends RoutedPageContent
 {
-    protected static int    $access_level       = UserAccount::AUTHENTICATION_UNRESTRICTED;
-	protected static string $template_dir       = RoutedPageContentTest::TEST_TEMPLATE_DIR;
-	protected static string $template_filename  = RoutedPageContentTest::TEST_TEMPLATE_FILENAME;
-    protected static string $routes_class       = SectionNavigationRoutesTestHarness::class;
-    protected static string $base_route         = '';
+    protected static int $access_level = UserAccount::AUTHENTICATION_UNRESTRICTED;
+    protected static string $template_dir = RoutedPageContentTest::TEST_TEMPLATE_DIR;
+    protected static string $template_filename = RoutedPageContentTest::TEST_TEMPLATE_FILENAME;
+    protected static string $routes_class = SectionNavigationRoutesTestHarness::class;
+    protected static string $base_route = '';
 
-	public function collectRequestData(?array $src = null)
-	{
-		// TODO: Implement collectRequestData() method.
-	}
+    public function collectRequestData(?array $src = null)
+    {
+        /* stub */
+    }
 
-	public static function formatRoutePath(?int $record_id = null): string
-	{
-		return LittledUtility::joinPaths(static::$route_parts);
-	}
+    public static function formatRoutePath(?int $record_id = null): string
+    {
+        return LittledUtility::joinPaths(static::$route_parts);
+    }
 
     public function getTemplateContext(): array
     {
-        // TODO: Implement getTemplateContext() method.
+        /* stub */
         return [];
     }
 
-    public function instantiateProperties(?int $record_id=null)
+    public function instantiateProperties(?int $record_id = null)
     {
         parent::instantiateProperties();
         $content_class = static::getContentClassName();
@@ -51,10 +52,10 @@ class RoutedPageContentTestHarness extends RoutedPageContent
         parent::loadFilters();
     }
 
-	public function processRequest(): RoutedPageContent
-	{
-		return $this;
-	}
+    public function processRequest(): RoutedPageContent
+    {
+        return $this;
+    }
 
     public function setPageState()
     {
