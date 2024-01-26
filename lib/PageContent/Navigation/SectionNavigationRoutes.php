@@ -13,48 +13,52 @@ abstract class SectionNavigationRoutes
     protected static string $template_dir='';
 
 	/**
-	 * Details page class name getter
-	 * @return void
+	 * Details page class name getter. Returns empty string if the details route class has not been specified in the
+     * client app.
+	 * @return string
 	 */
 	public static function getDetailsPageClass(): string
 	{
-		return static::$details_page_class;
+        return (static::$details_page_class ?? '');
 	}
 
 	/**
-	 * Details route getter
+	 * Details route getter. Returns empty string if the details route class has not been specified in the client app.
      * @param ?int $record_id
-	 * @return void
+	 * @return string
 	 */
 	public static function getDetailsRoute(?int $record_id=null): string
     {
         /** @var RoutedPageContent $class */
         $class = static::getDetailsPageClass();
-        return $class::formatRoutePath($record_id);
+        return (Validation::isSubclass($class, RoutedPageContent::class) ?
+            $class::formatRoutePath($record_id) : '');
     }
 
     /**
-     * Returns the first component of the details route.
+     * Returns the first component of the details route. Returns empty string if this value has not been set in the
+     * client app.
      * @return string
      */
      public static function getDetailsRouteBase(): string
     {
         /** @var RoutedPageContent $class */
         $class = static::getDetailsPageClass();
-        return $class::getBaseRoute();
+        return (Validation::isSubclass($class, RoutedPageContent::class) ?
+            $class::getBaseRoute() : '');
     }
 
 	/**
-	 * Edit page class name getter
+	 * Edit page class name getter. Returns empty string if the editing route class has not been set in the client app.
 	 * @return void
 	 */
 	public static function getEditPageClass(): string
 	{
-		return static::$edit_page_class;
+		return (static::$edit_page_class ?? '');
 	}
 
     /**
-     * Edit route getter.
+     * Edit route getter. Returns empty string if a route has not be defined.
      * @param ?int $record_id Record id of the record being edited.
      * @return string
      */
@@ -62,39 +66,42 @@ abstract class SectionNavigationRoutes
     {
         /** @var RoutedPageContent $class */
         $class = static::getEditPageClass();
-        return $class::formatRoutePath($record_id);
+        return (Validation::isSubclass($class, RoutedPageContent::class) ?
+            $class::formatRoutePath($record_id) : '');
     }
 
 	/**
-	 * Listings page class name getter
-	 * @return void
+	 * Listings page class name getter. Returns empty string if routed page class is undefined.
+	 * @return string
 	 */
 	public static function getListingsPageClass(): string
 	{
-		return static::$listings_page_class;
+		return (static::$listings_page_class ?? '');
 	}
 
 	/**
-	 * Listings route getter
-	 * @return void
+	 * Listings route getter. Returns empty string if routed page class is undefined.
+	 * @return string
 	 */
 	public static function getListingsRoute(): string
     {
         /** @var RoutedPageContent $class */
         $class = static::getListingsPageClass();
-        return $class::formatRoutePath();
+        return (Validation::isSubclass($class, RoutedPageContent::class) ?
+            $class::formatRoutePath() : '');
     }
 
     /**
-     * Returns the first component of the listings route.
+     * Returns the first component of the listings route. Returns empty string if listings route class has not been
+     * specified in the client app.
      * @return string
      */
     public static function getListingsRouteBase(): string
     {
         /** @var RoutedPageContent $class */
         $class = static::getListingsPageClass();
-        $p = new $class();
-        return $p::getBaseRoute();
+        return (Validation::isSubclass($class, RoutedPageContent::class) ?
+            $class::getBaseRoute() : '');
     }
 
 	/**
@@ -121,12 +128,12 @@ abstract class SectionNavigationRoutes
 	}
 
     /**
-     * Template path getter.
-     * @return void
+     * Template path getter. Returns empty string if the template directory path has not been specified.
+     * @return string
      */
     public static function getTemplateDir(): string
     {
-        return static::$template_dir;
+        return (static::$template_dir ?? '');
     }
 
     /**

@@ -5,6 +5,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Navigation\SectionNavigationRoutes;
 use LittledTests\DataProvider\PageContent\Navigation\SectionNavigationRoutes\GetPageRouteTestData;
 use LittledTests\TestHarness\PageContent\Navigation\SectionNavigationRoutesTestHarness;
+use LittledTests\TestHarness\PageContent\Navigation\SectionNavRoutesUndefinedTestHarnees;
 use LittledTests\TestHarness\SiteContent\TestTableDetailsPage;
 use LittledTests\TestHarness\SiteContent\TestTableListingsPage;
 use PHPUnit\Framework\TestCase;
@@ -12,14 +13,44 @@ use PHPUnit\Framework\TestCase;
 
 class SectionNavigationRoutesTest extends TestCase
 {
+    function testGetDefaultDetailsRouteWhenUndefined()
+    {
+        $this->assertEquals('', SectionNavigationRoutes::getDetailsRoute());
+    }
+
+    function testGetDefaultEditRouteWhenUndefined()
+    {
+        $this->assertEquals('', SectionNavigationRoutes::getEditRoute());
+    }
+
+    function testGetDefaultListingsRouteWhenUndefined()
+    {
+        $this->assertEquals('', SectionNavigationRoutes::getListingsRoute());
+    }
+
     function testGetDetailsRouteBase()
     {
         $this->assertEquals(TestTableDetailsPage::getBaseRoute(), SectionNavigationRoutesTestHarness::getDetailsRouteBase());
     }
 
+    function testGetDetailsRouteWhenUndefined()
+    {
+        $this->assertEquals('', SectionNavRoutesUndefinedTestHarnees::getDetailsRoute());
+    }
+
+    function testGetEditRouteWhenUndefined()
+    {
+        $this->assertEquals('', SectionNavRoutesUndefinedTestHarnees::getEditRoute());
+    }
+
     function testGetListingsRouteBase()
     {
         $this->assertEquals(TestTableListingsPage::getBaseRoute(), SectionNavigationRoutesTestHarness::getListingsRouteBase());
+    }
+
+    function testGetListingsRouteWhenUndefined()
+    {
+        $this->assertEquals('', SectionNavRoutesUndefinedTestHarnees::getListingsRoute());
     }
 
 	/**
@@ -35,15 +66,26 @@ class SectionNavigationRoutesTest extends TestCase
 			SectionNavigationRoutesTestHarness::getPageRoute($data->class, $data->record_id));
 	}
 
-	function testGetTemplateDir()
-	{
-		$this->assertEquals('', SectionNavigationRoutes::getTemplateDir());
-	}
-
 	function testSetTemplateDir()
 	{
+        // save state
+        $start_path  = SectionNavigationRoutes::getTemplateDir();
+
 		$new_path = '/new/path/to/templates/';
 		SectionNavigationRoutes::setTemplateDir($new_path);
 		$this->assertEquals($new_path, SectionNavigationRoutes::getTemplateDir());
+
+        // restore state
+        SectionNavigationRoutes::setTemplateDir($start_path);
 	}
+
+    function testGetTemplateDirDefault()
+    {
+        $this->assertEquals('', SectionNavigationRoutes::getTemplateDir());
+    }
+
+    function testGetTemplateDirUndefined()
+    {
+        $this->assertEquals('', SectionNavRoutesUndefinedTestHarnees::getTemplateDir());
+    }
 }
