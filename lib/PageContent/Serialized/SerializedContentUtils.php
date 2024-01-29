@@ -14,6 +14,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Exception;
+use Littled\Validation\Validation;
 
 
 /**
@@ -22,14 +23,16 @@ use Exception;
  */
 class SerializedContentUtils extends AppContentBase
 {
-    /** @var string Path to CMS template dir */
-    protected static string $common_cms_template_path;
-    /** @var int */
-    protected static int $content_type_id;
-    /** @var string Path to cache template. */
-    protected static string $cache_template = '';
-    /** @var string Path to rendered cache file to use on site front-end. */
-    protected static string $output_cache_file = '';
+    /** @var string|string[]    Prefix used to access fields returned by database queries. */
+    protected                   $recordset_prefix;
+
+    /** @var string             Path to CMS template dir */
+    protected static string     $common_cms_template_path;
+    protected static int        $content_type_id;
+    /** @var string             Path to cache template. */
+    protected static string     $cache_template = '';
+    /** @var string             Path to rendered cache file to use on site front-end. */
+    protected static string     $output_cache_file = '';
 
     /**
      * Add a separator string after a string.
@@ -77,6 +80,42 @@ class SerializedContentUtils extends AppContentBase
             }
         }
         return ($ar);
+    }
+
+    /**
+     * Copies values from a recordset row to the properties of the object based on a one-to-one match between
+     * the name of the field in the recordset and the name of the object property, or its "column name" value,
+     * or its name plus a prefix defined by its parent object
+     * @param string $prop_key
+     * @param RequestInput $property
+     * @param object $row
+     * @return void
+     */
+    protected function assignRowValue(string $prop_key, RequestInput $property, object $row): void
+    {
+        $field = $property->getColumnName($prop_key);
+        // check if this object is a child of a parent and fields exist in the recordset that should be
+        // assigned to this object's properties based on the fields' name prefix
+        if ($this->hasRecordsetPrefix()) {
+            $prefix_options = $this->getRecordsetPrefix();
+            if (!is_array($prefix_options)) {
+                $prefix_options = [$prefix_options];
+            }
+            foreach ($prefix_options as $prefix) {
+                if (property_exists($row, $prefix . $field)) {
+                    $field = $prefix . $field;
+                    $property->setInputValue($row->$field);
+                    return;
+                }
+            }
+            // no matching field found within the recordset, move on
+            return;
+        }
+        if(property_exists($row, $field)) {
+            // assign value to top-level/parent object property, assuming a one-to-one match between the name
+            // of the property of the object and the name of the field within the recordset
+            $property->setInputValue($row->$field);
+        }
     }
 
     /**
@@ -221,6 +260,26 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
+     * Recordset prefix getter.
+     * @return string|string[]
+     */
+    public function getRecordsetPrefix()
+    {
+        return ($this->recordset_prefix ?? '');
+    }
+
+    /**
+     * Test for recordset prefix value.
+     * @return bool
+     */
+    public function hasRecordsetPrefix(): bool
+    {
+        return ((isset($this->recordset_prefix)) &&
+            ((!is_array($this->recordset_prefix) && ($this->recordset_prefix !=='') ||
+                count($this->recordset_prefix) > 0)));
+    }
+
+    /**
      * Assign values contained in array to object input properties.
      * @param string $query SQL SELECT statement to use to hydrate object property values.
      * @throws RecordNotFoundException
@@ -247,21 +306,18 @@ class SerializedContentUtils extends AppContentBase
     protected function hydrateFromRecordsetRow(object $row)
     {
         $used_keys = array();
-        foreach ($this as $key => $item) {
+        foreach ($this as $key => $property) {
             // copy over property values that correspond to html form data
-            /** @var RequestInput $item */
-            if ($this->isInput($key, $item, $used_keys)) {
+            if ($this->isInput($key, $property, $used_keys)) {
+                /** @var RequestInput $property */
                 /* store value retrieved from database */
-                if ($item->column_name) {
-                    $custom_key = $item->column_name;
-                    if (property_exists($row, $custom_key)) {
-                        $item->setInputValue($row->$custom_key);
-                    }
-                } elseif (property_exists($row, $key)) {
-                    $item->setInputValue($row->$key);
-                }
+                $this->assignRowValue($key, $property, $row);
             }
-            elseif (!is_object($item)) {
+            elseif(Validation::isSubclass($property, SerializedContent::class) &&
+                $property->hasRecordsetPrefix()) {
+                $property->hydrateFromRecordsetRow($row);
+            }
+            elseif (!is_object($property)) {
                 // copy over properties read from the database but not collected in html form data
                 if (property_exists($row, $key)) {
                     $this->$key = $row->$key;
@@ -283,7 +339,7 @@ class SerializedContentUtils extends AppContentBase
     protected function isInput(string $key, $item, array &$used_keys): bool
     {
         $is_input = (($item instanceof RequestInput) &&
-            ($key !== 'id') &&
+            ($this->hasRecordsetPrefix() || $key !== 'id') &&
             ($key !== 'index') &&
             ($item->isDatabaseField()));
         if ($is_input) {
@@ -379,6 +435,17 @@ class SerializedContentUtils extends AppContentBase
     public static function setCommonCMSTemplatePath(string $path)
     {
         static::$common_cms_template_path = $path;
+    }
+
+    /**
+     * Chainable recordset prefix setter.
+     * @param string|string[] $prefix
+     * @return $this
+     */
+    public function setRecordsetPrefix($prefix): SerializedContentUtils
+    {
+        $this->recordset_prefix = $prefix;
+        return $this;
     }
 
     /**
