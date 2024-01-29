@@ -601,6 +601,17 @@ abstract class RequestInput
     }
 
     /**
+     * Container CSS class setter.
+     * @param string $label
+     * @return RequestInput
+     */
+    public function setLabel(string $label): RequestInput
+    {
+        $this->label = $label;
+        return $this;
+    }
+
+    /**
      * Input CSS class setter.
      * @param string $class
      * @return RequestInput
