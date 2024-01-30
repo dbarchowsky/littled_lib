@@ -167,7 +167,12 @@ abstract class LinkedContent extends SerializedContentIO
             $ps = $this->generateListingsPreparedStmt($arg_types, ...$args);
             if ($ps) {
                 if (count($ps) > 2) {
-                    $this->listings_data = $this->fetchRecords($ps[0], $ps[1], ...$ps[2]);
+                    if (is_array($ps[2])) {
+                        $this->listings_data = $this->fetchRecords($ps[0], $ps[1], ...$ps[2]);
+                    }
+                    else {
+                        $this->listings_data = $this->fetchRecords($ps[0], $ps[1], $ps[2]);
+                    }
                 }
                 else {
                     $this->listings_data = $this->fetchRecords($ps[0]);
