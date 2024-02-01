@@ -159,32 +159,33 @@ class APIRecordRoute extends APIRoute
 
     /**
      * Retrieves content data from the database
-     * @return void
+     * @return APIRecordRoute
      * @throws ConfigurationUndefinedException
      */
-    public function retrieveContentData()
+    public function retrieveContentData(): APIRecordRoute
     {
         if (!$this->hasContentPropertiesObject()) {
-            return;
+            return $this;
         }
         if ($this->content->id->value === null || $this->content->id->value < 1) {
             throw new ConfigurationUndefinedException('A record id was not provided.');
         }
         call_user_func_array([$this::getControllerClass(), 'retrieveContentDataByType'], array($this->content));
+        return $this;
     }
 
     /**
      * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
-     * @return void
+     * @return APIRecordRoute
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      */
-    public function retrieveContentObjectAndData()
+    public function retrieveContentObjectAndData(): APIRecordRoute
     {
         $ajax_data = static::getAjaxRequestData();
         $this->initializeContentObject(null, $ajax_data);
         $this->content->id->collectRequestData($ajax_data);
-        $this->retrieveContentData();
+        return $this->retrieveContentData();
     }
 
     /**
