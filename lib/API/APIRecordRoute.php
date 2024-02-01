@@ -25,8 +25,9 @@ class APIRecordRoute extends APIRoute
      * data using first the content object's internal id parameter, and then if
      * that value is unavailable, a default id parameter ("id").
      * @param ?array $src Optional array of variables to use instead of POST data.
+     * @return $this
      */
-    public function collectContentID(?array $src = null)
+    public function collectContentID(?array $src = null): APIRecordRoute
     {
         $this->content->id->collectRequestData($src);
         if ($this->content->id->value === null && $this->content->id->key != LittledGlobals::ID_KEY) {
@@ -36,6 +37,7 @@ class APIRecordRoute extends APIRoute
             $rp_id = $this->lookupRecordIdRoutePart();
             $this->content->id->value = Validation::parseNumeric($rp_id);
         }
+        return $this;
     }
 
     /**
@@ -98,7 +100,7 @@ class APIRecordRoute extends APIRoute
      * @param ?array $src Optional array of variables to use instead of POST data.
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @return APIRecordRoute
+     * @return $this
      */
     public function initializeContentObject(?int $content_id = null, ?array $src = null): APIRecordRoute
     {
@@ -176,16 +178,17 @@ class APIRecordRoute extends APIRoute
 
     /**
      * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
-     * @return APIRecordRoute
+     * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      */
     public function retrieveContentObjectAndData(): APIRecordRoute
     {
         $ajax_data = static::getAjaxRequestData();
-        $this->initializeContentObject(null, $ajax_data);
-        $this->content->id->collectRequestData($ajax_data);
-        return $this->retrieveContentData();
+        return $this
+            ->initializeContentObject(null, $ajax_data)
+            ->collectContentID($ajax_data)
+            ->retrieveContentData();
     }
 
     /**
