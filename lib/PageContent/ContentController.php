@@ -6,6 +6,8 @@ use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
@@ -20,9 +22,9 @@ use ReflectionException;
 
 abstract class ContentController
 {
-    const OPERATION_LISTINGS        = 'listings';
-    const OPERATION_DETAILS         = 'details';
-    const OPERATION_EDIT            = 'edit';
+    const OPERATION_LISTINGS = 'listings';
+    const OPERATION_DETAILS = 'details';
+    const OPERATION_EDIT = 'edit';
 
     /**
      * Returns a navigation route for a given SiteSection page type and operation.
@@ -33,13 +35,13 @@ abstract class ContentController
      * @throws InvalidValueException
      * @throws NotImplementedException
      */
-    protected static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id=null): string
+    protected static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id = null): string
     {
         switch ($operation) {
             case self::OPERATION_LISTINGS;
                 return call_user_func([$class, 'getListingsURI']);
             case self::OPERATION_DETAILS;
-                if ($record_id===null || $record_id < 1) {
+                if ($record_id === null || $record_id < 1) {
                     throw new InvalidValueException('Record id not provided.');
                 }
                 return call_user_func_array([$class, 'getDetailsURI'], array($record_id));
@@ -54,14 +56,20 @@ abstract class ContentController
      * Returns a fully-qualified name of an APIRoute class corresponding to the given route components.
      * @param array $route_parts
      * @return string
-     * @throws NotImplementedException
+     * @throws InvalidRouteException
      */
-    abstract public static function getAPIRouteClassName(array $route_parts): string;
+    public static function getAPIRouteClassName(array $route_parts): string
+    {
+        /* Implement in child class. Cannot declare the method abstract as it's called in this class. */
+        if (count($route_parts) < 1) {
+            throw new InvalidRouteException('A route was not provided.');
+        }
+        return '';
+    }
 
     /**
      * Returns an APIRoute class corresponding ot the given route components.
-     * @throws NotImplementedException
-     * @throws InvalidTypeException
+     * @throws InvalidTypeException|InvalidRouteException
      */
     public static function getAPIRouteInstance(array $route_parts): APIRoute
     {
@@ -92,7 +100,14 @@ abstract class ContentController
      * @returns string
      * @throws Exception
      */
-    abstract public static function getContentClass(int $content_id): string;
+    public static function getContentClass(int $content_id): string
+    {
+        /** Implement in child class. Cannot declare the method abstract as it's called within this class. */
+        if ($content_id < 1) {
+            throw new InvalidTypeException('Unrecognized content type.');
+        }
+        return '';
+    }
 
     /**
      * Sets the filters object to the appropriate type based on the value of $content_id.
@@ -100,7 +115,14 @@ abstract class ContentController
      * @return string
      * @throws Exception
      */
-    public abstract static function getContentFiltersClass(int $content_id): string;
+    public static function getContentFiltersClass(int $content_id): string
+    {
+        /** Implement in child class. Cannot declare the method abstract as it's called within this class. */
+        if ($content_id < 1) {
+            throw new InvalidTypeException('Unrecognized content type.');
+        }
+        return '';
+    }
 
     /**
      * @param int $content_id
@@ -113,8 +135,7 @@ abstract class ContentController
         $class = static::getContentFiltersClass($content_id);
         try {
             $rc = new ReflectionClass($class);
-        }
-        catch(ReflectionException $ex) {
+        } catch (ReflectionException $ex) {
             throw new Exception("Could not create instance of $class.");
         }
         /** @var ContentFilters $filters */
@@ -134,8 +155,7 @@ abstract class ContentController
         $class = static::getContentClass($content_id);
         try {
             $rc = new ReflectionClass($class);
-        }
-        catch(ReflectionException $ex) {
+        } catch (ReflectionException $ex) {
             throw new InvalidTypeException("Could not create instance of $class.");
         }
         /** @var SerializedContent $content */
@@ -151,38 +171,47 @@ abstract class ContentController
      * @param ?int $record_id (Optional) Record id to inject into the route.
      * @return string
      */
-    abstract public static function getNavigationRoute(int $site_section_id, string $operation, ?int $record_id=null): string;
+    abstract public static function getNavigationRoute(int $site_section_id, string $operation, ?int $record_id = null): string;
 
-	/**
-	 * Returns the name of the PageContent class matching the content type id passed to the method.
-	 * Classes implementing this routine will return the values depending on the value of $content_id.
-	 * @param int $content_id Content type to match with filter type.
-	 * @returns string
-	 * @throws Exception
+    /**
+     * Returns the name of the PageContent class matching the content type id passed to the method.
+     * Classes implementing this routine will return the values depending on the value of $content_id.
+     * @param int $content_id Content type to match with filter type.
+     * @returns string
+     * @throws Exception
      * @deprecated Use getRoutedPageContent() instead
-	 */
-	abstract public static function getPageContentClass(int $content_id): string;
+     */
+    abstract public static function getPageContentClass(int $content_id): string;
 
     /**
      * Returns the name of a RoutedPageContent class appropriate to serve a response matching the requested route represented by the $route_parts argument.
      * @param array $route_parts The route that has been requested, exploded into its parts.
      * @param bool $send_404 (Optional) Flag indicating to send a 404 response if the route is invalid.
      * @return string The name of the matching RoutedPageContent class.
-     * @throws InvalidTypeException
+     * @throws InvalidRouteException
      */
-    abstract public static function getRoutedPageContentClass(array $route_parts, bool $send_404=true): string;
+    public static function getRoutedPageContentClass(array $route_parts, bool $send_404 = true): string
+    {
+        if (count($route_parts) < 1) {
+            if ($send_404) {
+                static::send404ResponseAndExit();
+            }
+            throw new InvalidRouteException('A route was not provided.');
+        }
+        return '';
+    }
 
     /**
      * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by the $route_parts argument.
      * @param array $route_parts The route that has been requested, exploded into its parts.
      * @return RoutedPageContent
-     * @throws InvalidTypeException
+     * @throws InvalidTypeException|InvalidRouteException
      */
     public static function getRoutedPageInstance(array $route_parts): RoutedPageContent
     {
         $class = static::getRoutedPageContentClass($route_parts);
         if (!class_exists($class)) {
-            throw new InvalidTypeException("Invalid routed page content class: \"".basename($class)."\".");
+            throw new InvalidTypeException("Invalid routed page content class: \"" . basename($class) . "\".");
         }
         return new $class();
     }
@@ -196,24 +225,25 @@ abstract class ContentController
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
+     * @throws InvalidQueryException|InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public static function retrieveContentDataByType(SerializedContent $content)
     {
         if (1 > $content->id->value) {
-            throw new ConfigurationUndefinedException("[".Log::getShortMethodName()."] A record was not specified for retrieval.");
+            throw new ConfigurationUndefinedException("[" . Log::getShortMethodName() . "] A record was not specified for retrieval.");
         }
         $content->read();
     }
 
-	/**
-	 * Respond to request with 404 error
-	 * @return void
-	 */
-	public static function send404ResponseAndExit()
-	{
-		http_response_code(404);
-		exit;
-	}
+    /**
+     * Respond to request with 404 error
+     * @return void
+     */
+    public static function send404ResponseAndExit()
+    {
+        http_response_code(404);
+        exit;
+    }
 }
