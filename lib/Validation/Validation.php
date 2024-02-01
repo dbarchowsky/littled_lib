@@ -467,7 +467,7 @@ class Validation
     {
         return (
             (is_object($sub) && get_class($sub) == $base) ||
-            ($sub == $base) ||
+            ($sub === $base) ||
             (is_subclass_of($sub, $base)));
     }
 
