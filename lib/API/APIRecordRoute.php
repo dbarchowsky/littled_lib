@@ -29,13 +29,23 @@ class APIRecordRoute extends APIRoute
      */
     public function collectContentID(?array $src = null): APIRecordRoute
     {
-        $this->content->id->collectRequestData($src);
-        if ($this->content->id->value === null && $this->content->id->key != LittledGlobals::ID_KEY) {
-            $this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
+        // first, try extracting the record id from the api route
+        $rp_id = $this->lookupRecordIdRoutePart();
+        $this->content->id->value = Validation::parseNumeric($rp_id);
+        if ($this->content->id->value > 0) {
+            return $this;
         }
-        if ($this->content->id->value === null || $this->content->id->value < 1) {
-            $rp_id = $this->lookupRecordIdRoutePart();
-            $this->content->id->value = Validation::parseNumeric($rp_id);
+
+        // next, collect record id value from ajax/post data using input property's internal parameter name
+        $this->content->id->collectRequestData($src);
+        if ($this->content->id->value > 0) {
+            return $this;
+        }
+
+        // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value
+        // in ajax/post data using the default record id key
+        if ($this->content->id->key != LittledGlobals::ID_KEY) {
+            $this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
         }
         return $this;
     }
