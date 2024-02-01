@@ -32,6 +32,10 @@ class APIRecordRoute extends APIRoute
         if ($this->content->id->value === null && $this->content->id->key != LittledGlobals::ID_KEY) {
             $this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
         }
+        if ($this->content->id->value === null || $this->content->id->value < 1) {
+            $rp_id = $this->lookupRecordIdRoutePart();
+            $this->content->id->value = Validation::parseNumeric($rp_id);
+        }
     }
 
     /**
@@ -57,12 +61,25 @@ class APIRecordRoute extends APIRoute
         $this->retrieveContentProperties();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getContentProperties(): ContentProperties
     {
         if ($this->hasContentPropertiesObject()) {
             return $this->content->content_properties;
         }
         return parent::getContentProperties();
+    }
+
+    /**
+     * Returns singular record id value if that is what is currently stored in the $record_ids property.
+     * Null is returned if $record_ids is storing no values or multiple values.
+     * @return int|null
+     */
+    public function getRecordId(): ?int
+    {
+        return ($this->content->id->value === false ? null : $this->content->id->value);
     }
 
     /**
@@ -81,8 +98,9 @@ class APIRecordRoute extends APIRoute
      * @param ?array $src Optional array of variables to use instead of POST data.
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
+     * @return APIRecordRoute
      */
-    public function initializeContentObject(?int $content_id = null, ?array $src = null)
+    public function initializeContentObject(?int $content_id = null, ?array $src = null): APIRecordRoute
     {
         if (!$content_id) {
             if ($src === null) {
@@ -95,6 +113,7 @@ class APIRecordRoute extends APIRoute
             }
         }
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_id);
+        return $this;
     }
 
     /**
@@ -103,6 +122,39 @@ class APIRecordRoute extends APIRoute
     public function hasContentPropertiesObject(): bool
     {
         return isset($this->content);
+    }
+
+    /**
+     * @param string $placeholder
+     * @return false|int|string
+     */
+    protected function lookupRecordIdRoutePart(string $placeholder='')
+    {
+        $placeholders = ['#', '[#]'];
+        if ($placeholder) {
+            $placeholders[] = $placeholder;
+        }
+
+        // offset in request uri to first route part
+        if (!isset($_SERVER) || !array_key_exists('REQUEST_URI', $_SERVER)) {
+            return false;
+        }
+        $uri = $_SERVER['REQUEST_URI'];
+        $uri_parts = explode('/', trim($uri, '/'));
+        $offset = array_search(static::$route_parts[0], $uri_parts);
+
+        foreach($placeholders as $ph) {
+            $index = array_search($ph, static::$route_parts);
+            if ($index !== false) {
+                if (count($uri_parts) > $offset + $index) {
+                    return $uri_parts[$offset + $index];
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     /**

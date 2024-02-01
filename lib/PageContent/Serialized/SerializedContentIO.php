@@ -12,10 +12,9 @@ use Exception;
 
 abstract class SerializedContentIO extends SerializedContentValidation
 {
-    /** @var bool Flag to skip filling object values from input variables (GET or POST). */
-    public bool $bypassCollectFromInput = false;
-    /** @var string */
-    protected static string $table_name='';
+    /** @var bool               Flag to skip filling object values from input variables (GET or POST). */
+    public bool                 $bypassCollectFromInput = false;
+    protected static string     $table_name='';
 
     /**
      * Clears all form input values

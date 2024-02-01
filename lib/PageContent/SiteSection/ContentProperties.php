@@ -19,44 +19,44 @@ use Exception;
  */
 class ContentProperties extends SerializedContent
 {
-    const                       ID_KEY = 'ssid';
-    protected static int $content_type_id = 27;
-    protected static string $table_name = 'site_section';
-    /** @var StringTextField    Name of the content. */
-    public StringTextField $name;
-    /** @var StringTextField    Label to use to describe the content records on the frontend */
-    public StringTextField $label;
-    /** @var StringTextField    Name of the variable used to make requests for a particular type of content record. */
-    public StringTextField $id_key;
+    const                           ID_KEY = 'ssid';
+    protected static int            $content_type_id = 27;
+    protected static string         $table_name = 'site_section';
+    /** @var StringTextField        Name of the content. */
+    public StringTextField          $name;
+    /** @var StringTextField        Label to use to describe the content records on the frontend */
+    public StringTextField          $label;
+    /** @var StringTextField        Name of variable used to make requests for a particular type of content record. */
+    public StringTextField          $id_key;
     /**
-     * @var StringTextField     Text token used to identify the content type.
+     * @var StringTextField         Text token used to identify the content type.
      * @todo Audit the use of this property.
      */
-    public StringTextField $slug;
+    public StringTextField          $slug;
     /**
-     * @var StringTextField     Root directory for section content.
+     * @var StringTextField         Root directory for section content.
      * @todo Audit the use of this property now that routes are the principle method for responding to client requests.
      */
-    public StringTextField $root_dir;
+    public StringTextField          $root_dir;
     /**
-     * @var StringTextField     Content able name.
+     * @var StringTextField         Content able name.
      * @todo Audit this field to determine if it should be deprecated. Consider using SerializedContent::$table_name in its place.
      */
-    public StringTextField $table;
-    /** @var IntegerSelect      Numeric identifier of the content type that is a parent to the principal content type */
-    public IntegerSelect $parent_id;
-    /** @var BooleanCheckbox    Flag indicating that this section's content gets cached. */
-    public BooleanCheckbox $is_cached;
-    /** @var BooleanCheckbox    Flag indicating that the order of the records on listings pages can be manually reorganized. */
-    public BooleanCheckbox $is_sortable;
-    /** @var BooleanCheckbox    Flag indicating to use gallery thumbnails. */
-    public BooleanCheckbox $gallery_thumbnail;
-    /** @var string             Parent content type name. */
-    public string $parent = '';
-    /** @var ContentTemplate[]  List of templates used to render pages displaying record data */
-    public array $templates = [];
-    /** @var ContentRoute[]     List of routes to pages displaying record data */
-    public array $routes = [];
+    public StringTextField          $table;
+    /** @var IntegerSelect          Numeric identifier of content type that is parent to the principal content type */
+    public IntegerSelect            $parent_id;
+    /** @var BooleanCheckbox        Flag indicating that this section's content gets cached. */
+    public BooleanCheckbox          $is_cached;
+    /** @var BooleanCheckbox        Flag indicating that the order of the records on listings pages can be manually reorganized. */
+    public BooleanCheckbox          $is_sortable;
+    /** @var BooleanCheckbox        Flag indicating to use gallery thumbnails. */
+    public BooleanCheckbox          $gallery_thumbnail;
+    /** @var string                 Parent content type name. */
+    public string                   $parent = '';
+    /** @var ContentTemplate[]      List of templates used to render pages displaying record data */
+    public array                    $templates = [];
+    /** @var ContentRoute[]         List of routes to pages displaying record data */
+    public array                    $routes = [];
 
     /**
      * SiteSection constructor.
