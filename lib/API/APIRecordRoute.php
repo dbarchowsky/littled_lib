@@ -11,6 +11,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
@@ -116,6 +117,11 @@ class APIRecordRoute extends APIRoute
      */
     public function initializeContentObject(?int $content_id = null, ?array $src = null): APIRecordRoute
     {
+        if (isset($this->content) && Validation::isSubclass($this->content, SerializedContent::class)) {
+            // already initialized
+            return $this;
+        }
+
         if (!$content_id) {
             if ($src === null) {
                 // ignore GET request data
