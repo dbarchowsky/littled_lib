@@ -381,24 +381,26 @@ abstract class APIRoute extends PageContentBase
      * Looks for the route matching $route_name in the currently loaded templates. Sets the object's route
      * property value to that route object.
      * @param string $operation
-     * @return void
+     * @return $this
      */
-    public function lookupRoute(string $operation = '')
+    public function lookupRoute(string $operation = ''): APIRoute
     {
         $operation = $operation ?: $this->operation->value;
         $this->route = $this->getContentProperties()->getContentRouteByOperation($operation);
+        return $this;
     }
 
     /**
      * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
      * property value to that template object.
      * @param string $operation
-     * @return void
+     * @return $this
      */
-    public function lookupTemplate(string $operation = '')
+    public function lookupTemplate(string $operation = ''): APIRoute
     {
         $operation = $operation ?: $this->operation->value;
         $this->template = $this->getContentProperties()->getContentTemplateByName($operation);
+        return $this;
     }
 
     /**
