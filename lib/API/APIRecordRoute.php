@@ -31,9 +31,11 @@ class APIRecordRoute extends APIRoute
     {
         // first, try extracting the record id from the api route
         $rp_id = $this->lookupRecordIdRoutePart();
-        $this->content->id->value = Validation::parseNumeric($rp_id);
-        if ($this->content->id->value > 0) {
-            return $this;
+        if ($rp_id) {
+            $this->content->id->value = Validation::parseNumeric($rp_id);
+            if ($this->content->id->value > 0) {
+                return $this;
+            }
         }
 
         // next, collect record id value from ajax/post data using input property's internal parameter name
