@@ -51,6 +51,15 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     }
 
     /**
+     * Route parts getter.
+     * @return array
+     */
+    public static function getRouteParts(): array
+    {
+        return (static::$route_parts ?? []);
+    }
+
+    /**
      * Returns one component of the route parts, the 2nd one by default.
      * @param int $index
      * @return string
