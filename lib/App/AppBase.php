@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\App;
 
 use Exception;
@@ -20,21 +21,21 @@ class AppBase
     /**
      * Class constructor
      */
-	function __construct()
-	{
+    function __construct()
+    {
         /* nothing here for now. put logic in child classes. */
-	}
+    }
 
     /**
      * Assigns client ajax request data values to object properties.
      * @param ?object $data
      */
-    public function collectAjaxClientRequestData(?object $data=null)
+    public function collectAjaxClientRequestData(?object $data = null)
     {
         if (is_null($data)) {
-            $data = static::getAjaxRequestData();
+            $data = (object)static::getAjaxRequestData();
         }
-        foreach($this as $item) {
+        foreach ($this as $item) {
             if (is_object($item) && method_exists($item, 'collectAjaxRequestData')) {
                 /** @var RequestInput $item */
                 $item->collectAjaxRequestData($data);
@@ -43,13 +44,13 @@ class AppBase
     }
 
     /**
-	 * Generate string to use as CSRF token.
+     * Generate string to use as CSRF token.
      * @return string CSRF token value.
-	 */
-	public static function generateCSRFToken(): string
-	{
+     */
+    public static function generateCSRFToken(): string
+    {
         return base64_encode(openssl_random_pseudo_bytes(32));
-	}
+    }
 
     /**
      * Generates unique strings to use as identifier tokens.
@@ -59,7 +60,7 @@ class AppBase
      */
     public static function generateUniqueToken(int $length): string
     {
-        $bytes = random_bytes(ceil($length/2));
+        $bytes = random_bytes(ceil($length / 2));
         return (substr(bin2hex($bytes), 0, $length));
     }
 
@@ -79,37 +80,37 @@ class AppBase
     public static function getAjaxRequestData(): ?array
     {
         $data = (array)json_decode(file_get_contents(static::$ajax_input_stream));
-        return ((count($data)>0)?($data):(null));
+        return ((count($data) > 0) ? ($data) : (null));
     }
 
     /**
      * Returns the path to the app's document root.
      * @return string Path to document root. Or empty string if the path is unavailable.
      */
-    public static function getAppRootDir() : string
+    public static function getAppRootDir(): string
     {
         if ($_SERVER['DOCUMENT_ROOT']) {
-            return rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/';
+            return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/';
         }
         return ('');
     }
 
     /**
-	 * Returns the CSRF token for this session.
+     * Returns the CSRF token for this session.
      * @param bool $ignore_consent Optional flag allowing calling function to ignore any preferences found for respecting cookie consent.
-	 * @return string|null
-	 */
-	public static function getCSRFToken(bool $ignore_consent=false): ?string
-	{
-		if ($ignore_consent===false && Validation::checkForCookieConsent()===false) {
-			// avoid accessing session variables before getting consent for storing cookie data
-			return '';
-		}
-		if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
-			AppBase::storeCSRFToken();
-		}
-		return $_SESSION[LittledGlobals::CSRF_SESSION_KEY];
-	}
+     * @return string|null
+     */
+    public static function getCSRFToken(bool $ignore_consent = false): ?string
+    {
+        if ($ignore_consent === false && Validation::checkForCookieConsent() === false) {
+            // avoid accessing session variables before getting consent for storing cookie data
+            return '';
+        }
+        if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
+            AppBase::storeCSRFToken();
+        }
+        return $_SESSION[LittledGlobals::CSRF_SESSION_KEY];
+    }
 
     /**
      * Error key getter.
@@ -135,9 +136,9 @@ class AppBase
      * the data that can be returned.
      * @return array
      */
-    public static function getRequestData(?array $src=null): array
+    public static function getRequestData(?array $src = null): array
     {
-        if ($src===null) {
+        if ($src === null) {
             $src = array_merge($_POST, $_GET);
         }
         if (count($src) < 1) {
@@ -147,17 +148,17 @@ class AppBase
     }
 
     /**
-	 * Redirect to the site's error page with error to display on the page.
-	 * @param string $error_msg Error message to inject into the error page template.
-	 * @param string $url (Optional) URL of the global site error page.
-	 * @param string $key (Optional) key used to store and retrieve error message.
-	 */
-	public static function redirectToErrorPage(string $error_msg, string $url='', string $key='')
-	{
+     * Redirect to the site's error page with error to display on the page.
+     * @param string $error_msg Error message to inject into the error page template.
+     * @param string $url (Optional) URL of the global site error page.
+     * @param string $key (Optional) key used to store and retrieve error message.
+     */
+    public static function redirectToErrorPage(string $error_msg, string $url = '', string $key = '')
+    {
         $url = $url ?: static::getErrorPageURL();
         $key = $key ?: static::getErrorKey();
-		header("Location: $url?$key=".urlencode($error_msg));
-	}
+        header("Location: $url?$key=" . urlencode($error_msg));
+    }
 
     /**
      * API input stream setter
@@ -197,22 +198,20 @@ class AppBase
      */
     public static function startSessionTestingForEU()
     {
-        if (Validation::checkForCookieConsent()===true) {
+        if (Validation::checkForCookieConsent() === true) {
             if (session_id() == "") {
                 session_start();
             }
-        }
-        else {
+        } else {
             try {
-                if (Validation::isEUClient()===false) {
-                    if (session_id()=='') {
+                if (Validation::isEUClient() === false) {
+                    if (session_id() == '') {
                         session_start();
                     }
-                    setcookie(LittledGlobals::COOKIE_CONSENT_KEY, '1', time()+(60*60*24*90));
+                    setcookie(LittledGlobals::COOKIE_CONSENT_KEY, '1', time() + (60 * 60 * 24 * 90));
                     $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = true;
                 }
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 /** ignore errors but don't set cookie consent */
             }
         }
@@ -230,20 +229,4 @@ class AppBase
         }
         // $_SESSION[CSRF_AJAX_PARAM] = '12345abcde';
     }
-
-    /**
-	 * @deprecated Use /Littled/Log/Debug::output() instead.
-	 * Print debug message including information about the location of the call to debugmsg() and the type of the object being worked on.
-	 * @param string $error_msg Message to print.
-	 */
-	public function debugmsg( string $error_msg )
-	{
-		if (defined('SUPPRESS_DEBUG') && SUPPRESS_DEBUG===true) {
-			return;
-		}
-		print "<div class=\"debug\"><span class=\"formerror\">*** DEBUG *** </span>";
-		$arDbg = debug_backtrace();
-		print ("<span class=\"dimtext\">[".$arDbg[1]['class']."::".$arDbg[1]['function']."() line ".$arDbg[0]["line"]."] [".get_class($this)."]</span> ");
-		print htmlentities($error_msg, ENT_QUOTES)."</div>\n";
-	}
 }
