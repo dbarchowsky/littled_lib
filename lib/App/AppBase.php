@@ -3,6 +3,7 @@
 namespace Littled\App;
 
 use Exception;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -39,6 +40,10 @@ class AppBase
             if (is_object($item) && method_exists($item, 'collectAjaxRequestData')) {
                 /** @var RequestInput $item */
                 $item->collectAjaxRequestData($data);
+            }
+            elseif(Validation::isSubclass($item, SerializedContent::class)) {
+                /** @var SerializedContent $item */
+                $item->collectAjaxClientRequestData($data);
             }
         }
     }
