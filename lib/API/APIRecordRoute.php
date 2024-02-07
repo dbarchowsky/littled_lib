@@ -127,7 +127,13 @@ class APIRecordRoute extends APIRoute
                 // ignore GET request data
                 $src = &$_POST;
             }
-            $content_id = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
+            $key_options = [LittledGlobals::CONTENT_TYPE_KEY, ContentProperties::ID_KEY];
+            foreach($key_options as $key) {
+                $content_id = Validation::collectIntegerRequestVar($key, null, $src);
+                if ($content_id) {
+                    break;
+                }
+            }
             if (!$content_id) {
                 throw new ContentValidationException("Content type not provided.");
             }
