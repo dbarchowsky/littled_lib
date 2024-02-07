@@ -68,7 +68,7 @@ class APIRecordRoute extends APIRoute
      */
     public function collectRequestData(?array $src = null)
     {
-        parent::collectRequestData();
+        parent::collectRequestData($src);
         if (!isset($this->content)) {
             $this->initializeContentObject(null, $src);
         }
