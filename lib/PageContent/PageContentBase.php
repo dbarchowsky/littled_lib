@@ -94,11 +94,12 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     /**
      * Filters property setter.
      * @param ContentFilters $filters
-     * @return void
+     * @return $this
      */
-    public function setFilters(ContentFilters $filters)
+    public function setFilters(ContentFilters $filters): PageContentBase
     {
         $this->filters = $filters;
+        return $this;
     }
 
     /**
@@ -134,10 +135,11 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     /**
      * Template path setter.
      * @param $path
-     * @return void
+     * @return $this
      */
-    public function setTemplatePath($path)
+    public function setTemplatePath($path): PageContentBase
     {
         $this->template_path = $path;
+        return $this;
     }
 }
