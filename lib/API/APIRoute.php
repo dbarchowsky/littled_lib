@@ -82,6 +82,35 @@ abstract class APIRoute extends PageContentBase
     }
 
     /**
+     * Collects content type value from request data allowing for multiple key names storing the value.
+     * @param ?array $src
+     * @param array $keys
+     * @return int|null
+     */
+    protected function collectContentTypeIdFromRequestData(?array $src=null, array $keys=[]): ?int
+    {
+        $key_options = [
+            LittledGlobals::CONTENT_TYPE_KEY,
+            ContentProperties::ID_KEY,
+            $this->getContentTypeKey()];
+        $key_options = array_unique(array_merge($key_options, $keys));
+        $content_id = null;
+        foreach($key_options as $key) {
+            $content_id = Validation::collectIntegerRequestVar($key, null, $src);
+            if ($content_id) {
+                break;
+            }
+        }
+        return $content_id;
+    }
+
+    /**
+     * Returns the current key value used to access the content type value in request data.
+     * @return string
+     */
+    abstract public function getContentTypeKey(): string;
+
+    /**
      * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
@@ -97,7 +126,7 @@ abstract class APIRoute extends PageContentBase
 
         $cp = $this->getContentProperties();
         if (!$cp->id->value) {
-            $content_type_id = Validation::collectIntegerRequestVar($key, null, $ajax_rd);
+            $content_type_id = $this->collectContentTypeIdFromRequestData($ajax_rd, [$key]);
             if ($content_type_id === null) {
                 throw new ContentValidationException("Content type not specified.");
             }

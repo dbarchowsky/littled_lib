@@ -88,6 +88,17 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getContentTypeKey(): string
+    {
+        if (isset($this->content)) {
+            return $this->content->content_properties->id->key;
+        }
+        return '';
+    }
+
+    /**
      * Returns singular record id value if that is what is currently stored in the $record_ids property.
      * Null is returned if $record_ids is storing no values or multiple values.
      * @return int|null
@@ -109,36 +120,30 @@ class APIRecordRoute extends APIRoute
 
     /**
      * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.
-     * @param ?int $content_id Optional content type id to use to retrieve content instance.
+     * @param ?int $content_type_id Optional content type id to use to retrieve content instance.
      * @param ?array $src Optional array of variables to use instead of POST data.
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
      * @return $this
+     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
      */
-    public function initializeContentObject(?int $content_id = null, ?array $src = null): APIRecordRoute
+    public function initializeContentObject(?int $content_type_id = null, ?array $src = null): APIRecordRoute
     {
         if (isset($this->content) && Validation::isSubclass($this->content, SerializedContent::class)) {
             // already initialized
             return $this;
         }
 
-        if (!$content_id) {
+        if (!$content_type_id) {
             if ($src === null) {
                 // ignore GET request data
                 $src = &$_POST;
             }
-            $key_options = [LittledGlobals::CONTENT_TYPE_KEY, ContentProperties::ID_KEY];
-            foreach($key_options as $key) {
-                $content_id = Validation::collectIntegerRequestVar($key, null, $src);
-                if ($content_id) {
-                    break;
-                }
-            }
-            if (!$content_id) {
+            $content_type_id = $this->collectContentTypeIdFromRequestData($src);
+            if (!$content_type_id) {
                 throw new ContentValidationException("Content type not provided.");
             }
         }
-        $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_id);
+        $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
         return $this;
     }
 
