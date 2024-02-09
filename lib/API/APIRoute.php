@@ -493,17 +493,21 @@ abstract class APIRoute extends PageContentBase
     }
 
     /**
-     * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the class's json property's content property, which is then sent back to the client.
+     * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the
+     * class's json property's content property, which is then sent back to the client.
      * @param string $next_operation Token determining which template to load.
+     * @param array $context (Optional) Variables to insert into the template. When an array is provided, it will
+     * override the default template context. If not provided, the context will be generated using the object's
+     * getTemplateContext() routine.
      * @throws Exception
      */
-    public function refreshContentAfterEdit(string $next_operation)
+    public function refreshContentAfterEdit(string $next_operation, array $context=[])
     {
         $template = $this->newTemplateInstance();
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
         $this->json->loadContentFromTemplate(
             $template->formatFullPath(),
-            $this->getTemplateContext());
+            $context ?? $this->getTemplateContext());
     }
 
     /**
