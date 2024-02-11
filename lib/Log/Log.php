@@ -31,6 +31,20 @@ class Log
     }
 
     /**
+     * Returns the base name of a class within a fully qualified class name.
+     * @param string $class Fully qualified class name.
+     * @return string Base name of class.
+     */
+    public static function getClassBaseName(string $class): string
+    {
+        $pos = strrpos($class, '\\');
+        if ($pos===false) {
+            return $class;
+        }
+        return substr($class, $pos+1);
+    }
+
+    /**
      * Returns the current method name with its class without the path.
      * @return string
      */
