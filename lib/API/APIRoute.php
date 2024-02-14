@@ -271,10 +271,10 @@ abstract class APIRoute extends PageContentBase
      */
     public static function getCacheClass(): string
     {
-        if (ContentCache::class === static::$cache_class) {
+        if (ContentCache::class === self::$cache_class) {
             throw new ConfigurationUndefinedException('Cache class not configured.');
         }
-        return static::$cache_class;
+        return self::$cache_class;
     }
 
     /**
@@ -317,10 +317,10 @@ abstract class APIRoute extends PageContentBase
      */
     public static function getControllerClass(): string
     {
-        if (ContentController::class === static::$controller_class) {
+        if (ContentController::class === self::$controller_class) {
             throw new ConfigurationUndefinedException('Controller class not configured.');
         }
-        return static::$controller_class;
+        return self::$controller_class;
     }
 
     /**
@@ -329,7 +329,7 @@ abstract class APIRoute extends PageContentBase
      */
     public static function getDefaultTemplateDir(): string
     {
-        return static::$default_template_dir;
+        return self::$default_template_dir;
     }
 
     /**
@@ -338,7 +338,7 @@ abstract class APIRoute extends PageContentBase
      */
     public static function getDefaultTemplateName(): string
     {
-        return static::$default_template_name;
+        return self::$default_template_name;
     }
 
     /**
@@ -390,7 +390,7 @@ abstract class APIRoute extends PageContentBase
     protected function initializeFiltersObject(?int $content_type_id = null)
     {
         $this->filters = call_user_func(
-            [static::getControllerClass(), 'getContentFiltersObject'],
+            [self::getControllerClass(), 'getContentFiltersObject'],
             $content_type_id ?: $this->getContentTypeId());
         $this->getContentProperties()->setRecordId($content_type_id);
     }
@@ -596,7 +596,7 @@ abstract class APIRoute extends PageContentBase
         if (!is_a($class_name, ContentCache::class, true)) {
             throw new InvalidTypeException("\"$class_name\" is not a valid content cache type.");
         }
-        static::$cache_class = $class_name;
+        self::$cache_class = $class_name;
     }
 
     /**
@@ -622,7 +622,7 @@ abstract class APIRoute extends PageContentBase
             throw new InvalidTypeException(Log::getShortMethodName() . ' Invalid controller type. ');
         }
         unset($o);
-        static::$controller_class = $class_name;
+        self::$controller_class = $class_name;
     }
 
     /**
@@ -632,7 +632,7 @@ abstract class APIRoute extends PageContentBase
      */
     public static function setDefaultTemplateDir(string $path)
     {
-        static::$default_template_dir = $path;
+        self::$default_template_dir = $path;
     }
 
     /**
@@ -642,6 +642,6 @@ abstract class APIRoute extends PageContentBase
      */
     public static function setDefaultTemplateName(string $name)
     {
-        static::$default_template_name = $name;
+        self::$default_template_name = $name;
     }
 }
