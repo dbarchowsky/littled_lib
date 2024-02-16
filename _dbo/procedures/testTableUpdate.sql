@@ -6,6 +6,7 @@ CREATE OR REPLACE PROCEDURE `testTableUpdate`(
     IN p_int_col            INT,
     IN p_bool_col           BOOL,
     IN p_date               DATETIME,
+    IN p_status_id          INT,
     IN p_slot               INT
 )
 BEGIN
@@ -16,21 +17,24 @@ INSERT INTO `test_table` (
     `int_col`,
     `bool_col`,
     `date`,
+    `status_id`,
     `slot`
 ) VALUES (
-     p_record_id,
-     p_name,
-     p_int_col,
-     p_bool_col,
-     p_date,
-     p_slot
+    p_record_id,
+    p_name,
+    p_int_col,
+    p_bool_col,
+    p_date,
+    p_status_id,
+    p_slot
 )
 ON DUPLICATE KEY UPDATE
-     `name`                 = p_name,
-     `int_col`              = p_int_col,
-     `bool_col`             = p_bool_col,
-     `date`                 = p_date,
-     `slot`                 = p_slot;
+    `name`                 = p_name,
+    `int_col`              = p_int_col,
+    `bool_col`             = p_bool_col,
+    `date`                 = p_date,
+    `status_id`             = status_id,
+    `slot`                 = p_slot;
 
 IF p_record_id IS NULL THEN
     SELECT LAST_INSERT_ID() INTO p_record_id;
