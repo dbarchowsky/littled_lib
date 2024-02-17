@@ -398,12 +398,14 @@ abstract class APIRoute extends PageContentBase
     /**
      * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
      * @param array|null $context Optional array containing data to inject into the template.
+     * @return $this
      * @throws ResourceNotFoundException
      * @throws Exception
      */
-    public function loadTemplateContent(?array $context = null)
+    public function loadTemplateContent(?array $context = null): APIRoute
     {
         $this->json->loadContentFromTemplate($this->getTemplatePath(), $context ?: $this->getTemplateContext());
+        return $this;
     }
 
     /**
