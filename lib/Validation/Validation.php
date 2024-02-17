@@ -622,6 +622,14 @@ class Validation
             array_values(array_filter(preg_split('/\//', $route))));
     }
 
+    public static function startsWithVowel(?string $str): bool
+    {
+        if (trim(''.$str) === '') {
+            return false;
+        }
+        return in_array(strtolower($str[0]), ['a', 'e', 'i', 'o', 'u']);
+    }
+
     /**
      * Strips HTML tags from request variable value.
      * @param string $key
