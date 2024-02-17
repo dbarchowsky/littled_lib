@@ -35,22 +35,22 @@ abstract class APIRoute extends PageContentBase
     /** @var string */
     public const                TEMPLATE_TOKEN_KEY = 'templateToken';
     /** @var string             Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
-    protected static string $cache_class = ContentCache::class;
+    protected static string     $cache_class = ContentCache::class;
     /** @var string             Name a \Littled\PageContent\ContentController class to use as content controller. */
-    protected static string $controller_class = ContentController::class;
+    protected static string     $controller_class = ContentController::class;
     /** @var string             Name of the default template to use in derived classes to generate markup. */
-    protected static string $default_template_dir = '';
-    protected static string $default_template_name = '';
+    protected static string     $default_template_dir = '';
+    protected static string     $default_template_name = '';
     /** @var string             String indicating the action to be taken on the page. */
-    public string $action = '';
+    public string               $action = '';
     /** @var JSONRecordResponse JSON response object. */
-    public JSONRecordResponse $json;
+    public JSONRecordResponse   $json;
     /** @var StringInput        Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
-    public StringInput $operation;
+    public StringInput          $operation;
     /** @var ?ContentTemplate   Current content template properties. */
-    public ?ContentTemplate $template;
+    public ?ContentTemplate     $template;
     /** @var ?ContentRoute      Current content route properties. */
-    public ?ContentRoute $route;
+    public ?ContentRoute        $route;
 
     /**
      * Class constructor.
@@ -643,5 +643,62 @@ abstract class APIRoute extends PageContentBase
     public static function setDefaultTemplateName(string $name)
     {
         self::$default_template_name = $name;
+    }
+
+    /**
+     * Response container id value setter.
+     * @param string $container_id
+     * @return $this
+     */
+    public function setResponseContainerId(string $container_id): APIRoute
+    {
+        $this->json->setResponseContainerId($container_id);
+        return $this;
+    }
+
+    /**
+     * Response content value setter.
+     * @param string $content
+     * @return $this
+     */
+    public function setResponseContent(string $content): APIRoute
+    {
+        $this->json->setResponseContent($content);
+        return $this;
+    }
+
+    /**
+     * Response data setter after api request has been successfully processed.
+     * @param string $content
+     * @param string $status
+     * @param string $container_id
+     * @return $this
+     */
+    public function setResponseData(string $content, string $status, string $container_id): APIRoute
+    {
+        $this->json->setResponseData($content, $status, $container_id);
+        return $this;
+    }
+
+    /**
+     * Response error value setter.
+     * @param string $err
+     * @return $this
+     */
+    public function setResponseError(string $err): APIRoute
+    {
+        $this->json->setErrorMessage($err);
+        return $this;
+    }
+
+    /**
+     * Response status value setter.
+     * @param string $status
+     * @return $this
+     */
+    public function setResponseStatus(string $status): APIRoute
+    {
+        $this->json->setResponseStatus($status);
+        return $this;
     }
 }
