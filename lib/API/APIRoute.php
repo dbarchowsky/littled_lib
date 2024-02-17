@@ -409,7 +409,8 @@ abstract class APIRoute extends PageContentBase
     /**
      * Looks for the route matching $route_name in the currently loaded templates. Sets the object's route
      * property value to that route object.
-     * @param string $operation
+     * @param string $operation (Optional) Operation token to use to look up the template. Will use internal operation
+     * * property value to perform the lookup if the $operation parameter is not supplied.
      * @return $this
      */
     public function lookupRoute(string $operation = ''): APIRoute
