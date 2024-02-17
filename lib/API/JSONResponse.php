@@ -1,9 +1,9 @@
 <?php
+
 namespace Littled\API;
 
 /**
- * Class JSONResponse
- * @package Littled\PageContent\API
+ * Standardized container for JSON responses to api requests.
  */
 class JSONResponse extends JSONResponseBase
 {
@@ -12,16 +12,16 @@ class JSONResponse extends JSONResponseBase
     /** @var JSONField Error message. */
     public JSONField $error;
 
-	/**
-	 * Class constructor.
+    /**
+     * Class constructor.
      * @param string $key
-	 */
-	function __construct (string $key='')
-	{
+     */
+    public function __construct(string $key = '')
+    {
         parent::__construct($key);
         $this->status = new JSONField('status');
         $this->error = new JSONField('error');
-	}
+    }
 
     /**
      * Handler for PHP exceptions. Will attempt to interpret the error and send it as a response to the calling script.
@@ -38,7 +38,7 @@ class JSONResponse extends JSONResponseBase
 
         if (((
                     E_ERROR |
-                    E_USER_ERROR  |
+                    E_USER_ERROR |
                     E_WARNING |
                     E_USER_WARNING |
                     E_NOTICE |
@@ -50,7 +50,9 @@ class JSONResponse extends JSONResponseBase
         }
 
         error_reporting(0);
-        while(ob_get_level()) { ob_end_clean(); }
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
 
         switch ($err_num) {
             case E_ERROR:
@@ -74,18 +76,24 @@ class JSONResponse extends JSONResponseBase
         }
 
         if ($error = error_get_last()) {
-            if (isset($error["message"])) { $error_str.= " ".$error["message"]; }
-            if (isset($error["file"])) { $error_str.= " at ".$error["file"]; }
-            if (isset($error["line"])) { $error_str.= " line ".$error["line"]; }
+            if (isset($error["message"])) {
+                $error_str .= " " . $error["message"];
+            }
+            if (isset($error["file"])) {
+                $error_str .= " at " . $error["file"];
+            }
+            if (isset($error["line"])) {
+                $error_str .= " line " . $error["line"];
+            }
         }
 
         $response_data = array("error" => $error_str);
 
         if (isset($tags)) {
-            if (property_exists($tags,"id")) {
+            if (property_exists($tags, "id")) {
                 $response_data["id"] = $tags->id->value;
             }
-            if (property_exists($tags,"containerID")) {
+            if (property_exists($tags, "containerID")) {
                 $response_data["container_id"] = $tags->containerID->value;
             }
         }
@@ -99,7 +107,7 @@ class JSONResponse extends JSONResponseBase
      * the object's current properties as JSON string response.
      * @param string $error_msg Error message.
      */
-    function returnError(string $error_msg)
+    public function returnError(string $error_msg)
     {
         $this->error->value = $error_msg;
         $this->sendResponse();
@@ -107,5 +115,16 @@ class JSONResponse extends JSONResponseBase
             cleanup();
         }
         exit;
+    }
+
+    /**
+     * Sets the error message to be returned to the client.
+     * @param string $err
+     * @return $this
+     */
+    public function setErrorMessage(string $err): JSONResponse
+    {
+        $this->error->value = $err;
+        return $this;
     }
 }
