@@ -19,7 +19,8 @@ use Littled\Validation\Validation;
 
 class APIRecordRoute extends APIRoute
 {
-    public SectionContent $content;
+    public SectionContent       $content;
+    protected static string     $route_wildcard = '#';
 
     /**
      * Convenience routine that will collect the content id from POST
@@ -109,6 +110,15 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
+     * Route wildcard getter.
+     * @return string
+     */
+    public static function getRouteWildcard(): string
+    {
+        return static::$route_wildcard;
+    }
+
+    /**
      * @inheritDoc
      */
     public function getTemplateContext(): array
@@ -116,6 +126,14 @@ class APIRecordRoute extends APIRoute
         return array_merge(
             parent::getTemplateContext(),
             array('content' => (isset($this->content)) ? ($this->content) : (null)));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasContentPropertiesObject(): bool
+    {
+        return isset($this->content);
     }
 
     /**
@@ -145,14 +163,6 @@ class APIRecordRoute extends APIRoute
         }
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasContentPropertiesObject(): bool
-    {
-        return isset($this->content);
     }
 
     /**
@@ -258,5 +268,26 @@ class APIRecordRoute extends APIRoute
             $this->initializeContentObject($content_id);
         }
         $this->content->content_properties->id->setInputValue($content_id);
+    }
+
+    public function setResponseContainerId(string $container_id = ''): APIRoute
+    {
+        parent::setResponseContainerId($container_id);
+        $container_id = $this->json->container_id->value;
+        if ($this->getRecordId() > 0 && strpos($container_id, static::$route_wildcard) !== false) {
+            $container_id = str_replace(static::$route_wildcard, (string)$this->getRecordId(), $container_id);
+            $this->json->container_id->value = $container_id;
+        }
+        return $this;
+    }
+
+    /**
+     * Route wildcard setter.
+     * @param string $wc
+     * @return void
+     */
+    public static function setRouteWildcard(string $wc)
+    {
+        static::$route_wildcard = $wc;
     }
 }
