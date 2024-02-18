@@ -650,11 +650,20 @@ abstract class APIRoute extends PageContentBase
 
     /**
      * Response container id value setter.
-     * @param string $container_id
+     * @param string $container_id If a container id value is not provided, the routine will attempt to pull the
+     * container id value from the currently loaded template data.
      * @return $this
+     * @throws ConfigurationUndefinedException
      */
-    public function setResponseContainerId(string $container_id): APIRoute
+    public function setResponseContainerId(string $container_id=''): APIRoute
     {
+        if (!$container_id) {
+            if (!isset($this->template) || !$this->template->hasData() || !$this->template->container_id->hasData()) {
+                $err = 'No template data is available, or a container id value is not present. ';
+                throw new ConfigurationUndefinedException($err);
+            }
+            $container_id = $this->template->container_id->value;
+        }
         $this->json->setResponseContainerId($container_id);
         return $this;
     }
