@@ -105,12 +105,6 @@ abstract class APIRoute extends PageContentBase
     }
 
     /**
-     * Returns the current key value used to access the content type value in request data.
-     * @return string
-     */
-    abstract public function getContentTypeKey(): string;
-
-    /**
      * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
@@ -200,11 +194,14 @@ abstract class APIRoute extends PageContentBase
 
     /**
      * Fills out input values from request data.
-     * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
+     * @param ?array $src Optional array containing request data that will be used as the default source of request
+     * data of GET and POST data.
+     * @return $this;
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): APIRoute
     {
         $this->operation->collectRequestData($src);
+        return $this;
     }
 
     /**
@@ -309,6 +306,12 @@ abstract class APIRoute extends PageContentBase
     {
         return $this->getContentProperties()->id->value;
     }
+
+    /**
+     * Returns the current key value used to access the content type value in request data.
+     * @return string
+     */
+    abstract public function getContentTypeKey(): string;
 
     /**
      * Controller class name getter.
