@@ -9,6 +9,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -163,6 +164,26 @@ class APIRecordRoute extends APIRoute
         }
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
         return $this;
+    }
+
+    /**
+     * Inject record id value into a route string containing a wildcard character holding the place for the id value.
+     * @param string $route Route containing wildcard.
+     * @return string Route containing record id.
+     * @throws NotInitializedException
+     */
+    public function insertRecordIdIntoRoute(string $route=''): string
+    {
+        if (!$route) {
+            if (!isset($this->route)) {
+                throw new NotInitializedException('A route was not provided.');
+            }
+            $route = $this->route->route->value;
+        }
+        if (!$this->getRecordId()) {
+            throw new NotInitializedException('A record id is not available.');
+        }
+        return str_replace(static::$route_wildcard, (string)$this->getRecordId(), $route);
     }
 
     /**
