@@ -166,15 +166,12 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * @param string $placeholder
+     * @param ?string $placeholder
      * @return false|int|string
      */
-    protected function lookupRecordIdRoutePart(string $placeholder='')
+    protected function lookupRecordIdRoutePart(?string $placeholder = null)
     {
-        $placeholders = ['#', '[#]'];
-        if ($placeholder) {
-            $placeholders[] = $placeholder;
-        }
+        $placeholder ??= static::$route_wildcard;
 
         // offset in request uri to first route part
         if (!isset($_SERVER) || !array_key_exists('REQUEST_URI', $_SERVER)) {
@@ -184,15 +181,13 @@ class APIRecordRoute extends APIRoute
         $uri_parts = explode('/', trim($uri, '/'));
         $offset = array_search(static::$route_parts[0], $uri_parts);
 
-        foreach($placeholders as $ph) {
-            $index = array_search($ph, static::$route_parts);
-            if ($index !== false) {
-                if (count($uri_parts) > $offset + $index) {
-                    return $uri_parts[$offset + $index];
-                }
-                else {
-                    return false;
-                }
+        $index = array_search($placeholder, static::$route_parts);
+        if ($index !== false) {
+            if (count($uri_parts) > $offset + $index) {
+                return $uri_parts[$offset + $index];
+            }
+            else {
+                return false;
             }
         }
         return false;
