@@ -194,6 +194,17 @@ class ContentRoute extends SerializedContent
     }
 
     /**
+     * Operation setter.
+     * @param string $route
+     * @return $this
+     */
+    public function setRoute(string $route): ContentRoute
+    {
+        $this->route->value = $route;
+        return $this;
+    }
+
+    /**
      * Site section id setter.
      * @param int $site_section_id
      * @return $this
