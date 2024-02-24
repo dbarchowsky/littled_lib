@@ -67,8 +67,9 @@ class APIRecordRoute extends APIRoute
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException|ContentValidationException
+     * @return $this
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): APIRoute
     {
         parent::collectRequestData($src);
         if (!isset($this->content)) {
@@ -76,6 +77,7 @@ class APIRecordRoute extends APIRoute
         }
         $this->content->collectRequestData($src);
         $this->retrieveContentProperties();
+        return $this;
     }
 
     /**

@@ -19,8 +19,9 @@ class APIListingsRoute extends APIRoute
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException|NotImplementedException
+     * @return $this
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): APIRoute
     {
         parent::collectRequestData($src);
         $content_type_id = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
@@ -31,6 +32,7 @@ class APIListingsRoute extends APIRoute
             $this->initializeFiltersObject($content_type_id);
         }
         $this->filters->collectFilterValues(true, [], $src);
+        return $this;
     }
 
     /**
