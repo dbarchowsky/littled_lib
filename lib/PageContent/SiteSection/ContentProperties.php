@@ -254,7 +254,7 @@ class ContentProperties extends SerializedContent
      * Overrides parent routine to call procedure to retrieve item properties along with extended item properties.
      * @throws Exception
      */
-    public function read(): void
+    public function read(): SerializedContent
     {
         if ($this->id->value === null || $this->id->value < 1) {
             throw new ContentValidationException("Record id not provided.");
@@ -274,6 +274,7 @@ class ContentProperties extends SerializedContent
 
         $this->readRoutes();
         $this->readTemplates();
+        return $this;
     }
 
     /**

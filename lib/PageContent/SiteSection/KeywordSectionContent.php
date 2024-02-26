@@ -12,6 +12,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\StringTextarea;
 
 
@@ -331,18 +332,14 @@ abstract class KeywordSectionContent extends SectionContent
 	}
 
 	/**
-	 * Retrieve record data.
-     * @return void
-     * @throws ConfigurationUndefinedException|ConnectionException|ContentValidationException
-     * @throws InvalidQueryException|InvalidValueException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
+	 * @inheritDoc
      */
-	public function read()
+	public function read(): SerializedContent
 	{
 		parent::read();
 		$this->content_properties->read();
 		$this->readKeywords();
+        return $this;
 	}
 
     /**

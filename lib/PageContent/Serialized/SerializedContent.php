@@ -258,13 +258,14 @@ abstract class SerializedContent extends SerializedContentIO
      * Retrieves data from the database based on the internal properties of the
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
+     * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException Record id not set.
      * @throws RecordNotFoundException Requested record not available.
      * @throws NotImplementedException|InvalidQueryException|InvalidValueException
      */
-    public function read()
+    public function read(): SerializedContent
     {
         if ($this->id->value === null || $this->id->value < 1) {
             throw new ContentValidationException("Record id not set.");
@@ -278,6 +279,7 @@ abstract class SerializedContent extends SerializedContentIO
         }
 
         $this->readLinked();
+        return $this;
     }
 
     /**

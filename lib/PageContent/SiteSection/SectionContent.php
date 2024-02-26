@@ -133,18 +133,13 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidValueException
-     * @throws RecordNotFoundException
-     * @throws NotImplementedException
+     * @inheritDoc
      */
-    public function read()
+    public function read(): SerializedContent
     {
         parent::read();
         $this->retrieveSectionProperties();
+        return $this;
     }
 
     /**
