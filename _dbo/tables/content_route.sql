@@ -13,3 +13,10 @@ ALTER TABLE content_route
     ADD COLUMN `route` VARCHAR(255) DEFAULT '' AFTER `operation`;
 ALTER TABLE `content_route`
     CHANGE COLUMN `url` `api_route` VARCHAR(255);
+ALTER TABLE content_route
+    ADD COLUMN `wildcard` VARCHAR(8) DEFAULT  '' AFTER `api_route`;
+
+INSERT INTO content_route
+(site_section_id, operation, route, api_route, wildcard)
+VALUES
+(6037, 'add', '/test/add', '', '');

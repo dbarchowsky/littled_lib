@@ -23,6 +23,7 @@ BEGIN
             r.`operation`,
             r.`route`,
             r.`api_route`,
+            r.`wildcard`,
             r.site_section_id,
             r.`id`
         FROM `content_route` r

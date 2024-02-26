@@ -40,6 +40,8 @@ class ContentRoute extends SerializedContent
     public StringTextField          $route;
     /** @var StringTextField        The URL used to retrieve and refresh content. */
     public StringTextField          $api_route;
+    /** @var StringTextField        The wildcard used to inject record ids into route strings. */
+    public StringTextField          $wildcard;
 
     /**
      * Class constructor
@@ -65,6 +67,7 @@ class ContentRoute extends SerializedContent
         $this->operation = new StringTextField('Name', 'routeOp', true, $operation, 45);
         $this->route = new StringTextField('Route', 'route', false, $route, 255);
         $this->api_route = new URLTextField('URL', 'apiRoute', true, $api_route, 256);
+        $this->wildcard = new StringTextField('Wildcard', 'routeWC', false, '', 8);
     }
 
     /**
@@ -212,6 +215,17 @@ class ContentRoute extends SerializedContent
     public function setSiteSectionId(int $site_section_id): ContentRoute
     {
         $this->site_section_id->setInputValue($site_section_id);
+        return $this;
+    }
+
+    /**
+     * Site section id setter.
+     * @param string $wildcard
+     * @return $this
+     */
+    public function setWildcard(string $wildcard): ContentRoute
+    {
+        $this->wildcard->setInputValue($wildcard);
         return $this;
     }
 }
