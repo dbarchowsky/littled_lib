@@ -608,9 +608,9 @@ abstract class APIRoute extends PageContentBase
     /**
      * Content type id setter.
      * @param int $content_id
-     * @return void
+     * @return $this
      */
-    abstract public function setContentTypeId(int $content_id);
+    abstract public function setContentTypeId(int $content_id): APIRoute;
 
     /**
      * Content cache class setter.
@@ -649,6 +649,17 @@ abstract class APIRoute extends PageContentBase
     public static function setDefaultTemplateName(string $name)
     {
         static::$default_template_name = $name;
+    }
+
+    /**
+     * Operation value setter.
+     * @param string $operation
+     * @return $this
+     */
+    public function setOperation(string $operation): APIRoute
+    {
+        $this->operation->setInputValue($operation);
+        return $this;
     }
 
     /**
