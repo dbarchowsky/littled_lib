@@ -12,7 +12,8 @@ BEGIN
         IFNULL(s.`root_dir`,'') AS `base_path`,
         t.`path` AS `template_path`,
         t.`location`,
-        t.`container_id`
+        t.`container_id`,
+        t.`wildcard`
     FROM `content_template` t
     INNER JOIN `site_section` s ON t.`site_section_id` = s.`id`
     WHERE (t.`site_section_id` = p_content_type_id)

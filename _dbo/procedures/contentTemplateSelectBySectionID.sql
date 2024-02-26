@@ -10,7 +10,8 @@ BEGIN
         t.`name`,
         t.`path`,
         t.`location`,
-        t.`container_id`
+        t.`container_id`,
+        t.`wildcard`
     FROM `content_template` t
     WHERE (t.`site_section_id` = p_id)
     ORDER BY t.`id`;

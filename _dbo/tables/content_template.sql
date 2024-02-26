@@ -23,6 +23,7 @@ ALTER TABLE `content_template` ADD CONSTRAINT fk_content_template_site_section
     ON DELETE CASCADE;
 
 ALTER TABLE `content_template` ADD COLUMN `container_id` VARCHAR(50) DEFAULT '' AFTER `location`;
+ALTER TABLE `content_template` ADD COLUMN `wildcard` VARCHAR(8) DEFAULT '' AFTER `container_id`;
 
 # delete from content_template where site_section_id = 6037 and name = 'edit-status';
 INSERT INTO content_template
@@ -30,4 +31,4 @@ INSERT INTO content_template
 VALUES
     (6037, 'edit-status', 'forms/ajax/inline-status-edit-form.php', 'local', '#inline-status-[#]'),
     (6037, 'commit-status', 'forms/ajax/inline-status.php', 'local', '#inline-status-[#]');
-
+UPDATE content_template set wildcard = '[#]' where ``.content_template.container_id like '%[#]%';
