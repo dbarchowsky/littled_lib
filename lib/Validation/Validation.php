@@ -445,6 +445,16 @@ class Validation
     }
 
     /**
+     * Tests if there are non-whitespace characters in a string.
+     * @param string|null $var
+     * @return bool
+     */
+    public static function isStringBlank(?string $var): bool
+    {
+        return (trim(''.$var) === '');
+    }
+
+    /**
      * Tests if a variable is a string of more than 0 characters.
      * @param mixed $var Variable to test
      * @return bool TRUE if the variable holds a string value of more than 0 characters.
