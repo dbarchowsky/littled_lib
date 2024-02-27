@@ -43,6 +43,11 @@ class ContentTemplate extends SerializedContent
     public StringTextField      $wildcard;
     /** @var IntegerInput       Pointer to $site_section_id property */
     public IntegerInput         $parentID;
+    /**
+     * @var bool                Flag indicating that additional assignments are required to transfer data from a
+     *                          database query to the object property values.
+     */
+    protected bool              $hydrate_extras = false;
 
     /**
      * ContentTemplate constructor.
@@ -157,6 +162,22 @@ class ContentTemplate extends SerializedContent
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function hydrateFromRecordsetRow(object $row)
+    {
+        parent::hydrateFromRecordsetRow($row);
+        if ($this->hydrate_extras) {
+            // "id" field is normally ignored, but it is needed when retrieving records using unique index fields values
+            $this->id->value = $row->id;
+        }
+        if (property_exists($row, 'template_path')) {
+            // stored procedure returned "path" field as "template_path"
+            $this->path->setInputValue($row->template_path);
+        }
+    }
+
+    /**
      * Insert record id value into container id.
      * @param ?int $record_id
      * @return string
@@ -212,9 +233,9 @@ class ContentTemplate extends SerializedContent
         if (count($data) < 1) {
             throw new RecordNotFoundException('[' . Log::getShortMethodName() . '] ' . ucfirst($this->name->value) . ' template not found.');
         }
+        $this->hydrate_extras = true;
         $this->hydrateFromRecordsetRow($data[0]);
-        // stored procedure returned "path" field as "template_path"
-        $this->path->setInputValue($data[0]->template_path);
+        $this->hydrate_extras = false;
     }
 
     /**
@@ -240,6 +261,17 @@ class ContentTemplate extends SerializedContent
     }
 
     /**
+     * Template location setter.
+     * @param string $location
+     * @return $this
+     */
+    public function setLocation(string $location): ContentTemplate
+    {
+        $this->location->setInputValue($location);
+        return $this;
+    }
+
+    /**
      * Operation value setter.
      * @param string $operation
      * @return $this
@@ -247,6 +279,17 @@ class ContentTemplate extends SerializedContent
     public function setOperation(string $operation): ContentTemplate
     {
         $this->name->setInputValue($operation);
+        return $this;
+    }
+
+    /**
+     * Template path value setter.
+     * @param string $path
+     * @return $this
+     */
+    public function setTemplatePath(string $path): ContentTemplate
+    {
+        $this->path->setInputValue($path);
         return $this;
     }
 

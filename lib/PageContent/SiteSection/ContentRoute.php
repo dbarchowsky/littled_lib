@@ -9,8 +9,10 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerSelect;
+use Littled\Request\StringInput;
 use Littled\Request\StringTextField;
 use Littled\Request\URLTextField;
+use Littled\Validation\Validation;
 
 /**
  * Extends SerializedContent to store and retrieve content route properties.
@@ -107,12 +109,13 @@ class ContentRoute extends SerializedContent
      */
     public function generateUpdateQuery(): ?array
     {
-        return array('CALL contentRouteUpdate(@insert_id,?,?,?,?)',
-            'isss',
+        return array('CALL contentRouteUpdate(@insert_id,?,?,?,?,?)',
+            'issss',
             &$this->site_section_id->value,
             &$this->operation->value,
             &$this->route->value,
-            &$this->api_route->value);
+            &$this->api_route->value,
+            &$this->wildcard->value);
     }
 
     /**
@@ -156,6 +159,44 @@ class ContentRoute extends SerializedContent
     }
 
     /**
+     * Inject record id value into an api route string containing a wildcard character holding the place for
+     * the id value.
+     * @param int $record_id Record id value to insert into the route.
+     * @return string Route containing record id.
+     * @throws InvalidValueException
+     */
+    public function insertRecordIdIntoAPIRoute(int $record_id): string
+    {
+        return $this->insertRecordIdIntoRouteProperty($record_id, 'api_route');
+    }
+
+    /**
+     * Inject record id value into a route string containing a wildcard character holding the place for the id value.
+     * @param int $record_id Record id value to insert into the route.
+     * @return string Route containing record id.
+     * @throws InvalidValueException
+     */
+    public function insertRecordIdIntoRoute(int $record_id): string
+    {
+        return $this->insertRecordIdIntoRouteProperty($record_id, 'route');
+    }
+
+    /**
+     * Inject record id value into a route string containing a wildcard character holding the place for the id value.
+     * @param int $record_id Record id value to insert into the route.
+     * @param string $property Name of the route property to use to retrieve base route value.
+     * @return string Route containing record id.
+     * @throws InvalidValueException
+     */
+    protected function insertRecordIdIntoRouteProperty(int $record_id, string $property): string
+    {
+        if (!property_exists($this, $property) || !Validation::isSubclass($this->$property, StringInput::class)) {
+            throw new InvalidValueException("Invalid route property \"$property\".");
+        }
+        return str_replace($this->wildcard->value, (string)$record_id, $this->$property->value);
+    }
+
+    /**
      * Retrieve content route properties using values currently stored in the object. Either the record id value
      * or a combination of site section id and operation values.
      * @return $this
@@ -182,6 +223,28 @@ class ContentRoute extends SerializedContent
         /* id field is ignored in hydrateFromRRR() */
         $this->setRecordId($result[0]->id);
         $this->hydrateFromRecordsetRow($result[0]);
+        return $this;
+    }
+
+    /**
+     * Operation setter.
+     * @param string $route
+     * @return $this
+     */
+    public function setAPIRoute(string $route): ContentRoute
+    {
+        $this->api_route->value = $route;
+        return $this;
+    }
+
+    /**
+     * Operation setter.
+     * @param int $content_id
+     * @return $this
+     */
+    public function setContentType(int $content_id): ContentRoute
+    {
+        $this->site_section_id->value = $content_id;
         return $this;
     }
 
