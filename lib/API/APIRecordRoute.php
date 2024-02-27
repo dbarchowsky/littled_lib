@@ -21,7 +21,6 @@ use Littled\Validation\Validation;
 class APIRecordRoute extends APIRoute
 {
     public SectionContent       $content;
-    protected static string     $route_wildcard = '#';
 
     /**
      * Convenience routine that will collect the content id from POST
@@ -29,11 +28,15 @@ class APIRecordRoute extends APIRoute
      * that value is unavailable, a default id parameter ("id").
      * @param ?array $src Optional array of variables to use instead of POST data.
      * @return $this
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws NotInitializedException|InvalidQueryException
+     * @throws RecordNotFoundException
      */
     public function collectContentID(?array $src = null): APIRecordRoute
     {
         // first, try extracting the record id from the api route
-        $rp_id = $this->lookupRecordIdRoutePart();
+        $wc = $this->getRouteWildcard();
+        $rp_id = $this->lookupRecordIdRoutePart($wc);
         if ($rp_id) {
             $this->content->id->value = Validation::parseNumeric($rp_id);
             if ($this->content->id->value > 0) {
@@ -57,6 +60,9 @@ class APIRecordRoute extends APIRoute
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws NotInitializedException|InvalidQueryException
+     * @throws RecordNotFoundException
      */
     public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY)
     {
@@ -115,10 +121,19 @@ class APIRecordRoute extends APIRoute
     /**
      * Route wildcard getter.
      * @return string
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws NotInitializedException|InvalidQueryException
+     * @throws RecordNotFoundException
      */
-    public static function getRouteWildcard(): string
+    public function getRouteWildcard(): string
     {
-        return static::$route_wildcard;
+        if (!isset($this->route) && $this->getContentTypeId() && $this->operation->hasData()) {
+            $this->fetchContentRoute();
+        }
+        if (isset($this->route)) {
+            return $this->route->wildcard->value;
+        }
+        return '';
     }
 
     /**
@@ -129,6 +144,18 @@ class APIRecordRoute extends APIRoute
         return array_merge(
             parent::getTemplateContext(),
             array('content' => (isset($this->content)) ? ($this->content) : (null)));
+    }
+
+    /**
+     * Route wildcard getter.
+     * @return string
+     */
+    public function getTemplateWildcard(): string
+    {
+        if (isset($this->template)) {
+            return $this->template->wildcard->value;
+        }
+        return '';
     }
 
     /**
@@ -169,33 +196,11 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Inject record id value into a route string containing a wildcard character holding the place for the id value.
-     * @param string $route Route containing wildcard.
-     * @return string Route containing record id.
-     * @throws NotInitializedException
-     */
-    public function insertRecordIdIntoRoute(string $route=''): string
-    {
-        if (!$route) {
-            if (!isset($this->route)) {
-                throw new NotInitializedException('A route was not provided.');
-            }
-            $route = $this->route->route->value;
-        }
-        if (!$this->getRecordId()) {
-            throw new NotInitializedException('A record id is not available.');
-        }
-        return str_replace(static::$route_wildcard, (string)$this->getRecordId(), $route);
-    }
-
-    /**
-     * @param ?string $placeholder
+     * @param string $wildcard
      * @return false|int|string
      */
-    protected function lookupRecordIdRoutePart(?string $placeholder = null)
+    protected static function lookupRecordIdRoutePart(string $wildcard)
     {
-        $placeholder ??= static::$route_wildcard;
-
         // offset in request uri to first route part
         if (!isset($_SERVER) || !array_key_exists('REQUEST_URI', $_SERVER)) {
             return false;
@@ -204,7 +209,7 @@ class APIRecordRoute extends APIRoute
         $uri_parts = explode('/', trim($uri, '/'));
         $offset = array_search(static::$route_parts[0], $uri_parts);
 
-        $index = array_search($placeholder, static::$route_parts);
+        $index = array_search($wildcard, static::$route_parts);
         if ($index !== false) {
             if (count($uri_parts) > $offset + $index) {
                 return $uri_parts[$offset + $index];
@@ -236,8 +241,9 @@ class APIRecordRoute extends APIRoute
     /**
      * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
      * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws NotInitializedException|InvalidQueryException
+     * @throws RecordNotFoundException|ContentValidationException
      */
     public function retrieveContentObjectAndData(): APIRecordRoute
     {
@@ -280,32 +286,24 @@ class APIRecordRoute extends APIRoute
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      */
-    public function setContentTypeId(int $content_id)
+    public function setContentTypeId(int $content_id): APIRoute
     {
         if (!$this->hasContentPropertiesObject()) {
             $this->initializeContentObject($content_id);
         }
         $this->content->content_properties->id->setInputValue($content_id);
+        return $this;
     }
 
     public function setResponseContainerId(string $container_id = ''): APIRoute
     {
         parent::setResponseContainerId($container_id);
         $container_id = $this->json->container_id->value;
-        if ($this->getRecordId() > 0 && strpos($container_id, static::$route_wildcard) !== false) {
-            $container_id = str_replace(static::$route_wildcard, (string)$this->getRecordId(), $container_id);
+        $wildcard = $this->getTemplateWildcard();
+        if ($wildcard && $this->getRecordId() > 0 && strpos($container_id, $wildcard) !== false) {
+            $container_id = str_replace($wildcard, (string)$this->getRecordId(), $container_id);
             $this->json->container_id->value = $container_id;
         }
         return $this;
-    }
-
-    /**
-     * Route wildcard setter.
-     * @param string $wc
-     * @return void
-     */
-    public static function setRouteWildcard(string $wc)
-    {
-        static::$route_wildcard = $wc;
     }
 }

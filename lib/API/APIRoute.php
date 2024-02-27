@@ -4,6 +4,7 @@ namespace Littled\API;
 
 use Error;
 use Exception;
+use Littled\Exception\NotInitializedException;
 use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -237,28 +238,59 @@ abstract class APIRoute extends PageContentBase
     }
 
     /**
-     * Fetches the properties of the template matching the object's content type and the name of the template passed to the method.
-     * @param string $name
-     * @return void
+     * Fetches the properties of the template matching the object's content type and, optionally, the name of the
+     * template passed to the method. Will use the internal property value if a value is not supplied for the $name
+     * argument.
+     * @param ?string $operation
+     * @return $this
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws NotInitializedException
+     * @throws InvalidQueryException
      * @throws RecordNotFoundException
-     * @throws Exception
      */
-    public function fetchContentTemplate(string $name)
+    public function fetchContentRoute(?string $operation=null): APIRoute
     {
-        $query = 'CALL contentTemplateLookup(?,?)';
-        $content_type_id = $this->getContentTypeId();
-        $data = $this->fetchRecords($query, 'is', $content_type_id, $name);
-        if (count($data) < 1) {
-            throw new RecordNotFoundException("Content template \"$name\" not found.");
+        $operation ??= $this->operation->value;
+        if (!$this->getContentTypeId()) {
+            $err_msg = 'The content route could not be retrieved. Content type not available.';
+            throw new NotInitializedException($err_msg);
         }
-        $this->template = new ContentTemplate(
-            $data[0]->id,
-            $this->getContentTypeId(),
-            $data[0]->name,
-            $data[0]->base_path,
-            $data[0]->template_path,
-            $data[0]->location
-        );
+        if (Validation::isStringBlank($operation)) {
+            $err_msg = 'The content route could not be retrieved. Operation not available.';
+            throw new NotInitializedException($err_msg);
+        }
+        $this->route = (new ContentRoute())
+            ->setContentType($this->getContentTypeId())
+            ->setOperation($operation)
+            ->lookupRoute();
+        return $this;
+    }
+
+    /**
+     * Fetches the properties of the template matching the object's content type and, optionally, the name of the
+     * template passed to the method. Will use the internal property value if a value is not supplied for the $name
+     * argument.
+     * @param ?string $name
+     * @return $this
+     * @throws ConfigurationUndefinedException|NotInitializedException
+     * @throws RecordNotFoundException
+     */
+    public function fetchContentTemplate(?string $name=null): APIRoute
+    {
+        $name ??= $this->operation->value;
+        if (!$this->getContentTypeId()) {
+            $err_msg = 'The content template could not be retrieved. Content type not available.';
+            throw new NotInitializedException($err_msg);
+        }
+        if (Validation::isStringBlank($name)) {
+            $err_msg = 'The content template could not be retrieved. Operation not available.';
+            throw new NotInitializedException($err_msg);
+        }
+        $this->template = (new ContentTemplate())
+            ->setContentType($this->getContentTypeId())
+            ->setOperation($name)
+            ->lookupTemplateProperties();
+        return $this;
     }
 
     /**

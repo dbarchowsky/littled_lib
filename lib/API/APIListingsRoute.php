@@ -11,6 +11,7 @@ use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
 
@@ -66,28 +67,23 @@ class APIListingsRoute extends APIRoute
     }
 
     /**
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException|InvalidValueException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
+     * @inheritDoc
      */
-    protected function retrieveCoreContentProperties()
+    protected function retrieveCoreContentProperties(): APIRoute
     {
         $this->filters->content_properties->read();
+        return $this;
     }
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
      */
-    public function setContentTypeId(int $content_id)
+    public function setContentTypeId(int $content_id): APIRoute
     {
         if (!isset($filters)) {
             $this->initializeFiltersObject($content_id);
         }
         $this->filters->content_properties->id->setInputValue($content_id);
+        return $this;
     }
 }
