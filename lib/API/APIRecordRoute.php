@@ -23,6 +23,19 @@ class APIRecordRoute extends APIRoute
     public SectionContent       $content;
 
     /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws NotInitializedException|InvalidQueryException
+     * @throws RecordNotFoundException
+     */
+    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
+    {
+        parent::collectContentProperties($key);
+        $this->collectRecordId();
+        return $this;
+    }
+
+    /**
      * Convenience routine that will collect the content id from POST
      * data using first the content object's internal id parameter, and then if
      * that value is unavailable, a default id parameter ("id").
@@ -32,7 +45,7 @@ class APIRecordRoute extends APIRoute
      * @throws NotInitializedException|InvalidQueryException
      * @throws RecordNotFoundException
      */
-    public function collectContentID(?array $src = null): APIRecordRoute
+    public function collectRecordId(?array $src = null): APIRecordRoute
     {
         // first, try extracting the record id from the api route
         if ($this->operation->hasData()) {
@@ -56,19 +69,6 @@ class APIRecordRoute extends APIRoute
         if ($this->content->id->key != LittledGlobals::ID_KEY) {
             $this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
         }
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws NotInitializedException|InvalidQueryException
-     * @throws RecordNotFoundException
-     */
-    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
-    {
-        parent::collectContentProperties($key);
-        $this->collectContentID();
         return $this;
     }
 
@@ -266,7 +266,7 @@ class APIRecordRoute extends APIRoute
         $ajax_data = static::getAjaxRequestData();
         return $this
             ->initializeContentObject(null, $ajax_data)
-            ->collectContentID($ajax_data)
+            ->collectRecordId($ajax_data)
             ->retrieveContentData();
     }
 
