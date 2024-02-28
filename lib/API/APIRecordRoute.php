@@ -35,11 +35,13 @@ class APIRecordRoute extends APIRoute
     public function collectContentID(?array $src = null): APIRecordRoute
     {
         // first, try extracting the record id from the api route
-        $rp_id = $this->lookupRecordIdRoutePart();
-        if ($rp_id) {
-            $this->content->id->value = Validation::parseNumeric($rp_id);
-            if ($this->content->id->value > 0) {
-                return $this;
+        if ($this->operation->hasData()) {
+            $rp_id = $this->lookupRecordIdRoutePart();
+            if ($rp_id) {
+                $this->content->id->value = Validation::parseNumeric($rp_id);
+                if ($this->content->id->value > 0) {
+                    return $this;
+                }
             }
         }
 
