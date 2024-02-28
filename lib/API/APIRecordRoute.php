@@ -35,8 +35,7 @@ class APIRecordRoute extends APIRoute
     public function collectContentID(?array $src = null): APIRecordRoute
     {
         // first, try extracting the record id from the api route
-        $wc = $this->getRouteWildcard();
-        $rp_id = $this->lookupRecordIdRoutePart($wc);
+        $rp_id = $this->lookupRecordIdRoutePart();
         if ($rp_id) {
             $this->content->id->value = Validation::parseNumeric($rp_id);
             if ($this->content->id->value > 0) {
@@ -64,10 +63,11 @@ class APIRecordRoute extends APIRoute
      * @throws NotInitializedException|InvalidQueryException
      * @throws RecordNotFoundException
      */
-    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY)
+    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
     {
         parent::collectContentProperties($key);
         $this->collectContentID();
+        return $this;
     }
 
     /**
@@ -122,18 +122,18 @@ class APIRecordRoute extends APIRoute
      * Route wildcard getter.
      * @return string
      * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws NotInitializedException|InvalidQueryException
+     * @throws InvalidQueryException
      * @throws RecordNotFoundException
      */
     public function getRouteWildcard(): string
     {
-        if (!isset($this->route) && $this->getContentTypeId() && $this->operation->hasData()) {
-            $this->fetchContentRoute();
+        try {
+            $this->confirmRouteIsLoaded();
         }
-        if (isset($this->route)) {
-            return $this->route->wildcard->value;
+        catch (NotInitializedException $e) {
+            return '';
         }
-        return '';
+        return $this->route->wildcard->value;
     }
 
     /**
@@ -196,23 +196,37 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * @param string $wildcard
-     * @return false|int|string
+     * Takes the current request URI and compares it to the object's route in order to determine if a record id
+     * value is embedded in the request URI. It then returns the record id value as determined by the position of
+     * the wildcard character or sequence stored in the corresponding content_route record.
+     * @param string|null $wildcard
+     * @return false|int
+     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws InvalidQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
      */
-    protected static function lookupRecordIdRoutePart(string $wildcard)
+    protected function lookupRecordIdRoutePart(?string $wildcard = null)
     {
+        // load the route
+        $this->confirmRouteIsLoaded();
+        $wildcard ??= $this->route->wildcard->value;
+        if (Validation::isStringBlank($wildcard)) {
+            return false;
+        }
+
         // offset in request uri to first route part
         if (!isset($_SERVER) || !array_key_exists('REQUEST_URI', $_SERVER)) {
             return false;
         }
         $uri = $_SERVER['REQUEST_URI'];
         $uri_parts = explode('/', trim($uri, '/'));
-        $offset = array_search(static::$route_parts[0], $uri_parts);
+        $route_parts = explode('/', trim($this->getRoutePath(), '/'));
 
-        $index = array_search($wildcard, static::$route_parts);
+        $index = array_search($wildcard, $route_parts);
         if ($index !== false) {
-            if (count($uri_parts) > $offset + $index) {
-                return $uri_parts[$offset + $index];
+            if (count($uri_parts) > $index) {
+                return Validation::parseInteger($uri_parts[$index]);
             }
             else {
                 return false;

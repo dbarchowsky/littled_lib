@@ -109,12 +109,13 @@ abstract class APIRoute extends PageContentBase
      * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
+     * @return $this
      * @throws ConfigurationUndefinedException|ConnectionException|ContentValidationException
      * @throws InvalidQueryException|InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY)
+    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
     {
         // use ajax request data by default
         $ajax_rd = static::getAjaxRequestData();
@@ -141,6 +142,7 @@ abstract class APIRoute extends PageContentBase
             $this->operation->value = static::getDefaultTemplateName();
         }
         $this->lookupTemplate();
+        return $this;
     }
 
     /**
@@ -203,6 +205,24 @@ abstract class APIRoute extends PageContentBase
     {
         $this->operation->collectRequestData($src);
         return $this;
+    }
+
+    /**
+     * Confirms that a content route has been initialized, or attempts to initialize the $route property of the object
+     * if a route has not been initialized.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     */
+    protected function confirmRouteIsLoaded()
+    {
+        if (isset($this->route)) {
+            return;
+        }
+        $this->fetchContentRoute();
     }
 
     /**
@@ -374,6 +394,22 @@ abstract class APIRoute extends PageContentBase
     public static function getDefaultTemplateName(): string
     {
         return static::$default_template_name;
+    }
+
+    /**
+     * Returns the string value of the currently loaded route. This should be overwritten in derived classes
+     * to return the api_route property value if that is the appropriate route for a given request.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     */
+    public function getRoutePath(): string
+    {
+        $this->confirmRouteIsLoaded();
+        return $this->route->route->value;
     }
 
     /**
