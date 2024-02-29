@@ -117,6 +117,9 @@ class APIRecordRoute extends APIRoute
      */
     public function getRecordId(): ?int
     {
+        if (!isset($this->content)) {
+            return null;
+        }
         return ($this->content->id->value === false ? null : $this->content->id->value);
     }
 
