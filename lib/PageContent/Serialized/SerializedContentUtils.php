@@ -274,9 +274,13 @@ class SerializedContentUtils extends AppContentBase
      */
     public function hasRecordsetPrefix(): bool
     {
-        return ((isset($this->recordset_prefix)) &&
-            ((!is_array($this->recordset_prefix) && ($this->recordset_prefix !=='') ||
-                count($this->recordset_prefix) > 0)));
+        if (!isset($this->recordset_prefix)) {
+            return false;
+        }
+        if (is_array($this->recordset_prefix)) {
+            return count($this->recordset_prefix) > 0;
+        }
+        return !Validation::isStringBlank($this->recordset_prefix);
     }
 
     /**
@@ -338,25 +342,33 @@ class SerializedContentUtils extends AppContentBase
      */
     protected function isInput(string $key, $item, array &$used_keys): bool
     {
-        $is_input = (($item instanceof RequestInput) &&
-            ($this->hasRecordsetPrefix() || $key !== 'id') &&
-            ($key !== 'index') &&
-            ($item->isDatabaseField()));
-        if ($is_input) {
-            /* Check if this item has already been used as in input property.
-             * This prevents references used as aliases of existing properties
-             * from being included in database queries.
-             */
-            if (in_array($item->key, $used_keys)) {
-                $is_input = false;
-            } else {
-                /* once an input property is marked as such, track it so it
-                 * can't be included again.
-                 */
-                $used_keys[] = $item->key;
-            }
+        if (!Validation::isSubclass($item, RequestInput::class)) {
+            return false;
         }
-        return ($is_input);
+        if ($key === 'id' && !$this->hasRecordsetPrefix()) {
+            return false;
+        }
+        if ($key === 'index') {
+            return false;
+        }
+        if (!$item->isDatabaseField()) {
+            return false;
+        }
+
+        /**
+         * Check if this item has already been used as in input property.
+         * This prevents references used as aliases of existing properties
+         * from being included in database queries.
+         */
+        if (in_array($item->key, $used_keys)) {
+            return false;
+        }
+
+        /**
+         * Once an input property is marked as such track it, so it won't be included again.
+         */
+        $used_keys[] = $item->key;
+        return true;
     }
 
     /**
