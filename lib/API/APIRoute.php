@@ -637,6 +637,18 @@ abstract class APIRoute extends PageContentBase
     }
 
     /**
+     * Send error message as response to ajax request and stop processing the request.
+     * @param $err_msg
+     * @return void
+     */
+    public static function sendErrorAndExit($err_msg)
+    {
+        echo(json_encode(['error' => $err_msg]));
+        // header("HTTP/1.1 400 ".$e->getMessage());
+        exit(-1);
+    }
+
+    /**
      * Sends out whatever values are currently stored within the object's "json" property as JSON.
      */
     public function sendResponse(string $template_path = '', ?array $context = null)
@@ -759,18 +771,6 @@ abstract class APIRoute extends PageContentBase
     {
         $this->json->setResponseContent($content);
         return $this;
-    }
-
-    /**
-     * Send error message as response to ajax request and stop processing the request.
-     * @param $err_msg
-     * @return void
-     */
-    public static function sendErrorAndExit($err_msg)
-    {
-        echo(json_encode(['error' => $err_msg]));
-        // header("HTTP/1.1 400 ".$e->getMessage());
-        exit(-1);
     }
 
     /**
