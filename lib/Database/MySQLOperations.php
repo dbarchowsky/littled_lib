@@ -93,7 +93,6 @@ trait MySQLOperations
     /**
      * Opens MySQLi connection. Stores connection as $mysqli property of the class.
      * Can be chained with other MySQLConnection methods.
-     * @return void
      * @param string $host Name of MySQL host.
      * @param string $user Username for connecting to MySQL server.
      * @param string $password Password for connecting to MySQL server.
@@ -102,7 +101,12 @@ trait MySQLOperations
      * @throws ConnectionException On connection error.
      * @throws ConfigurationUndefinedException Database connection properties not set.
      */
-    public function connectToDatabase(string $host = '', string $user = '', string $password = '', string $schema = '', string $port = '')
+    public function connectToDatabase(
+        string $host = '',
+        string $user = '',
+        string $password = '',
+        string $schema = '',
+        string $port = '')
     {
         if (!isset($this->mysqli)) {
             try {
@@ -302,7 +306,12 @@ trait MySQLOperations
      * @return mysqli
      * @throws ConfigurationUndefinedException
      */
-    public static function getMysqli(string $host = '', string $user = '', string $password = '', string $schema = '', string $port = ''): mysqli
+    public static function getMysqli(
+        string $host = '',
+        string $user = '',
+        string $password = '',
+        string $schema = '',
+        string $port = ''): mysqli
     {
         $c = MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port);
         return (new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
@@ -372,5 +381,15 @@ trait MySQLOperations
             throw new InvalidQueryException('Could not retrieve insert id.');
         }
         return $data[0]->insert_id;
+    }
+
+    /**
+     * Copy existing MySQL connection to the object.
+     * @param mysqli $mysqli
+     * @return void
+     */
+    public function setMySQLi(mysqli $mysqli)
+    {
+        $this->mysqli = $mysqli;
     }
 }

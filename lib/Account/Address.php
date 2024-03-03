@@ -484,18 +484,12 @@ class Address extends SerializedContent
     }
 
     /**
-     * Retrieves address data from database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     * @throws Exception
+     * @inheritDoc
      */
-    public function read()
+    public function read(): Address
     {
         if ($this->id->value === null || $this->id->value < 1) {
-            return;
+            return $this;
         }
         parent::read();
 
@@ -506,6 +500,7 @@ class Address extends SerializedContent
         $this->fullname .= $this->last_name->value;
 
         $this->readStateProperties();
+        return $this;
     }
 
     /**

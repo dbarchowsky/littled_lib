@@ -2,14 +2,18 @@
 
 namespace Littled\Database;
 
+use Littled\App\AppBase;
+use mysqli;
+
 /**
  * MySQL connection
  */
-class MySQLConnection
+class MySQLConnection extends AppBase
 {
     use MySQLOperations {
         mysqli as traitMysqli;
         connectToDatabase as traitConnectToDatabase;
+        setMySQLi as traitSetMySQLi;
     }
 
     /**
@@ -34,6 +38,16 @@ class MySQLConnection
     public function mysqli(): MySQLConnection
     {
         $this->traitMysqli();
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     * @return $this;
+     */
+    public function setMySQLi(mysqli $mysqli): MySQLConnection
+    {
+        $this->traitSetMySQLi($mysqli);
         return $this;
     }
 }

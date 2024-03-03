@@ -11,6 +11,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringInput;
 use Exception;
+use Littled\Validation\Validation;
 
 
 /**
@@ -72,7 +73,7 @@ class SerializedContentUtils extends AppContentBase
      */
     public static function getCommonCMSTemplatePath(): string
     {
-        if (static::$common_cms_template_path === null || strlen(static::$common_cms_template_path) < 1) {
+        if (!isset(static::$common_cms_template_path) || Validation::isStringBlank(static::$common_cms_template_path)) {
             throw new ConfigurationUndefinedException("Path to shared content templates not set.");
         }
         return static::$common_cms_template_path;
