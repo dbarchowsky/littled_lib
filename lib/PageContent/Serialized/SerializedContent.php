@@ -101,7 +101,7 @@ abstract class SerializedContent extends SerializedContentIO
      */
     protected function executeInsertQuery()
     {
-        $fields = $this->formatDatabaseColumnList();
+        $fields = $this->extractPreparedStmtArgs();
 
         /* build sql statement */
         $query = "INS" . "ERT INTO `" . $this::getTableName() . "` (`" .
@@ -136,7 +136,7 @@ abstract class SerializedContent extends SerializedContentIO
      */
     protected function executeUpdateQuery()
     {
-        $fields = $this->formatDatabaseColumnList();
+        $fields = $this->extractPreparedStmtArgs();
 
         /* confirm that the record exists */
         if (!$this->recordExists()) {
@@ -244,7 +244,7 @@ abstract class SerializedContent extends SerializedContentIO
      */
     protected function formatRecordSelectPreparedStmt(): array
     {
-        $fields = $this->formatDatabaseColumnList();
+        $fields = $this->extractPreparedStmtArgs();
         $query = "SELECT `" .
             implode('`,`', array_map(function ($e) {
                 return $e->key;

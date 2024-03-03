@@ -3,44 +3,34 @@
 namespace Littled\PageContent\Serialized;
 
 
-use Littled\Request\RequestInput;
-use Littled\Validation\Validation;
+use Littled\Database\MySQLOperations;
 
 class DBFieldGroup
 {
-    public function getFieldList(array &$used_keys): array
-    {
-        $fields = [];
-        foreach ($this as $key => $property) {
-            if (static::isInput($key, $property, $used_keys)) {
-                $fields[] = new QueryField(
-                    $property->column_name ?: $key,
-                    $property::getPreparedStatementTypeIdentifier(),
-                    $property->value);
-            }
-        }
-        return $fields;
+    use MySQLOperations, SerializedFieldOperations {
+        extractPreparedStmtArgs as public;
+        fill as traitFill;
+        hydrateFromRecordsetRow as public;
+        setRecordsetPrefix as traitSetRecordsetPrefix;
     }
 
     /**
-     * Tests if the object property represents data that should be included in a sql query.
-     * @param string $key
-     * @param mixed $item
-     * @param array $used_keys
-     * @return bool
+     * @inheritDoc
+     * @return $this
      */
-    protected static function isInput(string $key, $item, array &$used_keys): bool
+    public function fill($src): DBFieldGroup
     {
-        if (!Validation::isSubclass($item, RequestInput::class)) {
-            return false;
-        }
-        if (!$item->isDatabaseField()) {
-            return false;
-        }
-        if (in_array($key, $used_keys)) {
-            return false;
-        }
-        $used_keys[] = $item->key;
-        return true;
+        $this->traitFill($src);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     * @return $this
+     */
+    public function setRecordsetPrefix($prefix): DBFieldGroup
+    {
+        $this->traitSetRecordsetPrefix($prefix);
+        return $this;
     }
 }
