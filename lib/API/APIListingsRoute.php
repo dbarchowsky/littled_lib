@@ -5,13 +5,7 @@ namespace Littled\API;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
 
@@ -77,6 +71,7 @@ class APIListingsRoute extends APIRoute
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
      */
     public function setContentTypeId(int $content_id): APIRoute
     {
