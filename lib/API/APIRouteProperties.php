@@ -133,6 +133,21 @@ abstract class APIRouteProperties extends PageContentBase
     }
 
     /**
+     * Returns the string value of the currently loaded api route.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     */
+    public function getAPIRoutePath(): string
+    {
+        $this->confirmRouteIsLoaded();
+        return $this->route->api_route->value;
+    }
+
+    /**
      * Returns the string value of the currently loaded route. This should be overwritten in derived classes
      * to return the api_route property value if that is the appropriate route for a given request.
      * @return string
