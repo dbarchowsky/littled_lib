@@ -15,6 +15,25 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
     public array            $options;
 
     /**
+     * Adds a value to the current values stored in the object.
+     * @param int $value
+     * @return $this
+     */
+    public function addValue(int $value): IntegerSelect
+    {
+        if (!isset($this->value)) {
+            $this->setInputValue($value);
+            return $this;
+        }
+        if (is_array($this->value)) {
+            $this->setInputValue(array_merge($this->value, [$value]));
+            return $this;
+        }
+        $this->setInputValue([$this->value, $value]);
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function collectRequestData(?array $src = null, ?string $key = null)
