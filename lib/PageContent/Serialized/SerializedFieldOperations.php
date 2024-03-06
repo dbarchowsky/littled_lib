@@ -191,11 +191,33 @@ trait SerializedFieldOperations
                 }
             }
         }
-        foreach($this as $key => $item) {
+        foreach($this as $item) {
             if (Validation::isSubclass($item, DBFieldGroup::class)) {
                 $item->fill($src);
             }
         }
+    }
+
+    /**
+     * Returns a list of all RequestInput properties of an object.
+     * @param bool $db_only If true, only properties marked as database fields will be returned.
+     * @param array $ignore_keys Keys to ignore. By default, it ignores keys named to indicate they are id or index
+     * properties.
+     * @return array
+     */
+    protected function getInputPropertiesList(bool $db_only=true, array $ignore_keys = ['id', 'index']): array
+    {
+        $properties = [];
+        foreach($this as $key => $property) {
+            if (Validation::isSubclass($property, RequestInput::class)) {
+                /** @var RequestInput $property */
+                if ((!$db_only || $property->isDatabaseField()) &&
+                    (!in_array($key, $ignore_keys))) {
+                    $properties[] = $key;
+                }
+            }
+        }
+        return $properties;
     }
 
     /**
