@@ -221,6 +221,21 @@ trait SerializedFieldOperations
     }
 
     /**
+     * Returns a list of all properties associated with records linked to this object.
+     * @return array
+     */
+    protected function getLinkedContentPropertiesList(): array
+    {
+        $properties = [];
+        foreach($this as $key => $property) {
+            if (Validation::isSubclass($property, SerializedContentIO::class)) {
+                $properties[] = $key;
+            }
+        }
+        return $properties;
+    }
+
+    /**
      * Recordset prefix getter.
      * @return string|string[]
      */
