@@ -23,6 +23,7 @@ abstract class LinkedContent extends SerializedContentIO
     public IntegerInput         $primary_id;
     public ForeignKeyInput      $link_id;
     public array                $listings_data;
+    protected static bool       $one_to_one = false;
 
     /**
      * Saves single link record to the database, as opposed to ::save() which saves all links currently in the object.
@@ -322,21 +323,21 @@ abstract class LinkedContent extends SerializedContentIO
     }
 
     /**
-     * Looks up and returns list of all properties in the object that could be used to link the tables together
-     * @return array[string]
+     * One to many setting getter.
+     * @return bool
      */
-    protected function getLinkedProperties(): array
+    public static function isOneToMany(): bool
     {
-        $linked = [];
-        foreach ($this as $key => $property) {
-            if (Validation::isSubclass($property, IntegerInput::class)) {
-                /** @var IntegerInput $property */
-                if ($property->isRequired()) {
-                    $linked[] = $key;
-                }
-            }
-        }
-        return $linked;
+        return !static::$one_to_one;
+    }
+
+    /**
+     * One to one setting getter.
+     * @return bool
+     */
+    public static function isOneToOne(): bool
+    {
+        return static::$one_to_one;
     }
 
     /**
@@ -424,6 +425,26 @@ abstract class LinkedContent extends SerializedContentIO
             $this->commitSingleLink($id);
         }
         $this->deleteStaleLinks($fk_ids);
+    }
+
+    /**
+     * One-to-manu setting setter.
+     * @param bool $flag Defaults to "true".
+     * @return void
+     */
+    public static function setAsOneToMany(bool $flag=true)
+    {
+        static::$one_to_one = !$flag;
+    }
+
+    /**
+     * One-to-one setting setter.
+     * @param bool $flag Defaults to "true".
+     * @return void
+     */
+    public static function setAsOneToOne(bool $flag=true)
+    {
+        static::$one_to_one = $flag;
     }
 
     /**
