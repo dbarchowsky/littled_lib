@@ -59,6 +59,20 @@ class LittledUtility
     }
 
     /**
+     * Removes an element matching the value of $needle from any array
+     * @param $needle
+     * @param array $haystack
+     * @return array
+     */
+    public static function removeValueFromArray($needle, array $haystack): array
+    {
+        if (($key = array_search($needle, $haystack)) !== false) {
+            unset($haystack[$key]);
+        }
+        return array_values($haystack);
+    }
+
+    /**
      * Replaces the first occurrence of $needle in $haystack with $replace. Returns the original string if no matches
      * are found.
      * @param string $needle
