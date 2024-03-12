@@ -8,4 +8,6 @@ namespace Littled\Request;
  */
 class ForeignKeyInput extends IntegerSelect
 {
+    public bool $required = true;
+    public bool $allow_multiple = false;
 }
