@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\Request;
 
 use mysqli;
@@ -14,7 +15,13 @@ class IntegerInput extends RenderedInput
     protected static string $bind_param_type = 'i';
     const DEFAULT_DATA_SIZE = 8;
 
-    public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
+    public function __construct(
+        string $label,
+        string $key,
+        bool $required = false,
+        $value = null,
+        int $size_limit = 0,
+        ?int $index = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
         $this->setInputValue($value);
@@ -22,34 +29,34 @@ class IntegerInput extends RenderedInput
     }
 
     /**
-	 * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
-	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
-	 * @param ?string $key Key to use in place of the internal $key property value.
-	 */
-	public function collectRequestData(?array $src=null, ?string $key=null)
-	{
-		if ($this->bypass_collect_request_data===true) {
-			return;
-		}
-		$this->value = Validation::collectIntegerRequestVar((($key)?:($this->key)), null, $src);
-	}
+     * Collects the value corresponding to the $key property value in GET, POST, session, or cookies.
+     * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+     * @param ?string $key Key to use in place of the internal $key property value.
+     */
+    public function collectRequestData(?array $src = null, ?string $key = null)
+    {
+        if ($this->bypass_collect_request_data === true) {
+            return;
+        }
+        $this->value = Validation::collectIntegerRequestVar((($key) ?: ($this->key)), null, $src);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function collectAjaxRequestData(object $data)
-	{
-		parent::collectAjaxRequestData($data);
-		$this->value = Validation::parseInteger($this->value);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function collectAjaxRequestData(object $data)
+    {
+        parent::collectAjaxRequestData($data);
+        $this->value = Validation::parseInteger($this->value);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): ?int
-	{
-		return Validation::parseInteger($this->value);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): ?int
+    {
+        return Validation::parseInteger($this->value);
+    }
 
     /**
      * @inheritDoc
@@ -62,7 +69,7 @@ class IntegerInput extends RenderedInput
     /**
      * {@inheritDoc}
      */
-    public function safeValue($options=[]): string
+    public function safeValue($options = []): string
     {
         if (!is_numeric($this->value) && !is_array($this->value)) {
             return ('');
@@ -71,40 +78,39 @@ class IntegerInput extends RenderedInput
     }
 
     /**
-	 * @param null|int|int[] $value Value to assign as the value of the object.
+     * @param null|int|int[] $value Value to assign as the value of the object.
      * @return IntegerInput
-	 */
-	public function setInputValue($value): IntegerInput
-	{
+     */
+    public function setInputValue($value): IntegerInput
+    {
         if (is_array($value)) {
             $this->value = [];
-            foreach($value as $el) {
+            foreach ($value as $el) {
                 $el = Validation::parseInteger($el);
                 if (is_int($el)) {
                     $this->value[] = $el;
                 }
             }
-        }
-        else {
+        } else {
             $this->value = Validation::parseInteger($value);
         }
         return $this;
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function validate()
-	{
+    /**
+     * {@inheritDoc}
+     */
+    public function validate()
+    {
         if (is_array($this->value)) {
             $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
         }
-        if ((trim(''.$this->value) !== '') &&
+        if ((trim('' . $this->value) !== '') &&
             (Validation::parseInteger($this->value) === null)) {
             $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
         }
         if ($this->isRequired() && !$this->hasData()) {
             $this->throwValidationError(ucfirst($this->label) . " is required.");
         }
-	}
+    }
 }

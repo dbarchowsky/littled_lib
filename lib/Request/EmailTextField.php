@@ -16,11 +16,17 @@ class EmailTextField extends StringTextField
 	protected static string $template_filename = 'email-field.php';
 
 	/**
-	 * {@inheritDoc}
+	 * @inheritDoc
 	 */
-	public function __construct($label, $param, $required = false, $value = null, $size_limit = 255, $index = null)
+	public function __construct(
+        string $label,
+        string $key,
+        bool $required = false,
+        $value = null,
+        int $size_limit = 255,
+        int $index = null)
 	{
-		parent::__construct($label, $param, $required, $value, $size_limit, $index);
+		parent::__construct($label, $key, $required, $value, $size_limit, $index);
 	}
 
 	public static function getTemplateFilename(): string

@@ -119,7 +119,8 @@ abstract class RequestInput
 
     /**
      * Assigns property value from corresponding value in JSON data passed along with a client request.
-     * @param object $data Collection of client ajax request data containing the key/value pair to use to assign the property value.
+     * @param object $data Collection of client ajax request data containing the key/value pair to use to assign
+     * the property value.
      */
     public function collectAjaxRequestData(object $data)
     {
@@ -132,7 +133,7 @@ abstract class RequestInput
     }
 
     /**
-     * Collects the value corresponding to the $param property value in GET, POST, session, or cookies.
+     * Collects the value corresponding to the $key property value in GET, POST, session, or cookies.
      */
     abstract public function collectRequestData(?array $src=null);
 
@@ -159,7 +160,7 @@ abstract class RequestInput
 
     /**
      * Sets the $value property of the object from the value of the session value corresponding to the object's
-     * $param property.
+     * $key property.
      * @param string $cookie_name Name of the cookie collection containing the value to be retrieved.
      */
     public function fillFromSession(string $cookie_name)

@@ -17,24 +17,18 @@ class DateInput extends StringInput
     public string           $format = 'Y-m-d H:i:s';
 
     /**
-     * DateInput constructor.
-     * @param string $label Input label
-     * @param string $param value of the name attribute of the input
-     * @param boolean $required (Optional) flag indicating if this form data is required. Defaults to FALSE.
-     * @param string $value (Optional) initial value of the input. Defaults to NULL.
-     * @param int $size_limit (Optional) maximum size in bytes of the value when it is stored in the database (for strings). Defaults to 0.
-     * @param ?int $index Position of this form input within a series of similar inputs.
+     * @inheritDoc
      */
     function __construct(
         string $label,
-        string $param,
+        string $key,
         bool   $required = false,
                $value = null,
         int    $size_limit = self::DEFAULT_SIZE_LIMIT,
         ?int   $index = null
     )
     {
-        parent::__construct($label, $param, $required, $value, $size_limit, $index);
+        parent::__construct($label, $key, $required, $value, $size_limit, $index);
     }
 
     /**
