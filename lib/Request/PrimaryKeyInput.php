@@ -26,4 +26,12 @@ class PrimaryKeyInput extends IntegerInput
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return parent::hasData() && $this->value > 0;
+    }
 }
