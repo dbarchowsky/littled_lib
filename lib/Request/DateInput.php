@@ -15,6 +15,7 @@ class DateInput extends StringInput
     protected static string $input_template_filename = 'date-text-input.php';
     protected static string $template_filename = 'date-text-field.php';
     public string           $format = 'Y-m-d H:i:s';
+    public string           $default = '';
 
     /**
      * @inheritDoc
@@ -51,7 +52,7 @@ class DateInput extends StringInput
      */
     public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): ?string
     {
-        $src = ($this->value === null) ? ('') : ($this->value);
+        $src = ($this->value === null) ? ($this->default) : ($this->value);
         if ($src === '') {
             return null;
         }
@@ -105,6 +106,14 @@ class DateInput extends StringInput
     }
 
     /**
+     * @return bool
+     */
+    public function hasData(): bool
+    {
+        return parent::hasData();
+    }
+
+    /**
      * Converts the current value of the object to a standard date format.
      * @param string $date_format
      * @throws ContentValidationException Current value not a valid date value.
@@ -113,6 +122,17 @@ class DateInput extends StringInput
     {
         $date_format = $date_format ?? $this->format;
         $this->value = $this->formatDateValue($date_format);
+    }
+
+    /**
+     * Sets a default value if none is entered.
+     * @param string $date
+     * @return $this
+     */
+    public function setDefault(string $date): DateInput
+    {
+        $this->default = $date;
+        return $this;
     }
 
     /**
