@@ -6,12 +6,14 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
+use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\Request\PrimaryKeyInput;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
 trait SerializedFieldOperations
 {
-    protected RecordsetPrefix $recordset_prefix;
+    use InputOperations;
 
     /**
      * Returns the form data members of the objects as series of nested associative arrays.
@@ -45,37 +47,6 @@ trait SerializedFieldOperations
             }
         }
         return ($ar);
-    }
-
-    /**
-     * Copies values from a recordset row to the properties of the object based on a one-to-one match between
-     * the name of the field in the recordset and the name of the object property, or its "column name" value,
-     * or its name plus a prefix defined by its parent object
-     * @param string $prop_key
-     * @param RequestInput $property
-     * @param object $row
-     * @return void
-     */
-    protected function assignRowValue(string $prop_key, RequestInput $property, object $row): void
-    {
-        $field = $property->getColumnName($prop_key);
-        // check if this object is a child of a parent and fields exist in the recordset that should be
-        // assigned to this object's properties based on the fields' name prefix
-
-        if ($this->hasRecordsetPrefix()) {
-            $pfx_field = $this->recordset_prefix->lookupPrefixProperty($row, $field);
-            if (!$pfx_field) {
-                // no matching field found within the recordset, move on
-                return;
-            }
-            $property->setInputValue($row->$pfx_field);
-            return;
-        }
-        if(property_exists($row, $field)) {
-            // assign value to top-level/parent object property, assuming a one-to-one match between the name
-            // of the property of the object and the name of the field within the recordset
-            $property->setInputValue($row->$field);
-        }
     }
 
     public function clearValues()
@@ -136,26 +107,40 @@ trait SerializedFieldOperations
      * Returns a list of column names to use to format SQL queries that will be used to read and update
      * records.
      * @param array $used_keys (Optional) Properties that have already been added to the stack.
-     * @return array Key/value pairs for each RequestInput property of the class.
+     * @return QueryField[] Key/value pairs for each RequestInput property of the class.
      * @throws ConnectionException
      * @throws ConfigurationUndefinedException
      */
     protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {
         $this->connectToDatabase();
-        $fields = array();
+        $fields = [];
         foreach ($this as $key => $item) {
-            if ($this->isInput($key, $item, $used_keys)) {
+
+            // return any RequestInput properties that map to fields in the database record
+            if ($this->isDatabaseProperty($item, $used_keys)) {
                 /** @var RequestInput $item */
-                if ($item->is_database_field === false) {
-                    continue;
-                }
                 /* format column name and value for SQL statement */
-                $fields[] = new QueryField(
-                    $item->column_name ?: $key,
-                    $item::getPreparedStatementTypeIdentifier(),
-                    $item->escapeSQL($this->mysqli));
+                $fields[] = (new QueryField())
+                    ->setisPrimaryKey(Validation::isSubclass($item, PrimaryKeyInput::class))
+                    ->setKey($item->getColumnName($this->getRecordsetPrefix() . $key))
+                    ->setType($item::getPreparedStatementTypeIdentifier())
+                    ->setValue($item->escapeSQL($this->mysqli));
             }
+
+            // return any PK properties for linked records
+            elseif(Validation::isSubclass($item, SerializedContent::class) &&
+                !Validation::isSubclass($item, ContentProperties::class)) {
+                if ($item->isDatabaseProperty($item->id, $used_keys)) {
+                    $fields[] = (new QueryField())
+                        ->setisPrimaryKey(false) /* << not PK because it's a FK column in the parent table */
+                        ->setKey($item->id->getColumnName($item->getRecordsetPrefix() . 'id'))
+                        ->setType($item->id::getPreparedStatementTypeIdentifier())
+                        ->setValue($item->id->escapeSQL($this->mysqli));
+                }
+            }
+
+            // other RequestInput properties that have been grouped together
             elseif(Validation::isSubclass($item, DBFieldGroup::class)) {
                 /** @var DBFieldGroup $item */
                 $fields = array_merge($fields, $item->extractPreparedStmtArgs($used_keys));
@@ -199,22 +184,16 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Returns a list of all RequestInput properties of an object.
-     * @param bool $db_only If true, only properties marked as database fields will be returned.
-     * @param array $ignore_keys Keys to ignore. By default, it ignores keys named to indicate they are id or index
-     * properties.
-     * @return array
+     * Returns list of all properties of the object that represent linked child records in the database.
+     * @param array $exclude
+     * @return string[]
      */
-    protected function getInputPropertiesList(bool $db_only=true, array $ignore_keys = ['id', 'index']): array
+    protected function getContentPropertiesList(array $exclude = []): array
     {
         $properties = [];
         foreach($this as $key => $property) {
-            if (Validation::isSubclass($property, RequestInput::class)) {
-                /** @var RequestInput $property */
-                if ((!$db_only || $property->isDatabaseField()) &&
-                    (!in_array($key, $ignore_keys))) {
-                    $properties[] = $key;
-                }
+            if (Validation::isSubclass($property, SerializedContentIO::class) && !in_array($key, $exclude)) {
+                $properties[] = $key;
             }
         }
         return $properties;
@@ -236,101 +215,6 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Recordset prefix getter.
-     * @return string|string[]
-     */
-    public function getRecordsetPrefix()
-    {
-        if (!isset($this->recordset_prefix)) {
-            return '';
-        }
-        return $this->recordset_prefix->getPrefix();
-    }
-
-    /**
-     * Test for recordset prefix value.
-     * @return bool
-     */
-    public function hasRecordsetPrefix(): bool
-    {
-        if (!isset($this->recordset_prefix)) {
-            return false;
-        }
-        return $this->recordset_prefix->hasValue();
-    }
-
-    /**
-     * Assign values contained in array to object input properties.
-     * @param object $row Recordset row containing values to copy into the object's properties.
-     */
-    protected function hydrateFromRecordsetRow(object $row)
-    {
-        $used_keys = array();
-        foreach ($this as $key => $property) {
-            // copy over property values that correspond to html form data
-            if ($this->isInput($key, $property, $used_keys)) {
-                /** @var RequestInput $property */
-                /* store value retrieved from database */
-                $this->assignRowValue($key, $property, $row);
-            }
-            elseif(Validation::isSubclass($property, SerializedContent::class) &&
-                $property->hasRecordsetPrefix()) {
-                $property->hydrateFromRecordsetRow($row);
-            }
-            elseif(Validation::isSubclass($property, DBFieldGroup::class)) {
-                $property->hydrateFromRecordsetRow($row);
-            }
-            elseif (!is_object($property)) {
-                // copy over properties read from the database but not collected in html form data
-                if (property_exists($row, $key)) {
-                    $this->$key = $row->$key;
-                }
-            }
-        }
-    }
-
-    /**
-     * Checks if the class property is an input object and should be used for
-     * various operations such as updating or retrieving data from the database,
-     * or retrieving data from forms.
-     * @param string $key Name of the class property.
-     * @param mixed $item Value of the class property.
-     * @param array $used_keys Array containing a list of the objects that
-     * have already been listed as input properties.
-     * @return boolean True if the object is an input class and should be used to update the database. False otherwise.
-     */
-    protected function isInput(string $key, $item, array &$used_keys): bool
-    {
-        if (!Validation::isSubclass($item, RequestInput::class)) {
-            return false;
-        }
-        if ($key === 'id' && !$this->hasRecordsetPrefix()) {
-            return false;
-        }
-        if ($key === 'index') {
-            return false;
-        }
-        if (!$item->isDatabaseField()) {
-            return false;
-        }
-
-        /**
-         * Check if this item has already been used as in input property.
-         * This prevents references used as aliases of existing properties
-         * from being included in database queries.
-         */
-        if (in_array($item->key, $used_keys)) {
-            return false;
-        }
-
-        /**
-         * Once an input property is marked as such track it, so it won't be included again.
-         */
-        $used_keys[] = $item->key;
-        return true;
-    }
-
-    /**
      * Save RequestInput property values in form markup.
      * @param array $excluded_keys Optional list of keys that will be excluded from the form markup.
      */
@@ -348,17 +232,15 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Recordset prefix setter.
-     * @param $prefix
+     * Adds a prefix to any RequestInput property of the object.
+     * @param string $prefix
+     * @return void
      */
-    public function setRecordsetPrefix($prefix)
+    public function setInputPrefix(string $prefix)
     {
-        $this->recordset_prefix ??= new RecordsetPrefix();
-        $this->recordset_prefix->setPrefix($prefix);
-        foreach($this as $property) {
-            if (Validation::isSubclass($property, DBFieldGroup::class)) {
-                $property->setRecordsetPrefix($prefix);
-            }
+        $properties = $this->getInputPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setKey($prefix . $this->$property->key);
         }
     }
 }

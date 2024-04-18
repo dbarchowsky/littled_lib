@@ -78,18 +78,6 @@ class UserLogin extends UserAccount
     }
 
     /**
-     * @inheritDoc
-     */
-    public function hasData(): bool
-    {
-        return (
-            parent::hasData() ||
-            strlen($this->username->value) > 0 ||
-            strlen($this->password->value) > 0
-        );
-    }
-
-    /**
      * Checks the current login state. Throws InvalidCredentialsException if login state is not available or if the
      * login state does not match the requested access level.
      * @param int $access_level Access level needed for the login.

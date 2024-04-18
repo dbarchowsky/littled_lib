@@ -11,3 +11,4 @@ CHARSET=Latin1;
 
 ALTER TABLE `states` ADD sales_tax FLOAT NULL;
 ALTER TABLE `states` ADD charge_tax BOOL NULL DEFAULT FALSE;
+ALTER TABLE `states` ADD CONSTRAINT UNIQUE uc_states_name (name);

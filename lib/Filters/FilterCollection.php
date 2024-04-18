@@ -279,9 +279,8 @@ class FilterCollection extends FilterCollectionProperties
 	{
 		$this->formatQueryClause();
 
-		$query = "SEL"."ECT COUNT(DISTINCT a.`id`) AS `count` ".
-			"FROM `".$this->getTableName()."` a ".
-			"LEFT JOIN `image_link` p ON a.`id` = p.`parent_id` ".
+		$query = 'SELECT COUNT(1) AS `count` '.
+			'FROM `'. static::getTableName() . '` '.
 			$this->sql_clause;
 		$data = $this->fetchRecords($query);
 

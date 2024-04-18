@@ -23,6 +23,7 @@ CREATE OR REPLACE TABLE section_operations
 
 ALTER TABLE section_operations ADD ajax_listings_uri varchar(255) NULL AFTER `listings_uri`;
 
+
 SELECT CONCAT(
                'UPDATE `section_operations` SET `ajax_listings_uri` = ''',
                ajax_listings_uri,

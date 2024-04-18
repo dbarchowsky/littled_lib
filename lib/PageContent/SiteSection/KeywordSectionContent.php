@@ -7,7 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -15,13 +15,14 @@ use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\StringTextarea;
+use mysqli;
 
 
 /**
  * Extends SectionContent by adding keyword properties to standardize retrieving and committing keyword terms
  * associated with a content record.
  */
-abstract class KeywordSectionContent extends SectionContent
+class KeywordSectionContent extends SectionContent
 {
     /** @var StringTextarea     Container for collecting keyword form data. */
     public StringTextarea       $keyword_input;
@@ -41,7 +42,7 @@ abstract class KeywordSectionContent extends SectionContent
      * KeywordSectionContent constructor.
      * @param ?int $id ID Optional value representing this object's record in the database. Defaults to NULL.
      * @param ?int $content_type_id Optional ID of this object's content type. Defaults to NULL.
-     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
      */
     function __construct($id = null, $content_type_id = null)
     {
@@ -60,29 +61,33 @@ abstract class KeywordSectionContent extends SectionContent
 
     /**
      * Pushes a new keyword term onto the current list of Keyword objects stored in the object's $keyword property.
+     * @return $this
      * @param string $term Keyword term to push onto the stack.
      * @param bool $test_for_parent Optional flag to bypass testing for a valid parent id when adding the keyword.
-     * @throws Exception
+     * @throws ContentValidationException
+     * @throws InvalidStateException
      */
-    public function addKeyword(string $term, bool $test_for_parent = true): void
+    public function addKeyword(string $term, bool $test_for_parent = true): KeywordSectionContent
     {
         if ($test_for_parent) {
             $this->testForParentID('Could not add keyword.');
         }
         $this->testForContentType('Could not add keyword.');
         if (null === $this->content_properties->id->value) {
-            throw new Exception('Could not add keyword. Content type not set.');
+            throw new InvalidStateException('Could not add keyword. Content type not set.');
         }
         $kw = new Keyword($term, $this->id->value, $this->content_properties->id->value);
         if (!$test_for_parent) {
             $kw->parent_id->required = false;
         }
         $this->keywords[] = $kw;
+        return $this;
     }
 
     /**
      * @inheritDoc
-     * @throws Exception
+     * @throws ContentValidationException
+     * @throws InvalidStateException
      */
     public function base64DecodeInput()
     {
@@ -108,10 +113,9 @@ abstract class KeywordSectionContent extends SectionContent
     }
 
     /**
-     * Fills object property values using data collected from request variables.
-     * @param ?array $src Optional array container of request variables. If specified, it will override inspecting the
-     * $_POST and $_GET collections for keyword values.
-     * @throws Exception
+     * @inheritDoc
+     * @throws ContentValidationException
+     * @throws InvalidStateException
      */
     public function collectRequestData(?array $src = null)
     {
@@ -134,9 +138,11 @@ abstract class KeywordSectionContent extends SectionContent
     /**
      * Collects keyword terms from http request and stores them as separate Keyword objects in the object's $keywords
      * property.
-     * @param ?array $src Optional array container of request variables. If specified, it will override inspecting the
+     * @param null|array $src Optional array container of request variables. If specified, it will override inspecting the
      * $_POST and $_GET collections for keyword values.
-     * @throws Exception
+     * @return void
+     * @throws ContentValidationException
+     * @throws InvalidStateException
      */
     public function collectKeywordInput(?array $src = null): void
     {
@@ -152,11 +158,8 @@ abstract class KeywordSectionContent extends SectionContent
     }
 
     /**
-     * Removes the record from the database that corresponds to the object's id value. Also removes any records linked
-     * to that main record.
-     * @return string String containing a description of the results of the deletion.
+     * @inheritDoc
      * @throws ContentValidationException
-     * @throws NotImplementedException
      */
     public function delete(): string
     {
@@ -169,7 +172,10 @@ abstract class KeywordSectionContent extends SectionContent
      * Deletes any keyword records linked to the main content record represented by the object.
      * @return string String containing a description of the results of the deletion.
      * @throws ContentValidationException
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
      */
     public function deleteKeywords(): string
     {
@@ -336,7 +342,15 @@ abstract class KeywordSectionContent extends SectionContent
     /**
      * @inheritDoc
      */
-    public function read(): SerializedContent
+    protected function hasRecordData(): bool
+    {
+        return $this->hasKeywordData();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function read(): KeywordSectionContent
     {
         parent::read();
         $this->content_properties->read();
@@ -373,7 +387,7 @@ abstract class KeywordSectionContent extends SectionContent
      * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException|InvalidValueException
+     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -386,10 +400,15 @@ abstract class KeywordSectionContent extends SectionContent
 
     /**
      * Saves all keywords linked to the main record object.
+     * @return $this
      * @throws ContentValidationException
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
      */
-    public function saveKeywords()
+    public function saveKeywords(): KeywordSectionContent
     {
         $this->testForParentID("Could not serialize keywords.");
         $this->deleteKeywords();
@@ -397,6 +416,23 @@ abstract class KeywordSectionContent extends SectionContent
             $keyword->parent_id->value = $this->id->value;
             $keyword->save();
         }
+        return $this;
+    }
+
+    /**
+     * Sets the content type record id property value.
+     * @param int $content_type_id
+     * @return $this
+     */
+    public function setContentType(int $content_type_id): KeywordSectionContent
+    {
+        try {
+            $this->content_properties->setRecordId($content_type_id);
+        }
+        catch(InvalidStateException $e) {
+            /* ignore */
+        }
+        return $this;
     }
 
     /**
@@ -435,6 +471,30 @@ abstract class KeywordSectionContent extends SectionContent
     public static function setKeywordsListTemplatePath(string $path): void
     {
         static::$keyword_list_template = $path;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setMySQLi(mysqli $mysqli): KeywordSectionContent
+    {
+        parent::setMySQLi($mysqli);
+        return $this;
+    }
+
+    /**
+     * Set record id property value.
+     * @param int $record_id
+     * @return $this
+     */
+    public function setRecordId(int $record_id): KeywordSectionContent
+    {
+        try {
+            parent::setRecordId($record_id);
+        } catch (InvalidStateException $e) {
+            /* ignore */
+        }
+        return $this;
     }
 
     /**

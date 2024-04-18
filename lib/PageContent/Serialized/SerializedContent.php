@@ -2,25 +2,32 @@
 
 namespace Littled\PageContent\Serialized;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\DuplicateRecordException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Request\IntegerInput;
-use Littled\Validation\Validation;
+use Littled\Log\Log;
+use Littled\Request\PrimaryKeyInput;
 use Exception;
+use Littled\Validation\Validation;
+use mysqli;
 
 /**
  * Routines for fetching and committing database records.
  */
 abstract class SerializedContent extends SerializedContentIO
 {
-    /** @var IntegerInput Record id. */
-    public IntegerInput $id;
-    protected static string $default_id_key = 'id';
+    /** @var PrimaryKeyInput Record id. */
+    public PrimaryKeyInput $id;
+    protected static string $default_id_key = LittledGlobals::ID_KEY;
 
     /**
      * SerializedContent constructor.
@@ -29,23 +36,59 @@ abstract class SerializedContent extends SerializedContentIO
     function __construct(?int $id = null)
     {
         parent::__construct();
-        $this->id = new IntegerInput('id', static::$default_id_key, false, $id);
+        $this->id = new PrimaryKeyInput('id', static::$default_id_key, false, $id);
     }
 
+
     /**
-     * Looks up any foreign key properties in the object and commits the links to the database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException|InvalidValueException
+     * Add type id to current stack.
+     * @param int|int[] $link_ids
+     * @return $this
+     * @throws DuplicateRecordException
+     * @throws InvalidStateException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
      */
-    protected function commitLinkedRecords()
+    protected function addLink($link_ids, string $links_property): SerializedContent
     {
-        $lc = $this->getLinkedContentPropertyList();
-        foreach ($lc as $property) {
-            $property->save();
+        if (!property_exists($this, $links_property)) {
+            $err_msg = "Link property \"$links_property\" not found on ".Log::getClassBaseName(get_class($this)).'.';
+            throw new InvalidValueException($err_msg);
         }
+        elseif(!isset($this->$links_property)) {
+            $err_msg = "Link property \"$links_property\" is not initialized on " .
+                Log::getClassBaseName(get_class($this)). '.';
+            throw new InvalidStateException($err_msg);
+        }
+        elseif(!Validation::isSubclass($this->$links_property, OneToManyContentLink::class)) {
+            $err_msg = "Link property \"$links_property\" is not a one-to-many link.";
+            throw new InvalidTypeException($err_msg);
+        }
+
+        $content_class = $this->$links_property->getContentClass();
+
+        if (!is_array($link_ids)) {
+            $link_ids = [$link_ids];
+        }
+        try {
+            foreach ($link_ids as $link_id) {
+                /** @var LinkedContent $link */
+                $link = (new $content_class())
+                    ->setMySQLi(static::getMysqli())
+                    ->setLinkId($link_id);
+                if ($this->id->hasData()) {
+                    $link->setPrimaryId($this->getRecordId());
+                }
+                try {
+                    $this->$links_property->addLink($link);
+                } catch (DuplicateRecordException $e) {
+                    /* continue */
+                }
+            }
+        } catch(ConfigurationUndefinedException $e) {
+            /* ignore */
+        }
+        return $this;
     }
 
     /**
@@ -74,18 +117,20 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ContentValidationException Record id not provided.
-     * @throws NotImplementedException Table name not set in inherited class.
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
+     * @throws RecordNotFoundException
      */
     public function delete(): string
     {
         if (null === $this->id->value || 1 > $this->id->value) {
-            throw new ContentValidationException("Id not provided.");
+            throw new InvalidStateException('Id not provided.');
         }
 
         if (!$this->recordExists()) {
-            return ("The requested record could not be found. \n");
+            throw new RecordNotFoundException("The requested record could not be found. \n");
         }
 
         $query = "DEL" . "ETE FROM `" . $this::getTableName() . "` WHERE `id` = ?";
@@ -95,68 +140,66 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConnectionException On connection error.
-     * @throws ConfigurationUndefinedException Database connection properties not set.
-     * @throws Exception
      */
-    protected function executeInsertQuery()
+    protected function executeCommitQuery()
     {
-        $fields = $this->extractPreparedStmtArgs();
-
-        /* build sql statement */
-        $query = "INS" . "ERT INTO `" . $this::getTableName() . "` (`" .
-            implode('`,`', array_map(function ($e) {
-                return $e->key;
-            }, $fields)) .
-            "`) VALUES (" .
-            implode(',', array_map(function () {
-                return '?';
-            }, $fields)) .
-            ")";
-        $type_str = implode('', array_map(function ($e) {
-            return $e->type;
-        }, $fields));
-        $args = array_map(function ($e) {
-            return $e->value;
-        }, $fields);
-
-        /* execute sql and store id value of the new record. */
-        $this->query($query, $type_str, ...$args);
-        // call_user_func_array([$this, 'query'], [$query, $type_str, $args]);
-        $this->id->value = $this->retrieveInsertID();
+        $this->prepareInsertIdSession();
+        parent::executeCommitQuery();
+        if (!$this->id->hasData()) {
+            // retrieve and store the new record id after performing an insert.
+            $this->updateIdAfterCommit();
+        }
     }
 
     /**
-     * Create a SQL update statement using the values of the object's input properties & execute the update statement.
-     * @throws ConnectionException On connection error.
-     * @throws ConfigurationUndefinedException Database connection properties not set.
-     * @throws NotImplementedException Table name not specified in inherited class.
-     * @throws RecordNotFoundException No record exists that matches the id value.
-     * @throws Exception
+     * @return array
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
-    protected function executeUpdateQuery()
+    protected function formatCommitQuery(): array
     {
+        // record id value managed using SQL @insert_id session variable
         $fields = $this->extractPreparedStmtArgs();
 
-        /* confirm that the record exists */
-        if (!$this->recordExists()) {
-            throw new RecordNotFoundException("Requested record not available for update.");
-        }
+        $keys = array_map(function ($e) {
+            return $e->key;
+        }, $fields);
+        $query = 'INS' . 'ERT INTO `' . static::getTableName() . '` (`' .
+            implode('`,`', $keys) .
+            '`) VALUES (' . ($this->hasPrimaryKey() ? '@insert_id' : '?') . ',' .
+            rtrim(str_repeat('?,', count($fields) - 1), ',').
+            ') '.
+            'ON DUPLICATE KEY UPDATE '.
+            join(', ', array_map(fn($e): string => "`$e` = VALUE(`$e`)", $keys));
 
-        /* build and execute sql statement */
-        $query = "UPDATE `" . $this::getTableName() . "` SET " .
-            implode(',', array_map(function ($e) {
-                return "$e->key=?";
-            }, $fields)) . " " .
-            "WHERE id = ?;";
+        // strip out primary key variables since we're using previously assigned @insert_id SQL session variable
+        $fields = array_filter($fields, function($e) {
+            return !$e->is_pk;
+        });
         $type_str = implode('', array_map(function ($e) {
-                return $e->type;
-            }, $fields)) . 'i';
+            return $e->type;
+        }, $fields));
+
         $args = array_map(function ($e) {
             return $e->value;
         }, $fields);
-        $args[] = $this->id->value;
-        $this->query($query, $type_str, ...$args);
+        return [$query, $type_str, ...$args];
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ConnectionException|ConfigurationUndefinedException
+     */
+    protected function formatRecordSelectPreparedStmt(): array
+    {
+        $fields = $this->extractPreparedStmtArgs();
+        $query = "SELECT `" .
+            implode('`,`', array_map(function ($e) {
+                return $e->key;
+            }, $fields)) . "` " .
+            "FROM `" . $this::getTableName() . "` " .
+            "WHERE id = ?";
+        return [$query, 'i', $this->id->value];
     }
 
     /**
@@ -169,22 +212,22 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Returns a list of all the properties of the object that represent foreign keys.
-     * @return LinkedContent[]
+     * Returns list of all one-to-many linked properties of the object.
+     * @return OneToManyContentLink[]
      */
-    protected function getLinkedContentPropertyList(): array
+    protected function getOneToManyLinkedProperties(): array
     {
-        $lc = [];
-        foreach ($this as $property) {
-            if (is_object($property) && Validation::isSubclass($property, LinkedContent::class)) {
-                $lc[] = $property;
+        $p = [];
+        foreach($this as $property) {
+            if (Validation::isSubclass($property, OneToManyContentLink::class)) {
+                $p[] = $property;
             }
         }
-        return $lc;
+        return $p;
     }
 
     /**
-     * Record id getter.
+     * Record id value getter
      * @return int
      */
     public function getRecordId(): ?int
@@ -198,8 +241,10 @@ abstract class SerializedContent extends SerializedContentIO
      * @param int $id ID value of the record.
      * @param string $field Optional column name containing the value to retrieve. Defaults to "name".
      * @param string $id_field Optional column name containing the id value to retrieve. Defaults to "id".
-     * @throws InvalidQueryException|Exception SQL error raised running insert query.
      * @return string|null Retrieved value.
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
     public function getTypeName(string $table, int $id, string $field = "name", string $id_field = "id"): ?string
     {
@@ -214,6 +259,30 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return $this->id->hasData() || $this->hasRecordData();
+    }
+
+    /**
+     * Tests if this class has a primary key. It will not if it represents one-to-many link for two other tables
+     * if that link doesn't have a record id of its own.
+     * @return bool
+     */
+    protected function hasPrimaryKey(): bool
+    {
+        return $this->id->isDatabaseField();
+    }
+
+    /**
+     * Same as hasData() but doesn't include the object's $id property value.
+     * @return bool
+     */
+    abstract protected function hasRecordData(): bool;
+
+    /**
      * Tests if query string is a procedure call.
      * @param string $query
      * @return bool
@@ -221,6 +290,14 @@ abstract class SerializedContent extends SerializedContentIO
     protected function isQueryProcedure(string $query): bool
     {
         return (strtolower(substr($query, 0, 5)) === 'call ');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function isReadyToRead(): bool
+    {
+        return $this->getRecordId() > 0 && !$this->hasRecordData();
     }
 
     /**
@@ -238,23 +315,6 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Allow inherited classes to override prepared statement created in the object's read() routine.
-     * @return array
-     * @throws ConnectionException|ConfigurationUndefinedException|NotImplementedException
-     */
-    protected function formatRecordSelectPreparedStmt(): array
-    {
-        $fields = $this->extractPreparedStmtArgs();
-        $query = "SELECT `" .
-            implode('`,`', array_map(function ($e) {
-                return $e->key;
-            }, $fields)) . "` " .
-            "FROM `" . $this::getTableName() . "` " .
-            "WHERE id = ?";
-        return [$query, 'i', $this->id->value];
-    }
-
-    /**
      * Retrieves data from the database based on the internal properties of the
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
@@ -263,18 +323,18 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ConnectionException
      * @throws ContentValidationException Record id not set.
      * @throws RecordNotFoundException Requested record not available.
-     * @throws NotImplementedException|InvalidQueryException|InvalidValueException
+     * @throws NotImplementedException|InvalidQueryException
      */
     public function read(): SerializedContent
     {
-        if ($this->id->value === null || $this->id->value < 1) {
+        if (!$this->id->hasData()) {
             throw new ContentValidationException("Record id not set.");
         }
 
         try {
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
         } catch (RecordNotFoundException $ex) {
-            $error_msg = "The requested " . $this::getTableName() . " record could not be found.";
+            $error_msg = "The requested " . $this::getTableName() . " record was not found.";
             throw new RecordNotFoundException($error_msg);
         }
 
@@ -283,31 +343,19 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Retrieve all record data belonging to tables linked to this content type.
-     * @throws InvalidValueException
-     * @throws InvalidQueryException
-     */
-    public function readLinked()
-    {
-        $lc = $this->getLinkedContentPropertyList();
-        foreach ($lc as $property) {
-            $property->fetchLinkedListings();
-        }
-    }
-
-    /**
      * Confirm that a record with id value matching the current id value of the object currently exists in the database.
      * @return bool True/False depending on if a matching record is found.
-     * @throws NotImplementedException
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
     public function recordExists(): bool
     {
-        if ($this->id->value === null || $this->id->value === '' || $this->id->value < 1) {
+        if (!$this->id->hasData()) {
             return (false);
         }
 
-        $query = "SEL" . "ECT EXISTS(SELECT 1 FROM `" . $this::getTableName() . "` WHERE `id` = ?) AS `record_exists`";
+        $query = 'SELECT EXISTS(SELECT 1 FROM `' . static::getTableName() . '` WHERE `id` = ?) AS `record_exists`';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         return ((int)("0" . $data[0]->record_exists) === 1);
     }
@@ -317,31 +365,19 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws NotImplementedException
+     * @throws InvalidQueryException
      * @throws RecordNotFoundException
-     * @throws InvalidQueryException|InvalidValueException
      */
     public function save()
     {
         if (!$this->hasData()) {
             throw new ContentValidationException("Record has no data to save.");
         }
-
-        $args = $this->generateUpdateQuery();
-        if ($args) {
-            if ($this->isQueryProcedure($args[0])) {
-                $this->prepareInsertIdSession();
-            }
-            $this->query(...$args);
-            $this->updateIdAfterCommit($args[0]);
-        } else {
-            if (is_numeric($this->id->value)) {
-                $this->executeUpdateQuery();
-            } else {
-                $this->executeInsertQuery();
-            }
+        if ($this->id->hasData() && !$this->id->isDatabaseField() && $this->recordExists()) {
+            throw new RecordNotFoundException('A matching record is not available to update.');
         }
 
+        $this->executeCommitQuery();
         $this->commitLinkedRecords();
     }
 
@@ -357,16 +393,34 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Record id setter.
-     * @param int $id
+     * @inheritDoc
      * @return SerializedContent
      */
-    public function setRecordId(int $id): SerializedContent
+    public function setMySQLi(mysqli $mysqli): SerializedContent
     {
-        $this->id->setInputValue($id);
-        $linked = $this->getLinkedContentPropertyList();
-        foreach ($linked as $link) {
-            $link->primary_id->setInputValue($id);
+        parent::setMySQLi($mysqli);
+        foreach($this as $property => $value) {
+            if($this->$property instanceof SerializedContent) {
+                $this->$property->setMySQLi($this::getMysqli());
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     * @throws InvalidStateException
+     */
+    public function setRecordId(int $record_id): SerializedContent
+    {
+        $this->id->setInputValue($record_id);
+        $otm = $this->getOneToManyLinkedProperties();
+        foreach($otm as $property) {
+            try {
+                $property->setPrimaryId($record_id);
+            } catch (NotInitializedException $e) {
+                /* ignore & continue */
+            }
         }
         return $this;
     }
@@ -374,34 +428,13 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg Optional informational message to prepend to error message thrown when a valid parent id is not found.
-     * @throws ContentValidationException
+     * @throws InvalidStateException
      */
     protected function testForParentID(string $msg = '')
     {
         if ($this->id->value === null || $this->id->value < 0) {
             $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');
-            throw new ContentValidationException("{$msg}A parent record was not provided.");
-        }
-    }
-
-    /**
-     * Update the internal id property value after committing object property values to the database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     */
-    protected function updateIdAfterCommit(string $query)
-    {
-        if ($this->isQueryProcedure($query)) {
-            // query was a procedure
-            $data = $this->fetchRecords("SELECT @insert_id AS `id`");
-            if (1 > count($data)) {
-                throw new InvalidQueryException('Could not retrieve new record id.');
-            }
-            $this->id->setInputValue($data[0]->id);
-        } elseif (!$this->id->hasData() && strtolower(substr($query, 0, 7)) === 'insert ') {
-            // query was a query string
-            $this->id->setInputValue($this->retrieveInsertID());
+            throw new InvalidStateException("{$msg}A parent record was not provided.");
         }
     }
 }

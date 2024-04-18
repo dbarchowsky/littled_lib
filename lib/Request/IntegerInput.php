@@ -38,7 +38,7 @@ class IntegerInput extends RenderedInput
         if ($this->bypass_collect_request_data === true) {
             return;
         }
-        $this->value = Validation::collectIntegerRequestVar((($key) ?: ($this->key)), null, $src);
+        $this->value = Validation::collectIntegerRequestVar((($key) ?: ($this->key)), $this->index, $src);
     }
 
     /**

@@ -16,6 +16,7 @@ use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use Exception;
 use Littled\Utility\LittledUtility;
+use mysqli;
 
 /**
  * Class ContentTemplate
@@ -130,14 +131,6 @@ class ContentTemplate extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function generateUpdateQuery(): ?array
-    {
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getContentLabel(): string
     {
         return 'Content template';
@@ -164,7 +157,18 @@ class ContentTemplate extends SerializedContent
     /**
      * @inheritDoc
      */
-    protected function hydrateFromRecordsetRow(object $row)
+    protected function hasRecordData(): bool
+    {
+        return $this->name->hasData() ||
+            $this->path->hasData() ||
+            $this->location->hasData() ||
+            $this->container_id->hasData();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hydrateFromRecordsetRow(object $row)
     {
         parent::hydrateFromRecordsetRow($row);
         if ($this->hydrate_extras) {
@@ -268,6 +272,15 @@ class ContentTemplate extends SerializedContent
     public function setLocation(string $location): ContentTemplate
     {
         $this->location->setInputValue($location);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setMySQLi(mysqli $mysqli): ContentTemplate
+    {
+        parent::setMySQLi($mysqli);
         return $this;
     }
 

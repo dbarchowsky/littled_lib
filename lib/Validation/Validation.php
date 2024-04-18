@@ -65,7 +65,7 @@ class Validation
         }
         if ($index !== null) {
             $arr = filter_var($src[$key], $filter, FILTER_REQUIRE_ARRAY);
-            if (is_array($arr) && count($arr) >= ($index - 1)) {
+            if (is_array($arr) && array_key_exists($index, $arr)) {
                 return $arr[$index];
             }
         } else if ($filter == FILTER_FLAG_NONE) {
@@ -367,7 +367,7 @@ class Validation
      * @param array $ignore_keys Optional array of keys to ignore in GET or POST data
      * @return array
      */
-    protected static function getDefaultInputSource(array $ignore_keys = []): array
+    public static function getDefaultInputSource(array $ignore_keys = []): array
     {
         // first return either REQUEST or POST data collections
         $src = array_merge($_GET, $_POST);

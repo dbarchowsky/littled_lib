@@ -83,7 +83,7 @@ abstract class APIRouteProperties extends PageContentBase
      */
     public function getContentProperties(): ContentProperties
     {
-        return new ContentProperties();
+        return (new ContentProperties())->setMySQLi(static::getMysqli());
     }
 
     /**

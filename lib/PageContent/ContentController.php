@@ -19,6 +19,7 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
+use mysqli;
 
 abstract class ContentController
 {
@@ -125,11 +126,13 @@ abstract class ContentController
     }
 
     /**
-     * @param int $content_id
+     * Returns an object derived from ContentFilters appropriate to the content type represented by $content_id
+     * @param int $content_id Content type identifier
+     * @param mysqli $mysqli Database connection
      * @return ContentFilters
      * @throws Exception
      */
-    public static function getContentFiltersObject(int $content_id): ContentFilters
+    public static function getContentFiltersObject(int $content_id, ?mysqli $mysqli=null): ContentFilters
     {
         // load objects used to fill out listings markup
         $class = static::getContentFiltersClass($content_id);
@@ -140,6 +143,7 @@ abstract class ContentController
         }
         /** @var ContentFilters $filters */
         $filters = $rc->newInstance();
+        $filters->setMySQLi($mysqli);
         // returning variable instead return value of newInstance() is more reliable
         return $filters;
     }

@@ -2,12 +2,11 @@
 
 namespace Littled\PageContent\SiteSection;
 
-
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -16,6 +15,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Exception;
 use Littled\Request\StringInput;
+
 
 /**
  * Extends SerializedContent by adding properties of the serialized content.
@@ -68,8 +68,11 @@ abstract class SectionContent extends SerializedContent
     /**
      * Deletes the Site Section record matching the object's internal ID value.
      * @return string
-     * @throws ContentValidationException
-     * @throws NotImplementedException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
+     * @throws RecordNotFoundException
      */
     public function delete(): string
     {
@@ -134,8 +137,14 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
-    public function read(): SerializedContent
+    public function read(): SectionContent
     {
         parent::read();
         $this->retrieveSectionProperties();
@@ -168,7 +177,6 @@ abstract class SectionContent extends SerializedContent
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -185,7 +193,6 @@ abstract class SectionContent extends SerializedContent
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws InvalidQueryException
-     * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -201,13 +208,13 @@ abstract class SectionContent extends SerializedContent
     /**
      * Tests for a valid content type id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg (Optional) Message to prepend to error message.
-     * @throws ContentValidationException
+     * @throws InvalidStateException
      */
     protected function testForContentType(string $msg = '')
     {
         if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
             $msg = ($msg) ? ("$msg ") : ("Could not perform operation. ");
-            throw new ContentValidationException("{$msg}A content type was not specified.");
+            throw new InvalidStateException("{$msg} A content type was not specified.");
         }
     }
 }

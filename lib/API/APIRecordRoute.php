@@ -16,6 +16,7 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
+use mysqli;
 
 
 class APIRecordRoute extends APIRoute
@@ -51,7 +52,7 @@ class APIRecordRoute extends APIRoute
         if ($this->operation->hasData()) {
             $rp_id = $this->lookupRecordIdRoutePart();
             if ($rp_id) {
-                $this->content->id->value = Validation::parseNumeric($rp_id);
+                $this->content->setRecordId(Validation::parseNumeric($rp_id));
                 if ($this->content->id->value > 0) {
                     return $this;
                 }
@@ -61,13 +62,17 @@ class APIRecordRoute extends APIRoute
         // next, collect record id value from ajax/post data using input property's internal parameter name
         $this->content->id->collectRequestData($src);
         if ($this->content->id->value > 0) {
+            // Call this routine to assign record id to any linked properties
+            $this->content->setRecordId($this->content->id->value);
             return $this;
         }
 
         // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value
         // in ajax/post data using the default record id key
         if ($this->content->id->key != LittledGlobals::ID_KEY) {
-            $this->content->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
+            $this->content->setRecordId(
+                Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src)
+            );
         }
         return $this;
     }
@@ -89,11 +94,30 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
+     * Confirm that the child object and its content properties both share a database connection with this parent.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected function confirmContentDBConnection()
+    {
+        if (!isset($this->content)) {
+            return;
+        }
+        if (!isset($this->content->mysqli) && is_object(static::getMysqli())) {
+            $this->content->setMySQLi(static::getMysqli());
+        }
+        elseif (!isset($this->content->properties->mysqli) && is_object(static::getMysqli())) {
+            $this->content->content_properties->setMySQLi(static::getMysqli());
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     public function getContentProperties(): ContentProperties
     {
         if ($this->hasContentPropertiesObject()) {
+            $this->confirmContentDBConnection();
             return $this->content->content_properties;
         }
         return parent::getContentProperties();
@@ -287,6 +311,7 @@ class APIRecordRoute extends APIRoute
         if (!$this->hasContentPropertiesObject()) {
             throw new ConfigurationUndefinedException('Content object not available.');
         }
+        $this->confirmContentDBConnection();
         $this->content->content_properties->read();
     }
 
@@ -323,6 +348,15 @@ class APIRecordRoute extends APIRoute
             $container_id = str_replace($wildcard, (string)$this->getRecordId(), $container_id);
             $this->json->container_id->value = $container_id;
         }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setMysqli(mysqli $mysqli): APIRecordRoute
+    {
+        $this->mysqli = $mysqli;
         return $this;
     }
 }

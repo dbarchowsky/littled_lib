@@ -3,15 +3,17 @@
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\NotImplementedException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
 use Exception;
+use mysqli;
 
 
 /**
@@ -90,9 +92,11 @@ class ContentProperties extends SerializedContent
     /**
      * Delete this record from the database. Clears parent id of any child records.
      * @return string Message indicating result of the deletion.
-     * @throws ContentValidationException
-     * @throws NotImplementedException
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidQueryException
+     * @throws RecordNotFoundException
+     * @throws ConnectionException
+     * @throws InvalidStateException
      */
     public function delete(): string
     {
@@ -158,7 +162,9 @@ class ContentProperties extends SerializedContent
     /**
      * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
      * @return ?int Record id of parent record.
-     * @throws InvalidQueryException|Exception
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
     public function getParentID(): ?int
     {
@@ -193,13 +199,11 @@ class ContentProperties extends SerializedContent
     }
 
     /**
-     * Indicates if any form data has been entered for the current instance of the object.
-     * @return boolean Returns true if editing an existing record, a title has been entered, or if any gallery images
-     * have been uploaded. Most likely should be overridden in derived classes.
+     * @inheritDoc
      */
-    public function hasData(): bool
+    public function hasRecordData(): bool
     {
-        return ($this->id->value > 0 || $this->name->value);
+        return $this->name->hasData();
     }
 
     /**
@@ -252,7 +256,6 @@ class ContentProperties extends SerializedContent
     /**
      * @inheritDoc
      * Overrides parent routine to call procedure to retrieve item properties along with extended item properties.
-     * @throws Exception
      */
     public function read(): SerializedContent
     {
@@ -279,7 +282,10 @@ class ContentProperties extends SerializedContent
 
     /**
      * Retrieve content routes linked to this content type.
-     * @throws InvalidQueryException|Exception
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidQueryException
+     * @throws ConnectionException
      */
     public function readRoutes(): void
     {
@@ -303,7 +309,10 @@ class ContentProperties extends SerializedContent
 
     /**
      * Retrieve content templates linked to this content type.
-     * @throws InvalidQueryException|Exception
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
     public function readTemplates(): void
     {
@@ -334,5 +343,14 @@ class ContentProperties extends SerializedContent
         $this->templates = array();
         $this->routes = array();
         $this->parent = '';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setMySQLi(mysqli $mysqli): ContentProperties
+    {
+        parent::setMySQLi($mysqli);
+        return $this;
     }
 }

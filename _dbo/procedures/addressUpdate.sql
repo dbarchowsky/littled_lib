@@ -9,7 +9,7 @@ CREATE PROCEDURE `addressUpdate`(
     , IN p_address2 VARCHAR(200)
     , IN p_city VARCHAR(100)
     , IN p_state_id INT
-    , IN p_state VARCHAR(100)
+    , IN p_non_us_state VARCHAR(100)
     , IN p_zip VARCHAR(20)
     , IN p_country VARCHAR(100)
     , IN p_home_phone VARCHAR(20)
@@ -25,7 +25,7 @@ CREATE PROCEDURE `addressUpdate`(
 )
 BEGIN
 
-REPLACE INTO `address` (
+INSERT INTO `address` (
     `id`
     , `salutation`
     , `first_name`
@@ -34,7 +34,7 @@ REPLACE INTO `address` (
     , `address2`
     , `city`
     , `state_id`
-    , `state`
+    , `non_us_state`
     , `zip`
     , `country`
     , `home_phone`
@@ -56,7 +56,7 @@ REPLACE INTO `address` (
      , p_address2
      , p_city
      , p_state_id
-     , p_state
+     , p_non_us_state
      , p_zip
      , p_country
      , p_home_phone
@@ -69,7 +69,30 @@ REPLACE INTO `address` (
      , p_url
      , p_latitude
      , p_longitude
-);
+)
+ON DUPLICATE KEY UPDATE
+    id = VALUE(id),
+    salutation = VALUE(salutation),
+    first_name = VALUE(first_name),
+    last_name = VALUE(last_name),
+    address1 = VALUE(address1),
+    address2 = VALUE(address2),
+    city = VALUE(city),
+    state_id = VALUE(state_id),
+    non_us_state = VALUE(non_us_state),
+    zip = VALUE(zip),
+    country = VALUE(country),
+    home_phone = VALUE(home_phone),
+    work_phone = VALUE(work_phone),
+    fax = VALUE(fax),
+    email = VALUE(email),
+    company = VALUE(company),
+    title = VALUE(title),
+    location = VALUE(location),
+    url = VALUE(url),
+    latitude = VALUE(latitude),
+    longitude = VALUE(longitude);
+
 IF p_address_id IS NULL THEN
     SELECT LAST_INSERT_ID() INTO p_address_id;
 END IF;

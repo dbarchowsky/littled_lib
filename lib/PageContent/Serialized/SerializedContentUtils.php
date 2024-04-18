@@ -6,6 +6,7 @@ use Littled\Database\AppContentBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
@@ -20,10 +21,14 @@ use Littled\Validation\Validation;
  */
 class SerializedContentUtils extends AppContentBase
 {
-    use SerializedFieldOperations {
+    use PropertyEvaluations {
         setRecordsetPrefix as traitSetRecordsetPrefix;
+    }
+    use SerializedFieldOperations, HydrateFieldOperations {
+        applyInputKeyPrefix as traitApplyInputKeyPrefix;
         fill as traitFill;
     }
+
 
     /** @var string             Path to CMS template dir */
     protected static string     $common_cms_template_path;
@@ -45,6 +50,16 @@ class SerializedContentUtils extends AppContentBase
             $str = rtrim($str) . "$separator ";
         }
         return ($str);
+    }
+
+    /**
+     * @inheritDoc
+     * @return $this
+     */
+    public function applyInputKeyPrefix(string $prefix): SerializedContentUtils
+    {
+        $this->traitApplyInputKeyPrefix($prefix);
+        return $this;
     }
 
     /**
@@ -82,12 +97,12 @@ class SerializedContentUtils extends AppContentBase
     /**
      * Checks if content type id property exists and returns its value.
      * @return ?int Class's content type id value, if it has been defined.
-     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
      */
     public static function getContentTypeId(): ?int
     {
         if (!isset(static::$content_type_id)) {
-            throw new ConfigurationUndefinedException('Content type not set.');
+            throw new InvalidStateException('Content type not set.');
         }
         return static::$content_type_id;
     }

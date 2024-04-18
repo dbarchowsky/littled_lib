@@ -4,7 +4,10 @@ namespace Littled\API;
 
 use Error;
 use Exception;
+use Littled\Database\MySQLConnection;
 use Littled\Exception\NotInitializedException;
+use Littled\PageContent\Serialized\SerializedContent;
+use mysqli;
 use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -248,6 +251,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new NotInitializedException($err_msg);
         }
         $this->route = (new ContentRoute())
+            ->setMySQLi(static::getMysqli())
             ->setContentType($this->getContentTypeId())
             ->setOperation($operation)
             ->lookupRoute();
@@ -275,6 +279,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new NotInitializedException($err_msg);
         }
         $this->template = (new ContentTemplate())
+            ->setMySQLi(static::getMysqli())
             ->setContentType($this->getContentTypeId())
             ->setOperation($name)
             ->lookupTemplateProperties();
@@ -309,8 +314,7 @@ abstract class APIRoute extends APIRouteProperties
     {
         $this->filters = call_user_func(
             [static::getControllerClass(), 'getContentFiltersObject'],
-            $content_type_id ?: $this->getContentTypeId());
-        $this->filters->setMySQLi($this->getMySQLi());
+            $content_type_id ?: $this->getContentTypeId(), static::getMysqli());
         $this->getContentProperties()->setRecordId($content_type_id);
     }
 
@@ -513,5 +517,16 @@ abstract class APIRoute extends APIRouteProperties
     {
         header("Content-Type: text/plain\n\n");
         print($response ?: $this->json->content->value);
+    }
+
+    public function setMySQLi(mysqli $mysqli): MySQLConnection
+    {
+        parent::setMySQLi($mysqli);
+        foreach($this as $item) {
+            if ($item instanceof SerializedContent) {
+                $item->setMySQLi(static::getMysqli());
+            }
+        }
+        return $this;
     }
 }

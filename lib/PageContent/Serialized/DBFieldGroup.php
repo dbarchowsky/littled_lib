@@ -7,11 +7,33 @@ use Littled\Database\MySQLOperations;
 
 class DBFieldGroup
 {
-    use MySQLOperations, SerializedFieldOperations {
-        extractPreparedStmtArgs as public;
+    use MySQLOperations, PropertyEvaluations, SerializedFieldOperations, HydrateFieldOperations {
+        extractPreparedStmtArgs as traitExtractPreparedStmtArgs;
         fill as traitFill;
-        hydrateFromRecordsetRow as public;
         setRecordsetPrefix as traitSetRecordsetPrefix;
+    }
+
+    /**
+     * @inheritDoc
+     * Overrides parent to exclude "id" and "index" properties from fields that would be used to build SQL statements.
+     */
+    public function extractPreparedStmtArgs(array &$used_keys = []): array
+    {
+        $excluded = ['id', 'index'];
+        $fields = $this->traitExtractPreparedStmtArgs($used_keys);
+        for($i = count($fields)-1; $i >= 0; $i--) {
+            if (in_array($fields[$i]->key,  $excluded)) {
+                unset($fields[$i]);
+            }
+        }
+        for($i = count($used_keys)-1; $i >= 0; $i--) {
+            if (in_array($used_keys[$i],  $excluded)) {
+                unset($used_keys[$i]);
+            }
+        }
+        // re-index the arrays
+        $used_keys = array_values($used_keys);
+        return array_values($fields);
     }
 
     /**

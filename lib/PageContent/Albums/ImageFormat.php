@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Albums;
 
-use Exception;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -52,7 +51,7 @@ class ImageFormat extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function generateUpdateQuery(): ?array
+    public function formatCommitQuery(): array
     {
         $query = 'CALL imageFormatUpdate(?,?,?,?,?,?,?,?,?)';
         return array($query, 'iiisiisss',
@@ -89,6 +88,14 @@ class ImageFormat extends SerializedContent
     public function getSizeName(): string
     {
         return $this->size_name;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function hasRecordData(): bool
+    {
+        return $this->path->hasData() || $this->label->hasData();
     }
 
     /**

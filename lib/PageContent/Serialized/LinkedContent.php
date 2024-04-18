@@ -2,356 +2,157 @@
 
 namespace Littled\PageContent\Serialized;
 
-use Exception;
-use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\NotInitializedException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\ForeignKeyInput;
-use Littled\Request\IntegerInput;
-use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
-use stdClass;
 
-abstract class LinkedContent extends SerializedContentIO
+
+abstract class LinkedContent extends SerializedContent
 {
-    public IntegerInput         $primary_id;
+    use HydrateFieldOperations, InputOperations {
+        applyInputKeyPrefix as traitApplyInputKeyPrefix;
+    }
+
+    public ForeignKeyInput      $primary_id;
     public ForeignKeyInput      $link_id;
-    public array                $listings_data;
-    protected static bool       $one_to_one = false;
-
-    /**
-     * Saves single link record to the database, as opposed to ::save() which saves all links currently in the object.
-     * @param int $link_id Link record id of the link to save.
-     * @throws NotImplementedException
-     * @throws ConnectionException
-     * @throws ConfigurationUndefinedException
-     * @throws InvalidQueryException
-     * @throws InvalidValueException
-     */
-    public function commitSingleLink(int $link_id)
-    {
-        if (!$this->containsLinkId($link_id)) {
-            throw new InvalidValueException('The requested link id not found in the current link id set.');
-        }
-        $args = $this->generateLinkUpdatePreparedStmt($link_id);
-        $this->query(...$args);
-    }
-
-    /**
-     * Deletes all links to the parent record.
-     * @return string
-     * @throws ConnectionException
-     * @throws ConfigurationUndefinedException
-     * @throws NotImplementedException
-     * @throws InvalidQueryException
-     */
-    public function delete(): string
-    {
-        $query = 'DEL'.'ETE FROM `'.static::getTableName().'`'.
-            ' WHERE `'.$this->primary_id->getColumnName('primary_id').'` = ?';
-        $this->query($query, 'i', $this->primary_id->value);
-        return ('The requested '.static::getTableName().' records were deleted.');
-    }
-
-    /**
-     * Deletes a single link record leaving any other links to the parent record untouched.
-     * @throws ConnectionException
-     * @throws ConfigurationUndefinedException
-     * @throws NotImplementedException
-     * @throws InvalidQueryException|InvalidValueException
-     */
-    public function deleteLink(int $link_id): string
-    {
-        if (!$this->containsLinkId($link_id)) {
-            throw new InvalidValueException(
-                'The requested link id was not found in the current set of link id values.');
-        }
-        $query = 'DEL'.'ETE FROM `'.static::getTableName().'`'.
-            ' WHERE `'.$this->primary_id->getColumnName('primary_id').'` = ?'.
-            ' AND `'.$this->link_id->getColumnName('link_id').'` = ?';
-        $this->query($query, 'ii', $this->primary_id->value, $link_id);
-        return ('The requested '.static::getTableName().' record was deleted.');
-    }
-
-    /**
-     * Returns TRUE if $link_id value is found in the instance's current link id values.
-     * @param int $link_id Link record id to look up.
-     * @return bool TRUE if $link_id is found in the instance's current link id values.
-     */
-    protected function containsLinkId(int $link_id): bool
-    {
-        if (is_array($this->link_id->value)) {
-            return in_array($link_id, $this->link_id->value);
-        }
-        else {
-            return ($this->link_id->value === $link_id);
-        }
-    }
-
-    /**
-     * Deletes any stale links between the two tables.
-     * @throws NotImplementedException
-     * @throws InvalidQueryException
-     */
-    public function deleteStaleLinks(array $valid_foreign_ids)
-    {
-        if (count($valid_foreign_ids) < 1) {
-            return;
-        }
-
-        $query = 'DEL'.'ETE FROM `'.static::getTableName().'` '.
-            'WHERE `'.$this->primary_id->getColumnName('primary_id').'` = ? '.
-            'AND `'.$this->link_id->getColumnName('foreign_id').'` NOT IN (';
-        $first = true;
-        $arg_types = 'i';
-        $ids = [];
-        foreach($valid_foreign_ids as $id) {
-            $ids[] = $id;
-            $query .= ($first ? '' : ',').'?';
-            $arg_types .= 'i';
-            $first = false;
-        }
-        $query .= ')';
-        $args = array_merge([$this->primary_id->value], $ids);
-        try {
-            $this->query($query, $arg_types, ...$args);
-        }
-        catch (Exception $e) {
-            throw new InvalidQueryException("Error deleting stale links. \n".$e->getMessage());
-        }
-    }
 
     /**
      * @inheritDoc
-     * @throws NotImplementedException
-     * @throws Exception
+     * @param string $prefix
+     * @return $this
      */
-    protected function executeInsertQuery()
+    public function applyInputKeyPrefix(string $prefix): LinkedContent
     {
-        $this->executeUpdateQuery();
+        $this->traitApplyInputKeyPrefix($prefix);
+        return $this;
     }
 
     /**
-     * @inheritDoc
-     * @throws NotImplementedException
-     * @throws Exception
-     */
-    protected function executeUpdateQuery()
-    {
-        list($query, $arg_types, $args) = $this->generateUpdateQuery();
-        $this->query($query, $arg_types, ...$args);
-    }
-
-    /**
-     * Executes query defined in generateListingsPreparedStmt() and stores results in $listings_data property.
-     * The listings data can subsequently be retrieved with the object's listingsData() method.
-     * @param string $arg_types (optional) Argument types string allowing additional variables to be passed to the
-     * prepared statement.
-     * @param mixed $args,... List of additional variables to pass to the prepared statement.
-     * @throws InvalidValueException
-     * @throws InvalidQueryException
-     */
-    public function fetchLinkedListings(string $arg_types='', ...$args)
-    {
-        if (!$this->primary_id->hasData()) {
-            $err_msg = 'The '.strtolower($this->primary_id->label).' was not provided '.
-                'for retrieving linked '.$this->getInlineLabel(true).'.';
-            throw new InvalidValueException($err_msg);
-        }
-        try {
-            $ps = $this->generateListingsPreparedStmt($arg_types, ...$args);
-            if ($ps) {
-                if (count($ps) > 2) {
-                    if (is_array($ps[2])) {
-                        $this->listings_data = $this->fetchRecords($ps[0], $ps[1], ...$ps[2]);
-                    }
-                    else {
-                        $this->listings_data = $this->fetchRecords($ps[0], $ps[1], $ps[2]);
-                    }
-                }
-                else {
-                    $this->listings_data = $this->fetchRecords($ps[0]);
-                }
-            }
-        }
-        catch (Exception $e) {
-            $err_msg = 'Error retrieving linked '.$this->getInlineLabel(true).'.';
-            $err_msg .= (LittledGlobals::showVerboseErrors() ? " \n".$e->getMessage() : '');
-            throw new InvalidQueryException($err_msg);
-        }
-        $this->fillLinkInputFromListingsData();
-    }
-
-    /**
-     * Uses object's internal listings data property to assign values to the link_id input property.
-     * @return void
-     * @throws InvalidValueException
-     */
-    protected function fillLinkInputFromListingsData()
-    {
-        $this->link_id->value = [];
-        if (isset($this->listings_data) && count($this->listings_data) > 0) {
-            $id_property = $this->lookupIdPropertyName($this->listings_data[0]);
-            if ($id_property==='') {
-                throw new InvalidValueException('Id property could not be determined.');
-            }
-            foreach($this->listings_data as $item) {
-                $this->link_id->value[] = $item->$id_property;
-            }
-        }
-    }
-
-    /**
-     * @param string $query
+     * Returns a list of the names of the object properties that represent content objects, i.e. derived from
+     * SerializedContent.
+     * @param string[] $exclude
      * @return array
      */
-    protected function formatRecordLookupQuery(string $query): array
+    protected function extractContentPropertiesList(array $exclude = []): array
     {
-        $properties = $this->getLinkedProperties();
-        $first = true;
-        $arg_types = '';
-        $args = [];
-        foreach($properties as $property) {
-            $query .= ($first ? ' WHERE `' : ' AND `').$this->$property->getColumnName($property).'` = ?';
-            $first = false;
-            $arg_types .= $this->$property->getPreparedStatementTypeIdentifier();
-            $args[] = $this->$property->value;
-        }
-        return [$query, $arg_types, $args];
-    }
-
-    /**
-     * Returns mysql prepared statement, type string, and arguments that can be used to retrieve linked record listings.
-     * @param string $arg_types (optional) Argument types string allowing additional variables to be passed to the
-     * prepared statement.
-     * @param mixed $args,... List of additional variables to pass to the prepared statement.
-     * @return array
-     */
-    abstract public function generateListingsPreparedStmt(string $arg_types='', ...$args): array;
-
-    /**
-     * @inheritDoc
-     * @throws NotImplementedException
-     * @throws InvalidValueException
-     */
-    public function generateUpdateQuery(): ?array
-    {
-        if (is_array($this->link_id->value)) {
-            if (count($this->link_id->value)===1) {
-                return $this->generateLinkUpdatePreparedStmt($this->link_id->value[0]);
-            }
-            else {
-                $err_msg =
-                    'Call to generateUpdateQuery() with multiple links. Use generateLinkUpdatePreparedStmt() instead.';
-                throw new InvalidValueException($err_msg);
-            }
-        }
-        else {
-            return $this->generateLinkUpdatePreparedStmt($this->link_id->value);
-        }
-    }
-
-    /**
-     * Generates the prepared statement that will be used to insert or update a single link record in the database.
-     * @param int $link_id The id of the link that is to be saved to the database.
-     * @throws NotImplementedException
-     */
-    protected function generateLinkUpdatePreparedStmt(int $link_id): array
-    {
-        $col_str = '`'.$this->primary_id->getColumnName('primary_id').'`,'.
-            '`'.$this->link_id->getColumnName('link_id').'`';
-        $val_str = '?,?';
-        $arg_types = 'ii';
-        $args = [$this->primary_id->value, $link_id];
-        $update_str = '`'.$this->primary_id->getColumnName('primary_id').'` = '.
-            '`'.$this->primary_id->getColumnName('primary_id').'`, '.
-            '`'.$this->link_id->getColumnName('link_id').'` = '.
-            '`'.$this->link_id->getColumnName('link_id').'`';
+        $properties = [];
         foreach($this as $key => $property) {
-            /** @var RequestInput $property */
-            if ($this->isExtraField($property)) {
-                $col_str .= ',`'.$property->getColumnName($key) . '`';
-                $val_str .= ',?';
-                $arg_types .= $property->getPreparedStatementTypeIdentifier();
-                $args[] = $property->value;
-                $update_str .= ', `' . $property->getColumnName($key) . '` = ?';
+            if (Validation::isSubClass($property, SerializedContent::class) &&
+                !in_array($key, $exclude)) {
+                $properties[] = $key;
             }
         }
-        $query = 'INS'.'ERT INTO `'.static::getTableName().
-            "` ($col_str) VALUES ($val_str) ON DUPLICATE KEY UPDATE $update_str;";
-        // double up arg_types and args for insert and update portions of the query
-        $args = array_merge($args, array_slice($args, 2));
-        $arg_types = $arg_types.substr($arg_types,2);
-        array_unshift($args, $query, $arg_types);
-        return $args;
+        return $properties;
     }
 
     /**
-     * Confirm the id property of an object, typically an object representing a row returned from a database query.
-     * @param stdClass $o Instance to search
-     * @return string Name of the object's id property.
+     * Returns only the fields that map to the table managed by this class. The parent routine returns all RequestInput
+     * properties of the object. This routine overrides that to subtract the fields from linked content object.
+     * It also tests for any properties that may be pointers to child properties.
+     * @param array $used_keys
+     * @return QueryField[]
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
-    protected function lookupIdPropertyName(stdClass $o): string
+    protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {
-        $options = ['id', $this->link_id->getColumnName('link_id')];
-        foreach($options as $option) {
-            if (property_exists($o, $option)) {
-                return $option;
+        $fields = parent::extractPreparedStmtArgs($used_keys);
+
+        // remove any properties that map to child content objects
+        $content = $this->extractContentPropertiesList();
+        for($i = count($fields)-1; $i >= 0; $i--) {
+            if (in_array($fields[$i]->key, $content)) {
+                unset($fields[$i]);
             }
         }
-        return '';
-    }
 
-    /**
-     * Tests if the object property represents a field in the database that is not either the primary or link id.
-     * @param mixed $property
-     * @return bool
-     */
-    protected function isExtraField($property): bool
-    {
-        return (
-            Validation::isSubclass($property, RequestInput::class) &&
-            $property !== $this->primary_id &&
-            $property !== $this->link_id &&
-            $property->isDatabaseField());
-    }
-
-    /**
-     * One to many setting getter.
-     * @return bool
-     */
-    public static function isOneToMany(): bool
-    {
-        return !static::$one_to_one;
-    }
-
-    /**
-     * One to one setting getter.
-     * @return bool
-     */
-    public static function isOneToOne(): bool
-    {
-        return static::$one_to_one;
-    }
-
-    /**
-     * Listings data getter.
-     * @return array
-     * @throws NotInitializedException
-     */
-    public function listingsData(): array
-    {
-        if (!isset($this->listings_data)) {
-            throw new NotInitializedException(
-                'Attempt to access '.$this->getContentLabel().' listings data before it has been retrieved.');
+        // remove any properties that are pointers to child content object properties
+        foreach($content as $property) {
+            $cp = $this->$property->getInputPropertiesList();
+            for($i = count($fields)-1; $i >= 0; $i--) {
+                if (in_array($fields[$i]->key, $cp)) {
+                    unset($fields[$i]);
+                }
+            }
         }
-        return $this->listings_data;
+
+        // re-index the array before returning it
+        return array_values($fields);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function formatRecordSelectPreparedStmt(): array
+    {
+        if ($this->id->hasData() && $this->id->isDatabaseField()) {
+            return parent::formatRecordSelectPreparedStmt();
+        }
+        $fields = $this->extractPreparedStmtArgs();
+        $query = 'SELECT `' .
+            implode('`,`', array_map(function ($e) {
+                return $e->key;
+            }, $fields)) . '` ' .
+            'FROM `' . $this::getTableName() . '` ' .
+            'WHERE ' . $this->primary_id->getColumnName('primary_id') . ' = ? '.
+            'AND ' . $this->link_id->getColumnName('link_id') . ' = ? ';
+        return [$query, 'ii', $this->primary_id->value, $this->link_id->value];
+    }
+
+    /**
+     * Link id value getter.
+     * @return ?int
+     */
+    public function getLinkId(): ?int
+    {
+        if (!isset($this->link_id)) {
+            return null;
+        }
+        return $this->link_id->value;
+    }
+
+    /**
+     * Primary id getter, i.e. the parent record's record id.
+     * @return int|null
+     */
+    public function getPrimaryId(): ?int
+    {
+        if (!isset($this->primary_id->value)) {
+            return null;
+        }
+        return $this->primary_id->value;
+    }
+
+    /**
+     * Returns the record id property value if the database table has an explicit primary key. If the table does not
+     * have a primary ky, the id of the parent record is returned (the $primary_id property value).
+     * @return int|null
+     */
+    public function getRecordId(): ?int
+    {
+        if (!$this->id->isDatabaseField()) {
+            return $this->getPrimaryId();
+        }
+        return $this->id->value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return $this->link_id->hasData() || $this->hasRecordData();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function isReadyToRead(): bool
+    {
+        return $this->getPrimaryId() > 0 && $this->getLinkId() > 0;
     }
 
     /**
@@ -371,6 +172,7 @@ abstract class LinkedContent extends SerializedContentIO
      * @param string $base
      * @param ?string $arg_types
      * @return string
+     * @todo confirm this method is needed
      */
     protected static function mergeArgTypeStrings(string $base, ?string $arg_types): string
     {
@@ -379,99 +181,131 @@ abstract class LinkedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws RecordNotFoundException|NotImplementedException
-     * @throws Exception
      */
-    public function read()
+    public function read(): LinkedContent
     {
-        list($query, $arg_types, $args) = $this->formatRecordLookupQuery(
-            'SEL'.'ECT * FROM `'.static::getTableName().'` ');
-        $result = $this->fetchRecords($query, $arg_types, ...$args);
-        if (count($result) < 1) {
-            throw new RecordNotFoundException(static::getTableName()." record not found.");
+        if ($this->id->hasData() && $this->id->isDatabaseField()) {
+            parent::read();
         }
-        $this->fill($result[0]);
+
+        try {
+            $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
+        } catch (RecordNotFoundException $ex) {
+            $error_msg = "The requested " . $this::getTableName() . " record was not found.";
+            throw new RecordNotFoundException($error_msg);
+        }
+
+        return $this;
     }
 
     /**
      * @inheritDoc
+     * @throws InvalidStateException
      */
     public function recordExists(): bool
     {
-        list($query, $arg_types, $args) = $this->formatRecordLookupQuery(
-            'SEL'.'ECT COUNT(1) as `count` FROM `'.static::getTableName().'` ');
-        $result = $this->fetchRecords($query, $arg_types, ...$args);
-        return Validation::parseBoolean($result[0]->count);
+        if (isset($this->id) && $this->id->isDatabaseField() && $this->id->hasData()) {
+            return parent::recordExists();
+        }
+        if (!$this->primary_id->hasData() || !$this->link_id->hasData()) {
+            throw new InvalidStateException('Primary or link record id values not set.');
+        }
+        $query = 'SELECT EXISTS(SELECT 1 FROM `' . static::getTableName() . '` '.
+            'WHERE `' . $this->primary_id->getColumnName('primary_id'). '` = ? ' .
+            'AND `' . $this->link_id->getColumnName('link_id') . '` = ?' .
+            ') AS `record_exists`';
+        $data = $this->fetchRecords($query, 'ii', $this->primary_id->value, $this->link_id->value);
+        return ((int)("0" . $data[0]->record_exists) === 1);
     }
 
     /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws NotImplementedException
-     * @throws InvalidQueryException
-     * @throws ConnectionException|InvalidValueException
+     * Sets the index for all input properties of the object.
+     * @param int $index
+     * @return $this
      */
-    public function save()
+    public function setIndex(int $index): LinkedContent
     {
-        if (!$this->primary_id->hasData()) {
-            throw new ContentValidationException(get_class($this)." primary content not specified.");
+        $properties = $this->getInputPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->index = $index;
         }
-        if (!$this->link_id->hasData()) {
-            throw new ContentValidationException("Record has no data to save.");
-        }
-        $fk_ids = (is_array($this->link_id->value) ? $this->link_id->value : [$this->link_id->value]);
-        foreach($fk_ids as $id) {
-            $this->commitSingleLink($id);
-        }
-        $this->deleteStaleLinks($fk_ids);
+        return $this;
     }
 
     /**
-     * One-to-manu setting setter.
-     * @param bool $flag Defaults to "true".
-     * @return void
+     * Link field name setter.
+     * @param string $field
+     * @return $this
      */
-    public static function setAsOneToMany(bool $flag=true)
+    public function setLinkFieldName(string $field): LinkedContent
     {
-        static::$one_to_one = !$flag;
-    }
-
-    /**
-     * One-to-one setting setter.
-     * @param bool $flag Defaults to "true".
-     * @return void
-     */
-    public static function setAsOneToOne(bool $flag=true)
-    {
-        static::$one_to_one = $flag;
+        $this->link_id->setColumnName($field);
+        return $this;
     }
 
     /**
      * Foreign id setter.
-     * @param int|int[] $value
+     * @param int $record_id
      * @return LinkedContent
-     * @throws NotInitializedException
+     * @throws InvalidStateException
      */
-    public function setLinkId($value): LinkedContent
+    public function setLinkId(int $record_id): LinkedContent
     {
         if (!isset($this->link_id)) {
-            throw new NotInitializedException("Link id object is not initialized.");
+            throw new InvalidStateException("Link id object is not initialized.");
         }
-        $this->link_id->setInputValue($value);
+        $this->link_id->setInputValue($record_id);
+        $properties = $this->extractContentPropertiesList();
+        foreach($properties as $property) {
+            $this->$property->setRecordId($record_id);
+        }
+        return $this;
+    }
+
+    /**
+     * Link key setter.
+     * @param string $key
+     * @return $this
+     */
+    public function setLinkKey(string $key): LinkedContent
+    {
+        $this->link_id->setKey($key);
+        return $this;
+    }
+    /**
+     * Primary field name setter.
+     * @param string $field
+     * @return $this
+     */
+    public function setPrimaryFieldName(string $field): LinkedContent
+    {
+        $this->primary_id->setColumnName($field);
         return $this;
     }
 
     /**
      * Primary id setter.
-     * @throws NotInitializedException
+     * @param int $record_id
+     * @return $this
+     * @throws InvalidStateException
      */
-    public function setPrimaryId(int $value): LinkedContent
+    public function setPrimaryId(int $record_id): LinkedContent
     {
         if (!isset($this->primary_id)) {
-            throw new NotInitializedException("Primary id object is not initialized.");
+            throw new InvalidStateException("Primary id object is not initialized.");
         }
-        $this->primary_id->setInputValue($value);
+        $this->primary_id->setInputValue($record_id);
+        return $this;
+    }
+
+    /**
+     * Primary key setter.
+     * @param string $key
+     * @return $this
+     */
+    public function setPrimaryKey(string $key): LinkedContent
+    {
+        $this->primary_id->setKey($key);
         return $this;
     }
 }

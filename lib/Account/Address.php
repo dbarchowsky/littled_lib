@@ -7,19 +7,18 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
-use Littled\Request\IntegerSelect;
 use Littled\Request\PhoneNumberTextField;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextField;
 use DOMDocument;
 use Exception;
+
 
 /**
  * Class Address
@@ -33,8 +32,8 @@ class Address extends SerializedContent
     protected static string $gmap_api_key;
     protected static string $address_data_template = 'forms/data/address_class_data.php';
     protected static string $street_address_data_template = 'forms/data/street_address_form_data.php';
-    public const ID_KEY = "adid";
-    public const LOCATION_KEY = "adlo";
+    public const ID_KEY = 'adid';
+    public const LOCATION_KEY = 'adlo';
     // possible values for formatting address data into strings
     public const FORMAT_ADDRESS_ONE_LINE = 'one_line';
     public const FORMAT_ADDRESS_HTML = 'html';
@@ -49,19 +48,19 @@ class Address extends SerializedContent
         if (!isset(static::$gmap_api_key)) {
             return '';
         }
-        return ("https://maps.googleapis.com/maps/api/geocode/xml?key=" . static::$gmap_api_key . "&address=");
+        return ('https://maps.googleapis.com/maps/api/geocode/xml?key=' . static::$gmap_api_key . '&address=');
     }
 
     public StringSelect $salutation;
     public StringTextField $first_name;
     public StringTextField $last_name;
     public StringTextField $location;
-    public StringTextField $company;
+    public StringTextField $organization;
     public StringTextField $address1;
     public StringTextField $address2;
     public StringTextField $city;
-    public IntegerSelect $state_id;
-    public StringTextField $state;
+    public State $state;
+    public StringTextField $non_us_state;
     public StringTextField $zip;
     public StringTextField $country;
     public PhoneNumberTextField $home_phone;
@@ -80,37 +79,42 @@ class Address extends SerializedContent
 
     /**
      * Class constructor.
-     * @param string $prefix (Optional) prefix to prepend to form elements.
      */
-    function __construct($prefix = "")
+    function __construct()
     {
         parent::__construct();
-        $this->id->setKey($prefix.self::ID_KEY)
+        $this->id->setKey(self::ID_KEY)
             ->setLabel('Address id')
             ->setAsNotRequired();
-        $this->salutation = new StringSelect("Salutation", "{$prefix}adsl", false, "", 10);
-        $this->first_name = new StringTextField("First Name", "{$prefix}adfn", true, "", 50);
-        $this->last_name = new StringTextField("Last Name", "{$prefix}adln", true, "", 50);
-        $this->location = new StringTextField("Location name", $prefix . self::LOCATION_KEY, false, "", 200);
-        $this->company = new StringTextField("Company", $prefix . "lco", false, "", 100);
-        $this->address1 = new StringTextField("Street", "{$prefix}ads1", true, "", 100);
-        $this->address2 = new StringTextField("Street", "{$prefix}ads2", false, "", 100);
-        $this->city = new StringTextField("City", "{$prefix}adct", true, "", 50);
-        $this->state_id = new IntegerSelect("State", "{$prefix}adst", true);
-        $this->state = new StringTextField("Province", "{$prefix}adpv", false, "", 50);
-        $this->zip = new StringTextField("Zip Code", "{$prefix}adzc", true, "", 20);
-        $this->country = new StringTextField("Country", "{$prefix}adcn", false, "", 100);
-        $this->home_phone = new PhoneNumberTextField("Daytime phone number", $prefix . "ldp", false, "", 20);
-        $this->work_phone = new PhoneNumberTextField("Evening phone number", $prefix . "lep", false, "", 20);
-        $this->mobile_phone = new PhoneNumberTextField("Evening phone number", $prefix . "lep", false, "", 20);
-        $this->fax = new PhoneNumberTextField("Fax number", $prefix . "fax", false, "", 20);
-        $this->email = new EmailTextField("Email", $prefix . "lem", false, "", 200);
-        $this->title = new EmailTextField("Title", $prefix . "ttl", false, "", 50);
-        $this->url = new StringTextField("URL", $prefix . "lur", false, "", 255);
-        $this->latitude = new FloatTextField("Latitude", "stlt", false);
-        $this->longitude = new FloatTextField("Longitude", "stlg", false);
-        $this->state_abbrev = "";
-        $this->fullname = "";
+        $this->salutation = new StringSelect('Salutation', 'adsl', false, '', 10);
+        $this->first_name = new StringTextField('First Name', 'adfn', true, '', 50);
+        $this->last_name = new StringTextField('Last Name', 'adln', true, '', 50);
+        $this->location = new StringTextField('Location name', self::LOCATION_KEY, false, '', 200);
+        $this->organization = new StringTextField('Company', 'lco', false, '', 100);
+        $this->address1 = new StringTextField('Street', 'ads1', true, '', 100);
+        $this->address2 = new StringTextField('Street', 'ads2', false, '', 100);
+        $this->city = new StringTextField('City', 'adct', true, '', 50);
+        $this->state = (new State())
+            ->setRecordsetPrefix('state_')
+            ->applyInputKeyPrefix('a');
+        $this->state->id
+            ->setLabel('State')
+            ->setKey('stateId')
+            ->setAsRequired();
+        $this->non_us_state = new StringTextField('Non US State', 'nonUSState', false, '', 100);
+        $this->zip = new StringTextField('Zip Code', 'adzc', true, '', 20);
+        $this->country = new StringTextField('Country', 'adcn', false, '', 100);
+        $this->home_phone = new PhoneNumberTextField('Daytime phone number', 'ldp', false, '', 20);
+        $this->work_phone = new PhoneNumberTextField('Evening phone number', 'lep', false, '', 20);
+        $this->mobile_phone = new PhoneNumberTextField('Evening phone number', 'lep', false, '', 20);
+        $this->fax = new PhoneNumberTextField('Fax number', 'fax', false, '', 20);
+        $this->email = new EmailTextField('Email', 'lem', false, '', 200);
+        $this->title = new EmailTextField('Title', 'ttl', false, '', 50);
+        $this->url = new StringTextField('URL', 'lur', false, '', 255);
+        $this->latitude = new FloatTextField('Latitude', 'stlt', false);
+        $this->longitude = new FloatTextField('Longitude', 'stlg', false);
+        $this->state_abbrev = '';
+        $this->fullname = '';
     }
 
     /**
@@ -131,7 +135,7 @@ class Address extends SerializedContent
     /**
      * Formats plain string full address based on current address values stored in the object.
      * @param string $style (Optional) Token indicating the type of formatting to apply to the address.
-     * Options are "oneline"|"html"|"google". Defaults to "oneline".
+     * Options are 'oneline'|'html'|'google'. Defaults to 'oneline'.
      * @param bool $include_name (Optional) Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      * @throws InvalidValueException
@@ -156,7 +160,7 @@ class Address extends SerializedContent
      */
     public function formatCity(): string
     {
-        $state = ($this->state_abbrev != '') ? $this->state_abbrev : $this->state->safeValue();
+        $state = ($this->state->abbrev->value != '') ? $this->state->abbrev->value : $this->state->name->safeValue();
         $city_parts = array_filter(array(trim($this->city->safeValue()),
             trim($state),
             trim($this->country->safeValue())));
@@ -209,12 +213,12 @@ class Address extends SerializedContent
         $parts = array();
         if ($include_name === true) {
             $parts[] = $this->formatFullName();
-            $parts[] = trim('' . $this->company->value);
+            $parts[] = trim('' . $this->organization->value);
         }
         $parts[] = trim('' . $this->address1->value);
         $parts[] = trim('' . $this->address2->value);
 
-        if ($this->state_id->value > 0) {
+        if ($this->state->getRecordId()) {
             try {
                 $this->readStateProperties();
             } catch (Exception $ex) {
@@ -224,7 +228,7 @@ class Address extends SerializedContent
         $parts[] = $this->formatCity();
         $parts = array_filter($parts);
         if (count($parts) > 0) {
-            return ("<div>" . join("</div>\n<div>", $parts) . "</div>\n");
+            return ('<div>' . join("</div>\n<div>", $parts) . "</div>\n");
         }
         return ('');
     }
@@ -238,11 +242,11 @@ class Address extends SerializedContent
         $address = $this->appendSeparator($this->address1->safeValue()) .
             $this->appendSeparator($this->address2->safeValue()) .
             $this->city->safeValue();
-        if ($this->state_abbrev || $this->state->safeValue()) {
-            if ($this->state_abbrev) {
-                $address .= $this->prependSeparator($this->state_abbrev);
-            } elseif ($this->state->safeValue()) {
-                $address .= $this->prependSeparator($this->state->safeValue());
+        if ($this->state->getRecordId()) {
+            if ($this->state->abbrev->value) {
+                $address .= $this->prependSeparator($this->state->abbrev->safeValue());
+            } elseif ($this->state->getRecordId()) {
+                $address .= $this->prependSeparator($this->state->name->safeValue());
             }
         } else {
             $address = preg_replace('/, $/', '', $address) . $this->prependSeparator($this->country->value);
@@ -284,15 +288,15 @@ class Address extends SerializedContent
             &$this->address1->value,
             &$this->address2->value,
             &$this->city->value,
-            &$this->state_id->value,
-            &$this->state->value,
+            &$this->state->id->value,
+            &$this->non_us_state->value,
             &$this->zip->value,
             &$this->country->value,
             &$this->home_phone->value,
             &$this->work_phone->value,
             &$this->fax->value,
             &$this->email->value,
-            &$this->company->value,
+            &$this->organization->value,
             &$this->title->value,
             &$this->location->value,
             &$this->url->value,
@@ -342,33 +346,23 @@ class Address extends SerializedContent
      */
     public function hasAddressData(): bool
     {
-        $st = ($this->state_id->value == null || $this->state_id->value < 1) ? ('') : ('' . $this->state_id->value);
-        $data = substr('' . $this->address1->value, 0, 1) .
-            substr('' . $this->address2->value, 0, 1) .
-            substr('' . $this->city->value, 0, 1) .
-            substr('' . $this->state->value, 0, 1) .
-            substr($this->state_abbrev, 0, 1) .
-            $st .
-            substr('' . $this->zip->value, 0, 1);
-        return (strlen($data) > 0);
+        return $this->address1->hasData() ||
+            $this->address2->hasData() ||
+            $this->city->hasData() ||
+            $this->state->hasData() ||
+            $this->zip->hasData();
     }
 
     /**
-     * Indicates if any form data has been entered for the current instance of the object.
-     * @return bool Returns true if editing an existing record, a title has been entered, or if any gallery images
-     * have been uploaded. Most likely should be overridden in derived classes.
+     * @inheritDoc
      */
-    public function hasData(): bool
+    public function hasRecordData(): bool
     {
-        return ($this->id->value !== null ||
-            $this->first_name->value ||
-            $this->last_name->value ||
-            $this->email->value ||
-            $this->location->value ||
-            $this->address1->value ||
-            $this->address2->value ||
-            $this->city->value ||
-            $this->state_id->value > 0);
+        return ($this->first_name->hasData() ||
+            $this->last_name->hasData() ||
+            $this->email->hasData() ||
+            $this->location->hasData() ||
+            $this->hasAddressData());
     }
 
     /**
@@ -379,10 +373,11 @@ class Address extends SerializedContent
     public function lookupStateByName(): ?int
     {
         $this->id->value = null;
-        if ('' === $this->state->value || null === $this->state->value) {
+        if (!$this->state->name->hasData() && !$this->state->abbrev->hasData()) {
             return null;
         }
-        $data = $this->fetchRecords('CALL lookupStateByName(?)', 's', $this->state->value);
+        $state = $this->state->name->value ?: $this->state->abbrev->value;
+        $data = $this->fetchRecords('CALL lookupStateByName(?)', 's', $state);
         if (1 > count($data)) {
             return null;
         }
@@ -397,15 +392,15 @@ class Address extends SerializedContent
     public function lookupMapPosition()
     {
         /**** LOOKUP BASED ON STREET ADDRESS, CITY & STATE ****/
-        if ($this->city->value && $this->state_id->value > 0) {
+        if ($this->city->hasData() && $this->state->getRecordId()) {
             if (!$this->lookupMapPositionByAddress()) {
                 /**** try zip code ****/
-                if ($this->zip->value) {
+                if ($this->zip->hasData()) {
                     $this->lookupMapPositionByZip();
                 }
             }
         } /**** LOOKUP BASED ON ZIP CODE ****/
-        else if ($this->zip->value) {
+        else if ($this->zip->hasData()) {
             $this->lookupMapPositionByZip();
         }
     }
@@ -417,20 +412,20 @@ class Address extends SerializedContent
      */
     public function lookupMapPositionByAddress(): bool
     {
-        $this->longitude->value = "0";
-        $this->latitude->value = "0";
+        $this->longitude->value = '0';
+        $this->latitude->value = '0';
 
-        if ($this->state->value == '') {
+        if ($this->state->getRecordId()) {
             $this->readStateProperties();
         }
-        $address = $this->city->value . ", " . $this->state->value;
+        $address = $this->city->value . ', ' . $this->state->name->value;
         if ($this->address1->value) {
-            $address = $this->address1->value . ", " . $address;
+            $address = $this->address1->value . ', ' . $address;
         }
 
         $xml = new DOMDocument();
         if ($xml->load(self::GOOGLE_MAPS_URI() . urlencode($address))) {
-            $nl = $xml->getElementsByTagName("coordinates");
+            $nl = $xml->getElementsByTagName('coordinates');
             if ($nl->length >= 0 && is_object($nl->item(0))) {
                 $n = $nl->item(0)->firstChild;
                 if ($n) {
@@ -453,7 +448,7 @@ class Address extends SerializedContent
      */
     public function lookupMapPositionByZip()
     {
-        $query = "SEL" . "ECT latitude, longitude FROM `zips` WHERE zipcode = " . $this->zip->escapeSQL($this->mysqli);
+        $query = 'SEL' . 'ECT latitude, longitude FROM `zips` WHERE zipcode = ' . $this->zip->escapeSQL($this->mysqli);
         $rs = $this->fetchRecords($query);
         if (count($rs) > 0) {
             list($this->longitude->value, $this->latitude->value) = $rs[0];
@@ -484,42 +479,22 @@ class Address extends SerializedContent
     }
 
     /**
-     * @inheritDoc
-     */
-    public function read(): Address
-    {
-        if ($this->id->value === null || $this->id->value < 1) {
-            return $this;
-        }
-        parent::read();
-
-        $this->fullname = $this->first_name->value;
-        if ($this->first_name->value && $this->last_name->value) {
-            $this->fullname .= " ";
-        }
-        $this->fullname .= $this->last_name->value;
-
-        $this->readStateProperties();
-        return $this;
-    }
-
-    /**
      * Retrieves extended state properties (name and abbreviation) from database.
      * @throws RecordNotFoundException
      * @throws Exception
      */
     public function readStateProperties()
     {
-        if ($this->state_id->value === null || $this->state_id->value < 1) {
+        if (!$this->state->getRecordId()) {
             return;
         }
-        $query = "SELECT `name`, `abbrev` FROM `states` WHERE id = ?";
-        $data = $this->fetchRecords($query, 'i', $this->state_id->value);
+        $query = 'SELECT `name`, `abbrev` FROM `states` WHERE id = ?';
+        $data = $this->fetchRecords($query, 'i', $this->state->id->value);
         if (0 < count($data)) {
-            $this->state->value = $data[0]->name;
-            $this->state_abbrev = $data[0]->abbrev;
+            $this->state->name->setInputValue($data[0]->name);
+            $this->state->abbrev->setInputValue($data[0]->abbrev);
         } else {
-            throw new RecordNotFoundException("Requested state properties not found.");
+            throw new RecordNotFoundException('Requested state properties not found.');
         }
     }
 
@@ -529,10 +504,10 @@ class Address extends SerializedContent
      * @param string $content_label (Optional) label describing the content type used to format error messages.
      * @throws Exception
      */
-    public function save(bool $do_gmap_lookup = false, string $content_label = "address")
+    public function save(bool $do_gmap_lookup = false, string $content_label = 'address')
     {
         if (!$this->hasData()) {
-            throw new Exception(ucfirst($content_label) . " has nothing to save.");
+            throw new Exception(ucfirst($content_label) . ' has nothing to save.');
         }
 
         if ($do_gmap_lookup === true) {
@@ -571,25 +546,6 @@ class Address extends SerializedContent
     }
 
     /**
-     * Validates address form data.
-     * @param string[] $exclude_properties List of properties to exclude from validation.
-     * @throws Exception Throws exception if any invalid form data is detected. A detailed description of the errors is found through the GetMessage() routine of the Exception object.
-     */
-    public function validateInput(array $exclude_properties = [])
-    {
-        try {
-            parent::validateInput();
-        } catch (Exception $ex) {
-            /* continue */
-        }
-
-        if ($this->hasValidationErrors()) {
-            throw new ContentValidationException("Error validating address.");
-        }
-        return null;
-    }
-
-    /**
      * Validates email addresses used with member accounts to make sure that they are valid email addresses, and that they do not already exist in the database.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -600,19 +556,19 @@ class Address extends SerializedContent
     {
         if ($this->email->value) {
             $this->connectToDatabase();
-            $query = "SELECT c.email " .
-                "FROM `address` c " .
-                "INNER JOIN site_user l on c.id = l.contact_id " .
-                "WHERE (c.email LIKE " . $this->email->escapeSQL($this->mysqli) . ") ";
+            $query = 'SELECT c.email ' .
+                'FROM `address` c ' .
+                'INNER JOIN site_user l on c.id = l.contact_id ' .
+                'WHERE (c.email LIKE ' . $this->email->escapeSQL($this->mysqli) . ') ';
             if ($this->id->value > 0) {
-                $query .= "AND (l.id != {$this->id->value}) ";
+                $query .= 'AND (l.id != {$this->id->value}) ';
             }
             $rs = $this->fetchRecords($query);
             $matches = count($rs);
 
             if ($matches > 0) {
                 $this->email->error = true;
-                $err_msg = "The email address \"{$this->email->value}\" has already been registered.";
+                $err_msg = 'The email address \'{$this->email->value}\' has already been registered.';
                 $this->addValidationError($err_msg);
                 throw new ContentValidationException($err_msg);
             }

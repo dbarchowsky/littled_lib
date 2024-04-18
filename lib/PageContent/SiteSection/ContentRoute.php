@@ -13,6 +13,7 @@ use Littled\Request\StringInput;
 use Littled\Request\StringTextField;
 use Littled\Request\URLTextField;
 use Littled\Validation\Validation;
+use mysqli;
 
 /**
  * Extends SerializedContent to store and retrieve content route properties.
@@ -107,7 +108,7 @@ class ContentRoute extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function generateUpdateQuery(): ?array
+    public function formatCommitQuery(): array
     {
         return array('CALL contentRouteUpdate(@insert_id,?,?,?,?,?)',
             'issss',
@@ -153,9 +154,9 @@ class ContentRoute extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function hasData(): bool
+    public function hasRecordData(): bool
     {
-        return ($this->id->value > 0 || $this->api_route->value || $this->operation->value || $this->route->value);
+        return $this->api_route->value || $this->operation->value || $this->route->value;
     }
 
     /**
@@ -245,6 +246,12 @@ class ContentRoute extends SerializedContent
     public function setContentType(int $content_id): ContentRoute
     {
         $this->site_section_id->value = $content_id;
+        return $this;
+    }
+
+    public function setMySQLi(mysqli $mysqli): ContentRoute
+    {
+        parent::setMySQLi($mysqli);
         return $this;
     }
 

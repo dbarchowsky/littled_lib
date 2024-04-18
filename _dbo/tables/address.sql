@@ -42,3 +42,5 @@ ALTER TABLE `address` ADD `longitude` FLOAT NULL;
 ALTER TABLE `address` ADD `url` VARCHAR(255) NULL;
 ALTER TABLE `address` ADD `fax` VARCHAR(20) NULL;
 ALTER TABLE `address` ADD `title` VARCHAR(50) NULL;
+ALTER TABLE `address` CHANGE `state` `non_us_state` VARCHAR(100);
+ALTER TABLE `address` CHANGE `company` `organization` VARCHAR(100) NULL;
