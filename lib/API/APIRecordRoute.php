@@ -7,6 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
@@ -44,7 +45,7 @@ class APIRecordRoute extends APIRoute
      * @return $this
      * @throws ConfigurationUndefinedException|ConnectionException
      * @throws NotInitializedException|InvalidQueryException
-     * @throws RecordNotFoundException
+     * @throws RecordNotFoundException|InvalidStateException
      */
     public function collectRecordId(?array $src = null): APIRecordRoute
     {
@@ -70,9 +71,8 @@ class APIRecordRoute extends APIRoute
         // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value
         // in ajax/post data using the default record id key
         if ($this->content->id->key != LittledGlobals::ID_KEY) {
-            $this->content->setRecordId(
-                Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src)
-            );
+            $this->content->id->value =
+                Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
         }
         return $this;
     }
