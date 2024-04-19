@@ -128,7 +128,7 @@ abstract class ContentController
     /**
      * Returns an object derived from ContentFilters appropriate to the content type represented by $content_id
      * @param int $content_id Content type identifier
-     * @param mysqli $mysqli Database connection
+     * @param ?mysqli $mysqli Database connection
      * @return ContentFilters
      * @throws Exception
      */
@@ -143,7 +143,9 @@ abstract class ContentController
         }
         /** @var ContentFilters $filters */
         $filters = $rc->newInstance();
-        $filters->setMySQLi($mysqli);
+        if ($mysqli !== null) {
+            $filters->setMySQLi($mysqli);
+        }
         // returning variable instead return value of newInstance() is more reliable
         return $filters;
     }
@@ -229,7 +231,7 @@ abstract class ContentController
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException|InvalidValueException
+     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
