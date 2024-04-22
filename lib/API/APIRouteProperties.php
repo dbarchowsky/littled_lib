@@ -77,17 +77,15 @@ abstract class APIRouteProperties extends PageContentBase
     }
 
     /**
-     * Returns ContentProperties instance from either the content or filters properties of the instance, depending on
-     * which one has retrieved its content properties from the database. Returns a new ContentProperties instance if
-     * both content and filters have not yet been retrieved.
+     * Returns ContentProperties instance. Derived classes may override to check $filters or $content properties
+     * for already initialized ContentProperties objects
      * @return ContentProperties
      * @throws ConfigurationUndefinedException
      */
     public function getContentProperties(): ContentProperties
     {
-        if (isset($this->filters->content_properties)) {
-            return $this->filters->content_properties;
-        }
+        // Do not check filters or content property for content properties object here.
+        // Only check those properties in derived classes.
         return (new ContentProperties())->setMySQLi(static::getMysqli());
     }
 
