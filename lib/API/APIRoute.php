@@ -191,7 +191,9 @@ abstract class APIRoute extends APIRouteProperties
      */
     protected function confirmRouteIsLoaded()
     {
-        if (isset($this->route) && !Validation::isStringBlank($this->route->route->value)) {
+        if (isset($this->route) && (
+            !Validation::isStringBlank($this->route->route->value) ||
+            !Validation::isStringBlank($this->route->api_route->value))) {
             return;
         }
         $this->fetchContentRoute();
