@@ -65,6 +65,7 @@ abstract class APIRouteProperties extends PageContentBase
     /**
      * Content label getter.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getContentLabel(): string
     {
@@ -80,15 +81,20 @@ abstract class APIRouteProperties extends PageContentBase
      * which one has retrieved its content properties from the database. Returns a new ContentProperties instance if
      * both content and filters have not yet been retrieved.
      * @return ContentProperties
+     * @throws ConfigurationUndefinedException
      */
     public function getContentProperties(): ContentProperties
     {
+        if (isset($this->filters->content_properties)) {
+            return $this->filters->content_properties;
+        }
         return (new ContentProperties())->setMySQLi(static::getMysqli());
     }
 
     /**
      * Content type id getter.
      * @return ?int
+     * @throws ConfigurationUndefinedException
      */
     public function getContentTypeId(): ?int
     {
