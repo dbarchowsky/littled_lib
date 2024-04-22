@@ -5,6 +5,7 @@ namespace Littled\API;
 use Error;
 use Exception;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotInitializedException;
 use Littled\PageContent\Serialized\SerializedContent;
 use mysqli;
@@ -82,7 +83,7 @@ abstract class APIRoute extends APIRouteProperties
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
      * @return $this
      * @throws ConfigurationUndefinedException|ConnectionException|ContentValidationException
-     * @throws InvalidQueryException|InvalidValueException
+     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -121,7 +122,7 @@ abstract class APIRoute extends APIRouteProperties
      * @param ?array $src Optional array containing client data to use to populate filter values.
      * @param ?int $content_type_id Optional content type numerical identifier that will be assigned as any new filter collection instances' content type.
      * @throws NotImplementedException
-     * @throws ConfigurationUndefinedException
+     * @throws ConfigurationUndefinedException|InvalidStateException
      */
     public function collectFiltersRequestData(?array $src = null, ?int $content_type_id = null)
     {
@@ -190,7 +191,7 @@ abstract class APIRoute extends APIRouteProperties
      */
     protected function confirmRouteIsLoaded()
     {
-        if (isset($this->route)) {
+        if (isset($this->route) && !Validation::isStringBlank($this->route->route->value)) {
             return;
         }
         $this->fetchContentRoute();
@@ -289,7 +290,7 @@ abstract class APIRoute extends APIRouteProperties
     /**
      * Sets the data to be injected into templates.
      * @throws ConfigurationUndefinedException|InvalidValueException|InvalidQueryException
-     * @throws RecordNotFoundException
+     * @throws RecordNotFoundException|ConnectionException
      */
     public function getTemplateContext(): array
     {
@@ -308,7 +309,7 @@ abstract class APIRoute extends APIRouteProperties
     /**
      * Assigns a ContentFilters instance to the $filters property.
      * @return void
-     * @throws ConfigurationUndefinedException
+     * @throws ConfigurationUndefinedException|InvalidStateException
      */
     protected function initializeFiltersObject(?int $content_type_id = null)
     {
@@ -337,6 +338,7 @@ abstract class APIRoute extends APIRouteProperties
      * @param string $operation (Optional) Operation token to use to look up the template. Will use internal operation
      * * property value to perform the lookup if the $operation parameter is not supplied.
      * @return $this
+     * @throws ConfigurationUndefinedException
      */
     public function lookupRoute(string $operation = ''): APIRoute
     {
@@ -350,6 +352,7 @@ abstract class APIRoute extends APIRouteProperties
      * property value to that template object.
      * @param string $operation
      * @return $this
+     * @throws ConfigurationUndefinedException
      */
     public function lookupTemplate(string $operation = ''): APIRoute
     {
@@ -373,7 +376,7 @@ abstract class APIRoute extends APIRouteProperties
      * @return APIRoute
      * @throws ConfigurationUndefinedException|InvalidValueException
      * @throws InvalidQueryException
-     * @throws RecordNotFoundException
+     * @throws RecordNotFoundException|ConnectionException
      */
     protected function newAPIRouteInstance(): APIRoute
     {
@@ -440,6 +443,7 @@ abstract class APIRoute extends APIRouteProperties
      * Hydrates the content properties object by retrieving data from the database.
      * @param null|int $content_type_id
      * @return APIRoute
+     * @throws ConfigurationUndefinedException
      */
     public function retrieveContentProperties(?int $content_type_id = null): APIRoute
     {
@@ -519,6 +523,10 @@ abstract class APIRoute extends APIRouteProperties
         print($response ?: $this->json->content->value);
     }
 
+    /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     */
     public function setMySQLi(mysqli $mysqli): MySQLConnection
     {
         parent::setMySQLi($mysqli);
