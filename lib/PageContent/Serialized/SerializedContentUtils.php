@@ -192,6 +192,19 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
+     * Sets the "not required" flag of all RequestInput properties of the object to FALSE.
+     * @return $this
+     */
+    public function setAsNotRequired(): SerializedContentUtils
+    {
+        $properties = $this->getInputPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setAsNotRequired();
+        }
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      * @return $this
      */
