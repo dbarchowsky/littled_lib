@@ -90,7 +90,7 @@ class Address extends SerializedContent
         $this->first_name = new StringTextField('First Name', 'adfn', true, '', 50);
         $this->last_name = new StringTextField('Last Name', 'adln', true, '', 50);
         $this->location = new StringTextField('Location name', self::LOCATION_KEY, false, '', 200);
-        $this->organization = new StringTextField('Company', 'lco', false, '', 100);
+        $this->organization = new StringTextField('Organization', 'lco', false, '', 100);
         $this->address1 = new StringTextField('Street', 'ads1', true, '', 100);
         $this->address2 = new StringTextField('Street', 'ads2', false, '', 100);
         $this->city = new StringTextField('City', 'adct', true, '', 50);
