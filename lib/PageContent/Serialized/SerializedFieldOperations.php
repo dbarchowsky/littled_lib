@@ -236,6 +236,19 @@ trait SerializedFieldOperations
      * @param string $prefix
      * @return void
      */
+    public function setColumnPrefix(string $prefix)
+    {
+        $properties = $this->getInputPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setColumnName($prefix . $property);
+        }
+    }
+
+    /**
+     * Adds a prefix to any RequestInput property of the object.
+     * @param string $prefix
+     * @return void
+     */
     public function setInputPrefix(string $prefix)
     {
         $properties = $this->getInputPropertiesList();
