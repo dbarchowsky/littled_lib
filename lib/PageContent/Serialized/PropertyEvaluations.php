@@ -114,6 +114,24 @@ trait PropertyEvaluations
     }
 
     /**
+     * Removes existing recordset prefix.
+     * @return void
+     */
+    public function removeRecordsetPrefix()
+    {
+        if (!$this->hasRecordsetPrefix()) {
+            return;
+        }
+        $this->recordset_prefix->setPrefix('');
+        foreach ($this as $property) {
+            if (Validation::isSubclass($property, DBFieldGroup::class)) {
+                $property->removeRecordsetPrefix();
+            }
+        }
+    }
+
+
+    /**
      * Recordset prefix setter.
      * @param $prefix
      */
