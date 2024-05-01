@@ -27,6 +27,7 @@ class SerializedContentUtils extends AppContentBase
     use SerializedFieldOperations, HydrateFieldOperations {
         applyInputKeyPrefix as traitApplyInputKeyPrefix;
         fill as traitFill;
+        setColumnPrefix as traitSetColumnPrefix;
     }
 
 
@@ -201,6 +202,16 @@ class SerializedContentUtils extends AppContentBase
         foreach ($properties as $property) {
             $this->$property->setAsNotRequired();
         }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     * @return $this
+     */
+    public function setColumnPrefix(string $prefix): SerializedContentUtils
+    {
+        $this->traitSetColumnPrefix($prefix);
         return $this;
     }
 
