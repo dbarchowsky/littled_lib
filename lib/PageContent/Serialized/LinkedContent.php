@@ -195,6 +195,13 @@ abstract class LinkedContent extends SerializedContent
             throw new RecordNotFoundException($error_msg);
         }
 
+        $linked = $this->getContentPropertiesList();
+        foreach($linked as $property) {
+            $prefix = $this->$property->getRecordsetPrefix();
+            $this->removeRecordsetPrefix();
+            $this->$property->read();
+            $this->setRecordsetPrefix($prefix);
+        }
         return $this;
     }
 
