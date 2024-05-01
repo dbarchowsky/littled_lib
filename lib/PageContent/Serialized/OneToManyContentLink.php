@@ -361,7 +361,8 @@ abstract class OneToManyContentLink extends SerializedContentIO
     {
         $data = $this->fetchRecords(...$this->formatRecordSelectPreparedStmt());
         foreach($data as $row) {
-            $o = (new static::$content_class())->hydrateFromRecordsetRow($row);
+            $o = new static::$content_class();
+            $o->hydrateFromRecordsetRow($row);
             $this->records[] = $o;
         }
         return $this;
