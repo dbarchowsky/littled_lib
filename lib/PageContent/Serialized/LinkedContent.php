@@ -67,6 +67,8 @@ abstract class LinkedContent extends SerializedContent
             if (in_array($fields[$i]->key, $content)) {
                 unset($fields[$i]);
             }
+            // re-index array to avoid missing elements in subsequent loops
+            $fields = array_values($fields);
         }
 
         // remove any properties that are pointers to child content object properties
@@ -77,10 +79,11 @@ abstract class LinkedContent extends SerializedContent
                     unset($fields[$i]);
                 }
             }
+            // re-index array to avoid missing elements in subsequent loops
+            $fields = array_values($fields);
         }
 
-        // re-index the array before returning it
-        return array_values($fields);
+        return $fields;
     }
 
     /**
