@@ -107,10 +107,7 @@ class AppBase
      */
     public static function getCSRFToken(bool $ignore_consent = false): ?string
     {
-        if ($ignore_consent === false && Validation::checkForCookieConsent() === false) {
-            // avoid accessing session variables before getting consent for storing cookie data
-            return '';
-        }
+        // make sure to enable http only cookies on the site so as not to run afoul of cookie consent
         if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
             AppBase::storeCSRFToken();
         }
