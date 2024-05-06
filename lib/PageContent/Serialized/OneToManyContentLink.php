@@ -77,6 +77,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
 
     /**
      * @inheritDoc
+     * @throws NotInitializedException|ConfigurationUndefinedException
      */
     public function collectRequestData(?array $src = null)
     {
@@ -86,10 +87,19 @@ abstract class OneToManyContentLink extends SerializedContentIO
             if (!isset(static::$content_class)) {
                 throw new ConfigurationUndefinedException('Content class is not defined.');
             }
-            for($i = 0; $i < count($src[$key]); $i++) {
-                $this->records[$i] = new static::$content_class();
-                $this->records[$i]->setIndex($i)
-                    ->collectRequestData($src);
+            if (is_array($src[$key])) {
+                // processing an array of record ids, one for each linked record
+                for($i = 0; $i < count($src[$key]); $i++) {
+                    $this->records[$i] = new static::$content_class();
+                    $this->records[$i]->setIndex($i)
+                        ->collectRequestData($src);
+                }
+            }
+            else {
+                // single link value
+                $o = new static::$content_class();
+                $o->collectRequestData($src);
+                $this->records[] = $o;
             }
         }
         parent::collectRequestData($src);
