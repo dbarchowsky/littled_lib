@@ -128,8 +128,9 @@ class SerializedContentValidation extends SerializedContentUtils
                     $this->addValidationError($ex->getMessage());
                 }
             } elseif (
-                $property instanceof SerializedContentValidation ||
-                $property instanceof CategorySelect) {
+                ($property instanceof SerializedContentValidation ||
+                $property instanceof CategorySelect) &&
+                $property->bypass_validation === false) {
                 try {
                     $property->validateInput();
                 } catch (ContentValidationException $ex) {
