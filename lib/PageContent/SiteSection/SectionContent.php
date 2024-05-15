@@ -29,7 +29,7 @@ abstract class SectionContent extends SerializedContent
      * SectionContent constructor.
      * @param ?int $id Record id to retrieve.
      * @param ?int $content_type_id Record id of site section where this piece of content belongs.
-     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
      */
     public function __construct(int $id = null, int $content_type_id = null)
     {
@@ -143,6 +143,7 @@ abstract class SectionContent extends SerializedContent
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidStateException
      */
     public function read(): SectionContent
     {
@@ -179,6 +180,7 @@ abstract class SectionContent extends SerializedContent
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidStateException
      */
     public function retrieveSectionProperties()
     {
@@ -214,7 +216,16 @@ abstract class SectionContent extends SerializedContent
     {
         if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
             $msg = ($msg) ? ("$msg ") : ("Could not perform operation. ");
-            throw new InvalidStateException("{$msg} A content type was not specified.");
+            throw new InvalidStateException("$msg A content type was not specified.");
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateInput(array $exclude_properties = []): void
+    {
+        $this->content_properties->bypass_validation = true;
+        parent::validateInput($exclude_properties);
     }
 }
