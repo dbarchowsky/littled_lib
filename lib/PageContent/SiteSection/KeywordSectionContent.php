@@ -13,7 +13,6 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\StringTextarea;
 use mysqli;
 
@@ -64,7 +63,6 @@ class KeywordSectionContent extends SectionContent
      * @return $this
      * @param string $term Keyword term to push onto the stack.
      * @param bool $test_for_parent Optional flag to bypass testing for a valid parent id when adding the keyword.
-     * @throws ContentValidationException
      * @throws InvalidStateException
      */
     public function addKeyword(string $term, bool $test_for_parent = true): KeywordSectionContent
@@ -86,7 +84,6 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * @inheritDoc
-     * @throws ContentValidationException
      * @throws InvalidStateException
      */
     public function base64DecodeInput()
@@ -114,7 +111,6 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * @inheritDoc
-     * @throws ContentValidationException
      * @throws InvalidStateException
      */
     public function collectRequestData(?array $src = null)
@@ -141,7 +137,6 @@ class KeywordSectionContent extends SectionContent
      * @param null|array $src Optional array container of request variables. If specified, it will override inspecting the
      * $_POST and $_GET collections for keyword values.
      * @return void
-     * @throws ContentValidationException
      * @throws InvalidStateException
      */
     public function collectKeywordInput(?array $src = null): void
@@ -159,7 +154,6 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * @inheritDoc
-     * @throws ContentValidationException
      */
     public function delete(): string
     {
@@ -171,7 +165,6 @@ class KeywordSectionContent extends SectionContent
     /**
      * Deletes any keyword records linked to the main content record represented by the object.
      * @return string String containing a description of the results of the deletion.
-     * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws InvalidQueryException
@@ -390,6 +383,7 @@ class KeywordSectionContent extends SectionContent
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidStateException
      */
     public function save()
     {
@@ -401,10 +395,8 @@ class KeywordSectionContent extends SectionContent
     /**
      * Saves all keywords linked to the main record object.
      * @return $this
-     * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidStateException
      */
@@ -513,7 +505,7 @@ class KeywordSectionContent extends SectionContent
      * @param array $exclude_properties (Optional) Collection of variable names to ignore in the request data.
      * @throws ContentValidationException Errors found in the form data.
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         try {
             /* bypass validation of site section properties */

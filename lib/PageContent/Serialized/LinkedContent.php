@@ -201,9 +201,9 @@ abstract class LinkedContent extends SerializedContent
         $linked = $this->getContentPropertiesList();
         foreach($linked as $property) {
             $prefix = $this->$property->getRecordsetPrefix();
-            $this->removeRecordsetPrefix();
+            $this->$property->removeRecordsetPrefix();
             $this->$property->read();
-            $this->setRecordsetPrefix($prefix);
+            $this->$property->setRecordsetPrefix($prefix);
         }
         return $this;
     }
