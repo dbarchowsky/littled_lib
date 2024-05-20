@@ -8,5 +8,6 @@ composer.phar
 composer.lock
 node_modules/
 package-lock.json
+rsync-exclude.txt
 Tests/config/
 Tests/assets/*-output-template.php
