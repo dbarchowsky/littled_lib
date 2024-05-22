@@ -317,7 +317,7 @@ trait MySQLOperations
      * @return mysqli
      * @throws ConfigurationUndefinedException
      */
-    public static function getMysqli(
+    public static function getMySQLiInstance(
         string $host = '',
         string $user = '',
         string $password = '',
@@ -326,6 +326,19 @@ trait MySQLOperations
     {
         $c = MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port);
         return (new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
+    }
+
+    /**
+     * Return the current mysqli connection, or return a new connection
+     * @return mysqli
+     * @throws ConfigurationUndefinedException
+     */
+    public function getMySQLi(): mysqli
+    {
+        if (!isset($this->mysqli)) {
+            $this->mysqli = static::getMySQLiInstance();
+        }
+        return $this->mysqli;
     }
 
     /**
