@@ -107,12 +107,8 @@ class APIRecordRoute extends APIRoute
         if (!isset($this->content)) {
             return;
         }
-        if (!isset($this->content->mysqli) && is_object(static::getMysqli())) {
-            $this->content->setMySQLi(static::getMysqli());
-        }
-        elseif (!isset($this->content->properties->mysqli) && is_object(static::getMysqli())) {
-            $this->content->content_properties->setMySQLi(static::getMysqli());
-        }
+        $this->content->content_properties->setMySQLi($this->content->getMySQLi());
+
     }
 
     /**
@@ -225,6 +221,7 @@ class APIRecordRoute extends APIRoute
             }
         }
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
+        $this->content->setMySQLi($this->getMySQLi());
         return $this;
     }
 
@@ -361,6 +358,9 @@ class APIRecordRoute extends APIRoute
     public function setMysqli(mysqli $mysqli): APIRecordRoute
     {
         $this->mysqli = $mysqli;
+        if (isset($this->content)) {
+            $this->content->setMySQLi($this->getMySQLi());
+        }
         return $this;
     }
 }

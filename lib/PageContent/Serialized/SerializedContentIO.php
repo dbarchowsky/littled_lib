@@ -57,7 +57,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws InvalidQueryException
      * @throws RecordNotFoundException
      */
-    protected function commitLinkedRecords()
+    protected function commitLinkedRecords(): void
     {
         $lc = $this->getLinkedContentPropertyList();
         foreach ($lc as $property) {
@@ -74,7 +74,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @param mixed $args,... Variables to insert into the query
      * @throws ConfigurationUndefinedException|ConnectionException|InvalidQueryException
      */
-    protected function commitSaveQuery(string $query, string $arg_types='', ...$args)
+    protected function commitSaveQuery(string $query, string $arg_types='', ...$args): void
     {
         $this->connectToDatabase();
         array_unshift($args, $query, $arg_types);
@@ -94,7 +94,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws ConnectionException
      * @throws InvalidQueryException
      */
-    protected function executeCommitQuery()
+    protected function executeCommitQuery(): void
     {
         /* execute sql and store id value of the new record. */
         $args = $this->formatCommitQuery();
@@ -188,7 +188,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws InvalidQueryException
      * @throws RecordNotFoundException|NotImplementedException
      */
-    public function readLinked()
+    public function readLinked(): void
     {
         $lc = $this->getLinkedContentPropertyList();
         foreach ($lc as $property) {
@@ -220,7 +220,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws NotImplementedException Currently only stored procedures are supported.
      * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
      */
-    public function readList( string $property, string $type, string $query, string $types='', &...$vars )
+    public function readList( string $property, string $type, string $query, string $types='', &...$vars ): void
     {
         if (stripos($query, "call")===0) {
             array_unshift($vars, $query, $types);
@@ -257,7 +257,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @param string $table_name
      * @return void
      */
-    public static function setTableName(string $table_name)
+    public static function setTableName(string $table_name): void
     {
         static::$table_name = $table_name;
     }
@@ -272,7 +272,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws ConnectionException
      * @throws InvalidQueryException
      */
-    protected function testAndLoadLastInsertId(string $query)
+    protected function testAndLoadLastInsertId(string $query): void
     {
         $query = strtolower(substr(ltrim($query),  0, 7));
         if ($query == 'insert ') {
@@ -286,13 +286,14 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws ConnectionException
      * @throws InvalidQueryException
      */
-    protected function updateIdAfterCommit()
+    protected function updateIdAfterCommit(): void
     {
         // query was a procedure
         $data = $this->fetchRecords("SELECT @insert_id AS `id`");
         if (1 > count($data)) {
             throw new InvalidQueryException('Could not retrieve new record id.');
         }
-        $this->setRecordId($data[0]->id);
+        $id = $data[0]->id > 0 ? $data[0]->id : null;
+        $this->setRecordId($id);
     }
 }

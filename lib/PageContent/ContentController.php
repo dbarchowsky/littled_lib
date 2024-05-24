@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent;
 
+use JetBrains\PhpStorm\NoReturn;
 use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -136,16 +137,11 @@ abstract class ContentController
     {
         // load objects used to fill out listings markup
         $class = static::getContentFiltersClass($content_id);
-        try {
-            $rc = new ReflectionClass($class);
-        } catch (ReflectionException $ex) {
-            throw new Exception("Could not create instance of $class.");
-        }
-        /** @var ContentFilters $filters */
-        $filters = $rc->newInstance();
+        $filters = new $class(mysqli: $mysqli);
         if ($mysqli !== null) {
             $filters->setMySQLi($mysqli);
         }
+
         // returning variable instead return value of newInstance() is more reliable
         return $filters;
     }
@@ -161,7 +157,7 @@ abstract class ContentController
         $class = static::getContentClass($content_id);
         try {
             $rc = new ReflectionClass($class);
-        } catch (ReflectionException $ex) {
+        } catch (ReflectionException) {
             throw new InvalidTypeException("Could not create instance of $class.");
         }
         /** @var SerializedContent $content */
@@ -235,7 +231,7 @@ abstract class ContentController
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public static function retrieveContentDataByType(SerializedContent $content)
+    public static function retrieveContentDataByType(SerializedContent $content): void
     {
         if (1 > $content->id->value) {
             throw new ConfigurationUndefinedException("[" . Log::getShortMethodName() . "] A record was not specified for retrieval.");
@@ -247,7 +243,7 @@ abstract class ContentController
      * Respond to request with 404 error
      * @return void
      */
-    public static function send404ResponseAndExit()
+    #[NoReturn] public static function send404ResponseAndExit(): void
     {
         http_response_code(404);
         exit;

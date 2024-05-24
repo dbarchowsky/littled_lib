@@ -2,6 +2,8 @@
 
 namespace Littled\API;
 
+use JetBrains\PhpStorm\NoReturn;
+
 /**
  * Standardized container for JSON responses to api requests.
  */
@@ -21,6 +23,15 @@ class JSONResponse extends JSONResponseBase
         parent::__construct($key);
         $this->status = new JSONField('status');
         $this->error = new JSONField('error');
+    }
+
+    /**
+     * Hook for inherited classes. Add any necessary cleanup after sending response to client.
+     * @return void
+     */
+    public function cleanup()
+    {
+        // Hook for inherited classes.
     }
 
     /**
@@ -54,26 +65,13 @@ class JSONResponse extends JSONResponseBase
             ob_end_clean();
         }
 
-        switch ($err_num) {
-            case E_ERROR:
-            case E_USER_ERROR:
-                $error_str = "PHP FATAL ERROR: $err_str $err_file at line $err_line. ";
-                break;
-            case E_WARNING:
-            case E_USER_WARNING:
-                $error_str = "PHP WARNING: $err_str $err_file at line $err_line. ";
-                break;
-            case E_NOTICE:
-            case E_USER_NOTICE:
-                $error_str = "PHP NOTICE: $err_str $err_file at line $err_line. ";
-                break;
-            case E_PARSE:
-                $error_str = "PHP PARSE ERROR: $err_str $err_file at line $err_line. ";
-                break;
-            default:
-                $error_str = "PHP UNKNOWN ERROR TYPE ($err_num): ";
-                break;
-        }
+        $error_str = match ($err_num) {
+            E_ERROR, E_USER_ERROR => "PHP FATAL ERROR: $err_str $err_file at line $err_line. ",
+            E_WARNING, E_USER_WARNING => "PHP WARNING: $err_str $err_file at line $err_line. ",
+            E_NOTICE, E_USER_NOTICE => "PHP NOTICE: $err_str $err_file at line $err_line. ",
+            E_PARSE => "PHP PARSE ERROR: $err_str $err_file at line $err_line. ",
+            default => "PHP UNKNOWN ERROR TYPE ($err_num): ",
+        };
 
         if ($error = error_get_last()) {
             if (isset($error["message"])) {
@@ -107,13 +105,11 @@ class JSONResponse extends JSONResponseBase
      * the object's current properties as JSON string response.
      * @param string $error_msg Error message.
      */
-    public function returnError(string $error_msg)
+    #[NoReturn] public function returnError(string $error_msg): void
     {
         $this->error->value = $error_msg;
         $this->sendResponse();
-        if (function_exists("cleanup")) {
-            cleanup();
-        }
+        $this->cleanup();
         exit;
     }
 

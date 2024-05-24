@@ -15,6 +15,7 @@ use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Exception;
 use Littled\Request\StringInput;
+use mysqli;
 
 
 /**
@@ -45,7 +46,7 @@ abstract class SectionContent extends SerializedContent
      * before the form data is submitted.
      * @return void
      */
-    public function base64DecodeInput()
+    public function base64DecodeInput(): void
     {
         foreach ($this as $item) {
             if (($item instanceof StringInput) &&
@@ -59,7 +60,7 @@ abstract class SectionContent extends SerializedContent
      * Fills the object's property values from input variable values, e.g. GET, POST, etc.
      * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): void
     {
         $this->content_properties->bypassCollectFromInput = true;
         parent::collectRequestData($src);
@@ -180,7 +181,7 @@ abstract class SectionContent extends SerializedContent
      * @throws RecordNotFoundException
      * @throws InvalidStateException
      */
-    public function retrieveSectionProperties()
+    public function retrieveSectionProperties(): void
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
             $this->content_properties->id->value = static::getContentTypeId();
@@ -196,7 +197,7 @@ abstract class SectionContent extends SerializedContent
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public function save()
+    public function save(): void
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
             throw new ContentValidationException("A content type was not specified.");
@@ -206,11 +207,24 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     */
+    public function setMySQLi(mysqli $mysqli): SectionContent
+    {
+        parent::setMySQLi($mysqli);
+        if (isset($this->content_properties->id->value)) {
+            $this->content_properties->setMySQLi($this->getMySQLi());
+        }
+        return $this;
+    }
+
+    /**
      * Tests for a valid content type id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg (Optional) Message to prepend to error message.
      * @throws InvalidStateException
      */
-    protected function testForContentType(string $msg = '')
+    protected function testForContentType(string $msg = ''): void
     {
         if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
             $msg = ($msg) ? ("$msg ") : ("Could not perform operation. ");

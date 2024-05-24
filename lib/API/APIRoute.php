@@ -31,18 +31,6 @@ use Littled\Validation\Validation;
 abstract class APIRoute extends APIRouteProperties
 {
     /**
-     * Class constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        /* Set exception handler to return JSON error message */
-        set_exception_handler(array($this, 'exceptionHandler'));
-        set_error_handler(array($this, 'errorHandler'));
-    }
-
-    /**
      * Class destructor
      */
     public function __destruct()
@@ -256,7 +244,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new NotInitializedException($err_msg);
         }
         $this->route = (new ContentRoute())
-            ->setMySQLi(static::getMysqli())
+            ->setMySQLi($this->getMySQLi())
             ->setContentType($this->getContentTypeId())
             ->setOperation($operation)
             ->lookupRoute();
@@ -284,7 +272,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new NotInitializedException($err_msg);
         }
         $this->template = (new ContentTemplate())
-            ->setMySQLi(static::getMysqli())
+            ->setMySQLi($this->getMySQLi())
             ->setContentType($this->getContentTypeId())
             ->setOperation($name)
             ->lookupTemplateProperties();
@@ -319,7 +307,7 @@ abstract class APIRoute extends APIRouteProperties
     {
         $this->filters = call_user_func(
             [static::getControllerClass(), 'getContentFiltersObject'],
-            $content_type_id ?: $this->getContentTypeId(), static::getMysqli());
+            $content_type_id ?: $this->getContentTypeId(), $this->getMySQLi());
         $this->getContentProperties()->setRecordId($content_type_id);
     }
 
@@ -536,7 +524,7 @@ abstract class APIRoute extends APIRouteProperties
         parent::setMySQLi($mysqli);
         foreach($this as $item) {
             if ($item instanceof SerializedContent) {
-                $item->setMySQLi(static::getMysqli());
+                $item->setMySQLi(static::getMySQLiInstance());
             }
         }
         return $this;

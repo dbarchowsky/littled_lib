@@ -49,7 +49,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws InvalidTypeException
      * @throws InvalidValueException
      */
-    protected function addLink($link_ids, string $links_property): SerializedContent
+    protected function addLink(array|int $link_ids, string $links_property): SerializedContent
     {
         if (!property_exists($this, $links_property)) {
             $err_msg = "Link property \"$links_property\" not found on ".Log::getClassBaseName(get_class($this)).'.';
@@ -74,18 +74,18 @@ abstract class SerializedContent extends SerializedContentIO
             foreach ($link_ids as $link_id) {
                 /** @var LinkedContent $link */
                 $link = (new $content_class())
-                    ->setMySQLi(static::getMysqli())
+                    ->setMySQLi(static::getMySQLiInstance())
                     ->setLinkId($link_id);
                 if ($this->id->hasData()) {
                     $link->setPrimaryId($this->getRecordId());
                 }
                 try {
                     $this->$links_property->addLink($link);
-                } catch (DuplicateRecordException $e) {
+                } catch (DuplicateRecordException) {
                     /* continue */
                 }
             }
-        } catch(ConfigurationUndefinedException $e) {
+        } catch(ConfigurationUndefinedException) {
             /* ignore */
         }
         return $this;
@@ -95,7 +95,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @inheritDoc
      * @throws Exception
      */
-    protected function commitSaveQuery(string $query, string $arg_types = '', ...$args)
+    protected function commitSaveQuery(string $query, string $arg_types = '', ...$args): void
     {
         $this->connectToDatabase();
         $s1 = $this->mysqli->prepare('SET @insert_id = ?');
@@ -141,11 +141,11 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @inheritDoc
      */
-    protected function executeCommitQuery()
+    protected function executeCommitQuery(): void
     {
         $this->prepareInsertIdSession();
         parent::executeCommitQuery();
-        if (!$this->id->hasData()) {
+        if (!$this->id->hasData() && $this->id->isDatabaseField()) {
             // retrieve and store the new record id after performing an insert.
             $this->updateIdAfterCommit();
         }
@@ -228,7 +228,7 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Record id value getter
-     * @return int
+     * @return int|null
      */
     public function getRecordId(): ?int
     {
@@ -305,7 +305,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @return void
      * @throws ConfigurationUndefinedException|ConnectionException
      */
-    protected function prepareInsertIdSession()
+    protected function prepareInsertIdSession(): void
     {
         // insure there is a valid mysqli object
         $this->connectToDatabase();
@@ -333,7 +333,7 @@ abstract class SerializedContent extends SerializedContentIO
 
         try {
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
-        } catch (RecordNotFoundException $ex) {
+        } catch (RecordNotFoundException) {
             $error_msg = "The requested " . $this::getTableName() . " record was not found.";
             throw new RecordNotFoundException($error_msg);
         }
@@ -368,7 +368,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws InvalidQueryException
      * @throws RecordNotFoundException
      */
-    public function save()
+    public function save(): void
     {
         if (!$this->hasData()) {
             throw new ContentValidationException("Record has no data to save.");
@@ -395,13 +395,14 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @inheritDoc
      * @return SerializedContent
+     * @throws ConfigurationUndefinedException
      */
     public function setMySQLi(mysqli $mysqli): SerializedContent
     {
         parent::setMySQLi($mysqli);
         foreach($this as $property => $value) {
             if($this->$property instanceof SerializedContent) {
-                $this->$property->setMySQLi($this::getMysqli());
+                $this->$property->setMySQLi($this->getMySQLi());
             }
         }
         return $this;
@@ -418,7 +419,7 @@ abstract class SerializedContent extends SerializedContentIO
         foreach($otm as $property) {
             try {
                 $property->setPrimaryId($record_id);
-            } catch (NotInitializedException $e) {
+            } catch (NotInitializedException) {
                 /* ignore & continue */
             }
         }
@@ -430,7 +431,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @param string $msg Optional informational message to prepend to error message thrown when a valid parent id is not found.
      * @throws InvalidStateException
      */
-    protected function testForParentID(string $msg = '')
+    protected function testForParentID(string $msg = ''): void
     {
         if ($this->id->value === null || $this->id->value < 0) {
             $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');

@@ -8,6 +8,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Exception;
 use Littled\Validation\Validation;
+use mysqli;
 
 
 /**
@@ -31,17 +32,18 @@ class ContentFilters extends FilterCollection
     /**
      * ContentFilters constructor.
      * @param string $properties_class Optional subclass of ContentProperties.
+     * @param mysqli|null $mysqli Optional mysqli connection to assign to the filters object
      * @throws ConfigurationUndefinedException Database connections properties not set.
      * @throws Exception Error retrieving content section properties.
      */
-    function __construct(string $properties_class = ContentProperties::class)
+    function __construct(string $properties_class = ContentProperties::class, ?mysqli $mysqli = null)
     {
         parent::__construct();
         if (!Validation::isSubclass($properties_class, ContentProperties::class)) {
             throw new InvalidTypeException('Invalid content properties type.');
         }
         $this->content_properties = new $properties_class(self::getContentTypeId());
-        $this->content_properties->setMySQLi(static::getMysqli());
+        $this->content_properties->setMySQLi($mysqli ?: $this->getMySQLi());
         $this->content_properties->read();
     }
 
@@ -84,8 +86,21 @@ class ContentFilters extends FilterCollection
      * @param int $content_id
      * @return void
      */
-    public static function setContentTypeId(int $content_id)
+    public static function setContentTypeId(int $content_id): void
     {
         static::$content_type_id = $content_id;
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     */
+    public function setMySQLi(mysqli $mysqli): ContentFilters
+    {
+        parent::setMySQLi($mysqli);
+        if (isset($this->content_properties)) {
+            $this->content_properties->setMySQLi($this->getMySQLi());
+        }
+        return $this;
     }
 }
