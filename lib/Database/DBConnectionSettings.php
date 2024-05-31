@@ -7,15 +7,15 @@ namespace Littled\Database;
 class DBConnectionSettings
 {
     /** @var string Database host name */
-    public $host;
+    public string $host;
     /** @var string Database schema name */
-    public $schema;
-    /** @var string User name used to establish databas connection */
-    public $user;
+    public string $schema;
+    /** @var string Username used to establish databas connection */
+    public string $user;
     /** @var string Database password */
-    public $password;
-    /** @var int Database port number */
-    public $port;
+    public string $password;
+    /** @var int|null Database port number */
+    public int|null $port;
 
     /**
      * DBConnectionSettings constructor.
@@ -25,7 +25,7 @@ class DBConnectionSettings
      * @param string $schema (Optional) Initial schema value
      * @param int|null $port (Optional) Initial port value
      */
-    function __construct( $host='', $user='', $password='', $schema='', ?int $port=null)
+    function __construct( string $host='', string $user='', string $password='', string $schema='', ?int $port=null)
     {
         $this->host = $host;
         $this->schema = $schema;

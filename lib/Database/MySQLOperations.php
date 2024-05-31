@@ -29,7 +29,7 @@ trait MySQLOperations
     /**
      * Closes mysqli connection.
      */
-    public function closeDatabaseConnection()
+    public function closeDatabaseConnection(): void
     {
         if (isset($this->mysqli) && Validation::isSubclass($this->mysqli, mysqli::class)) {
             $this->mysqli->close();
@@ -47,12 +47,12 @@ trait MySQLOperations
      */
     public function columnExists(string $column_name, string $table_name): bool
     {
-        if (!defined('MYSQL_SCHEMA')) {
+        if (defined('MYSQL_SCHEMA')) {
+            $schema = MYSQL_SCHEMA;
+        } else {
             throw new ConfigurationUndefinedException('Schema undefined in ' . __METHOD__ . '.');
         }
 
-        // $query = "SHOW COLUMNS FROM `$table_name` LIKE '$column_name'";
-        $schema = MYSQL_SCHEMA;
         $query = "SELECT EXISTS " .
             "(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS " .
             "WHERE TABLE_SCHEMA=? " .
@@ -79,7 +79,7 @@ trait MySQLOperations
      * Make database connection
      * @param DBConnectionSettings $c Database connection properties
      */
-    protected function connect(DBConnectionSettings $c)
+    protected function connect(DBConnectionSettings $c): void
     {
         if (preg_match('/^\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}$/', $c->host)) {
             $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port);
@@ -107,7 +107,7 @@ trait MySQLOperations
         string $user = '',
         string $password = '',
         string $schema = '',
-        string $port = '')
+        string $port = ''): void
     {
         if (!isset($this->mysqli)) {
             try {
@@ -122,11 +122,11 @@ trait MySQLOperations
     /**
      * Escapes the object's value property for inclusion in SQL queries.
      * @param mixed $value Value to escape.
-     * @return string Escaped value.
+     * @return string|int|float Escaped value.
      * @throws ConnectionException On connection error.
      * @throws ConfigurationUndefinedException Database connection properties not set.
      */
-    public function escapeSQLValue($value)
+    public function escapeSQLValue(mixed $value): float|int|string
     {
         $this->connectToDatabase();
         if ($value === null) {
@@ -274,7 +274,7 @@ trait MySQLOperations
      * @return mixed
      * @throws ConfigurationUndefinedException
      */
-    public static function getAppSetting(string $setting, bool $required = true)
+    public static function getAppSetting(string $setting, bool $required = true): mixed
     {
         if (!defined($setting)) {
             if ($required === false) {
@@ -360,7 +360,7 @@ trait MySQLOperations
      * @param ...$vars
      * @throws ConnectionException|ConfigurationUndefinedException|InvalidQueryException
      */
-    public function query(string $query, string $types = '', ...$vars)
+    public function query(string $query, string $types = '', ...$vars): void
     {
         $this->connectToDatabase();
         if ($types) {
@@ -386,7 +386,7 @@ trait MySQLOperations
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      */
-    public function mysqli()
+    public function mysqli(): void
     {
         $this->connectToDatabase();
     }
@@ -412,7 +412,7 @@ trait MySQLOperations
      * @param mysqli $mysqli
      * @return void
      */
-    public function setMySQLi(mysqli $mysqli)
+    public function setMySQLi(mysqli $mysqli): void
     {
         $this->mysqli = $mysqli;
     }

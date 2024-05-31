@@ -4,8 +4,6 @@
 namespace Littled\Database;
 
 
-use Littled\App\AppBase;
-
 /**
  * Class AppContentBase
  * @package Littled\Database
