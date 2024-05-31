@@ -31,7 +31,7 @@ class AppBase
      * Assigns client ajax request data values to object properties.
      * @param ?object $data
      */
-    public function collectAjaxClientRequestData(?object $data = null)
+    public function collectAjaxClientRequestData(?object $data = null): void
     {
         if (is_null($data)) {
             $data = (object)static::getAjaxRequestData();
@@ -80,7 +80,7 @@ class AppBase
 
     /**
      * Returns an array containing client request data sent as AJAX request in request headers.
-     * @return array Returns an array containing client request data or null if no data is available in the ajax request headers.
+     * @return null|array Returns an array containing client request data or null if no data is available in the ajax request headers.
      */
     public static function getAjaxRequestData(): ?array
     {
@@ -155,7 +155,7 @@ class AppBase
      * @param string $url (Optional) URL of the global site error page.
      * @param string $key (Optional) key used to store and retrieve error message.
      */
-    public static function redirectToErrorPage(string $error_msg, string $url = '', string $key = '')
+    public static function redirectToErrorPage(string $error_msg, string $url = '', string $key = ''): void
     {
         $url = $url ?: static::getErrorPageURL();
         $key = $key ?: static::getErrorKey();
@@ -167,7 +167,7 @@ class AppBase
      * @param string $input_stream
      * @return void
      */
-    public static function setAjaxInputStream(string $input_stream)
+    public static function setAjaxInputStream(string $input_stream): void
     {
         static::$ajax_input_stream = $input_stream;
     }
@@ -177,7 +177,7 @@ class AppBase
      * @param string $key
      * @return void
      */
-    public static function setErrorKey(string $key)
+    public static function setErrorKey(string $key): void
     {
         static::$error_key = $key;
     }
@@ -187,7 +187,7 @@ class AppBase
      * @param string $url
      * @return void
      */
-    public static function setErrorPageURL(string $url)
+    public static function setErrorPageURL(string $url): void
     {
         static::$error_page_url = $url;
     }
@@ -198,7 +198,7 @@ class AppBase
      * Sets cookie consent values depending on whether the client request originated in the EU or not.
      * @return void
      */
-    public static function startSessionTestingForEU()
+    public static function startSessionTestingForEU(): void
     {
         if (Validation::checkForCookieConsent() === true) {
             if (session_id() == "") {
@@ -213,7 +213,7 @@ class AppBase
                     setcookie(LittledGlobals::COOKIE_CONSENT_KEY, '1', time() + (60 * 60 * 24 * 90));
                     $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] = true;
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 /** ignore errors but don't set cookie consent */
             }
         }
@@ -224,7 +224,7 @@ class AppBase
      * A token is not generated if one already exists for the session.
      * @return void
      */
-    public static function storeCSRFToken()
+    public static function storeCSRFToken(): void
     {
         if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
             $_SESSION[LittledGlobals::CSRF_SESSION_KEY] = AppBase::generateCSRFToken();
