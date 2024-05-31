@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\Filters;
 
 use Littled\Validation\Validation;
@@ -24,21 +25,21 @@ class IntegerContentFilter extends ContentFilter
     }
 
     /**
-	 * Collects the filter value from request variables, session variables, or cookie variables, in that order.
-	 */
-	protected function collectRequestValue(?array $src=null)
-	{
-		$this->value = Validation::collectIntegerRequestVar($this->key, null, $src);
-	}
+     * Collects the filter value from request variables, session variables, or cookie variables, in that order.
+     */
+    protected function collectRequestValue(?array $src = null): void
+    {
+        $this->value = Validation::collectIntegerRequestVar($this->key, null, $src);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function escapeSQL($mysqli, $include_quotes=false): ?string
-	{
-		if ($this->value===null) {
-			return null;
-		}
-		return $mysqli->real_escape_string($this->value);
-	}
+    /**
+     * @inheritDoc
+     */
+    public function escapeSQL($mysqli, $include_quotes = false): ?string
+    {
+        if ($this->value === null) {
+            return null;
+        }
+        return $mysqli->real_escape_string($this->value);
+    }
 }

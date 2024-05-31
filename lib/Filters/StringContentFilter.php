@@ -5,16 +5,12 @@ use Littled\Validation\Validation;
 use mysqli;
 
 
-/**
- * Class StringContentFilter
- * @package BFHHand\Filters
- */
 class StringContentFilter extends ContentFilter
 {
     /**
      * @inheritDoc
      */
-    protected function collectRequestValue(?array $src=null)
+    protected function collectRequestValue(?array $src=null): void
     {
         $this->value = Validation::collectStringRequestVar(
             $this->key,

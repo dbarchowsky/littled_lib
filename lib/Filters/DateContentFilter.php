@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\Filters;
 
 use Littled\Validation\Validation;
@@ -25,51 +26,49 @@ class DateContentFilter extends StringContentFilter
      */
     protected function checkEmptyValue()
     {
-        if ($this->value==='') {
+        if ($this->value === '') {
             $this->value = null;
         }
     }
 
     /**
-	 * @inheritDoc
-	 */
-	public function collectValue(bool $read_cookies = true, ?array $src=null)
-	{
-		parent::collectValue($read_cookies, $src);
-		if ($this->value) {
-			try {
-				$d = Validation::validateDateString($this->value);
-				$this->value = $d->format("m/d/Y");
-			}
-			catch (ContentValidationException $ex) {
-				$this->value = "[".$ex->getMessage()."]";
-			}
-		}
+     * @inheritDoc
+     */
+    public function collectValue(bool $read_cookies = true, ?array $src = null): void
+    {
+        parent::collectValue($read_cookies, $src);
+        if ($this->value) {
+            try {
+                $d = Validation::validateDateString($this->value);
+                $this->value = $d->format("m/d/Y");
+            } catch (ContentValidationException $ex) {
+                $this->value = "[" . $ex->getMessage() . "]";
+            }
+        }
         $this->checkEmptyValue();
-	}
+    }
 
-	/**
-	 * Escapes date string to format expected in SQL statements.
-	 * @param mysqli $mysqli
-	 * @param bool $include_quotes (Optional) If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
+    /**
+     * Escapes date string to format expected in SQL statements.
+     * @param mysqli $mysqli
+     * @param bool $include_quotes (Optional) If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
      * @param bool $include_wildcards
-	 * @return ?string
-	 */
-	public function escapeSQL(mysqli $mysqli, bool $include_quotes=true, bool $include_wildcards=false): ?string
-	{
-		if ($this->value===null) {
-			return null;
-		}
-		if ($this->value=='') {
-			return null;
-		}
-		try {
-			$dt = new DateTime($this->value);
-		}
-		catch(Exception $e) {
-			return null;
-		}
-		$value = $dt->format('Y-m-d');
-		return ((($include_quotes)?("'"):("")).$value.(($include_quotes)?("'"):("")));
-	}
+     * @return ?string
+     */
+    public function escapeSQL(mysqli $mysqli, bool $include_quotes = true, bool $include_wildcards = false): ?string
+    {
+        if ($this->value === null) {
+            return null;
+        }
+        if ($this->value == '') {
+            return null;
+        }
+        try {
+            $dt = new DateTime($this->value);
+        } catch (Exception) {
+            return null;
+        }
+        $value = $dt->format('Y-m-d');
+        return ((($include_quotes) ? ("'") : ("")) . $value . (($include_quotes) ? ("'") : ("")));
+    }
 }
