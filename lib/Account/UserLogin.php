@@ -47,7 +47,7 @@ class UserLogin extends UserAccount
      * Collect object property values from session data.
      * Adds login properties to parent routine.
      */
-    public function collectFromSession()
+    public function collectFromSession(): void
     {
         parent::collectFromSession();
         $this->username->value = '';
@@ -84,7 +84,7 @@ class UserLogin extends UserAccount
      * @return void
      * @throws InvalidCredentialsException
      */
-    public function requiresLogin(int $access_level)
+    public function requiresLogin(int $access_level): void
     {
         $this->collectFromSession();
         if ($this->username->value === '' || $this->password->value === '') {
@@ -100,7 +100,7 @@ class UserLogin extends UserAccount
      * @param string $uri
      * @return void
      */
-    public static function setLoginURI(string $uri)
+    public static function setLoginURI(string $uri): void
     {
         static::$login_uri = $uri;
     }
@@ -115,11 +115,11 @@ class UserLogin extends UserAccount
      * @throws ConnectionException
      * @throws ContentValidationException
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         try {
             parent::validateInput();
-        } catch (ContentValidationException $ex) {
+        } catch (ContentValidationException) {
             /* continue */
         }
 

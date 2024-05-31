@@ -102,7 +102,7 @@ abstract class UserAccount extends SerializedContent
      * Fills object properties from data stored in the current session.
      * @return void
      */
-    public function collectFromSession()
+    public function collectFromSession(): void
     {
         if (isset($_SESSION[$this->id->key])) {
             $this->id->value = $_SESSION[$this->id->key];
@@ -211,7 +211,7 @@ abstract class UserAccount extends SerializedContent
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
-    public function sendRegistrationNotificationEmail()
+    public function sendRegistrationNotificationEmail(): void
     {
         /* retrieve email template */
         $template_path = self::getRegistrationNoticeEmailTemplate();
@@ -248,7 +248,7 @@ abstract class UserAccount extends SerializedContent
      * Setter for account activation uri.
      * @param string $uri Account activation uri.
      */
-    public static function setAccountActivationURI(string $uri)
+    public static function setAccountActivationURI(string $uri): void
     {
         static::$account_activation_uri = $uri;
     }
@@ -258,7 +258,7 @@ abstract class UserAccount extends SerializedContent
      * @param string $key
      * @return void
      */
-    public static function setAESKey(string $key)
+    public static function setAESKey(string $key): void
     {
         static::$aes_key = $key;
     }
@@ -267,7 +267,7 @@ abstract class UserAccount extends SerializedContent
      * Sets the contact email address for all instances of UserAccount class.
      * @param string $email New contact email address.
      */
-    public static function setContactEmail(string $email)
+    public static function setContactEmail(string $email): void
     {
         static::$contact_email = $email;
     }
@@ -277,7 +277,7 @@ abstract class UserAccount extends SerializedContent
      * @param string $path Registration notice email template path.
      * @throws ResourceNotFoundException
      */
-    public static function setRegistrationNoticeEmailTemplate(string $path)
+    public static function setRegistrationNoticeEmailTemplate(string $path): void
     {
         if (!file_exists($path)) {
             throw new ResourceNotFoundException("Registration notice email template not found.");
@@ -289,7 +289,7 @@ abstract class UserAccount extends SerializedContent
      * Sender name setter.
      * @param string $name Name of password reset email sender.
      */
-    public function setSenderName(string $name)
+    public function setSenderName(string $name): void
     {
         $this->sender_name = $name;
     }
@@ -303,11 +303,11 @@ abstract class UserAccount extends SerializedContent
      * @throws ConnectionException
      * @throws ContentValidationException
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         try {
             parent::validateInput();
-        } catch (ContentValidationException $ex) {
+        } catch (ContentValidationException) {
             /* continue */
         }
         if (!$this->contact_info->first_name->value &&

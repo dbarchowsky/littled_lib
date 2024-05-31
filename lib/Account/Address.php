@@ -142,16 +142,12 @@ class Address extends SerializedContent
      */
     public function formatAddress(string $style = Address::FORMAT_ADDRESS_ONE_LINE, bool $include_name = false): string
     {
-        switch ($style) {
-            case Address::FORMAT_ADDRESS_ONE_LINE:
-                return ($this->formatOneLineAddress());
-            case Address::FORMAT_ADDRESS_HTML:
-                return ($this->formatHTMLAddress($include_name));
-            case Address::FORMAT_ADDRESS_GOOGLE:
-                return ($this->formatGoogleAddress());
-            default:
-                throw new InvalidValueException("Unhandled address format: \"$style\".");
-        }
+        return match ($style) {
+            Address::FORMAT_ADDRESS_ONE_LINE => ($this->formatOneLineAddress()),
+            Address::FORMAT_ADDRESS_HTML => ($this->formatHTMLAddress($include_name)),
+            Address::FORMAT_ADDRESS_GOOGLE => ($this->formatGoogleAddress()),
+            default => throw new InvalidValueException("Unhandled address format: \"$style\"."),
+        };
     }
 
     /**
@@ -221,7 +217,7 @@ class Address extends SerializedContent
         if ($this->state->getRecordId()) {
             try {
                 $this->readStateProperties();
-            } catch (Exception $ex) {
+            } catch (Exception) {
                 /* continue */
             }
         }
@@ -389,7 +385,7 @@ class Address extends SerializedContent
      * Retrieves longitude and latitude for the current address using Google Maps API.
      * @throws Exception
      */
-    public function lookupMapPosition()
+    public function lookupMapPosition(): void
     {
         /**** LOOKUP BASED ON STREET ADDRESS, CITY & STATE ****/
         if ($this->city->hasData() && $this->state->getRecordId()) {
@@ -446,7 +442,7 @@ class Address extends SerializedContent
      * Retrieves longitude and latitude values from zip code database.
      * @throws Exception
      */
-    public function lookupMapPositionByZip()
+    public function lookupMapPositionByZip(): void
     {
         $query = 'SEL' . 'ECT latitude, longitude FROM `zips` WHERE zipcode = ' . $this->zip->escapeSQL($this->mysqli);
         $rs = $this->fetchRecords($query);
@@ -459,7 +455,7 @@ class Address extends SerializedContent
      * Saves internal data values as hidden form inputs.
      * @throws ResourceNotFoundException
      */
-    function preserveInForm(array $excluded_keys = [])
+    function preserveInForm(array $excluded_keys = []): void
     {
         $template_path = static::$common_cms_template_path . $this::getAddressDataTemplate();
         $context = array('input' => $this);
@@ -471,7 +467,7 @@ class Address extends SerializedContent
      * @return void
      * @throws ResourceNotFoundException
      */
-    function preservePhysicalAddressInForm()
+    function preservePhysicalAddressInForm(): void
     {
         $template_path = static::$common_cms_template_path . $this::getStreetAddressDataTemplate();
         $context = array('input' => $this);
@@ -483,7 +479,7 @@ class Address extends SerializedContent
      * @throws RecordNotFoundException
      * @throws Exception
      */
-    public function readStateProperties()
+    public function readStateProperties(): void
     {
         if (!$this->state->getRecordId()) {
             return;
@@ -504,7 +500,7 @@ class Address extends SerializedContent
      * @param string $content_label (Optional) label describing the content type used to format error messages.
      * @throws Exception
      */
-    public function save(bool $do_gmap_lookup = false, string $content_label = 'address')
+    public function save(bool $do_gmap_lookup = false, string $content_label = 'address'): void
     {
         if (!$this->hasData()) {
             throw new Exception(ucfirst($content_label) . ' has nothing to save.');
@@ -522,7 +518,7 @@ class Address extends SerializedContent
      * Sets Google Maps API key property value.
      * @param string $key Google Maps API key value.
      */
-    public static function setGMapAPIKey(string $key)
+    public static function setGMapAPIKey(string $key): void
     {
         static::$gmap_api_key = $key;
     }
@@ -531,7 +527,7 @@ class Address extends SerializedContent
      * Street address data template file name setter
      * @param string $filename
      */
-    public static function setStreetAddressDataTemplate(string $filename)
+    public static function setStreetAddressDataTemplate(string $filename): void
     {
         static::$street_address_data_template = $filename;
     }
@@ -540,7 +536,7 @@ class Address extends SerializedContent
      * Address data template file name setter
      * @param string $filename
      */
-    public static function setAddressDataTemplate(string $filename)
+    public static function setAddressDataTemplate(string $filename): void
     {
         static::$address_data_template = $filename;
     }
@@ -552,7 +548,7 @@ class Address extends SerializedContent
      * @throws ContentValidationException
      * @throws Exception
      */
-    public function validateUniqueEmail()
+    public function validateUniqueEmail(): void
     {
         if ($this->email->value) {
             $this->connectToDatabase();
