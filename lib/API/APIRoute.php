@@ -4,6 +4,7 @@ namespace Littled\API;
 
 use Error;
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotInitializedException;
@@ -112,7 +113,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws NotImplementedException
      * @throws ConfigurationUndefinedException|InvalidStateException
      */
-    public function collectFiltersRequestData(?array $src = null, ?int $content_type_id = null)
+    public function collectFiltersRequestData(?array $src = null, ?int $content_type_id = null): void
     {
         if ($src === null) {
             $src = static::getAjaxRequestData() ?: $_POST;
@@ -177,7 +178,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
-    protected function confirmRouteIsLoaded()
+    protected function confirmRouteIsLoaded(): void
     {
         if (isset($this->route) && (
             $this->route->operation->hasData() ||
@@ -196,7 +197,7 @@ abstract class APIRoute extends APIRouteProperties
      * @param string $err_file
      * @param ?int $err_line
      */
-    public function errorHandler(int $err_no, string $err_str, string $err_file = '', ?int $err_line = null)
+    #[NoReturn] public function errorHandler(int $err_no, string $err_str, string $err_file = '', ?int $err_line = null): void
     {
         // remove anything that might currently be in the output buffer
         while (ob_get_level()) {
@@ -216,7 +217,7 @@ abstract class APIRoute extends APIRouteProperties
      * Exception handler. Catch exceptions and return the error message to client making ajax request.
      * @param Exception $ex
      */
-    public function exceptionHandler(Throwable $ex)
+    #[NoReturn] public function exceptionHandler(Throwable $ex): void
     {
         $this->json->returnError($ex->getMessage());
     }
@@ -300,10 +301,12 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * Assigns a ContentFilters instance to the $filters property.
+     * @param int|null $content_type_id
      * @return void
-     * @throws ConfigurationUndefinedException|InvalidStateException
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
      */
-    protected function initializeFiltersObject(?int $content_type_id = null)
+    protected function initializeFiltersObject(?int $content_type_id = null): void
     {
         $this->filters = call_user_func(
             [static::getControllerClass(), 'getContentFiltersObject'],
@@ -381,7 +384,7 @@ abstract class APIRoute extends APIRouteProperties
                 ->getContentProperties()
                 ->getContentRouteByOperation('listings')
                 ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY);
-        } catch (Error $e) {
+        } catch (Error) {
             throw new RecordNotFoundException('Content route not found.');
         }
         $rpc_class = call_user_func([static::getControllerClass(), 'getAPIRouteClassName'], $route_parts);
@@ -422,7 +425,7 @@ abstract class APIRoute extends APIRouteProperties
      * getTemplateContext() routine.
      * @throws Exception
      */
-    public function refreshContentAfterEdit(string $next_operation, array $context=[])
+    public function refreshContentAfterEdit(string $next_operation, array $context=[]): void
     {
         $template = $this->newTemplateInstance();
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
@@ -456,7 +459,7 @@ abstract class APIRoute extends APIRouteProperties
      * Hook for derived classes to fill their respective ContentProperties properties with data.
      * @return mixed
      */
-    abstract protected function retrieveCoreContentProperties();
+    abstract protected function retrieveCoreContentProperties(): mixed;
 
     /**
      * Retrieve template properties from the database and store them in the page's template property.
@@ -466,7 +469,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws ConnectionException
      * @throws Exception
      */
-    public function retrieveTemplateProperties(string $template_name)
+    public function retrieveTemplateProperties(string $template_name): void
     {
         $this->connectToDatabase();
         $query = "CALL contentTemplateLookup(?,?)";
@@ -489,7 +492,7 @@ abstract class APIRoute extends APIRouteProperties
      * @param $err_msg
      * @return void
      */
-    public static function sendErrorAndExit($err_msg)
+    #[NoReturn] public static function sendErrorAndExit($err_msg): void
     {
         echo(json_encode(['error' => $err_msg]));
         // header("HTTP/1.1 400 ".$e->getMessage());
@@ -499,7 +502,7 @@ abstract class APIRoute extends APIRouteProperties
     /**
      * Sends out whatever values are currently stored within the object's "json" property as JSON.
      */
-    public function sendResponse(string $template_path = '', ?array $context = null)
+    public function sendResponse(string $template_path = '', ?array $context = null): void
     {
         $this->json->sendResponse();
     }
@@ -509,7 +512,7 @@ abstract class APIRoute extends APIRouteProperties
      * @param string $response Text to send as a response, if not using value stored in JSON property.
      * @return void
      */
-    public function sendTextResponse(string $response = '')
+    public function sendTextResponse(string $response = ''): void
     {
         header("Content-Type: text/plain\n\n");
         print($response ?: $this->json->content->value);

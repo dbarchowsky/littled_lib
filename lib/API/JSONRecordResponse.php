@@ -39,7 +39,7 @@ class JSONRecordResponse extends JSONResponse
      * @param ?array $context Array containing data to insert into the template.
      * @throws ResourceNotFoundException
      */
-    public function loadContentFromTemplate(string $template_path, ?array $context = null)
+    public function loadContentFromTemplate(string $template_path, ?array $context = null): void
     {
         if (is_array($context)) {
             foreach ($context as $key => $val) {

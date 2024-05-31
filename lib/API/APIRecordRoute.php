@@ -102,7 +102,7 @@ class APIRecordRoute extends APIRoute
      * @return void
      * @throws ConfigurationUndefinedException
      */
-    protected function confirmContentDBConnection()
+    protected function confirmContentDBConnection(): void
     {
         if (!isset($this->content)) {
             return;
@@ -159,7 +159,7 @@ class APIRecordRoute extends APIRoute
         try {
             $this->confirmRouteIsLoaded();
         }
-        catch (NotInitializedException $e) {
+        catch (NotInitializedException) {
             return '';
         }
         return $this->route->wildcard->value;
@@ -236,7 +236,7 @@ class APIRecordRoute extends APIRoute
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
-    protected function lookupRecordIdRoutePart(?string $wildcard = null)
+    protected function lookupRecordIdRoutePart(?string $wildcard = null): false|int
     {
         // load the route
         $this->confirmRouteIsLoaded();
@@ -307,7 +307,7 @@ class APIRecordRoute extends APIRoute
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public function retrieveCoreContentProperties()
+    public function retrieveCoreContentProperties(): void
     {
         if (!$this->hasContentPropertiesObject()) {
             throw new ConfigurationUndefinedException('Content object not available.');
@@ -320,7 +320,7 @@ class APIRecordRoute extends APIRoute
      * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
      * @throws ResourceNotFoundException|NotImplementedException
      */
-    public function retrievePageContent()
+    public function retrievePageContent(): void
     {
         $this->filters->collectFilterValues();
         $this->json->content->value = $this->content->refreshContentAfterEdit($this->filters);
@@ -345,7 +345,7 @@ class APIRecordRoute extends APIRoute
         parent::setResponseContainerId($container_id);
         $container_id = $this->json->container_id->value;
         $wildcard = $this->getTemplateWildcard();
-        if ($wildcard && $this->getRecordId() > 0 && strpos($container_id, $wildcard) !== false) {
+        if ($wildcard && $this->getRecordId() > 0 && str_contains($container_id, $wildcard)) {
             $container_id = str_replace($wildcard, (string)$this->getRecordId(), $container_id);
             $this->json->container_id->value = $container_id;
         }

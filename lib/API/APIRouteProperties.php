@@ -196,7 +196,7 @@ abstract class APIRouteProperties extends PageContentBase
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      */
-    public static function setCacheClass(string $class_name)
+    public static function setCacheClass(string $class_name): void
     {
         if ($class_name === ContentCache::class) {
             throw new ConfigurationUndefinedException('Cache type must inherit from base cache type.');
@@ -221,7 +221,7 @@ abstract class APIRouteProperties extends PageContentBase
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException
      */
-    public static function setControllerClass(string $class_name)
+    public static function setControllerClass(string $class_name): void
     {
         if ($class_name === ContentController::class) {
             throw new ConfigurationUndefinedException('Controller type must be derived from base controller type.');
@@ -238,7 +238,7 @@ abstract class APIRouteProperties extends PageContentBase
      * @param string $path
      * @return void
      */
-    public static function setDefaultTemplateDir(string $path)
+    public static function setDefaultTemplateDir(string $path): void
     {
         static::$default_template_dir = $path;
     }
@@ -248,7 +248,7 @@ abstract class APIRouteProperties extends PageContentBase
      * @param string $name
      * @return void
      */
-    public static function setDefaultTemplateName(string $name)
+    public static function setDefaultTemplateName(string $name): void
     {
         static::$default_template_name = $name;
     }
