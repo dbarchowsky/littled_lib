@@ -3,6 +3,7 @@
 namespace Littled\Exception;
 
 use Exception;
+use ReturnTypeWillChange;
 
 class LittledException extends Exception
 {
@@ -11,7 +12,7 @@ class LittledException extends Exception
      * @param string $message Error message.
      * @param Exception|null $previous
      */
-    public function __construct($message, $code = 0, Exception $previous = null)
+    public function __construct(string $message, $code = 0, Exception $previous = null)
     {
         // some code
 
@@ -22,8 +23,8 @@ class LittledException extends Exception
     /**
      * custom string representation of object
      */
-    public function __toString()
+    #[ReturnTypeWillChange] public function __toString()
     {
-        return static::class . ": [{$this->code}]: {$this->message}\n";
+        return static::class . ": [$this->code]: {$this->message}\n";
     }
 }
