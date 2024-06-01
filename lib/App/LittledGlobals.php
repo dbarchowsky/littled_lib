@@ -4,6 +4,7 @@ namespace Littled\App;
 
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\NotInitializedException;
 
 abstract class LittledGlobals
 {
@@ -13,6 +14,7 @@ abstract class LittledGlobals
     protected static string $app_domain = '';
     /** @var string             Root URI for CMS pages. */
     protected static string $cms_root_uri = '';
+    protected static string $error_log;
     /** @var string             Path to directory containing mysql authentication (outside public access). */
     protected static string $mysql_keys_path = '';
     /** @var string             Path to directory containing app templates. */
@@ -86,6 +88,19 @@ abstract class LittledGlobals
     }
 
     /**
+     * Error log path getter.
+     * @return string
+     * @throws NotInitializedException
+     */
+    public static function getErrorLogPath(): string
+    {
+        if (!isset(static::$error_log)) {
+            throw new NotInitializedException('An error log path has not been configured.');
+        }
+        return static::$error_log;
+    }
+
+    /**
      * Returns current template root path.
      * @return string Template root path.
      * @throws ConfigurationUndefinedException
@@ -137,6 +152,16 @@ abstract class LittledGlobals
     public static function setCMSRootURI(string $uri): void
     {
         static::$cms_root_uri = (($uri) ? (rtrim($uri, '/') . '/') : (''));
+    }
+
+    /**
+     * Error log path setter.
+     * @param string $path
+     * @return void
+     */
+    public static function setErrorLogPath(string $path): void
+    {
+        static::$error_log = $path;
     }
 
     /**
