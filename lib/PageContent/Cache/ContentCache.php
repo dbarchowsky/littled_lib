@@ -72,7 +72,7 @@ abstract class ContentCache extends MySQLConnection
      * @return void
      * @throws InvalidTypeException
      */
-    public static function setControllerClass(string $class_name)
+    public static function setControllerClass(string $class_name): void
     {
         $o = new $class_name;
         if (!$o instanceof ContentController) {
@@ -106,7 +106,7 @@ abstract class ContentCache extends MySQLConnection
      * @param int $content_id Content type id of the record being updated.
      * @throws Exception
      */
-    public static function updateKeywords(int $id, int $content_id )
+    public static function updateKeywords(int $id, int $content_id ): void
     {
         $_content = null;
 
@@ -125,7 +125,7 @@ abstract class ContentCache extends MySQLConnection
      * @return void
      * @throws NotImplementedException
      */
-    protected static function updateKeywordsByType(int $content_id)
+    protected static function updateKeywordsByType(int $content_id): void
     {
         throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
     }
