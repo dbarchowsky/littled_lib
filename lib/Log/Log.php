@@ -17,7 +17,11 @@ class Log
      * @param bool $redirect Flag determining if the errors are displayed inline or on a dedicated error page.
      * @return void
      */
-    public static function displayExceptionMessage(Throwable $e, bool $verbose=false, string $msg='', bool $redirect=false)
+    public static function displayExceptionMessage(
+        Throwable $e,
+        bool $verbose = false,
+        string $msg = '',
+        bool $redirect = false): void
     {
         $format = '';
         if ($verbose) {

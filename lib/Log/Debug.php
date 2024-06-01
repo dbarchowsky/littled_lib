@@ -1,12 +1,13 @@
 <?php
 namespace Littled\Log;
 
+use JetBrains\PhpStorm\NoReturn;
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\PageContent\ContentUtils;
-use Littled\PageContent\PageContent;
 use DateTime;
 use Exception;
-use Throwable;
+use Littled\Exception\NotInitializedException;
+
 
 class Debug
 {
@@ -37,8 +38,8 @@ class Debug
 	 * Prints out json encoded version of a variable.
 	 * @param mixed $var Variable to inspect
 	 */
-	public static function inspectAsJSON( $var )
-	{
+	#[NoReturn] public static function inspectAsJSON( mixed $var ): void
+    {
 		header('Content-Type: application/json');
 		print (json_encode($var));
 		exit;
@@ -48,7 +49,7 @@ class Debug
 	 * Wrapper for PHP var_dump() routine that places it between preformatted text tags.
 	 * @param mixed $var Variable to inspect.
 	 */
-	public static function inspectInBrowser( $var ): void
+	public static function inspectInBrowser( mixed $var ): void
 	{
 		print ("<pre>");
 		var_dump($var);
@@ -60,14 +61,11 @@ class Debug
 	 * @param string $status Status of message.
 	 * @param string $msg Message to log.
 	 * @return int Status code.
-	 * @throws ConfigurationUndefinedException If ERROR_LOG is not defined.
-	 */
+     * @throws NotInitializedException
+     */
 	public static function log (string $status, string $msg ): int
     {
-		if (!defined('ERROR_LOG')) {
-			throw new ConfigurationUndefinedException("ERROR_LOG not defined in app settings.");
-		}
-		$fh = fopen(ERROR_LOG, 'a+');
+		$fh = fopen(LittledGlobals::getErrorLogPath(), 'a+');
 		if (! $fh) {
 			return (0);
 		}
@@ -99,8 +97,8 @@ class Debug
 	 * @throws ConfigurationUndefinedException
 	 * @throws Exception
 	 */
-	public static function logVariable( $var )
-	{
+	public static function logVariable( mixed $var ): void
+    {
 		$f = fopen(self::LOG_DIR().self::generateLogFilename(), 'a');
 		if ($f) {
 			fwrite($f, json_encode($var));
@@ -116,9 +114,9 @@ class Debug
 	 * @param bool $display_method_name Flag to control inclusion of the method name where the output() method
 	 * was called. Defaults to true.
 	 */
-	public static function output(string $msg, bool $display_line_number=true, bool $display_method_name=false )
-	{
-		if (defined('SUPPRESS_DEBUG') && SUPPRESS_DEBUG==true) {
+	public static function output(string $msg, bool $display_line_number=true, bool $display_method_name=false ): void
+    {
+		if (!LittledGlobals::showVerboseErrors()) {
 			return;
 		}
 		print "<div class=\"debug\"><span class=\"formerror\">*** DEBUG *** </span>";
@@ -138,8 +136,8 @@ class Debug
 	 * Prints the current stack in the browser.
 	 * @param string $msg Optional message to include in the output.
 	 */
-	public static function stackTrace(string $msg="")
-	{
+	public static function stackTrace(string $msg=""): void
+    {
 		$backtrace = debug_backtrace();
 		for($i=(count($backtrace)-1); $i>=0; $i--) {
 			print "<div class=\"debug\">[".basename($backtrace[$i]['file']).", line ".$backtrace[$i]['line']."]</div>\n";
@@ -153,10 +151,15 @@ class Debug
      * Utility routine that should be easier to spot in code than a simple call
      * to PHP's built-in exit() routine.
      * @param string $debug_msg (Optional) Error message to display before bailing.
-     * @param bool $display_line_number (Optional) flag to display/suppress the line number in the debug output. Default value is TRUE.
-     * @param bool $display_method_name (Optional) flag to display/suppress the current method name in the debug output. Default value is FALSE.
+     * @param bool $display_line_number (Optional) flag to display/suppress the line number in the debug output.
+     * Default value is TRUE.
+     * @param bool $display_method_name (Optional) flag to display/suppress the current method name in the debug output.
+     * Default value is FALSE.
      */
-    public static function stopScript(string $debug_msg='', bool $display_line_number=true, bool $display_method_name=false )
+    #[NoReturn] public static function stopScript(
+        string $debug_msg='',
+        bool $display_line_number=true,
+        bool $display_method_name=false ): void
     {
         if ($debug_msg) {
             Debug::output($debug_msg, $display_line_number, $display_method_name);
@@ -168,8 +171,8 @@ class Debug
 	 * Prints the value corresponding to the key in the session collection.
 	 * @param string $key Key of the session variable to inspect.
 	 */
-	public static function testSessionVariable(string $key )
-	{
+	public static function testSessionVariable(string $key ): void
+    {
 		if (!isset($_SESSION[$key])) {
 			Debug::output("SESSION[$key] not set.");
 			return;
