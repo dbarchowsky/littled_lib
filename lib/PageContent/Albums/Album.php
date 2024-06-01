@@ -10,6 +10,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
@@ -85,8 +86,11 @@ class Album extends KeywordSectionContent
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws InvalidTypeException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidValueException
      */
     function __construct(int $content_type_id, int $images_content_type_id, ?int $id = null)
     {
@@ -125,7 +129,7 @@ class Album extends KeywordSectionContent
      * @throws RecordNotFoundException
      * @throws ConnectionException
      */
-    public function collectAlbumID(?array $src = null)
+    public function collectAlbumID(?array $src = null): void
     {
         /* generic id parameter */
         $this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY);
@@ -155,14 +159,18 @@ class Album extends KeywordSectionContent
     /**
      * Fill object properties from form input, including the gallery images.
      * @param ?array $src Optional array of variables to use to fill the object's property values instead of using POST data.
+     * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws RecordNotFoundException
      * @throws ConnectionException
+     * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException|InvalidStateException
+     * @throws InvalidStateException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): void
     {
         $this->section_id->bypass_collect_request_data = true;
         parent::collectRequestData($src);
@@ -178,7 +186,7 @@ class Album extends KeywordSectionContent
      * The $section_id property value is set from the object's internal constant value and not from data passed to the script.
      * @param array|null $src Array of variables to use to fill object property values in place of request variables.
      */
-    public function collectSlugInput(?array $src = null)
+    public function collectSlugInput(?array $src = null): void
     {
         $this->id->value = Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
         if ($this->id->value === null) {
@@ -247,7 +255,7 @@ class Album extends KeywordSectionContent
      * @param string $slug Optional explicit value to use as the basis for the
      * slug value.
      */
-    public function formatSlug(string $slug = '')
+    public function formatSlug(string $slug = ''): void
     {
         if ($slug) {
             $this->slug->value = $slug;
@@ -279,7 +287,7 @@ class Album extends KeywordSectionContent
      * - Ensures that the generated slug value is unique.
      * - Stores the slug value in the object's $slug property.
      */
-    public function generateDefaultSlug()
+    public function generateDefaultSlug(): void
     {
         $this->formatSlug();
         $slug_base = $this->slug->value;
@@ -290,7 +298,7 @@ class Album extends KeywordSectionContent
             try {
                 $this->validateSlug();
                 $valid_slug = true;
-            } catch (Exception $e) {
+            } catch (Exception) {
                 if (strlen("$slug_base-$index") > $this->slug->size_limit) {
                     /* avoid overruns */
                     $slug_base = substr($slug_base, -1 * (strlen("-$index")));
@@ -329,7 +337,7 @@ class Album extends KeywordSectionContent
      * @throws InvalidQueryException
      * @throws Exception
      */
-    public function getDefaultPage(bool $read_keywords = false)
+    public function getDefaultPage(bool $read_keywords = false): void
     {
         $this->testForAlbumID();
         $query = "CALL albumFirstPageSelect({$this->id->value},{$this->content_properties->id->value})";
@@ -438,7 +446,7 @@ class Album extends KeywordSectionContent
      * @throws ConnectionException
      * @throws Exception
      */
-    public function lookupSlug()
+    public function lookupSlug(): void
     {
         $this->connectToDatabase();
         $query = "SEL" . "ECT `id` FROM `" . static::getTableName() . "` " .
@@ -455,7 +463,7 @@ class Album extends KeywordSectionContent
      * Marks the current pages as being either at the start, end, or middle of the book.
      * @throws Exception
      */
-    protected function markLimits()
+    protected function markLimits(): void
     {
         $first_page_id = $last_page_id = null;
         $record_id = $this->getRecordId();
@@ -544,7 +552,7 @@ class Album extends KeywordSectionContent
      * @throws RecordNotFoundException
      * @throws Exception
      */
-    public function readPage(int $page_id, bool $read_keywords = false)
+    public function readPage(int $page_id, bool $read_keywords = false): void
     {
         $this->gallery->list = array();
         $this->gallery->list[0] =
@@ -630,7 +638,7 @@ class Album extends KeywordSectionContent
      * Sets the album thumbnail to the first image in the gallery when creating a new album
      * @throws Exception
      */
-    protected function saveThumbnailLink()
+    protected function saveThumbnailLink(): void
     {
         $query = "UPDATE `" . static::getTableName() . "` SET tn_id = ? WHERE id = ?";
         $this->query($query, 'ii', $this->gallery->list[0]->id->value, $this->id->value);
@@ -642,8 +650,9 @@ class Album extends KeywordSectionContent
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws InvalidQueryException
+     * @throws NotImplementedException
      */
-    protected function setDefaultSlotValue()
+    protected function setDefaultSlotValue(): void
     {
         /* confirm that the necessary columns and object properties exist */
         $has_slot = $has_section_id = false;
@@ -678,7 +687,7 @@ class Album extends KeywordSectionContent
      * @param int $content_type_id
      * @return void
      */
-    public function setPagesContentType(int $content_type_id)
+    public function setPagesContentType(int $content_type_id): void
     {
         static::$pages_content_type_id = $content_type_id;
     }
@@ -687,7 +696,7 @@ class Album extends KeywordSectionContent
      * Tests if the object's album id value is set.
      * @throws ContentValidationException Album id property value is not currently set.
      */
-    protected function testForAlbumID()
+    protected function testForAlbumID(): void
     {
         if ($this->id->value === null || $this->id->value < 1) {
             throw new ContentValidationException("Album not set.");
@@ -704,7 +713,7 @@ class Album extends KeywordSectionContent
      * @throws ConnectionException
      * @throws InvalidQueryException
      */
-    protected function testForSlotColumns(bool &$has_slot, bool &$has_section_id)
+    protected function testForSlotColumns(bool &$has_slot, bool &$has_section_id): void
     {
         $query = "SHOW COLUMNS " .
             "FROM `" . static::getTableName() . "` " .
@@ -742,7 +751,7 @@ class Album extends KeywordSectionContent
      * @throws ConnectionException
      * @throws InvalidQueryException
      */
-    public function updateFulltextKeywords()
+    public function updateFulltextKeywords(): void
     {
         /* avoid exceeding limit on GROUP_CONCAT() */
         $this->query("SET @@group_concat_max_len := @@max_allowed_packet;");
@@ -760,12 +769,13 @@ class Album extends KeywordSectionContent
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
+     * @throws NotImplementedException
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         try {
             parent::validateInput();
-        } catch (ContentValidationException $ex) {
+        } catch (ContentValidationException) {
             /* continue */
         }
 
@@ -797,7 +807,7 @@ class Album extends KeywordSectionContent
      * @throws ContentValidationException
      * @throws InvalidQueryException
      */
-    public function validateSlug()
+    public function validateSlug(): void
     {
         if ($this->id->value > 0) {
             /* get the existing slug. if they are the same then the current

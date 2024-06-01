@@ -9,6 +9,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
@@ -47,12 +48,14 @@ class Gallery extends MySQLConnection
     /**
      * Gallery constructor.
      * @param int $content_type_id Content type of the gallery
-     * @param int|null[optional] $parent_id The id of the gallery's parent record.
+     * @param int|null $parent_type_id (Optional) The id of the gallery's parent record.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     function __construct(int $content_type_id, ?int $parent_type_id = null)
@@ -103,17 +106,20 @@ class Gallery extends MySQLConnection
 
     /**
      * Sets internal values of the object with form data.
-     * @param int[optional] $section_id If specified, sets section id before retrieving form data, otherwise uses the current internal section id value.
-     * @param array|null[optional] $src If specified, this array will be used to extract values that are stored in
+     * @param int|null $section_id If specified, sets section id before retrieving form data, otherwise uses the current internal section id value.
+     * @param array|null $src If specified, this array will be used to extract values that are stored in
      * the object properties. Otherwise, the values are extracted from POST data.
+     * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public function collectFromInput($section_id = null, $src = null)
+    public function collectFromInput(?int $section_id = null, ?array $src = null): void
     {
         if ($section_id > 0) {
             $this->content_properties->id->value = $section_id;
@@ -194,7 +200,10 @@ class Gallery extends MySQLConnection
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      */
-    protected function fillImageSetFromRecordset(ImageLink $image_link, stdClass $row, bool $read_keywords = false)
+    protected function fillImageSetFromRecordset(
+        ImageLink $image_link,
+        stdClass $row,
+        bool $read_keywords = false): void
     {
         $image_link->fillFromRecordset($row);
         if ($read_keywords) {
@@ -209,7 +218,7 @@ class Gallery extends MySQLConnection
      */
     public function formatItemCountString(): string
     {
-        return (count($this->list) . " " . strtolower($this->content_properties->image_label->value) . ((count($this->list) != 1) ? ("s") : ("")));
+        return (count($this->list) . " " . strtolower($this->content_properties->label->value) . ((count($this->list) != 1) ? ("s") : ("")));
     }
 
     /**
@@ -235,10 +244,10 @@ class Gallery extends MySQLConnection
 
     /**
      * Returns the number of images in the gallery even if the gallery array hasn't been filled yet.
-     * @param string[optional] $access Limits count to a particular access level.
+     * @param string $access (Optional) Limits count to a particular access level.
      * @return int image count
      */
-    public function getImageCount($access = ""): int
+    public function getImageCount(string $access = ''): int
     {
         if (isset($this->list)) {
             return count($this->list);
@@ -301,9 +310,10 @@ class Gallery extends MySQLConnection
 
     /**
      * Retrieve all images in the collection.
-     * @param bool[optional] $bReadKW Optional flag to control if keywords are read for the listings. Defaults to false.
-     * @param bool[optional] $bReadTn Optional flag to control if the collection's thumbnail record will be retrieved. Defaults to true.
-     * @param bool[optional] $bPublicOnly Optional flag to indicate that only public images should be retrieved.
+     * @param bool $read_keywords Optional flag to control if keywords are read for the listings. Defaults to false.
+     * @param bool $read_thumbnails Optional flag to control if the collection's thumbnail record will be retrieved.
+     * Defaults to true.
+     * @param bool $public_only Optional flag to indicate that only public images should be retrieved.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
@@ -313,7 +323,7 @@ class Gallery extends MySQLConnection
      * @throws RecordNotFoundException
      * @throws Exception
      */
-    public function read($read_keywords = false, $read_thumbnails = true, $public_only = false)
+    public function read(bool $read_keywords = false, bool $read_thumbnails = true, bool $public_only = false): void
     {
         $this->testForContentTypeAndParent();
 
@@ -345,16 +355,16 @@ class Gallery extends MySQLConnection
 
     /**
      * Retrieves the thumbnail properties for the gallery.
+     * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
+     * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
-     * @throws Exception
      */
-    public function readThumbnail()
+    public function readThumbnail(): void
     {
         $this->testForContentTypeAndParent();
         $this->tn->parent_id->value = $this->parent_id;
@@ -381,14 +391,16 @@ class Gallery extends MySQLConnection
 
     /**
      * Retrieves the gallery's content properties from database. Sets object's internal values.
+     * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidValueException
      */
-    public function retrieveSectionProperties()
+    public function retrieveSectionProperties(): void
     {
         $this->testForContentType();
         $this->content_properties->read();
@@ -413,7 +425,7 @@ class Gallery extends MySQLConnection
 
     /**
      * Commits the object's internal properties to the database.
-     * @param boolean[optional] $save_thumbnail Flag to specify that a thumbnail record should be saved along with
+     * @param bool $save_thumbnail Flag to specify that a thumbnail record should be saved along with
      * the gallery's core properties. FALSE by default.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -424,7 +436,7 @@ class Gallery extends MySQLConnection
      * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
      */
-    public function save($save_thumbnail = false)
+    public function save(bool $save_thumbnail = false): void
     {
         /** @var ImageLink $img */
         foreach ($this->list as $img) {
@@ -443,11 +455,11 @@ class Gallery extends MySQLConnection
      * Updates parent table's tn_id column with the id of the current thumbnail record.
      * @throws InvalidQueryException|Exception
      */
-    public function saveThumbnail()
+    public function saveThumbnail(): void
     {
         try {
             $this->testForContentTypeAndParent();
-        } catch (ConfigurationUndefinedException $ex) {
+        } catch (ConfigurationUndefinedException) {
             return;
         }
 
@@ -482,7 +494,7 @@ class Gallery extends MySQLConnection
      * Tests if the content type of the object is set in cases where a content type is required.
      * @throws ConfigurationUndefinedException Content type is not currently set for the object.
      */
-    protected function testForContentType()
+    protected function testForContentType(): void
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
             throw new ConfigurationUndefinedException("Site section not set. ");
@@ -493,7 +505,7 @@ class Gallery extends MySQLConnection
      * Tests if the content type and parent of the object is set in cases where a content type and parent is required.
      * @throws ConfigurationUndefinedException Content type is not currently set for the object.
      */
-    protected function testForContentTypeAndParent()
+    protected function testForContentTypeAndParent(): void
     {
         $this->testForContentType();
         if ($this->parent_id === null || $this->parent_id < 1) {
@@ -505,13 +517,13 @@ class Gallery extends MySQLConnection
      * Validate image collection form input.
      * @throws ContentValidationException
      */
-    function validateInput()
+    function validateInput(): void
     {
         foreach ($this->list as $image_link) {
             /** @var ImageLink $image_link */
             try {
                 $image_link->validateInput();
-            } catch (ContentValidationException $ex) {
+            } catch (ContentValidationException) {
                 $this->validation_errors = array_merge($this->validation_errors, $image_link->validationErrors);
             }
         }
