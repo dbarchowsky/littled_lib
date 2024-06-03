@@ -7,6 +7,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
@@ -224,14 +225,16 @@ abstract class ImageBase extends SerializedContent
 	 * @throws InvalidQueryException
      * @throws NotImplementedException
 	 * @throws RecordNotFoundException
+     * @throws NotInitializedException
      * @throws InvalidValueException
      */
-	public function read(): void
+	public function read(): ImageBase
     {
 		if ($this->id->value===null || $this->id->value < 0) {
-			return;
+			throw new NotInitializedException('An image record id was not provided.');
 		}
 		parent::read();
+        return $this;
 	}
 
 	/**

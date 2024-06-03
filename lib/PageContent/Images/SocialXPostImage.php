@@ -40,7 +40,6 @@ class SocialXPostImage extends ImageUpload
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
@@ -73,16 +72,17 @@ class SocialXPostImage extends ImageUpload
      * Retrieve image properties from database.
      * @param bool $read_keywords (Optional) Flag to suppress retrieving keywords linked to the image_link record.
      * Defaults to TRUE.
+     * @return $this
      * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws InvalidValueException
+     * @throws InvalidStateException
      */
-    function read($read_keywords = true): void
+    function read(bool $read_keywords = true): SocialXPostImage
     {
         parent::read($read_keywords);
 
@@ -101,6 +101,7 @@ class SocialXPostImage extends ImageUpload
         $this->wp_id->value = $data[0]->wp_id;
         $this->twitter_id->value = $data[0]->twitter_id;
         $this->short_url->value = $data[0]->short_url;
+        return $this;
     }
 
     /**

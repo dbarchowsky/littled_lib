@@ -253,6 +253,14 @@ class ImageFile extends ImageBase
 	}
 
     /**
+     * @inheritDoc
+     */
+    protected function hasRecordData(): bool
+    {
+        return $this->path->hasData() || $this->width->hasData() || $this->height->hasData() || $this->url->hasData();
+    }
+
+    /**
      * @param $tmp_path
      * @param $target_name
      * @param $upload_dir

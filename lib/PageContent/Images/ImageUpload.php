@@ -17,10 +17,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
 
-/**
- * Class ImageUpload
- * @package Littled\PageContent\Images
- */
+
 class ImageUpload extends ImageLink
 {
 	/** @var StringInput $new_name Form input to allow changing the name of an image. */
@@ -51,7 +48,6 @@ class ImageUpload extends ImageLink
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidStateException
-     * @throws InvalidTypeException
      * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
@@ -91,10 +87,10 @@ class ImageUpload extends ImageLink
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
 	 * @throws InvalidQueryException
-	 * @throws InvalidTypeException
-	 * @throws NotImplementedException
+     * @throws NotImplementedException
 	 * @throws RecordNotFoundException
      * @throws InvalidValueException
+     * @throws InvalidStateException
      */
 	public function collectInlineInput( array $src=null ): void
 	{
@@ -145,18 +141,21 @@ class ImageUpload extends ImageLink
 	/**
 	 * Retrieve image properties from database.
 	 * @param bool $read_keywords Flag to suppress retrieving keywords linked to the image_link record. Defaults to TRUE.
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws ContentValidationException
-	 * @throws InvalidQueryException
-     * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
-	public function read( bool $read_keywords=true ): void
+	public function read( bool $read_keywords=true ): ImageUpload
     {
 		parent::read($read_keywords);
 		$this->retrieveLabel();
+        return $this;
 	}
 
 	/**
@@ -194,13 +193,15 @@ SQL;
 
 	/**
 	 * Overrides parent class's routine to set the image id, image type id, and image parent id parameter names to different values.
-	 * @throws ContentValidationException
-	 * @throws ConfigurationUndefinedException
-	 * @throws ConnectionException
-	 * @throws InvalidQueryException
-     * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
 	public function retrieveSectionProperties(): void
     {
@@ -252,7 +253,8 @@ SQL;
 	 * @throws OperationAbortedException
 	 * @throws RecordNotFoundException
 	 * @throws ResourceNotFoundException
-	 */
+     * @throws InvalidValueException
+     */
 	public function upload(bool $randomize_filename=false ): void
     {
 		parent::upload($randomize_filename);
@@ -287,7 +289,7 @@ SQL;
 	 * @param array $exclude_properties
 	 * @throws ContentValidationException
 	 */
-	public function validateInput( $exclude_properties = [] ): void
+	public function validateInput(array $exclude_properties = [] ): void
 	{
 		try {
 			parent::validateInput($exclude_properties);
