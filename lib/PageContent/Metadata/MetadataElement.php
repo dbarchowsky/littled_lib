@@ -53,7 +53,7 @@ class MetadataElement
      * Injects metadata properties as page markup.
      * @return void
      */
-    public function render()
+    public function render(): void
     {
 ?>
 <meta <?=$this->getType()?>="<?=$this->getName()?>" content="<?=$this->getContent()?>" />
@@ -63,7 +63,7 @@ class MetadataElement
     /**
      * @param string $content
      */
-    public function setContent(string $content)
+    public function setContent(string $content): void
     {
         $this->content = $content;
     }
@@ -71,7 +71,7 @@ class MetadataElement
     /**
      * @param string $name
      */
-    public function setName(string $name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
@@ -80,7 +80,7 @@ class MetadataElement
      * @param string $type
      * @throws InvalidValueException
      */
-    public function setType(string $type)
+    public function setType(string $type): void
     {
         if (!in_array($type, MetadataElement::valid_types)) {
             throw new InvalidValueException("\"$type\" is not a valid metadata element type.");

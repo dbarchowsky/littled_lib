@@ -3,17 +3,12 @@ namespace Littled\PageContent\Metadata;
 
 use Littled\Exception\InvalidValueException;
 
-/**
- * Class PageMetadata
- * Site metadata properties.
- * @package Littled\PageContent
- */
 class PageMetadata
 {
     /** @var string Core name for the site. */
-    public string $site_label = "";
+    public string $site_label = '';
     /** @var string Page title suitable for displaying in the page content. */
-    public string $title = "";
+    public string $title = '';
 	/** @var MetadataElement Page description inserted into the page metadata for SEO. */
 	protected MetadataElement $description;
 	/** @var MetadataElement List of keywords to be inserted into the page metadata for SEO. */
@@ -39,7 +34,7 @@ class PageMetadata
      * @param string $value
      * @throws InvalidValueException
      */
-    public function addPageMetadata(string $type, string $name, string $value)
+    public function addPageMetadata(string $type, string $name, string $value): void
     {
         $this->extras[] = new MetadataElement($type, $name, $value);
     }
@@ -64,17 +59,17 @@ class PageMetadata
         return $this->extras;
     }
 
-    public function setDescription(string $description)
+    public function setDescription(string $description): void
     {
         $this->description->setContent($description);
     }
 
-    public function setKeywords(array $keywords)
+    public function setKeywords(array $keywords): void
     {
         $this->keywords->setContent(implode(',', $keywords));
     }
 
-    public function setMetaTitle(string $title)
+    public function setMetaTitle(string $title): void
     {
         $this->meta_title->content = $title;
     }

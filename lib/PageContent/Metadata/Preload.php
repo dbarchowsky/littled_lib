@@ -34,7 +34,7 @@ class Preload
      * Injects property values as page markup.
      * @return void
      */
-    public function render()
+    public function render(): void
     {
         if (''===$this->tag) {
             ContentUtils::printError('Missing required metadata tag.');
