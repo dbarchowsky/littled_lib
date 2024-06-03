@@ -18,15 +18,12 @@ use Exception;
 use Littled\Utility\LittledUtility;
 use mysqli;
 
-/**
- * Class ContentTemplate
- * @package Littled\Tests\SiteContent
- */
+
 class ContentTemplate extends SerializedContent
 {
     /** @var int                Value of this record in the site section table. */
     protected static int        $content_type_id = 33;
-    protected static string     $table_name = "content_template";
+    protected static string     $table_name = 'content_template';
     protected static string     $local_path_token = 'local';
     /** @var StringTextField    Template name. */
     public StringTextField      $name;
@@ -69,16 +66,16 @@ class ContentTemplate extends SerializedContent
     {
         parent::__construct($id);
 
-        $this->id->label = "Template id";
+        $this->id->label = 'Template id';
         $this->id->key = 'templateID';
         $this->id->required = false;
-        $this->content_id = new IntegerInput("Content type", "contentTypeID", true, $content_type_id);
-        $this->name = new StringTextField("Name", "templateName", true, $name, 45);
-        $this->template_dir = new StringTextField("Template directory", "templateDir", false, $base_dir, 200);
-        $this->path = new StringTextField("Template file", "templatePath", true, $path, 255);
-        $this->location = new StringSelect("Location", "templateLocation", false, $location, 20);
-        $this->container_id = new StringTextField("Container", "ctContain", false, '', 50);
-        $this->wildcard = new StringTextField("Wildcard", "ctWC", false, '', 8);
+        $this->content_id = new IntegerInput('Content type', 'contentTypeID', true, $content_type_id);
+        $this->name = new StringTextField('Name', 'templateName', true, $name, 45);
+        $this->template_dir = new StringTextField('Template directory', 'templateDir', false, $base_dir, 200);
+        $this->path = new StringTextField('Template file', 'templatePath', true, $path, 255);
+        $this->location = new StringSelect('Location', 'templateLocation', false, $location, 20);
+        $this->container_id = new StringTextField('Container', 'ctContain', false, '', 50);
+        $this->wildcard = new StringTextField('Wildcard', 'ctWC', false, '', 8);
 
         /* non-default column names in database table */
         $this->template_dir->is_database_field = false;
@@ -116,14 +113,10 @@ class ContentTemplate extends SerializedContent
             if ($this->template_dir->value) {
                 return LittledUtility::joinPaths($this->template_dir->value, $this->path->value);
             }
-            switch ($this->location->value) {
-                case static::getLocalPathToken():
-                    $template_dir = LittledGlobals::getLocalTemplatesPath();
-                    break;
-                default:
-                    $template_dir = LittledGlobals::getSharedTemplatesPath();
-                    break;
-            }
+            $template_dir = match ($this->location->value) {
+                static::getLocalPathToken() => LittledGlobals::getLocalTemplatesPath(),
+                default => LittledGlobals::getSharedTemplatesPath(),
+            };
         }
         return LittledUtility::joinPaths($template_dir, $this->path->value);
     }
@@ -168,7 +161,7 @@ class ContentTemplate extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function hydrateFromRecordsetRow(object $row)
+    public function hydrateFromRecordsetRow(object $row): void
     {
         parent::hydrateFromRecordsetRow($row);
         if ($this->hydrate_extras) {
@@ -204,7 +197,7 @@ class ContentTemplate extends SerializedContent
     public function lookupTemplateProperties(): ContentTemplate
     {
         if (!$this->content_id->hasData() || !$this->name->hasData()) {
-            throw new NotInitializedException("Content type and/or operation was not provided.");
+            throw new NotInitializedException('Content type and/or operation was not provided.');
         }
         $this->retrieveUsingContentTypeAndOperation();
         return $this;
@@ -219,7 +212,7 @@ class ContentTemplate extends SerializedContent
      * @throws RecordNotFoundException
      * @throws Exception
      */
-    public function retrieveUsingContentTypeAndOperation(?int $content_type_id = null, ?string $operation = null)
+    public function retrieveUsingContentTypeAndOperation(?int $content_type_id = null, ?string $operation = null): void
     {
         $content_type_id ??= $this->content_id->value;
         $operation ??= $this->name->value;
@@ -331,7 +324,7 @@ class ContentTemplate extends SerializedContent
             0 < $this->content_id->value &&
             $this->name->value) {
             $this->connectToDatabase();
-            $query = "CALL contentTemplateSectionNameSelect(?,?)";
+            $query = 'CALL contentTemplateSectionNameSelect(?,?)';
             $data = $this->fetchRecords($query, 'is', $this->content_id->value, $this->name->value);
             if (0 < count($data)) {
                 return $data[0]->section;
@@ -349,15 +342,15 @@ class ContentTemplate extends SerializedContent
      * @throws ConnectionException
      * @throws Exception
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         try {
             parent::validateInput(['parentID']);
-        } catch (ContentValidationException $ex) { /* continue */
+        } catch (ContentValidationException) { /* continue */
         }
 
         if (!$this->template_dir->value && !$this->location->value) {
-            $this->addValidationError("Either a template path or location must be specified.");
+            $this->addValidationError('Either a template path or location must be specified.');
         }
 
         if ($section = $this->testForDuplicateTemplate()) {
@@ -366,7 +359,7 @@ class ContentTemplate extends SerializedContent
         }
 
         if ($this->hasValidationErrors()) {
-            throw new ContentValidationException("Error validating content templates.");
+            throw new ContentValidationException('Error validating content templates.');
         }
     }
 }

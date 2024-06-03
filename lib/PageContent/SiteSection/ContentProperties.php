@@ -68,22 +68,22 @@ class ContentProperties extends SerializedContent
     {
         parent::__construct($id);
         $this->id->key = ContentProperties::ID_KEY;
-        $this->name = new StringTextField("Name", "ssna", true, '', 50);
-        $this->label = new StringTextField("Label", "ssLabel", false, '', 50);
-        $this->id_key = new StringTextField("Id key", "ssIK", true, '', 20);
-        $this->slug = new StringTextField("Slug", "ssSlug", false, '', 50);
-        $this->root_dir = new StringTextField("Root directory", "ssrd", false, "", 255);
-        $this->table = new StringTextField("Table name", "sstb", false, "", 50);
-        $this->parent_id = new IntegerSelect("Parent", "sspi", false, null);
-        $this->is_cached = new BooleanCheckbox("Cache content", "sscc", false, false);
-        $this->is_sortable = new BooleanCheckbox("Is sortable", "ssSort", false, false);
-        $this->gallery_thumbnail = new BooleanCheckbox("Gallery thumbnail", "ssgt", false, false);
+        $this->name = new StringTextField('Name', 'ssna', true, '', 50);
+        $this->label = new StringTextField('Label', 'ssLabel', false, '', 50);
+        $this->id_key = new StringTextField('Id key', 'ssIK', true, '', 20);
+        $this->slug = new StringTextField('Slug', 'ssSlug', false, '', 50);
+        $this->root_dir = new StringTextField('Root directory', 'ssrd', false, '', 255);
+        $this->table = new StringTextField('Table name', 'sstb', false, '', 50);
+        $this->parent_id = new IntegerSelect('Parent', 'sspi', false, null);
+        $this->is_cached = new BooleanCheckbox('Cache content', 'sscc', false, false);
+        $this->is_sortable = new BooleanCheckbox('Is sortable', 'ssSort', false, false);
+        $this->gallery_thumbnail = new BooleanCheckbox('Gallery thumbnail', 'ssgt', false, false);
     }
 
     /**
      * Resets the object's property values.
      */
-    public function clearValues()
+    public function clearValues(): void
     {
         parent::clearValues();
         $this->resetExtraProperties();
@@ -101,7 +101,7 @@ class ContentProperties extends SerializedContent
     public function delete(): string
     {
         /* Update parent id for any child records. */
-        $query = "UPDATE `" . $this::getTableName() . "` SET `parent_id` = NULL WHERE `parent_id` = ?";
+        $query = 'UPDATE `' . $this::getTableName() . '` SET `parent_id` = NULL WHERE `parent_id` = ?';
         $this->query($query, 'i', $this->id->value);
         return (parent::delete());
     }
@@ -171,7 +171,7 @@ class ContentProperties extends SerializedContent
         if ($this->id->value === null || $this->id->value < 1) {
             return null;
         }
-        $query = "CALL siteSectionParentIDSelect(?)";
+        $query = 'CALL siteSectionParentIDSelect(?)';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($data) > 0) {
             return ($data[0]->parent_id);
@@ -190,10 +190,10 @@ class ContentProperties extends SerializedContent
         if ($this->id->value === null || $this->id->value < 1) {
             return null;
         }
-        $query = "CALL siteSectionParentTypeID(?);";
+        $query = 'CALL siteSectionParentTypeID(?);';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($data) < 1) {
-            throw new RecordNotFoundException("Parent content type not found.");
+            throw new RecordNotFoundException('Parent content type not found.');
         }
         return ($data[0]->content_type_id);
     }
@@ -260,13 +260,13 @@ class ContentProperties extends SerializedContent
     public function read(): SerializedContent
     {
         if ($this->id->value === null || $this->id->value < 1) {
-            throw new ContentValidationException("Record id not provided.");
+            throw new ContentValidationException('Record id not provided.');
         }
 
         $query = 'CALL siteSectionSelect(?)';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($data) < 1) {
-            throw new RecordNotFoundException("Requested record not found.");
+            throw new RecordNotFoundException('Requested record not found.');
         }
         $this->hydrateFromRecordsetRow($data[0]);
 
@@ -292,7 +292,7 @@ class ContentProperties extends SerializedContent
         // clear out any existing data
         $this->routes = [];
 
-        $query = "CALL contentRouteSelect(?,?,?)";
+        $query = 'CALL contentRouteSelect(?,?,?)';
         $id = $name = null;
         $data = $this->fetchRecords($query, 'iis', $id, $this->id->value, $name);
         if (count($data) < 1) {
@@ -319,7 +319,7 @@ class ContentProperties extends SerializedContent
         // clear out any existing data
         $this->templates = [];
 
-        $query = "CALL contentTemplateSelectBySectionID(?)";
+        $query = 'CALL contentTemplateSelectBySectionID(?)';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($data) < 1) {
             return;
@@ -338,7 +338,7 @@ class ContentProperties extends SerializedContent
      * Resets the values of class properties not initialized automatically by the parent class.
      * @return void
      */
-    protected function resetExtraProperties()
+    protected function resetExtraProperties(): void
     {
         $this->templates = array();
         $this->routes = array();

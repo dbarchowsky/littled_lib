@@ -7,6 +7,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -36,7 +37,7 @@ abstract class SectionContent extends SerializedContent
     {
         parent::__construct($id);
         $this->content_properties = new ContentProperties($content_type_id ?: static::getContentTypeId());
-        $this->content_properties->id->label = "Content type";
+        $this->content_properties->id->label = 'Content type';
         $this->content_properties->id->required = true;
     }
 
@@ -78,7 +79,7 @@ abstract class SectionContent extends SerializedContent
     public function delete(): string
     {
         parent::delete();
-        return ("Successfully deleted " . strtolower($this->getContentLabel()) . " record.");
+        return ('Successfully deleted ' . strtolower($this->getContentLabel()) . ' record.');
     }
 
     /**
@@ -162,7 +163,7 @@ abstract class SectionContent extends SerializedContent
     {
         $template = $this->getListingsTemplatePath();
         if (!$template) {
-            throw new ResourceNotFoundException("Listings template not available.");
+            throw new ResourceNotFoundException('Listings template not available.');
         }
 
         $context = array(
@@ -180,6 +181,7 @@ abstract class SectionContent extends SerializedContent
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
+     * @throws InvalidValueException
      */
     public function retrieveSectionProperties(): void
     {
@@ -196,11 +198,12 @@ abstract class SectionContent extends SerializedContent
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidValueException
      */
     public function save(): void
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
-            throw new ContentValidationException("A content type was not specified.");
+            throw new ContentValidationException('A content type was not specified.');
         }
         $this->content_properties->read();
         parent::save();
@@ -227,7 +230,7 @@ abstract class SectionContent extends SerializedContent
     protected function testForContentType(string $msg = ''): void
     {
         if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
-            $msg = ($msg) ? ("$msg ") : ("Could not perform operation. ");
+            $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');
             throw new InvalidStateException("$msg A content type was not specified.");
         }
     }

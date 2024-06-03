@@ -2,6 +2,10 @@
 namespace Littled\PageContent\SiteSection;
 
 use Exception;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Request\CategorySelect;
 
 
@@ -36,7 +40,7 @@ abstract class CategorySectionContent extends KeywordSectionContent
      * Overrides parent routine to retrieve both category keywords and free-form keywords.
      * @throws Exception
      */
-    public function readKeywords ()
+    public function readKeywords (): void
     {
         $this->categories->setParentId($this->id->value);
         parent::readKeywords();
@@ -45,19 +49,24 @@ abstract class CategorySectionContent extends KeywordSectionContent
 
     /**
      * @inheritDoc
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
      */
-    public function saveKeywords ( )
+    public function saveKeywords ( ): CategorySectionContent
     {
         $this->categories->setParentId($this->id->value);
         parent::saveKeywords();
         $this->categories->save();
         $this->updateKeywordCache();
+        return $this;
     }
 
     /**
      * Updates a concatenated list of keywords attached to this record, that is stored in the database.
      * @return void
-     * @throws Exception
      */
     abstract protected function updateKeywordCache(): void;
 }

@@ -8,6 +8,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -52,10 +53,10 @@ class KeywordSectionContent extends SectionContent
         /* Suppress generalized error messages related to the content type properties */
         $this->content_properties->validation_message = '';
 
-        $this->keyword_input = new StringTextarea("Keywords", static::$keyword_key . "Text", false, '', 1000, null);
+        $this->keyword_input = new StringTextarea('Keywords', static::$keyword_key . 'Text', false, '', 1000, null);
 
         $this->keyword_input->is_database_field = false;
-        $this->validation_message = "Problems found in keywords.";
+        $this->validation_message = 'Problems found in keywords.';
     }
 
     /**
@@ -86,7 +87,7 @@ class KeywordSectionContent extends SectionContent
      * @inheritDoc
      * @throws InvalidStateException
      */
-    public function base64DecodeInput()
+    public function base64DecodeInput(): void
     {
         parent::base64DecodeInput();
         $this->collectKeywordInput();
@@ -98,7 +99,7 @@ class KeywordSectionContent extends SectionContent
     public function clearKeywordData(): void
     {
         $this->clearKeywordList();
-        $this->keyword_input->value = "";
+        $this->keyword_input->value = '';
     }
 
     /**
@@ -113,7 +114,7 @@ class KeywordSectionContent extends SectionContent
      * @inheritDoc
      * @throws InvalidStateException
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): void
     {
         parent::collectRequestData($src);
         $this->content_properties->id->collectRequestData($src);
@@ -175,17 +176,17 @@ class KeywordSectionContent extends SectionContent
         $this->testForParentID();
         $this->testForContentType();
 
-        $query = "CALL keywordDeleteLinked (?,?)";
+        $query = 'CALL keywordDeleteLinked (?,?)';
         $this->query($query, 'ii', $this->id->value, $this->content_properties->id->value);
-        return ("All linked keyword records were deleted.");
+        return ('All linked keyword records were deleted.');
     }
 
     /**
      * Extract keyword terms from a comma-delimited string containing multiple terms.
-     * @param string|array $src Comma-delimited series of keyword terms.
+     * @param array|string $src Comma-delimited series of keyword terms.
      * @return array Keyword terms separated out into an array.
      */
-    protected function extractKeywordTerms($src): array
+    protected function extractKeywordTerms(array|string $src): array
     {
         if (is_array($src)) {
             $terms = array_values($src);
@@ -232,10 +233,10 @@ class KeywordSectionContent extends SectionContent
     /**
      * Returns markup containing keywords as links to listings filtered by the keyword value.
      * @param array $context (Optional) Array containing variables to insert into the template.
-     * @return string|false Markup to be used to display the keywords. False on error retrieving markup content.
-     * @throws ContentValidationException
+     * @return string Markup to be used to display the keywords. False on error retrieving markup content.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
+     * @throws ContentValidationException
      * @throws ResourceNotFoundException
      */
     public function formatKeywordListPageContent(array $context = array()): string
@@ -358,14 +359,14 @@ class KeywordSectionContent extends SectionContent
      * @throws ConnectionException
      * @throws Exception
      */
-    public function readKeywords()
+    public function readKeywords(): void
     {
         $this->testForParentID();
         $this->testForContentType();
 
         $this->clearKeywordList();
         $this->connectToDatabase();
-        $query = "CALL keywordSelectLinked(?,?)";
+        $query = 'CALL keywordSelectLinked(?,?)';
         $data = $this->fetchRecords($query, 'ii', $this->id->value, $this->content_properties->id->value);
 
         foreach ($data as $row) {
@@ -384,8 +385,9 @@ class KeywordSectionContent extends SectionContent
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
+     * @throws InvalidValueException
      */
-    public function save()
+    public function save(): void
     {
         parent::save();
         $this->saveKeywords();
@@ -402,7 +404,7 @@ class KeywordSectionContent extends SectionContent
      */
     public function saveKeywords(): KeywordSectionContent
     {
-        $this->testForParentID("Could not serialize keywords.");
+        $this->testForParentID('Could not serialize keywords.');
         $this->deleteKeywords();
         foreach ($this->keywords as $keyword) {
             $keyword->parent_id->value = $this->id->value;
@@ -421,7 +423,7 @@ class KeywordSectionContent extends SectionContent
         try {
             $this->content_properties->setRecordId($content_type_id);
         }
-        catch(InvalidStateException $e) {
+        catch(InvalidStateException) {
             /* ignore */
         }
         return $this;
@@ -432,7 +434,7 @@ class KeywordSectionContent extends SectionContent
      * @param int $id
      * @return void
      */
-    public static function setKeywordCategoryId(int $id)
+    public static function setKeywordCategoryId(int $id): void
     {
         static::$keyword_category_id = $id;
     }
@@ -442,7 +444,7 @@ class KeywordSectionContent extends SectionContent
      * @param string $key
      * @return void
      */
-    public static function setKeywordKey(string $key)
+    public static function setKeywordKey(string $key): void
     {
         static::$keyword_key = $key;
     }
@@ -483,7 +485,7 @@ class KeywordSectionContent extends SectionContent
     {
         try {
             parent::setRecordId($record_id);
-        } catch (InvalidStateException $e) {
+        } catch (InvalidStateException) {
             /* ignore */
         }
         return $this;
@@ -511,7 +513,7 @@ class KeywordSectionContent extends SectionContent
             /* bypass validation of site section properties */
             $exclude_properties[] = 'content_properties';
             parent::validateInput($exclude_properties);
-        } catch (ContentValidationException $ex) {
+        } catch (ContentValidationException) {
             /* continue validating collected request data */
         }
         try {
@@ -523,7 +525,7 @@ class KeywordSectionContent extends SectionContent
         foreach ($this->keywords as $keyword) {
             try {
                 $keyword->validateInput();
-            } catch (ContentValidationException $ex) {
+            } catch (ContentValidationException) {
                 $this->addValidationError($keyword->validationErrors());
             }
         }

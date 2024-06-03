@@ -6,6 +6,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Keyword\Keyword;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
@@ -231,9 +232,12 @@ class CategorySelect extends MySQLConnection
 
     /**
      * Commit category terms to database.
-     * @throws Exception
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
      */
-    public function save()
+    public function save(): void
     {
         foreach($this->categories as $category) {
             $category->save();

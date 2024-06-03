@@ -5,6 +5,7 @@ namespace Littled\PageContent\SiteSection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -33,7 +34,7 @@ class ContentRoute extends SerializedContent
 
     /** @var int                    Value of this record in the site section table. */
     protected static int            $content_type_id = 34;
-    protected static string         $table_name = "content_route";
+    protected static string         $table_name = 'content_route';
 
     /** @var IntegerSelect          Record id representing the site content. Corresponds to table `site_section`. */
     public IntegerSelect            $site_section_id;
@@ -63,7 +64,7 @@ class ContentRoute extends SerializedContent
     {
         parent::__construct($id);
 
-        $this->id->label = "Content route id";
+        $this->id->label = 'Content route id';
         $this->id->key = 'routeId';
         $this->id->required = false;
         $this->site_section_id = new IntegerSelect('Site Section', 'routeSectionId', true, $route_content_type_id);
@@ -133,22 +134,16 @@ class ContentRoute extends SerializedContent
      * @return mixed The value of the requested property.
      * @throws InvalidValueException
      */
-    public function getPropertyValue(string $property)
+    public function getPropertyValue(string $property): mixed
     {
-        switch ($property) {
-            case self::PROPERTY_TOKEN_OPERATION:
-                return $this->operation->value;
-            case self::PROPERTY_TOKEN_ROUTE:
-                return $this->route->value;
-            case self::PROPERTY_TOKEN_ROUTE_AS_ARRAY:
-                return explode('/', trim('' . $this->route->value, '/'));
-            case self::PROPERTY_TOKEN_API_ROUTE:
-                return $this->api_route->value;
-            case self::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY:
-                return explode('/', trim('' . $this->api_route->value, '/'));
-            default:
-                throw new InvalidValueException('Invalid property token.');
-        }
+        return match ($property) {
+            self::PROPERTY_TOKEN_OPERATION => $this->operation->value,
+            self::PROPERTY_TOKEN_ROUTE => $this->route->value,
+            self::PROPERTY_TOKEN_ROUTE_AS_ARRAY => explode('/', trim('' . $this->route->value, '/')),
+            self::PROPERTY_TOKEN_API_ROUTE => $this->api_route->value,
+            self::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY => explode('/', trim('' . $this->api_route->value, '/')),
+            default => throw new InvalidValueException('Invalid property token.'),
+        };
     }
 
     /**
@@ -204,6 +199,7 @@ class ContentRoute extends SerializedContent
      * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException|ConnectionException
      * @throws InvalidQueryException
+     * @throws InvalidStateException
      */
     public function lookupRoute(): ContentRoute
     {
