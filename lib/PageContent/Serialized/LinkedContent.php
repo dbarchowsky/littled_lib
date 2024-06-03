@@ -193,8 +193,8 @@ abstract class LinkedContent extends SerializedContent
 
         try {
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
-        } catch (RecordNotFoundException $ex) {
-            $error_msg = "The requested " . $this::getTableName() . " record was not found.";
+        } catch (RecordNotFoundException) {
+            $error_msg = 'The requested ' . $this::getTableName() . ' record was not found.';
             throw new RecordNotFoundException($error_msg);
         }
 
@@ -225,7 +225,7 @@ abstract class LinkedContent extends SerializedContent
             'AND `' . $this->link_id->getColumnName('link_id') . '` = ?' .
             ') AS `record_exists`';
         $data = $this->fetchRecords($query, 'ii', $this->primary_id->value, $this->link_id->value);
-        return ((int)("0" . $data[0]->record_exists) === 1);
+        return ((int)('0' . $data[0]->record_exists) === 1);
     }
 
     /**
@@ -262,7 +262,7 @@ abstract class LinkedContent extends SerializedContent
     public function setLinkId(int $record_id): LinkedContent
     {
         if (!isset($this->link_id)) {
-            throw new InvalidStateException("Link id object is not initialized.");
+            throw new InvalidStateException('Link id object is not initialized.');
         }
         $this->link_id->setInputValue($record_id);
         $properties = $this->extractContentPropertiesList();
@@ -302,7 +302,7 @@ abstract class LinkedContent extends SerializedContent
     public function setPrimaryId(int $record_id): LinkedContent
     {
         if (!isset($this->primary_id)) {
-            throw new InvalidStateException("Primary id object is not initialized.");
+            throw new InvalidStateException('Primary id object is not initialized.');
         }
         $this->primary_id->setInputValue($record_id);
         return $this;

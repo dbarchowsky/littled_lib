@@ -49,7 +49,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param int|int[] $value
      * @return $this
      */
-    public function addLinkId($value): OneToManyContentLink
+    public function addLinkId(array|int $value): OneToManyContentLink
     {
         if (!is_array($value)) {
             $value = [$value];
@@ -79,7 +79,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @inheritDoc
      * @throws NotInitializedException|ConfigurationUndefinedException
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): void
     {
         $key = $this->getLinkKey();
         $src = $src ?? Validation::getDefaultInputSource();
@@ -147,9 +147,10 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @throws ConnectionException
      * @throws InvalidQueryException
      * @throws InvalidStateException
-     * @throws RecordNotFoundException|NotInitializedException
+     * @throws RecordNotFoundException
+     * @throws NotInitializedException
      */
-    public function deleteStaleLinks(array $link_ids)
+    public function deleteStaleLinks(array $link_ids): void
     {
         if (!isset(static::$content_class)) {
             throw new NotInitializedException('Content class property has not been assigned a value.');
@@ -304,7 +305,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @return LinkedContent|LinkedContent[]
      * @throws InvalidValueException
      */
-    public function items(?int $index = null)
+    public function items(?int $index = null): LinkedContent|array
     {
         if ($index === null) {
             return $this->records;
@@ -338,7 +339,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param int $link_id
      * @return false|int
      */
-    public function lookupLinkById(int $link_id)
+    public function lookupLinkById(int $link_id): bool|int
     {
         for($i = 0; $i < count($this->records); $i++) {
             if ($this->records[$i]->link_id->value === $link_id) {
@@ -383,7 +384,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param int|int[] $link_ids
      * @return $this
      */
-    public function removeLink($link_ids): OneToManyContentLink
+    public function removeLink(array|int $link_ids): OneToManyContentLink
     {
         if (!is_array($link_ids)) {
             $link_ids = [$link_ids];
@@ -401,11 +402,16 @@ abstract class OneToManyContentLink extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException|ConnectionException
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws RecordNotFoundException|ContentValidationException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
-    public function save()
+    public function save(): void
     {
         foreach($this->records as $record) {
             $record->save();
@@ -441,7 +447,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
     public function setPrimaryId(int $record_id): OneToManyContentLink
     {
         if (!isset($this->primary_id)) {
-            throw new NotInitializedException("Primary id object is not initialized.");
+            throw new NotInitializedException('Primary id object is not initialized.');
         }
         $this->primary_id->setInputValue($record_id);
         foreach($this->records as $record) {
@@ -473,18 +479,18 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * @inheritDoc
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         try {
             parent::validateInput($exclude_properties);
-        } catch (ContentValidationException $e) {
+        } catch (ContentValidationException) {
             /* continue */
         }
 
         foreach($this->records as $record) {
             try {
                 $record->validateInput($exclude_properties);
-            } catch (ContentValidationException $e) {
+            } catch (ContentValidationException) {
                 $this->addValidationError($record->validationErrors());
             }
         }

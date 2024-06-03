@@ -33,7 +33,7 @@ trait SerializedFieldOperations
                         $ar[$key] = $item->arrayEncode($exclude_keys);
                     } elseif ($item instanceof Gallery) {
                         /** @var Gallery $item */
-                        $ar[$key] = $item->arrayEncode(array("tn", "site_section"));
+                        $ar[$key] = $item->arrayEncode(array('tn', 'site_section'));
                     }
                 }
             } elseif (is_array($item)) {
@@ -49,7 +49,7 @@ trait SerializedFieldOperations
         return ($ar);
     }
 
-    public function clearValues()
+    public function clearValues(): void
     {
         foreach ($this as $item) {
             /** @var object $item */
@@ -65,7 +65,7 @@ trait SerializedFieldOperations
      * Set property values using input variable values, e.g. GET, POST, cookies
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
      */
-    public function collectRequestData(?array $src = null)
+    public function collectRequestData(?array $src = null): void
     {
         foreach ($this as $item) {
             if (is_object($item) &&
@@ -84,13 +84,13 @@ trait SerializedFieldOperations
      * @param mixed $src Object to use to copy values over to this object.
      * @throws InvalidTypeException Source is not a valid object.
      */
-    public function copy($src)
+    public function copy(mixed $src): void
     {
         if (!is_object($src)) {
-            throw new InvalidTypeException("Source for copy is not an object.");
+            throw new InvalidTypeException('Source for copy is not an object.');
         }
         if (get_class($this) != get_class($src)) {
-            throw new InvalidTypeException("Invalid object for copy.");
+            throw new InvalidTypeException('Invalid object for copy.');
         }
         foreach (get_object_vars($src) as $key => $value) {
             if ($value instanceof RequestInput) {
@@ -151,9 +151,9 @@ trait SerializedFieldOperations
 
     /**
      * Fills object properties using property values found in $src argument.
-     * @param array|object $src Source object containing values to assign to this instance.
+     * @param object|array $src Source object containing values to assign to this instance.
      */
-    public function fill($src)
+    public function fill(object|array $src): void
     {
         foreach ($src as $key => $val) {
             if (property_exists(get_class($this), $key)) {
@@ -218,7 +218,7 @@ trait SerializedFieldOperations
      * Save RequestInput property values in form markup.
      * @param array $excluded_keys Optional list of keys that will be excluded from the form markup.
      */
-    public function preserveInForm(array $excluded_keys = [])
+    public function preserveInForm(array $excluded_keys = []): void
     {
         foreach ($this as $item) {
             if ($item instanceof RequestInput && !in_array($item->key, $excluded_keys)) {
@@ -236,7 +236,7 @@ trait SerializedFieldOperations
      * @param string $prefix
      * @return void
      */
-    public function setColumnPrefix(string $prefix)
+    public function setColumnPrefix(string $prefix): void
     {
         $properties = $this->getInputPropertiesList();
         foreach ($properties as $property) {
@@ -249,7 +249,7 @@ trait SerializedFieldOperations
      * @param string $prefix
      * @return void
      */
-    public function setInputPrefix(string $prefix)
+    public function setInputPrefix(string $prefix): void
     {
         $properties = $this->getInputPropertiesList();
         foreach ($properties as $property) {

@@ -40,7 +40,7 @@ class DBFieldGroup
      * @inheritDoc
      * @return $this
      */
-    public function fill($src): DBFieldGroup
+    public function fill(object|array $src): DBFieldGroup
     {
         $this->traitFill($src);
         return $this;

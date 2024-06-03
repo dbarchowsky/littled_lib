@@ -5,6 +5,7 @@ namespace Littled\PageContent\Serialized;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
+
 trait PropertyEvaluations
 {
     protected RecordsetPrefix $recordset_prefix;
@@ -35,7 +36,7 @@ trait PropertyEvaluations
      * Recordset prefix getter.
      * @return string|string[]
      */
-    public function getRecordsetPrefix()
+    public function getRecordsetPrefix(): array|string
     {
         if (!isset($this->recordset_prefix)) {
             return '';
@@ -61,7 +62,7 @@ trait PropertyEvaluations
      * @param array $used_keys Array containing a list of keys that have already been returned, to avoid duplicates.
      * @return bool
      */
-    protected function isDatabaseProperty($property, array &$used_keys): bool
+    protected function isDatabaseProperty(mixed $property, array &$used_keys): bool
     {
         if (!Validation::isSubclass($property, RequestInput::class)) {
             return false;
@@ -89,13 +90,13 @@ trait PropertyEvaluations
      * have already been listed as input properties.
      * @return boolean True if the object is an input class and should be used to update the database. False otherwise.
      */
-    protected function isInput(string $key, $item, array &$used_keys): bool
+    protected function isInput(string $key, mixed $item, array &$used_keys): bool
     {
         // ignore keys that have already been included in order to avoid using the same key multiple times
         if (!$this->isDatabaseProperty($item, $used_keys)) {
             return false;
         }
-        // don't include primary key properties by default, unless its not a top-level object as indicated by...xd
+        // don't include primary key properties by default, unless it's not a top-level object as indicated by...xd
         // (a) The object has a recordset prefix, something like "child_" for a structure like parent.child_id
         // (b) The object has overridden its $id->key default value, e.g. with something like "child_id"
         if ($key === 'id' && !$this->hasRecordsetPrefix() && $item->getColumnName('id') === 'id') {
@@ -117,7 +118,7 @@ trait PropertyEvaluations
      * Removes existing recordset prefix.
      * @return void
      */
-    public function removeRecordsetPrefix()
+    public function removeRecordsetPrefix(): void
     {
         if (!$this->hasRecordsetPrefix()) {
             return;
@@ -135,7 +136,7 @@ trait PropertyEvaluations
      * Recordset prefix setter.
      * @param $prefix
      */
-    public function setRecordsetPrefix($prefix)
+    public function setRecordsetPrefix($prefix): void
     {
         $this->recordset_prefix ??= new RecordsetPrefix();
         $this->recordset_prefix->setPrefix($prefix);

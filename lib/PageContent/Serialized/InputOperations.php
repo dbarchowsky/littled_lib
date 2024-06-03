@@ -7,7 +7,7 @@ trait InputOperations
     /**
      * Prepends $prefix to the key of each RequestInput property of the object.
      * @param string $prefix
-     * @return void
+     * @return SerializedContentUtils
      */
     public function applyInputKeyPrefix(string $prefix): SerializedContentUtils
     {
@@ -25,7 +25,7 @@ trait InputOperations
     /**
      * Prepends $prefix to the label of each RequestInput property of the object.
      * @param string $prefix
-     * @return void
+     * @return SerializedContentUtils
      */
     public function applyLabelPrefix(string $prefix): SerializedContentUtils
     {

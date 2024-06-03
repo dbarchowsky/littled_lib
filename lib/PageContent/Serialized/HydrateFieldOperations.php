@@ -5,6 +5,7 @@ namespace Littled\PageContent\Serialized;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
+
 trait HydrateFieldOperations
 {
     /**
@@ -42,7 +43,7 @@ trait HydrateFieldOperations
      * Assign values contained in array to object input properties.
      * @param object $row Recordset row containing values to copy into the object's properties.
      */
-    public function hydrateFromRecordsetRow(object $row)
+    public function hydrateFromRecordsetRow(object $row): void
     {
         $used_keys = array();
         foreach ($this as $key => $property) {

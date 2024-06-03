@@ -20,6 +20,7 @@ use Exception;
 use Littled\Validation\Validation;
 use mysqli;
 
+
 /**
  * Routines for fetching and committing database records.
  */
@@ -44,10 +45,10 @@ abstract class SerializedContent extends SerializedContentIO
      * Add type id to current stack.
      * @param int|int[] $link_ids
      * @return $this
-     * @throws DuplicateRecordException
      * @throws InvalidStateException
      * @throws InvalidTypeException
      * @throws InvalidValueException
+     * @throws NotInitializedException
      */
     protected function addLink(array|int $link_ids, string $links_property): SerializedContent
     {
@@ -133,7 +134,7 @@ abstract class SerializedContent extends SerializedContentIO
             throw new RecordNotFoundException("The requested record could not be found. \n");
         }
 
-        $query = "DEL" . "ETE FROM `" . $this::getTableName() . "` WHERE `id` = ?";
+        $query = 'DELETE FROM `' . $this::getTableName() . '` WHERE `id` = ?';
         $this->query($query, 'i', $this->id->value);
         return ("The record has been deleted. \n");
     }
@@ -188,17 +189,18 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConnectionException|ConfigurationUndefinedException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     protected function formatRecordSelectPreparedStmt(): array
     {
         $fields = $this->extractPreparedStmtArgs();
-        $query = "SELECT `" .
+        $query = 'SELECT `' .
             implode('`,`', array_map(function ($e) {
                 return $e->key;
-            }, $fields)) . "` " .
-            "FROM `" . $this::getTableName() . "` " .
-            "WHERE id = ?";
+            }, $fields)) . '` ' .
+            'FROM `' . $this::getTableName() . '` ' .
+            'WHERE id = ?';
         return [$query, 'i', $this->id->value];
     }
 
@@ -246,13 +248,13 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ConnectionException
      * @throws InvalidQueryException
      */
-    public function getTypeName(string $table, int $id, string $field = "name", string $id_field = "id"): ?string
+    public function getTypeName(string $table, int $id, string $field = 'name', string $id_field = 'id'): ?string
     {
         if ($id < 1) {
             return null;
         }
 
-        $query = "SEL" . "ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
+        $query = 'SEL' . "ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
         $data = $this->fetchRecords($query, 'i', $id);
         $ret_value = $data[0]->result;
         return ($ret_value);
@@ -323,18 +325,18 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ConnectionException
      * @throws ContentValidationException Record id not set.
      * @throws RecordNotFoundException Requested record not available.
-     * @throws NotImplementedException|InvalidQueryException
+     * @throws NotImplementedException|InvalidQueryException|InvalidValueException
      */
     public function read(): SerializedContent
     {
         if (!$this->id->hasData()) {
-            throw new ContentValidationException("Record id not set.");
+            throw new ContentValidationException('Record id not set.');
         }
 
         try {
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
         } catch (RecordNotFoundException) {
-            $error_msg = "The requested " . $this::getTableName() . " record was not found.";
+            $error_msg = 'The requested ' . $this::getTableName() . ' record was not found.';
             throw new RecordNotFoundException($error_msg);
         }
 
@@ -357,7 +359,7 @@ abstract class SerializedContent extends SerializedContentIO
 
         $query = 'SELECT EXISTS(SELECT 1 FROM `' . static::getTableName() . '` WHERE `id` = ?) AS `record_exists`';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
-        return ((int)("0" . $data[0]->record_exists) === 1);
+        return ((int)('0' . $data[0]->record_exists) === 1);
     }
 
     /**
@@ -366,12 +368,14 @@ abstract class SerializedContent extends SerializedContentIO
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public function save(): void
     {
         if (!$this->hasData()) {
-            throw new ContentValidationException("Record has no data to save.");
+            throw new ContentValidationException('Record has no data to save.');
         }
         if ($this->id->hasData() && !$this->id->isDatabaseField() && $this->recordExists()) {
             throw new RecordNotFoundException('A matching record is not available to update.');

@@ -12,7 +12,7 @@ class QueryField
     public string $key;
     public string $type;
     /** @var mixed */
-    public $value;
+    public mixed $value;
 
     /**
      * Constructor. Initialized property values.

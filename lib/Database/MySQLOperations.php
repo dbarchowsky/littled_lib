@@ -53,11 +53,11 @@ trait MySQLOperations
             throw new ConfigurationUndefinedException('Schema undefined in ' . __METHOD__ . '.');
         }
 
-        $query = "SELECT EXISTS " .
-            "(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS " .
-            "WHERE TABLE_SCHEMA=? " .
-            "AND TABLE_NAME=? " .
-            "AND COLUMN_NAME=?) as `column_present`";
+        $query = 'SELECT EXISTS ' .
+            '(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS ' .
+            'WHERE TABLE_SCHEMA=? ' .
+            'AND TABLE_NAME=? ' .
+            'AND COLUMN_NAME=?) as `column_present`';
 
         $data = $this->fetchRecords($query, 'sss', $schema, $table_name, $column_name);
         if (count($data) > 0) {

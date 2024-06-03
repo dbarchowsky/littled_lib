@@ -7,7 +7,7 @@ use Littled\Validation\Validation;
 class RecordsetPrefix
 {
     /** @var string|string[] */
-    protected $prefix;
+    protected string|array $prefix;
 
     public function hasValue(): bool
     {
@@ -20,7 +20,7 @@ class RecordsetPrefix
      * Prefix setter.
      * @return string|string[]
      */
-    public function getPrefix()
+    public function getPrefix(): array|string
     {
         return $this->prefix ?? '';
     }

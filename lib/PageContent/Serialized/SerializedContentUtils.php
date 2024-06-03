@@ -67,7 +67,7 @@ class SerializedContentUtils extends AppContentBase
      * @inheritDoc
      * @return $this
      */
-    public function fill($src): SerializedContentUtils
+    public function fill(object|array $src): SerializedContentUtils
     {
         $this->traitFill($src);
         return $this;
@@ -90,7 +90,7 @@ class SerializedContentUtils extends AppContentBase
     public static function getCommonCMSTemplatePath(): string
     {
         if (!isset(static::$common_cms_template_path) || Validation::isStringBlank(static::$common_cms_template_path)) {
-            throw new ConfigurationUndefinedException("Path to shared content templates not set.");
+            throw new ConfigurationUndefinedException('Path to shared content templates not set.');
         }
         return static::$common_cms_template_path;
     }
@@ -114,7 +114,7 @@ class SerializedContentUtils extends AppContentBase
      * @throws RecordNotFoundException
      * @throws ConnectionException|ConfigurationUndefinedException|InvalidQueryException
      */
-    protected function hydrateFromQuery(string $query, string $arg_types = '', &...$args)
+    protected function hydrateFromQuery(string $query, string $arg_types = '', &...$args): void
     {
         if ($arg_types) {
             array_unshift($args, $query, $arg_types);
@@ -123,7 +123,7 @@ class SerializedContentUtils extends AppContentBase
             $data = $this->fetchRecords($query);
         }
         if (count($data) < 1) {
-            throw new RecordNotFoundException("Record not found.");
+            throw new RecordNotFoundException('Record not found.');
         }
         $this->hydrateFromRecordsetRow($data[0]);
     }
@@ -154,7 +154,7 @@ class SerializedContentUtils extends AppContentBase
         }
         if ($this->{$property_name} instanceof StringInput === false) {
             throw new ConfigurationUndefinedException(
-                "Cannot get plural label for non-string input " . get_class($this) . "::$property_name."
+                'Cannot get plural label for non-string input ' . get_class($this) . "::$property_name."
             );
         }
         if ($this->{$property_name}->value === null || $this->{$property_name}->value === '') {
@@ -187,7 +187,7 @@ class SerializedContentUtils extends AppContentBase
      * Sets value of shared cms templates path.
      * @param string $path Path to shared cms templates.
      */
-    public static function setCommonCMSTemplatePath(string $path)
+    public static function setCommonCMSTemplatePath(string $path): void
     {
         static::$common_cms_template_path = $path;
     }
@@ -233,7 +233,10 @@ class SerializedContentUtils extends AppContentBase
      * @throws ResourceNotFoundException Cache template not found.
      * @throws Exception File error.
      */
-    function updateCacheFile(?array $context = null, ?string $cache_template = null, ?string $output_cache_file = null)
+    function updateCacheFile(
+        ?array $context = null,
+        ?string $cache_template = null,
+        ?string $output_cache_file = null): void
     {
         if ($cache_template === null) {
             $cache_template = static::$cache_template;
@@ -245,7 +248,7 @@ class SerializedContentUtils extends AppContentBase
             $output_cache_file = static::$output_cache_file;
         }
         $cache_content = ContentUtils::loadTemplateContent($cache_template, $context);
-        $f = fopen($output_cache_file, "w");
+        $f = fopen($output_cache_file, 'w');
         fputs($f, $cache_content);
         fclose($f);
     }

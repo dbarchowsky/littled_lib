@@ -7,6 +7,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -36,7 +37,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * Check if a column exists in a given database table in the content item's database table.
      * @param string $column_name Name of the column to check for.
      * @param string $table_name (Optional) This parameter is ignored in this class's implementation of the routine.
-     * @return boolean True/false depending on if the column is found.
+     * @return bool True/false depending on if the column is found.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws InvalidQueryException
@@ -51,11 +52,14 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Looks up any foreign key properties in the object and commits the links to the database.
+     * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidValueException
      */
     protected function commitLinkedRecords(): void
     {
@@ -186,7 +190,9 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
-     * @throws RecordNotFoundException|NotImplementedException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
     public function readLinked(): void
     {
@@ -222,19 +228,19 @@ abstract class SerializedContentIO extends SerializedContentValidation
      */
     public function readList( string $property, string $type, string $query, string $types='', &...$vars ): void
     {
-        if (stripos($query, "call")===0) {
+        if (stripos($query, 'call')===0) {
             array_unshift($vars, $query, $types);
             $data = call_user_func_array([$this, 'fetchRecords'], $vars);
         }
         else {
-            throw new NotImplementedException("Unsupported query type for retrieving record list.");
+            throw new NotImplementedException('Unsupported query type for retrieving record list.');
         }
 
         $this->$property = array();
         foreach($data as $row) {
             $obj = new $type;
             if (!($obj instanceof SerializedContent)) {
-                throw new InvalidTypeException("Cannot store records in object provided.");
+                throw new InvalidTypeException('Cannot store records in object provided.');
             }
             $obj->fill($row);
             $this->$property[] = $obj;
@@ -289,7 +295,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     protected function updateIdAfterCommit(): void
     {
         // query was a procedure
-        $data = $this->fetchRecords("SELECT @insert_id AS `id`");
+        $data = $this->fetchRecords(query: 'SELECT @insert_id AS `id`');
         if (1 > count($data)) {
             throw new InvalidQueryException('Could not retrieve new record id.');
         }

@@ -19,15 +19,15 @@ class SerializedContentValidation extends SerializedContentUtils
     {
         parent::__construct();
         $this->validation_errors = new ValidationErrors();
-        $this->validation_message = "Required information is missing.";
+        $this->validation_message = 'Required information is missing.';
     }
 
     /**
      * Stores new error message string on stack of current error messages.
-     * @param string|array $err Array or string containing errors to push onto the current
+     * @param array|string $err Array or string containing errors to push onto the current
      * stack of error messages.
      */
-    public function addValidationError($err)
+    public function addValidationError(array|string $err): void
     {
         $this->validation_errors->push($err);
     }
@@ -37,7 +37,7 @@ class SerializedContentValidation extends SerializedContentUtils
      * @param bool $option (Optional) Set to TRUE (default value) to cause the object to bypass validation.
      * @return void
      */
-    public function bypassValidation(bool $option = true)
+    public function bypassValidation(bool $option = true): void
     {
         $this->bypass_validation = $option;
     }
@@ -46,7 +46,7 @@ class SerializedContentValidation extends SerializedContentUtils
      * Clear all current validation error messages.
      * @return void
      */
-    public function clearValidationErrors()
+    public function clearValidationErrors(): void
     {
         $this->validation_errors->clear();
     }
@@ -96,10 +96,10 @@ class SerializedContentValidation extends SerializedContentUtils
 
     /**
      * Add error message or messages to the beginning of the existing list of errors.
-     * @param string|array $err
+     * @param array|string $err
      * @return void
      */
-    public function unshiftValidationError($err)
+    public function unshiftValidationError(array|string $err): void
     {
         $this->validation_errors->unshift($err);
     }
@@ -110,7 +110,7 @@ class SerializedContentValidation extends SerializedContentUtils
      * @param array $exclude_properties Names of class properties to exclude from validation.
      * @throws ContentValidationException Invalid content found.
      */
-    public function validateInput(array $exclude_properties = [])
+    public function validateInput(array $exclude_properties = []): void
     {
         if (true === $this->bypass_validation) {
             return;
@@ -132,7 +132,7 @@ class SerializedContentValidation extends SerializedContentUtils
                 $property instanceof CategorySelect) {
                 try {
                     $property->validateInput();
-                } catch (ContentValidationException $ex) {
+                } catch (ContentValidationException) {
                     $this->addValidationError($property->validationErrors());
                 }
             }
