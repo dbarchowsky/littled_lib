@@ -48,17 +48,17 @@ abstract class SectionNavigationRoutes
             $class::getBaseRoute() : '');
     }
 
-	/**
-	 * Edit page class name getter. Returns empty string if the editing route class has not been set in the client app.
-	 * @return void
-	 */
+    /**
+     * Edit page class name getter. Returns empty string if the editing route class has not been set in the client app.
+     * @return string
+     */
 	public static function getEditPageClass(): string
 	{
 		return (static::$edit_page_class ?? '');
 	}
 
     /**
-     * Edit route getter. Returns empty string if a route has not be defined.
+     * Edit route getter. Returns empty string if a route has not been defined.
      * @param ?int $record_id Record id of the record being edited.
      * @return string
      */
@@ -141,7 +141,7 @@ abstract class SectionNavigationRoutes
      * @param string $path
      * @return void
      */
-    public static function setTemplateDir(string $path)
+    public static function setTemplateDir(string $path): void
     {
         static::$template_dir = $path;
     }

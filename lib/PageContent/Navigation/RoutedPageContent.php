@@ -58,7 +58,7 @@ abstract class RoutedPageContent extends PageContent
      * @return void
      * @throws ConfigurationUndefinedException
      */
-    public function verifyLogin()
+    public function verifyLogin(): void
     {
         if (static::getAccessLevel() > 0) {
             $login = new LoginAuthenticator();
@@ -115,7 +115,7 @@ abstract class RoutedPageContent extends PageContent
     /**
      * Returns a record id embedded in request route parts.
      * @param array $route
-     * @return int
+     * @return int|null
      */
     public static function collectRecordIdFromRoute(array $route): ?int
     {
@@ -170,7 +170,7 @@ abstract class RoutedPageContent extends PageContent
         try {
             $this->verifyAndLoadRoutes();
         }
-        catch(ConfigurationUndefinedException $e) {
+        catch(ConfigurationUndefinedException) {
             throw new ConfigurationUndefinedException('Routes class unavailable for details uri.');
         }
         return $this->routes::getDetailsRoute( $record_id ?: $this->getRecordId());
@@ -208,7 +208,7 @@ abstract class RoutedPageContent extends PageContent
         try {
             $this->verifyAndLoadRoutes();
         }
-        catch(ConfigurationUndefinedException $e) {
+        catch(ConfigurationUndefinedException) {
             throw new ConfigurationUndefinedException('Routes class unavailable for edit uri.');
         }
         return $this->routes::getEditRoute($record_id ?: $this->getRecordId());
@@ -245,7 +245,7 @@ abstract class RoutedPageContent extends PageContent
         try {
             $this->verifyAndLoadRoutes();
         }
-        catch(ConfigurationUndefinedException $e) {
+        catch(ConfigurationUndefinedException) {
             throw new ConfigurationUndefinedException('Routes class unavailable for listings uri.');
         }
         return $this->routes::getListingsRoute();
@@ -279,7 +279,7 @@ abstract class RoutedPageContent extends PageContent
         try {
             $this->verifyAndLoadRoutes();
         }
-        catch(ConfigurationUndefinedException $e) {
+        catch(ConfigurationUndefinedException) {
             throw new ConfigurationUndefinedException('Routes class unavailable for edit uri.');
         }
         return $this->routes::getPageRoute($class, $record_id ?: $this->getRecordId());
@@ -413,7 +413,7 @@ abstract class RoutedPageContent extends PageContent
      * Instantiates filters and routes objects for the class.
      * @throws InvalidTypeException
      */
-    protected function instantiateProperties()
+    protected function instantiateProperties(): void
     {
         $routes_class = static::getRoutesClassName();
         $filters_class = static::getFiltersClassName();
@@ -439,7 +439,7 @@ abstract class RoutedPageContent extends PageContent
      * @throws Exception
      * @throws NotImplementedException
      */
-    protected function loadFilters()
+    protected function loadFilters(): void
     {
         if (!isset($this->filters)) {
             return;
@@ -453,7 +453,7 @@ abstract class RoutedPageContent extends PageContent
      * @param int $access_level
      * @return void
      */
-    public static function setAccessLevel(int $access_level)
+    public static function setAccessLevel(int $access_level): void
     {
         static::$access_level = $access_level;
     }
@@ -463,7 +463,7 @@ abstract class RoutedPageContent extends PageContent
      * @param string $class
      * @return void
      */
-    public static function setContentClassName(string $class)
+    public static function setContentClassName(string $class): void
     {
         static::$content_class = $class;
     }
@@ -473,7 +473,7 @@ abstract class RoutedPageContent extends PageContent
      * @param string $class
      * @return void
      */
-    public static function setFiltersClassName(string $class)
+    public static function setFiltersClassName(string $class): void
     {
         static::$filters_class = $class;
     }
@@ -483,7 +483,7 @@ abstract class RoutedPageContent extends PageContent
      * @param string $routes_class
      * @return void
      */
-    public static function setRoutesClassName(string $routes_class)
+    public static function setRoutesClassName(string $routes_class): void
     {
         static::$routes_class = $routes_class;
     }
@@ -493,7 +493,7 @@ abstract class RoutedPageContent extends PageContent
      * @param string $path
      * @return void
      */
-    public static function setTemplateDir(string $path)
+    public static function setTemplateDir(string $path): void
     {
         static::$template_dir = $path;
     }
@@ -503,7 +503,7 @@ abstract class RoutedPageContent extends PageContent
      * @param string $filename
      * @return void
      */
-    public static function setTemplateFilename(string $filename)
+    public static function setTemplateFilename(string $filename): void
     {
         static::$template_filename = $filename;
     }
@@ -513,7 +513,7 @@ abstract class RoutedPageContent extends PageContent
      * @param int $type Value to assign to update type.
      * @return void
      */
-    public function setUpdateType(int $type)
+    public function setUpdateType(int $type): void
     {
         $this->update_type = $type;
     }
@@ -522,7 +522,7 @@ abstract class RoutedPageContent extends PageContent
      * Save content edited within a page.
      * @return void
      */
-    public function updateRecord()
+    public function updateRecord(): void
     {
         $this->content->collectRequestData();
 
@@ -530,7 +530,7 @@ abstract class RoutedPageContent extends PageContent
             $exclude = ['content_properties'];
             $this->content->validateInput($exclude);
         }
-        catch(ContentValidationException $e) { /* continue */ }
+        catch(ContentValidationException) { /* continue */ }
 
         if ($this->content->hasValidationErrors()) {
             $this->content->unshiftValidationError('Problems were found in the information entered.');
@@ -552,7 +552,7 @@ abstract class RoutedPageContent extends PageContent
      * @return void
      * @throws ConfigurationUndefinedException
      */
-    protected function verifyAndLoadRoutes()
+    protected function verifyAndLoadRoutes(): void
     {
         if (!isset($this->routes)) {
             if (!static::$routes_class) {

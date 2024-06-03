@@ -5,11 +5,6 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 
 
-/**
- * Class NavigationMenuNode
- * Navigation menu node object used to configure and render individual items on navigation menus.
- * @package Littled\PageContent\Navigation
- */
 class NavigationMenuNode extends NavigationNodeBase
 {
 	/** @var string */
@@ -60,8 +55,8 @@ class NavigationMenuNode extends NavigationNodeBase
 	 * Sets the path to an image file to use as the content of the menu node.
 	 * @param string $path Path to image.
 	 */
-	public function setImagePath(string $path)
-	{
+	public function setImagePath(string $path): void
+    {
 		$this->image_path = $path;
 	}
 }

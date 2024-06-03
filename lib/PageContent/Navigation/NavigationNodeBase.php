@@ -50,8 +50,8 @@ class NavigationNodeBase
 	 * Outputs markup for the individual navigation menu node.
 	 * @throws ResourceNotFoundException
 	 */
-	public function render ( )
-	{
+	public function render ( ): void
+    {
 		ContentUtils::renderTemplate(static::getNodeTemplatePath(), array(
 			'node' => &$this
 		));
@@ -61,8 +61,8 @@ class NavigationNodeBase
 	 * Sets the path to the breadcrumb nodes template.
 	 * @param string $path Template path.
 	 */
-	public static function setNodeTemplatePath(string $path)
-	{
+	public static function setNodeTemplatePath(string $path): void
+    {
 		static::$node_template_path = $path;
 	}
 }

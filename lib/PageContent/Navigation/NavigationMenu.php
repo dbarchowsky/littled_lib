@@ -2,10 +2,6 @@
 namespace Littled\PageContent\Navigation;
 
 
-/**
- * Class NavigationMenu
- * @package Littled\PageContent\Navigation
- */
 class NavigationMenu extends NavigationMenuBase
 {
 	/** @var string */
@@ -23,8 +19,15 @@ class NavigationMenu extends NavigationMenuBase
 	 * @param string $dom_id  (Optional) Sets the id attribute of the menu item element.
 	 * @param string $attributes (Optional) Hook to insert any extra attributes into the menu item element.
 	 */
-	public function addNode ( string $label, string $url='', string $title='', string $target='', int $level=0, string $dom_id='', string $attributes='')
-	{
+	public function addNode (
+        string $label,
+        string $url = '',
+        string $title = '',
+        string $target = '',
+        int    $level = 0,
+        string $dom_id = '',
+        string $attributes = ''): void
+    {
 		parent::addNode($label, $url);
 		$node_type = static::getNodeType();
 		/** @var $node NavigationMenuNode */

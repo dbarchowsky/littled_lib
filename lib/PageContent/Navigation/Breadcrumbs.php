@@ -2,10 +2,6 @@
 namespace Littled\PageContent\Navigation;
 
 
-/**
- * Class Breadcrumbs
- * @package Littled\PageContent\Navigation
- */
 class Breadcrumbs extends NavigationMenuBase
 {
 	/** @var string */
@@ -20,8 +16,8 @@ class Breadcrumbs extends NavigationMenuBase
 	 * @param string $dom_id (Optional) value for the breadcrumb node's id attribute.
 	 * @param string $css_class (Optional) value for the breadcrumb node's class attribute.
 	 */
-	function addNode (string $label, string $url='', string $dom_id='', string $css_class='')
-	{
+	function addNode (string $label, string $url='', string $dom_id='', string $css_class=''): void
+    {
 		/** @var $node BreadcrumbsNode */
 		$node_type = static::getNodeType();
 		$node = new $node_type($label, $url, $dom_id, $css_class);
@@ -67,8 +63,8 @@ class Breadcrumbs extends NavigationMenuBase
      * @param string $path
      * @return void
      */
-	public static function setBreadcrumbsTemplatePath(string $path)
-	{
+	public static function setBreadcrumbsTemplatePath(string $path): void
+    {
 		static::setMenuTemplatePath($path);
 	}
 }

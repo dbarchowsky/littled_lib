@@ -41,8 +41,8 @@ class NavigationMenuBase
 	/**
 	 * Remove and delete all nodes on the tree.
 	 */
-	public function clearNodes()
-	{
+	public function clearNodes(): void
+    {
 		while(isset($this->last)) {
 			$node = null;
 			if (isset($this->last->prev_node) && is_object($this->last->prev_node)) {
@@ -59,8 +59,8 @@ class NavigationMenuBase
 	/**
      * @deprecated Use popNode() instead.
 	 */
-	function dropLast ( )
-	{
+	function dropLast ( ): void
+    {
 		if (!isset($this->last)) {
 			return;
 		}
@@ -122,8 +122,8 @@ class NavigationMenuBase
 	 * @param NavigationNodeBase $node
 	 * @return void
 	 */
-	protected function initializeChildren(NavigationNodeBase $node)
-	{
+	protected function initializeChildren(NavigationNodeBase $node): void
+    {
 		if (isset($this->first)) {
 			$this->last->next_node = $node;
 			$node->prev_node = $this->last;
@@ -138,7 +138,7 @@ class NavigationMenuBase
      * Pops last node off the breadcrumb list.
      * @return void
      */
-    public function popNode()
+    public function popNode(): void
     {
         if (!isset($this->first)) {
             // no nodes currently in the list; nothing to do
@@ -172,7 +172,7 @@ class NavigationMenuBase
      * @param int $count Number of nodes to remove.
      * @return void
      */
-    public function popNodes(int $count)
+    public function popNodes(int $count): void
     {
         if (!isset($this->first)) {
             return;
@@ -186,8 +186,8 @@ class NavigationMenuBase
         }
     }
 
-	public function removeByLabel(string $label)
-	{
+	public function removeByLabel(string $label): void
+    {
 		if (isset($this->first)) {
 			$node = $this->first;
 			while ($node) {
@@ -224,8 +224,8 @@ class NavigationMenuBase
 	 * Outputs navigation menu markup.
 	 * @throws ResourceNotFoundException
 	 */
-	function render ()
-	{
+	function render (): void
+    {
 		ContentUtils::renderTemplate(static::getMenuTemplatePath(), array(
 			'menu' => &$this
 		));
@@ -235,8 +235,8 @@ class NavigationMenuBase
 	 * Sets the CSS class of the breadcrumbs parent element.
 	 * @param string $css_class
 	 */
-	public function setCSSClass(string $css_class)
-	{
+	public function setCSSClass(string $css_class): void
+    {
 		$this->css_class = $css_class;
 	}
 
@@ -244,8 +244,8 @@ class NavigationMenuBase
 	 * Sets the path to the navigation template.
 	 * @param string $path Path to the navigation menu template.
 	 */
-	public static function setMenuTemplatePath(string $path)
-	{
+	public static function setMenuTemplatePath(string $path): void
+    {
 		static::$menu_template_path = $path;
 	}
 
@@ -253,8 +253,8 @@ class NavigationMenuBase
 	 * Sets the type of the breadcrumb nodes.
 	 * @param string $type Name of the class to use as breadcrumb nodes.
 	 */
-	public static function setNodeType(string $type)
-	{
+	public static function setNodeType(string $type): void
+    {
 		static::$node_type = $type;
 	}
 }

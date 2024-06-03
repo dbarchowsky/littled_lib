@@ -7,11 +7,6 @@ use Littled\PageContent\ContentUtils;
 use Littled\Exception\ResourceNotFoundException;
 
 
-/**
- * Class breadcrumbs_node_class
- * Class used to render individual nodes in breadcrumbs.
- * @package Littled\PageContent\Navigation
- */
 class BreadcrumbsNode extends NavigationNodeBase
 {
 	/** @var string */
@@ -48,7 +43,7 @@ class BreadcrumbsNode extends NavigationNodeBase
      * Outputs markup for the individual navigation menu node.
 	 * @throws ResourceNotFoundException|ConfigurationUndefinedException
      */
-    public function render ( )
+    public function render ( ): void
     {
 	    ContentUtils::renderTemplate(static::getNodeTemplatePath(), array(
 		    'node' => &$this
