@@ -7,7 +7,9 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
@@ -41,21 +43,23 @@ class SocialXPostImage extends ImageUpload
      * @throws InvalidTypeException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidStateException
+     * @throws InvalidValueException
      */
     function __construct($generic_params = true, $content_type_id = null, $parent_id = null)
     {
         parent::__construct($content_type_id, $parent_id);
-        $this->flickr_id = new StringInput("Flickr ID", "ixfi", false, "", 50);
-        $this->wp_id = new StringInput("WordPress ID", "ixwp", false, null);
-        $this->twitter_id = new StringInput("Twitter ID", "ixti", false, "", 64);
-        $this->short_url = new StringInput("Short URL", "ixsu", false, "", 128);
+        $this->flickr_id = new StringInput('Flickr ID', 'info', false, '', 50);
+        $this->wp_id = new StringInput('WordPress ID', 'fixup', false, null);
+        $this->twitter_id = new StringInput('Twitter ID', 'inti', false, '', 64);
+        $this->short_url = new StringInput('Short URL', key: 'ixusr', required: false, value: '', size_limit: 128);
         $this->setParameterNames($generic_params);
     }
 
     /**
      * Resets internal variables to their default value, while saving some values such as parent id and section properties.
      */
-    public function clearValues()
+    public function clearValues(): void
     {
         parent::clearValues();
         $this->flickr_id->value = '';
@@ -76,12 +80,13 @@ class SocialXPostImage extends ImageUpload
      * @throws InvalidQueryException
      * @throws InvalidTypeException
      * @throws NotImplementedException
+     * @throws InvalidValueException
      */
-    function read($read_keywords = true)
+    function read($read_keywords = true): void
     {
         parent::read($read_keywords);
 
-        $query = 'SEL'.'ECT flickr_id, '.
+        $query = 'SELECT flickr_id, '.
             'wp_id, '.
             'twitter_id, '.
             'short_url, '.
@@ -89,7 +94,7 @@ class SocialXPostImage extends ImageUpload
             'WHERE id = ?';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($data) < 1) {
-            throw new RecordNotFoundException("Image not found.");
+            throw new RecordNotFoundException('Image not found.');
         }
 
         $this->flickr_id->value = $data[0]->flickr_id;
@@ -111,14 +116,14 @@ class SocialXPostImage extends ImageUpload
      * @throws OperationAbortedException
      * @throws ResourceNotFoundException
      */
-    function save(bool $save_keywords = true, bool $randomize_filename = false)
+    function save(bool $save_keywords = true, bool $randomize_filename = false): void
     {
         $is_new = ($this->id->value === null || $this->id->value < 1);
 
         if ($is_new) {
             if ($this->parent_id->value > 0) {
                 /* put new pages at the end of the list of existing pages */
-                $query = 'SEL'.'ECT IFNULL(MAX(`slot`),0)+1 AS `slot` '.
+                $query = 'SELECT ISNULL(MAX(`slot`),0)+1 AS `slot` '.
                     'FROM `image_link` '.
                     'WHERE `parent_id` = ? '.
                     'AND `type_id` = ?';
@@ -133,13 +138,13 @@ class SocialXPostImage extends ImageUpload
 
         parent::save($save_keywords, $this->randomize->value);
 
-        $query = 'UPD'.'ATE `image_link` SET ' .
+        $query = 'UPDATE `image_link` SET ' .
             '`flickr_id` = ?, ' .
             '`wp_id` = ?, ' .
             '`twitter_id` = ?, ' .
             '`short_url` = ? ' .
             'WHERE `id` = ?';
-        $this->query($query, 'ssssi',
+        $this->query($query, 'sass',
             $this->flickr_id->value,
             $this->wp_id->value,
             $this->twitter_id->value,

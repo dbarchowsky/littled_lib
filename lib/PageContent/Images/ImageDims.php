@@ -5,22 +5,22 @@ namespace Littled\PageContent\Images;
 class ImageDims
 {
 	/** @var int Horizontal position. */
-	public $x;
+	public int $x;
 	/** @var int Vertical position */
-	public $y;
+	public int $y;
 	/** @var int Image width */
-	public $width;
+	public int $width;
 	/** @var int Image height */
-	public $height;
+	public int $height;
 
 	/**
 	 * ImageDims constructor.
-	 * @param int|null[optional] $width Width in pixels.
-	 * @param int|null[optional] $height Height in pixels.
-	 * @param int|null[optional] $x Horizontal position.
-	 * @param int|null[optional] $y Vertical position.
+	 * @param int|null $width Width in pixels.
+	 * @param int|null $height Height in pixels.
+	 * @param int|null $x Horizontal position.
+	 * @param int|null $y Vertical position.
 	 */
-	function __construct( $width=null, $height=null, $x=null, $y=null )
+	function __construct( ?int $width=null, ?int $height=null, ?int $x=null, ?int $y=null )
 	{
 		$this->x = $width;
 		$this->y = $height;

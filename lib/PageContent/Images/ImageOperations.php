@@ -2,7 +2,11 @@
 namespace Littled\PageContent\Images;
 
 
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\OperationAbortedException;
 use Littled\Exception\ResourceNotFoundException;
 
@@ -15,13 +19,13 @@ class ImageOperations extends ImageFile
 	 * @param ImageDims $target_dims Target image dimensions.
 	 * @return ImageDims Calculated target image dimensions.
 	 */
-	protected function calcTargetDimensions($src_dims, $target_dims)
+	protected function calcTargetDimensions(ImageDims $src_dims, ImageDims $target_dims): ImageDims
 	{
-		if ($target_dims->width>0 && ($target_dims->height==0 || $target_dims->height===null))
+		if ($target_dims->width>0 && ($target_dims->height==0))
 		{
 			$target_dims->height = (int)(($target_dims->width/$src_dims->width)*$src_dims->height);
 		}
-		elseif ($target_dims->height>0 && ($target_dims->width==0 || $target_dims->width===null))
+		elseif ($target_dims->height>0 && ($target_dims->width==0))
 		{
 			$target_dims->width = (int)(($target_dims->height/$src_dims->height)*$src_dims->width);
 		}
@@ -36,33 +40,33 @@ class ImageOperations extends ImageFile
 	 * @throws InvalidTypeException Unsupported image type.
 	 * @throws OperationAbortedException Error saving image file.
 	 */
-	protected function commitImageDataToDisk($image_data, $target_ext, $upload_path)
-	{
+	protected function commitImageDataToDisk($image_data, string $target_ext, string $upload_path): void
+    {
 		switch($target_ext)
 		{
-			case "png":
+			case 'png':
 				if(!imagepng($image_data, $upload_path)) {
-					throw new OperationAbortedException("Error saving resampled PNG image: {$upload_path}. ");
+					throw new OperationAbortedException("Error saving resampled PNG image: $upload_path. ");
 				}
 				break;
-			case "jpg":
-			case "jpeg":
+			case 'jpg':
+			case 'jpeg':
 				if(!imagejpeg($image_data, $upload_path, 100)) {
-					throw new OperationAbortedException("Error saving resampled JPEG image: {$upload_path}. ");
+					throw new OperationAbortedException("Error saving resampled JPEG image: $upload_path. ");
 				}
 				break;
-			case "gif":
+			case 'gif':
 				if(!imagegif($image_data, $upload_path)) {
-					throw new OperationAbortedException("Error saving resampled GIF image: {$upload_path}. ");
+					throw new OperationAbortedException("Error saving resampled GIF image: $upload_path. ");
 				}
 				break;
-			case "bmp":
+			case 'bmp':
 				if(!imagewbmp($image_data, $upload_path)) {
-					throw new OperationAbortedException("Error saving resampled BMP image: {$upload_path}. ");
+					throw new OperationAbortedException("Error saving resampled BMP image: $upload_path. ");
 				}
 				break;
 			default:
-				throw new InvalidTypeException("Unsupported image file type for saving resampled image: {$target_ext}. ");
+				throw new InvalidTypeException("Unsupported image file type for saving resampled image: $target_ext. ");
 		}
 	}
 
@@ -73,7 +77,7 @@ class ImageOperations extends ImageFile
      * @param ImageDims $dst_dims Target width & height.
      * @return resource Transformed image data.
      */
-    protected function cropImage($image, $src_dims, $dst_dims)
+    protected function cropImage($image, ImageDims $src_dims, ImageDims $dst_dims)
     {
         $scale = min((float)($src_dims->width/$dst_dims->width),(float)($src_dims->height/$dst_dims->height));
 
@@ -97,19 +101,19 @@ class ImageOperations extends ImageFile
      * Embeds list of keywords in an image file.
      * @param string[] &$terms List of keywords to embed.
      * image will be assumed to be a scaled down version of an original image.
-     * @throws \Littled\Exception\ConfigurationUndefinedException
+     * @throws ConfigurationUndefinedException
      */
-	protected function embedKeywords( &$terms )
+	protected function embedKeywords( array $terms ): void
     {
         /* preserve keywords in new file, but only if it's the main image and not a thumbnail */
-        $iptc_data = "";
+        $iptc_data = '';
         foreach ($terms as $term) {
-            $iptc_data .= $this->makeIPTCTag(2, "025", $term);
+            $iptc_data .= $this->makeIPTCTag(2, '025', $term);
         }
         $upload_path = $this->getSiteRoot($this->path->value).$this->path->value;
         $content = iptcembed($iptc_data, $upload_path);
 
-        $f = fopen($upload_path, "wb");
+        $f = fopen($upload_path, 'wb');
         fwrite($f, $content);
         fclose($f);
     }
@@ -119,17 +123,22 @@ class ImageOperations extends ImageFile
 	 * @param string $root_path Root path of directory where images are stored.
 	 * @param string $target_name Target filename of the new image.
 	 * @param string $src_ext Extension of the source image file, indicating its file type.
-	 * @param string[optional] $target_ext Target extension of the new image, indicating its file type.
-	 * @param string[optional] $sub_dir Optional subdirectory path within the image root directory where the new image should be stored.
+	 * @param string $target_ext Target extension of the new image, indicating its file type.
+	 * @param string $sub_dir Optional subdirectory path within the image root directory where the new image should be stored.
      * @return string Path for uploaded image.
 	 */
-	protected function formatUploadPath( $root_path, $target_name, $src_ext, $target_ext='', $sub_dir='' )
+	protected function formatUploadPath(
+        string $root_path,
+        string $target_name,
+        string $src_ext,
+        string $target_ext = '',
+        string $sub_dir = '' ): string
 	{
 		/* format destination image path */
-		if ($target_ext=="") {
+		if ($target_ext === '') {
 			$target_ext=$src_ext;
 		}
-		$target_name = substr($target_name, 0, strrpos($target_name,".")).".".$target_ext;
+		$target_name = substr($target_name, 0, strrpos($target_name, '.')). '.' .$target_ext;
 		return($root_path.$this->image_dir.$sub_dir.$target_name);
 	}
 
@@ -140,25 +149,15 @@ class ImageOperations extends ImageFile
      * @return resource Image pixel data.
      * @throws InvalidTypeException Unsupported image file type.
      */
-    protected function loadImageData($path, $extension)
+    protected function loadImageData(string $path, string $extension)
     {
-        switch(strtolower($extension)) {
-            case "png":
-                return(imagecreatefrompng($path));
-                break;
-            case "jpg":
-            case "jpeg":
-                return(imagecreatefromjpeg($path));
-                break;
-            case "gif":
-                return(imagecreatefromgif($path));
-                break;
-            case "bmp":
-                return(imagecreatefromwbmp($path));
-                break;
-            default:
-                throw new InvalidTypeException("Unsupported image file type for resampling: {$extension}. ");
-        }
+        return match (strtolower($extension)) {
+            'png' => (imagecreatefrompng($path)),
+            'jpg', 'jpeg' => (imagecreatefromjpeg($path)),
+            'gif' => (imagecreatefromgif($path)),
+            'bmp' => (imagecreatefromwbmp($path)),
+            default => throw new InvalidTypeException("Unsupported image file type for resampling: $extension. "),
+        };
     }
 
     /**
@@ -168,16 +167,16 @@ class ImageOperations extends ImageFile
 	 * @return array Image properties: image data, file extension, and image dimensions.
 	 * @throws InvalidTypeException Unsupported image file type.
 	 * @throws ResourceNotFoundException Image file not found.
-	 * @throws \Exception
-	 */
-	protected function loadImageProperties( $src_path, $target_name )
-	{
+     * @throws InvalidValueException
+     */
+	protected function loadImageProperties(string $src_path, string $target_name ): array
+    {
 		/* get file type of uploaded image */
 		$ext = $this->getFileExtension($target_name);
 
 		/* validate path */
 		if (!file_exists($src_path)) {
-			throw new ResourceNotFoundException("File not available for resampling: {$src_path}.");
+			throw new ResourceNotFoundException("File not available for resampling: $src_path.");
 		}
 
 		/* load image pixel data and properties */
@@ -195,7 +194,7 @@ class ImageOperations extends ImageFile
      * @param string $value keyword term.
      * @return string IPTC tag.
      */
-    protected function makeIPTCTag( $rec, $data, $value )
+    protected function makeIPTCTag( int $rec, string $data, string $value ): string
     {
         $length = strlen($value);
         $return = chr(0x1C) . chr($rec) . chr($data);
@@ -222,21 +221,27 @@ class ImageOperations extends ImageFile
 	 * @param string $target_ext Target extension (file type) of the new image.
 	 * @param string $sub_dir Path withing the image root directory where the new image will be saved.
 	 * @param string $field_name Field within the database that stores the thumbnail id.
-	 * @return int Id of the thumbnail record.
+	 * @return int Record id of the thumbnail record.
 	 * @throws InvalidTypeException
 	 * @throws OperationAbortedException
 	 * @throws ResourceNotFoundException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	function makeThumbnailCopy($target_name, $target_dims, $target_ext, $sub_dir, $field_name)
-	{
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+     * @throws InvalidValueException
+     */
+	function makeThumbnailCopy(
+        string $target_name,
+        ImageDims $target_dims,
+        string $target_ext,
+        string $sub_dir,
+        string $field_name): int
+    {
 		$this->connectToDatabase();
 		$image_root = $this->getSiteRoot($this->image_dir);
 
 		if (!file_exists($image_root.$this->path->value)) {
-			throw new ResourceNotFoundException("Source file not found: {$image_root}{$this->path->value}.");
+			throw new ResourceNotFoundException("Source file not found: $image_root{$this->path->value}.");
 		}
 
 		$this->resample($image_root.$this->path->value, $target_name, $target_dims, $target_ext, $sub_dir);
@@ -247,29 +252,32 @@ class ImageOperations extends ImageFile
 
 		$thumbnail_id = 0;
 		if ($this->id->value > 0) {
-			$query = "SELECT `{$field_name}` FROM `image_link` WHERE `fullres_id` = ".$this->id->escapeSQL($this->mysqli);
-			$data = $this->fetchRecords($query);
+			$query = "SELECT `$field_name` FROM `image_link` WHERE `fullres_id` = ?";
+			$data = $this->fetchRecords($query, 'i', $this->id->value);
 			if (count($data) > 0) {
 				$thumbnail_id = $data[0]->$field_name;
 			}
 		}
 
 		if ( $thumbnail_id > 0 ) {
-			$query = "CALL imagesUpdateThumbnail(".
-				$this->escapeSQLValue($thumbnail_id).",".
-				$this->escapeSQLValue($path).",".
-				$this->escapeSQLValue($src_dims->width).",".
-				$this->escapeSQLValue($src_dims->height).",".
-				$this->alt->escapeSQL($this->mysqli).");";
-			$this->query($query);
+			$this->query(
+                'CALL imagesUpdateThumbnail(?,?,?,?,?)',
+                'isiis',
+                $thumbnail_id,
+                $path,
+                $src_dims->width,
+                $src_dims->height,
+                $this->alt->value);
 		}
 		else {
-			$query = "CALL imagesInsertThumbnail(".
-				$this->escapeSQLValue($path).",".
-				$this->escapeSQLValue($src_dims->width).",".
-				$this->escapeSQLValue($src_dims->height).",".
-				$this->alt->escapeSQL($this->mysqli).");";
-			$this->query($query);
+			$this->query(
+                'CALL imagesInsertThumbnail(?,?,?,?)',
+                'siis',
+                $path,
+                $src_dims->width,
+                $src_dims->height,
+                $this->alt->value
+            );
 			$thumbnail_id = $this->retrieveInsertID();
 		}
 		return ($thumbnail_id);
@@ -279,17 +287,24 @@ class ImageOperations extends ImageFile
 	 * Resizes an image file.
 	 * @param string $src_path Path to the source image file.
 	 * @param string $target_name Filename of the new image file.
-	 * @param ImageDims|null[optional] $target_dims Target width and height of the new file in pixels.
-	 * @param string[optional] $target_ext Specify non-default extension for the destination file.
-	 * @param string[optional] $sub_dir Subdirectory path for destination file. Defaults to no subdirectory.
-	 * @param bool[optional] $do_cleanup Removes the source file from disk if set to TRUE. Defaults to FALSE.
-	 * @throws InvalidTypeException Unsupported image file type.
-	 * @throws OperationAbortedException Error saving resampled image file.
-	 * @throws ResourceNotFoundException Source image file not found.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Exception
-	 */
-	public function resample($src_path, $target_name, $target_dims=null, $target_ext="", $sub_dir="", $do_cleanup=false)
+	 * @param ImageDims|null $target_dims Target width and height of the new file in pixels.
+	 * @param string $target_ext Specify non-default extension for the destination file.
+	 * @param string $sub_dir Subdirectory path for destination file. Defaults to no subdirectory.
+	 * @param bool $do_cleanup Removes the source file from disk if set to TRUE. Defaults to FALSE.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws OperationAbortedException
+     * @throws ResourceNotFoundException
+     */
+	public function resample(
+        string     $src_path,
+        string     $target_name,
+        ?ImageDims $target_dims = null,
+        string     $target_ext= '',
+        string     $sub_dir=  '',
+        bool       $do_cleanup = false): void
 	{
 		$image_root = $this->getSiteRoot($this->image_dir);
 
@@ -323,17 +338,15 @@ class ImageOperations extends ImageFile
 	 * @param ImageDims $dst_dims Target image dimensions.
 	 * @return resource
 	 */
-	protected function resizeImage(&$image, $src_dims, $dst_dims)
+	protected function resizeImage($image, ImageDims $src_dims, ImageDims $dst_dims)
 	{
 		/* original smaller than target; don't scale the image scale up */
-		if ($src_dims->width<=$dst_dims->width && $src_dims->height<=$dst_dims->height)
-		{
+		if ($src_dims->width<=$dst_dims->width && $src_dims->height<=$dst_dims->height) {
 			return($image);
 		}
 
 		/* target dims don't match original dims; crop the image */
-		elseif (($src_dims->width/$dst_dims->height) != ($src_dims->width/$src_dims->height))
-		{
+		elseif (($src_dims->width/$dst_dims->height) != ($src_dims->width/$src_dims->height)) {
 			return($this->cropImage($image, $src_dims, $dst_dims));
 		}
 

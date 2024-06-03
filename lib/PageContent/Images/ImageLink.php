@@ -8,6 +8,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\OperationAbortedException;
 use Littled\Exception\RecordNotFoundException;
@@ -18,6 +19,7 @@ use Littled\Request\BooleanInput;
 use Littled\Request\DateTextField;
 use Littled\Request\IntegerInput;
 use Littled\Request\IntegerTextField;
+use Littled\Request\PrimaryKeyInput;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Littled\Request\StringSelect;
@@ -25,16 +27,11 @@ use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
 use stdClass;
 
-/**
- * Class ImageLink
- * @package Littled\PageContent\Images
- */
 class ImageLink extends KeywordSectionContent
 {
-	/** @var string */
-	protected static $table_name='image_link';
+	protected static string $table_name = 'image_link';
 	/** @var string Name of class to use to cache content. */
-	protected static $cache_class = ContentCache::class;
+	protected static string $cache_class = ContentCache::class;
 
 	/** @var array HTTP request variable names. */
 	const vars = array(
@@ -48,61 +45,78 @@ class ImageLink extends KeywordSectionContent
 		'randomize_filename' => 'ilrf'
 	);
 
-	/** @var IntegerInput $id image_link record id */
-	public $id;
+	/** @var PrimaryKeyInput $id image_link record id */
+	public PrimaryKeyInput $id;
 	/** @var IntegerInput $parent_id Parent record id. */
-	public $parent_id;
+	public IntegerInput $parent_id;
 	/** @var StringTextField $title Image title. */
-	public $title;
+	public StringTextField $title;
 	/** @var StringTextarea $description Image description. */
-	public $description;
+	public StringTextarea $description;
 	/** @var IntegerTextField $slot Position of the image record relative to other images linked to the same parent record. */
-	public $slot;
+	public IntegerTextField $slot;
 	/** @var IntegerTextField $page_number The page number of the image, e.g. the page number of a sketchbook that corresponds with the image. */
-	public $page_number;
+	public IntegerTextField $page_number;
 	/** @var StringSelect $access Access level of the image, e.g. "public", "private", "disabled", etc. */
-	public $access;
+	public StringSelect $access;
 	/** @var DateTextField $release_date Date after which the record will be accessible as front-end content. */
-	public $release_date;
+	public DateTextField $release_date;
 	/** @var Image $full Full-resolution image record. */
-	public $full;
+	public Image $full;
 	/** @var Image $med Medium-resolution image record. */
-	public $med;
+	public Image $med;
 	/** @var Image $mini Smallest-resolution image record. */
-	public $mini;
+	public Image $mini;
 	/** @var IntegerInput $type_id Pointer to site_section id property. */
-	public $type_id;
+	public IntegerInput $type_id;
 	/** @var StringInput $randomize Flag to indicate that the filename of the images should be randomized after they uploaded to the server. */
-	public $randomize;
+	public StringInput $randomize;
 	/** @var string Name of the content type of this set of images. */
-	public $type_name;
+	public string $type_name;
 	/** @var BooleanInput Flag indicating this record is the first image in a series of images. */
-	public $isFirstPage;
+	public BooleanInput $isFirstPage;
 	/** @var BooleanInput Flag indicating this record is the last image in a series of images. */
-	public $isLastPage;
+	public BooleanInput $isLastPage;
 
 	/**
 	 * ImageLink constructor.
-	 * @param string[optional] $image_dir
-	 * @param string[optional] $param_prefix
-	 * @param int[optional] $content_type_id
-	 * @param int[optional] $parent_id
-	 * @param int[optional] $id
-	 * @param int[optional] $image_id
-	 * @param string[optional] $path
-	 * @param int[optional] $width
-	 * @param int[optional] $height
-	 * @param string[optional] $alt_tag
-	 * @param string[optional] $url
-	 * @param string[optional] $target
-	 * @param string[optional] $caption
-	 * @param int[optional] $slot
-	 * @param string[optional] $access
-	 */
-	function __construct ($image_dir="", $param_prefix="", $content_type_id=null, $parent_id=null, $id=null, $image_id=null, $path=null, $width=null, $height=null, $alt_tag="", $url=null, $target=null, $caption="", $slot=null, $access="public")
+     * @param string $image_dir
+     * @param string $param_prefix
+     * @param int|null $content_type_id
+     * @param int|null $parent_id
+     * @param int|null $id
+     * @param int|null $image_id
+     * @param string|null $path
+     * @param int|null $width
+     * @param int|null $height
+     * @param string $alt_tag
+     * @param string|null $url
+     * @param string|null $target
+     * @param string $caption
+     * @param int|null $slot
+     * @param string $access
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
+     */
+	function __construct (
+        string $image_dir = '',
+        string $param_prefix = '',
+        ?int $content_type_id = null,
+        ?int $parent_id = null,
+        ?int $id = null,
+        ?int $image_id = null,
+        ?string $path = null,
+        ?int $width = null,
+        ?int $height = null,
+        string $alt_tag = '',
+        ?string $url = null,
+        ?string $target = null,
+        string $caption = '',
+        ?int $slot = null,
+        string $access = 'public')
 	{
 		parent::__construct($id, $content_type_id, $param_prefix);
-		$this->id = new IntegerInput("ID", $param_prefix.$this::vars['id'], false, $id);
+		$this->id = new PrimaryKeyInput("ID", $param_prefix.$this::vars['id'], false, $id);
 		$this->parent_id = new IntegerInput("Image parent", $param_prefix.$this::vars['parent_id'], false, $parent_id);
 		$this->title = new StringTextField("Title", $param_prefix.ImageBase::vars['alt'], false, "", 50);
 		$this->description = new StringTextarea("Description", $param_prefix.ImageBase::vars['caption'], false, "", 1000);
@@ -150,9 +164,9 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Assign values to object's properties based on form data.
-	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param array|null $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectRequestData($src=null )
+	public function collectRequestData(?array $src=null ): void
 	{
 		$this->collectInlineInput($src);
 		$this->title->collectRequestData(null, $src);
@@ -168,9 +182,9 @@ class ImageLink extends KeywordSectionContent
 
 	/**
 	 * Assign values to only the object's id, parent_id and type_id properties based on script input or form data.
-	 * @param array|null[optional] $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+	 * @param array|null $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 */
-	public function collectInlineInput( $src=null )
+	public function collectInlineInput( ?array $src=null ): void
 	{
 		$this->id->collectRequestData(null, $src);
 		$this->parent_id->collectRequestData(null, $src);
@@ -662,7 +676,7 @@ class ImageLink extends KeywordSectionContent
 			$this->med->id->value = $this->full->makeThumbnailCopy(basename($this->full->path->value), $medium_dims, "jpg", "med/", "med_id");
 		}
 
-		if ($make_thumbnail && ($this->content_properties->save_mini->value==true) && ($this->content_properties->mini_width->value>0 || $this->content_properties->mini_height->value>0)) {
+		if ($make_thumbnail && $this->content_properties->save_mini->value && ($this->content_properties->mini_width->value>0 || $this->content_properties->mini_height->value>0)) {
 			$mini_dims = new ImageDims($this->content_properties->mini_width->value, $this->content_properties->mini_height->value);
 			$this->mini->id->value = $this->full->makeThumbnailCopy(basename($this->full->path->value), $mini_dims, "png", "mini/", "mini_id");
 		}
@@ -710,10 +724,10 @@ class ImageLink extends KeywordSectionContent
 			$this->full->validateInput();
 		}
 		catch(ContentValidationException $ex) {
-			$this->validationErrors = array_merge($this->validationErrors, $this->full->validationErrors);
+			$this->addValidationError($this->full->validationErrors());
 		}
-		if (count($this->validationErrors) > 0) {
-			throw new ContentValidationException("Errors found in image set.");
+		if (count($this->validationErrors()) > 0) {
+			throw new ContentValidationException('Errors found in image set.');
 		}
 	}
 }

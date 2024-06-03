@@ -3,7 +3,17 @@ namespace Littled\PageContent\Images;
 
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
+use Littled\Exception\OperationAbortedException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
 
@@ -14,83 +24,86 @@ use Littled\Validation\Validation;
 class ImageUpload extends ImageLink
 {
 	/** @var StringInput $new_name Form input to allow changing the name of an image. */
-	public $new_name;
+	public StringInput $new_name;
 	/** @var StringInput $page Page form input. */
-	public $page;
+	public StringInput $page;
 	/** @var StringInput $upload_type Form input specifying upload types. */
-	public $upload_type;
+	public StringInput $upload_type;
 	/** @var string $label Label text to accompany buttons and other editing controls for the images. */
-	public $label;
+	public string $label;
 	/** @var bool $generic_params Flag to indicate that generic parameters should be used to retrieve image, type and parent id values. */
-	public $generic_params;
+	public bool $generic_params;
 
-	const UPLOAD_TYPE_PARAM = "ut";
-	const SINGLE_UPLOAD = "single";
-	const LISTINGS_UPLOAD = "listings";
+	const UPLOAD_TYPE_PARAM = 'ut';
+	const SINGLE_UPLOAD = 'single';
+	const LISTINGS_UPLOAD = 'listings';
 	public static function ID_PARAM() { return(self::vars['id']); }
 	public static function PARENT_PARAM() { return(self::vars['parent_id']); }
 	public static function TYPE_PARAM() { return(self::vars['content_type']); }
 
 
-	/**
-	 * Class constructor.
-	 * @param int|null[optional] $content_type_id Id of this image's site section.
-	 * @param int|null[optional] $parent_id Id of the parent record that this image is attached to.
-	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
-	function __construct($content_type_id=null, $parent_type_id=null )
+    /**
+     * Class constructor.
+     * @param int|null $content_type_id Record id of this image's site section.
+     * @param int|null $parent_type_id
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     */
+	function __construct(?int $content_type_id=null, ?int $parent_type_id=null )
 	{
-		parent::__construct("", "", $content_type_id, $parent_type_id);
+		parent::__construct('', '', $content_type_id, $parent_type_id);
 
-		$this->label = "";
+		$this->label = '';
 		$this->generic_params = false;
 		if ($content_type_id > 0) {
 			$this->retrieveSectionProperties();
 		}
-		$this->new_name = new StringInput("Replace name", "rn", false, "", 100);
-		$this->page = new StringInput("Page", "pg", false, "", 50);
-		$this->upload_type = new StringInput("Upload Type", $this::UPLOAD_TYPE_PARAM, false, "", 50);
+		$this->new_name = new StringInput('Replace name', 'rn', false, '', 100);
+		$this->page = new StringInput('Page', 'pg', false, '', 50);
+		$this->upload_type = new StringInput('Upload Type', $this::UPLOAD_TYPE_PARAM, false, '', 50);
 
 		$this->parent_id->required = false;
 	}
 
 	/**
 	 * Collects and parses form data, and assigns internal variables using the form data.
-	 * @param array|null[optional] $src
+	 * @param array|null $src
 	 */
-	public function collectRequestData($src=null )
-	{
+	public function collectRequestData(?array $src=null ): void
+    {
 		parent::collectRequestData($src);
-		$this->new_name->collectFromInput($src);
-		$this->page->collectFromInput($src);
-		$this->upload_type->collectFromInput($src);
+		$this->new_name->collectRequestData($src);
+		$this->page->collectRequestData($src);
+		$this->upload_type->collectRequestData($src);
 	}
 
 	/**
 	 * Collects variables needed to load inline edit forms. Sets internal variables based on type id, etc.
-	 * @param array|null[optional] $src
+	 * @param array|null $src
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
-	public function collectInlineInput( $src=null )
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+     * @throws InvalidValueException
+     */
+	public function collectInlineInput( array $src=null ): void
 	{
 		/* first attempt to collect "id" value using the derived class's
 		 * input parameter, if that isn't available, use a generic parameter.
 		 */
 		$this->id->collectRequestData($src);
-		if ($this->id->value === null && $this->id->key != "id") {
-			$this->id->value = Validation::collectIntegerRequestVar("id", null, $src);
+		if ($this->id->value === null && $this->id->key != 'id') {
+			$this->id->value = Validation::collectIntegerRequestVar('id', null, $src);
 		}
 
 		/* collect parent record's id value, giving derived class's
@@ -120,28 +133,28 @@ class ImageUpload extends ImageLink
 	/**
 	 * Resets internal variables to their default value, while saving some values such as parent id and section properties.
 	 */
-	public function clearValues()
-	{
+	public function clearValues(): void
+    {
 		parent::clearValues();
-		$this->new_name->value = "";
-		$this->page->value = "";
-		$this->upload_type->value = "";
+		$this->new_name->value = '';
+		$this->page->value = '';
+		$this->upload_type->value = '';
 		$this->setParameterNames(false);
 	}
 
 	/**
 	 * Retrieve image properties from database.
-	 * @param bool[optional] $read_keywords Flag to suppress retrieving keywords linked to the image_link record. Defaults to TRUE.
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
-	public function read($read_keywords=true )
-	{
+	 * @param bool $read_keywords Flag to suppress retrieving keywords linked to the image_link record. Defaults to TRUE.
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+     * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+     * @throws InvalidValueException
+     */
+	public function read( bool $read_keywords=true ): void
+    {
 		parent::read($read_keywords);
 		$this->retrieveLabel();
 	}
@@ -149,10 +162,13 @@ class ImageUpload extends ImageLink
 	/**
 	 * Retrieves label for the edit form from database based on the content type of the image.
 	 * - The label is stored in the object's "label" property.
-	 * @throws \Littled\Exception\InvalidQueryException
-	 */
-	public function retrieveLabel()
-	{
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     */
+	public function retrieveLabel(): void
+    {
 		if ($this->content_properties->id->value>0) {
 
 			$query = "SELECT `label` from `section_operations` WHERE section_id = {$this->content_properties->id->value}";
@@ -179,15 +195,15 @@ SQL;
 	/**
 	 * Overrides parent class's routine to set the image id, image type id, and image parent id parameter names to different values.
 	 * @throws ContentValidationException
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\NotImplementedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 */
-	public function retrieveSectionProperties()
-	{
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws InvalidQueryException
+     * @throws NotImplementedException
+	 * @throws RecordNotFoundException
+     * @throws InvalidValueException
+     */
+	public function retrieveSectionProperties(): void
+    {
 		parent::retrieveSectionProperties();
 		$this->retrieveLabel();
 		$this->setParameterNames();
@@ -199,43 +215,46 @@ SQL;
 	 * - image parent id
 	 * - image type id
 	 *
-	 * @param mixed $generic_params (Optional) Flag to override parameter names of the object's id, parent id, and type id parameters will be set to generic names, ie "id", "pid", and "tid".
+	 * @param mixed|null $generic_params (Optional) Flag to override parameter names of the object's id, parent id, and type id parameters will be set to generic names, ie "id", "pid", and "tid".
 	 *		Defaults to NULL which will not change the current setting of the "generic_params" property.
 	 *		Pass in true or false to change the "generic_params" setting of the object.
 	 */
-	public function setParameterNames( $generic_params=null )
-	{
+	public function setParameterNames(mixed $generic_params=null ): void
+    {
 		if ($generic_params!==null) {
 			$this->generic_params = $generic_params;
 		}
-		if ($this->generic_params==true) {
+		if ($this->generic_params) {
 			$this->id->key = LittledGlobals::CONTENT_TYPE_KEY;
 			$this->content_properties->id->key = LittledGlobals::CONTENT_TYPE_KEY;
 			$this->parent_id->key = LittledGlobals::PARENT_ID_KEY;
 		}
-		else {
-			$this->setPrefix($this->content_properties->param_prefix->value);
-			//$this->id->param = $this->ID_PARAM();
+		// else {
+
+            // property $param_prefix is not defined for ContentProperties
+            // $this->setPrefix($this->content_properties->param_prefix->value);
+
+            //$this->id->param = $this->ID_PARAM();
 			//$this->parent_id->param = $this->PARENT_PARAM();
 			//$this->site_section->id->param = $this->TYPE_PARAM();
-		}
+		// }
 	}
 
 	/**
 	 * Upload and process each of the images attached to this object,
 	 * including operations such as extracting keywords, resizing, and renaming.
-	 * @param bool[optional] $randomize_filename Flag if set to true the new image file will be given a randomized filename
-	 * @throws \Littled\Exception\ConfigurationUndefinedException
-	 * @throws \Littled\Exception\ConnectionException
-	 * @throws \Littled\Exception\ContentValidationException
-	 * @throws \Littled\Exception\InvalidQueryException
-	 * @throws \Littled\Exception\InvalidTypeException
-	 * @throws \Littled\Exception\OperationAbortedException
-	 * @throws \Littled\Exception\RecordNotFoundException
-	 * @throws \Littled\Exception\ResourceNotFoundException
+	 * @param bool $randomize_filename Flag if set to true the new image file will be given a randomized filename
+	 * @throws ConfigurationUndefinedException
+	 * @throws ConnectionException
+	 * @throws ContentValidationException
+	 * @throws InvalidQueryException
+	 * @throws InvalidTypeException
+	 * @throws OperationAbortedException
+	 * @throws RecordNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
-	public function upload($randomize_filename=false )
-	{
+	public function upload(bool $randomize_filename=false ): void
+    {
 		parent::upload($randomize_filename);
 
 		/* if new name is present, rename the video file */
@@ -253,44 +272,43 @@ SQL;
 	 * Validates basic data sent to run AJAX script as opposed to validation needed after edit form is submitted.
 	 * @throws ContentValidationException
 	 */
-	public function validateInlineInput()
-	{
+	public function validateInlineInput(): void
+    {
 		if (
 			($this->id->value===null) &&
 			($this->content_properties->id->value===null && $this->parent_id->value===null))
 		{
-			throw new ContentValidationException("Either an image or a parent and image type is required.");
+			throw new ContentValidationException('Either an image or a parent and image type is required.');
 		}
 	}
 
 	/**
 	 * Validates form data. Throws exception with detailed error message if any invalid form data is detected.
-	 * @param array[optional] $exclude_properties
+	 * @param array $exclude_properties
 	 * @throws ContentValidationException
 	 */
-	public function validateInput( $exclude_properties=array() )
+	public function validateInput( $exclude_properties = [] ): void
 	{
 		try {
 			parent::validateInput($exclude_properties);
 		}
-		catch (ContentValidationException $ex) {
-			; /* continue evaluating form data */
+		catch (ContentValidationException) {
+            /* continue evaluating form data */
 		}
 		try {
 			$this->new_name->validate();
 		}
 		catch (ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
+			$this->addValidationError($ex->getMessage());
 		}
 		try {
 			$this->page->validate();
 		}
 		catch (ContentValidationException $ex) {
-			array_push($this->validationErrors, $ex->getMessage());
+			$this->addValidationError($ex->getMessage());
 		}
-		if (count($this->validationErrors))
-		{
-			throw new ContentValidationException("Errors found in image.");
+		if (count($this->validationErrors())) {
+			throw new ContentValidationException('Errors found in image.');
 		}
 	}
 }
