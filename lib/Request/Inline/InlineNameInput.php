@@ -4,7 +4,7 @@ namespace Littled\Request\Inline;
 
 use Littled\Request\StringInput;
 
-class InlineNameInput extends InlineInput
+abstract class InlineNameInput extends InlineInput
 {
     public StringInput $name;
 
@@ -15,8 +15,8 @@ class InlineNameInput extends InlineInput
     function __construct(array $column_names=[])
     {
         parent::__construct();
-        $this->name = new StringInput("Name", "n", true, "", 100);
-        $this->columnNameOptions = array_merge(array("name", "title", "catno", "code"), $column_names);
+        $this->name = new StringInput('Name', 'n', true, '', 100);
+        $this->columnNameOptions = array_merge(['name', 'title', 'catno', 'code'], $column_names);
     }
 
     /**
@@ -24,34 +24,38 @@ class InlineNameInput extends InlineInput
      */
     protected function formatSelectQuery(): array
     {
-        $query = "SEL"."ECT `$this->column_name` as `name` ".
+        $query = "SELECT `$this->column_name` as `name` ".
             "FROM `{$this->table->value}` ".
-            "WHERE id = ?";
-        return array($query, 'i', &$this->parent_id->value);
+            'WHERE id = ?';
+        return [$query, 'i', &$this->parent_id->value];
     }
 
     /**
      * @inheritDoc
      */
-    protected function formatUpdateQuery(): array
+    public function formatCommitQuery(): array
     {
-        return $this->generateUpdateQuery();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function generateUpdateQuery(): ?array
-    {
-        $query = "UPD"."ATE `{$this->table->value}` ".
+        $query = "UPDATE `{$this->table->value}` ".
             "SET `$this->column_name` = ? ".
-            "WHERE id = ?";
-        return array($query, 'si', &$this->name->value, &$this->parent_id->value);
+            'WHERE id = ?';
+        return [$query, 'si', &$this->name->value, &$this->parent_id->value];
     }
 
-    public function read()
+    /**
+     * @inheritDoc
+     */
+    protected function hasRecordData(): bool
+    {
+        return $this->name->hasData();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function read(): InlineNameInput
     {
         $data = parent::read();
         $this->name->value = $data[0]->name;
+        return $this;
     }
 }

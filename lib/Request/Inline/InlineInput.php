@@ -40,18 +40,18 @@ abstract class InlineInput extends SerializedContent
 	function __construct()
 	{
 		parent::__construct();
-		$this->parent_id = new IntegerInput("Parent id", "id", true, false);
-		$this->table = new StringInput("Table", "t", true, "", 200);
-		$this->op = new StringInput("Operation", "op", true, "", 20);
-		$this->validateProperties = array('parent_id', 'table');
+		$this->parent_id = new IntegerInput('Parent id', 'id', true, false);
+		$this->table = new StringInput('Table', 't', true, '', 200);
+		$this->op = new StringInput('Operation', 'op', true, '', 20);
+		$this->validateProperties = ['parent_id', 'table'];
 	}
 
 	/**
 	 * @param string $column_name
 	 * @param string $table_name
 	 * @return bool
-	 * @throws NotImplementedException
-	 * @throws InvalidQueryExceptionAlias|Exception
+     * @throws InvalidQueryExceptionAlias
+     * @throws Exception
      */
 	public function columnExists(string $column_name, string $table_name = ''): bool
 	{
@@ -74,38 +74,35 @@ abstract class InlineInput extends SerializedContent
 	abstract protected function formatUpdateQuery(): array;
 
 	/**
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+     * @throws RecordNotFoundException
 	 * @throws InvalidQueryExceptionAlias
 	 */
-	protected function getColumnName()
-	{
+	protected function getColumnName(): void
+    {
 		foreach ($this->columnNameOptions as $column) {
 			if ($this->columnExists($column, $this->table->value)) {
 				$this->column_name = $column;
 				return;
 			}
 		}
-		throw new RecordNotFoundException("No matching columns were found.");
+		throw new RecordNotFoundException('No matching columns were found.');
 	}
 
     /**
      * Retrieves data from database used to fill inline HTML forms.
+     * @return $this
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidQueryExceptionAlias
      * @throws Exception
      */
-	public function read()
-	{
+	public function read(): InlineInput
+    {
 		if (count($this->columnNameOptions) > 0) {
 			$this->getColumnName();
 		}
-		$data = call_user_func_array([$this, 'fetchRecords'], $this->formatSelectQuery());
-		if (count($data) < 1) {
-			throw new RecordNotFoundException("Record not found.");
-		}
-		return($data);
+		parent::read();
+        return $this;
 	}
 
     /**
@@ -115,8 +112,8 @@ abstract class InlineInput extends SerializedContent
      * @throws InvalidQueryExceptionAlias
      * @throws Exception
      */
-	public function save()
-	{
+	public function save(): void
+    {
 		if (count($this->columnNameOptions) > 0) {
 			$this->getColumnName();
 		}
@@ -127,8 +124,8 @@ abstract class InlineInput extends SerializedContent
 	 * Validates inline HTML edit values.
 	 * @throws ContentValidationException
 	 */
-	public function validateInlineInput()
-	{
+	public function validateInlineInput(): void
+    {
 		foreach($this->validateProperties as $key) {
 			try {
 				/** @var RequestInput $property  */
@@ -140,7 +137,7 @@ abstract class InlineInput extends SerializedContent
 			}
 		}
 		if (count($this->validationErrors) > 0) {
-			throw new ContentValidationException("There were problems found in the information that was entered.");
+			throw new ContentValidationException('There were problems found in the information that was entered.');
 		}
 	}
 }

@@ -1,20 +1,17 @@
 <?php
 namespace Littled\Request\Inline;
 
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 
 
-class InlinePageInput extends InlineInput
+abstract class InlinePageInput extends InlineInput
 {
 	public IntegerInput $page;
 
 	function __construct()
 	{
 		parent::__construct();
-		$this->page = new IntegerInput("Page", "pn", true, null);
+		$this->page = new IntegerInput('Page', 'pn', true, null);
 	}
 
 	/**
@@ -22,37 +19,34 @@ class InlinePageInput extends InlineInput
 	 */
 	protected function formatSelectQuery(): array
 	{
-        $query = "SEL"."ECT `page_number` FROM `{$this->table->value}` WHERE id = ?";
-		return array($query, 'i', &$this->parent_id->value);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function formatUpdateQuery(): array
-	{
-        return $this->generateUpdateQuery();
+        $query = "SELECT `page_number` FROM `{$this->table->value}` WHERE id = ?";
+		return [$query, 'i', &$this->parent_id->value];
 	}
 
     /**
      * @inheritDoc
      */
-    public function generateUpdateQuery(): ?array
+    public function formatCommitQuery(): array
     {
-        $query = "UPD"."ATE `{$this->table->value}` SET `page_number` = ? WHERE id = ?";
-        return array($query, 'ii', &$this->page->value, &$this->parent_id->value);
+        $query = "UPDATE `{$this->table->value}` SET `page_number` = ? WHERE id = ?";
+        return [$query, 'ii', &$this->page->value, &$this->parent_id->value];
     }
 
-	/**
-	 * Retrieves the access value and stores it in the object properties.
-	 * @return void
-	 * @throws InvalidQueryException
-	 * @throws NotImplementedException
-	 * @throws RecordNotFoundException
+    /**
+     * @inheritDoc
+     */
+    protected function hasRecordData(): bool
+    {
+        return $this->page->hasData();
+    }
+
+    /**
+	 * @inheritDoc
 	 */
-	public function read()
-	{
+	public function read(): InlinePageInput
+    {
 		$data = parent::read();
 		$this->page->value = $data[0]->page;
+        return $this;
 	}
 }
