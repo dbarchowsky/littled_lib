@@ -44,10 +44,10 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
 
     /**
      * Test supplied value against the internal value of the input object.
-     * @param null|bool|int|string $value
-     * @return bool|int|string
+     * @param mixed $value
+     * @return bool
      */
-    public function lookupValueInSelectedValues($value): bool
+    public function lookupValueInSelectedValues(mixed $value): bool
     {
         return ($this->value!==null) && ($this->value===Validation::parseBoolean($value));
     }
@@ -55,14 +55,15 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
     /**
      * {@inheritDoc}
      */
-    public function render(string $label='', string $css_class='', array $context=[])
+    public function render(string $label='', string $css_class='', array $context=[]): void
     {
         try {
             ContentUtils::renderTemplate(static::getTemplatePath(),
-                array('input' => $this,
+                [
+                    'input' => $this,
                     'label' => $label,
                     'css_class' => $css_class,
-                    'options' => $context));
+                    'options' => $context]);
         }
         catch(Exception $e) {
             ContentUtils::printError($e->getMessage());
@@ -72,13 +73,13 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
     /**
      * {@inheritDoc}
      */
-    public function renderInput(?string $label='', array $options=[])
+    public function renderInput(?string $label='', array $options=[]): void
     {
         try {
             ContentUtils::renderTemplate(static::getInputTemplatePath(),
-                array('input' => $this,
+                ['input' => $this,
                     'label' => $label,
-                    'options' => $options));
+                    'options' => $options]);
         }
         catch(Exception $e) {
             ContentUtils::printError($e->getMessage());
@@ -96,7 +97,7 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
         return $this;
     }
 
-    public function setOptionsLength(int $len)
+    public function setOptionsLength(int $len): void
     {
         // interface method. nothing necessary working with boolean values
     }

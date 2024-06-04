@@ -59,7 +59,7 @@ abstract class RequestInput
     /** @var string If an error was detected with the value of a form data, a description of the error will be stored in this property. */
     public string               $error='';
     /** @var string|int|null When supplying an array of values for a single key, the  value can be used to sort them. */
-    public                      $index=null;
+    public string|int|null      $index=null;
     /** @var string Label to display where descriptions of the input are needed. */
     public string               $label='';
     /** @var string  Name of script argument. Name of key in query string or form data. */
@@ -71,7 +71,7 @@ abstract class RequestInput
     /** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textarea inputs. */
     public int                  $size_limit=0;
     /** @var mixed Value of the script argument. Value collected from form data. */
-    public                      $value;
+    public mixed                $value;
     /** @var string If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
     public string               $width='';
 
@@ -87,10 +87,10 @@ abstract class RequestInput
     function __construct (
         string $label,
         string $key,
-        bool $required=false,
-        $value=null,
-        int $size_limit=0,
-        ?int $index=null )
+        bool   $required = false,
+        mixed  $value = null,
+        int    $size_limit = 0,
+        ?int   $index = null )
     {
         $this->label              = $label;
         $this->key                = $key;
@@ -112,7 +112,7 @@ abstract class RequestInput
     /**
      * Resets the object's value property to a default value.
      */
-    public function clearValue()
+    public function clearValue(): void
     {
         $this->value = null;
     }
@@ -122,7 +122,7 @@ abstract class RequestInput
      * @param object $data Collection of client ajax request data containing the key/value pair to use to assign
      * the property value.
      */
-    public function collectAjaxRequestData(object $data)
+    public function collectAjaxRequestData(object $data): void
     {
         if ($this->isBypassingRequestData()) {
             return;
@@ -143,7 +143,7 @@ abstract class RequestInput
      * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Default is FALSE.
      * @return int|float|string|null Escaped value.
      */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes=false)
+    public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): float|int|string|null
     {
         if ($this->value===null) {
             return null;
@@ -155,7 +155,7 @@ abstract class RequestInput
         elseif ($value===false) {
             $value = 0;
         }
-        return (($include_quotes)?("'"):("")).$value.(($include_quotes)?("'"):(""));
+        return (($include_quotes)?("'"):('')).$value.(($include_quotes)?("'"):(''));
     }
 
     /**
@@ -163,7 +163,7 @@ abstract class RequestInput
      * $key property.
      * @param string $cookie_name Name of the cookie collection containing the value to be retrieved.
      */
-    public function fillFromSession(string $cookie_name)
+    public function fillFromSession(string $cookie_name): void
     {
         if (isset($_SESSION[$this->key])) {
             $this->value = $_SESSION[$this->key];
@@ -198,14 +198,14 @@ abstract class RequestInput
     public function formatClassAttributeMarkup(string $css_class='', ?callable $css_callback=null): string
     {
         if ($css_callback===null) {
-            $css_callback = array($this, 'getInputCssClass');
+            $css_callback = [$this, 'getInputCssClass'];
         }
         $base_class = call_user_func($css_callback);
         $error_class = '';
         if ($this->has_errors) {
             $error_class = (($css_callback[1]==='getInputCssClass')?(static::getInputErrorClass()):(static::getErrorClass()));
         }
-        $classes = trim(implode(' ', array_filter(array($base_class, $css_class, $error_class))));
+        $classes = trim(implode(' ', array_filter([$base_class, $css_class, $error_class])));
         return (($classes)?(" class=\"$classes\""):(''));
     }
 
@@ -237,10 +237,10 @@ abstract class RequestInput
     public function formatLabelMarkup( string $label ): string
     {
         if (strlen($label) > 0 && $this->display_placeholder===false) {
-            return (ContentUtils::loadTemplateContent(static::$template_base_path."form-input-label.php", array(
+            return (ContentUtils::loadTemplateContent(static::$template_base_path. 'form-input-label.php', [
                 'label' => $label,
                 'input' => &$this
-            )));
+            ]));
         }
         return ('');
     }
@@ -260,7 +260,7 @@ abstract class RequestInput
      */
     public function formatValueMarkup(): string
     {
-        return ("".$this->value);
+        return ('' .$this->value);
     }
 
     /**
@@ -403,7 +403,7 @@ abstract class RequestInput
     /**
      * Sets flag that will cause this variable to be ignored when processing request data sent to the page.
      */
-    public function ignoreRequestData()
+    public function ignoreRequestData(): void
     {
         $this->bypass_collect_request_data = true;
     }
@@ -486,7 +486,7 @@ abstract class RequestInput
      * @param ?string $label Optional label that will override the object's internal property value.
      * @param ?string $css_class Optional CSS class name that will override the object's internal property value.
      */
-    public function renderWithErrors(?string $label=null, ?string $css_class=null)
+    public function renderWithErrors(?string $label=null, ?string $css_class=null): void
     {
         try {
             $this->render($label, $css_class);
@@ -498,11 +498,11 @@ abstract class RequestInput
 
     /**
      * Returns string safe from XSS attacks that can be embedded in HTML.
-     * @param int|array $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
+     * @param array|int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
      * Same values as 3rd argument to PHP's filter_var() routine.
      * @return string XSS-safe string.
      */
-    public function safeValue($options=[] ): string
+    public function safeValue(array|int $options=[] ): string
     {
         return (filter_var($this->value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
     }
@@ -512,7 +512,7 @@ abstract class RequestInput
      * @param string $template Path to template to use to override current template path stored in the object.
      * @param string $key Key to use to override default key value for the variable.
      */
-    public function saveInForm( string $template='', string $key='' )
+    public function saveInForm( string $template='', string $key='' ): void
     {
         if (!$key) {
             $key = $this->key;
@@ -520,10 +520,10 @@ abstract class RequestInput
         if(!$template) {
             $template = RequestInput::getTemplatePath();
         }
-        ContentUtils::renderTemplateWithErrors($template, array(
+        ContentUtils::renderTemplateWithErrors($template, [
             'key' => $key,
             'input' => $this
-        ));
+        ]);
     }
 
     /**
@@ -564,7 +564,7 @@ abstract class RequestInput
      * @param mixed $value Attribute value
      * @return $this
      */
-    public function setAttribute(string $key, $value): RequestInput
+    public function setAttribute(string $key, mixed $value): RequestInput
     {
         $this->attributes[$key] = $value;
         return $this;
@@ -596,7 +596,7 @@ abstract class RequestInput
      * Error css class setter.
      * @param string $css_class CSS class name.
      */
-    public function setErrorClass( string $css_class )
+    public function setErrorClass( string $css_class ): void
     {
         static::$error_class = $css_class;
     }
@@ -639,7 +639,7 @@ abstract class RequestInput
      * @param string $filename
      * @return void
      */
-    public static function setHiddenTemplateFilename(string $filename)
+    public static function setHiddenTemplateFilename(string $filename): void
     {
         static::$hidden_template_filename = $filename;
     }
@@ -649,7 +649,7 @@ abstract class RequestInput
      * @param string $filename Template filename.
      * @return void
      */
-    public static function setInputTemplateFilename( string $filename )
+    public static function setInputTemplateFilename( string $filename ): void
     {
         static::$input_template_filename = $filename;
     }
@@ -658,10 +658,12 @@ abstract class RequestInput
      * Override this routine in derived classes in case any extra assignments
      * need to be made in addition to settings the object's "value" property.
      * @param mixed $value Base value to assign.
+     * @return $this
      */
-    public function setInputValue( $value )
+    public function setInputValue(mixed $value ): RequestInput
     {
         $this->value = $value;
+        return $this;
     }
 
     /**
@@ -680,7 +682,7 @@ abstract class RequestInput
      * @param string $property Property name.
      * @param mixed $value Value to assign to the object property.
      */
-    public function setProperty( string $property, $value )
+    public function setProperty(string $property, mixed $value ): void
     {
         if (property_exists($this, $property)) {
             $this->$property = $value;
@@ -691,7 +693,7 @@ abstract class RequestInput
      * Required field indicator string setter.
      * @param string $str Required field indicator string.
      */
-    public static function setRequiredIndicator( string $str )
+    public static function setRequiredIndicator( string $str ): void
     {
         static::$required_field_indicator = $str;
     }
@@ -700,7 +702,7 @@ abstract class RequestInput
      * Sets the internal template path value.
      * @param string $path Path to template directory.
      */
-    public static function setTemplateBasePath( string $path )
+    public static function setTemplateBasePath( string $path ): void
     {
         static::$template_base_path = $path;
     }
@@ -709,7 +711,7 @@ abstract class RequestInput
      * Template filename setter.
      * @param string $filename template filename
      */
-    public static function setTemplateFilename( string $filename )
+    public static function setTemplateFilename( string $filename ): void
     {
         static::$template_filename = $filename;
     }
@@ -717,7 +719,7 @@ abstract class RequestInput
     /**
      * Clears any error properties of the object.
      */
-    public function clearValidationErrors()
+    public function clearValidationErrors(): void
     {
         $this->has_errors = false;
         $this->error = '';
@@ -739,11 +741,11 @@ abstract class RequestInput
      * Validates the object's current value stored in its $value property.
      * @throws ContentValidationException
      */
-    public function validate()
+    public function validate(): void
     {
         if ($this->required) {
             if (!$this->hasData()) {
-                $this->throwValidationError($this->formatErrorLabel()." is required.");
+                $this->throwValidationError($this->formatErrorLabel(). ' is required.');
             }
         }
     }

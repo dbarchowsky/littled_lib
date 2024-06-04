@@ -28,7 +28,7 @@ class FloatInput extends RenderedInput
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
      * @param ?string $key Key to use in place of the internal $key property value.
      */
-    public function collectRequestData(?array $src = null, ?string $key = null)
+    public function collectRequestData(?array $src = null, ?string $key = null): void
     {
         if ($this->bypass_collect_request_data === true) {
             return;
@@ -39,7 +39,7 @@ class FloatInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function collectAjaxRequestData(object $data)
+    public function collectAjaxRequestData(object $data): void
     {
         parent::collectAjaxRequestData($data);
         $this->value = Validation::parseNumeric($this->value);
@@ -48,7 +48,7 @@ class FloatInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false)
+    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): float|int|string|null
     {
         return Validation::parseNumeric($this->value);
     }
@@ -62,24 +62,25 @@ class FloatInput extends RenderedInput
     }
 
     /**
-     * @param integer $value Value to assign as the value of the object.
+     * @inheritDoc
      */
-    public function setInputValue($value)
+    public function setInputValue(mixed $value): FloatInput
     {
         $this->value = Validation::parseNumeric($value);
+        return $this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function validate()
+    public function validate(): void
     {
         if ((trim('' . $this->value) !== '') &&
             (Validation::parseInteger($this->value) === null)) {
-            $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
+            $this->throwValidationError(ucfirst($this->label) . ' is in unrecognized format.');
         }
         if ($this->isRequired() && !$this->hasData()) {
-            $this->throwValidationError(ucfirst($this->label) . " is required.");
+            $this->throwValidationError(ucfirst($this->label) . ' is required.');
         }
     }
 }

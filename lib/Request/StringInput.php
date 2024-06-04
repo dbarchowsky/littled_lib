@@ -4,10 +4,7 @@ namespace Littled\Request;
 
 use Littled\Validation\Validation;
 
-/**
- * Class StringInput
- * @package Littled\Request
- */
+
 class StringInput extends RenderedInput
 {
     /** @var string         Form input element template filename */
@@ -30,9 +27,9 @@ class StringInput extends RenderedInput
     /**
      * {@inheritDoc}
      */
-    public function clearValue()
+    public function clearValue(): void
     {
-        $this->value = "";
+        $this->value = '';
     }
 
     /**
@@ -41,7 +38,7 @@ class StringInput extends RenderedInput
      * @param ?int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
      * @param ?string $key Key to use in place of the internal $key property value.
      */
-    public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null)
+    public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null): void
     {
         if (true === $this->bypass_collect_request_data) {
             return;
@@ -62,25 +59,25 @@ class StringInput extends RenderedInput
     }
 
     /**
-     * Sets the internal value of the object. Casts any values as strings.
-     * @param mixed $value
+     * @inheritDoc
      */
-    public function setInputValue($value)
+    public function setInputValue(mixed $value): StringInput
     {
-        $this->value = "$value";
+        $this->value = '' . $value;
+        return $this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function validate()
+    public function validate(): void
     {
         if ($this->required) {
             if (!is_string($this->value)) {
-                $this->throwValidationError($this->formatErrorLabel() . " is required.");
+                $this->throwValidationError($this->formatErrorLabel() . ' is required.');
             }
             if (strlen(trim($this->value)) < 1) {
-                $this->throwValidationError($this->formatErrorLabel() . " is required.");
+                $this->throwValidationError($this->formatErrorLabel() . ' is required.');
             }
             if (strlen($this->value) > $this->size_limit) {
                 $this->throwValidationError($this->formatErrorLabel() . " is limited to $this->size_limit characters.");

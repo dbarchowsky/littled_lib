@@ -29,19 +29,19 @@ class URLTextField extends StringTextField
     /**
      * @inheritDoc
      */
-    public function render(string $label = '', string $css_class = '', array $context = [])
+    public function render(string $label = '', string $css_class = '', array $context = []): void
     {
         /** TODO mark the form input as having type="url" */
         parent::render($label, $css_class);
     }
 
     /**
-     * Filters the values stored in the object to only be sanitized URLs.
-     * @param mixed $value Value to assign to the object.
+     * @inheritDoc
      */
-    public function setInputValue($value)
+    public function setInputValue(mixed $value): URLTextField
     {
         $this->value = filter_var(strip_tags('' . $value), FILTER_SANITIZE_URL);
+        return $this;
     }
 
     /**
@@ -49,11 +49,11 @@ class URLTextField extends StringTextField
      * $value property of the object is updated with the filtered URL value.
      * @throws ContentValidationException
      */
-    public function validate()
+    public function validate(): void
     {
         $value = filter_var($this->value, FILTER_VALIDATE_URL);
         if ($value === false) {
-            $this->throwValidationError(ucfirst($this->label) . " does not appear to be a valid URL.");
+            $this->throwValidationError(ucfirst($this->label) . ' does not appear to be a valid URL.');
         }
         $this->value = filter_var($value, FILTER_SANITIZE_URL);
     }

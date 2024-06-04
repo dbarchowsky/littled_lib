@@ -12,12 +12,12 @@ class StringSelect extends StringInput implements RequestSelectInterface
     public array                $options;
 	public ?int                 $options_length = null;
     /** @var string[]|string */
-    public                      $value;
+    public mixed                $value;
 
     /**
      * @inheritDoc
      */
-    public function collectRequestData (?array $src=null, ?int $filters=null, ?string $key=null)
+    public function collectRequestData (?array $src=null, ?int $filters=null, ?string $key=null): void
     {
         if (true===$this->bypass_collect_request_data) {
             return;
@@ -69,10 +69,10 @@ class StringSelect extends StringInput implements RequestSelectInterface
 
     /**
      * @inheritDoc
-     * @param null|string $value
+     * @param mixed $value
      * @return bool
      */
-    public function lookupValueInSelectedValues($value): bool
+    public function lookupValueInSelectedValues(mixed $value): bool
     {
         if (is_array($this->value)) {
             return in_array($value, $this->value);
@@ -85,10 +85,10 @@ class StringSelect extends StringInput implements RequestSelectInterface
     /**
      * {@inheritDoc}
      */
-    public function render(string $label='', string $css_class='', array $context=[])
+    public function render(string $label='', string $css_class='', array $context=[]): void
     {
         if (!array_key_exists('options', $context)) {
-            $context = array('options' => $context);
+            $context = ['options' => $context];
         }
         parent::render($label, $css_class, $context);
     }
@@ -96,7 +96,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
     /**
      * @inheritDoc
      */
-    public function setInputValue($value)
+    public function setInputValue(mixed $value): StringSelect
     {
         if ($this->allow_multiple) {
             // value is an array of strings
@@ -108,7 +108,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
                     return ($e != '');
                 }));
             } elseif ('' . $value) {
-                $this->value = array($value);
+                $this->value = [$value];
             } else {
                 $this->value = [];
             }
@@ -122,13 +122,14 @@ class StringSelect extends StringInput implements RequestSelectInterface
                 $this->value = filter_var($value);
             }
         }
+        return $this;
     }
 
 	/**
 	 * @inheritDoc
 	 */
-	public function setOptionsLength(int $len)
-	{
+	public function setOptionsLength(int $len): void
+    {
 		$this->options_length = $len;
 	}
 
@@ -146,19 +147,19 @@ class StringSelect extends StringInput implements RequestSelectInterface
     /**
      * @inheritDoc
      */
-    public function validate()
+    public function validate(): void
     {
         if (!$this->required) {
             return;
         }
         if ($this->allow_multiple) {
             if (count($this->value) < 1) {
-                $this->throwValidationError($this->formatErrorLabel() . " is required.");
+                $this->throwValidationError($this->formatErrorLabel() . ' is required.');
             }
         }
         else {
             if (''.$this->value==='') {
-                $this->throwValidationError($this->formatErrorLabel() . " is required.");
+                $this->throwValidationError($this->formatErrorLabel() . ' is required.');
             }
         }
     }

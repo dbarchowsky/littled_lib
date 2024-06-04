@@ -19,15 +19,15 @@ interface RequestSelectInterface
     /**
      * Test if the supplied value matches any of the current internal selected category values. Returns TRUE if
      * $value matches a selected category value.
-     * @param null|bool|int|float|string $value
+     * @param mixed $value
      * @return bool
      */
-    public function lookupValueInSelectedValues($value): bool;
+    public function lookupValueInSelectedValues(mixed $value): bool;
 
     /**
      * Options setter
      * @param array $options
-     * @return $this
+     * @return RequestInput
      */
     public function setOptions(array $options): RequestInput;
 
@@ -36,5 +36,5 @@ interface RequestSelectInterface
      * @param int $len
      * @return void
      */
-    public function setOptionsLength(int $len);
+    public function setOptionsLength(int $len): void;
 }

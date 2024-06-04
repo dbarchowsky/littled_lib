@@ -40,7 +40,7 @@ class CategorySelect extends MySQLConnection
      * @param bool $allow Optional flag indicating if multiple values are allowed. Defaults to TRUE.
      * @return void
      */
-    public function setAllowMultiple(bool $allow=true)
+    public function setAllowMultiple(bool $allow=true): void
     {
         $this->category_input->setAllowMultiple($allow);
     }
@@ -50,7 +50,7 @@ class CategorySelect extends MySQLConnection
      * @return void
      * @throws ConfigurationUndefinedException
      */
-    public function collectRequestData()
+    public function collectRequestData(): void
     {
         foreach($this as $property) {
             if (is_object($property) && method_exists($property, 'collectRequestData')) {
@@ -78,7 +78,7 @@ class CategorySelect extends MySQLConnection
      * @throws ConnectionException
      * @throws ConfigurationUndefinedException
      */
-    public function deleteRecords()
+    public function deleteRecords(): void
     {
         foreach($this->categories as $term) {
             $term->delete();
@@ -177,7 +177,7 @@ class CategorySelect extends MySQLConnection
      * @return void
      * @throws ConfigurationUndefinedException
      */
-    protected function pushKeywordInstance(string $term)
+    protected function pushKeywordInstance(string $term): void
     {
         $this->categories[] = new Keyword($term, $this->getParentId(), static::getContentTypeId());
     }
@@ -188,7 +188,7 @@ class CategorySelect extends MySQLConnection
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
-    public function read()
+    public function read(): void
     {
         if (!$this->hasValidParent() || !isset(static::$content_type_id)) {
             throw new ConfigurationUndefinedException(Log::getShortMethodName().' Parent properties not configured. ');
@@ -206,11 +206,11 @@ class CategorySelect extends MySQLConnection
      * Injects class property values into template and prints result.
      * @return void
      */
-    public function render()
+    public function render(): void
     {
         ContentUtils::renderTemplateWithErrors(
             static::getContainerTemplatePath(),
-            array('category_inputs' => &$this)
+            ['category_inputs' => &$this]
         );
     }
 
@@ -219,7 +219,7 @@ class CategorySelect extends MySQLConnection
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
-    public function retrieveCategoryOptions()
+    public function retrieveCategoryOptions(): void
     {
         $query = 'SELECT term FROM keyword WHERE type_id = ? GROUP BY term';
         $content_type_id = static::getContentTypeId();
@@ -260,7 +260,7 @@ class CategorySelect extends MySQLConnection
      * @param string $filename
      * @return void
      */
-    public static function setContainerTemplateFilename(string $filename)
+    public static function setContainerTemplateFilename(string $filename): void
     {
         static::$container_template = $filename;
     }
@@ -280,7 +280,7 @@ class CategorySelect extends MySQLConnection
      * @param int $parent_id
      * @return void
      */
-    public function setParentId( int $parent_id )
+    public function setParentId( int $parent_id ): void
     {
         $this->parent_id = $parent_id;
 		foreach($this->categories as $term) {
@@ -293,7 +293,7 @@ class CategorySelect extends MySQLConnection
      * @param bool $required
      * @return void
      */
-    public function setRequired(bool $required=true)
+    public function setRequired(bool $required=true): void
     {
         if ($required) {
             $this->category_input->setAsRequired();
@@ -318,7 +318,7 @@ class CategorySelect extends MySQLConnection
      * @return void
      * @throws ContentValidationException
      */
-    public function validateInput()
+    public function validateInput(): void
     {
         $this->validation_errors->clear();
         $cat_error = $new_cat_error = false;
@@ -346,7 +346,7 @@ class CategorySelect extends MySQLConnection
         $this->new_category->required = $original;
 
         if ($cat_error && $new_cat_error) {
-            throw new ContentValidationException($this->category_input->formatErrorLabel()." is required.");
+            throw new ContentValidationException($this->category_input->formatErrorLabel(). ' is required.');
         }
     }
 

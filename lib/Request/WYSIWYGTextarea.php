@@ -23,7 +23,7 @@ class WYSIWYGTextarea extends StringTextarea
      * @inheritDoc
      * Sets filters to allow html tags.
      */
-    public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null)
+    public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null): void
     {
         if (true===$this->bypass_collect_request_data) {
             return;
@@ -45,7 +45,7 @@ class WYSIWYGTextarea extends StringTextarea
     /**
      * @inheritDoc
      */
-    function render(string $label = '', string $css_class = '', array $context=[])
+    function render(string $label = '', string $css_class = '', array $context=[]): void
     {
         $this->setInputCSSClass(static::$editor_css_class);
         parent::render($label, $css_class);
@@ -56,7 +56,7 @@ class WYSIWYGTextarea extends StringTextarea
      * @param string $class
      * @return void
      */
-    public static function setEditorClass(string $class)
+    public static function setEditorClass(string $class): void
     {
         static::$editor_css_class = $class;
     }
@@ -69,8 +69,8 @@ class WYSIWYGTextarea extends StringTextarea
     public function setInputCSSClass(string $class): WYSIWYGTextarea
     {
         $this->input_css_class = $class;
-        if (strpos($this->input_css_class, static::$editor_css_class)===false) {
-            $this->input_css_class .= " ".static::$editor_css_class;
+        if (!str_contains($this->input_css_class, static::$editor_css_class)) {
+            $this->input_css_class .= ' ' .static::$editor_css_class;
         }
         return $this;
     }

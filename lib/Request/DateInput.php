@@ -6,6 +6,7 @@ use DateTime;
 use mysqli;
 use Littled\Exception\ContentValidationException;
 
+
 /**
  * Date inputs base class.
  */
@@ -36,10 +37,10 @@ class DateInput extends StringInput
      * @inheritDoc
      * @throws ContentValidationException
      */
-    public function collectAjaxRequestData(object $data)
+    public function collectAjaxRequestData(object $data): void
     {
         parent::collectAjaxRequestData($data);
-        if (strlen("" . $this->value) > 0) {
+        if (strlen('' . $this->value) > 0) {
             $this->setDateValue();
         }
     }
@@ -68,7 +69,7 @@ class DateInput extends StringInput
                 $date_string = $src;
             }
         }
-        return ((($include_quotes) ? ("'") : ("")) . $mysqli->real_escape_string($date_string) . (($include_quotes) ? ("'") : ("")));
+        return ((($include_quotes) ? ("'") : ('')) . $mysqli->real_escape_string($date_string) . (($include_quotes) ? ("'") : ('')));
     }
 
     /**
@@ -118,7 +119,7 @@ class DateInput extends StringInput
      * @param string $date_format
      * @throws ContentValidationException Current value not a valid date value.
      */
-    protected function setDateValue(string $date_format = '')
+    protected function setDateValue(string $date_format = ''): void
     {
         $date_format = $date_format ?? $this->format;
         $this->value = $this->formatDateValue($date_format);
@@ -138,7 +139,7 @@ class DateInput extends StringInput
     /**
      * Date format string setter.
      * @param string $format
-     * @return void
+     * @return $this
      */
     public function setFormat(string $format): DateInput
     {
@@ -148,25 +149,27 @@ class DateInput extends StringInput
 
     /**
      * Assigns a value to the object after parsing the value in order to be in a workable format.
-     * @param ?string $value Value to assign to the object.
-     * @param string $date_format (Optional) date format to apply to the date value. Default value is 'Y-m-d'.
+     * @param ?mixed $value Value to assign to the object.
+     * @param string $date_format
+     * @return $this
      */
-    public function setInputValue($value, string $date_format = '')
+    public function setInputValue(mixed $value, string $date_format = ''): DateInput
     {
         $date_format = $date_format ?: $this->format;
         parent::setInputValue($value);
         try {
             $this->setDateValue($date_format ?: $this->format ?: 'Y-m-d');
-        } catch (ContentValidationException $ex) {
+        } catch (ContentValidationException) {
             $this->value = null;
         }
+        return $this;
     }
 
     /**
      * Validates the date value.
      * @throws ContentValidationException Date value is missing when required or is in an unrecognized format.
      */
-    public function validate()
+    public function validate(): void
     {
         if (true === $this->required && (null === $this->value || strlen($this->value) < 1)) {
             throw new ContentValidationException("$this->label is required.");
@@ -175,7 +178,7 @@ class DateInput extends StringInput
             return;
         }
         if (strlen($this->value) > $this->size_limit) {
-            throw new ContentValidationException("$this->label is limited to $this->size_limit character" . (($this->size_limit != 1) ? ("s") : ("")) . ".");
+            throw new ContentValidationException("$this->label is limited to $this->size_limit character" . (($this->size_limit != 1) ? ('s') : ('')) . '.');
         }
         $this->setDateValue();
     }

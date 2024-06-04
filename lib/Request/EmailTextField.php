@@ -1,13 +1,9 @@
 <?php
 namespace Littled\Request;
 
-
 use Littled\Validation\Validation;
 
-/**
- * Class StringTextFieldInput
- * @package Littled\Request
- */
+
 class EmailTextField extends StringTextField
 {
 	/** @var string Form input element template filename */
@@ -37,14 +33,14 @@ class EmailTextField extends StringTextField
 	/**
 	 * {@inheritDoc}
 	 */
-	public function validate()
-	{
+	public function validate(): void
+    {
 		parent::validate();
 		if (strlen(trim($this->value)) > 0)
 		{
 			if (Validation::validateEmailAddress($this->value)===false)
 			{
-				$this->throwValidationError($this->formatErrorLabel()." is not in a recognized email format.");
+				$this->throwValidationError($this->formatErrorLabel(). ' is not in a recognized email format.');
 			}
 		}
 	}

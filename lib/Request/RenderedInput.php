@@ -14,16 +14,16 @@ abstract class RenderedInput extends RequestInput
 	 * string will cause the label to not be rendered at all.
 	 * @param string $css_class (Optional) CSS class name(s) to apply to the input container.
 	 */
-	public function render( string $label='', string $css_class='', array $context=[])
-	{
+	public function render( string $label='', string $css_class='', array $context=[]): void
+    {
 		if (!$label) {
 			$label=$this->label;
 		}
-        $context = array_merge($context, array(
+        $context = array_merge($context, [
             'input' => &$this,
             'label' => $label,
             'css_class' => $css_class
-        ));
+        ]);
 		ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), $context);
 	}
 
@@ -32,11 +32,11 @@ abstract class RenderedInput extends RequestInput
 	 * @param array $context Optional array of variables to insert into the element template.
 	 * @return void
 	 */
-	public function renderHidden(?int $value_override=null, array $context=[])
-	{
-		$context = array_merge($context, array(
+	public function renderHidden(?int $value_override=null, array $context=[]): void
+    {
+		$context = array_merge($context, [
 			'input' => &$this
-		));
+        ]);
 		if ($value_override !== null) {
 			$context['value_override'] = $value_override;
 		}
@@ -47,14 +47,14 @@ abstract class RenderedInput extends RequestInput
 	 * Renders the corresponding form field with a label to collect the input data.
 	 * @param ?string $label
 	 */
-	public function renderInput(?string $label=null)
-	{
+	public function renderInput(?string $label=null): void
+    {
 		if (!$label) {
 			$label = $this->label;
 		}
-		ContentUtils::renderTemplateWithErrors(static::getInputTemplatePath(), array(
+		ContentUtils::renderTemplateWithErrors(static::getInputTemplatePath(), [
 			'input' => &$this,
 			'label' => $label
-		));
+        ]);
 	}
 }

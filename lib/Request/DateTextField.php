@@ -25,7 +25,7 @@ class DateTextField extends DateInput
     {
         try {
             return ($this->formatDateValue($date_format));
-        } catch (ContentValidationException $ex) {
+        } catch (ContentValidationException) {
             return ($this->value);
         }
     }
@@ -33,13 +33,14 @@ class DateTextField extends DateInput
     /**
      * @inheritDoc
      */
-    public function render(string $label = '', string $css_class = '', array $context = [])
+    public function render(string $label = '', string $css_class = '', array $context = []): void
     {
         try {
             ContentUtils::renderTemplate(static::getTemplatePath(),
-                array('input' => $this,
+                [
+                    'input' => $this,
                     'label' => $label,
-                    'css_class' => $css_class));
+                    'css_class' => $css_class]);
         } catch (Exception $e) {
             ContentUtils::printError($e->getMessage());
         }

@@ -33,7 +33,7 @@ class IntegerInput extends RenderedInput
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
      * @param ?string $key Key to use in place of the internal $key property value.
      */
-    public function collectRequestData(?array $src = null, ?string $key = null)
+    public function collectRequestData(?array $src = null, ?string $key = null): void
     {
         if ($this->bypass_collect_request_data === true) {
             return;
@@ -44,7 +44,7 @@ class IntegerInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function collectAjaxRequestData(object $data)
+    public function collectAjaxRequestData(object $data): void
     {
         parent::collectAjaxRequestData($data);
         $this->value = Validation::parseInteger($this->value);
@@ -69,7 +69,7 @@ class IntegerInput extends RenderedInput
     /**
      * {@inheritDoc}
      */
-    public function safeValue($options = []): string
+    public function safeValue(array|int $options = []): string
     {
         if (!is_numeric($this->value) && !is_array($this->value)) {
             return ('');
@@ -78,10 +78,10 @@ class IntegerInput extends RenderedInput
     }
 
     /**
-     * @param null|int|int[] $value Value to assign as the value of the object.
-     * @return IntegerInput
+     * @param mixed $value Value to assign as the value of the object.
+     * @return $this
      */
-    public function setInputValue($value): IntegerInput
+    public function setInputValue(mixed $value): IntegerInput
     {
         if (is_array($value)) {
             $this->value = [];
@@ -100,17 +100,17 @@ class IntegerInput extends RenderedInput
     /**
      * {@inheritDoc}
      */
-    public function validate()
+    public function validate(): void
     {
         if (is_array($this->value)) {
-            $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
+            $this->throwValidationError(ucfirst($this->label) . ' is in unrecognized format.');
         }
         if ((trim('' . $this->value) !== '') &&
             (Validation::parseInteger($this->value) === null)) {
-            $this->throwValidationError(ucfirst($this->label) . " is in unrecognized format.");
+            $this->throwValidationError(ucfirst($this->label) . ' is in unrecognized format.');
         }
         if ($this->isRequired() && !$this->hasData()) {
-            $this->throwValidationError(ucfirst($this->label) . " is required.");
+            $this->throwValidationError(ucfirst($this->label) . ' is required.');
         }
     }
 }

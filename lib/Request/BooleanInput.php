@@ -5,6 +5,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\PageContent\ContentUtils;
 use Littled\Validation\Validation;
 
+
 class BooleanInput extends RenderedInput
 {
 	/** @var string */
@@ -15,8 +16,8 @@ class BooleanInput extends RenderedInput
 	/**
 	 * Clears the data container value.
 	 */
-	public function clearValue()
-	{
+	public function clearValue(): void
+    {
 		$this->value = null;
 	}
 
@@ -25,16 +26,16 @@ class BooleanInput extends RenderedInput
 	 * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
 	 * @param ?string $key Key to use in place of the internal $key property value.
 	 */
-	public function collectRequestData (?array $src=null, ?string $key=null)
-	{
+	public function collectRequestData (?array $src=null, ?string $key=null): void
+    {
 		$this->value = Validation::collectBooleanRequestVar((($key)?:($this->key)), $this->index, $src);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function collectAjaxRequestData(object $data)
-	{
+	public function collectAjaxRequestData(object $data): void
+    {
 		parent::collectAjaxRequestData($data);
 		$this->value = Validation::parseBoolean($this->value);
 	}
@@ -42,8 +43,8 @@ class BooleanInput extends RenderedInput
 	/**
 	 * {@inheritDoc}
 	 */
-	public function escapeSQL($mysqli, $include_quotes=false)
-	{
+	public function escapeSQL($mysqli, $include_quotes=false): float|int|string|null
+    {
         return Validation::parseBoolean($this->value);
 	}
 
@@ -72,8 +73,8 @@ class BooleanInput extends RenderedInput
 	 * @param string $label If a value is provided, it will override the object's internal $label property value.
 	 * @param string $css_class CSS class name to apply to the form input element.
 	 */
-	public function render(string $label='', string $css_class='', array $context=[])
-	{
+	public function render(string $label='', string $css_class='', array $context=[]): void
+    {
 		if (false === $this->isTemplateDefined()) {
 			ContentUtils::printError("\"".__METHOD__."\" not implemented.");
 		}
@@ -85,37 +86,38 @@ class BooleanInput extends RenderedInput
 		$required_str = (($this->required)?($this::getRequiredIndicator()):(''));
 
 		ContentUtils::renderTemplateWithErrors($this::getTemplatePath(),
-			array(
+			[
 				'input' => &$this,
 				'label' => $label,
 				'css_class' => $css_class,
 				'selection_state' => $selection_state,
 				'required_field_indication' => $required_str
-			));
+            ]);
 	}
 
 	/**
 	 * Assigns a value to the object. Checks that passed value is boolean.
-	 * @param ?bool $value Value to assign.
+	 * @inheritDoc
 	 */
-	public function setInputValue ($value)
-	{
+	public function setInputValue (mixed $value): BooleanInput
+    {
 		$this->value = Validation::parseBoolean($value);
+        return $this;
 	}
 
 	/**
 	 * Validates the collected value as a non-empty string within its size limit.
 	 * @throws ContentValidationException
 	 */
-	public function validate ( )
-	{
+	public function validate ( ): void
+    {
 		if ($this->required) {
 			if ($this->value===null) {
-				$this->throwValidationError(ucfirst($this->label)." is required.");
+				$this->throwValidationError(ucfirst($this->label). ' is required.');
 			}
 		}
 		if ($this->value!==null && $this->value!==true && $this->value!==false) {
-			$this->throwValidationError(ucfirst($this->label)." is in unrecognized format.");
+			$this->throwValidationError(ucfirst($this->label). ' is in unrecognized format.');
 		}
 	}
 }
