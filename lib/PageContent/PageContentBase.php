@@ -86,7 +86,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
      * @param string $route
      * @return void
      */
-    public static function setBaseRoute(string $route)
+    public static function setBaseRoute(string $route): void
     {
         static::$route_parts = array($route);
     }
@@ -107,7 +107,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
      * @param array $route
      * @return void
      */
-    public static function setRouteParts(array $route)
+    public static function setRouteParts(array $route): void
     {
         static::$route_parts = array_values(array_map(
             function($n) {
@@ -122,7 +122,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
      * @param int $index Optional 0-based index of the component to assign the sub route value. Defaults to 1, i.e. the 2nd component in the route path.
      * @return void
      */
-    public static function setSubRoute(string $sub_route, int $index=1)
+    public static function setSubRoute(string $sub_route, int $index=1): void
     {
         if (count(static::$route_parts) <= $index) {
             for ($i = count(static::$route_parts); $i <= $index; $i++) {

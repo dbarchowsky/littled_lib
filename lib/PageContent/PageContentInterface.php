@@ -1,20 +1,18 @@
 <?php
 namespace Littled\PageContent;
 
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ResourceNotFoundException;
 
 interface PageContentInterface
 {
-    const CANCEL_ACTION = "cancel";
-    const COMMIT_ACTION = "commit";
+    const CANCEL_ACTION = 'cancel';
+    const COMMIT_ACTION = 'commit';
 
 	/**
 	 * Collect client request data.
 	 * @param array|null $src
 	 * @return mixed
 	 */
-	public function collectRequestData(?array $src=null);
+	public function collectRequestData(?array $src=null): mixed;
 
     /**
      * Template context getter

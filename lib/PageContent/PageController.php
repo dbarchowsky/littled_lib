@@ -3,6 +3,7 @@ namespace Littled\PageContent;
 
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -38,8 +39,8 @@ class PageController extends MySQLConnection
 	 * @throws ConfigurationUndefinedException
 	 * @throws ConnectionException
      */
-	public function collectAlbumProperties( array $exclude=[] )
-	{
+	public function collectAlbumProperties( array $exclude=[] ): void
+    {
 		$this->collectAlbumSlug($exclude);
 		if ($this->section_slug && $this->album_slug) {
 			$this->lookupSectionProperties();
@@ -53,8 +54,8 @@ class PageController extends MySQLConnection
 	 * Extracts an album slug from the current request URI.
 	 * @param array $exclude List of paths that will not trigger a redirect.
 	 */
-	public function collectAlbumSlug( array $exclude=[] )
-	{
+	public function collectAlbumSlug( array $exclude=[] ): void
+    {
 		$this->collectOriginalURI();
 		$uri_filter = array($this, 'uri_filter');
 		if (count(array_filter($exclude, $uri_filter)) == 0) {
@@ -67,8 +68,8 @@ class PageController extends MySQLConnection
 	 * used to determine how to serve the response.
 	 * Stores the URI in the object's "original_uri" property.
 	 */
-	public function collectOriginalURI()
-	{
+	public function collectOriginalURI(): void
+    {
 		/* mod_php */
 		$this->original_uri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_UNSAFE_RAW);
 		if (!$this->original_uri) {
@@ -84,8 +85,8 @@ class PageController extends MySQLConnection
 	 * Redirects to the requested URI.
 	 * @param string $uri URI to redirect to.
 	 */
-	public function doRedirect( string $uri )
-	{
+	#[NoReturn] public function doRedirect(string $uri ): void
+    {
 		/* redirect to the requested page */
 		header("Location: $uri\n\n");
 		exit;
@@ -99,7 +100,7 @@ class PageController extends MySQLConnection
 	public function formatAlbumURI (): string
 	{
 		/** TODO Uncomment the return statement when AlbumViewer class is available. */
-		throw new NotImplementedException("PageController::formatAlbumURI not implemented.");
+		throw new NotImplementedException('PageController::formatAlbumURI not implemented.');
 		/* return("{$this->section_base_path}?".AlbumViewer::BOOK_PARAM."={$this->album_id}"); */
 	}
 
@@ -118,13 +119,13 @@ class PageController extends MySQLConnection
      * @throws ConnectionException
      * @throws Exception
      */
-	public function lookupAlbumProperties( string $slug='', ?int $section_id=null )
-	{
+	public function lookupAlbumProperties( string $slug='', ?int $section_id=null ): void
+    {
 		if ($section_id > 0) {
 			$this->section_id = $section_id;
 		}
 		if ($this->section_id === null || $this->section_id < 1) {
-			throw new ContentValidationException("Content properties not set. ");
+			throw new ContentValidationException('Content properties not set. ');
 		}
 		if ($slug) {
 			$this->album_slug = $slug;
@@ -132,14 +133,14 @@ class PageController extends MySQLConnection
 
 		$this->connectToDatabase();
 		$escaped_slug = $this->escapeSQLValue($this->album_slug);
-		$query = "SEL"."ECT `id` FROM `$this->table` WHERE (`slug` LIKE '$escaped_slug')";
+		$query = 'SEL' ."ECT `id` FROM `$this->table` WHERE (`slug` LIKE '$escaped_slug')";
 		if ($this->columnExists('section_id', $this->table)) {
 			$query .= "AND (section_id = $this->section_id)";
 		}
 
 		$data = $this->fetchRecords($query);
 		if (count($data) < 1) {
-			throw new RecordNotFoundException("Error retrieving album properties.");
+			throw new RecordNotFoundException('Error retrieving album properties.');
 		}
 		$this->album_id = $data[0]->id;
 	}
@@ -158,48 +159,44 @@ class PageController extends MySQLConnection
      * @throws ConnectionException
      * @throws Exception
      */
-	public function lookupSectionProperties( string $slug='' )
-	{
+	public function lookupSectionProperties( string $slug='' ): void
+    {
 		if ($slug) {
 			$this->section_slug = $slug;
 		}
 		if (!$this->section_slug) {
-			throw new ContentValidationException("Section slug not provided.");
+			throw new ContentValidationException('Section slug not provided.');
 		}
 
 		/* test if the slug matches any existing site sections */
-		$query = "SELECT `id`,`table`,`root_dir`,`sub_dir` FROM `site_section` WHERE `slug` LIKE ".$this->escapeSQLValue($this->section_slug);
-		$data = $this->fetchRecords($query);
+		$query = 'SELECT `id`,`table`,`root_dir` FROM `site_section` WHERE `slug` LIKE  ?';
+		$data = $this->fetchRecords($query, 's', $this->section_slug);
 		if (count($data) < 1) {
-			throw new RecordNotFoundException("Error retrieving content properties.");
+			throw new RecordNotFoundException('Error retrieving content properties.');
 		}
 		$this->section_id = $data[0]->id;
 		$this->table = $data[0]->table;
-		$root_dir = $data[0]->root_dir;
-		$sub_dir = $data[0]->sub_dir;
-
-		$this->setSectionBasePath($root_dir, $sub_dir);
+		$this->setSectionBasePath($data[0]->root_dir);
 	}
 
 	/**
 	 * Sends 404 error response.
 	 */
-	public function send404()
-	{
-		header("HTTP/1.0 404 Not Found");
+	#[NoReturn] public function send404(): void
+    {
+		header('HTTP/1.0 404 Not Found');
 		exit;
 	}
 
 	/**
 	 * Formats path to content root directory, relative to the web root directory.
 	 * Stores the result in the object's $section_base_path property.
-	 * @param string $base_path Path to the content section's base directory,
-	 * relative to the web root.
+	 * @param string $base_path Path to the content section's base directory, relative to the web root.
 	 * @param string $subdirectory (Optional) subdirectory name.
 	 */
-	public function setSectionBasePath(string $base_path, string $subdirectory='' )
-	{
-		$this->section_base_path = "";
+	public function setSectionBasePath(string $base_path, string $subdirectory='' ): void
+    {
+		$this->section_base_path = '';
 		if ($base_path) {
 			$this->section_base_path = '/'.trim($base_path, '/').'/';
 			if ($subdirectory) {
@@ -222,8 +219,8 @@ class PageController extends MySQLConnection
 	 * @throws ConnectionException
      * @throws NotImplementedException
 	 */
-	public function testForRedirect( array $exclude=[] )
-	{
+	public function testForRedirect( array $exclude=[] ): void
+    {
 		$this->collectAlbumProperties($exclude);
 		if ($this->section_base_path && $this->album_id > 0) {
 			/* redirect to the matching URI */

@@ -3,7 +3,6 @@ namespace Littled\PageContent;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -92,9 +91,8 @@ abstract class PageContent extends PageContentBase
      * Sets $qs property value to preserve initial GET variable values.
      * @param RequestInput[] $page_vars Array of input_class objects used to collect page variable values
      * to store in query string.
-     * @throws NotImplementedException
      */
-    protected function preservePageVariables(array $page_vars)
+    protected function preservePageVariables(array $page_vars): void
     {
         $qs_vars = array();
         foreach($page_vars as $input) {
@@ -118,10 +116,10 @@ abstract class PageContent extends PageContentBase
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-    public function render(?array $context=null)
+    public function render(?array $context=null): void
     {
         if (static::getTemplatePath()==='') {
-            throw new ConfigurationUndefinedException("Page template not configured.");
+            throw new ConfigurationUndefinedException('Page template not configured.');
         }
         ContentUtils::renderTemplate(static::getTemplatePath(), $context);
     }
@@ -129,8 +127,8 @@ abstract class PageContent extends PageContentBase
 	/**
 	 * Prevents any variable values that were previously cached from being passed along to subsequent pages.
 	 */
-	public function resetPageVariables()
-	{
+	public function resetPageVariables(): void
+    {
 		$this->query_string = '';
 	}
 
@@ -139,7 +137,7 @@ abstract class PageContent extends PageContentBase
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
-    public function sendResponse( string $template_path='', ?array $context=null )
+    public function sendResponse( string $template_path='', ?array $context=null ): void
     {
         if ($template_path) {
             $this->setTemplatePath($template_path);
@@ -152,7 +150,7 @@ abstract class PageContent extends PageContentBase
      * Sets the error message to display on a page.
      * @param string $error_msg string
      */
-    public function setPageError(string $error_msg )
+    public function setPageError(string $error_msg ): void
     {
         $this->content->addValidationError($error_msg);
     }

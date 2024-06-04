@@ -6,6 +6,7 @@ use DOMException;
 use DOMDocument;
 use DOMText;
 use DOMXPath;
+use JetBrains\PhpStorm\NoReturn;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Validation\Validation;
@@ -40,18 +41,18 @@ class PageUtils
 	 * @param string $target_uri URI to redirect to.
 	 * @param ?string $msg Optional message to pass along to the next page.
 	 */
-	public static function doRedirect(string $target_uri='', ?string $msg=null)
-	{
+	#[NoReturn] public static function doRedirect(string $target_uri='', ?string $msg=null): void
+    {
 		$_SESSION[LittledGlobals::INFO_MESSAGE_KEY] = $msg;
 
 		$uri = Validation::collectStringRequestVar(LittledGlobals::REFERER_KEY, FILTER_SANITIZE_URL);
 		if (!$uri) {
 			$uri = $target_uri;
 		}
-		$iPos = strpos($uri,"/");
+		$iPos = strpos($uri, '/');
 		if (is_numeric($iPos) && ($iPos==0)) {
 			/* NB INPUT_SERVER is unreliable with filter_input() */
-			$uri = 'http://'.$_SERVER['HTTP_HOST'].$uri;
+			$uri = 'http://' .$_SERVER['HTTP_HOST'].$uri;
 		}
 
 		if (function_exists('cleanup')) {
@@ -103,9 +104,9 @@ class PageUtils
 	 */
 	public static function formatFilename( string $src ): string
 	{
-		$sBase = preg_replace("/[^a-z0-9 ]/", "", strtolower($src));
+		$sBase = preg_replace('/[^a-z0-9 ]/', '', strtolower($src));
 		$sBase = ucwords($sBase);
-		$sBase = preg_replace("/\W/", "_", $sBase);
+		$sBase = preg_replace('/\W/', '_', $sBase);
 		return ($sBase);
 	}
 
@@ -117,17 +118,17 @@ class PageUtils
 	 * @param string $delim
 	 * @return string
 	 */
-	public static function formatQuerystringNameValuePair(string $key, $val, string $delim='&'): string
+	public static function formatQuerystringNameValuePair(string $key, mixed $val, string $delim='&'): string
 	{
-		$s = "";
+		$s = '';
 		if (is_array($val)) {
 			for ($j=0; $j<count($val); $j++) {
-				$s = $delim.$key."[".$j."]=".$val[$j];
+				$s = $delim.$key. '[' .$j. ']=' .$val[$j];
 			}
 		} 
 		else {
 			/* @todo urlencode the value? */
-			$s = $delim.$key."=".$val;
+			$s = $delim.$key. '=' .$val;
 		}
 		return ($s);
 	}
@@ -140,13 +141,13 @@ class PageUtils
 	 */
 	public static function generateRandomFilename(int $size, string $file_extension ): string
 	{
-		$filename = "";
-		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$filename = '';
+		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		for ($i=0; $i<$size; $i++) {
 			$idx = rand(0,61);
 			$filename .= $chars[$idx];
 		}
-		return (date("ymd").$filename.".".$file_extension);
+		return (date('ymd').$filename. '.' .$file_extension);
 	}
 
 	/**
@@ -157,10 +158,10 @@ class PageUtils
 	 */
 	public static function generateRandomString(int $size, bool $alphanumeric_only=true ): string
 	{
-		$rand_str = "";
-		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$rand_str = '';
+		$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		if (!$alphanumeric_only) {
-			$chars .= "@#!*^|:;%";
+			$chars .= '@#!*^|:;%';
 		}
 		$iSize = strlen($chars)-1;
 		for ($i=0; $i<$size; $i++) {
@@ -180,17 +181,17 @@ class PageUtils
 	public static function getRemoteContent( string $hostname, string $url ): string
 	{
 		if (!defined('NON_SECURE_SERVER')) {
-			throw new ConfigurationUndefinedException("NON_SECURE_SERVER not defined in app settings.");
+			throw new ConfigurationUndefinedException('NON_SECURE_SERVER not defined in app settings.');
 		}
 		$crlf = "\r\n";
 		$f = fsockopen($hostname, 80, $errno, $errstr, 12);
 
 		fputs($f, "GET $url HTTP/1.0\r\n");
 		fputs($f, "Host: $hostname\r\n");
-		fputs($f, "Referer: ".NON_SECURE_SERVER."\r\n");
+		fputs($f, 'Referer: ' . NON_SECURE_SERVER . "\r\n");
 		fputs($f, "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n\r\n");
 
-		$sContent = "";
+		$sContent = '';
 		while(!feof($f)) {
 			$sContent .= fgets($f, 1024);
 		}
@@ -257,9 +258,9 @@ class PageUtils
 	{
 		// check if path begins with "/" i.e. is absolute
 		// if it isn't concat with script path
-		if (strpos($path,"/") !== 0) {
+		if (!str_starts_with($path, '/')) {
 			$base=dirname($_SERVER['SCRIPT_FILENAME']);
-			$path=$base."/".$path;
+			$path=$base. '/' .$path;
 		}
 
 		// canonicalize
@@ -301,10 +302,10 @@ class PageUtils
 		}
 		foreach ($data as $key => $val) {
 			if ($excludes===null || !in_array($key,$excludes)) {
-				$data[$key] = $key . "=". urlencode($val);
+				$data[$key] = $key . '=' . urlencode($val);
 			}
 		}
-		$data = ((is_array($data))?("?".implode("&", $data)):(""));
+		$data = ((is_array($data))?('?' .implode('&', $data)):(''));
 		return ($data);
 	}
 
@@ -315,12 +316,12 @@ class PageUtils
 	 * @param string $css_class (Optional) CSS class to apply to the error message container element.
 	 * @param string $encoding (Optional) Defaults to 'UTF-8'
 	 */
-	public static function showError(string $error, string $css_class='', string $encoding='UTF-8')
+	public static function showError(string $error, string $css_class='', string $encoding='UTF-8'): void
     {
 		if ($css_class==='') {
-			$css_class = "alert alert-error";
+			$css_class = 'alert alert-error';
 		}
-		print ("<div class=\"$css_class\">".htmlspecialchars($error, ENT_QUOTES, $encoding)."</div>");
+		print ("<div class=\"$css_class\">".htmlspecialchars($error, ENT_QUOTES, $encoding). '</div>');
 	}
 
 	/**

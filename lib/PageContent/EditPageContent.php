@@ -3,7 +3,7 @@
 namespace Littled\PageContent;
 
 
-class EditPageContent extends PageContent
+abstract class EditPageContent extends PageContent
 {
 	/** @var string URL to use to redirect to another page after completing an edit */
 	public string $url;
@@ -13,7 +13,7 @@ class EditPageContent extends PageContent
 	function __construct()
 	{
 		parent::__construct();
-		$this->url = "";
-		$this->status = "";
+		$this->url = '';
+		$this->status = '';
 	}
 }

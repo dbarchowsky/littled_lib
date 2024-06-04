@@ -230,11 +230,12 @@ abstract class ContentController
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws InvalidValueException
      */
     public static function retrieveContentDataByType(SerializedContent $content): void
     {
         if (1 > $content->id->value) {
-            throw new ConfigurationUndefinedException("[" . Log::getShortMethodName() . "] A record was not specified for retrieval.");
+            throw new ConfigurationUndefinedException('[' . Log::getShortMethodName() . '] A record was not specified for retrieval.');
         }
         $content->read();
     }

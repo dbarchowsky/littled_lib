@@ -36,7 +36,7 @@ class ContentUtils
      * "alert alert-error".
      * @param string $encoding Defaults to 'UTF-8'
      */
-    public static function printError(string $msg, string $fmt='', string $css_class='', string $encoding="UTF-8")
+    public static function printError(string $msg, string $fmt='', string $css_class='', string $encoding= 'UTF-8'): void
     {
         $css_class = $css_class ?: 'alert alert-error';
         $fmt = $fmt ?: "<div class=\"$css_class\">%s</div>";
@@ -48,8 +48,8 @@ class ContentUtils
 	 * @param string $uri
 	 * @return void
 	 */
-	public static function redirectToURI(string $uri)
-	{
+	public static function redirectToURI(string $uri): void
+    {
 		header("Location: $uri");
 	}
 
@@ -59,14 +59,14 @@ class ContentUtils
      * @param ?array $context Data to insert into the template.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
      */
-    public static function renderTemplate( string $template_path, ?array $context=null)
+    public static function renderTemplate( string $template_path, ?array $context=null): void
     {
         if (!file_exists($template_path)) {
             if ($template_path) {
                 throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
             }
             else {
-                throw new ResourceNotFoundException("Template not found.");
+                throw new ResourceNotFoundException('Template not found.');
             }
         }
         if (is_array($context)) {
@@ -84,7 +84,11 @@ class ContentUtils
      * @param string $css_class (Optional) CSS class to apply to the error message container element.
      * @param string $encoding (Optional) Defaults to 'UTF-8'
      */
-    public static function renderTemplateWithErrors(string $template_path, array $context=null, string $css_class='', string $encoding='UTF-8')
+    public static function renderTemplateWithErrors(
+        string $template_path,
+        array  $context = null,
+        string $css_class = '',
+        string $encoding = 'UTF-8'): void
     {
         try {
             ContentUtils::renderTemplate($template_path, $context);
