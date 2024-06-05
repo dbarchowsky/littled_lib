@@ -101,12 +101,12 @@ class ImageFile extends ImageBase
      */
 	public function extractKeywords(array &$keywords, int $parent_id, int $keyword_content_type_id ): void
 	{
-		$terms = array();
+		$terms = [];
 		$path = $this->getSiteRoot($this->path->value).$this->path->value;
 		$this->extractKeywordsFromFile($path, $terms);
 
 		if (is_array($terms)) {
-			$keywords = array();
+			$keywords = [];
 			foreach($terms as $term) {
 				$i = count($keywords);
 				$keywords[$i] = new Keyword($term, $parent_id, $keyword_content_type_id);
@@ -122,7 +122,7 @@ class ImageFile extends ImageBase
      */
 	protected function extractKeywordsFromFile( string $path, array &$keywords ): void
     {
-		$keywords = array();
+		$keywords = [];
 		if (!file_exists($path)) {
 			throw new ResourceNotFoundException("The requested image file \"$path\" was not found.");
 		}
@@ -310,7 +310,7 @@ class ImageFile extends ImageBase
 		/* Make sure there is valid data to work with. */
 		$this->target_name = $tmp_path = '';
 		if (!$this->validateUpload($tmp_path, $this->target_name)) {
-			return (array('',''));
+			return ['',''];
 		}
 
 		/* Do any renaming of the destination file name. */
@@ -323,10 +323,10 @@ class ImageFile extends ImageBase
 
 		if ($sub_dir=='') {
 			/* extract keywords from original file for main image but not thumbnails */
-			$keyword_array = array();
+			$keyword_array = [];
 			$this->extractKeywordsFromFile($tmp_path, $keyword_array);
 		}
-		return (array($tmp_path, $upload_dir));
+		return [$tmp_path, $upload_dir];
 	}
 
 	/**
