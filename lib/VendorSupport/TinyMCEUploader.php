@@ -4,10 +4,11 @@ namespace Littled\VendorSupport;
 use Littled\Exception\InvalidValueException;
 use Littled\Utility\LittledUtility;
 
+
 class TinyMCEUploader
 {
     /** @var string[]       List of allowed file types by extension */
-    protected static array  $allowed_extensions = array('gif', 'jpg', 'jpeg', 'png', 'webp');
+    protected static array  $allowed_extensions = ['gif', 'jpg', 'jpeg', 'png', 'webp'];
     /** @var string[]       List of allowed origins for image uploads. */
     protected array         $allowed_origins = [];
     /** @var string         Path to images relative to server root. Used to format the href attribute value of img tags */
@@ -28,7 +29,7 @@ class TinyMCEUploader
             if (in_array($_SERVER['HTTP_ORIGIN'], $this->allowed_origins)) {
                 header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
             } else {
-                header("HTTP/1.1 403 Origin Denied");
+                header('HTTP/1.1 403 Origin Denied');
                 return false;
             }
         }
@@ -43,7 +44,7 @@ class TinyMCEUploader
     {
         // Don't attempt to process the upload on an OPTIONS request
         if (!array_key_exists('REQUEST_METHOD', $_SERVER) || $_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-            header("Access-Control-Allow-Methods: POST, OPTIONS");
+            header('Access-Control-Allow-Methods: POST, OPTIONS');
             return false;
         }
         return true;
@@ -113,7 +114,7 @@ class TinyMCEUploader
      * @return false|array JSON string to send to editor.
      * @throws InvalidValueException
      */
-    public function processImageUpload()
+    public function processImageUpload(): array|bool
     {
         if (!$this->validateRequest()) {
             return false;
@@ -131,11 +132,11 @@ class TinyMCEUploader
             // Respond to the successful upload with JSON.
             // Use a location key to specify the path to the saved image resource.
             // { location : '/your/uploaded/image/file'}
-            return array('location' => $location);
+            return ['location' => $location];
         }
         else {
             // Notify editor that the upload failed
-            header("HTTP/1.1 500 Server Error");
+            header('HTTP/1.1 500 Server Error');
         }
         return false;
     }
@@ -145,7 +146,7 @@ class TinyMCEUploader
      * @param string $path
      * @return void
      */
-    public function setImageBasePath(string $path)
+    public function setImageBasePath(string $path): void
     {
         $this->image_base_path = $path;
     }
@@ -155,7 +156,7 @@ class TinyMCEUploader
      * @param bool $organize_by_date
      * @return void
      */
-    public function setOrganizeByDate(bool $organize_by_date)
+    public function setOrganizeByDate(bool $organize_by_date): void
     {
         $this->organize_by_date = $organize_by_date;
     }
@@ -165,7 +166,7 @@ class TinyMCEUploader
      * @param string $path
      * @return void
      */
-    public function setUploadPath(string $path)
+    public function setUploadPath(string $path): void
     {
         $this->upload_path = rtrim($path, '/ ').'/';
     }
@@ -178,15 +179,15 @@ class TinyMCEUploader
     protected static function validateUploadName(string $temp_name ): bool
     {
         // Sanitize input
-        $pattern = "/([^\w\s\d\-_~,;:\[\]\(\).])|([\.]{2,})/";
+        $pattern = '/([^\w\s\d\-_~,;:\[\]\(\).])|([\.]{2,})/';
         if (preg_match($pattern, $temp_name)) {
-            header("HTTP/1.1 400 Invalid file name.");
+            header('HTTP/1.1 400 Invalid file name.');
             return false;
         }
 
         // Verify extension
         if (!in_array(strtolower(pathinfo($temp_name, PATHINFO_EXTENSION)), static::$allowed_extensions)) {
-            header("HTTP/1.1 400 Invalid extension.");
+            header('HTTP/1.1 400 Invalid extension.');
             return false;
         }
         return true;
