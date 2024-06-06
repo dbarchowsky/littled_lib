@@ -33,7 +33,7 @@ class LittledUtility
      */
     public static function joinPaths(): string
     {
-        $paths = array();
+        $paths = [];
         foreach (func_get_args() as $arg) {
             if ($arg !== '') {
                 $paths[] = $arg;
@@ -48,7 +48,7 @@ class LittledUtility
             return '';
         }
 
-        if (strpos($a, $b) !== false) {
+        if (str_contains($a, $b)) {
             return $b;
         }
 
@@ -80,7 +80,7 @@ class LittledUtility
      * @param string $haystack
      * @return array|string|string[]
      */
-    public static function replaceFirstOccurrence(string $needle, string $replace, string $haystack)
+    public static function replaceFirstOccurrence(string $needle, string $replace, string $haystack): array|string
     {
         $pos = strpos($haystack, $needle);
         if ($pos !== false) {

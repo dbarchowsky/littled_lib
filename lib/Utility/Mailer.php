@@ -38,12 +38,12 @@ class Mailer
      * @param bool $is_html (Optional) initial HTML flag value. Defaults to FALSE.
      */
     function __construct (
-        string $from="",
-        string $from_address="",
-        string $to="",
-        string $to_address="",
-        string $subject="",
-        string $body="",
+        string $from= '',
+        string $from_address= '',
+        string $to= '',
+        string $to_address= '',
+        string $subject= '',
+        string $body= '',
         bool $is_html=false )
     {
         $this->from = $from;
@@ -61,13 +61,13 @@ class Mailer
      * @return void
      * @throws Exception
      */
-    public function send()
+    public function send(): void
     {
         if (!$this->from_address || !$this->to_address || !$this->subject || !$this->body) {
-            throw new ConfigurationUndefinedException("Email properties not set.");
+            throw new ConfigurationUndefinedException('Email properties not set.');
         }
 
-        $headers = "";
+        $headers = '';
         if ($this->to) {
             $headers .= "To: $this->to <$this->to_address>\r\n";
         }
@@ -95,8 +95,8 @@ class Mailer
         }
         else {
             /* strip any html tags out for plain text emails */
-            $sText = preg_replace("/<tr>/", "\r\n", $this->body);
-            $sText = preg_replace("/<td>/", "\t", $sText);
+            $sText = preg_replace('/<tr>/', "\r\n", $this->body);
+            $sText = preg_replace('/<td>/', "\t", $sText);
             $sMsg = strip_tags($sText)."\r\n";
         }
         $to = $this->to_address;
@@ -119,8 +119,8 @@ class Mailer
     /**
      * Clear any cached error messages captured from the mailing process.
      */
-    public function clearErrors()
+    public function clearErrors(): void
     {
-        $this->mail_errors = "";
+        $this->mail_errors = '';
     }
 }
