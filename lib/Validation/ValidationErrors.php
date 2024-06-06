@@ -10,7 +10,7 @@ class ValidationErrors
      * Clear any existing validation errors.
      * @return void
      */
-    public function clear()
+    public function clear(): void
     {
         $this->errors = [];
     }
@@ -45,10 +45,10 @@ class ValidationErrors
 
     /**
      * Push new error message onto the stack of existing errors.
-     * @param string|array $error Array or string containing errors to push onto the current
+     * @param array|string $error Array or string containing errors to push onto the current
      * @return void
      */
-    public function push($error)
+    public function push(array|string $error): void
     {
         if (is_array($error)) {
             $this->errors = array_merge($this->errors, $error);
@@ -60,9 +60,9 @@ class ValidationErrors
 
     /**
      * Stores new error message string at the beginning of the stack of current error messages.
-     * @param string|array $error Array or string containing errors to push onto the current stack of error messages.
+     * @param array|string $error Array or string containing errors to push onto the current stack of error messages.
      */
-    public function unshift($error)
+    public function unshift(array|string $error): void
     {
         if (is_array($error)) {
             $this->errors = array_merge($error, $this->errors);

@@ -19,8 +19,8 @@ class Validation
     public const DEFAULT_REQUEST_FILTER = FILTER_UNSAFE_RAW;
     protected static string $geo_lookup_api_address = 'http' . '://www.geoplugin.net/json.gp?ip=';
     /** @var string[] $eu_countries */
-    protected static array $eu_countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
-        "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"];
+    protected static array $eu_countries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
+        'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
 
     /**
      * Retrieves any valid integer values passed as request parameters.
@@ -39,7 +39,7 @@ class Validation
             } else {
                 $value = Validation::parseInteger($input_value);
                 if ($value) {
-                    return (array($value));
+                    return [$value];
                 }
             }
         }
@@ -55,7 +55,11 @@ class Validation
      * @param array|null $src Array to search for $key, e.g. $_GET or $_POST
      * @return string|bool|null
      */
-    protected static function _parseInput(int $filter, string $key, ?int $index = null, ?array $src = null)
+    protected static function _parseInput(
+        int $filter,
+        string $key,
+        ?int $index = null,
+        ?array $src = null): bool|string|null
     {
         if ($src === null) {
             $src = static::getDefaultInputSource();
@@ -207,9 +211,9 @@ class Validation
      * @param string $key Key in the collection storing the value to look up.
      * @param int|null $index Index of the array to look up, if the variable's value is an array.
      * @param array|null $src Array to search for $key, e.g. $_GET or $_POST
-     * @return float|int
+     * @return float|int|null
      */
-    public static function collectNumericRequestVar(string $key, ?int $index = null, ?array $src = null)
+    public static function collectNumericRequestVar(string $key, ?int $index = null, ?array $src = null): float|int|null
     {
         $value = Validation::_parseInput(FILTER_VALIDATE_FLOAT, $key, $index, $src);
         return Validation::parseNumeric($value);
@@ -239,7 +243,7 @@ class Validation
      * @param string $key Key of the variable value to collect.
      * @param int $filter Filter token corresponding to the 3rd parameter of PHP's built-in filter_input() routine.
      * @param array|null $src Optional array to use in place of POST or GET data.
-     * @return mixed Value found for the requested key. Returns an empty string
+     * @return string|null Value found for the requested key. Returns an empty string
      * if none of the collections contain the requested key.
      */
     public static function collectRequestVar(
@@ -295,7 +299,7 @@ class Validation
      * @param int $filter Filter token corresponding to the 3rd parameter of PHP's built-in filter_input() routine.
      * @param int|null $index Index of the input if it is part of an array.
      * @param array|null $src Optional array of variables to use instead of POST or GET data.
-     * @return string Value found for the requested key. Returns an empty string
+     * @return string|null Value found for the requested key. Returns an empty string
      * if none of the collections contain the requested key.
      */
     public static function collectStringRequestVar(
@@ -346,7 +350,7 @@ class Validation
             $ip = Validation::getClientIP();
         }
         if (!$ip) {
-            throw new InvalidValueException("Could not determine client IP.");
+            throw new InvalidValueException('Could not determine client IP.');
         }
 
         // API that will return IPs location properties.
@@ -416,7 +420,7 @@ class Validation
             $cc = $data['geoplugin_countryCode'];
         }
         if (!$cc) {
-            throw new InvalidRequestException("Could not determine client location.");
+            throw new InvalidRequestException('Could not determine client location.');
         }
         return (in_array($cc, static::$eu_countries));
     }
@@ -426,7 +430,7 @@ class Validation
      * @param mixed $value Value to test.
      * @return bool
      */
-    public static function isInteger($value): bool
+    public static function isInteger(mixed $value): bool
     {
         if (is_int($value)) {
             return true;
@@ -459,7 +463,7 @@ class Validation
      * @param mixed $var Variable to test
      * @return bool TRUE if the variable holds a string value of more than 0 characters.
      */
-    public static function isStringWithContent($var): bool
+    public static function isStringWithContent(mixed $var): bool
     {
         return (
             is_string($var) &&
@@ -488,7 +492,7 @@ class Validation
      * @param mixed $value Value to test.
      * @return ?bool TRUE, FALSE, or NULL
      */
-    public static function parseBoolean($value): ?bool
+    public static function parseBoolean(mixed $value): ?bool
     {
         if ($value === null || $value === '') {
             return null;
@@ -539,7 +543,7 @@ class Validation
      * @return int|null Value explicitly converted to an integer value, or null if the value does not represent an
      * integer value.
      */
-    public static function parseInteger($value): ?int
+    public static function parseInteger(mixed $value): ?int
     {
         if (is_numeric($value)) {
             return ((int)round($value));
@@ -562,15 +566,15 @@ class Validation
     /**
      * Converts a given string value to a numeric equivalent.
      * @param mixed $value Value to parse.
-     * @return float|int
+     * @return float|int|null
      */
-    public static function parseNumeric($value)
+    public static function parseNumeric(mixed $value): float|int|null
     {
         if (true === $value || false === $value) {
             return null;
         }
         if (is_numeric($value)) {
-            if (strpos($value, ".") !== false) {
+            if (str_contains($value, '.')) {
                 return ((float)$value);
             } elseif ($value > PHP_INT_MAX) {
                 return ((float)$value);
@@ -709,7 +713,7 @@ class Validation
     public static function validateDateString(string $date, ?array $formats = null): DateTime
     {
         if ($formats == null) {
-            $formats = array(
+            $formats = [
                 'Y-m-d',
                 'm/d/y',
                 'm/d/Y',
@@ -719,9 +723,9 @@ class Validation
                 'F j, Y',
                 'M d, Y',
                 'M j, Y'
-            );
+            ];
         } elseif (!is_array($formats)) {
-            $formats = array($formats);
+            $formats = [$formats];
         }
 
         foreach ($formats as $format) {
@@ -730,7 +734,7 @@ class Validation
                 return ($d);
             }
         }
-        throw new ContentValidationException("Unrecognized date value.");
+        throw new ContentValidationException('Unrecognized date value.');
     }
 
     /**
@@ -740,6 +744,6 @@ class Validation
      */
     public static function validateEmailAddress(string $email): bool
     {
-        return (preg_match("/\S+@\S+\.\S+/", $email) && (!preg_match("/,\/;/", $email)));
+        return (preg_match('/\S+@\S+\.\S+/', $email) && (!preg_match('/,\/;/', $email)));
     }
 }

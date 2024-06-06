@@ -2,11 +2,6 @@
 namespace Littled\Validation;
 
 
-/**
- * Class ContentConversion
- * Static routines for converting blocks of content.
- * @package Littled\Validation
- */
 class ContentConversion
 {
 	/**
@@ -17,15 +12,15 @@ class ContentConversion
 	public static function cleanTextForXml(string $content): string
 	{
 		/* remove newline characters */
-		$content = preg_replace("/[\n\r]/", "<br />", $content);
+		$content = preg_replace("/[\n\r]/", '<br />', $content);
 
 		/* convert non-ASCII characters */
-		$content = htmlentities($content, ENT_NOQUOTES, "iso-8859-1");
+		$content = htmlentities($content, ENT_NOQUOTES, 'iso-8859-1');
 
 		/* restore HTML tags */
-		$content = str_replace("&lt;", "<", $content);
-		$content = str_replace("&gt;", ">", $content);
-		$content = str_replace("&amp;", "&", $content);
+		$content = str_replace('&lt;', '<', $content);
+		$content = str_replace('&gt;', '>', $content);
+		$content = str_replace('&amp;', '&', $content);
 
 		return ($content);
 	}
@@ -38,21 +33,21 @@ class ContentConversion
 	public static function cleanTinymceTextForXml( string $content ): string
 	{
 		/* remove newline characters */
-		$content = preg_replace("/[\n\r]/", "", $content);
+		$content = preg_replace("/[\n\r]/", '', $content);
 
 		/* convert non-ASCII characters */
-		$content = htmlentities($content, ENT_NOQUOTES, "iso-8859-1");
+		$content = htmlentities($content, ENT_NOQUOTES, 'iso-8859-1');
 
 		/* restore HTML tags */
-		$content = str_replace("&lt;", "<", $content);
-		$content = str_replace("&gt;", ">", $content);
-		$content = str_replace("&amp;", "&", $content);
+		$content = str_replace('&lt;', '<', $content);
+		$content = str_replace('&gt;', '>', $content);
+		$content = str_replace('&amp;', '&', $content);
 
 		/* swap <b> for <strong> and <i> for <em> */
-		$content = str_replace("<strong>", "<b>", $content);
-		$content = str_replace("</strong>", "</b>", $content);
-		$content = str_replace("<em>", "<i>", $content);
-		$content = str_replace("</em>", "</i>", $content);
+		$content = str_replace('<strong>', '<b>', $content);
+		$content = str_replace('</strong>', '</b>', $content);
+		$content = str_replace('<em>', '<i>', $content);
+		$content = str_replace('</em>', '</i>', $content);
 
 		$content = self::htmlPTagsToBrTags($content);
 
@@ -65,12 +60,12 @@ class ContentConversion
 	 * @param mixed $index
 	 * @return string
 	 */
-	public static function formatIndexMarkup($index): string
+	public static function formatIndexMarkup(mixed $index): string
 	{
 		if (is_numeric($index)) {
 			return "[$index]";
 		}
-		if (strlen("".$index)>0) {
+		if (strlen('' .$index)>0) {
 			return "['$index']";
 		}
 		return '';
@@ -98,10 +93,10 @@ class ContentConversion
 	public static function stripNewlinesForXml(string $content): string
 	{
 		/* remove newline characters */
-		$content = preg_replace("/[\n\r]/", "", $content);
+		$content = preg_replace("/[\n\r]/", '', $content);
 
 		/* convert non-ASCII characters */
-		$content = htmlentities($content, ENT_NOQUOTES, "iso-8859-1");
+		$content = htmlentities($content, ENT_NOQUOTES, 'iso-8859-1');
 
 		return ($content);
 	}
