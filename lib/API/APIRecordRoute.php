@@ -300,20 +300,21 @@ class APIRecordRoute extends APIRoute
 
     /**
      * Hydrates the content properties object by retrieving data from the database.
-     * @return void
+     * @return mixed
      * @throws ConfigurationUndefinedException|ConnectionException
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public function retrieveCoreContentProperties(): void
+    public function retrieveCoreContentProperties(): mixed
     {
         if (!$this->hasContentPropertiesObject()) {
             throw new ConfigurationUndefinedException('Content object not available.');
         }
         $this->confirmContentDBConnection();
         $this->content->content_properties->read();
+        return null;
     }
 
     /**
