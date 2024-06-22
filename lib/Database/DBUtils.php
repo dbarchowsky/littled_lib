@@ -61,15 +61,14 @@ class DBUtils
                 }
             }
             foreach ($data as $row):
-                ?>
+?>
                 <option value="<?= $row->id ?>"<?= ((in_array($row->id, $selected_options)) ? (" selected=\"selected\"") : ("")) ?>><?= $row->name ?></option>
-            <?php
+<?php
             endforeach;
         } catch (Exception $ex) {
-            ?>
-            <option value="" disabled="disabled" class="<?= $css_error_class ?>">Error retrieving
-                options: <?= $ex->getMessage() ?></option>
-            <?php
+?>
+            <option value="" disabled="disabled" class="<?= $css_error_class ?>">Error retrieving options: <?= $ex->getMessage() ?></option>
+<?php
         }
     }
 

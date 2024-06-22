@@ -21,7 +21,7 @@ class ContentFilter
     /** @var string Label to display on filter form inputs. */
     public string $label;
     /** @var int Size limit of the filter value. */
-    public int $size;
+    public int|null $size;
     /** @var mixed|string Filter value. */
     public mixed $value;
 
@@ -30,10 +30,10 @@ class ContentFilter
      * @param string $label Label to display on filter form inputs.
      * @param string $key Variable name used to pass along filter values.
      * @param ?mixed $value Filter value.
-     * @param ?mixed $size Size limit of the filter value.
+     * @param int|null $size Size limit of the filter value.
      * @param ?mixed $cookieKey Key of the cookie element holding the filter value.
      */
-    function __construct(string $label, string $key, mixed $value = null, mixed $size = 0, mixed $cookieKey = '')
+    function __construct(string $label, string $key, mixed $value = null, int|null $size = 0, mixed $cookieKey = '')
     {
         $this->label = $label;
         $this->key = $key;

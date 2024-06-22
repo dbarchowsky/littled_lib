@@ -256,7 +256,8 @@ class APIRecordRoute extends APIRoute
         $index = array_search($wildcard, $route_parts);
         if ($index !== false) {
             if (count($uri_parts) > $index) {
-                return Validation::parseInteger($uri_parts[$index]);
+                $result = Validation::parseInteger($uri_parts[$index]);
+                return ($result === null ? false : $result);
             }
             else {
                 return false;
