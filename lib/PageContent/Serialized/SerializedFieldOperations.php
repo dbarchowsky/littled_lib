@@ -95,7 +95,8 @@ trait SerializedFieldOperations
         foreach (get_object_vars($src) as $key => $value) {
             if ($value instanceof RequestInput) {
                 $this->$key->value = $value->value;
-            } elseif ((is_object($this->$key)) && method_exists($this->$key, 'copy')) {
+            }
+            elseif (isset($this->{$key}) && is_object($this->$key) && method_exists($this->$key, 'copy')) {
                 $this->$key->copy($value);
             } elseif (!is_object($value)) {
                 $this->$key = $value;
