@@ -46,26 +46,48 @@ trait HydrateFieldOperations
     public function hydrateFromRecordsetRow(object $row): void
     {
         $used_keys = array();
-        foreach ($this as $key => $property) {
+        foreach (array_keys(get_class_vars(get_class($this))) as $key) {
+
+            if (!$this->isHydrateProperty($row, $key)) {
+                continue;
+            }
+
             // copy over property values that correspond to html form data
-            if ($this->isInput($key, $property, $used_keys)) {
-                /** @var RequestInput $property */
+            if (isset($this->{$key}) && $this->isInput($key, $this->$key, $used_keys)) {
                 /* store value retrieved from database */
-                $this->assignRowValue($key, $property, $row);
+                $this->assignRowValue($key, $this->$key, $row);
             }
-            elseif(Validation::isSubclass($property, SerializedContent::class) &&
-                $property->hasRecordsetPrefix()) {
-                $property->hydrateFromRecordsetRow($row);
+            elseif(isset($this->{$key}) && Validation::isSubclass($this->$key, SerializedContent::class) &&
+                $this->$key->hasRecordsetPrefix()) {
+                $this->$key->hydrateFromRecordsetRow($row);
             }
-            elseif(Validation::isSubclass($property, DBFieldGroup::class)) {
-                $property->hydrateFromRecordsetRow($row);
+            elseif(isset($this->{$key}) && Validation::isSubclass($this->$key, DBFieldGroup::class)) {
+                $this->$key->hydrateFromRecordsetRow($row);
             }
-            elseif (!is_object($property)) {
+            elseif (!isset($this->{$key}) || isset($this->{$key}) && !is_object($this->$key)) {
                 // copy over properties read from the database but not collected in html form data
-                if (property_exists($row, $key)) {
-                    $this->$key = $row->$key;
-                }
+                $this->$key = $row->$key;
             }
         }
+    }
+
+    /**
+     * Tests if a property of an object should be considered a candidate for copying from a recordset row
+     * @param object $row
+     * @param string $key
+     * @return bool
+     */
+    protected function isHydrateProperty(object $row, string $key): bool
+    {
+
+        if (property_exists($row, $key)) {
+            return true;
+        }
+        if (isset($this->{$key}) &&
+            (Validation::isSubclass($this->$key, SerializedContent::class) ||
+            Validation::isSubclass($this->$key, DBFieldGroup::class))) {
+            return true;
+        }
+        return false;
     }
 }
