@@ -40,24 +40,39 @@ trait HydrateFieldOperations
     }
 
     /**
+     * Returns list of all properties of the object that are candidates to have values copied from a recordset row
+     * @return string[]
+     */
+    protected function getHydrateProperties(object $row): array
+    {
+        $properties = array_keys(get_class_vars(get_class($this)));
+        foreach ($properties as $property) {
+            if (!$this->isHydrateProperty($row, $property)) {
+                $key = array_search($property, $properties);
+                unset($properties[$key]);
+            }
+        }
+        return array_values($properties);
+    }
+
+    /**
      * Assign values contained in array to object input properties.
      * @param object $row Recordset row containing values to copy into the object's properties.
      */
     public function hydrateFromRecordsetRow(object $row): void
     {
         $used_keys = array();
-        foreach (array_keys(get_class_vars(get_class($this))) as $key) {
-
-            if (!$this->isHydrateProperty($row, $key)) {
-                continue;
-            }
+        foreach ($this->getHydrateProperties($row) as $key) {
 
             // copy over property values that correspond to html form data
             if (isset($this->{$key}) && $this->isInput($key, $this->$key, $used_keys)) {
+                /** @var RequestInput $property */
                 /* store value retrieved from database */
-                $this->assignRowValue($key, $this->$key, $row);
+                $property = $this->$key;
+                $this->assignRowValue($property->getColumnName($key), $property, $row);
             }
-            elseif(isset($this->{$key}) && Validation::isSubclass($this->$key, SerializedContent::class) &&
+            elseif(isset($this->{$key}) &&
+                Validation::isSubclass($this->$key, SerializedContent::class) &&
                 $this->$key->hasRecordsetPrefix()) {
                 $this->$key->hydrateFromRecordsetRow($row);
             }
@@ -66,7 +81,10 @@ trait HydrateFieldOperations
             }
             elseif (!isset($this->{$key}) || isset($this->{$key}) && !is_object($this->$key)) {
                 // copy over properties read from the database but not collected in html form data
-                $this->$key = $row->$key;
+                $dst_key = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '') . $key;
+                if (property_exists($this, $dst_key)) {
+                    $this->$dst_key = $row->$key;
+                }
             }
         }
     }
@@ -79,15 +97,46 @@ trait HydrateFieldOperations
      */
     protected function isHydrateProperty(object $row, string $key): bool
     {
+        if (isset($this->{$key}) && Validation::isSubclass($this->{$key}, RequestInput::class)) {
+            /** @var RequestInput $p */
+            $p = $this->$key;
+            $key = $this->lookupHydratePrefix($row, $key) . $p->getColumnName($key);
+        }
 
         if (property_exists($row, $key)) {
             return true;
         }
+
         if (isset($this->{$key}) &&
             (Validation::isSubclass($this->$key, SerializedContent::class) ||
             Validation::isSubclass($this->$key, DBFieldGroup::class))) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns the recordset prefix that matches properties of the recordset row.
+     * @param object $row
+     * @param string $key
+     * @return string
+     */
+    protected function lookupHydratePrefix(object $row, string $key): string
+    {
+        if (!$this->hasRecordsetPrefix()) {
+            return '';
+        }
+        $pfx = $this->getRecordsetPrefix();
+        if (is_array($pfx)) {
+            foreach ($pfx as $prefix) {
+                if (array_key_exists($prefix.$key, (array)$row)) {
+                    return $prefix;
+                }
+            }
+            return '';
+        }
+        else {
+            return $pfx;
+        }
     }
 }
