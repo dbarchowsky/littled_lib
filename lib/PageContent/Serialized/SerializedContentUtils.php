@@ -28,6 +28,7 @@ class SerializedContentUtils extends AppContentBase
         applyInputKeyPrefix as traitApplyInputKeyPrefix;
         fill as traitFill;
         setColumnPrefix as traitSetColumnPrefix;
+        setInputPrefix as traitSetInputPrefix;
     }
 
 
@@ -212,6 +213,16 @@ class SerializedContentUtils extends AppContentBase
     public function setColumnPrefix(string $prefix): SerializedContentUtils
     {
         $this->traitSetColumnPrefix($prefix);
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     * @return $this
+     */
+    public function setInputPrefix(string $prefix): SerializedContentUtils
+    {
+        $this->traitSetInputPrefix($prefix);
         return $this;
     }
 
