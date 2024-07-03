@@ -73,6 +73,7 @@ abstract class APIRoute extends APIRouteProperties
      * @return $this
      * @throws ConfigurationUndefinedException|ConnectionException|ContentValidationException
      * @throws InvalidQueryException
+     * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
@@ -175,6 +176,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -231,6 +233,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws ConfigurationUndefinedException|ConnectionException
      * @throws NotInitializedException
      * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
     public function fetchContentRoute(?string $operation=null): APIRoute
