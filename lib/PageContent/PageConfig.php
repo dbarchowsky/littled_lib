@@ -58,15 +58,15 @@ class PageConfig
     }
 
     /**
-     * @param string $type
-     * @param string $name
+     * @param string $attribute
      * @param string $value
+     * @param string $content
      * @throws InvalidValueException
      */
-    public static function addPageMetadata(string $type, string $name, string $value): void
+    public static function addPageMetadata(string $attribute, string $value, string $content): void
     {
         self::metadata();
-        static::$metadata->addPageMetadata($type, $name, $value);
+        static::$metadata->addPageMetadata($attribute, $value, $content);
     }
 
     /**
@@ -102,6 +102,16 @@ class PageConfig
         if (isset(static::$breadcrumbs)) {
             static::$breadcrumbs->clearNodes();
         }
+    }
+
+    /**
+     * Clears all extra page metadata that is not description, keywords, or page title.
+     * @return void
+     */
+    public static function clearMetadataExtras(): void
+    {
+        self::metadata();
+        self::$metadata->clearMetadataExtras();
     }
 
     /**
@@ -334,6 +344,19 @@ class PageConfig
     }
 
     /**
+     * Remove metadata property from stack if it matches type, name, and value.
+     * @param string $attribute
+     * @param string $value
+     * @param string $content
+     * @return void
+     */
+    public static function removePageMetadata(string $attribute, string $value, string $content): void
+    {
+        self::metadata();
+        static::$metadata->removePageMetadata($attribute, $value, $content);
+    }
+
+    /**
      * Generates and outputs markup that will render the breadcrumbs that have been added to the page.
      * @throws ResourceNotFoundException
      */
@@ -432,6 +455,20 @@ class PageConfig
     {
         self::metadata();
         static::$metadata->setKeywords($keywords);
+    }
+
+    /**
+     * Push metadata property onto stack.
+     * @param string $attribute
+     * @param string $value
+     * @param string $content
+     * @return void
+     * @throws InvalidValueException
+     *@deprecated Use PageConfig::addPageMetadata() instead.
+     */
+    public static function setMetaExtra(string $attribute, string $value, string $content): void
+    {
+        static::addPageMetadata($attribute, $value, $content);
     }
 
     /**

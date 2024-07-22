@@ -6,23 +6,23 @@ use Littled\Exception\InvalidValueException;
 
 class MetadataElement
 {
-    protected string    $type;
-    public string       $name;
+    protected string    $attribute;
+    public string       $value;
     public string       $content;
     /** @var array */
-    protected const     valid_types = array('name', 'http-equiv', 'charset', 'itemprop');
+    protected const     valid_attributes = ['name', 'http-equiv', 'charset', 'itemprop', 'property'];
 
     /**
-     * @param string $type
-     * @param string $name
+     * @param string $attribute
      * @param string $value
+     * @param string $content
      * @throws InvalidValueException
      */
-    function __construct (string $type, string $name, string $value='')
+    function __construct (string $attribute, string $value, string $content='')
     {
-        $this->setType($type);
-        $this->name = $name;
-        $this->content = $value;
+        $this->setAttribute($attribute);
+        $this->value = $value;
+        $this->content = $content;
     }
 
     /**
@@ -36,17 +36,29 @@ class MetadataElement
     /**
      * @return string
      */
-    public function getName(): string
+    public function getValue(): string
     {
-        return $this->name;
+        return $this->value;
     }
 
     /**
      * @return string
      */
-    public function getType(): string
+    public function getAttribute(): string
     {
-        return $this->type;
+        return $this->attribute;
+    }
+
+    /**
+     * Test if the element's property values match provided values.
+     * @param string $attribute
+     * @param string $value
+     * @param string $content
+     * @return bool
+     */
+    public function isSame(string $attribute, string $value, string $content): bool
+    {
+        return $this->attribute === $attribute && $this->value === $value && $this->content === $content;
     }
 
     /**
@@ -56,7 +68,7 @@ class MetadataElement
     public function render(): void
     {
 ?>
-<meta <?=$this->getType()?>="<?=$this->getName()?>" content="<?=$this->getContent()?>" />
+<meta <?=$this->getAttribute()?>="<?=$this->getValue()?>" content="<?=$this->getContent()?>" />
 <?php
     }
 
@@ -69,22 +81,22 @@ class MetadataElement
     }
 
     /**
-     * @param string $name
+     * @param string $value
      */
-    public function setName(string $name): void
+    public function setValue(string $value): void
     {
-        $this->name = $name;
+        $this->value = $value;
     }
 
     /**
-     * @param string $type
+     * @param string $attribute
      * @throws InvalidValueException
      */
-    public function setType(string $type): void
+    public function setAttribute(string $attribute): void
     {
-        if (!in_array($type, MetadataElement::valid_types)) {
-            throw new InvalidValueException("\"$type\" is not a valid metadata element type.");
+        if (!in_array($attribute, MetadataElement::valid_attributes)) {
+            throw new InvalidValueException("\"$attribute\" is not a valid metadata element attribute.");
         }
-        $this->type = $type;
+        $this->attribute = $attribute;
     }
 }

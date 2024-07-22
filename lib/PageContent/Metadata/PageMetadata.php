@@ -17,7 +17,7 @@ class PageMetadata
     /** @var MetadataElement $meta_title Metadata title displayed in the browser title bar for SEO. */
     protected MetadataElement $meta_title;
     /** @var array Array of MetadataElement objects used to inject abstract metadata elements into a page */
-    public array $extras = array();
+    public array $extras = [];
 
     /**
      *
@@ -30,14 +30,23 @@ class PageMetadata
     }
 
     /**
-     * @param string $type
-     * @param string $name
+     * @param string $attribute
      * @param string $value
+     * @param string $content
      * @throws InvalidValueException
      */
-    public function addPageMetadata(string $type, string $name, string $value): void
+    public function addPageMetadata(string $attribute, string $value, string $content): void
     {
-        $this->extras[] = new MetadataElement($type, $name, $value);
+        $this->extras[] = new MetadataElement($attribute, $value, $content);
+    }
+
+    /**
+     * Remove all extra page metadata.
+     * @return void
+     */
+    public function clearMetadataExtras(): void
+    {
+        $this->extras = [];
     }
 
     public function getDescription(): string
@@ -58,6 +67,23 @@ class PageMetadata
     public function getPageMetadata(): array
     {
         return $this->extras;
+    }
+
+    /**
+     * Remove metadata property from stack if it matches attribute, value, and content
+     * @param string $attribute
+     * @param string $value
+     * @param string $content
+     * @return void
+     */
+    public function removePageMetadata(string $attribute, string $value, string $content): void
+    {
+        for($i=0; $i<count($this->extras); $i++) {
+            if ($this->extras[$i]->isSame($attribute, $value, $content)) {
+                unset($this->extras[$i]);
+                $this->extras = array_values($this->extras);
+            }
+        }
     }
 
     public function setDescription(string $description): void
