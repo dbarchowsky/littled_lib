@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\PageContent\Metadata;
 
 use Littled\Exception\InvalidValueException;
@@ -9,12 +10,12 @@ class PageMetadata
     public string $site_label = '';
     /** @var string Page title suitable for displaying in the page content. */
     public string $title = '';
-	/** @var MetadataElement Page description inserted into the page metadata for SEO. */
-	protected MetadataElement $description;
-	/** @var MetadataElement List of keywords to be inserted into the page metadata for SEO. */
-	protected MetadataElement $keywords;
-	/** @var MetadataElement $meta_title Metadata title displayed in the browser title bar for SEO. */
-	protected MetadataElement $meta_title;
+    /** @var MetadataElement Page description inserted into the page metadata for SEO. */
+    protected MetadataElement $description;
+    /** @var MetadataElement List of keywords to be inserted into the page metadata for SEO. */
+    protected MetadataElement $keywords;
+    /** @var MetadataElement $meta_title Metadata title displayed in the browser title bar for SEO. */
+    protected MetadataElement $meta_title;
     /** @var array Array of MetadataElement objects used to inject abstract metadata elements into a page */
     public array $extras = array();
 
@@ -51,7 +52,7 @@ class PageMetadata
 
     public function getMetaTitle(): string
     {
-            return ($this->meta_title->content);
+        return ($this->meta_title->content);
     }
 
     public function getPageMetadata(): array

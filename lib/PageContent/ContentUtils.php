@@ -16,15 +16,15 @@ class ContentUtils
      * @return string Markup with content inserted into it.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
      */
-    public static function loadTemplateContent(string $template_path, ?array $context=null ): string
+    public static function loadTemplateContent(string $template_path, ?array $context = null): string
     {
         ob_start();
-		try {
-			ContentUtils::renderTemplate($template_path, $context);
-			$markup = ob_get_contents();
-		} finally {
-			ob_end_clean();
-		}
+        try {
+            ContentUtils::renderTemplate($template_path, $context);
+            $markup = ob_get_contents();
+        } finally {
+            ob_end_clean();
+        }
         return ($markup);
     }
 
@@ -36,22 +36,22 @@ class ContentUtils
      * "alert alert-error".
      * @param string $encoding Defaults to 'UTF-8'
      */
-    public static function printError(string $msg, string $fmt='', string $css_class='', string $encoding= 'UTF-8'): void
+    public static function printError(string $msg, string $fmt = '', string $css_class = '', string $encoding = 'UTF-8'): void
     {
         $css_class = $css_class ?: 'alert alert-error';
         $fmt = $fmt ?: "<div class=\"$css_class\">%s</div>";
         printf($fmt, htmlspecialchars($msg, ENT_QUOTES, $encoding));
     }
 
-	/**
-	 * Redirects to URI.
-	 * @param string $uri
-	 * @return void
-	 */
-	public static function redirectToURI(string $uri): void
+    /**
+     * Redirects to URI.
+     * @param string $uri
+     * @return void
+     */
+    public static function redirectToURI(string $uri): void
     {
-		header("Location: $uri");
-	}
+        header("Location: $uri");
+    }
 
     /**
      * Inserts data into a template file and renders the result.
@@ -59,22 +59,21 @@ class ContentUtils
      * @param ?array $context Data to insert into the template.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
      */
-    public static function renderTemplate( string $template_path, ?array $context=null): void
+    public static function renderTemplate(string $template_path, ?array $context = null): void
     {
         if (!file_exists($template_path)) {
             if ($template_path) {
                 throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
-            }
-            else {
+            } else {
                 throw new ResourceNotFoundException('Template not found.');
             }
         }
         if (is_array($context)) {
-            foreach($context as $context_key => $context_value) {
+            foreach ($context as $context_key => $context_value) {
                 ${$context_key} = $context_value;
             }
         }
-        include ($template_path);
+        include($template_path);
     }
 
     /**
@@ -92,8 +91,7 @@ class ContentUtils
     {
         try {
             ContentUtils::renderTemplate($template_path, $context);
-        }
-        catch(ResourceNotFoundException $ex) {
+        } catch (ResourceNotFoundException $ex) {
             ContentUtils::printError($ex->getMessage(), '', $css_class, $encoding);
         }
     }
