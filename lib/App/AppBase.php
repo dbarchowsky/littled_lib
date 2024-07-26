@@ -3,6 +3,7 @@
 namespace Littled\App;
 
 use Exception;
+use JetBrains\PhpStorm\NoReturn;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -160,6 +161,16 @@ class AppBase
         $url = $url ?: static::getErrorPageURL();
         $key = $key ?: static::getErrorKey();
         header("Location: $url?$key=" . urlencode($error_msg));
+    }
+
+    /**
+     * Send 404 response.
+     * @return void
+     */
+    #[NoReturn] public static function send404Response(): void
+    {
+        http_response_code(404);
+        exit;
     }
 
     /**
