@@ -55,6 +55,13 @@ class Mailer
         $this->is_html = $is_html;
     }
 
+    /**
+     * Clear any cached error messages captured from the mailing process.
+     */
+    public function clearErrors(): void
+    {
+        $this->mail_errors = '';
+    }
 
     /**
      * Sends email. Expects properties of the object to be set before calling this routine.
@@ -117,10 +124,79 @@ class Mailer
     }
 
     /**
-     * Clear any cached error messages captured from the mailing process.
+     * Email body setter.
+     * @param string $body
+     * @return $this
      */
-    public function clearErrors(): void
+    public function setBody(string $body): Mailer
     {
-        $this->mail_errors = '';
+        $this->body = $body;
+        return $this;
+    }
+
+    /**
+     * Is HTML flag setter.
+     * @param bool $is_html
+     * @return $this
+     */
+    public function setIsHTML(bool $is_html): Mailer
+    {
+        $this->is_html = $is_html;
+        return $this;
+    }
+
+    /**
+     * Recipient email address setter.
+     * @param string $email
+     * @return $this
+     */
+    public function setRecipientEmail(string $email): Mailer
+    {
+        $this->to_address = $email;
+        return $this;
+    }
+
+    /**
+     * Recipient name setter.
+     * @param string $name
+     * @return $this
+     */
+    public function setRecipientName(string $name): Mailer
+    {
+        $this->to = $name;
+        return $this;
+    }
+
+    /**
+     * Sender email address setter.
+     * @param string $email
+     * @return $this
+     */
+    public function setSenderEmail(string $email): Mailer
+    {
+        $this->from_address = $email;
+        return $this;
+    }
+
+    /**
+     * Sender name setter.
+     * @param string $name
+     * @return $this
+     */
+    public function setSenderName(string $name): Mailer
+    {
+        $this->from = $name;
+        return $this;
+    }
+
+    /**
+     * Subject line setter.
+     * @param string $subject
+     * @return $this
+     */
+    public function setSubject(string $subject): Mailer
+    {
+        $this->subject = $subject;
+        return $this;
     }
 }
