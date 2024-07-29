@@ -131,7 +131,7 @@ class SerializedContentValidation extends SerializedContentUtils
                 $property instanceof SerializedContentValidation ||
                 $property instanceof CategorySelect) {
                 try {
-                    $property->validateInput();
+                    $property->validateInput($exclude_properties);
                 } catch (ContentValidationException) {
                     $this->addValidationError($property->validationErrors());
                 }
