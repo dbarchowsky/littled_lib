@@ -2,30 +2,34 @@
 namespace Littled\Utility;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use PHPMailer\PHPMailer\PHPMailer;
 use Exception;
-use Throwable;
 
 
 class Mailer
 {
     /** @var string Sender's name */
-    public string $from;
+    public string       $from;
     /** @var string Sender's email address */
-    public string $from_address;
+    public string       $from_address;
+    protected string    $password;
     /** @var string Recipient's name */
-    public string $to;
+    public string       $to;
     /** @var string Recipient's email address */
-    public string $to_address;
+    public string       $to_address;
     /** @var string Reply-to address */
-    public string $reply_to='';
+    public string       $reply_to='';
     /** @var string Email subject */
-    public string $subject;
+    public string       $subject;
     /** @var string Body of email */
-    public string $body;
+    public string       $body;
     /** @var bool Flag indicating if the email is to be sent as HTML. */
-    public bool $is_html;
+    public bool         $is_html;
     /** @var string Error messages related to sending out the mail. */
     public string $mail_errors='';
+
+    public static string    $host = '';
+    public static ?int      $port = 25;
 
     /**
      * class constructor
@@ -64,6 +68,49 @@ class Mailer
     }
 
     /**
+     * Format plain text portion of email by stripping tags from HTML body.
+     * @return string
+     */
+    public function getAltBody(): string
+    {
+        $txt = preg_replace('/<tr>/', "\r\n", $this->body);
+        $txt = preg_replace('/<td>/', "\t", $txt);
+        return strip_tags($txt)."\r\n";
+    }
+
+    /**
+     * SMTP host getter
+     * @return string
+     */
+    public static function getHost(): string
+    {
+        return static::$host ?? '';
+    }
+
+    /**
+     * Password getter.
+     * @return string
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * SMTP port getter
+     * @return ?int
+     */
+    public static function getPort(): ?int
+    {
+        return static::$port ?? '';
+    }
+
+    public static function hasHost(): bool
+    {
+        return isset(static::$host) && static::$host && isset(static::$port) && static::$port > 0;
+    }
+
+    /**
      * Sends email. Expects properties of the object to be set before calling this routine.
      * @return void
      * @throws Exception
@@ -74,53 +121,23 @@ class Mailer
             throw new ConfigurationUndefinedException('Email properties not set.');
         }
 
-        $headers = '';
-        if ($this->to) {
-            $headers .= "To: $this->to <$this->to_address>\r\n";
+        $mail = new PHPMailer(true);
+        if (static::hasHost() && $this->password) {
+            $mail->isSMTP();
+            $mail->SMTPAuth = true;
+            $mail->SMTPSecure = 'ssl';
+            $mail->Host = static::$host;
+            $mail->Port = static::$port;
+            $mail->Username = $this->from_address;
+            $mail->Password = $this->password;
         }
-        else {
-            $headers .= "To: $this->to_address\r\n";
-        }
-        if ($this->from) {
-            $headers .= "From: $this->from <$this->from_address>\r\n";
-        }
-        else {
-            $headers .= "From: $this->from_address\r\n";
-        }
-        if ($this->reply_to)
-        {
-            $headers .= "Reply-To: $this->reply_to\r\n";
-        }
-        else {
-            $headers .= "Reply-To: $this->from <$this->from_address>\r\n";
-        }
-        if ($this->is_html) {
-            /* add headers for html email */
-            $headers .= "MIME-Version: 1.0\r\n";
-            $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-            $sMsg = &$this->body;
-        }
-        else {
-            /* strip any html tags out for plain text emails */
-            $sText = preg_replace('/<tr>/', "\r\n", $this->body);
-            $sText = preg_replace('/<td>/', "\t", $sText);
-            $sMsg = strip_tags($sText)."\r\n";
-        }
-        $to = $this->to_address;
+        $mail->setFrom($this->from_address, $this->from);
+        $mail->addAddress($this->to_address, $this->to);
+        $mail->Subject = $this->subject;
+        $mail->Body = $this->body;
+        $mail->AltBody = $this->getAltBody();
 
-        /* send the email */
-        $this->clearErrors();
-        try {
-            mail($to, $this->subject, $sMsg, $headers);
-        }
-        catch (Throwable $e) {
-            $this->mail_errors .= $e->getMessage();
-        }
-
-        /* send along any errors captured during the mailing process */
-        if ($this->mail_errors) {
-            throw new Exception($this->mail_errors);
-        }
+        $mail->send();
     }
 
     /**
@@ -135,6 +152,16 @@ class Mailer
     }
 
     /**
+     * SMTP host setter
+     * @param string $host
+     * @return void
+     */
+    public static function setHost(string $host): void
+    {
+        static::$host = $host;
+    }
+
+    /**
      * Is HTML flag setter.
      * @param bool $is_html
      * @return $this
@@ -143,6 +170,27 @@ class Mailer
     {
         $this->is_html = $is_html;
         return $this;
+    }
+
+    /**
+     * Password setter
+     * @param string $password
+     * @return $this
+     */
+    public function setPassword(string $password): Mailer
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    /**
+     * SMTP port setter
+     * @param ?int $port
+     * @return void
+     */
+    public static function setPort(?int $port): void
+    {
+        static::$port = $port;
     }
 
     /**
