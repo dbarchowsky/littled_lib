@@ -115,7 +115,7 @@ abstract class ContentController
      * Sets the filters object to the appropriate type based on the value of $content_id.
      * @param int $content_id Content type to match with filter type.
      * @return string
-     * @throws Exception
+     * @throws InvalidTypeException
      */
     public static function getContentFiltersClass(int $content_id): string
     {
@@ -131,7 +131,7 @@ abstract class ContentController
      * @param int $content_id Content type identifier
      * @param ?mysqli $mysqli Database connection
      * @return ContentFilters
-     * @throws Exception
+     * @throws InvalidTypeException
      */
     public static function getContentFiltersObject(int $content_id, ?mysqli $mysqli=null): ContentFilters
     {
