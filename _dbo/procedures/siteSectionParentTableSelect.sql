@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `siteSectionParentTableSelect`(
     IN p_content_type_id INT
 )

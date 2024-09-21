@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `siteSectionUpdate`(
     INOUT p_record_id       INT,
     IN p_name               VARCHAR(50),
@@ -56,6 +55,4 @@ IF p_record_id IS NULL THEN
     SELECT LAST_INSERT_ID() INTO p_record_id;
 END IF;
 
-END$$
-
-DELIMITER ;
+END $$

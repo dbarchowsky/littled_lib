@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `udfCalcPageLimits`(
     IN p_page INT,
     IN p_page_length INT,

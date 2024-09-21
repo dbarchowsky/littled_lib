@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `siteSectionExtraPropertiesSelect`(
     IN      p_id        INT
 )

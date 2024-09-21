@@ -11,5 +11,4 @@ CREATE OR REPLACE TABLE cards
         FOREIGN KEY (`type_id`) REFERENCES `card_type` (id)
             ON DELETE RESTRICT
 )
-    ENGINE=InnoDB
     CHARSET = latin1;

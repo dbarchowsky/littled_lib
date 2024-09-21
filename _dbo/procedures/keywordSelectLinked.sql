@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `keywordSelectLinked`(
     IN p_parent_id INT,
     IN p_content_type_id INT
@@ -14,6 +13,6 @@ BEGIN
     WHERE k1.`parent_id` = p_parent_id
     AND k1.`type_id` = p_content_type_id
     GROUP BY k1.`term`
-    ORDER BY COUNT(*) DESC, `term` ASC;
+    ORDER BY COUNT(*) DESC, `term`;
 
 END $$

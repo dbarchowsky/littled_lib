@@ -1,10 +1,9 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `udfValidatePageOffsets`(
-  IN p_src_offset INT,
-  IN p_src_limit INT,
-  OUT p_offset INT,
-  OUT p_limit INT
+    IN      p_src_offset    INT,
+    IN      p_src_limit     INT,
+    OUT     p_offset        INT,
+    OUT     p_limit         INT
 )
 BEGIN
 

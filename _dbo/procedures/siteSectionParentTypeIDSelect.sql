@@ -1,6 +1,5 @@
-DROP PROCEDURE IF EXISTS `siteSectionParentTypeIDSelect`;
 DELIMITER $$
-CREATE PROCEDURE `siteSectionParentTypeIDSelect`(
+CREATE OR REPLACE PROCEDURE `siteSectionParentTypeIDSelect`(
   IN p_content_type_id INT
 )
 BEGIN
@@ -8,5 +7,3 @@ BEGIN
   FROM `site_section`
   WHERE (`id` = p_content_type_id);
 END$$
-
-DELIMITER ;

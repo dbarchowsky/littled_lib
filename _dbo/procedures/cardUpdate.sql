@@ -1,14 +1,14 @@
 DROP PROCEDURE IF EXISTS `cardUpdate`;
 DELIMITER $$
 CREATE PROCEDURE `cardUpdate` (
-    INOUT p_card_id INT
-    , IN p_type_id INT
-    , IN p_holders_name VARCHAR(100)
-    , IN p_card_no VARCHAR(32)
-    , IN p_sec_code VARCHAR(16)
-    , IN p_expr_month INT
-    , IN p_expr_year INT
-    , IN p_key VARCHAR(256)
+    INOUT p_card_id INT,
+    IN p_type_id INT,
+    IN p_holders_name VARCHAR(100),
+    IN p_card_no VARCHAR(32),
+    IN p_sec_code VARCHAR(16),
+    IN p_expr_month INT,
+    IN p_expr_year INT,
+    IN p_key VARCHAR(256)
 )
 BEGIN
 

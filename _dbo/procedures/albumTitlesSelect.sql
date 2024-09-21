@@ -28,7 +28,7 @@ BEGIN
       FROM `album` a 
       WHERE a.section_id = ? 
       AND ((? IS NULL) OR (MATCH(a.title, a.description, a.keywords) AGAINST (? IN BOOLEAN MODE)))
-      ORDER BY a.title ASC 
+      ORDER BY a.title
       LIMIT ?, ?';
   EXECUTE STMT USING 
     @content_type_id, 

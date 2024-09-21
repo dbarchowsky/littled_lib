@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `albumFirstPageSelect`(
     IN p_parent_id INT,
     IN p_content_type_id INT
@@ -14,7 +13,7 @@ BEGIN
     AND (il.`type_id` = p_content_type_id)
     AND (il.`access` = 'public')
     AND (DATEDIFF(il.`release_date`, NOW())<=0)
-    ORDER BY IFNULL(il.`page_number`,999999) ASC, il.`slot` ASC, il.`id` ASC
+    ORDER BY IFNULL(il.`page_number`,999999), il.`slot`, il.`id`
     LIMIT 1;
 
 END $$

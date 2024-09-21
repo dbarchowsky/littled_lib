@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE FUNCTION udfAddWildcards(src VARCHAR(254)) RETURNS VARCHAR(256)
 BEGIN
     RETURN IF(IFNULL(src, '')='', '', CONCAT('%', TRIM(BOTH '%' FROM src), '%'));

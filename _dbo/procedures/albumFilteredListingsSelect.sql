@@ -83,8 +83,8 @@ CREATE OR REPLACE PROCEDURE `albumFilteredListingsSelect`(
       AND (NULLIF(?,'''') IS NULL OR DATEDIFF(a.`release_date`, ?) <= 0)
       AND (NULLIF(?,'''') IS NULL OR a.`access` = ?)
       AND (NULLIF(?, 0) IS NULL OR a.`slot` = ?)
-      AND (NULLIF(?,'''') IS NULL OR (MATCH(a.`title`,a.`description`,a.`keywords`) AGAINST (? IN BOOLEAN MODE)))
-      ORDER BY IFNULL(a.`slot`,999999) ASC, IFNULL(a.`release_date`,''1980-01-01'') DESC, a.`id` DESC
+      AND (NULLIF(?,'''') IS NULL OR (MATCH(a.`title`, a.`description`, a.`keywords`) AGAINST (? IN BOOLEAN MODE)))
+      ORDER BY IFNULL(a.`slot`,999999), IFNULL(a.`release_date`,''1980-01-01'') DESC, a.`id` DESC
       LIMIT ?, ?';
 
     EXECUTE STMT USING

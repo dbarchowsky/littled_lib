@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `siteSectionSelect`(
     IN p_id INT
 )

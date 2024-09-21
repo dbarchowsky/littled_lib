@@ -1,6 +1,5 @@
-DROP PROCEDURE IF EXISTS `stateSelect`;
 DELIMITER $$
-CREATE PROCEDURE `stateSelect` (
+CREATE OR REPLACE PROCEDURE `stateSelect` (
     IN p_id INT
 )
 BEGIN

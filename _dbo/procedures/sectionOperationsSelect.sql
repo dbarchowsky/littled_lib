@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE OR REPLACE PROCEDURE `sectionOperationsSelect`(
     IN      p_section_id        INT
 )

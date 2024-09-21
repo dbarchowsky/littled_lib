@@ -1,6 +1,6 @@
 DELIMITER $$
 CREATE OR REPLACE PROCEDURE `siteSectionParentIDSelect`(
-    IN p_id INT
+    IN      p_id        INT
 )
 BEGIN
     SELECT `parent_id`

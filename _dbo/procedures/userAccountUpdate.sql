@@ -1,6 +1,5 @@
-DROP PROCEDURE IF EXISTS `userAccountUpdate`;
 DELIMITER $$
-CREATE PROCEDURE `userAccountUpdate` (
+CREATE OR REPLACE PROCEDURE `userAccountUpdate` (
     INOUT   p_record_id         INT,
     IN      p_login             VARCHAR(50),
     IN      p_password          VARCHAR(100),
