@@ -20,8 +20,8 @@ class ContentFilter
     public string $key;
     /** @var string Label to display on filter form inputs. */
     public string $label;
-    /** @var int Size limit of the filter value. */
-    public int|null $size;
+    /** @var ?int Size limit of the filter value. */
+    public ?int $size;
     /** @var mixed|string Filter value. */
     public mixed $value;
 
