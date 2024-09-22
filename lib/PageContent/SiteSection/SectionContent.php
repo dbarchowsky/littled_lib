@@ -83,6 +83,22 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
+     * Alias for retrieveSectionProperties()
+     * @throws NotImplementedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     */
+    public function fetchProperties(): void
+    {
+        $this->retrieveSectionProperties();
+    }
+
+    /**
      * Implement abstract method not referenced for unit test purposes.
      */
     public function generateUpdateQuery(): ?array
@@ -100,21 +116,21 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * Content label getter. Will attempt to return the content name value if the content label value is not set.
+     * Returns a string representing the type of content of this content record.
      * @return string
      */
     public function getContentLabel(): string
     {
-        return $this->name->value ?? $this->label->value ?? '';
+        return $this->content_properties->getContentLabel();
     }
 
     /**
-     * Content label getter. Returns only the content label value.
+     * Returns the name or label property value of the individual content record.
      * @return string
      */
     public function getLabel(): string
     {
-        return $this->content_properties->label->value;
+        return $this->name->value ?? $this->label->value ?? '';
     }
 
     /**

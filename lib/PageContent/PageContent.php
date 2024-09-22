@@ -58,7 +58,7 @@ abstract class PageContent extends PageContentBase
     }
 
     /**
-     * Content label getter.
+     * Content label getter. Returns a name associated with the specific content record.
      * @return string
      */
     public function getContentLabel(): string
@@ -70,13 +70,13 @@ abstract class PageContent extends PageContentBase
     }
 
     /**
-     * Content label getter.
+     * Content label getter. Returns the name of the content record's content type.
      * @return string
      */
     public function getLabel(): string
     {
         if (isset($this->content)) {
-            return $this->content->getContentLabel();
+            return $this->content->getLabel();
         }
         return '';
     }
