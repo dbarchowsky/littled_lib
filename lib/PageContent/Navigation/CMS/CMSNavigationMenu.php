@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\PageContent\Navigation\CMS;
 
 use Littled\App\LittledGlobals;
@@ -11,14 +12,14 @@ use Littled\PageContent\Navigation\NavigationMenu;
  */
 class CMSNavigationMenu extends NavigationMenu
 {
-	/**
-	 * CMSNavigationMenu constructor.
+    /**
+     * CMSNavigationMenu constructor.
      * @throws ConfigurationUndefinedException
      */
-	function __construct()
-	{
-		parent::__construct();
-		static::setMenuTemplatePath(LittledGlobals::getLocalTemplatesPath()."framework/navigation/navigation-menu.php");
-		static::setNodeType(CMSNavigationMenuNode::class);
-	}
+    function __construct()
+    {
+        parent::__construct();
+        static::setMenuTemplatePath(LittledGlobals::getLocalTemplatesPath() . "framework/navigation/navigation-menu.php");
+        static::setNodeType(CMSNavigationMenuNode::class);
+    }
 }

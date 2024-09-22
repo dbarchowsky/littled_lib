@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\PageContent\Navigation\CMS;
 
 use Littled\App\LittledGlobals;
@@ -15,9 +16,9 @@ class CMSBreadcrumbsNode extends BreadcrumbsNode
      * @param string $css_class CSS class to apply to the breadcrumb element.
      * @throws ConfigurationUndefinedException
      */
-	public function __construct(string $label, string $url='', string $dom_id='', string $css_class='')
-	{
-		parent::__construct( $label, $url, $dom_id, $css_class );
-		static::setNodeTemplatePath(LittledGlobals::getLocalTemplatesPath().'framework/navigation/breadcrumbs-node.php');
-	}
+    public function __construct(string $label, string $url = '', string $dom_id = '', string $css_class = '')
+    {
+        parent::__construct($label, $url, $dom_id, $css_class);
+        static::setNodeTemplatePath(LittledGlobals::getLocalTemplatesPath() . 'framework/navigation/breadcrumbs-node.php');
+    }
 }
