@@ -271,7 +271,7 @@ abstract class RequestInput
      */
     public function getColumnName(string $property=''): string
     {
-        return (trim($this->column_name) !== '' ? $this->column_name : $property);
+        return trim($this->column_name) ?: $property;
     }
 
     /**
