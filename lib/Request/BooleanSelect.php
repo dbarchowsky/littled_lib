@@ -8,12 +8,20 @@ use Littled\Validation\Validation;
 
 class BooleanSelect extends BooleanInput implements RequestSelectInterface
 {
+    use RequestSelect;
+
     /** @var string         Form element template filename */
     public static string    $template_filename = 'string-select-field.php';
     /** @var string         Form input element template filename */
     public static string    $input_template_filename = 'string-select-input.php';
     /** @var bool[]|int[]|string[] List of available options to include in dropdown menus */
-    protected array         $options;
+    public array            $options;
+
+    public function __construct(string $label, string $key, bool $required = false, mixed $value = null, int $size_limit = 0, ?int $index = null)
+    {
+        parent::__construct($label, $key, $required, $value, $size_limit, $index);
+        $this->suppressDefaultToNull();
+    }
 
     /**
      * Returns input size attribute markup to inject into template.
@@ -22,24 +30,6 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
     public function formatSizeAttributeMarkup(): string
     {
         return '';
-    }
-
-    /**
-     * Options getter.
-     * @return bool[]|int[]|string[]
-     */
-    public function getOptions(): array
-    {
-        return $this->options ?? [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getOptionsLength(): ?int
-    {
-        // interface method. nothing necessary here when working with the 2 or 3 options for boolean options
-        return 0;
     }
 
     /**
@@ -84,21 +74,5 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
         catch(Exception $e) {
             ContentUtils::printError($e->getMessage());
         }
-    }
-
-    /**
-     * Options setter.
-     * @param bool[]|string[]|int[] $options
-     * @return $this
-     */
-    public function setOptions(array $options): BooleanSelect
-    {
-        $this->options = $options;
-        return $this;
-    }
-
-    public function setOptionsLength(int $len): void
-    {
-        // interface method. nothing necessary working with boolean values
     }
 }

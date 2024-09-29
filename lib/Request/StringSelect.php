@@ -7,11 +7,10 @@ use Littled\Validation\Validation;
 
 class StringSelect extends StringInput implements RequestSelectInterface
 {
+    use RequestSelect;
+
     protected static string $input_template_filename = 'string-select-input.php';
     protected static string $template_filename = 'string-select-field.php';
-    /** @var int[]              List of available options to include in dropdown menus */
-    public array $options;
-    public ?int $options_length = null;
     /** @var string[]|string */
     public mixed $value;
 
@@ -48,22 +47,6 @@ class StringSelect extends StringInput implements RequestSelectInterface
     public function formatSizeAttributeMarkup(): string
     {
         return ((0 < $this->options_length) ? (" size=\"$this->options_length\"") : (''));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getOptions(): array
-    {
-        return $this->options ?? [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getOptionsLength(): ?int
-    {
-        return $this->options_length;
     }
 
     /**
@@ -121,25 +104,6 @@ class StringSelect extends StringInput implements RequestSelectInterface
                 $this->value = filter_var($value);
             }
         }
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setOptionsLength(int $len): void
-    {
-        $this->options_length = $len;
-    }
-
-    /**
-     * @inheritDoc
-     * @param string[] $options
-     * @return $this
-     */
-    public function setOptions(array $options): StringSelect
-    {
-        $this->options = $options;
         return $this;
     }
 

@@ -18,7 +18,7 @@ use mysqli_result;
 trait MySQLOperations
 {
     /** @var mysqli Connection to database server. */
-    protected mysqli $mysqli;
+    protected mysqli    $mysqli;
 
     public function __construct()
     {

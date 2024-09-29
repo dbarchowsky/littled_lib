@@ -6,13 +6,14 @@ use Littled\Validation\Validation;
 
 class IntegerSelect extends IntegerInput implements RequestSelectInterface
 {
-    public static string    $input_template_filename = 'string-select-input.php';
-    protected static string $template_filename = 'string-select-field.php';
-    public ?int             $options_length = null;
+    use RequestSelect;
+
+    public      static string   $input_template_filename = 'string-select-input.php';
+    protected   static string   $template_filename = 'string-select-field.php';
+    /** @var int[] */
+    public array $options;
     /** @var int|int[] */
-    public mixed $value;
-    /** @var int[]          List of available options to include in dropdown menus */
-    public array            $options;
+    public      mixed           $value;
 
     /**
      * Adds a value to the current values stored in the object.
@@ -58,22 +59,6 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
     /**
      * @inheritDoc
      */
-    public function getOptions(): array
-    {
-        return $this->options ?? [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getOptionsLength(): ?int
-    {
-        return $this->options_length;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function hasData(): bool
     {
         return (is_numeric($this->value) || (is_array($this->value) && count($this->value) > 0));
@@ -102,25 +87,6 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
             $context['options'] = $context;
         }
         parent::render($label, $css_class, $context);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setOptionsLength(int $len): void
-    {
-        $this->options_length = $len;
-    }
-
-    /**
-     * @inheritDoc
-     * @param int[] $options
-     * @return $this
-     */
-    public function setOptions(array $options): IntegerSelect
-    {
-        $this->options = $options;
-        return $this;
     }
 
     /**
