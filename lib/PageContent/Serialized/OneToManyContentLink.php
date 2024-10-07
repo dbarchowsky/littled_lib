@@ -299,6 +299,15 @@ abstract class OneToManyContentLink extends SerializedContentIO
     }
 
     /**
+     * Returns flag indicating if the "is required" flag for this property has been turned off.
+     * @return bool
+     */
+    public function isRequired(): bool
+    {
+        return $this->primary_id->isRequired();
+    }
+
+    /**
      * With no argument, returns all records currently attached to the object. With an argument, returns a specific
      * record in the list, at the $index position.
      * @param int|null $index
