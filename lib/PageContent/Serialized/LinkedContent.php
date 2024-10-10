@@ -159,6 +159,15 @@ abstract class LinkedContent extends SerializedContent
     }
 
     /**
+     * Test if any input properties of the object have their "is required" flag value set to TRUE.
+     * @return bool
+     */
+    public function isRequired(): bool
+    {
+        return $this->primary_id->isRequired() || $this->link_id->isRequired();
+    }
+
+    /**
      * Combines two prepared statement argument lists.
      * @param array $base
      * @param ?array $args
