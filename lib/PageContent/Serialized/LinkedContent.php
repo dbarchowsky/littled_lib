@@ -238,6 +238,26 @@ abstract class LinkedContent extends SerializedContent
     }
 
     /**
+     * @inheritDoc
+     */
+    public function setAsNotRequired(): SerializedContentUtils
+    {
+        $this->primary_id->setAsOptional();
+        $this->link_id->setAsOptional();
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAsRequired(): SerializedContentUtils
+    {
+        $this->primary_id->setAsRequired();
+        $this->link_id->setAsRequired();
+        return $this;
+    }
+
+    /**
      * Sets the index for all input properties of the object.
      * @param int $index
      * @return $this

@@ -207,6 +207,15 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
+     * Alias for ::setAsNotRequired()
+     * @return $this
+     */
+    public function setAsOptional(): SerializedContentUtils
+    {
+        return $this->setAsNotRequired();
+    }
+
+    /**
      * Sets the "not required" flag of all RequestInput properties of the object to TRUE.
      * @return $this
      */
