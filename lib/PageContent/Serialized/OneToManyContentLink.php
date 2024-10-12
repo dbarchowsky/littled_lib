@@ -430,7 +430,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * @inheritDoc
      */
-    public function setAsNotRequired(): SerializedContentUtils
+    public function setAsNotRequired(): OneToManyContentLink
     {
         return $this->setRequiredFlag(false);
     }
@@ -438,7 +438,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * @inheritDoc
      */
-    public function setAsRequired(): SerializedContentUtils
+    public function setAsRequired(): OneToManyContentLink
     {
         return $this->setRequiredFlag(true);
     }
@@ -504,9 +504,9 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * Sets required flag of instance and its linked records to $required parameter value
      * @param bool $required
-     * @return SerializedContentUtils
+     * @return OneToManyContentLink
      */
-    protected function setRequiredFlag(bool $required): SerializedContentUtils
+    protected function setRequiredFlag(bool $required): OneToManyContentLink
     {
         $method = $required ? 'setAsRequired' : 'setAsOptional';
         $this->primary_id->$method();
