@@ -537,12 +537,20 @@ abstract class RequestInput
         return $this;
     }
 
+    /**
+     * Alias for ::setAsOptional()
+     * @return RequestInput
+     */
+    public function setAsNotRequired(): RequestInput
+    {
+        return $this->setAsOptional();
+    }
 
     /**
      * Sets flag to indicate that this input value is not required.
      * @return RequestInput
      */
-    public function setAsNotRequired(): RequestInput
+    public function setAsOptional(): RequestInput
     {
         $this->required = false;
         return $this;
