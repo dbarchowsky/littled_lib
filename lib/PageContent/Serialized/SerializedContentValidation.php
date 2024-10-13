@@ -108,7 +108,8 @@ class SerializedContentValidation extends SerializedContentUtils
      * Validates the internal property values of the object for data that is not valid.
      * Updates the $validation_errors property of the object with messages describing the invalid values.
      * @param array $exclude_properties Names of class properties to exclude from validation.
-     * @throws ContentValidationException Invalid content found.
+     * @return void
+     * @throws ContentValidationException
      */
     public function validateInput(array $exclude_properties = []): void
     {
