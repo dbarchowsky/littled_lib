@@ -231,9 +231,22 @@ abstract class OneToManyContentLink extends SerializedContentIO
      */
     public function getContentLabel(): string
     {
-        /** @var LinkedContent $class */
-        $class = static::$content_class;
-        return $class::getContentLabel();
+        $label = '';
+        try {
+            $links = $this->items();
+            if (count($links) > 0) {
+                $label = $links[0]->getContentLabel();
+            }
+        }
+        catch (InvalidValueException) {
+        }
+        if (!$label) {
+            $class = static::$content_class;
+            $o = new $class();
+            $label = $o->getContentLabel();
+            unset ($o);
+        }
+        return $label;
     }
 
     /**
