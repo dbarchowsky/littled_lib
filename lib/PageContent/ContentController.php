@@ -18,6 +18,7 @@ use Littled\Log\Log;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Exception;
+use Littled\Validation\Validation;
 use ReflectionClass;
 use ReflectionException;
 use mysqli;
@@ -131,12 +132,16 @@ abstract class ContentController
      * @param int $content_id Content type identifier
      * @param ?mysqli $mysqli Database connection
      * @return ContentFilters
+     * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
      */
     public static function getContentFiltersObject(int $content_id, ?mysqli $mysqli=null): ContentFilters
     {
         // load objects used to fill out listings markup
         $class = static::getContentFiltersClass($content_id);
+        if (!class_exists($class) || !Validation::isSubclass($class, ContentFilters::class)) {
+            throw new InvalidTypeException('Invalid content filters class: ' . $class);
+        }
         $filters = new $class(mysqli: $mysqli);
         if ($mysqli !== null) {
             $filters->setMySQLi($mysqli);
