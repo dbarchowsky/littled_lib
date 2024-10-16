@@ -5,11 +5,13 @@ namespace Littled\PageContent\Serialized;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -53,10 +55,8 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Looks up any foreign key properties in the object and commits the links to the database.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidValueException
@@ -94,16 +94,22 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Execute query that will commit the instance's property values to the database.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     protected function executeCommitQuery(): void
     {
-        /* execute sql and store id value of the new record. */
-        $args = $this->formatCommitQuery();
-        $this->query(...$args);
-        $this->testAndLoadLastInsertId($args[0]);
+        try {
+            /* execute sql and store id value of the new record. */
+            $args = $this->formatCommitQuery();
+            $this->query(...$args);
+            $this->testAndLoadLastInsertId($args[0]);
+        }
+        catch (ConnectionException|
+            ConfigurationUndefinedException|
+            InvalidQueryException $e) {
+            $msg = 'Error commiting a record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
     }
 
     /**
@@ -288,18 +294,24 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Update the internal id property value after committing object property values to the database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     protected function updateIdAfterCommit(): void
     {
-        // query was a procedure
-        $data = $this->fetchRecords(query: 'SELECT @insert_id AS `id`');
-        if (1 > count($data)) {
-            throw new InvalidQueryException('Could not retrieve new record id.');
+        try {
+            // query was a procedure
+            $data = $this->fetchRecords(query: 'SELECT @insert_id AS `id`');
+            if (1 > count($data)) {
+                throw new InvalidQueryException('Could not retrieve new record id.');
+            }
+            $id = $data[0]->id > 0 ? $data[0]->id : null;
+            $this->setRecordId($id);
         }
-        $id = $data[0]->id > 0 ? $data[0]->id : null;
-        $this->setRecordId($id);
+        catch (ConnectionException|
+        ConfigurationUndefinedException|
+        InvalidQueryException $e) {
+            $msg = 'Error retrieving new record id. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
     }
 }

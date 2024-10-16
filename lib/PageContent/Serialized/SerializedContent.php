@@ -7,6 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\DuplicateRecordException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
@@ -118,9 +119,7 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
@@ -134,9 +133,17 @@ abstract class SerializedContent extends SerializedContentIO
             throw new RecordNotFoundException("The requested record could not be found. \n");
         }
 
-        $query = 'DELETE FROM `' . $this::getTableName() . '` WHERE `id` = ?';
-        $this->query($query, 'i', $this->id->value);
-        return ("The record has been deleted. \n");
+        try {
+            $query = 'DELETE FROM `' . $this::getTableName() . '` WHERE `id` = ?';
+            $this->query($query, 'i', $this->id->value);
+            return ("The record has been deleted. \n");
+        }
+        catch(InvalidQueryException|
+        ConnectionException |
+        ConfigurationUndefinedException $e) {
+            $err_msg = 'Error deleting the record: [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($err_msg);
+        }
     }
 
     /**
@@ -305,15 +312,22 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * Create MySQL session variable to hold the value of the insert id resulting from a procedure call.
      * @return void
-     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws FailedQueryException
      */
     protected function prepareInsertIdSession(): void
     {
-        // insure there is a valid mysqli object
-        $this->connectToDatabase();
-        $stmt = $this->mysqli->prepare('SET @insert_id := ?');
-        $stmt->bind_param('i', $this->id->value);
-        $stmt->execute();
+        try {
+            // insure there is a valid mysqli object
+            $this->connectToDatabase();
+            $stmt = $this->mysqli->prepare('SET @insert_id := ?');
+            $stmt->bind_param('i', $this->id->value);
+            $stmt->execute();
+        }
+        catch (ConnectionException|
+        ConfigurationUndefinedException $e) {
+            $msg = 'Error commiting a record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
     }
 
     /**
@@ -347,9 +361,7 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * Confirm that a record with id value matching the current id value of the object currently exists in the database.
      * @return bool True/False depending on if a matching record is found.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function recordExists(): bool
     {
@@ -357,17 +369,23 @@ abstract class SerializedContent extends SerializedContentIO
             return (false);
         }
 
-        $query = 'SELECT EXISTS(SELECT 1 FROM `' . static::getTableName() . '` WHERE `id` = ?) AS `record_exists`';
-        $data = $this->fetchRecords($query, 'i', $this->id->value);
-        return ((int)('0' . $data[0]->record_exists) === 1);
+        try {
+            $query = 'SELECT EXISTS(SELECT 1 FROM `' . static::getTableName() . '` WHERE `id` = ?) AS `record_exists`';
+            $data = $this->fetchRecords($query, 'i', $this->id->value);
+            return ((int)('0' . $data[0]->record_exists) === 1);
+        }
+        catch (ConnectionException|
+        ConfigurationUndefinedException|
+        InvalidQueryException $e) {
+            $msg = 'Error testing for record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
     }
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
