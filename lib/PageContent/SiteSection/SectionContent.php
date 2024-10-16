@@ -5,6 +5,7 @@ namespace Littled\PageContent\SiteSection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
@@ -70,9 +71,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Deletes the Site Section record matching the object's internal ID value.
      * @return string
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
@@ -211,6 +210,7 @@ abstract class SectionContent extends SerializedContent
      * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
