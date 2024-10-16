@@ -335,11 +335,11 @@ abstract class SerializedContent extends SerializedContentIO
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
      * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException Record id not set.
-     * @throws RecordNotFoundException Requested record not available.
-     * @throws NotImplementedException|InvalidQueryException|InvalidValueException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
+     * @throws NotImplementedException
      */
     public function read(): SerializedContent
     {
@@ -349,12 +349,27 @@ abstract class SerializedContent extends SerializedContentIO
 
         try {
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
-        } catch (RecordNotFoundException) {
-            $error_msg = 'The requested ' . $this::getTableName() . ' record was not found.';
+        }
+        catch (RecordNotFoundException) {
+            $error_msg = "The requested " . strtolower(static::getContentLabel()) . " record was not found.";
             throw new RecordNotFoundException($error_msg);
         }
+        catch (ConfigurationUndefinedException|
+            ConnectionException|
+            InvalidQueryException $e) {
+            $msg = 'Error retrieving record data. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
 
-        $this->readLinked();
+        try {
+            $this->readLinked();
+        }
+        catch (ConfigurationUndefinedException|
+            ConnectionException|
+            InvalidQueryException $e) {
+            $msg = 'Error retrieving record data. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
         return $this;
     }
 
