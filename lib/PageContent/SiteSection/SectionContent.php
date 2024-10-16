@@ -3,10 +3,8 @@
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
@@ -83,14 +81,12 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Alias for retrieveSectionProperties()
-     * @throws NotImplementedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws InvalidValueException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
-     * @throws ContentValidationException
      */
     public function fetchProperties(): void
     {
@@ -152,10 +148,8 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
@@ -189,10 +183,8 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Retrieves site section properties and stores that data in object properties.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
@@ -208,10 +200,7 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidValueException
