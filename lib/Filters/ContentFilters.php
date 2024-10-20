@@ -39,9 +39,9 @@ class ContentFilters extends FilterCollection
     function __construct(string $properties_class = ContentProperties::class, ?mysqli $mysqli = null)
     {
         parent::__construct();
-        $this->content_properties = self::newContentPropertiesInstance(
+        $this->content_properties = static::newContentPropertiesInstance(
             properties_class: $properties_class,
-            content_type_id: self::getContentTypeId())
+            content_type_id: static::getContentTypeId())
             ->setMySQLi($mysqli ?: $this->getMySQLi())
             ->read();
     }
