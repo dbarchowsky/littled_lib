@@ -6,8 +6,10 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
@@ -152,6 +154,7 @@ class APIRecordRoute extends APIRoute
      * @return string
      * @throws ConfigurationUndefinedException|ConnectionException
      * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
     public function getRouteWildcard(): string
@@ -192,7 +195,7 @@ class APIRecordRoute extends APIRoute
      */
     public function hasContentPropertiesObject(): bool
     {
-        return isset($this->content);
+        return isset($this->content) || isset($this->filters);
     }
 
     /**
@@ -231,8 +234,10 @@ class APIRecordRoute extends APIRoute
      * the wildcard character or sequence stored in the corresponding content_route record.
      * @param string|null $wildcard
      * @return false|int
-     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -302,11 +307,12 @@ class APIRecordRoute extends APIRoute
     /**
      * Hydrates the content properties object by retrieving data from the database.
      * @return mixed
-     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws FailedQueryException
+     * @throws InvalidValueException
      */
     public function retrieveCoreContentProperties(): mixed
     {
