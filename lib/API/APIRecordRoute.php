@@ -23,6 +23,10 @@ use mysqli;
 
 class APIRecordRoute extends APIRoute
 {
+    public const LISTINGS_TOKEN = 'listings';
+
+    protected static string $listings_token = self::LISTINGS_TOKEN;
+
     public SectionContent       $content;
 
     /**
@@ -140,6 +144,15 @@ class APIRecordRoute extends APIRoute
             return $this->content->content_properties->id->key;
         }
         return '';
+    }
+
+    /**
+     * Listings token getter
+     * @return string
+     */
+    public static function getListingsToken(): string
+    {
+        return static::$listings_token;
     }
 
     /**
@@ -352,6 +365,16 @@ class APIRecordRoute extends APIRoute
         }
         $this->content->content_properties->id->setInputValue($content_id);
         return $this;
+    }
+
+    /**
+     * Listings token getter.
+     * @param string $token
+     * @return void
+     */
+    public static function setListingsToken(string $token): void
+    {
+        static::$listings_token = $token;
     }
 
     public function setResponseContainerId(string $container_id = ''): APIRoute

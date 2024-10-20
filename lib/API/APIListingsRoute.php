@@ -5,10 +5,10 @@ namespace Littled\API;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -67,12 +67,11 @@ class APIListingsRoute extends APIRoute
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws NotImplementedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws NotImplementedException
      * @throws RecordNotFoundException
+     * @throws FailedQueryException
+     * @throws InvalidValueException
      */
     protected function retrieveCoreContentProperties(): APIRoute
     {
