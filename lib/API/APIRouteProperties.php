@@ -86,7 +86,7 @@ abstract class APIRouteProperties extends PageContentBase
     {
         // Do not check filters or content property for content properties object here.
         // Only check those properties in derived classes.
-        return (new ContentProperties())->setMySQLi($this->getMySQLi());
+        return ($this->newContentPropertiesInstance())->setMySQLi($this->getMySQLi());
     }
 
     /**
