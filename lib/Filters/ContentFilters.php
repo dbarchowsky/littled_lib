@@ -39,9 +39,6 @@ class ContentFilters extends FilterCollection
     function __construct(string $properties_class = ContentProperties::class, ?mysqli $mysqli = null)
     {
         parent::__construct();
-        if (!Validation::isSubclass($properties_class, ContentProperties::class)) {
-            throw new InvalidTypeException('Invalid content properties type.');
-        }
         $this->content_properties = self::newContentPropertiesInstance(
             properties_class: $properties_class,
             content_type_id: self::getContentTypeId())
