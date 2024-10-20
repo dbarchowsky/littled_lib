@@ -2,15 +2,12 @@
 
 namespace Littled\API;
 
-use Error;
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Littled\Database\MySQLConnection;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotInitializedException;
 use Littled\PageContent\Serialized\SerializedContent;
-use mysqli;
-use Throwable;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -24,6 +21,10 @@ use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
+use Error;
+use Exception;
+use mysqli;
+use Throwable;
 
 
 /**
@@ -71,8 +72,9 @@ abstract class APIRoute extends APIRouteProperties
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
      * @return $this
-     * @throws ConfigurationUndefinedException|ConnectionException|ContentValidationException
-     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
