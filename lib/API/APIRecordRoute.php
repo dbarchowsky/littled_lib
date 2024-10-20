@@ -106,11 +106,12 @@ class APIRecordRoute extends APIRoute
      */
     protected function confirmContentDBConnection(): void
     {
-        if (!isset($this->content)) {
-            return;
+        if (isset($this->content)) {
+            $this->content->content_properties->setMySQLi($this->content->getMySQLi());
         }
-        $this->content->content_properties->setMySQLi($this->content->getMySQLi());
-
+        elseif (isset($this->filters)) {
+            $this->filters->content_properties->setMySQLi($this->filters->getMySQLi());
+        }
     }
 
     /**
@@ -120,7 +121,12 @@ class APIRecordRoute extends APIRoute
     {
         if ($this->hasContentPropertiesObject()) {
             $this->confirmContentDBConnection();
-            return $this->content->content_properties;
+            if (isset($this->content)) {
+                return $this->content->content_properties;
+            }
+            else {
+                return $this->filters->content_properties;
+            }
         }
         return parent::getContentProperties();
     }
