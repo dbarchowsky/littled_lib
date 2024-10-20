@@ -42,9 +42,11 @@ class ContentFilters extends FilterCollection
         if (!Validation::isSubclass($properties_class, ContentProperties::class)) {
             throw new InvalidTypeException('Invalid content properties type.');
         }
-        $this->content_properties = new $properties_class(self::getContentTypeId());
-        $this->content_properties->setMySQLi($mysqli ?: $this->getMySQLi());
-        $this->content_properties->read();
+        $this->content_properties = self::newContentPropertiesInstance(
+            properties_class: $properties_class,
+            content_type_id: self::getContentTypeId())
+            ->setMySQLi($mysqli ?: $this->getMySQLi())
+            ->read();
     }
 
     /**
@@ -70,6 +72,26 @@ class ContentFilters extends FilterCollection
             throw new NotImplementedException('Content type id not set in ' . get_called_class() . '.');
         }
         return static::$content_type_id;
+    }
+
+    /**
+     * Return new instance of this class's ContentProperties class.
+     * @param string $properties_class
+     * @param int|null $content_type_id
+     * @return ContentProperties
+     * @throws InvalidTypeException
+     */
+    protected static function newContentPropertiesInstance(
+        string $properties_class = '',
+        int|null $content_type_id = null): ContentProperties
+    {
+        if ($properties_class !== '') {
+            if (!Validation::isSubclass($properties_class, ContentProperties::class)) {
+                throw new InvalidTypeException("Invalid content properties type: \"$properties_class\"");
+            }
+            return new $properties_class($content_type_id);
+        }
+        return new ContentProperties($content_type_id);
     }
 
     /**
