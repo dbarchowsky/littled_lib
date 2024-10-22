@@ -20,7 +20,7 @@ class BreadcrumbsNode extends NavigationNodeBase
      * @param string $dom_id (Optional) value for the breadcrumb node's id attribute.
      * @param string $css_class (Optional) value for the breadcrumb node's class attribute.
      */
-    function __construct(string $label, ?string $url = null, string $dom_id = '', string $css_class = '')
+    function __construct(string $label='', ?string $url = null, string $dom_id = '', string $css_class = '')
     {
         parent::__construct($label, $url);
         $this->css_class = $css_class;
