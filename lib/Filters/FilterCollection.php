@@ -4,8 +4,13 @@ namespace Littled\Filters;
 
 use Littled\App\LittledGlobals;
 use Littled\Database\DBUtils;
+use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Log\Log;
 use Littled\PageContent\PageUtils;
 use Littled\Validation\Validation;
 use Exception;
@@ -247,6 +252,7 @@ class FilterCollection extends FilterCollectionProperties
     /**
      * Formats SQL clauses to the offset and page size of the recordset.
      * @return array First element is the lower limit value and the 2nd element is the upper limit value.
+     * @throws FailedQueryException
      * @throws NotImplementedException
      */
     public function getQueryLimits(): array
@@ -269,8 +275,9 @@ class FilterCollection extends FilterCollectionProperties
 
     /**
      * Retrieves total number of records matching the current filter values.
+     * @return void
+     * @throws FailedQueryException
      * @throws NotImplementedException
-     * @throws Exception
      */
     protected function getPageCount(): void
     {
@@ -279,7 +286,13 @@ class FilterCollection extends FilterCollectionProperties
         $query = 'SELECT COUNT(1) AS `count` ' .
             'FROM `' . static::getTableName() . '` ' .
             $this->sql_clause;
-        $data = $this->fetchRecords($query);
+        try {
+            $data = $this->fetchRecords($query);
+        }
+        catch (ConfigurationUndefinedException|ConnectionException|InvalidQueryException $e) {
+            $msg = 'Error retrieving page count. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+            throw new FailedQueryException($msg);
+        }
 
         $this->record_count = $data[0]->count;
         $this->calcPageCount();
@@ -302,14 +315,15 @@ class FilterCollection extends FilterCollectionProperties
 
     /**
      * Store total number of matching results for later use when rendering listings.
-     * @throws Exception
+     * @return void
+     * @throws FailedQueryException
      */
     protected function getProcedurePageCount(): void
     {
         $this->record_count = $this->page_count = 0;
         $result = $this->mysqli->query('SELECT CAST(' . self::RECORD_COUNT_ARG . ' AS UNSIGNED) AS `total_matches`');
         if (!$result) {
-            throw new Exception('Error getting record count: ' . $this->mysqli->error);
+            throw new FailedQueryException('Error getting record count: ' . $this->mysqli->error);
         }
         $r = $result->fetch_object();
         $result->free();
@@ -427,7 +441,8 @@ class FilterCollection extends FilterCollectionProperties
      * Retrieves listings data from database using object's filter values.
      * @param bool $calculate_offset Optional flag to prevent the offset to the first record in the listings from being recalculated prior to retrieving the listings records.
      * @return array Listings data
-     * @throws Exception
+     * @throws FailedQueryException
+     * @throws NotImplementedException
      */
     public function retrieveListings(bool $calculate_offset = true): array
     {
@@ -450,7 +465,9 @@ class FilterCollection extends FilterCollectionProperties
      * Retrieves the record ids of the records adjacent to the requested record in the record listings sequence.
      * The order of the records preserves the current filters being applied to the listings.
      * @param int $record_id The id of the current record from the record listings sequence.
-     * @throws Exception
+     * @return void
+     * @throws FailedQueryException
+     * @throws NotImplementedException
      */
     public function retrieveNeighborIds(int $record_id): void
     {
@@ -511,7 +528,8 @@ class FilterCollection extends FilterCollectionProperties
      * @param array $listings The current page of listings data.
      * @param int $page_position The position of the active record within the active page of listings.
      * @return void
-     * @throws Exception
+     * @throws FailedQueryException
+     * @throws NotImplementedException
      */
     protected function setOutOfBoundNeighborIds(array $listings, int $page_position): void
     {
