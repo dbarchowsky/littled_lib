@@ -3,6 +3,7 @@ namespace Littled\PageContent;
 
 use Littled\Database\MySQLConnection;
 use Littled\Filters\ContentFilters;
+use Littled\Utility\LittledUtility;
 
 
 abstract class PageContentBase extends MySQLConnection implements PageContentInterface
@@ -26,6 +27,18 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
             $this->query_string = $this->filters->formatQueryString($exclude);
         }
         return $this->query_string;
+    }
+
+    /**
+     * Returns $route_parts property value as a string.
+     * @return string
+     */
+    public static function formatRoute(): string
+    {
+        if (count(static::$route_parts) < 1) {
+            return '';
+        }
+        return LittledUtility::joinPaths(...static::$route_parts);
     }
 
     /**
