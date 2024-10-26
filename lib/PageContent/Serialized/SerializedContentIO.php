@@ -192,10 +192,8 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Retrieve all record data belonging to tables linked to this content type.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
