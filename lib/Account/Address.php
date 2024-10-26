@@ -51,31 +51,31 @@ class Address extends SerializedContent
         return ('https://maps.googleapis.com/maps/api/geocode/xml?key=' . static::$gmap_api_key . '&address=');
     }
 
-    public StringSelect $salutation;
-    public StringTextField $first_name;
-    public StringTextField $last_name;
-    public StringTextField $location;
-    public StringTextField $organization;
-    public StringTextField $address1;
-    public StringTextField $address2;
-    public StringTextField $city;
-    public State $state;
-    public StringTextField $non_us_state;
-    public StringTextField $zip;
-    public StringTextField $country;
+    public StringSelect         $salutation;
+    public StringTextField      $first_name;
+    public StringTextField      $last_name;
+    public StringTextField      $location;
+    public StringTextField      $organization;
+    public StringTextField      $address1;
+    public StringTextField      $address2;
+    public StringTextField      $city;
+    public State                $state;
+    public StringTextField      $non_us_state;
+    public StringTextField      $zip;
+    public StringTextField      $country;
     public PhoneNumberTextField $home_phone;
     public PhoneNumberTextField $work_phone;
     public PhoneNumberTextField $fax;
     public PhoneNumberTextField $mobile_phone;
-    public EmailTextField $email;
-    public StringTextField $title;
-    public StringTextField $url;
-    public FloatTextField $latitude;
-    public FloatTextField $longitude;
-    /** @var string Abbreviated state name. */
-    public string $state_abbrev;
+    public EmailTextField       $email;
+    public StringTextField      $title;
+    public StringTextField      $url;
+    public FloatTextField       $latitude;
+    public FloatTextField       $longitude;
+    /** @deprecated Use $state->sales_tax instead */
+    public string               $state_abbrev;
     /** @var string Combined first and last name. */
-    public string $fullname;
+    public string               $fullname;
 
     /**
      * Class constructor.
