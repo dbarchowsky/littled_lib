@@ -4,7 +4,10 @@ namespace Littled\Database;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Log\Log;
 use Littled\Validation\Validation;
 use Exception;
 use mysqli;
@@ -42,8 +45,7 @@ trait MySQLOperations
      * @param string $table_name name of the table to look in
      * @return bool TRUE if the column is found.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function columnExists(string $column_name, string $table_name): bool
     {
@@ -150,9 +152,7 @@ trait MySQLOperations
      * @param string $types
      * @param mixed $vars,...
      * @return array Array of generic objects holding the data returned by the query.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function fetchOptions(string $query, string $types = '', &...$vars): array
     {
@@ -165,7 +165,7 @@ trait MySQLOperations
         $rs = array();
         while ($row = $result->fetch_object()) {
             if (count($rs) == 0 && (!property_exists($row, 'id') || !property_exists($row, 'option'))) {
-                throw new InvalidQueryException('Invalid query retrieving options.');
+                throw new FailedQueryException('Invalid query retrieving options.');
             }
             $rs[$row->id] = $row->option;
         }
@@ -180,7 +180,7 @@ trait MySQLOperations
      * @param string $types
      * @param mixed $vars,...
      * @return array Array of generic objects holding the data returned by the query.
-     * @throws ConfigurationUndefinedException|ConnectionException|InvalidQueryException
+     * @throws FailedQueryException
      */
     public function fetchRecords(string $query, string $types = '', &...$vars): array
     {
@@ -204,29 +204,33 @@ trait MySQLOperations
      * @param string $types
      * @param mixed $vars,...
      * @return mysqli_result
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function fetchResult(string $query, string $types = '', &...$vars): mysqli_result
     {
-        $this->connectToDatabase();
+        try {
+            $this->connectToDatabase();
+        }
+        catch (ConfigurationUndefinedException|ConnectionException $ex) {
+            $msg = 'Connection error. [' . Log::getClassBaseName($ex::class) . ']' . $ex->getMessage();
+            throw new FailedQueryException($msg);
+        }
         if ($types) {
             $stmt = $this->mysqli->prepare($query);
             if (!$stmt) {
-                throw new InvalidQueryException('Could not prepare statement: ' . $this->mysqli->error);
+                throw new FailedQueryException('Could not prepare statement: ' . $this->mysqli->error);
             }
             array_unshift($vars, $types);
             call_user_func_array([$stmt, 'bind_param'], $vars);
             if (!$stmt->execute()) {
-                throw new InvalidQueryException('Error fetching records: ' . $stmt->error);
+                throw new FailedQueryException('Error fetching records: ' . $stmt->error);
             }
             $result = $stmt->get_result();
             $stmt->close();
         } else {
             $result = $this->mysqli->query($query);
             if (!$result) {
-                throw new InvalidQueryException('Error fetching records: ' . $this->mysqli->error);
+                throw new FailedQueryException('Error fetching records: ' . $this->mysqli->error);
             }
 
             /*
@@ -394,15 +398,14 @@ trait MySQLOperations
     /**
      * Retrieves the last insert id created in the database.
      * @return int Last insert id value.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     public function retrieveInsertID(): int
     {
         $data = $this->fetchRecords('SELECT LAST_INSERT_ID() as `insert_id`');
         if (1 > count($data)) {
-            throw new InvalidQueryException('Could not retrieve insert id.');
+            throw new RecordNotFoundException('Could not retrieve insert id.');
         }
         return $data[0]->insert_id;
     }
