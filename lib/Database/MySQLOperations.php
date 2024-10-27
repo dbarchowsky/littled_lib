@@ -5,11 +5,9 @@ namespace Littled\Database;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\Validation\Validation;
-use Exception;
 use mysqli;
 use mysqli_driver;
 use mysqli_sql_exception;
@@ -247,10 +245,10 @@ trait MySQLOperations
     }
 
     /**
-     * @deprecated Use MySQLConnection::fetchRecords() instead.
      * @param string $query Query to execute.
      * @return array Data returned from query as an array.
-     * @throws InvalidQueryException|Exception Error executing query.
+     * @throws FailedQueryException
+     * @deprecated Use MySQLConnection::fetchRecords() instead.
      */
     public function fetchRecordsNonExhaustive(string $query): array
     {
@@ -362,20 +360,26 @@ trait MySQLOperations
      * @param string $query SQL statement to execute.
      * @param string $types
      * @param ...$vars
-     * @throws ConnectionException|ConfigurationUndefinedException|InvalidQueryException
+     * @throws FailedQueryException
      */
     public function query(string $query, string $types = '', ...$vars): void
     {
-        $this->connectToDatabase();
+        try {
+            $this->connectToDatabase();
+        }
+        catch (ConfigurationUndefinedException|ConnectionException $ex) {
+            $msg = 'Connection error. [' . Log::getClassBaseName($ex::class) . ']' . $ex->getMessage();
+            throw new FailedQueryException($msg);
+        }
         if ($types) {
             $stmt = $this->mysqli->prepare($query);
             if (!$stmt) {
-                throw new InvalidQueryException('Could not prepare statement: ' . $this->mysqli->error);
+                throw new FailedQueryException('Could not prepare statement: ' . $this->mysqli->error);
             }
             $stmt->bind_param($types, ...$vars);
 
             if (!$stmt->execute()) {
-                throw new InvalidQueryException('Error executing query: ' . $this->mysqli->error);
+                throw new FailedQueryException('Error executing query: ' . $this->mysqli->error);
             }
             $stmt->close();
         } else {
