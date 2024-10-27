@@ -130,8 +130,7 @@ trait SerializedFieldOperations
             }
 
             // return any PK properties for linked records
-            elseif(Validation::isSubclass($item, SerializedContent::class) &&
-                !Validation::isSubclass($item, ContentProperties::class)) {
+            elseif($this->testForLinkedProperty($key)) {
                 if ($item->isDatabaseProperty($item->id, $used_keys)) {
                     $fields[] = (new QueryField())
                         ->setisPrimaryKey(false) /* << not PK because it's a FK column in the parent table */
@@ -256,5 +255,19 @@ trait SerializedFieldOperations
         foreach ($properties as $property) {
             $this->$property->setKey($prefix . $this->$property->key);
         }
+    }
+
+    /**
+     * Tests a property to determine if it represents a record linked to the main record represented by this object.
+     * @param string $key
+     * @return bool
+     */
+    protected function testForLinkedProperty(string $key): bool
+    {
+        $property = $this->$key;
+        return (
+            Validation::isSubclass($property, SerializedContent::class) &&
+            !Validation::isSubclass($property, ContentProperties::class) &&
+            $property->getHasForeignKey());
     }
 }

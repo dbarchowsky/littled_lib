@@ -20,7 +20,8 @@ use Littled\Validation\Validation;
 abstract class SerializedContentIO extends SerializedContentValidation
 {
     /** @var bool               Flag to skip filling object values from input variables (GET or POST). */
-    public bool                 $bypassCollectFromInput = false;
+    public bool                 $bypassCollectFromInput     = false;
+    protected bool              $has_foreign_key            = true;
     protected static string     $table_name;
 
     /**
@@ -132,6 +133,15 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @return string
      */
     public abstract function getContentLabel(): string;
+
+    /**
+     * "Has foreign key" setting getter. Determines if this object is linked to another parent object in the database.
+     * @return bool
+     */
+    public function getHasForeignKey(): bool
+    {
+        return $this->has_foreign_key;
+    }
 
     /**
      * Returns a descriptive label of the content type suitable to insert into a sentence.
@@ -255,6 +265,17 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * Commits the values stored in the class instance's properties to the database.
      */
     abstract public function save ();
+
+    /**
+     * "Has foreign key" setter. Determines if this object is linked to a parent object in the database.
+     * @param bool $flag
+     * @return $this
+     */
+    public function setHasForeignKey(bool $flag): SerializedContentIO
+    {
+        $this->has_foreign_key = $flag;
+        return $this;
+    }
 
     /**
      * Record id getter.
