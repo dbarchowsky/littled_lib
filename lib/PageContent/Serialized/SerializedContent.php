@@ -351,7 +351,7 @@ abstract class SerializedContent extends SerializedContentIO
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
         }
         catch (RecordNotFoundException) {
-            $error_msg = "The requested " . strtolower(static::getContentLabel()) . " record was not found.";
+            $error_msg = 'The requested ' . strtolower(static::getContentLabel()) . ' record was not found.';
             throw new RecordNotFoundException($error_msg);
         }
         catch (ConfigurationUndefinedException|ConnectionException $e) {
