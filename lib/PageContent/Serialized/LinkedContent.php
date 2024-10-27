@@ -4,6 +4,7 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\ForeignKeyInput;
@@ -193,6 +194,10 @@ abstract class LinkedContent extends SerializedContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidQueryException
+     * @throws RecordNotFoundException
      */
     public function read(): LinkedContent
     {
@@ -219,6 +224,7 @@ abstract class LinkedContent extends SerializedContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
      * @throws InvalidStateException
      */
     public function recordExists(): bool

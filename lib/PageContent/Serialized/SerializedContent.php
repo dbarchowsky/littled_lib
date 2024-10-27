@@ -17,8 +17,8 @@ use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\Request\PrimaryKeyInput;
-use Exception;
 use Littled\Validation\Validation;
+use Exception;
 use mysqli;
 
 
@@ -138,9 +138,8 @@ abstract class SerializedContent extends SerializedContentIO
             $this->query($query, 'i', $this->id->value);
             return ("The record has been deleted. \n");
         }
-        catch(InvalidQueryException|
-        ConnectionException |
-        ConfigurationUndefinedException $e) {
+        catch(FailedQueryException |
+            ConfigurationUndefinedException $e) {
             $err_msg = 'Error deleting the record: [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($err_msg);
         }
@@ -251,9 +250,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @param string $field Optional column name containing the value to retrieve. Defaults to "name".
      * @param string $id_field Optional column name containing the id value to retrieve. Defaults to "id".
      * @return string|null Retrieved value.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function getTypeName(string $table, int $id, string $field = 'name', string $id_field = 'id'): ?string
     {
@@ -261,7 +258,7 @@ abstract class SerializedContent extends SerializedContentIO
             return null;
         }
 
-        $query = 'SEL' . "ECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
+        $query = "SELECT `$field` AS `result` FROM `$table` WHERE `$id_field` = ?";
         $data = $this->fetchRecords($query, 'i', $id);
         $ret_value = $data[0]->result;
         return ($ret_value);
@@ -335,11 +332,14 @@ abstract class SerializedContent extends SerializedContentIO
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
      * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
+     * @throws InvalidQueryException
      * @throws InvalidValueException
-     * @throws RecordNotFoundException
      * @throws NotImplementedException
+     * @throws RecordNotFoundException
      */
     public function read(): SerializedContent
     {
@@ -354,9 +354,7 @@ abstract class SerializedContent extends SerializedContentIO
             $error_msg = "The requested " . strtolower(static::getContentLabel()) . " record was not found.";
             throw new RecordNotFoundException($error_msg);
         }
-        catch (ConfigurationUndefinedException|
-            ConnectionException|
-            InvalidQueryException $e) {
+        catch (ConfigurationUndefinedException|ConnectionException $e) {
             $msg = 'Error retrieving record data. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($msg);
         }
@@ -364,11 +362,8 @@ abstract class SerializedContent extends SerializedContentIO
         try {
             $this->readLinked();
         }
-        catch (ConfigurationUndefinedException|
-            ConnectionException|
-            InvalidQueryException $e) {
-            $msg = 'Error retrieving record data. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
-            throw new FailedQueryException($msg);
+        catch (FailedQueryException $e) {
+            throw new FailedQueryException('Error retrieving record data.' . $e->getMessage());
         }
         return $this;
     }
@@ -389,9 +384,8 @@ abstract class SerializedContent extends SerializedContentIO
             $data = $this->fetchRecords($query, 'i', $this->id->value);
             return ((int)('0' . $data[0]->record_exists) === 1);
         }
-        catch (ConnectionException|
-        ConfigurationUndefinedException|
-        InvalidQueryException $e) {
+        catch (FailedQueryException|
+        ConfigurationUndefinedException $e) {
             $msg = 'Error testing for record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($msg);
         }

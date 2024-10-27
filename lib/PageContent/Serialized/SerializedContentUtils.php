@@ -4,15 +4,14 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\Database\AppContentBase;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringInput;
-use Exception;
 use Littled\Validation\Validation;
+use Exception;
 
 
 /**
@@ -113,7 +112,7 @@ class SerializedContentUtils extends AppContentBase
      * Assign values contained in array to object input properties.
      * @param string $query SQL SELECT statement to use to hydrate object property values.
      * @throws RecordNotFoundException
-     * @throws ConnectionException|ConfigurationUndefinedException|InvalidQueryException
+     * @throws FailedQueryException
      */
     protected function hydrateFromQuery(string $query, string $arg_types = '', &...$args): void
     {

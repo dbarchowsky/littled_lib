@@ -6,6 +6,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\DuplicateRecordException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
@@ -122,9 +123,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
@@ -145,6 +144,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws InvalidQueryException
      * @throws InvalidStateException
      * @throws RecordNotFoundException
@@ -386,8 +386,11 @@ abstract class OneToManyContentLink extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws InvalidStateException|InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws FailedQueryException
+     * @throws InvalidQueryException
+     * @throws InvalidStateException
      * @throws NotImplementedException
      */
     public function read(): OneToManyContentLink
@@ -425,10 +428,8 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * @inheritDoc
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException

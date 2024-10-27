@@ -41,9 +41,8 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @param string $column_name Name of the column to check for.
      * @param string $table_name (Optional) This parameter is ignored in this class's implementation of the routine.
      * @return bool True/false depending on if the column is found.
+     * @throws FailedQueryException
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
      */
     public function columnExists(string $column_name, string $table_name=''): bool
     {
@@ -77,11 +76,10 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @param string $query Query string to execute
      * @param string $arg_types String describing parameter types, passed to mysqli prepared statement.
      * @param mixed $args,... Variables to insert into the query
-     * @throws ConfigurationUndefinedException|ConnectionException|InvalidQueryException
+     * @throws FailedQueryException
      */
     protected function commitSaveQuery(string $query, string $arg_types='', ...$args): void
     {
-        $this->connectToDatabase();
         array_unshift($args, $query, $arg_types);
         $this->query(...$args);
     }
@@ -105,11 +103,8 @@ abstract class SerializedContentIO extends SerializedContentValidation
             $this->query(...$args);
             $this->testAndLoadLastInsertId($args[0]);
         }
-        catch (ConnectionException|
-            ConfigurationUndefinedException|
-            InvalidQueryException $e) {
-            $msg = 'Error commiting a record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
-            throw new FailedQueryException($msg);
+        catch (FailedQueryException $e) {
+            throw new FailedQueryException('Error commiting a record. ' . $e->getMessage());
         }
     }
 
@@ -202,8 +197,12 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Retrieve all record data belonging to tables linked to this content type.
      * @return void
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
+     * @throws InvalidQueryException
      * @throws InvalidValueException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
@@ -299,9 +298,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * be retrieved with a prepared statement and stored in a property of a derived class.
      * @param string $query
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     protected function testAndLoadLastInsertId(string $query): void
     {
@@ -326,9 +323,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
             $id = $data[0]->id > 0 ? $data[0]->id : null;
             $this->setRecordId($id);
         }
-        catch (ConnectionException|
-        ConfigurationUndefinedException|
-        InvalidQueryException $e) {
+        catch (FailedQueryException|InvalidQueryException $e) {
             $msg = 'Error retrieving new record id. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($msg);
         }
