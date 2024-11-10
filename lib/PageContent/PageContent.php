@@ -100,7 +100,8 @@ abstract class PageContent extends PageContentBase
             $input->collectRequestData();
             if ($input->value === true) {
                 $qs_vars[] = "$input->key=1";
-            } elseif (strlen($input->value) > 0) {
+            }
+            elseif (strlen(''.$input->value) > 0) {
                 $qs_vars[] = "$input->key=" . urlencode($input->value);
             }
         }
