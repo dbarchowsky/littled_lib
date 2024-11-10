@@ -2,15 +2,14 @@
 
 namespace Littled\PageContent;
 
-
-use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
+
 
 class PageController extends MySQLConnection
 {
@@ -37,8 +36,7 @@ class PageController extends MySQLConnection
      * @param array $exclude List of paths that will not trigger a redirect.
      * @throws ContentValidationException
      * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws FailedQueryException
      */
     public function collectAlbumProperties(array $exclude = []): void
     {
@@ -115,10 +113,8 @@ class PageController extends MySQLConnection
      * If a value is not provided, then the object's internal "section_id" property
      * value is used to look up the album content type.
      * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws Exception
      */
     public function lookupAlbumProperties(string $slug = '', ?int $section_id = null): void
     {
@@ -132,14 +128,27 @@ class PageController extends MySQLConnection
             $this->album_slug = $slug;
         }
 
-        $this->connectToDatabase();
-        $escaped_slug = $this->escapeSQLValue($this->album_slug);
-        $query = 'SEL' . "ECT `id` FROM `$this->table` WHERE (`slug` LIKE '$escaped_slug')";
-        if ($this->columnExists('section_id', $this->table)) {
-            $query .= "AND (section_id = $this->section_id)";
+        try {
+            $escaped_slug = $this->escapeSQLValue($this->album_slug);
+        }
+        catch(ConfigurationUndefinedException $e) {
+            throw new FailedQueryException($e->getMessage());
+        }
+        $fmt = 's';
+        $args = [$escaped_slug];
+        $query = "SELECT `id` from `$this->table` WHERE (`slug` LIKE ?)";
+        try {
+            if ($this->columnExists('section_id', $this->table)) {
+                $query .= 'AND (section_id = ?)';
+                $fmt .= 'i';
+                $args[] = $this->section_id;
+            }
+        }
+        catch(ConfigurationUndefinedException $e) {
+            throw new FailedQueryException($e->getMessage());
         }
 
-        $data = $this->fetchRecords($query);
+        $data = $this->fetchRecords($query, $fmt, ...$args);
         if (count($data) < 1) {
             throw new RecordNotFoundException('Error retrieving album properties.');
         }
@@ -156,9 +165,7 @@ class PageController extends MySQLConnection
      * the current value of the object's $section_slug property will be used.
      * @throws ContentValidationException
      * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws Exception
+     * @throws FailedQueryException
      */
     public function lookupSectionProperties(string $slug = ''): void
     {
@@ -216,8 +223,7 @@ class PageController extends MySQLConnection
      * if they don't match a redirect to the requested content will be attempted.
      * @throws ContentValidationException
      * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws NotImplementedException
      */
     public function testForRedirect(array $exclude = []): void

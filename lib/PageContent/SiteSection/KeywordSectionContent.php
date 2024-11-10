@@ -2,11 +2,9 @@
 
 namespace Littled\PageContent\SiteSection;
 
-use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
@@ -166,9 +164,7 @@ class KeywordSectionContent extends SectionContent
     /**
      * Deletes any keyword records linked to the main content record represented by the object.
      * @return string String containing a description of the results of the deletion.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      */
     public function deleteKeywords(): string
@@ -218,9 +214,8 @@ class KeywordSectionContent extends SectionContent
      * @param bool $fetch_from_database Optional. If TRUE return keywords from database. If FALSE return keyword terms. Default value is TRUE.
      * stored in the object properties. Defaults to TRUE.
      * @return string Comma-delimited string containing all the current keywords associated with this record.
-     * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws FailedQueryException
+     * @throws InvalidStateException
      */
     public function formatKeywordList(bool $fetch_from_database = true): string
     {
@@ -234,9 +229,8 @@ class KeywordSectionContent extends SectionContent
      * Returns markup containing keywords as links to listings filtered by the keyword value.
      * @param array $context (Optional) Array containing variables to insert into the template.
      * @return string Markup to be used to display the keywords. False on error retrieving markup content.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws InvalidStateException
      * @throws ResourceNotFoundException
      */
     public function formatKeywordListPageContent(array $context = array()): string
@@ -304,9 +298,8 @@ class KeywordSectionContent extends SectionContent
      * @param bool $fetch_from_database Optional. If TRUE return keywords from database. If FALSE return keyword terms. Default value is TRUE.
      * stored in the object properties. Defaults to TRUE.
      * @return array List of keyword terms currently linked to the record in the database.
-     * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws FailedQueryException
+     * @throws InvalidStateException
      */
     public function getKeywordTermsArray(bool $fetch_from_database = true): array
     {
@@ -354,10 +347,8 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Retrieves keywords linked to the current record.
-     * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws Exception
+     * @throws FailedQueryException
+     * @throws InvalidStateException
      */
     public function readKeywords(): void
     {
@@ -365,7 +356,6 @@ class KeywordSectionContent extends SectionContent
         $this->testForContentType();
 
         $this->clearKeywordList();
-        $this->connectToDatabase();
         $query = 'CALL keywordSelectLinked(?,?)';
         $data = $this->fetchRecords($query, 'ii', $this->id->value, $this->content_properties->id->value);
 
@@ -378,10 +368,9 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Commits object property data to record in the database.
-     * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
@@ -397,9 +386,7 @@ class KeywordSectionContent extends SectionContent
     /**
      * Saves all keywords linked to the main record object.
      * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      */
     public function saveKeywords(): KeywordSectionContent

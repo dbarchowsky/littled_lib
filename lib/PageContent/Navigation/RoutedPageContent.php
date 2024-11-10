@@ -489,16 +489,6 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Template directory path setter.
-     * @param string $path
-     * @return void
-     */
-    public static function setTemplateDir(string $path): void
-    {
-        static::$template_dir = $path;
-    }
-
-    /**
      * Template filename setter.
      * @param string $filename
      * @return void

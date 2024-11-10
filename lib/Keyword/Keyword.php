@@ -6,6 +6,7 @@ namespace Littled\Keyword;
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\PageContent\Serialized\SerializedContentValidation;
 use Littled\Request\IntegerInput;
@@ -95,9 +96,7 @@ class Keyword extends SerializedContentValidation
     /**
      * Commits keyword data to the database
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function save(): void
     {

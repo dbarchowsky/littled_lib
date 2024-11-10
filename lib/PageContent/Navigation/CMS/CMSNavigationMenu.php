@@ -19,7 +19,7 @@ class CMSNavigationMenu extends NavigationMenu
     function __construct()
     {
         parent::__construct();
-        static::setMenuTemplatePath(LittledGlobals::getLocalTemplatesPath() . "framework/navigation/navigation-menu.php");
+        static::setMenuTemplatePath(LittledGlobals::getLocalTemplatesPath() . 'framework/navigation/navigation-menu.php');
         static::setNodeType(CMSNavigationMenuNode::class);
     }
 }

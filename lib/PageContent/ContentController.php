@@ -5,9 +5,8 @@ namespace Littled\PageContent;
 use JetBrains\PhpStorm\NoReturn;
 use Littled\API\APIRoute;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
@@ -230,12 +229,9 @@ abstract class ContentController
      * @param SerializedContent $content
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws InvalidValueException
      */
     public static function retrieveContentDataByType(SerializedContent $content): void
     {

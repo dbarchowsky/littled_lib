@@ -3,13 +3,13 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
+
 
 trait SerializedFieldOperations
 {
@@ -109,12 +109,10 @@ trait SerializedFieldOperations
      * records.
      * @param array $used_keys (Optional) Properties that have already been added to the stack.
      * @return QueryField[] Key/value pairs for each RequestInput property of the class.
-     * @throws ConnectionException
      * @throws ConfigurationUndefinedException
      */
     protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {
-        $this->connectToDatabase();
         $fields = [];
         foreach ($this as $key => $item) {
 
@@ -126,7 +124,7 @@ trait SerializedFieldOperations
                     ->setisPrimaryKey(Validation::isSubclass($item, PrimaryKeyInput::class))
                     ->setKey($item->getColumnName($this->getRecordsetPrefix() . $key))
                     ->setType($item::getPreparedStatementTypeIdentifier())
-                    ->setValue($item->escapeSQL($this->mysqli));
+                    ->setValue($item->escapeSQL($this->getMySQLi()));
             }
 
             // return any PK properties for linked records
@@ -136,7 +134,7 @@ trait SerializedFieldOperations
                         ->setisPrimaryKey(false) /* << not PK because it's a FK column in the parent table */
                         ->setKey($item->id->getColumnName($item->getRecordsetPrefix() . 'id'))
                         ->setType($item->id::getPreparedStatementTypeIdentifier())
-                        ->setValue($item->id->escapeSQL($this->mysqli));
+                        ->setValue($item->id->escapeSQL($this->getMySQLi()));
                 }
             }
 

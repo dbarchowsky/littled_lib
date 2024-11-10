@@ -3,10 +3,8 @@
 namespace Littled\PageContent;
 
 use Littled\Database\MySQLConnection;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
@@ -91,9 +89,7 @@ class ResortBase extends MySQLConnection
     /**
      * Get the id's of all the records for resorting.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
     public function retrieveExistingIDs(): void
@@ -124,10 +120,8 @@ class ResortBase extends MySQLConnection
     /**
      * Retrieve record ids for image_link records.
      * @return array Data set containing ImageLink record ids
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      */
     public function retrieveImageIDs(): array
     {

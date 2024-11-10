@@ -123,12 +123,10 @@ trait MySQLOperations
      * Escapes the object's value property for inclusion in SQL queries.
      * @param mixed $value Value to escape.
      * @return string|int|float Escaped value.
-     * @throws ConnectionException On connection error.
      * @throws ConfigurationUndefinedException Database connection properties not set.
      */
     public function escapeSQLValue(mixed $value): float|int|string
     {
-        $this->connectToDatabase();
         if ($value === null) {
             return ('null');
         }
@@ -141,7 +139,7 @@ trait MySQLOperations
         if (is_numeric($value)) {
             return ($value);
         }
-        return "'" . $this->mysqli->real_escape_string($value) . "'";
+        return "'" . $this->getMySQLi()->real_escape_string($value) . "'";
     }
 
     /**
@@ -326,7 +324,7 @@ trait MySQLOperations
         string $schema = '',
         string $port = ''): mysqli
     {
-        $c = MySQLConnection::getConnectionSettings($host, $user, $password, $schema, $port);
+        $c = static::getConnectionSettings($host, $user, $password, $schema, $port);
         return (new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
     }
 
@@ -337,7 +335,7 @@ trait MySQLOperations
      */
     public function getMySQLi(): mysqli
     {
-        if (!isset($this->mysqli)) {
+        if (!$this->hasConnection()) {
             $this->mysqli = static::getMySQLiInstance();
         }
         return $this->mysqli;
@@ -349,7 +347,7 @@ trait MySQLOperations
      */
     public function hasConnection(): bool
     {
-        if ($this->mysqli instanceof mysqli === false) {
+        if (!isset($this->mysqli) || $this->mysqli instanceof mysqli === false) {
             return (false);
         }
         return ($this->mysqli->connect_error === null);

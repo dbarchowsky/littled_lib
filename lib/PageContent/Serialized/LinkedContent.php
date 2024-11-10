@@ -3,12 +3,13 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
+use Littled\Log\Log;
 
 
 abstract class LinkedContent extends SerializedContent
@@ -56,7 +57,6 @@ abstract class LinkedContent extends SerializedContent
      * @param array $used_keys
      * @return QueryField[]
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      */
     protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {
@@ -194,9 +194,10 @@ abstract class LinkedContent extends SerializedContent
 
     /**
      * @inheritDoc
+     * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
     public function read(): LinkedContent
@@ -208,8 +209,12 @@ abstract class LinkedContent extends SerializedContent
         try {
             $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
         } catch (RecordNotFoundException) {
-            $error_msg = 'The requested ' . $this::getTableName() . ' record was not found.';
-            throw new RecordNotFoundException($error_msg);
+            $table = '[ERR:TABLE NAME NOT CONFIGURED IN CLASS ' . Log::getClassBasename($this::class). ']';
+            try {
+                $table = $this::getTableName();
+            }
+            catch(ConfigurationUndefinedException) { /* skip */ }
+            throw new RecordNotFoundException("The requested $table record was not found.");
         }
 
         $linked = $this->getContentPropertiesList();

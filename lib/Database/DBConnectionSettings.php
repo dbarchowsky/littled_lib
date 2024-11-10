@@ -33,4 +33,34 @@ class DBConnectionSettings
         $this->password = $password;
         $this->port = $port;
     }
+
+    public function setHost(string $host): DBConnectionSettings
+    {
+        $this->host = $host;
+        return $this;
+    }
+
+    public function setSchema(string $schema): DBConnectionSettings
+    {
+        $this->schema = $schema;
+        return $this;
+    }
+
+    public function setUser(string $user): DBConnectionSettings
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    public function setPassword(string $password): DBConnectionSettings
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function setPort(int $port): DBConnectionSettings
+    {
+        $this->port = $port;
+        return $this;
+    }
 }

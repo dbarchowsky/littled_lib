@@ -3,8 +3,7 @@
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
@@ -196,10 +195,10 @@ class ContentRoute extends SerializedContent
      * Retrieve content route properties using values currently stored in the object. Either the record id value
      * or a combination of site section id and operation values.
      * @return $this
-     * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws InvalidQueryException
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      * @throws InvalidStateException
+     * @throws RecordNotFoundException
      */
     public function lookupRoute(): ContentRoute
     {

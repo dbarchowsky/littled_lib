@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\PageContent\Cache;
 
 use Littled\API\APIRoute;
@@ -23,12 +24,12 @@ abstract class ContentCache extends MySQLConnection
     protected static string $controller_class = ContentController::class;
 
     /**
-	 * class constructor
-	 */
-	function __construct (  )
+     * class constructor
+     */
+    function __construct()
     {
         parent::__construct();
-	}
+    }
 
     /**
      * Controller class getter
@@ -50,7 +51,7 @@ abstract class ContentCache extends MySQLConnection
      * @param string $operation Token representing operation being requested by the client.
      * @return string
      */
-    protected abstract static function loadJsonTemplatePath(APIRoute $page, string $operation ): string;
+    protected abstract static function loadJsonTemplatePath(APIRoute $page, string $operation): string;
 
     /**
      * Tailored for image updates, refreshes page content after performing an (ajax) update to an individual record.
@@ -60,9 +61,9 @@ abstract class ContentCache extends MySQLConnection
      * @return void
      * @throws Exception
      */
-    public abstract static function refreshContentAfterImageEdit (
-        SectionContent &$content,
-        FilterCollection &$filters,
+    public abstract static function refreshContentAfterImageEdit(
+        SectionContent     &$content,
+        FilterCollection   &$filters,
         JSONRecordResponse $json
     ): void;
 
@@ -76,17 +77,17 @@ abstract class ContentCache extends MySQLConnection
     {
         $o = new $class_name;
         if (!$o instanceof ContentController) {
-            throw new InvalidTypeException(Log::getShortMethodName().' invalid controller class '.$class_name.'.');
+            throw new InvalidTypeException(Log::getShortMethodName() . ' invalid controller class ' . $class_name . '.');
         }
         unset($o);
         static::$controller_class = $class_name;
     }
 
     /**
-	 * Updates parent link to child based on content type.
-	 * @param SectionContent $content Content type object.
+     * Updates parent link to child based on content type.
+     * @param SectionContent $content Content type object.
      */
-	public abstract static function setInitialProperties(SectionContent $content);
+    public abstract static function setInitialProperties(SectionContent $content);
 
     /**
      * Updates content based on content type.
@@ -95,10 +96,10 @@ abstract class ContentCache extends MySQLConnection
      * @param bool $update_parent_cache (Optional) flag to update parent records.
      * @return string Message indicating the results of the operation.
      */
-    public abstract static function updateCache (
+    public abstract static function updateCache(
         ContentProperties $content_properties,
-        ?SectionContent $content=null,
-        bool $update_parent_cache=false ): string;
+        ?SectionContent   $content = null,
+        bool              $update_parent_cache = false): string;
 
     /**
      * Updates keywords for a particular content type.
@@ -106,7 +107,7 @@ abstract class ContentCache extends MySQLConnection
      * @param int $content_id Content type id of the record being updated.
      * @throws Exception
      */
-    public static function updateKeywords(int $id, int $content_id ): void
+    public static function updateKeywords(int $id, int $content_id): void
     {
         $_content = null;
 
@@ -127,6 +128,6 @@ abstract class ContentCache extends MySQLConnection
      */
     protected static function updateKeywordsByType(int $content_id): void
     {
-        throw new NotImplementedException(Log::getShortMethodName().' not implemented.');
+        throw new NotImplementedException(Log::getShortMethodName() . ' not implemented.');
     }
 }

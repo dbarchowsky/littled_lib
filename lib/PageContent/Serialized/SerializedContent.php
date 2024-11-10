@@ -8,7 +8,6 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\DuplicateRecordException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
@@ -161,7 +160,6 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @return array
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      */
     protected function formatCommitQuery(): array
     {
@@ -196,8 +194,7 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     */
+\     */
     protected function formatRecordSelectPreparedStmt(): array
     {
         $fields = $this->extractPreparedStmtArgs();
@@ -333,12 +330,8 @@ abstract class SerializedContent extends SerializedContentIO
      * instance using the database data.
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public function read(): SerializedContent
@@ -354,7 +347,7 @@ abstract class SerializedContent extends SerializedContentIO
             $error_msg = 'The requested ' . strtolower(static::getContentLabel()) . ' record was not found.';
             throw new RecordNotFoundException($error_msg);
         }
-        catch (ConfigurationUndefinedException|ConnectionException $e) {
+        catch (ConfigurationUndefinedException $e) {
             $msg = 'Error retrieving record data. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($msg);
         }

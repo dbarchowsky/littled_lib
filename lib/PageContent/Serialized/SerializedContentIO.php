@@ -3,7 +3,6 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
@@ -197,14 +196,9 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Retrieve all record data belonging to tables linked to this content type.
      * @return void
-     * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public function readLinked(): void

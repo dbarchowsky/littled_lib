@@ -6,15 +6,13 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
-use Exception;
 use Littled\Request\StringInput;
+use Exception;
 use mysqli;
 
 
@@ -81,11 +79,10 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Alias for retrieveSectionProperties()
+     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws InvalidStateException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public function fetchProperties(): void
@@ -148,9 +145,9 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
      */
@@ -183,12 +180,11 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Retrieves site section properties and stores that data in object properties.
+     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws InvalidStateException
-     * @throws InvalidValueException
      */
     public function retrieveSectionProperties(): void
     {
@@ -199,11 +195,8 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     * @throws InvalidValueException
+     * @inheritdoc
+     * @throws ConfigurationUndefinedException
      */
     public function save(): void
     {

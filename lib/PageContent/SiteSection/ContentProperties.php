@@ -3,9 +3,8 @@
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -93,9 +92,8 @@ class ContentProperties extends SerializedContent
      * Delete this record from the database. Clears parent id of any child records.
      * @return string Message indicating result of the deletion.
      * @throws ConfigurationUndefinedException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws ConnectionException
      * @throws InvalidStateException
      */
     public function delete(): string
@@ -162,9 +160,7 @@ class ContentProperties extends SerializedContent
     /**
      * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
      * @return ?int Record id of parent record.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function getParentID(): ?int
     {
@@ -283,9 +279,7 @@ class ContentProperties extends SerializedContent
     /**
      * Retrieve content routes linked to this content type.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws InvalidQueryException
-     * @throws ConnectionException
+     * @throws FailedQueryException
      */
     public function readRoutes(): void
     {
@@ -310,9 +304,7 @@ class ContentProperties extends SerializedContent
     /**
      * Retrieve content templates linked to this content type.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function readTemplates(): void
     {
