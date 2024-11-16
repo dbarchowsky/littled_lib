@@ -744,6 +744,6 @@ class Validation
      */
     public static function validateEmailAddress(string $email): bool
     {
-        return (preg_match('/\S+@\S+\.\S+/', $email) && (!preg_match('/,\/;/', $email)));
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 }

@@ -2,61 +2,33 @@
 namespace Littled\Utility;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\InvalidValueException;
 use PHPMailer\PHPMailer\PHPMailer;
 use Exception;
 
 
 class Mailer
 {
-    /** @var string Sender's name */
-    public string       $from;
-    /** @var string Sender's email address */
-    public string       $from_address;
-    protected string    $password;
-    /** @var string Recipient's name */
-    public string       $to;
-    /** @var string Recipient's email address */
-    public string       $to_address;
-    /** @var string Reply-to address */
-    public string       $reply_to='';
-    /** @var string Email subject */
-    public string       $subject;
-    /** @var string Body of email */
-    public string       $body;
-    /** @var bool Flag indicating if the email is to be sent as HTML. */
-    public bool         $is_html;
-    /** @var string Error messages related to sending out the mail. */
-    public string $mail_errors='';
+    public Email            $sender;
+    public Email            $recipient;
+    public Email            $reply_to;
+    protected string        $password;
+    public string           $subject;
+    public string           $body;
+    public bool             $is_html;
+    public string           $mail_errors='';
 
     public static string    $host = '';
     public static ?int      $port = 25;
 
     /**
      * class constructor
-     * @param string $from (Optional) initial sender's name value. Defaults to "".
-     * @param string $from_address (Optional) initial sender's email value. Defaults to "".
-     * @param string $to (Optional) initial recipient's name value. Defaults to "".
-     * @param string $to_address (Optional) recipient's email value. Defaults to "".
-     * @param string $subject (Optional) initial subject value. Defaults to "".
-     * @param string $body (Optional) initial email body value. Defaults to "".
-     * @param bool $is_html (Optional) initial HTML flag value. Defaults to FALSE.
      */
-    function __construct (
-        string $from= '',
-        string $from_address= '',
-        string $to= '',
-        string $to_address= '',
-        string $subject= '',
-        string $body= '',
-        bool $is_html=false )
+    function __construct ()
     {
-        $this->from = $from;
-        $this->from_address = $from_address;
-        $this->to = $to;
-        $this->to_address = $to_address;
-        $this->subject = $subject;
-        $this->body = $body;
-        $this->is_html = $is_html;
+        $this->sender = new Email();
+        $this->recipient = new Email();
+        $this->reply_to = new Email();
     }
 
     /**
@@ -113,11 +85,12 @@ class Mailer
     /**
      * Sends email. Expects properties of the object to be set before calling this routine.
      * @return void
+     * @throws ConfigurationUndefinedException
      * @throws Exception
      */
     public function send(): void
     {
-        if (!$this->from_address || !$this->to_address || !$this->subject || !$this->body) {
+        if (!$this->sender->hasData() || !$this->recipient->hasData() || !$this->subject || !$this->body) {
             throw new ConfigurationUndefinedException('Email properties not set.');
         }
 
@@ -128,11 +101,14 @@ class Mailer
             $mail->SMTPSecure = 'ssl';
             $mail->Host = static::$host;
             $mail->Port = static::$port;
-            $mail->Username = $this->from_address;
+            $mail->Username = $this->sender->email;
             $mail->Password = $this->password;
         }
-        $mail->setFrom($this->from_address, $this->from);
-        $mail->addAddress($this->to_address, $this->to);
+        $mail->setFrom($this->sender->email, $this->sender->name);
+        $mail->addAddress($this->recipient->email, $this->recipient->name);
+        if ($this->reply_to->hasData()) {
+            $mail->addReplyTo($this->reply_to->email, $this->reply_to->name);
+        }
         $mail->Subject = $this->subject;
         $mail->Body = $this->body;
         $mail->AltBody = $this->getAltBody();
@@ -194,13 +170,27 @@ class Mailer
     }
 
     /**
+     * Email recipient name and email setter.
+     * @param string $email
+     * @param string $name
+     * @return $this
+     * @throws InvalidValueException
+     */
+    public function setRecipient(string $email, string $name=''): Mailer
+    {
+        $this->recipient->setEmail($email)->setName($name)->setName($name);
+        return $this;
+    }
+
+    /**
      * Recipient email address setter.
      * @param string $email
      * @return $this
+     * @throws InvalidValueException
      */
     public function setRecipientEmail(string $email): Mailer
     {
-        $this->to_address = $email;
+        $this->recipient->setEmail($email);
         return $this;
     }
 
@@ -211,7 +201,20 @@ class Mailer
      */
     public function setRecipientName(string $name): Mailer
     {
-        $this->to = $name;
+        $this->recipient->setName($name);
+        return $this;
+    }
+
+    /**
+     * Email reply-to name and email setter.
+     * @param string $email
+     * @param string $name
+     * @return $this
+     * @throws InvalidValueException
+     */
+    public function setReplyTo(string $email, string $name=''): Mailer
+    {
+        $this->reply_to->setEmail($email)->setName($name)->setName($name);
         return $this;
     }
 
@@ -219,10 +222,34 @@ class Mailer
      * Reply-To setter
      * @param string $email
      * @return $this
+     * @throws InvalidValueException
      */
     public function setReplyToEmail(string $email): Mailer
     {
-        $this->reply_to = $email;
+        $this->reply_to->setEmail($email);
+        return $this;
+    }
+    /**
+     * Reply-To setter
+     * @param string $name
+     * @return $this
+     */
+    public function setReplyToName(string $name): Mailer
+    {
+        $this->reply_to->setName($name);
+        return $this;
+    }
+
+    /**
+     * Email sender name and email setter.
+     * @param string $email
+     * @param string $name
+     * @return $this
+     * @throws InvalidValueException
+     */
+    public function setSender(string $email, string $name=''): Mailer
+    {
+        $this->sender->setEmail($email)->setName($name)->setName($name);
         return $this;
     }
 
@@ -230,10 +257,11 @@ class Mailer
      * Sender email address setter.
      * @param string $email
      * @return $this
+     * @throws InvalidValueException
      */
     public function setSenderEmail(string $email): Mailer
     {
-        $this->from_address = $email;
+        $this->sender->setEmail($email);
         return $this;
     }
 
@@ -244,7 +272,7 @@ class Mailer
      */
     public function setSenderName(string $name): Mailer
     {
-        $this->from = $name;
+        $this->sender->setName($name);
         return $this;
     }
 
