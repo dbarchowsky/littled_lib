@@ -216,6 +216,17 @@ class Mailer
     }
 
     /**
+     * Reply-To setter
+     * @param string $email
+     * @return $this
+     */
+    public function setReplyToEmail(string $email): Mailer
+    {
+        $this->reply_to = $email;
+        return $this;
+    }
+
+    /**
      * Sender email address setter.
      * @param string $email
      * @return $this
