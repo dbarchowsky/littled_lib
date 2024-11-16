@@ -117,7 +117,7 @@ class Mailer
         }
         else {
             $mail->IsHTML(false);
-            $mail->Body = $this->body;
+            $mail->Body = $this->getAltBody();
         }
         $mail->send();
     }
