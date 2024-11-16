@@ -15,11 +15,11 @@ class Mailer
     protected string        $password;
     public string           $subject;
     public string           $body;
-    public bool             $is_html;
-    public string           $mail_errors='';
+    public bool             $is_html        = true;
+    public string           $mail_errors    = '';
 
-    public static string    $host = '';
-    public static ?int      $port = 25;
+    public static string    $host           = '';
+    public static ?int      $port           = 25;
 
     /**
      * class constructor
@@ -110,9 +110,15 @@ class Mailer
             $mail->addReplyTo($this->reply_to->email, $this->reply_to->name);
         }
         $mail->Subject = $this->subject;
-        $mail->Body = $this->body;
-        $mail->AltBody = $this->getAltBody();
-
+        if ($this->is_html) {
+            $mail->isHTML();
+            $mail->Body = $this->body;
+            $mail->AltBody = $this->getAltBody();
+        }
+        else {
+            $mail->IsHTML(false);
+            $mail->Body = $this->body;
+        }
         $mail->send();
     }
 
