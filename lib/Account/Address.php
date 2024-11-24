@@ -72,7 +72,7 @@ class Address extends SerializedContent
     public StringTextField      $url;
     public FloatTextField       $latitude;
     public FloatTextField       $longitude;
-    /** @deprecated Use $state->sales_tax instead */
+    /** @deprecated Use $state->abbreviation instead */
     public string               $state_abbrev;
     /** @var string Combined first and last name. */
     public string               $fullname;
@@ -113,7 +113,7 @@ class Address extends SerializedContent
         $this->url = new StringTextField('URL', 'lur', false, '', 255);
         $this->latitude = new FloatTextField('Latitude', 'stlt', false);
         $this->longitude = new FloatTextField('Longitude', 'stlg', false);
-        $this->state_abbrev = '';
+        $this->state->abbrev->value = '';
         $this->fullname = '';
     }
 
@@ -539,6 +539,50 @@ class Address extends SerializedContent
     public static function setAddressDataTemplate(string $filename): void
     {
         static::$address_data_template = $filename;
+    }
+
+    /**
+     * Email setter.
+     * @param string $email
+     * @return $this
+     */
+    public function setEmail(string $email): static
+    {
+        $this->email->value = $email;
+        return $this;
+    }
+
+    /**
+     * First name setter.
+     * @param string $name
+     * @return $this
+     */
+    public function setFirstName(string $name): static
+    {
+        $this->first_name->value = $name;
+        return $this;
+    }
+
+    /**
+     * Home phone setter.
+     * @param string $number
+     * @return $this
+     */
+    public function setHomePhone(string $number): static
+    {
+        $this->home_phone->value = $number;
+        return $this;
+    }
+
+    /**
+     * Last name setter.
+     * @param string $name
+     * @return $this
+     */
+    public function setLastName(string $name): static
+    {
+        $this->last_name->value = $name;
+        return $this;
     }
 
     /**
