@@ -12,8 +12,7 @@ class RequestValidation extends StringValidation
     public const DEFAULT_REQUEST_FILTER = FILTER_UNSAFE_RAW;
     /** @var string[] $eu_countries */
     protected static array $eu_countries = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR',
-        'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE'];
-    // protected static string $geo_lookup_api_address = 'https://www.geoplugin.net/json.gp?ip=';
+        'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'unknown'];
     protected static string $geo_lookup_api_address =  'https://api.country.is/'; // 'http://ip-api.com/json/';
     protected static string $country_code_key = 'country';
 
@@ -61,6 +60,7 @@ class RequestValidation extends StringValidation
      * @param string $ip (Optional) IP address to inspect.
      * @return array Location data
      * @throws InvalidValueException
+     * @throws InvalidRequestException
      */
     public static function getClientLocation(string $ip = ''): array
     {
@@ -82,7 +82,7 @@ class RequestValidation extends StringValidation
 
         // lookup country in API response
         $ip_data = json_decode($response, true);
-        return str_replace('&quot;', '"', $ip_data);
+        return self::processGeoLookupResponse($ip_data);
     }
 
     /**
@@ -139,6 +139,39 @@ class RequestValidation extends StringValidation
             return ((Validation::isInteger($e)) ? (Validation::parseInteger($e)) : ($e));
         },
             array_values(array_filter(preg_split('/\//', $route))));
+    }
+
+    /**
+     * Process response from geographical location lookup provider to ensure it's in a workable format.
+     * @param array|null $response
+     * @return array
+     * @throws InvalidRequestException
+     */
+    protected static function processGeoLookupResponse(array|null $response): array
+    {
+        $error_keys = ['error'];
+        if ($response === null) {
+            $response = [
+                static::$country_code_key => 'unknown'
+            ];
+        }
+        if (!array_key_exists(static::$country_code_key, $response)) {
+            $response[static::$country_code_key] = 'unknown';
+        }
+        if (count(array_intersect_key(array_flip($error_keys), $response)) > 0) {
+            throw new InvalidRequestException('Geo lookup response contains errors.');
+        }
+        return $response;
+    }
+
+    /**
+     * Override the default geographical lookup api address.
+     * @param string $api_url
+     * @return void
+     */
+    public static function setGeoLookupProvider(string $api_url): void
+    {
+        static::$geo_lookup_api_address = $api_url;
     }
 
     /**
