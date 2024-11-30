@@ -29,17 +29,26 @@ class LittledUtility
     /**
      * Joins variable length list of strings into a single filesystem path strong. Unlink LittledUtility::joinPathParts(),
      * it will not add a leading slash to the path if it isn't present in the first string passed to the method.
+     * @param ...$parts
      * @return string
      */
-    public static function joinPaths(): string
+    public static function joinPaths(...$parts): string
     {
-        $paths = [];
-        foreach (func_get_args() as $arg) {
-            if ($arg !== '') {
-                $paths[] = $arg;
-            }
+        // remove any empty elements
+        $parts = array_values(array_filter($parts, fn($value) => !is_null($value) && $value !== ''));
+
+        // strip out the protocol so the backslashes associated with it are not affected
+        $protocol = static::stripProtocol($parts);
+        $parts = $protocol['parts'];
+
+        // remove any redundant backslashes
+        $path = preg_replace('#/+#', '/', join('/', $parts));
+
+        // restore the protocol in the result
+        if ($protocol['protocol'] !== '') {
+            $path = $protocol['protocol'] . "://$path";
         }
-        return preg_replace('#/+#', '/', join('/', $paths));
+        return $path;
     }
 
     public static function overlap(string $a, string $b)
@@ -103,5 +112,30 @@ class LittledUtility
         }
         $parts = array_splice($parts, 0, (-1 * $levels));
         return DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * Strip the protocol from a path containing a URL as its first element.
+     * @param array $parts
+     * @return array
+     */
+    protected static function stripProtocol(array $parts): array
+    {
+        $result = [
+            'protocol' => '',
+            'parts' => []
+        ];
+        if (count($parts) < 1) {
+            return $result;
+        }
+        $protocol = explode('://', $parts[0]);
+        if (count($protocol) < 2) {
+            $result['parts'] = $parts;
+            return $result;
+        }
+        $result['protocol'] = $protocol[0];
+        $result['parts'] = array_slice($parts, 1);
+        array_unshift($result['parts'], $protocol[1]);
+        return $result;
     }
 }
