@@ -95,6 +95,15 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     }
 
     /**
+     * Returns string that can be used to insert a page's route into HTML
+     * @return string
+     */
+    public static function insertRoute(): string
+    {
+        return '/' . static::formatRoute();
+    }
+
+    /**
      * Base route setter.
      * @param string $route
      * @return void
