@@ -22,7 +22,7 @@ class Preload
      * @param string $url
      * @param array $extra_attributes []
      */
-    function __construct(string $tag, string $rel = '', string $url = '', array $extra_attributes = [])
+    function __construct(string $tag='', string $rel = '', string $url = '', array $extra_attributes = [])
     {
         $this->tag = $tag;
         $this->rel = $rel;
@@ -47,8 +47,52 @@ class Preload
         $extras = $this->extra_attributes;
         array_walk($extras, $extras_cb);
         $extras = implode('', $extras);
-        ?>
-        <<?= $this->tag ?> rel="<?= $this->rel ?>"<?= $href . $extras ?> />
-        <?php
+?>
+<<?= $this->tag ?> rel="<?= $this->rel ?>"<?= $href . $extras ?> />
+<?php
+    }
+
+    /**
+     * Extra attributes setter.
+     * @param array $attributes
+     * @return $this
+     */
+    public function setExtraAttributes(array $attributes): static
+    {
+        $this->extra_attributes = $attributes;
+        return $this;
+    }
+
+    /**
+     * Relationship attribute setter
+     * @param string $value
+     * @return $this
+     */
+    public function setRelAttribute(string $value): static
+    {
+        $this->rel = $value;
+        return $this;
+    }
+
+    /**
+     * Tag setter
+     * @param string $tag
+     * @return $this
+     */
+    public function setTag(string $tag): static
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+
+    /**
+     * URL setter
+     * @param string $url
+     * @return $this
+     */
+    public function setURL(string $url): static
+    {
+        $this->url = $url;
+        return $this;
     }
 }
