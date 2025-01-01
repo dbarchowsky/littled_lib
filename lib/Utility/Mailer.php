@@ -184,7 +184,7 @@ class Mailer
      */
     public function setRecipient(string $email, string $name=''): Mailer
     {
-        $this->recipient->setEmail($email)->setName($name)->setName($name);
+        $this->recipient->setEmail($email)->setName($name);
         return $this;
     }
 
@@ -255,7 +255,7 @@ class Mailer
      */
     public function setSender(string $email, string $name=''): Mailer
     {
-        $this->sender->setEmail($email)->setName($name)->setName($name);
+        $this->sender->setEmail($email)->setName($name);
         return $this;
     }
 
