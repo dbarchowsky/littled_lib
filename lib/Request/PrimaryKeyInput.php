@@ -15,6 +15,7 @@ class PrimaryKeyInput extends IntegerInput
 
     /**
      * @inheritDoc
+     * Overrides default value for key property assignment.
      */
     public function __construct(
         string      $label          = '',
