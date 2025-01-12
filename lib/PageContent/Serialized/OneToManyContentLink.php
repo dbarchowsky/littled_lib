@@ -324,10 +324,10 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * With no argument, returns all records currently attached to the object. With an argument, returns a specific
      * record in the list, at the $index position.
      * @param int|null $index
-     * @return LinkedContent|LinkedContent[]
+     * @return LinkedContent|LinkedContent[]|SerializedContent|SerializedContent[]
      * @throws InvalidValueException
      */
-    public function items(?int $index = null): LinkedContent|array
+    public function items(?int $index = null): LinkedContent|SerializedContent|array
     {
         if ($index === null) {
             return $this->records;
