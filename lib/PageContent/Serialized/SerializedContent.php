@@ -93,6 +93,16 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
+     * Clears the value of the record id.
+     * @return $this
+     */
+    public function clearRecordId(): static
+    {
+        $this->id->value = null;
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      * @throws Exception
      */
