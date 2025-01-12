@@ -61,7 +61,7 @@ abstract class SerializedContent extends SerializedContentIO
                 Log::getClassBaseName(get_class($this)). '.';
             throw new InvalidStateException($err_msg);
         }
-        elseif(!Validation::isSubclass($this->$links_property, OneToManyContentLink::class)) {
+        elseif(!Validation::isSubclass($this->$links_property, ManyToManyContentLink::class)) {
             $err_msg = "Link property \"$links_property\" is not a one-to-many link.";
             throw new InvalidTypeException($err_msg);
         }
@@ -228,13 +228,13 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Returns list of all one-to-many linked properties of the object.
-     * @return OneToManyContentLink[]
+     * @return ManyToManyContentLink[]
      */
-    protected function getOneToManyLinkedProperties(): array
+    protected function getManyToManyLinkedProperties(): array
     {
         $p = [];
         foreach($this as $property) {
-            if (Validation::isSubclass($property, OneToManyContentLink::class)) {
+            if (Validation::isSubclass($property, ManyToManyContentLink::class)) {
                 $p[] = $property;
             }
         }
@@ -449,7 +449,7 @@ abstract class SerializedContent extends SerializedContentIO
     public function setRecordId(int $record_id): SerializedContent
     {
         $this->id->setInputValue($record_id);
-        $otm = $this->getOneToManyLinkedProperties();
+        $otm = $this->getManyToManyLinkedProperties();
         foreach($otm as $property) {
             try {
                 $property->setPrimaryId($record_id);

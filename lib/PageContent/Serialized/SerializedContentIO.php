@@ -159,7 +159,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
                 !Validation::isSubclass($property, ContentProperties::class) &&
                 (Validation::isSubclass($property, LinkedContent::class) ||
                 Validation::isSubclass($property, SerializedContent::class) ||
-                Validation::isSubclass($property, OneToManyContentLink::class))
+                Validation::isSubclass($property, ManyToManyContentLink::class))
             ) {
                 $lc[] = $property;
             }

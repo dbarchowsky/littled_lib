@@ -18,7 +18,7 @@ use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
 
 
-abstract class OneToManyContentLink extends SerializedContentIO
+abstract class ManyToManyContentLink extends SerializedContentIO
 {
     public bool                 $allow_duplicates = false;
     public ForeignKeyInput      $primary_id;
@@ -32,7 +32,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @return $this
      * @throws DuplicateRecordException
      */
-    public function addLink(LinkedContent $link): OneToManyContentLink
+    public function addLink(LinkedContent $link): ManyToManyContentLink
     {
         if (!$this->allow_duplicates &&
             $link->getLinkId() > 0 &&
@@ -50,7 +50,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param int|int[] $value
      * @return $this
      */
-    public function addLinkId(array|int $value): OneToManyContentLink
+    public function addLinkId(array|int $value): ManyToManyContentLink
     {
         if (!is_array($value)) {
             $value = [$value];
@@ -70,7 +70,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * Clears the list of records stored by the object (without making any changes to data in the database).
      * @return $this
      */
-    public function clearLinks(): OneToManyContentLink
+    public function clearLinks(): ManyToManyContentLink
     {
         $this->records = [];
         return $this;
@@ -393,7 +393,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @throws InvalidStateException
      * @throws NotImplementedException
      */
-    public function read(): OneToManyContentLink
+    public function read(): ManyToManyContentLink
     {
         $data = $this->fetchRecords(...$this->formatRecordSelectPreparedStmt());
         foreach($data as $row) {
@@ -409,7 +409,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param int|int[] $link_ids
      * @return $this
      */
-    public function removeLink(array|int $link_ids): OneToManyContentLink
+    public function removeLink(array|int $link_ids): ManyToManyContentLink
     {
         if (!is_array($link_ids)) {
             $link_ids = [$link_ids];
@@ -444,7 +444,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * @inheritDoc
      */
-    public function setAsNotRequired(): OneToManyContentLink
+    public function setAsNotRequired(): ManyToManyContentLink
     {
         return $this->setRequiredFlag(false);
     }
@@ -452,7 +452,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * @inheritDoc
      */
-    public function setAsRequired(): OneToManyContentLink
+    public function setAsRequired(): ManyToManyContentLink
     {
         return $this->setRequiredFlag(true);
     }
@@ -462,7 +462,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param bool $flag
      * @return $this
      */
-    public function setAllowDuplicates(bool $flag): OneToManyContentLink
+    public function setAllowDuplicates(bool $flag): ManyToManyContentLink
     {
         $this->allow_duplicates = $flag;
         return $this;
@@ -473,7 +473,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param string $field
      * @return $this
      */
-    public function setPrimaryFieldName(string $field): OneToManyContentLink
+    public function setPrimaryFieldName(string $field): ManyToManyContentLink
     {
         $this->primary_id->setColumnName($field);
         return $this;
@@ -483,7 +483,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * Primary id setter.
      * @throws NotInitializedException|InvalidStateException
      */
-    public function setPrimaryId(int $record_id): OneToManyContentLink
+    public function setPrimaryId(int $record_id): ManyToManyContentLink
     {
         if (!isset($this->primary_id)) {
             throw new NotInitializedException('Primary id object is not initialized.');
@@ -500,7 +500,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @param string $key
      * @return $this
      */
-    public function setPrimaryKey(string $key): OneToManyContentLink
+    public function setPrimaryKey(string $key): ManyToManyContentLink
     {
         $this->primary_id->setKey($key);
         return $this;
@@ -510,7 +510,7 @@ abstract class OneToManyContentLink extends SerializedContentIO
      * @inheritDoc
      * @throws NotInitializedException|InvalidStateException
      */
-    public function setRecordId(int $record_id): OneToManyContentLink
+    public function setRecordId(int $record_id): ManyToManyContentLink
     {
         return $this->setPrimaryId($record_id);
     }
@@ -518,9 +518,9 @@ abstract class OneToManyContentLink extends SerializedContentIO
     /**
      * Sets required flag of instance and its linked records to $required parameter value
      * @param bool $required
-     * @return OneToManyContentLink
+     * @return ManyToManyContentLink
      */
-    protected function setRequiredFlag(bool $required): OneToManyContentLink
+    protected function setRequiredFlag(bool $required): ManyToManyContentLink
     {
         $method = $required ? 'setAsRequired' : 'setAsOptional';
         $this->primary_id->$method();
