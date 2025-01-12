@@ -7,15 +7,24 @@ use Littled\Validation\Validation;
 
 class FloatInput extends RenderedInput
 {
-    /** @var string             Form input element template filename */
+    /** Form input element template filename */
     protected static string     $input_template_filename = 'string-text-input.php';
-    /** @var string             Input container template filename */
+    /** Input container template filename */
     protected static string     $template_filename = 'string-text-field.php';
-    /** @var string             Data type identifier used with bind_param() calls */
+    /** Data type identifier used with bind_param() calls */
     protected static string     $bind_param_type = 'd';
     const                       DEFAULT_DATA_SIZE = 16;
 
-    public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
+    /**
+     * @inheritdoc
+     */
+    public function __construct(
+        string          $label          = '',
+        string          $key            = '',
+        bool            $required       = false,
+        mixed           $value          = null,
+        int             $size_limit     = 0,
+        int|null        $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
         // make sure that invalid values are converted to a null value
@@ -64,7 +73,7 @@ class FloatInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function setInputValue(mixed $value): FloatInput
+    public function setInputValue(mixed $value): static
     {
         $this->value = Validation::parseNumeric($value);
         return $this;

@@ -13,7 +13,13 @@ class WYSIWYGTextarea extends StringTextarea
      * @inheritDoc
      * Assigns default editor class to textarea element.
      */
-    function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit=self::DEFAULT_SIZE_LIMIT, ?int $index = null)
+    function __construct(
+        string      $label          = '',
+        string      $key            = '',
+        bool        $required       = false,
+        string|null $value          = null,
+        int         $size_limit     = self::DEFAULT_SIZE_LIMIT,
+        int|null    $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
         $this->input_css_class=static::$editor_css_class;
@@ -66,7 +72,7 @@ class WYSIWYGTextarea extends StringTextarea
      * @param string $class
      * @return WYSIWYGTextarea
      */
-    public function setInputCSSClass(string $class): WYSIWYGTextarea
+    public function setInputCSSClass(string $class): static
     {
         $this->input_css_class = $class;
         if (!str_contains($this->input_css_class, static::$editor_css_class)) {

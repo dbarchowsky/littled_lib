@@ -1,27 +1,22 @@
 <?php
-
 namespace Littled\Request;
-
 
 use Littled\Exception\ContentValidationException;
 
-/**
- * Class URLTextFieldInput
- * @package Littled\Request
- */
+
 class URLTextField extends StringTextField
 {
     /**
+     * @inheritDoc
      * Override parent to set a default field length of 255 characters. This can be overridden if needed.
-     * @@inheritDoc
      */
     function __construct(
-        string $label,
-        string $key,
-        bool $required = false,
-        ?string $value = null,
-        int $size_limit = 255,
-        int $index = null)
+        string      $label          = '',
+        string      $key            = '',
+        bool        $required       = false,
+        string|null $value          = null,
+        int         $size_limit     = 255,
+        int|null    $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
     }
@@ -38,7 +33,7 @@ class URLTextField extends StringTextField
     /**
      * @inheritDoc
      */
-    public function setInputValue(mixed $value): URLTextField
+    public function setInputValue(mixed $value): static
     {
         $this->value = filter_var(strip_tags('' . $value), FILTER_SANITIZE_URL);
         return $this;

@@ -17,12 +17,12 @@ class PrimaryKeyInput extends IntegerInput
      * @inheritDoc
      */
     public function __construct(
-        string $label,
-        string $key=LittledGlobals::ID_KEY,
-        bool $required = false,
-        $value = null,
-        int $size_limit = 0,
-        ?int $index = null)
+        string      $label          = '',
+        string      $key            = LittledGlobals::ID_KEY,
+        bool        $required       = false,
+        mixed       $value          = null,
+        int         $size_limit     = 0,
+        ?int        $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
     }

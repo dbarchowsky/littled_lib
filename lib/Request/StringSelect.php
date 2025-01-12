@@ -2,6 +2,7 @@
 
 namespace Littled\Request;
 
+use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
 
 
@@ -15,6 +16,20 @@ class StringSelect extends StringInput implements RequestSelectInterface
     public mixed $value;
 
     /**
+     * @inheritdoc
+     */
+    public function __construct(
+        string          $label          = '',
+        string          $key            = '',
+        bool            $required       = false,
+        mixed           $value          = null,
+        int             $size_limit     = 0,
+        int|null        $index          = null)
+    {
+        parent::__construct($label, $key, $required, $value, $size_limit, $index);
+    }
+
+    /**
      * @inheritDoc
      */
     public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null): void
@@ -24,7 +39,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
         }
         $key = $key ?: $this->key;
         if (null === $filters) {
-            $filters = Validation::DEFAULT_REQUEST_FILTER;
+            $filters = RequestValidation::DEFAULT_REQUEST_FILTER;
         }
         $this->value = Validation::collectStringArrayRequestVar($key, $src, $filters);
         if ($this->allow_multiple) {
@@ -80,7 +95,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
     /**
      * @inheritDoc
      */
-    public function setInputValue(mixed $value): StringSelect
+    public function setInputValue(mixed $value): static
     {
         if ($this->allow_multiple) {
             // value is an array of strings

@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\Request;
 
 use Exception;
@@ -6,7 +7,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Keyword\Keyword;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
@@ -16,14 +17,13 @@ use Littled\Validation\ValidationErrors;
 
 class CategorySelect extends MySQLConnection
 {
-    protected static int    $content_type_id;
+    protected static int $content_type_id;
     protected static string $container_template = 'category-select-container.php';
-
     /** @var Keyword[] */
-    public array            $categories=[];
-    public StringSelect     $category_input;
-    public StringTextField  $new_category;
-    protected int           $parent_id;
+    public array $categories = [];
+    public StringSelect $category_input;
+    public StringTextField $new_category;
+    protected int $parent_id;
     public ValidationErrors $validation_errors;
 
     public function __construct()
@@ -40,7 +40,7 @@ class CategorySelect extends MySQLConnection
      * @param bool $allow Optional flag indicating if multiple values are allowed. Defaults to TRUE.
      * @return void
      */
-    public function setAllowMultiple(bool $allow=true): void
+    public function setAllowMultiple(bool $allow = true): void
     {
         $this->category_input->setAllowMultiple($allow);
     }
@@ -52,17 +52,16 @@ class CategorySelect extends MySQLConnection
      */
     public function collectRequestData(): void
     {
-        foreach($this as $property) {
+        foreach ($this as $property) {
             if (is_object($property) && method_exists($property, 'collectRequestData')) {
                 $property->collectRequestData();
             }
         }
         if ($this->category_input->allow_multiple) {
-            foreach($this->category_input->value as $term) {
+            foreach ($this->category_input->value as $term) {
                 $this->pushKeywordInstance($term);
             }
-        }
-        else {
+        } else {
             if ($this->category_input->value) {
                 $this->pushKeywordInstance($this->category_input->value);
             }
@@ -80,7 +79,7 @@ class CategorySelect extends MySQLConnection
      */
     public function deleteRecords(): void
     {
-        foreach($this->categories as $term) {
+        foreach ($this->categories as $term) {
             $term->delete();
         }
     }
@@ -101,7 +100,9 @@ class CategorySelect extends MySQLConnection
      */
     public function getCategoryTermList(): array
     {
-        return array_map(function ($e) { return $e->term->value; }, $this->categories);
+        return array_map(function ($e) {
+            return $e->term->value;
+        }, $this->categories);
     }
 
     /**
@@ -130,7 +131,7 @@ class CategorySelect extends MySQLConnection
     public static function getContentTypeId(): int
     {
         if (!isset(static::$content_type_id)) {
-            throw new ConfigurationUndefinedException(Log::getShortMethodName().' Category content type not configured.');
+            throw new ConfigurationUndefinedException(Log::getShortMethodName() . ' Category content type not configured.');
         }
         return static::$content_type_id;
     }
@@ -144,14 +145,14 @@ class CategorySelect extends MySQLConnection
         return $this->parent_id ?? null;
     }
 
-	/**
-	 * Returns flag indicating that the object is currently has some keyword terms attached to it.
-	 * @return bool
-	 */
-	public function hasKeywordData(): bool
-	{
-		return (count($this->categories) > 0);
-	}
+    /**
+     * Returns flag indicating that the object is currently has some keyword terms attached to it.
+     * @return bool
+     */
+    public function hasKeywordData(): bool
+    {
+        return (count($this->categories) > 0);
+    }
 
     /**
      * Returns boolean value indicating that this object has existing validation errors to report.
@@ -191,12 +192,12 @@ class CategorySelect extends MySQLConnection
     public function read(): void
     {
         if (!$this->hasValidParent() || !isset(static::$content_type_id)) {
-            throw new ConfigurationUndefinedException(Log::getShortMethodName().' Parent properties not configured. ');
+            throw new ConfigurationUndefinedException(Log::getShortMethodName() . ' Parent properties not configured. ');
         }
         $query = 'SELECT `id`, `term` FROM `keyword` WHERE parent_id = ? AND type_id = ?';
         $type_id = static::getContentTypeId();
-        $data = $this->fetchRecords($query, 'ii',$this->parent_id, $type_id);
-        foreach($data as $row) {
+        $data = $this->fetchRecords($query, 'ii', $this->parent_id, $type_id);
+        foreach ($data as $row) {
             $this->categories[] = new Keyword($row->term, $this->parent_id, static::getContentTypeId());
         }
         $this->category_input->value = $this->getCategoryTermList();
@@ -225,7 +226,9 @@ class CategorySelect extends MySQLConnection
         $content_type_id = static::getContentTypeId();
         $conn = new MySQLConnection();
         $data = $conn->fetchRecords($query, 'i', $content_type_id);
-        $options = array_map(function ($e) { return $e->term; }, $data);
+        $options = array_map(function ($e) {
+            return $e->term;
+        }, $data);
         $options = array_combine($options, $options);
         $this->category_input->setOptions($options);
     }
@@ -233,13 +236,11 @@ class CategorySelect extends MySQLConnection
     /**
      * Commit category terms to database.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function save(): void
     {
-        foreach($this->categories as $category) {
+        foreach ($this->categories as $category) {
             $category->save();
         }
     }
@@ -280,12 +281,12 @@ class CategorySelect extends MySQLConnection
      * @param int $parent_id
      * @return void
      */
-    public function setParentId( int $parent_id ): void
+    public function setParentId(int $parent_id): void
     {
         $this->parent_id = $parent_id;
-		foreach($this->categories as $term) {
-			$term->parent_id->value = $parent_id;
-		}
+        foreach ($this->categories as $term) {
+            $term->parent_id->value = $parent_id;
+        }
     }
 
     /**
@@ -293,12 +294,11 @@ class CategorySelect extends MySQLConnection
      * @param bool $required
      * @return void
      */
-    public function setRequired(bool $required=true): void
+    public function setRequired(bool $required = true): void
     {
         if ($required) {
             $this->category_input->setAsRequired();
-        }
-        else {
+        } else {
             $this->category_input->setAsNotRequired();
         }
     }
@@ -324,8 +324,7 @@ class CategorySelect extends MySQLConnection
         $cat_error = $new_cat_error = false;
         try {
             $this->category_input->validate();
-        }
-        catch(ContentValidationException $e) {
+        } catch (ContentValidationException $e) {
             $this->validation_errors->push($e->getMessage());
             $cat_error = true;
         }
@@ -334,19 +333,18 @@ class CategorySelect extends MySQLConnection
         // ($category_input property) or it can come from the new category field ($new_category property)
         $original = $this->new_category->required;
         try {
-			if ($this->category_input->required && $this->category_input->has_errors) {
-				$this->new_category->required = $this->category_input->required;
-			}
+            if ($this->category_input->required && $this->category_input->has_errors) {
+                $this->new_category->required = $this->category_input->required;
+            }
             $this->new_category->validate();
-        }
-        catch(ContentValidationException $e) {
+        } catch (ContentValidationException $e) {
             $this->validation_errors->push($e->getMessage());
             $new_cat_error = true;
         }
         $this->new_category->required = $original;
 
         if ($cat_error && $new_cat_error) {
-            throw new ContentValidationException($this->category_input->formatErrorLabel(). ' is required.');
+            throw new ContentValidationException($this->category_input->formatErrorLabel() . ' is required.');
         }
     }
 

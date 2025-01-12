@@ -9,8 +9,8 @@ abstract class InlineNameInput extends InlineInput
     public StringInput $name;
 
     /**
-     * InlineNameInput constructor.
-     * @param array $column_names List of possible column names representing the column in the table that stores the "name" value.
+     * @inheritdoc
+     * @param string[] $column_names List of possible column names representing the column in the table that stores the "name" value.
      */
     function __construct(array $column_names=[])
     {

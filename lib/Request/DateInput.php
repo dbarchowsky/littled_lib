@@ -22,12 +22,12 @@ class DateInput extends StringInput
      * @inheritDoc
      */
     function __construct(
-        string $label,
-        string $key,
-        bool   $required = false,
-               $value = null,
-        int    $size_limit = self::DEFAULT_SIZE_LIMIT,
-        ?int   $index = null
+        string      $label          = '',
+        string      $key            = '',
+        bool        $required       = false,
+        mixed       $value          = null,
+        int         $size_limit     = self::DEFAULT_SIZE_LIMIT,
+        ?int        $index          = null
     )
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
@@ -153,7 +153,7 @@ class DateInput extends StringInput
      * @param string $date_format
      * @return $this
      */
-    public function setInputValue(mixed $value, string $date_format = ''): DateInput
+    public function setInputValue(mixed $value, string $date_format = ''): static
     {
         $date_format = $date_format ?: $this->format;
         parent::setInputValue($value);

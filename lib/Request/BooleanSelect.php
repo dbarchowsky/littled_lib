@@ -10,14 +10,23 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
 {
     use RequestSelect;
 
-    /** @var string         Form element template filename */
+    /** Form element template filename */
     public static string    $template_filename = 'string-select-field.php';
-    /** @var string         Form input element template filename */
+    /** Form input element template filename */
     public static string    $input_template_filename = 'string-select-input.php';
     /** @var bool[]|int[]|string[] List of available options to include in dropdown menus */
     public array            $options;
 
-    public function __construct(string $label, string $key, bool $required = false, mixed $value = null, int $size_limit = 0, ?int $index = null)
+    /**
+     * @inheritdoc
+     */
+    public function __construct(
+        string      $label          = '',
+        string      $key            = '',
+        bool        $required       = false,
+        mixed       $value          = null,
+        int         $size_limit     = 0,
+        ?int        $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
         $this->suppressDefaultToNull();

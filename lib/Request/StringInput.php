@@ -2,6 +2,7 @@
 
 namespace Littled\Request;
 
+use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
 
 
@@ -17,7 +18,13 @@ class StringInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function __construct(string $label, string $key, bool $required = false, $value = null, int $size_limit = 0, ?int $index = null)
+    public function __construct(
+        string          $label          = '',
+        string          $key            = '',
+        bool            $required       = false,
+        mixed           $value          = null,
+        int             $size_limit     = 0,
+        int|null        $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
         // override to avoid null values
@@ -45,7 +52,7 @@ class StringInput extends RenderedInput
         }
         $key = $key ?: $this->key;
         if (null === $filters) {
-            $filters = Validation::DEFAULT_REQUEST_FILTER;
+            $filters = RequestValidation::DEFAULT_REQUEST_FILTER;
         }
         $this->value = Validation::collectStringRequestVar($key, $filters, $this->index, $src);
     }
@@ -61,7 +68,7 @@ class StringInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function setInputValue(mixed $value): StringInput
+    public function setInputValue(mixed $value): static
     {
         $this->value = '' . $value;
         return $this;

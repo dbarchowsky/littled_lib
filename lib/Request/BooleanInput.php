@@ -100,7 +100,7 @@ class BooleanInput extends RenderedInput
      * Assigns a value to the object. Checks that passed value is boolean.
      * @inheritDoc
      */
-    public function setInputValue(mixed $value): BooleanInput
+    public function setInputValue(mixed $value): static
     {
         $this->value = Validation::parseBoolean($value);
         return $this;

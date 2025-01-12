@@ -15,13 +15,16 @@ class IntegerInput extends RenderedInput
     protected static string $bind_param_type = 'i';
     const DEFAULT_DATA_SIZE = 8;
 
+    /**
+     * @inheritdoc
+     */
     public function __construct(
-        string $label,
-        string $key,
-        bool $required = false,
-        $value = null,
-        int $size_limit = 0,
-        ?int $index = null)
+        string      $label          = '',
+        string      $key            = '',
+        bool        $required       = false,
+        mixed       $value          = null,
+        int         $size_limit     = 0,
+        int|null    $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
         $this->setInputValue($value);
@@ -81,7 +84,7 @@ class IntegerInput extends RenderedInput
      * @param mixed $value Value to assign as the value of the object.
      * @return $this
      */
-    public function setInputValue(mixed $value): IntegerInput
+    public function setInputValue(mixed $value): static
     {
         if (is_array($value)) {
             $this->value = [];

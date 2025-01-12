@@ -17,62 +17,59 @@ use mysqli;
  */
 abstract class RequestInput
 {
-    /** @var string             Path to form input templates. */
+    /** Path to form input templates. */
     protected static string     $template_base_path = '';
-    /** @var string             Input template filename. */
+    /** Input template filename. */
     protected static string     $template_filename = 'hidden-input.php';
-    /** @var string             Input template filename. */
+    /** Input template filename. */
     protected static string     $hidden_template_filename = 'hidden-input.php';
-    /** @var string             Form input element filename. */
+    /** Form input element filename. */
     protected static string     $input_template_filename = '';
-    /** @var string             Required field indicator string. */
+    /** Required field indicator string. */
     protected static string     $required_field_indicator = ' (*)';
-    /** @var string             Error indicator CSS class. */
+    /** Error indicator CSS class. */
     protected static string     $error_class = 'form-error';
-    /** @var string */
     protected static string     $input_error_css_class = 'input-error';
-    /** @var string             Data type identifier used with bind_param() calls */
+    /** Data type identifier used with bind_param() calls */
     protected static string     $bind_param_type = 's';
 
-    /** @var string             Name of CSS class to be used when displaying the form input. */
+    /** Name of CSS class to be used when displaying the form input. */
     public string               $container_css_class='form-cell';
-    /** @var string             Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
+    /** Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
     public string               $content_type='text';
-    /** @var bool               If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE. */
+    /** If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE. */
     public bool                 $is_database_field=true;
-    /** @var string             Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class. */
+    /** Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class. */
     public string               $column_name='';
-    /** @var bool               Flag indicating that the object value should not be assigned from request variable values. */
+    /** Flag indicating that the object value should not be assigned from request variable values. */
     public bool                 $bypass_collect_request_data=false;
-
     public array                $attributes=[];
-
     public bool                 $allow_multiple = false;
     /**
-     * @var boolean Flag to control the insertion of a "placeholder" attribute
+     * Flag to control the insertion of a "placeholder" attribute
      * when rendering the input. If TRUE, a placeholder attribute will be added
      * (to text fields), using the object's "label" property value as its value.
      */
     public bool                 $display_placeholder=false;
-    /** @var boolean Flag indicating that an error was detected with the value supplied for this form data. */
+    /** Flag indicating that an error was detected with the value supplied for this form data. */
     public bool                 $has_errors=false;
-    /** @var string If an error was detected with the value of a form data, a description of the error will be stored in this property. */
+    /** If an error was detected with the value of a form data, a description of the error will be stored in this property. */
     public string               $error='';
-    /** @var string|int|null When supplying an array of values for a single key, the  value can be used to sort them. */
+    /** When supplying an array of values for a single key, the  value can be used to sort them. */
     public string|int|null      $index=null;
-    /** @var string Label to display where descriptions of the input are needed. */
+    /** Label to display where descriptions of the input are needed. */
     public string               $label='';
-    /** @var string  Name of script argument. Name of key in query string or form data. */
+    /** Name of script argument. Name of key in query string or form data. */
     public string               $key='';
-    /** @var string CSS class identifier. */
+    /** CSS class identifier. */
     public string               $input_css_class='';
-    /** @var bool Set to TRUE if a value for this form data is required. */
+    /** Set to TRUE if a value for this form data is required. */
     public bool                 $required=false;
-    /** @var int Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textarea inputs. */
+    /** Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textarea inputs. */
     public int                  $size_limit=0;
-    /** @var mixed Value of the script argument. Value collected from form data. */
+    /** Value of the script argument. Value collected from form data. */
     public mixed                $value;
-    /** @var string If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
+    /** If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
     public string               $width='';
 
     /**
@@ -85,19 +82,19 @@ abstract class RequestInput
      * @param ?int $index Optional index of this input if it is part of an array of inputs with the same name attribute. Defaults to NULL.
      */
     function __construct (
-        string $label,
-        string $key,
-        bool   $required = false,
-        mixed  $value = null,
-        int    $size_limit = 0,
-        ?int   $index = null )
+        string      $label       = '',
+        string      $key         = '',
+        bool        $required    = false,
+        mixed       $value       = null,
+        int         $size_limit  = 0,
+        ?int        $index       = null )
     {
-        $this->label              = $label;
-        $this->key                = $key;
-        $this->size_limit         = $size_limit;
-        $this->required           = $required;
-        $this->index              = $index;
-        $this->value              = $value;
+        $this->label        = $label;
+        $this->key          = $key;
+        $this->size_limit   = $size_limit;
+        $this->required     = $required;
+        $this->index        = $index;
+        $this->value        = $value;
     }
 
     /**
@@ -529,9 +526,9 @@ abstract class RequestInput
     /**
      * Chainable "allow multiple" property setter.
      * @param bool $allow
-     * @return RequestInput
+     * @return $this
      */
-    public function setAllowMultiple(bool $allow=true): RequestInput
+    public function setAllowMultiple(bool $allow=true): static
     {
         $this->allow_multiple = $allow;
         return $this;
@@ -539,18 +536,18 @@ abstract class RequestInput
 
     /**
      * Alias for ::setAsOptional()
-     * @return RequestInput
+     * @return $this
      */
-    public function setAsNotRequired(): RequestInput
+    public function setAsNotRequired(): static
     {
         return $this->setAsOptional();
     }
 
     /**
      * Sets flag to indicate that this input value is not required.
-     * @return RequestInput
+     * @return $this
      */
-    public function setAsOptional(): RequestInput
+    public function setAsOptional(): static
     {
         $this->required = false;
         return $this;
@@ -558,9 +555,9 @@ abstract class RequestInput
 
     /**
      * Sets flag to indicate that this input value is required.
-     * @return RequestInput
+     * @return $this
      */
-    public function setAsRequired(): RequestInput
+    public function setAsRequired(): static
     {
         $this->required = true;
         return $this;
@@ -572,7 +569,7 @@ abstract class RequestInput
      * @param mixed $value Attribute value
      * @return $this
      */
-    public function setAttribute(string $key, mixed $value): RequestInput
+    public function setAttribute(string $key, mixed $value): static
     {
         $this->attributes[$key] = $value;
         return $this;
@@ -583,7 +580,7 @@ abstract class RequestInput
      * @param string $column_name Name of the column in the database corresponding to this object.
      * @return $this
      */
-    public function setColumnName(string $column_name): RequestInput
+    public function setColumnName(string $column_name): static
     {
         $this->column_name = $column_name;
         return $this;
@@ -592,9 +589,9 @@ abstract class RequestInput
     /**
      * Container CSS class setter.
      * @param string $class
-     * @return RequestInput
+     * @return $this
      */
-    public function setContainerCSSClass(string $class): RequestInput
+    public function setContainerCSSClass(string $class): static
     {
         $this->container_css_class = $class;
         return $this;
@@ -612,9 +609,9 @@ abstract class RequestInput
     /**
      * Container CSS class setter.
      * @param string $label
-     * @return RequestInput
+     * @return $this
      */
-    public function setLabel(string $label): RequestInput
+    public function setLabel(string $label): static
     {
         $this->label = $label;
         return $this;
@@ -623,9 +620,9 @@ abstract class RequestInput
     /**
      * Input CSS class setter.
      * @param string $class
-     * @return RequestInput
+     * @return $this
      */
-    public function setInputCSSClass(string $class): RequestInput
+    public function setInputCSSClass(string $class): static
     {
         $this->input_css_class = $class;
         return $this;
@@ -636,7 +633,7 @@ abstract class RequestInput
      * @param bool $is_field Value for "is database field".
      * @return $this
      */
-    public function setIsDatabaseField(bool $is_field): RequestInput
+    public function setIsDatabaseField(bool $is_field): static
     {
         $this->is_database_field = $is_field;
         return $this;
@@ -668,7 +665,7 @@ abstract class RequestInput
      * @param mixed $value Base value to assign.
      * @return $this
      */
-    public function setInputValue(mixed $value ): RequestInput
+    public function setInputValue(mixed $value ): static
     {
         $this->value = $value;
         return $this;
@@ -677,9 +674,9 @@ abstract class RequestInput
     /**
      * Chainable input key setter.
      * @param string $key
-     * @return RequestInput
+     * @return $this
      */
-    public function setKey( string $key ): RequestInput
+    public function setKey( string $key ): static
     {
         $this->key = $key;
         return $this;
