@@ -12,8 +12,12 @@ trait InputOperations
     public function applyInputKeyPrefix(string $prefix): SerializedContentUtils
     {
         $ip = $this->getInputPropertiesList(false);
+        $assigned = [];
         foreach($ip as $property) {
-            $this->$property->setKey($prefix . $this->$property->key);
+            if (!in_array($this->$property->key, $assigned)) {
+                $this->$property->setKey($prefix . $this->$property->key);
+                $assigned[] = $this->$property->key;
+            }
         }
         $cp = $this->getContentPropertiesList();
         foreach($cp as $property) {
