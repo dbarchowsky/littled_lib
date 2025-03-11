@@ -194,7 +194,7 @@ class ContentTemplate extends SerializedContent
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
-    public function lookupTemplateProperties(): ContentTemplate
+    public function lookupTemplateProperties(): static
     {
         if (!$this->content_id->hasData() || !$this->name->hasData()) {
             throw new NotInitializedException('Content type and/or operation was not provided.');
@@ -240,7 +240,7 @@ class ContentTemplate extends SerializedContent
      * @param string $id
      * @return $this
      */
-    public function setContainerId(string $id): ContentTemplate
+    public function setContainerId(string $id): static
     {
         $this->container_id->setInputValue($id);
         return $this;
@@ -251,7 +251,7 @@ class ContentTemplate extends SerializedContent
      * @param int $content_type_id
      * @return $this
      */
-    public function setContentType(int $content_type_id): ContentTemplate
+    public function setContentType(int $content_type_id): static
     {
         $this->content_id->setInputValue($content_type_id);
         return $this;
@@ -262,7 +262,7 @@ class ContentTemplate extends SerializedContent
      * @param string $location
      * @return $this
      */
-    public function setLocation(string $location): ContentTemplate
+    public function setLocation(string $location): static
     {
         $this->location->setInputValue($location);
         return $this;
@@ -271,7 +271,7 @@ class ContentTemplate extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function setMySQLi(mysqli $mysqli): ContentTemplate
+    public function setMySQLi(mysqli $mysqli): static
     {
         parent::setMySQLi($mysqli);
         return $this;
@@ -282,7 +282,7 @@ class ContentTemplate extends SerializedContent
      * @param string $operation
      * @return $this
      */
-    public function setOperation(string $operation): ContentTemplate
+    public function setOperation(string $operation): static
     {
         $this->name->setInputValue($operation);
         return $this;
@@ -293,7 +293,7 @@ class ContentTemplate extends SerializedContent
      * @param string $path
      * @return $this
      */
-    public function setTemplatePath(string $path): ContentTemplate
+    public function setTemplatePath(string $path): static
     {
         $this->path->setInputValue($path);
         return $this;
@@ -304,7 +304,7 @@ class ContentTemplate extends SerializedContent
      * @param string $wildcard
      * @return $this
      */
-    public function setWildcard(string $wildcard): ContentTemplate
+    public function setWildcard(string $wildcard): static
     {
         $this->wildcard->setInputValue($wildcard);
         return $this;

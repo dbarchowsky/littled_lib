@@ -13,12 +13,13 @@ trait PropertyEvaluations
     /**
      * Returns a list of all RequestInput properties of an object.
      * @param bool $db_only If true, only properties marked as database fields will be returned.
-     * @param array $ignore_keys Keys to ignore. By default, it ignores keys named to indicate they are id or index
+     * @param array|null $ignore_keys Keys to ignore. By default, it ignores keys named to indicate they are id or index
      * properties.
      * @return string[]
      */
-    protected function getInputPropertiesList(bool $db_only=true, array $ignore_keys = ['id', 'index']): array
+    protected function getInputPropertiesList(bool $db_only=true, array|null $ignore_keys = null): array
     {
+        $ignore_keys ??= ['id', 'index'];
         $properties = [];
         foreach($this as $key => $property) {
             if (Validation::isSubclass($property, RequestInput::class)) {

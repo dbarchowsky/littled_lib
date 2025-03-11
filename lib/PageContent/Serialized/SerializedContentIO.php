@@ -100,7 +100,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
             /* execute sql and store id value of the new record. */
             $args = $this->formatCommitQuery();
             $this->query(...$args);
-            $this->testAndLoadLastInsertId($args[0]);
+            $this->updateIdAfterCommit($args[0]);
         }
         catch (FailedQueryException $e) {
             throw new FailedQueryException('Error commiting a record. ' . $e->getMessage());
@@ -149,7 +149,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Returns a list of all the properties of the object that represent foreign keys.
-     * @return LinkedContent[]
+     * @return ManyToManyLinkedContent[]
      */
     protected function getLinkedContentPropertyList(): array
     {
@@ -157,9 +157,9 @@ abstract class SerializedContentIO extends SerializedContentValidation
         foreach ($this as $property) {
             if (is_object($property) &&
                 !Validation::isSubclass($property, ContentProperties::class) &&
-                (Validation::isSubclass($property, LinkedContent::class) ||
+                (Validation::isSubclass($property, ManyToManyLinkedContent::class) ||
                 Validation::isSubclass($property, SerializedContent::class) ||
-                Validation::isSubclass($property, ManyToManyContentLink::class))
+                Validation::isSubclass($property, ManyToManySerializedRecordLink::class))
             ) {
                 $lc[] = $property;
             }
@@ -196,10 +196,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Retrieve all record data belonging to tables linked to this content type.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws RecordNotFoundException
      */
     public function readLinked(): void
     {
@@ -272,9 +269,10 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Record id getter.
+     * @param ?int $record_id
      * @return $this
      */
-    abstract public function setRecordId(int $record_id): SerializedContentIO;
+    abstract public function setRecordId(?int $record_id): static;
 
     /**
      * Table name setter.
@@ -287,35 +285,28 @@ abstract class SerializedContentIO extends SerializedContentValidation
     }
 
     /**
-     * Tests a query string after a SQL command has been executed to determine if it was an insert statement (and not
-     * a procedure) and loads the value of the new record into the MySQL @insert_id session variable so it can
-     * be retrieved with a prepared statement and stored in a property of a derived class.
-     * @param string $query
-     * @return void
-     * @throws FailedQueryException
-     */
-    protected function testAndLoadLastInsertId(string $query): void
-    {
-        $query = strtolower(substr(ltrim($query),  0, 7));
-        if ($query == 'insert ') {
-            $this->query('SELECT LAST_INSERT_ID() INTO @insert_id');
-        }
-    }
-
-    /**
      * Update the internal id property value after committing object property values to the database.
      * @throws FailedQueryException
      */
-    protected function updateIdAfterCommit(): void
+    protected function updateIdAfterCommit(string $query): void
     {
         try {
-            // query was a procedure
-            $data = $this->fetchRecords(query: 'SELECT @insert_id AS `id`');
-            if (1 > count($data)) {
-                throw new InvalidQueryException('Could not retrieve new record id.');
+            $query = strtolower(substr(ltrim($query),  0, 7));
+            if ($query == 'insert ') {
+                // $this->query('SELECT LAST_INSERT_ID() INTO @insert_id');
+                $id = $this->mysqli->insert_id > 0 ? $this->mysqli->insert_id : null;
             }
-            $id = $data[0]->id > 0 ? $data[0]->id : null;
-            $this->setRecordId($id);
+            else {
+                // query was a procedure
+                $data = $this->fetchRecords(query: 'SELECT @insert_id AS `id`');
+                if (1 > count($data)) {
+                    throw new InvalidQueryException('Could not retrieve new record id.');
+                }
+                $id = $data[0]->id > 0 ? $data[0]->id : null;
+            }
+            if ($id > 0) {
+                $this->setRecordId($id);
+            }
         }
         catch (FailedQueryException|InvalidQueryException $e) {
             $msg = 'Error retrieving new record id. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();

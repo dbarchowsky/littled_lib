@@ -28,7 +28,7 @@ class QueryField
         $this->value = $value;
     }
 
-    public function setisPrimaryKey(bool $flag): QueryField
+    public function setIsPrimaryKey(bool $flag): QueryField
     {
         $this->is_pk = $flag;
         return $this;

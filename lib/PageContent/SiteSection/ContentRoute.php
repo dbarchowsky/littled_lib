@@ -244,12 +244,6 @@ class ContentRoute extends SerializedContent
         return $this;
     }
 
-    public function setMySQLi(mysqli $mysqli): ContentRoute
-    {
-        parent::setMySQLi($mysqli);
-        return $this;
-    }
-
     /**
      * Operation setter.
      * @param string $operation

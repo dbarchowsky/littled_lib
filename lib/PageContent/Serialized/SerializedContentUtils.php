@@ -9,6 +9,7 @@ use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
+use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
 use Exception;
@@ -184,6 +185,19 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
+     * Restores column name value to a RequestInput property of the object.
+     * @param string $property
+     * @param string $column_name
+     * @return void
+     */
+    public function restoreColumnName(string $property, string $column_name): void
+    {
+        if (property_exists($this, $property) && $this->{$property} instanceof RequestInput) {
+            $column_name = $this->{$property}->setColumnName($column_name);
+        }
+    }
+
+    /**
      * Sets value of shared cms templates path.
      * @param string $path Path to shared cms templates.
      */
@@ -255,6 +269,21 @@ class SerializedContentUtils extends AppContentBase
     {
         $this->traitSetRecordsetPrefix($prefix);
         return $this;
+    }
+
+    /**
+     * Remove column name value from property.
+     * @param string $property
+     * @return string
+     */
+    public function stashColumnName(string $property): string
+    {
+        if (property_exists($this, $property) && $this->{$property} instanceof RequestInput) {
+            $column_name = $this->{$property}->getColumnName('');
+            $this->{$property}->setColumnName('');
+            return $column_name;
+        }
+        return '';
     }
 
     /**

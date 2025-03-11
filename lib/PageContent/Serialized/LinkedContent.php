@@ -5,11 +5,10 @@ namespace Littled\PageContent\Serialized;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
 use Littled\Log\Log;
+use Littled\Validation\ValidationErrors;
 
 
 abstract class LinkedContent extends SerializedContent
@@ -17,9 +16,6 @@ abstract class LinkedContent extends SerializedContent
     use HydrateFieldOperations, InputOperations {
         applyInputKeyPrefix as traitApplyInputKeyPrefix;
     }
-
-    public ForeignKeyInput      $primary_id;
-    public ForeignKeyInput      $link_id;
 
     /**
      * @inheritDoc
@@ -58,7 +54,7 @@ abstract class LinkedContent extends SerializedContent
      * @return QueryField[]
      * @throws ConfigurationUndefinedException
      */
-    protected function extractPreparedStmtArgs(array &$used_keys = []): array
+    public function extractPreparedStmtArgs(array &$used_keys = []): array
     {
         $fields = parent::extractPreparedStmtArgs($used_keys);
 
@@ -88,85 +84,16 @@ abstract class LinkedContent extends SerializedContent
     }
 
     /**
-     * @inheritDoc
-     */
-    protected function formatRecordSelectPreparedStmt(): array
-    {
-        if ($this->id->hasData() && $this->id->isDatabaseField()) {
-            return parent::formatRecordSelectPreparedStmt();
-        }
-        $fields = $this->extractPreparedStmtArgs();
-        $query = 'SELECT `' .
-            implode('`,`', array_map(function ($e) {
-                return $e->key;
-            }, $fields)) . '` ' .
-            'FROM `' . $this::getTableName() . '` ' .
-            'WHERE ' . $this->primary_id->getColumnName('primary_id') . ' = ? '.
-            'AND ' . $this->link_id->getColumnName('link_id') . ' = ? ';
-        return [$query, 'ii', $this->primary_id->value, $this->link_id->value];
-    }
-
-    /**
-     * Link id value getter.
-     * @return ?int
-     */
-    public function getLinkId(): ?int
-    {
-        if (!isset($this->link_id)) {
-            return null;
-        }
-        return $this->link_id->value;
-    }
-
-    /**
-     * Primary id getter, i.e. the parent record's record id.
+     * Returns the value of the id of the record that this record is linked to.
      * @return int|null
      */
-    public function getPrimaryId(): ?int
-    {
-        if (!isset($this->primary_id->value)) {
-            return null;
-        }
-        return $this->primary_id->value;
-    }
+    abstract public function getLinkedId(): int| null;
 
     /**
-     * Returns the record id property value if the database table has an explicit primary key. If the table does not
-     * have a primary ky, the id of the parent record is returned (the $primary_id property value).
-     * @return int|null
+     * Returns the key value for primary key input.
+     * @return string
      */
-    public function getRecordId(): ?int
-    {
-        if (!$this->id->isDatabaseField()) {
-            return $this->getPrimaryId();
-        }
-        return $this->id->value;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasData(): bool
-    {
-        return $this->link_id->hasData() || $this->hasRecordData();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function isReadyToRead(): bool
-    {
-        return $this->getPrimaryId() > 0 && $this->getLinkId() > 0;
-    }
-
-    /**
-     * Test if any input properties of the object have their "is required" flag value set to TRUE.
-     * @return bool
-     */
-    public function isRequired(): bool
-    {
-        return $this->primary_id->isRequired() || $this->link_id->isRequired();
-    }
+    abstract public function getPrimaryKey(): string;
 
     /**
      * Combines two prepared statement argument lists.
@@ -200,7 +127,7 @@ abstract class LinkedContent extends SerializedContent
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
-    public function read(): LinkedContent
+    public function read(): static
     {
         if ($this->id->hasData() && $this->id->isDatabaseField()) {
             parent::read();
@@ -219,143 +146,27 @@ abstract class LinkedContent extends SerializedContent
 
         $linked = $this->getContentPropertiesList();
         foreach($linked as $property) {
+
+            // temporarily remove prefixes from child objects when saving their records
             $prefix = $this->$property->getRecordsetPrefix();
+            $col = $this->{$property}->stashColumnName('id');
             $this->$property->removeRecordsetPrefix();
+
             $this->$property->read();
+
+            // restore child object prefix values
+            if ($col) {
+                $this->{$property}->restoreColumnName('id', $col);
+            }
             $this->$property->setRecordsetPrefix($prefix);
         }
         return $this;
     }
 
     /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws InvalidStateException
-     */
-    public function recordExists(): bool
-    {
-        if (isset($this->id) && $this->id->isDatabaseField() && $this->id->hasData()) {
-            return parent::recordExists();
-        }
-        if (!$this->primary_id->hasData() || !$this->link_id->hasData()) {
-            throw new InvalidStateException('Primary or link record id values not set.');
-        }
-        $query = 'SELECT EXISTS(SELECT 1 FROM `' . static::getTableName() . '` '.
-            'WHERE `' . $this->primary_id->getColumnName('primary_id'). '` = ? ' .
-            'AND `' . $this->link_id->getColumnName('link_id') . '` = ?' .
-            ') AS `record_exists`';
-        $data = $this->fetchRecords($query, 'ii', $this->primary_id->value, $this->link_id->value);
-        return ((int)('0' . $data[0]->record_exists) === 1);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAsNotRequired(): SerializedContentUtils
-    {
-        $this->primary_id->setAsOptional();
-        $this->link_id->setAsOptional();
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAsRequired(): SerializedContentUtils
-    {
-        $this->primary_id->setAsRequired();
-        $this->link_id->setAsRequired();
-        return $this;
-    }
-
-    /**
-     * Sets the index for all input properties of the object.
-     * @param int $index
+     * Sets the value of the id of the record that this object is linked to.
+     * @param int|null $record_id
      * @return $this
      */
-    public function setIndex(int $index): LinkedContent
-    {
-        $properties = $this->getInputPropertiesList();
-        foreach ($properties as $property) {
-            $this->$property->index = $index;
-        }
-        return $this;
-    }
-
-    /**
-     * Link field name setter.
-     * @param string $field
-     * @return $this
-     */
-    public function setLinkFieldName(string $field): LinkedContent
-    {
-        $this->link_id->setColumnName($field);
-        return $this;
-    }
-
-    /**
-     * Foreign id setter.
-     * @param int $record_id
-     * @return LinkedContent
-     * @throws InvalidStateException
-     */
-    public function setLinkId(int $record_id): LinkedContent
-    {
-        if (!isset($this->link_id)) {
-            throw new InvalidStateException('Link id object is not initialized.');
-        }
-        $this->link_id->setInputValue($record_id);
-        $properties = $this->extractContentPropertiesList();
-        foreach($properties as $property) {
-            $this->$property->setRecordId($record_id);
-        }
-        return $this;
-    }
-
-    /**
-     * Link key setter.
-     * @param string $key
-     * @return $this
-     */
-    public function setLinkKey(string $key): LinkedContent
-    {
-        $this->link_id->setKey($key);
-        return $this;
-    }
-    /**
-     * Primary field name setter.
-     * @param string $field
-     * @return $this
-     */
-    public function setPrimaryFieldName(string $field): LinkedContent
-    {
-        $this->primary_id->setColumnName($field);
-        return $this;
-    }
-
-    /**
-     * Primary id setter.
-     * @param int $record_id
-     * @return $this
-     * @throws InvalidStateException
-     */
-    public function setPrimaryId(int $record_id): LinkedContent
-    {
-        if (!isset($this->primary_id)) {
-            throw new InvalidStateException('Primary id object is not initialized.');
-        }
-        $this->primary_id->setInputValue($record_id);
-        return $this;
-    }
-
-    /**
-     * Primary key setter.
-     * @param string $key
-     * @return $this
-     */
-    public function setPrimaryKey(string $key): LinkedContent
-    {
-        $this->primary_id->setKey($key);
-        return $this;
-    }
+    abstract public function setLinkedId(int|null $record_id): static;
 }

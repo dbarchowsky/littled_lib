@@ -2,10 +2,12 @@
 
 namespace Littled\PageContent\Serialized;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\Request\ForeignKeyInput;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
@@ -62,11 +64,30 @@ trait SerializedFieldOperations
     }
 
     /**
+     * Uses request data to assign values to properties representing primary and foreign keys.
+     * @param array|null $src
+     * @param array|null $exclude
+     * @return $this
+     */
+    public function collectKeysRequestData(?array $src=null, ?array $exclude=[]): static
+    {
+        $properties = $this->getKeyPropertiesList();
+        foreach ($properties as $property) {
+            if (!in_array($property, $exclude)) {
+                $this->$property->collectRequestData($src);
+            }
+        }
+        return $this;
+    }
+
+    /**
      * Set property values using input variable values, e.g. GET, POST, cookies
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
+     * return $this
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
+        $src = $src ?? Validation::getDefaultInputSource();
         foreach ($this as $item) {
             if (is_object($item) &&
                 (!property_exists($item, 'bypassCollectFromInput') || $item->bypassCollectFromInput === false)) {
@@ -77,6 +98,7 @@ trait SerializedFieldOperations
                 }
             }
         }
+        return $this;
     }
 
     /**
@@ -198,6 +220,27 @@ trait SerializedFieldOperations
     }
 
     /**
+     * Returns a list of all properties that represent either primary or foreign keys.
+     * @param $exclude string[]
+     * @return array
+     */
+    protected function getKeyPropertiesList(array $exclude=[]): array
+    {
+        $properties = [];
+        foreach($this as $key => $property) {
+            if (Validation::isSubclass($property, PrimaryKeyInput::class) ||
+                Validation::isSubclass($property, ForeignKeyInput::class)) {
+                if (method_exists($property, 'isDatabaseField') &&
+                    $property->isDatabaseField() &&
+                    !in_array($property->getKey(), $exclude)) {
+                    $properties[] = $key;
+                }
+            }
+        }
+        return $properties;
+    }
+
+    /**
      * Returns a list of all properties associated with records linked to this object.
      * @return array
      */
@@ -240,6 +283,34 @@ trait SerializedFieldOperations
         foreach ($properties as $property) {
             $this->$property->setColumnName($prefix . $property);
         }
+    }
+
+    /**
+     * Sets the index for all input properties of the object.
+     * @param int $index
+     * @param string[]|null $exclude
+     * @return $this
+     */
+    public function setIndex(int $index, array|null $exclude = null): static
+    {
+        $properties = $this->getInputPropertiesList(true, $exclude);
+
+        // Add primary keys and foreign keys for child objects, but the top-level PK value is unique and not
+        // passed in the request as an array of values
+        $properties = array_merge($properties, $this->getKeyPropertiesList([LittledGlobals::ID_KEY]));
+        foreach ($properties as $property) {
+            if ($this->$property->getKey() !== LittledGlobals::ID_KEY) {
+                $this->$property->index = $index;
+            }
+        }
+        $properties = $this->getContentPropertiesList($exclude ?? []);
+        foreach ($properties as $property) {
+            if (method_exists($this->$property, 'setIndex')) {
+                $this->$property->setIndex($index);
+
+            }
+        }
+        return $this;
     }
 
     /**

@@ -57,11 +57,13 @@ abstract class SectionContent extends SerializedContent
     /**
      * Fills the object's property values from input variable values, e.g. GET, POST, etc.
      * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
+     * @return $this
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
         $this->content_properties->bypassCollectFromInput = true;
         parent::collectRequestData($src);
+        return $this;
     }
 
     /**
@@ -151,7 +153,7 @@ abstract class SectionContent extends SerializedContent
      * @throws RecordNotFoundException
      * @throws InvalidStateException
      */
-    public function read(): SectionContent
+    public function read(): static
     {
         parent::read();
         $this->retrieveSectionProperties();
@@ -211,7 +213,7 @@ abstract class SectionContent extends SerializedContent
      * @inheritDoc
      * @throws ConfigurationUndefinedException
      */
-    public function setMySQLi(mysqli $mysqli): SectionContent
+    public function setMySQLi(mysqli $mysqli): static
     {
         parent::setMySQLi($mysqli);
         if (isset($this->content_properties->id->value)) {

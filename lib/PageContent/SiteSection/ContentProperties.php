@@ -232,7 +232,14 @@ class ContentProperties extends SerializedContent
      * @param string $location
      * @return ContentTemplate
      */
-    protected function newTemplateInstance(?int $record_id = null, ?int $content_type_id = null, string $operation = '', string $base_dir = '', string $template = '', string $location = ''): ContentTemplate
+    protected function newTemplateInstance(
+        ?int    $record_id = null,
+        ?int    $content_type_id = null,
+        string  $operation = '',
+        string  $base_dir = '',
+        string  $template = '',
+        string  $location = ''
+    ): ContentTemplate
     {
         return new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location);
     }
@@ -253,7 +260,7 @@ class ContentProperties extends SerializedContent
      * @inheritDoc
      * Overrides parent routine to call procedure to retrieve item properties along with extended item properties.
      */
-    public function read(): SerializedContent
+    public function read(): static
     {
         if ($this->id->value === null || $this->id->value < 1) {
             throw new ContentValidationException('Record id not provided.');
@@ -335,14 +342,5 @@ class ContentProperties extends SerializedContent
         $this->templates = array();
         $this->routes = array();
         $this->parent = '';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setMySQLi(mysqli $mysqli): ContentProperties
-    {
-        parent::setMySQLi($mysqli);
-        return $this;
     }
 }

@@ -61,8 +61,8 @@ abstract class SerializedContent extends SerializedContentIO
                 Log::getClassBaseName(get_class($this)). '.';
             throw new InvalidStateException($err_msg);
         }
-        elseif(!Validation::isSubclass($this->$links_property, ManyToManyContentLink::class)) {
-            $err_msg = "Link property \"$links_property\" is not a one-to-many link.";
+        elseif(!Validation::isSubclass($this->$links_property, SerializedRecordList::class)) {
+            $err_msg = "Link property \"$links_property\" is not a list.";
             throw new InvalidTypeException($err_msg);
         }
 
@@ -76,7 +76,7 @@ abstract class SerializedContent extends SerializedContentIO
                 /** @var LinkedContent $link */
                 $link = (new $content_class())
                     ->setMySQLi(static::getMySQLiInstance())
-                    ->setLinkId($link_id);
+                    ->setLinkedId($link_id);
                 if ($this->id->hasData()) {
                     $link->setPrimaryId($this->getRecordId());
                 }
@@ -161,10 +161,6 @@ abstract class SerializedContent extends SerializedContentIO
     {
         $this->prepareInsertIdSession();
         parent::executeCommitQuery();
-        if (!$this->id->hasData() && $this->id->isDatabaseField()) {
-            // retrieve and store the new record id after performing an insert.
-            $this->updateIdAfterCommit();
-        }
     }
 
     /**
@@ -184,13 +180,14 @@ abstract class SerializedContent extends SerializedContentIO
             '`) VALUES (' . ($this->hasPrimaryKey() ? '@insert_id' : '?') . ',' .
             rtrim(str_repeat('?,', count($fields) - 1), ',').
             ') '.
-            'ON DUPLICATE KEY UPDATE '.
-            join(', ', array_map(fn($e): string => "`$e` = VALUE(`$e`)", $keys));
+            'ON DUPLICATE KEY UPDATE ';
 
         // strip out primary key variables since we're using previously assigned @insert_id SQL session variable
         $fields = array_filter($fields, function($e) {
             return !$e->is_pk;
         });
+
+        $query .= join(', ', array_map(fn($e): string => "`$e->key` = VALUE(`$e->key`)", $fields));
         $type_str = implode('', array_map(function ($e) {
             return $e->type;
         }, $fields));
@@ -228,13 +225,13 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Returns list of all one-to-many linked properties of the object.
-     * @return ManyToManyContentLink[]
+     * @return ManyToManyLinkedContent[]
      */
     protected function getManyToManyLinkedProperties(): array
     {
         $p = [];
         foreach($this as $property) {
-            if (Validation::isSubclass($property, ManyToManyContentLink::class)) {
+            if (Validation::isSubclass($property, ManyToManyLinkedContent::class)) {
                 $p[] = $property;
             }
         }
@@ -339,12 +336,11 @@ abstract class SerializedContent extends SerializedContentIO
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
      * @return $this
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
-    public function read(): SerializedContent
+    public function read(): static
     {
         if (!$this->id->hasData()) {
             throw new ContentValidationException('Record id not set.');
@@ -428,10 +424,10 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @return SerializedContent
+     * @return $this
      * @throws ConfigurationUndefinedException
      */
-    public function setMySQLi(mysqli $mysqli): SerializedContent
+    public function setMySQLi(mysqli $mysqli): static
     {
         parent::setMySQLi($mysqli);
         foreach($this as $property => $value) {
@@ -444,16 +440,15 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws InvalidStateException
      */
-    public function setRecordId(int $record_id): SerializedContent
+    public function setRecordId(?int $record_id): static
     {
         $this->id->setInputValue($record_id);
         $otm = $this->getManyToManyLinkedProperties();
         foreach($otm as $property) {
             try {
                 $property->setPrimaryId($record_id);
-            } catch (NotInitializedException) {
+            } catch (InvalidStateException) {
                 /* ignore & continue */
             }
         }
