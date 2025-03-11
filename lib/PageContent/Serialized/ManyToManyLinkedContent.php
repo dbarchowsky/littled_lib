@@ -108,7 +108,7 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
 
     /**
      * Primary id value getter
-     * @return int
+     * @return int|null
      */
     public function getPrimaryId(): int|null
     {
@@ -141,6 +141,20 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
             return false;
         }
         return $this->primary_id->value > 0;
+    }
+
+    /**
+     * Tests if this object is required.
+     * @return bool
+     */
+    public function isRequired(): bool
+    {
+        foreach ($this->records as $record) {
+            if ($record->isRequired()) {
+                return true;
+            }
+        }
+        return $this->primary_id->isRequired() || $this->link_id->isRequired();
     }
 
     /**
@@ -177,6 +191,36 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
     }
 
     /**
+     * Override parent to include primary id and link id as properties whose "required" flag values are updated
+     * @inheritdoc
+     */
+    public function setAsNotRequired(): static
+    {
+        parent::setAsNotRequired();
+        $this->primary_id->setAsNotRequired();
+        $this->link_id->setAsNotRequired();
+        foreach ($this->records as $record) {
+            $record->setAsNotRequired();
+        }
+        return $this;
+    }
+
+    /**
+     * Override parent to include primary id and link id as properties whose "required" flag values are updated
+     * @inheritdoc
+     */
+    public function setAsRequired(): static
+    {
+        parent::setAsRequired();
+        $this->primary_id->setAsRequired();
+        $this->link_id->setAsRequired();
+        foreach ($this->records as $record) {
+            $record->setAsRequired();
+        }
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function setLinkedId(?int $record_id): static
@@ -187,7 +231,7 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
     }
 
     /**
-     * Linked property key value settetr.
+     * Linked property key value setter.
      * @param string $key
      * @return $this
      * @throws ConfigurationUndefinedException
@@ -229,5 +273,16 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
     public function setRecordId(?int $record_id): static
     {
         return $this->setPrimaryId($record_id);
+    }
+
+    /**
+     * Set object as required in form data depending on $flag value.
+     * @param bool $flag
+     * @return $this
+     */
+    public function setRequiredFlag(bool $flag): static
+    {
+        $method = $flag ? 'setAsRequired' : 'setAsNotRequired';
+        return $this->$method($flag);
     }
 }

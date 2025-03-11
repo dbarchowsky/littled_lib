@@ -193,7 +193,7 @@ class SerializedContentUtils extends AppContentBase
     public function restoreColumnName(string $property, string $column_name): void
     {
         if (property_exists($this, $property) && $this->{$property} instanceof RequestInput) {
-            $column_name = $this->{$property}->setColumnName($column_name);
+            $this->{$property}->setColumnName($column_name);
         }
     }
 

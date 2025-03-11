@@ -448,7 +448,7 @@ abstract class SerializedContent extends SerializedContentIO
         foreach($otm as $property) {
             try {
                 $property->setPrimaryId($record_id);
-            } catch (InvalidStateException) {
+            } catch (NotInitializedException) {
                 /* ignore & continue */
             }
         }

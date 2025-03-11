@@ -79,7 +79,7 @@ trait HydrateFieldOperations
             elseif(isset($this->{$key}) && Validation::isSubclass($this->$key, DBFieldGroup::class)) {
                 $this->$key->hydrateFromRecordsetRow($row);
             }
-            elseif (!isset($this->{$key}) || isset($this->{$key}) && !is_object($this->$key)) {
+            elseif (!isset($this->{$key}) || !is_object($this->$key)) {
                 // copy over properties read from the database but not collected in html form data
                 $dst_key = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '') . $key;
                 if (property_exists($this, $dst_key)) {

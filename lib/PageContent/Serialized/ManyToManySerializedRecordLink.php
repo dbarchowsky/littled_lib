@@ -48,7 +48,7 @@ abstract class ManyToManySerializedRecordLink extends LinkedContent
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException
-     * @throws InvalidStateException
+     * @throws InvalidValueException
      */
     protected function formatRecordSelectPreparedStmt(): array
     {

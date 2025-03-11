@@ -8,7 +8,6 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Validation\Validation;
 use Littled\Log\Log;
-use Littled\Validation\ValidationErrors;
 
 
 abstract class LinkedContent extends SerializedContent

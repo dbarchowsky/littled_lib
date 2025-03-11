@@ -335,14 +335,6 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * @inheritdoc
-     */
-    public function isRequired(): bool
-    {
-        return $this->primary_id->isRequired() || $this->link_id->isRequired();
-    }
-
-    /**
      * Returns the index of the record whose link id value matches the supplied value.
      * @param int $record_id
      * @return false|int
@@ -442,31 +434,6 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Sets required flag of instance and its linked records to $required parameter value
-     * @param bool $required
-     * @return $this
-     */
-    protected function setRequiredFlag(bool $required): static
-    {
-        $method = $required ? 'setAsRequired' : 'setAsNotRequired';
-        $this->primary_id->$method();
-        $this->link_id->$method();
-        $link_prop = $this->getLinkedPropertyName();
-        $method = $required ? 'setAsRequired' : 'setAsOptional';
-        $this->$link_prop->$method();
-        try {
-            $links = $this->items();
-            foreach ($links as $link) {
-                $link->$method();
-            }
-        }
-        catch(InvalidValueException) {
-            /* ignore empty linked content record list */
-        }
-        return $this;
-    }
-
-    /**
      * Allow duplicates flag value setter.
      * @param bool $flag
      * @return $this
@@ -475,22 +442,6 @@ abstract class SerializedRecordList extends SerializedContentIO
     {
         $this->allow_duplicates = $flag;
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAsNotRequired(): static
-    {
-        return $this->setRequiredFlag(false);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAsRequired(): static
-    {
-        return $this->setRequiredFlag(true);
     }
 
     /**
