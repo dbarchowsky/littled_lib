@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
@@ -13,7 +12,6 @@ use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
 use Exception;
-use mysqli;
 
 
 /**
@@ -153,6 +151,10 @@ class ContentProperties extends SerializedContent
      * Content label getter.
      * @param bool $read_if_empty Flag to retrieve label from database if a value isn't present.
      * @return string
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
      */
     public function getContentLabel(bool $read_if_empty=false): string
     {
