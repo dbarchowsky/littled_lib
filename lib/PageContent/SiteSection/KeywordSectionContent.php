@@ -112,11 +112,12 @@ class KeywordSectionContent extends SectionContent
      * @inheritDoc
      * @throws InvalidStateException
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData($src);
         $this->content_properties->id->collectRequestData($src);
         $this->collectKeywordInput();
+        return $this;
     }
 
     /**
@@ -337,7 +338,7 @@ class KeywordSectionContent extends SectionContent
     /**
      * @inheritDoc
      */
-    public function read(): KeywordSectionContent
+    public function read(): static
     {
         parent::read();
         $this->content_properties->read();
@@ -457,7 +458,7 @@ class KeywordSectionContent extends SectionContent
     /**
      * @inheritDoc
      */
-    public function setMySQLi(mysqli $mysqli): KeywordSectionContent
+    public function setMySQLi(mysqli $mysqli): static
     {
         parent::setMySQLi($mysqli);
         return $this;
@@ -465,10 +466,10 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Set record id property value.
-     * @param int $record_id
+     * @param int|null $record_id
      * @return $this
      */
-    public function setRecordId(int $record_id): KeywordSectionContent
+    public function setRecordId(?int $record_id): static
     {
         try {
             parent::setRecordId($record_id);

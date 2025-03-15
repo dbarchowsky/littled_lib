@@ -258,6 +258,17 @@ class ContentTemplate extends SerializedContent
     }
 
     /**
+     * Hydrate extra properties flag setter.
+     * @param bool $hydrate_extras
+     * @return $this
+     */
+    public function setHydrateExtras(bool $hydrate_extras): static
+    {
+        $this->hydrate_extras = $hydrate_extras;
+        return $this;
+    }
+
+    /**
      * Template location setter.
      * @param string $location
      * @return $this

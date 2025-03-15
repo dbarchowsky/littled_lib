@@ -6,6 +6,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
@@ -150,10 +151,18 @@ class ContentProperties extends SerializedContent
 
     /**
      * Content label getter.
+     * @param bool $read_if_empty Flag to retrieve label from database if a value isn't present.
      * @return string
      */
-    public function getContentLabel(): string
+    public function getContentLabel(bool $read_if_empty=false): string
     {
+        if ($this->label->value.'' === '' && $this->name->value.'' === '' && $read_if_empty) {
+            if ($this->id->value === null || $this->id->value < 1) {
+                $err_msg = 'A request was made to retrieve the content label, but a record id was not provided.';
+                throw new NotInitializedException($err_msg);
+            }
+            $this->read();
+        }
         return $this->label->value ?: $this->name->value;
     }
 

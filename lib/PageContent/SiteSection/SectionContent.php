@@ -6,6 +6,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
@@ -71,6 +72,7 @@ abstract class SectionContent extends SerializedContent
      * @return string
      * @throws FailedQueryException
      * @throws InvalidStateException
+     * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
     public function delete(): string
@@ -81,7 +83,6 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Alias for retrieveSectionProperties()
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws InvalidStateException
@@ -112,6 +113,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Returns a string representing the type of content of this content record.
      * @return string
+     * @throws NotInitializedException
      */
     public function getContentLabel(): string
     {
@@ -147,7 +149,6 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
@@ -182,7 +183,6 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Retrieves site section properties and stores that data in object properties.
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
@@ -198,7 +198,6 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritdoc
-     * @throws ConfigurationUndefinedException
      */
     public function save(): void
     {
