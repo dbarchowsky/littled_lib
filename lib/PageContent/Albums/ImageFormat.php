@@ -102,7 +102,7 @@ class ImageFormat extends SerializedContent
      * @inheritDoc
      * Overrides parent routine to use stored procedure that returns extended properties.
      */
-    function read(): SerializedContent
+    function read(): static
     {
         if ($this->id->value===null || $this->id->value < 1) {
             throw new ContentValidationException('Record id not supplied.');
