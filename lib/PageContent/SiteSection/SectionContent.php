@@ -70,6 +70,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Deletes the Site Section record matching the object's internal ID value.
      * @return string
+     * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws NotInitializedException
@@ -113,7 +114,10 @@ abstract class SectionContent extends SerializedContent
     /**
      * Returns a string representing the type of content of this content record.
      * @return string
+     * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws NotInitializedException
+     * @throws RecordNotFoundException
      */
     public function getContentLabel(): string
     {
