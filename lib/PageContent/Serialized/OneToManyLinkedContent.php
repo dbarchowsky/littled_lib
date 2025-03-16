@@ -24,7 +24,6 @@ class OneToManyLinkedContent extends SerializedRecordList
     {
         parent::__construct();
         $this->parent_id = (new ForeignKeyInput())->setKey('id');
-        $this->types_lut = ['records' => static::$content_class];
     }
 
     /**
