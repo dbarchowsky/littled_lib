@@ -4,6 +4,10 @@ namespace Littled\PageContent;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\NotInitializedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -60,6 +64,13 @@ abstract class PageContent extends PageContentBase
     /**
      * Content label getter. Returns a name associated with the specific content record.
      * @return string
+     */
+    /**
+     * @return string
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
      */
     public function getContentLabel(): string
     {

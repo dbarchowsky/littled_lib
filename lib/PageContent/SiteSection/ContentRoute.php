@@ -1,10 +1,8 @@
 <?php
-
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -13,7 +11,7 @@ use Littled\Request\StringInput;
 use Littled\Request\StringTextField;
 use Littled\Request\URLTextField;
 use Littled\Validation\Validation;
-use mysqli;
+
 
 /**
  * Extends SerializedContent to store and retrieve content route properties.
@@ -197,7 +195,6 @@ class ContentRoute extends SerializedContent
      * @return $this
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
-     * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
     public function lookupRoute(): ContentRoute

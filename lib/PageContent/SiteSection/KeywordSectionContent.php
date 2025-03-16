@@ -369,7 +369,6 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Commits object property data to record in the database.
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws NotImplementedException
@@ -408,12 +407,7 @@ class KeywordSectionContent extends SectionContent
      */
     public function setContentType(int $content_type_id): KeywordSectionContent
     {
-        try {
-            $this->content_properties->setRecordId($content_type_id);
-        }
-        catch(InvalidStateException) {
-            /* ignore */
-        }
+        $this->content_properties->setRecordId($content_type_id);
         return $this;
     }
 
@@ -471,11 +465,7 @@ class KeywordSectionContent extends SectionContent
      */
     public function setRecordId(?int $record_id): static
     {
-        try {
-            parent::setRecordId($record_id);
-        } catch (InvalidStateException) {
-            /* ignore */
-        }
+        parent::setRecordId($record_id);
         return $this;
     }
 

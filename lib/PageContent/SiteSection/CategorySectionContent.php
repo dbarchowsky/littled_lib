@@ -2,9 +2,7 @@
 namespace Littled\PageContent\SiteSection;
 
 use Exception;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Request\CategorySelect;
 
@@ -50,9 +48,7 @@ abstract class CategorySectionContent extends KeywordSectionContent
     /**
      * @inheritDoc
      * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      */
     public function saveKeywords ( ): CategorySectionContent
