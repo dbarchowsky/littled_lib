@@ -224,21 +224,6 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Returns list of all one-to-many linked properties of the object.
-     * @return ManyToManyLinkedContent[]
-     */
-    protected function getManyToManyLinkedProperties(): array
-    {
-        $p = [];
-        foreach($this as $property) {
-            if (Validation::isSubclass($property, ManyToManyLinkedContent::class)) {
-                $p[] = $property;
-            }
-        }
-        return $p;
-    }
-
-    /**
      * Record id value getter
      * @return int|null
      */
@@ -444,12 +429,19 @@ abstract class SerializedContent extends SerializedContentIO
     public function setRecordId(?int $record_id): static
     {
         $this->id->setInputValue($record_id);
-        $otm = $this->getManyToManyLinkedProperties();
-        foreach($otm as $property) {
-            try {
-                $property->setPrimaryId($record_id);
-            } catch (NotInitializedException) {
-                /* ignore & continue */
+        $lp = $this->getLinkedContentPropertyList();
+        foreach($lp as $property) {
+            $method = match(true) {
+                method_exists($property, 'setPrimaryId') => 'setPrimaryId',
+                method_exists($property, 'setParentId') => 'setParentId',
+                true => ''
+            };
+            if ($method) {
+                try {
+                    $property->$method($record_id);
+                } catch (NotInitializedException) {
+                    /* ignore & continue */
+                }
             }
         }
         return $this;
