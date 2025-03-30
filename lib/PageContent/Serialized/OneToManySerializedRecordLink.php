@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-use http\Env\Request;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
