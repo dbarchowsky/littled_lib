@@ -1,11 +1,13 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
+use http\Env\Request;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
 use Littled\Request\ForeignKeyInput;
 use Littled\Request\PrimaryKeyInput;
+use Littled\Validation\Validation;
 
 
 /**
@@ -81,6 +83,37 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
     public function getPrimaryKey(): string
     {
         return $this->id->getKey();
+    }
+
+    /**
+     * @inheritdoc
+     * Overrides parent to return true for primary key properties. This allows the $id property to be assigned a value
+     * when the object is one element of a list of records linked to a parent in a one-to-many relationship.
+     * The $id property value is skipped over for top-level objects.
+     */
+    protected function isInput(string $property, mixed $item, array &$used_keys): bool
+    {
+        $result = parent::isInput($property, $item, $used_keys);
+        if ($result === false &&
+            $this->propertyIsPrimaryKey($property)) {
+            return true;
+        }
+        return $result;
+    }
+
+    /**
+     * Tests if property is a primary key
+     * @param string $property
+     * return bool
+     */
+    protected function propertyIsPrimaryKey(string $property): bool
+    {
+        if (Validation::isSubclass($this->{$property}, PrimaryKeyInput::class) &&
+            !$this->hasRecordsetPrefix() &&
+            $this->{$property}->getColumnName('id') === 'id') {
+            return true;
+        }
+        return false;
     }
 
     /**

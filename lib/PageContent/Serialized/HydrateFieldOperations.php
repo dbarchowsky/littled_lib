@@ -61,29 +61,30 @@ trait HydrateFieldOperations
      */
     public function hydrateFromRecordsetRow(object $row): void
     {
-        $used_keys = array();
-        foreach ($this->getHydrateProperties($row) as $key) {
+        $used_keys = [];
+        $properties = $this->getHydrateProperties($row);
+        foreach ($properties as $p) {
 
             // copy over property values that correspond to html form data
-            if (isset($this->{$key}) && $this->isInput($key, $this->$key, $used_keys)) {
+            if (isset($this->{$p}) && $this->isInput($p, $this->{$p}, $used_keys)) {
                 /** @var RequestInput $property */
                 /* store value retrieved from database */
-                $property = $this->$key;
-                $this->assignRowValue($property->getColumnName($key), $property, $row);
+                $property = $this->$p;
+                $this->assignRowValue($property->getColumnName($p), $property, $row);
             }
-            elseif(isset($this->{$key}) &&
-                Validation::isSubclass($this->$key, SerializedContent::class) &&
-                $this->$key->hasRecordsetPrefix()) {
-                $this->$key->hydrateFromRecordsetRow($row);
+            elseif(isset($this->{$p}) &&
+                Validation::isSubclass($this->{$p}, SerializedContent::class) &&
+                $this->{$p}->hasRecordsetPrefix()) {
+                $this->{$p}->hydrateFromRecordsetRow($row);
             }
-            elseif(isset($this->{$key}) && Validation::isSubclass($this->$key, DBFieldGroup::class)) {
-                $this->$key->hydrateFromRecordsetRow($row);
+            elseif(isset($this->{$p}) &&  Validation::isSubclass($this->{$p}, DBFieldGroup::class)) {
+                $this->{$p}->hydrateFromRecordsetRow($row);
             }
-            elseif (!isset($this->{$key}) || !is_object($this->$key)) {
+            elseif (!isset($this->{$p}) || !is_object($this->{$p})) {
                 // copy over properties read from the database but not collected in html form data
-                $dst_key = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '') . $key;
+                $dst_key = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '') . $p;
                 if (property_exists($this, $dst_key)) {
-                    $this->$dst_key = $row->$key;
+                    $this->$dst_key = $row->{$p};
                 }
             }
         }
@@ -108,7 +109,7 @@ trait HydrateFieldOperations
         }
 
         if (isset($this->{$key}) &&
-            (Validation::isSubclass($this->$key, SerializedContent::class) ||
+            (Validation::isSubclass($this->$key, SerializedContentIO::class) ||
             Validation::isSubclass($this->$key, DBFieldGroup::class))) {
             return true;
         }

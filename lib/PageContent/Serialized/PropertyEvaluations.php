@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent\Serialized;
 
+use Littled\App\LittledGlobals;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -85,26 +86,32 @@ trait PropertyEvaluations
      * Checks if the class property is an input object and should be used for
      * various operations such as updating or retrieving data from the database,
      * or retrieving data from forms.
-     * @param string $key Name of the class property.
+     * @param string $property Name of the class property.
      * @param mixed $item Value of the class property.
      * @param array $used_keys Array containing a list of the objects that
      * have already been listed as input properties.
      * @return boolean True if the object is an input class and should be used to update the database. False otherwise.
      */
-    protected function isInput(string $key, mixed $item, array &$used_keys): bool
+    protected function isInput(string $property, mixed $item, array &$used_keys): bool
     {
         // ignore keys that have already been included in order to avoid using the same key multiple times
+        $saved = $used_keys;
         if (!$this->isDatabaseProperty($item, $used_keys)) {
             return false;
         }
-        // don't include primary key properties by default, unless it's not a top-level object as indicated by...xd
+        // don't allow ::isDatabaseProperty() to update $used_keys collection
+        $used_keys = $saved;
+
+        // don't include primary key properties by default, unless it's not a top-level object as indicated by...
         // (a) The object has a recordset prefix, something like "child_" for a structure like parent.child_id
         // (b) The object has overridden its $id->key default value, e.g. with something like "child_id"
-        if ($key === 'id' && !$this->hasRecordsetPrefix() && $item->getColumnName('id') === 'id') {
+        if ($property === LittledGlobals::ID_KEY &&
+            !$this->hasRecordsetPrefix() &&
+            $item->getColumnName(LittledGlobals::ID_KEY) === LittledGlobals::ID_KEY) {
             return false;
         }
         // ignore "index" which is used on arrays
-        if ($key === 'index') {
+        if ($property === 'index') {
             return false;
         }
 
