@@ -135,6 +135,18 @@ abstract class RequestInput
     abstract public function collectRequestData(?array $src=null);
 
     /**
+     * Copies property values from another RequestInput object.
+     * @param RequestInput $src
+     * @return void
+     */
+    public function copy(RequestInput $src): void
+    {
+        foreach($src as $property => $value) {
+            $this->{$property} = $src->{$property};
+        }
+    }
+
+    /**
      * Escapes the object's value property for inclusion in SQL queries.
      * @param mysqli $mysqli Database connection.
      * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Default is FALSE.
