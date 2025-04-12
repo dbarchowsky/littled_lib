@@ -115,10 +115,7 @@ trait SerializedFieldOperations
             throw new InvalidTypeException('Invalid object for copy.');
         }
         foreach (get_object_vars($src) as $key => $value) {
-            if ($value instanceof RequestInput) {
-                $this->$key->value = $value->value;
-            }
-            elseif (isset($this->{$key}) && is_object($this->$key) && method_exists($this->$key, 'copy')) {
+            if (isset($this->{$key}) && is_object($this->$key) && method_exists($this->$key, 'copy')) {
                 $this->$key->copy($value);
             } elseif (!is_object($value)) {
                 $this->$key = $value;
