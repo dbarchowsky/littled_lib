@@ -43,12 +43,25 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Push link object onto the list.
+     * Push link object onto the list, at the end of the list.
      * @param LinkedContent $link
      * @return $this
      * @throws DuplicateRecordException
      */
     public function addLink(LinkedContent $link): static
+    {
+        $this->checkForPreexistingLink($link);
+        $this->pushLink($link);
+        return $this;
+    }
+
+    /**
+     * Tests if a record already exists in the stack matching the specified $link record.
+     * @param LinkedContent $link
+     * @return void
+     * @throws DuplicateRecordException
+     */
+    protected function checkForPreexistingLink(LinkedContent $link): void
     {
         $link_id = $this->getChildRecordId($link);
         if (!$this->allow_duplicates &&
@@ -57,8 +70,6 @@ abstract class SerializedRecordList extends SerializedContentIO
             throw new DuplicateRecordException(
                 'A '. strtolower($this->getContentLabel()) . " record with id $link_id already exists.");
         }
-        $this->pushLink($link);
-        return $this;
     }
 
     /**
@@ -299,6 +310,19 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
+     * Insert link object onto the list, at the beginning of the list.
+     * @param LinkedContent $link
+     * @return $this
+     * @throws DuplicateRecordException
+     */
+    public function insertLink(LinkedContent $link): static
+    {
+        $this->checkForPreexistingLink($link);
+        $this->unshiftLink($link);
+        return $this;
+    }
+
+    /**
      * Create a new linked record and assign it's record id value.
      * @param int|null $record_id
      * @return LinkedContent
@@ -442,6 +466,20 @@ abstract class SerializedRecordList extends SerializedContentIO
     {
         $this->allow_duplicates = $flag;
         return $this;
+    }
+
+    /**
+     * Unshift link onto stack (at the beginning of the stack) and make necessary updates to the state of the list of
+     * linked records.
+     * @param LinkedContent $link
+     * @return void
+     */
+    protected function unshiftLink(LinkedContent $link): void
+    {
+        array_unshift($this->records, $link);
+        for($i=0; $i< count($this->records); $i++) {
+            $this->records[$i]->setIndex($i);
+        }
     }
 
     /**
