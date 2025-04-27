@@ -81,6 +81,7 @@ abstract class SerializedRecordList extends SerializedContentIO
         for($i=count($this->records)-1; $i >= 0; $i--) {
             unset($this->records[$i]);
         }
+        $this->records = array_values($this->records);
         return $this;
     }
 
