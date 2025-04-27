@@ -170,10 +170,10 @@ class OneToManyLinkedContent extends SerializedRecordList
 
     /**
      * Parent record id value setter.
-     * @param int $record_id
+     * @param ?int $record_id
      * @return $this
      */
-    public function setParentId(int $record_id): static
+    public function setParentId(?int $record_id): static
     {
         return $this->setLinkedId($record_id);
     }
