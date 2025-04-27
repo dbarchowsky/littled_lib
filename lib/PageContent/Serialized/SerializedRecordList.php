@@ -78,7 +78,9 @@ abstract class SerializedRecordList extends SerializedContentIO
      */
     public function clearLinks(): static
     {
-        $this->records = [];
+        for($i=count($this->records)-1; $i >= 0; $i--) {
+            unset($this->records[$i]);
+        }
         return $this;
     }
 
@@ -391,6 +393,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      */
     public function read(): static
     {
+        $this->clearLinks();
         $data = $this->fetchRecords(...$this->formatRecordSelectPreparedStmt());
         foreach($data as $row) {
             $o = new static::$content_class();
