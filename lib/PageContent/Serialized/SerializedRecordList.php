@@ -21,7 +21,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     protected static string     $content_class;
 
     /**
-     * Adds record id to existing list of record ids.
+     * Adds record id to the existing list of record ids.
      * @param int|int[] $value
      * @return $this
      * @throws NotInitializedException
@@ -43,7 +43,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Push link object onto the list, at the end of the list.
+     * Push a link object onto the list, at the end of the list.
      * @param LinkedContent $link
      * @return $this
      * @throws DuplicateRecordException
@@ -268,7 +268,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     abstract protected function getLinkedKey(): string;
 
     /**
-     * Get the name of the property representing link to foreign table.
+     * Get the name of the property representing the link to foreign table.
      * @return string
      */
     abstract protected static function getLinkedPropertyName(): string;
@@ -377,7 +377,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Push link on stack and make necessary updates to the state of the list of linked records.
+     * Push link on stack and make the necessary updates to the state of the list of linked records.
      * @param LinkedContent $link
      * @return void
      */
@@ -405,7 +405,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Remove records with link id values matching values in $link_ids from the current list of linked records.
+     * Remove records with link id values that match values in $link_ids from the current list of linked records.
      * @param int|int[] $record_ids
      * @return $this
      */
@@ -433,11 +433,12 @@ abstract class SerializedRecordList extends SerializedContentIO
      * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
-    public function save(): void
+    public function save(): static
     {
         foreach($this->records as $record) {
             $record->save();
         }
+        return $this;
     }
 
     /**
