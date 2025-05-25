@@ -75,7 +75,7 @@ class LittledUtility
      * @return string
      * @throws RandomException
      */
-    public static function generateRandomString(int $length = 5): string
+    public static function randomString(int $length = 5): string
     {
         $src = preg_replace('/[^a-zA-Z0-9]/', '', bin2hex(random_bytes($length * 2)));
         return substr($src, 0, $length);
