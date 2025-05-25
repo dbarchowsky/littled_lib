@@ -2,6 +2,8 @@
 
 namespace Littled\Utility;
 
+use Random\RandomException;
+
 /**
  * General utility functions.
  */
@@ -27,7 +29,7 @@ class LittledUtility
     }
 
     /**
-     * Joins variable length list of strings into a single filesystem path strong. Unlink LittledUtility::joinPathParts(),
+     * Joins a variable length list of strings into a single filesystem path strong. Unlink LittledUtility::joinPathParts(),
      * it will not add a leading slash to the path if it isn't present in the first string passed to the method.
      * @param ...$parts
      * @return string
@@ -68,6 +70,19 @@ class LittledUtility
     }
 
     /**
+     * Returns an alphanumeric string of randomized characters
+     * @param int $length
+     * @return string
+     * @throws RandomException
+     */
+    public static function randomString(int $length = 5): string
+    {
+        $src = preg_replace('/[^a-zA-Z0-9]/', '', bin2hex(random_bytes($length * 2)));
+        return substr($src, 0, $length);
+    }
+
+
+/**
      * Removes an element matching the value of $needle from any array
      * @param $needle
      * @param array $haystack
