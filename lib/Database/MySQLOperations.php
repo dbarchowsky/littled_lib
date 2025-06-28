@@ -218,7 +218,12 @@ trait MySQLOperations
             $stmt->close();
         }
         else {
-            $result = $this->mysqli->query($query);
+            try {
+                $result = $this->mysqli->query($query);
+            }
+            catch (mysqli_sql_exception $ex) {
+                throw new FailedQueryException('Error fetching records: ' . $ex->getMessage());
+            }
             if (!$result) {
                 throw new FailedQueryException('Error fetching records: ' . $this->mysqli->error);
             }
@@ -375,7 +380,11 @@ trait MySQLOperations
             }
             $stmt->close();
         } else {
-            $this->mysqli->query($query);
+            try {
+                $this->mysqli->query($query);
+            } catch (mysqli_sql_exception $ex) {
+                throw new FailedQueryException('Error executing query: ' . $ex->getMessage());
+            }
         }
     }
 
