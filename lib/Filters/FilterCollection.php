@@ -447,7 +447,7 @@ class FilterCollection extends FilterCollectionProperties
     public function retrieveListings(bool $calculate_offset = true): array
     {
         $args = $this->formatListingsQuery($calculate_offset);
-        $data = call_user_func_array([$this, 'fetchRecords'], $args);
+        $data = $this->fetchRecords(...$args);
 
         // If the query is a procedure that calculates record count, retrieve that total record count
         if (DBUtils::isProcedure($args[0])) {
