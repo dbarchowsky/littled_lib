@@ -380,8 +380,13 @@ trait MySQLOperations
             }
             $stmt->bind_param($types, ...$vars);
 
-            if (!$stmt->execute()) {
-                throw new FailedQueryException('Error executing query: ' . $this->mysqli->error);
+            try {
+                if (!$stmt->execute()) {
+                    throw new FailedQueryException('Error executing query: ' . $this->mysqli->error);
+                }
+            }
+            catch(mysqli_sql_exception $ex) {
+                throw new FailedQueryException('Error executing query: ' . $ex->getMessage());
             }
             $stmt->close();
         } else {
