@@ -1,9 +1,8 @@
 <?php
-
 namespace Littled\PageContent\Serialized;
 
-
 use Littled\Database\MySQLOperations;
+
 
 class DBFieldGroup
 {
