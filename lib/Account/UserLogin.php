@@ -34,13 +34,14 @@ class UserLogin extends UserAccount
     }
 
     /**
-     * Overrides parent routine to copy email value into username field.
+     * Overrides parent routine to copy email value into the username field.
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData();
         $this->username->value = $this->contact_info->email->value;
+        return $this;
     }
 
     /**
@@ -134,7 +135,7 @@ class UserLogin extends UserAccount
         }
 
         if ($this->hasValidationErrors()) {
-            throw new ContentValidationException("Error validating registration.");
+            throw new ContentValidationException('Error validating registration.');
         }
     }
 
@@ -146,23 +147,23 @@ class UserLogin extends UserAccount
      */
     public function validateUsername(): void
     {
-        $query = "SEL" . "ECT id FROM `" . static::getTableName() . "` WHERE (`login` = ?)";
+        $query = 'SELECT id FROM `' . static::getTableName() . '` WHERE (`login` = ?)';
         $types_str = 's';
         $vars = [$this->username->value];
         if ($this->id->value > 0) {
-            $query .= "AND (id != ?)";
+            $query .= 'AND (id != ?)';
             $types_str .= 'i';
             $vars[] = $this->id->value;
         }
         array_unshift($vars, $query, $types_str);
         $data = call_user_func_array([$this, 'fetchRecords'], $vars);
         if (count($data) > 0) {
-            throw new ContentValidationException("User name already exists.");
+            throw new ContentValidationException('User name already exists.');
         }
     }
 
     function getContentLabel(): string
     {
-        return "Login";
+        return 'Login';
     }
 }

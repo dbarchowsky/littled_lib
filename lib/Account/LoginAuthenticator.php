@@ -19,7 +19,7 @@ use Littled\Request\StringInput;
  */
 class LoginAuthenticator extends UserLogin
 {
-    /** @var string Value to insert in login form */
+    /** @var string Value to insert in the login form */
     const LOGIN_ACTION = 'login';
     /** @var string URI of page containing login authentication form. */
     protected static string $login_uri = '';
@@ -63,15 +63,16 @@ class LoginAuthenticator extends UserLogin
     }
 
     /**
-     * Collects form data from login form.
-     * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET,
-     * Session vars.
+     * Collects form data from the login form.
+     * @param ?array $src (Optional) Collection of input data. If not specified, will read input from the POST, GET, or
+     * session vars.
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
         $this->uname->collectRequestData();
         $this->password->collectRequestData();
         $this->redirect_uri->collectRequestData();
+        return $this;
     }
 
     /**
@@ -144,7 +145,7 @@ class LoginAuthenticator extends UserLogin
     {
         $login_uri = $this->getLoginURI();
         if ($login_uri === null | strlen($login_uri) < 1) {
-            throw new ConfigurationUndefinedException("Login page URI not set.");
+            throw new ConfigurationUndefinedException('Login page URI not set.');
         }
 
         $this->validateOnSession($access_level);
@@ -154,7 +155,7 @@ class LoginAuthenticator extends UserLogin
             if ($msg) {
                 $_SESSION[LittledGlobals::INFO_MESSAGE_KEY] = $msg;
             }
-            header("Location: " . $this->getLoginURI() . "\n\n");
+            header('Location: ' . $this->getLoginURI() . "\n\n");
             exit;
         }
     }
@@ -169,7 +170,7 @@ class LoginAuthenticator extends UserLogin
     }
 
     /**
-     * Validates form data submitted from login form.
+     * Validates form data submitted from the login form.
      * Throws exception if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
      * @param string[] $exclude_properties (Optional) List of property names to exclude from validation.
      * @throws ContentValidationException
@@ -187,12 +188,12 @@ class LoginAuthenticator extends UserLogin
             /* continue */
         }
         if ($this->hasValidationErrors()) {
-            throw new ContentValidationException("Login failed.");
+            throw new ContentValidationException('Login failed.');
         }
     }
 
     /**
-     * Looks up user in database to confirm that the login and password match an existing and valid login record.
+     * Look up user in database to confirm that the login and password match an existing and valid login record.
      * Sets the values of the object's logged_in property to indicate if valid login settings were detected.
      * Logs the user in if a valid database record is found.
      * @param int $accessLevel Token representing the level of access required to view the current page.
@@ -203,23 +204,23 @@ class LoginAuthenticator extends UserLogin
     public function validateOnDatabase(int $accessLevel = 100): void
     {
         $this->connectToDatabase();
-        $query = "SELECT l.id, c.firstname, c.lastname, c.email, l.access " .
-            "FROM `site_user` l " .
-            "INNER JOIN `address` c ON l.contact_id = c.id " .
-            "WHERE (l.`login`=" . $this->uname->escapeSQL($this->mysqli) . ") " .
-            "AND (l.`password` = PASSWORD(" . $this->password->escapeSQL($this->mysqli) . ")) " .
+        $query = 'SELECT l.id, c.firstname, c.lastname, c.email, l.access ' .
+            'FROM `site_user` l ' .
+            'INNER JOIN `address` c ON l.contact_id = c.id ' .
+            'WHERE (l.`login`=' . $this->uname->escapeSQL($this->mysqli) . ') ' .
+            'AND (l.`password` = PASSWORD(' . $this->password->escapeSQL($this->mysqli) . ')) ' .
             "AND (l.access >= $accessLevel) ";
         try {
             $rs = $this->fetchRecords($query);
         } catch (Exception) {
             $this->logged_in = false;
-            throw new InvalidCredentialsException("Login error.");
+            throw new InvalidCredentialsException('Login error.');
         }
 
         if (count($rs) < 1) {
             /* invalid login */
             $this->logged_in = false;
-            throw new InvalidCredentialsException("Invalid login.");
+            throw new InvalidCredentialsException('Invalid login.');
         }
 
         /* store account properties that are saved in session variables */
@@ -256,8 +257,8 @@ class LoginAuthenticator extends UserLogin
      */
     public function validatePassword()
     {
-        $this->password->error = "Invalid password.";
-        $e = get_class($this) . "::validatePassword() not implemented.";
+        $this->password->error = 'Invalid password.';
+        $e = get_class($this) . '::validatePassword() not implemented.';
         $this->addValidationError($e);
         throw new ContentValidationException($e);
     }
