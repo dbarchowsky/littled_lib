@@ -369,7 +369,12 @@ trait MySQLOperations
             throw new FailedQueryException($msg);
         }
         if ($types) {
-            $stmt = $this->mysqli->prepare($query);
+            try {
+                $stmt = $this->mysqli->prepare($query);
+            }
+            catch(mysqli_sql_exception $ex) {
+                throw new FailedQueryException('Could not prepare statement: ' . $ex->getMessage());
+            }
             if (!$stmt) {
                 throw new FailedQueryException('Could not prepare statement: ' . $this->mysqli->error);
             }
