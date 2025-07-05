@@ -114,7 +114,7 @@ abstract class SerializedContent extends SerializedContentIO
         $s1->execute();
 
         array_unshift($args, $query, $arg_types);
-        call_user_func_array([$this, 'query'], $args);
+        $this->query(...$args);
 
         if (null === $this->id->value || 1 > $this->id->value) {
             $data = $this->fetchRecords('SELECT @insert_id as `insert_id`');
