@@ -1,8 +1,6 @@
 <?php
-
 namespace Littled\API;
 
-use JetBrains\PhpStorm\NoReturn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
@@ -75,8 +73,6 @@ abstract class APIRoute extends APIRouteProperties
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      */
     public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
@@ -88,12 +84,12 @@ abstract class APIRoute extends APIRouteProperties
         if (!$cp->id->value) {
             $content_type_id = $this->collectContentTypeIdFromRequestData($ajax_rd, [$key]);
             if ($content_type_id === null) {
-                throw new ContentValidationException("Content type not specified.");
+                throw new ContentValidationException('Content type not specified.');
             }
             $this->setContentTypeId($content_type_id);
         }
         if ($this->getContentTypeId() === null) {
-            throw new ContentValidationException("Content type not specified.");
+            throw new ContentValidationException('Content type not specified.');
         }
         $this->getContentProperties()->read();
 
@@ -131,7 +127,7 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Sets the object's action property value based on value of the variable passed by the commit button in an HTML form.
+     * Sets the object's action property value based on a value of the variable passed by the commit button in an HTML form.
      * @param ?array $src Optional array of variables to use instead of POST data.
      * @return APIRoute
      */
@@ -172,13 +168,11 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Confirms that a content route has been initialized, or attempts to initialize the $route property of the object
+     * Confirms that a content route has been initialized or attempts to initialize the $route property of the object
      * if a route has not been initialized.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
+     * @throws FailedQueryException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -195,33 +189,35 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Error handler. Catch error and return the error message to client making ajax request.
+     * Error handler. Catch the error and return the error message to the client making an ajax request.
      * @param int $err_no
      * @param string $err_str
      * @param string $err_file
      * @param ?int $err_line
+     * @returns never
      */
-    #[NoReturn] public function errorHandler(int $err_no, string $err_str, string $err_file = '', ?int $err_line = null): void
+    public function errorHandler(int $err_no, string $err_str, string $err_file = '', ?int $err_line = null): never
     {
         // remove anything that might currently be in the output buffer
         while (ob_get_level()) {
             ob_end_clean();
         }
 
-        // collect information for error message
+        // collect information for the error message
         $msg = "$err_str [$err_no]";
         $msg .= (($err_file) ? (" in $err_file") : (''));
         $msg .= (($err_line) ? ("($err_line)") : (''));
 
-        // populate "error" attribute of the response
+        // populate the "error" attribute of the response
         $this->json->returnError($msg);
     }
 
     /**
-     * Exception handler. Catch exceptions and return the error message to client making ajax request.
+     * Exception handler. Catch exceptions and return the error message to the client making ajax request.
      * @param Exception $ex
+     * @returns never
      */
-    #[NoReturn] public function exceptionHandler(Throwable $ex): void
+    public function exceptionHandler(Throwable $ex): never
     {
         $this->json->returnError($ex->getMessage());
     }
@@ -232,10 +228,9 @@ abstract class APIRoute extends APIRouteProperties
      * argument.
      * @param ?string $operation
      * @return $this
-     * @throws ConfigurationUndefinedException|ConnectionException
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
      * @throws RecordNotFoundException
      */
     public function fetchContentRoute(?string $operation=null): APIRoute
@@ -287,8 +282,12 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * Sets the data to be injected into templates.
-     * @throws ConfigurationUndefinedException|InvalidValueException|InvalidQueryException
-     * @throws RecordNotFoundException|ConnectionException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws FailedQueryException
+     * @throws InvalidQueryException
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
      */
     public function getTemplateContext(): array
     {
@@ -320,7 +319,7 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Inserts content into content template. Stores the resulting markup in the object's internal "json" property.
+     * Inserts content into a content template. Stores the resulting markup in the object's internal "json" property.
      * @param array|null $context Optional array containing data to inject into the template.
      * @return $this
      * @throws ResourceNotFoundException
@@ -348,7 +347,7 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Looks for the template matching $template_name in the currently loaded templates. Sets the object's template
+     * It looks for the template matching $template_name in the currently loaded templates. Sets the object's template
      * property value to that template object.
      * @param string $operation
      * @return $this
@@ -362,7 +361,8 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Returns new ContentProperties instance. Can be used in derived classes to provide customized ContentProperties objects to the APIRoute class's methods.
+     * Returns a new ContentProperties instance. Can be used in derived classes to provide customized
+     * ContentProperties objects to the APIRoute class's methods.
      * @param int|null $record_id Initial content type record id value.
      * @return ContentProperties
      */
@@ -372,11 +372,14 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Returns instance of a PageContent class used to render front-end content.
+     * Returns an instance of a PageContent class used to render front-end content.
      * @return APIRoute
-     * @throws ConfigurationUndefinedException|InvalidValueException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws InvalidQueryException
-     * @throws RecordNotFoundException|ConnectionException
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
      */
     protected function newAPIRouteInstance(): APIRoute
     {
@@ -397,7 +400,8 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIRoute class's methods.
+     * Returns a new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate
+     * objects to the APIRoute class's methods.
      * @param int|null $record_id
      * @param int|null $content_type_id
      * @param string $operation
@@ -423,7 +427,7 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the
-     * class's json property's content property, which is then sent back to the client.
+     * class's JSON property's content property, which is then sent back to the client.
      * @param string $next_operation Token determining which template to load.
      * @param array $context (Optional) Variables to insert into the template. When an array is provided, it will
      * override the default template context. If not provided, the context will be generated using the object's
@@ -477,7 +481,7 @@ abstract class APIRoute extends APIRouteProperties
     public function retrieveTemplateProperties(string $template_name): void
     {
         $this->connectToDatabase();
-        $query = "CALL contentTemplateLookup(?,?)";
+        $query = 'CALL contentTemplateLookup(?,?)';
         $content_type_id = $this->getContentTypeId();
         $data = $this->fetchRecords($query, 'is', $content_type_id, $template_name);
         if (count($data) < 1) {
@@ -495,9 +499,9 @@ abstract class APIRoute extends APIRouteProperties
     /**
      * Send error message as response to ajax request and stop processing the request.
      * @param $err_msg
-     * @return void
+     * @return never
      */
-    #[NoReturn] public static function sendErrorAndExit($err_msg): void
+    public static function sendErrorAndExit($err_msg): never
     {
         echo(json_encode(['error' => $err_msg]));
         // header("HTTP/1.1 400 ".$e->getMessage());
