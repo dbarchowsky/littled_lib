@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\App;
 
 use Exception;
@@ -7,6 +6,8 @@ use JetBrains\PhpStorm\NoReturn;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
+use Random\RandomException;
+
 
 /**
  * Base class of a web app containing global utility functions for the app.
@@ -50,7 +51,7 @@ class AppBase
     }
 
     /**
-     * Generate string to use as CSRF token.
+     * Generate a string to use as a CSRF token.
      * @return string CSRF token value.
      */
     public static function generateCSRFToken(): string
@@ -62,7 +63,7 @@ class AppBase
      * Generates unique strings to use as identifier tokens.
      * @param int $length Number of characters in the token.
      * @return string
-     * @throws Exception
+     * @throws RandomException
      */
     public static function generateUniqueToken(int $length): string
     {
@@ -103,10 +104,9 @@ class AppBase
 
     /**
      * Returns the CSRF token for this session.
-     * @param bool $ignore_consent Optional flag allowing calling function to ignore any preferences found for respecting cookie consent.
      * @return string|null
      */
-    public static function getCSRFToken(bool $ignore_consent = false): ?string
+    public static function getCSRFToken(): ?string
     {
         // make sure to enable http only cookies on the site so as not to run afoul of cookie consent
         if (!isset($_SESSION[LittledGlobals::CSRF_SESSION_KEY])) {
@@ -151,7 +151,7 @@ class AppBase
     }
 
     /**
-     * Redirect to the site's error page with error to display on the page.
+     * Redirect to the site's error page with an error to display on the page.
      * @param string $error_msg Error message to inject into the error page template.
      * @param string $url (Optional) URL of the global site error page.
      * @param string $key (Optional) key used to store and retrieve error message.
@@ -204,7 +204,7 @@ class AppBase
     }
 
     /**
-     * Starts session for app if one does not already exist.
+     * Starts session for the app if one does not already exist.
      * Tests client request headers to determine if the client request originates in the EU.
      * Sets cookie consent values depending on whether the client request originated in the EU or not.
      * @return void
@@ -212,7 +212,7 @@ class AppBase
     public static function startSessionTestingForEU(): void
     {
         if (Validation::checkForCookieConsent() === true) {
-            if (session_id() == "") {
+            if (session_id() == '') {
                 session_start();
             }
         } else {
@@ -231,7 +231,7 @@ class AppBase
     }
 
     /**
-     * Generate CSRF token and store it in a session variable.
+     * Generate a CSRF token and store it in a session variable.
      * A token is not generated if one already exists for the session.
      * @return void
      */
