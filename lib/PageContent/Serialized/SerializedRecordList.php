@@ -268,7 +268,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     abstract protected function getLinkedKey(): string;
 
     /**
-     * Get the name of the property representing the link to foreign table.
+     * Get the name of the property representing the link to a foreign table.
      * @return string
      */
     abstract protected static function getLinkedPropertyName(): string;
@@ -399,6 +399,12 @@ abstract class SerializedRecordList extends SerializedContentIO
         foreach($data as $row) {
             $o = new static::$content_class();
             $o->hydrateFromRecordsetRow($row);
+            if (!$o->getParentId()) {
+                /*
+                 * assign parent id to child object if the assignment wasn't made in the hydrate routine
+                 */
+                $o->setParentId($this->getParentId());
+            }
             $this->records[] = $o;
         }
         return $this;
