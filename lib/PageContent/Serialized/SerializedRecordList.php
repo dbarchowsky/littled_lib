@@ -399,7 +399,7 @@ abstract class SerializedRecordList extends SerializedContentIO
         foreach($data as $row) {
             $o = new static::$content_class();
             $o->hydrateFromRecordsetRow($row);
-            if (!$o->getParentId()) {
+            if (!$o->getLinkedId()) {
                 /*
                  * assign parent id to child object if the assignment wasn't made in the hydrate routine
                  */
