@@ -716,6 +716,17 @@ abstract class RequestInput
     }
 
     /**
+     * Size limit setter.
+     * @param int $size_limit
+     * @return $this
+     */
+    public function setSizeLimit(int $size_limit): static
+    {
+        $this->size_limit = $size_limit;
+        return $this;
+    }
+
+    /**
      * Sets the internal template path value.
      * @param string $path Path to template directory.
      */
