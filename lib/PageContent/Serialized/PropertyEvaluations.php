@@ -9,7 +9,8 @@ use Littled\Validation\Validation;
 
 trait PropertyEvaluations
 {
-    protected RecordsetPrefix $recordset_prefix;
+    protected RecordsetPrefix   $recordset_prefix;
+    protected string            $stashed_prefix = '';
 
     /**
      * Returns a list of all RequestInput properties of an object.
@@ -61,7 +62,7 @@ trait PropertyEvaluations
     /**
      * Checks if a class property corresponds to a column of the database record.
      * @param mixed $property Any property of the object.
-     * @param array $used_keys Array containing a list of keys that have already been returned, to avoid duplicates.
+     * @param array $used_keys Array containing a list of the keys that have already been returned to avoid duplicates.
      * @return bool
      */
     protected function isDatabaseProperty(mixed $property, array &$used_keys): bool
@@ -76,7 +77,7 @@ trait PropertyEvaluations
             return false;
         }
         /**
-         * Once an input property is marked as such track it, so it won't be included again.
+         * Once an input property is marked as such, track it, so it won't be included again.
          */
         $used_keys[] = $property->key;
         return true;
@@ -94,7 +95,7 @@ trait PropertyEvaluations
      */
     protected function isInput(string $property, mixed $item, array &$used_keys): bool
     {
-        // ignore keys that have already been included in order to avoid using the same key multiple times
+        // ignore keys that have already been included to avoid using the same key multiple times
         $saved = $used_keys;
         if (!$this->isDatabaseProperty($item, $used_keys)) {
             return false;
@@ -104,7 +105,7 @@ trait PropertyEvaluations
 
         // don't include primary key properties by default, unless it's not a top-level object as indicated by...
         // (a) The object has a recordset prefix, something like "child_" for a structure like parent.child_id
-        // (b) The object has overridden its $id->key default value, e.g. with something like "child_id"
+        // (b) The object has overridden its $id->key default value, e.g., with something like "child_id"
         if ($property === LittledGlobals::ID_KEY &&
             !$this->hasRecordsetPrefix() &&
             $item->getColumnName(LittledGlobals::ID_KEY) === LittledGlobals::ID_KEY) {
@@ -116,7 +117,7 @@ trait PropertyEvaluations
         }
 
         /**
-         * Once an input property is marked as such track it, so it won't be included again.
+         * Once an input property is marked as such, track it, so it won't be included again.
          */
         $used_keys[] = $item->key;
         return true;
@@ -139,6 +140,15 @@ trait PropertyEvaluations
         }
     }
 
+    /**
+     * Restores the stashed recordset prefix.
+     * @return $this
+     */
+    public function restoreRecordsetPrefix(): static
+    {
+        $this->setRecordsetPrefix($this->stashed_prefix);
+        return $this;
+    }
 
     /**
      * Recordset prefix setter.
@@ -153,5 +163,16 @@ trait PropertyEvaluations
                 $property->setRecordsetPrefix($prefix);
             }
         }
+    }
+
+    /**
+     * Stashes the current recordset prefix.
+     * @return $this
+     */
+    public function stashRecordsetPrefix(): static
+    {
+        $this->stashed_prefix = $this->getRecordsetPrefix();
+        $this->setRecordsetPrefix('');
+        return $this;
     }
 }
