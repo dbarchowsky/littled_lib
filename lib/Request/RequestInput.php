@@ -35,9 +35,9 @@ abstract class RequestInput
 
     /** Name of CSS class to be used when displaying the form input. */
     public string               $container_css_class='form-cell';
-    /** Content type within HTML form, e.g. type="text", type="tel", type="email", etc. */
+    /** Content type within HTML form, e.g., type="text", type="tel", type="email", etc. */
     public string               $content_type='text';
-    /** If FALSE this property will be passed over when retrieving or saving its value from or to the database. Default value is TRUE. */
+    /** If FALSE, this property will be passed over when retrieving or saving its value from or to the database. The default value is TRUE. */
     public bool                 $is_database_field=true;
     /** Name to use to override the default name of the column in the database holding the value linked to this property. The default value is the name of the property in the parent class. */
     public string               $column_name='';
@@ -55,7 +55,7 @@ abstract class RequestInput
     public bool                 $has_errors=false;
     /** If an error was detected with the value of a form data, a description of the error will be stored in this property. */
     public string               $error='';
-    /** When supplying an array of values for a single key, the  value can be used to sort them. */
+    /** When supplying an array of values for a single key, the value can be used to sort them. */
     public string|int|null      $index=null;
     /** Label to display where descriptions of the input are needed. */
     public string               $label='';
@@ -69,7 +69,7 @@ abstract class RequestInput
     public int                  $size_limit=0;
     /** Value of the script argument. Value collected from form data. */
     public mixed                $value;
-    /** If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240px" */
+    /** If supplied, this value will be used to specify the width of a form input through its "style" attribute. E.g. "240 px" */
     public string               $width='';
 
     /**
@@ -199,9 +199,9 @@ abstract class RequestInput
     }
 
     /**
-     * Formats the css class attribute string to be injected into markup of the input's container element.
+     * Formats the CSS class attribute string to be injected into markup of the input's container element.
      * @param string $css_class (Optional) An additional CSS class to apply to the element in addition to the CSS class stored in the object.
-     * @param callable|null $css_callback (Optional) Routine to use to fetch the class from the input object that will be applied to the element. The markup element is either the input element itself or its container. Defaults to applying the input elements css class.
+     * @param callable|null $css_callback (Optional) Routine to use to fetch the class from the input object that will be applied to the element. The markup element is either the input element itself or its container. Defaults to applying the input elements CSS class.
      * @return string
      */
     public function formatClassAttributeMarkup(string $css_class='', ?callable $css_callback=null): string
@@ -229,7 +229,7 @@ abstract class RequestInput
     }
 
     /**
-     * Formats a string that can be inserted into markup to utilize the $index property value.
+     * Formats a string that can be inserted into markup to use the $index property value.
      * @return string
      */
     public function formatIndexMarkup(): string
@@ -255,7 +255,7 @@ abstract class RequestInput
     }
 
     /**
-     * Returns markup to inject into input container element to indicate on the front-end that the input form data is required.
+     * Returns markup to inject into the input container element to indicate on the front-end that the input form data is required.
      * @return string
      */
     public function formatRequiredIndicatorMarkup(): string
@@ -273,7 +273,7 @@ abstract class RequestInput
     }
 
     /**
-     * Column name getter, if the column_name property has been set in order to override the default column name,
+     * Column name getter, if the column_name property has been set to override the default column name,
      * which is the name of the RequestInput variable itself. Pass in the variable name as a default.
      * @param string $property (Optional) column name to use if the $column_name property value has not been set.
      * @return string
@@ -293,7 +293,7 @@ abstract class RequestInput
     }
 
     /**
-     * Error css class getter.
+     * Error CSS class getter.
      * @return string Current error css class value.
      */
     public static function getErrorClass(): string
@@ -311,7 +311,7 @@ abstract class RequestInput
     }
 
     /**
-     * Get full path to the hidden form input element template file.
+     * Get a full path to the hidden form input element template file.
      * @return string Full path to form input element template file.
      */
     public static function getHiddenTemplatePath(): string
@@ -374,7 +374,7 @@ abstract class RequestInput
     }
 
     /**
-     * Returns string to insert into front-end templates that will indicate that field is required to submit form data.
+     * Returns string to insert into front-end templates that will indicate that a field is required to submit form data.
      * @return string Content to insert into template.
      */
     public static function getRequiredIndicator(): string
@@ -410,7 +410,7 @@ abstract class RequestInput
     }
 
     /**
-     * Sets flag that will cause this variable to be ignored when processing request data sent to the page.
+     * Sets a flag that will cause this variable to be ignored when processing request data sent to the page.
      */
     public function ignoreRequestData(): void
     {
@@ -418,7 +418,7 @@ abstract class RequestInput
     }
 
     /**
-     * Returns flag indicating if this object is set to not collect request data from the client.
+     * Returns a flag indicating if this object is set to not collect request data from the client.
      * @return bool
      */
     public function isBypassingRequestData(): bool
@@ -486,12 +486,12 @@ abstract class RequestInput
 
     /**
      * Renders the corresponding form field with a label to collect the input data.
-     * @param ?string $label Label to display with input element.
+     * @param ?string $label Label to display with an input element.
      */
     abstract public function renderInput(?string $label=null);
 
     /**
-     * Wrapper for render() method that prints error message if an exception is thrown rendering the form input element.
+     * Wrapper for render() method that prints an error message if an exception is thrown rendering the form input element.
      * @param ?string $label Optional label that will override the object's internal property value.
      * @param ?string $css_class Optional CSS class name that will override the object's internal property value.
      */
@@ -507,8 +507,8 @@ abstract class RequestInput
 
     /**
      * Returns string safe from XSS attacks that can be embedded in HTML.
-     * @param array|int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
-     * Same values as 3rd argument to PHP's filter_var() routine.
+     * @param array|int $options Combination of tokens to pass along, e.g., FILTER_SANITIZE_FULL_SPECIAL_CHARS
+     * Same values as the 3rd argument to PHP's filter_var() routine.
      * @return string XSS-safe string.
      */
     public function safeValue(array|int $options=[] ): string
@@ -517,9 +517,9 @@ abstract class RequestInput
     }
 
     /**
-     * Prints out markup to save input value in a hidden form input element.
-     * @param string $template Path to template to use to override current template path stored in the object.
-     * @param string $key Key to use to override default key value for the variable.
+     * Prints out markup to save the input value in a hidden form input element.
+     * @param string $template Path to template to use to override the current template path stored in the object.
+     * @param string $key Key to use to override the default key value for the variable.
      */
     public function saveInForm( string $template='', string $key='' ): void
     {
@@ -547,7 +547,7 @@ abstract class RequestInput
     }
 
     /**
-     * Alias for ::setAsOptional()
+     * Alias for: setAsOptional()
      * @return $this
      */
     public function setAsNotRequired(): static
@@ -556,7 +556,7 @@ abstract class RequestInput
     }
 
     /**
-     * Sets flag to indicate that this input value is not required.
+     * Sets a flag to indicate that this input value is not required.
      * @return $this
      */
     public function setAsOptional(): static
@@ -566,7 +566,7 @@ abstract class RequestInput
     }
 
     /**
-     * Sets flag to indicate that this input value is required.
+     * Sets a flag to indicate that this input value is required.
      * @return $this
      */
     public function setAsRequired(): static
@@ -576,7 +576,7 @@ abstract class RequestInput
     }
 
     /**
-     * Sets what will be an attribute of the html element representing the form input that collects this variable.
+     * Sets what will be an attribute of the HTML element representing the form input that collects this variable.
      * @param string $key Attribute name
      * @param mixed $value Attribute value
      * @return $this
@@ -589,7 +589,7 @@ abstract class RequestInput
 
     /**
      * Chainable routine that sets column name property value.
-     * @param string $column_name Name of the column in the database corresponding to this object.
+     * @param string $column_name The name of the column in the database corresponding to this object.
      * @return $this
      */
     public function setColumnName(string $column_name): static
@@ -610,7 +610,7 @@ abstract class RequestInput
     }
 
     /**
-     * Error css class setter.
+     * Error CSS class setter.
      * @param string $css_class CSS class name.
      */
     public function setErrorClass( string $css_class ): void
@@ -728,7 +728,7 @@ abstract class RequestInput
 
     /**
      * Sets the internal template path value.
-     * @param string $path Path to template directory.
+     * @param string $path Path to the template directory.
      */
     public static function setTemplateBasePath( string $path ): void
     {
