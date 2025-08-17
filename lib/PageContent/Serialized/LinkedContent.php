@@ -146,18 +146,22 @@ abstract class LinkedContent extends SerializedContent
         $linked = $this->getContentPropertiesList();
         foreach($linked as $property) {
 
-            // temporarily remove prefixes from child objects when saving their records
-            $prefix = $this->$property->getRecordsetPrefix();
-            $col = $this->{$property}->stashColumnName('id');
-            $this->$property->removeRecordsetPrefix();
+            if (!$this->{$property}->isReadyToRead()) {
+                continue;
+            }
 
-            $this->$property->read();
+            // temporarily remove prefixes from child objects when saving their records
+            $prefix = $this->{$property}->getRecordsetPrefix();
+            $col = $this->{$property}->stashColumnName('id');
+            $this->{$property}->removeRecordsetPrefix();
+
+            $this->{$property}->read();
 
             // restore child object prefix values
             if ($col) {
                 $this->{$property}->restoreColumnName('id', $col);
             }
-            $this->$property->setRecordsetPrefix($prefix);
+            $this->{$property}->setRecordsetPrefix($prefix);
         }
         return $this;
     }
