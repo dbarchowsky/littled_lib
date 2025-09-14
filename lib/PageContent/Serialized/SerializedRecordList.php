@@ -101,6 +101,7 @@ abstract class SerializedRecordList extends SerializedContentIO
                     for($i = 0; $i < count($src[$key]); $i++) {
                         $this->records[$i] = new static::$content_class();
                         $this->records[$i]
+                            ->setMySQLi($this->getMySQLi())
                             ->setIndex($i)
                             ->collectRequestData($src)
                             ->collectKeysRequestData($src);
