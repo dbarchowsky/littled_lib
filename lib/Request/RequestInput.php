@@ -588,6 +588,17 @@ abstract class RequestInput
     }
 
     /**
+     * Sets the value of the object's "bypass collect request data" property.
+     * @param bool $collect
+     * @return $this
+     */
+    public function setCollectRequestData(bool $collect=true): static
+    {
+        $this->bypass_collect_request_data = !$collect;
+        return $this;
+    }
+
+    /**
      * Chainable routine that sets column name property value.
      * @param string $column_name The name of the column in the database corresponding to this object.
      * @return $this
