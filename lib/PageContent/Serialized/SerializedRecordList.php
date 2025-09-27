@@ -291,6 +291,25 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
+     * @inheritDoc
+     * @param bool $check_children Flag to indicate whether to check the child records for data.
+     */
+    public function hasData(bool $check_children=true): bool
+    {
+        if (parent::hasData()) {
+            return true;
+        }
+        if ($check_children) {
+            foreach ($this->records as $record) {
+                if ($record->hasData()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Tests if the record has a primary key that has been assigned a value.
      * @return bool
      */
