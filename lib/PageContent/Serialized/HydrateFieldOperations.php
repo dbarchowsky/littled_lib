@@ -9,9 +9,10 @@ use Littled\Validation\Validation;
 trait HydrateFieldOperations
 {
     /**
-     * Copies values from a recordset row to the properties of the object based on a one-to-one match between
-     * the name of the field in the recordset and the name of the object property, or its "column name" value,
-     * or its name plus a prefix defined by its parent object
+     * Copies values from a recordset row to the properties of the object. The value is copied between the two
+     * collections based on the following criteria: (1) a one-to-one match between the name of the field in the
+     * recordset and the name of the object property, (2) its "column name" value, (3) its name plus a prefix
+     * defined by its parent object.
      * @param string $prop_key
      * @param RequestInput $property
      * @param object $row
@@ -40,12 +41,15 @@ trait HydrateFieldOperations
     }
 
     /**
-     * Returns list of all properties of the object that are candidates to have values copied from a recordset row
+     * Returns a list of all properties of the object that are candidates to have values copied from a recordset row
+     * @param object $row
+     * @param string[] $exclude
      * @return string[]
      */
-    protected function getHydrateProperties(object $row): array
+    protected function getHydrateProperties(object $row, array $exclude = []): array
     {
         $properties = array_keys(get_class_vars(get_class($this)));
+        $properties = array_diff($properties, $exclude);
         foreach ($properties as $property) {
             if (!$this->isHydrateProperty($row, $property)) {
                 $key = array_search($property, $properties);
@@ -56,7 +60,7 @@ trait HydrateFieldOperations
     }
 
     /**
-     * Assign values contained in array to object input properties.
+     * Assign values contained in an array to object input properties.
      * @param object $row Recordset row containing values to copy into the object's properties.
      */
     public function hydrateFromRecordsetRow(object $row): void
@@ -65,10 +69,10 @@ trait HydrateFieldOperations
         $properties = $this->getHydrateProperties($row);
         foreach ($properties as $p) {
 
-            // copy over property values that correspond to html form data
+            // copy over property values that correspond to HTML form data
             if (isset($this->{$p}) && $this->isInput($p, $this->{$p}, $used_keys)) {
                 /** @var RequestInput $property */
-                /* store value retrieved from database */
+                /* store value retrieved from the database */
                 $property = $this->$p;
                 $this->assignRowValue($property->getColumnName($p), $property, $row);
             }
@@ -81,7 +85,7 @@ trait HydrateFieldOperations
                 $this->{$p}->hydrateFromRecordsetRow($row);
             }
             elseif (!isset($this->{$p}) || !is_object($this->{$p})) {
-                // copy over properties read from the database but not collected in html form data
+                // copy over properties read from the database but not collected in HTML form data
                 $dst_key = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '') . $p;
                 if (property_exists($this, $dst_key)) {
                     $this->$dst_key = $row->{$p};
