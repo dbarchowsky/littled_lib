@@ -27,7 +27,7 @@ class RecordsetPrefix
 
     /**
      * Searches for a property on an object ($o) that matches the base property name passed ($property) along with
-     * any of the prefixes stored in the object's $prefix property. Returns empty string if no matches are found.
+     * any of the prefixes stored in the object's $prefix property. Returns an empty string if no matches are found.
      * @param object $o
      * @param string $property
      * @return string
@@ -48,10 +48,10 @@ class RecordsetPrefix
 
     /**
      * Prefix setter.
-     * @param $prefix
+     * @param string|string[] $prefix
      * @return $this
      */
-    public function setPrefix($prefix): RecordsetPrefix
+    public function setPrefix(string|array $prefix): RecordsetPrefix
     {
         $this->prefix = $prefix;
         return $this;

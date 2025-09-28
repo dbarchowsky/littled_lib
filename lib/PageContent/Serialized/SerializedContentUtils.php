@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\PageContent\Serialized;
 
 use Littled\Database\AppContentBase;
@@ -37,7 +36,7 @@ class SerializedContentUtils extends AppContentBase
     protected static int        $content_type_id;
     /** @var string             Path to cache template. */
     protected static string     $cache_template = '';
-    /** @var string             Path to rendered cache file to use on site front-end. */
+    /** @var string             Path to a rendered cache file to use on the site front-end. */
     protected static string     $output_cache_file = '';
 
     /**
@@ -97,7 +96,7 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
-     * Checks if content type id property exists and returns its value.
+     * Checks if the content type id property exists and returns its value.
      * @return ?int Class's content type id value, if it has been defined.
      * @throws InvalidStateException
      */
@@ -110,7 +109,7 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
-     * Assign values contained in array to object input properties.
+     * Assign values contained in an array to object input properties.
      * @param string $query SQL SELECT statement to use to hydrate object property values.
      * @throws RecordNotFoundException
      * @throws FailedQueryException
@@ -220,7 +219,7 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
-     * Alias for ::setAsNotRequired()
+     * Alias for setAsNotRequired()
      * @return $this
      */
     public function setAsOptional(): SerializedContentUtils
@@ -263,9 +262,9 @@ class SerializedContentUtils extends AppContentBase
 
     /**
      * @inheritDoc
-     * @return $this
+     * @return string|string[] $this
      */
-    public function setRecordsetPrefix($prefix): SerializedContentUtils
+    public function setRecordsetPrefix(string|array $prefix): SerializedContentUtils
     {
         $this->traitSetRecordsetPrefix($prefix);
         return $this;
@@ -290,7 +289,7 @@ class SerializedContentUtils extends AppContentBase
      * Loads content from a template file. Writes the parsed content to a separate file.
      * @param ?array $context Array containing name/value pairs representing variable names and values to insert into the source template at $src_path;
      * @param ?string $cache_template Path to content template. If not supplied, the internal $cache_template value will be used.
-     * @param ?string $output_cache_file Path to cache file. If not supplied, the internal $output_cache_file value will be used.
+     * @param ?string $output_cache_file Path to a cache file. If not supplied, the internal $output_cache_file value will be used.
      * @throws ResourceNotFoundException Cache template not found.
      * @throws Exception File error.
      */
@@ -302,7 +301,8 @@ class SerializedContentUtils extends AppContentBase
         if ($cache_template === null) {
             $cache_template = static::$cache_template;
             if (!file_exists($cache_template)) {
-                throw new ResourceNotFoundException("External link cache template not available at \"$cache_template\".");
+                $err_msg = "External link cache template not available at \"$cache_template\".";
+                throw new ResourceNotFoundException($err_msg);
             }
         }
         if ($output_cache_file === null) {

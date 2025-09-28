@@ -15,8 +15,7 @@ trait PropertyEvaluations
     /**
      * Returns a list of all RequestInput properties of an object.
      * @param bool $db_only If true, only properties marked as database fields will be returned.
-     * @param array|null $ignore_keys Keys to ignore. By default, it ignores keys named to indicate they are id or index
-     * properties.
+     * @param array|null $ignore_keys Keys to ignore. By default, it ignores keys named to indicate they are id or index properties.
      * @return string[]
      */
     protected function getInputPropertiesList(bool $db_only=true, array|null $ignore_keys = null): array
@@ -89,8 +88,7 @@ trait PropertyEvaluations
      * or retrieving data from forms.
      * @param string $property Name of the class property.
      * @param mixed $item Value of the class property.
-     * @param array $used_keys Array containing a list of the objects that
-     * have already been listed as input properties.
+     * @param array $used_keys Array containing a list of the objects that have already been listed as input properties.
      * @return boolean True if the object is an input class and should be used to update the database. False otherwise.
      */
     protected function isInput(string $property, mixed $item, array &$used_keys): bool
@@ -152,9 +150,9 @@ trait PropertyEvaluations
 
     /**
      * Recordset prefix setter.
-     * @param $prefix
+     * @param string|string[] $prefix
      */
-    public function setRecordsetPrefix($prefix): void
+    public function setRecordsetPrefix(string|array $prefix): void
     {
         $this->recordset_prefix ??= new RecordsetPrefix();
         $this->recordset_prefix->setPrefix($prefix);
