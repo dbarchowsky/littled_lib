@@ -86,9 +86,14 @@ trait HydrateFieldOperations
             }
             elseif (!isset($this->{$p}) || !is_object($this->{$p})) {
                 // copy over properties read from the database but not collected in HTML form data
-                $dst_key = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '') . $p;
-                if (property_exists($this, $dst_key)) {
-                    $this->$dst_key = $row->{$p};
+                $kp = (method_exists($this, 'getRecordsetPrefix') ? $this->getRecordsetPrefix() : '');
+                $kp = is_array($kp) ? $kp : [$kp];
+                foreach ($kp as $prefix) {
+                    $dst_key = $prefix . $p;
+                    if (property_exists($this, $dst_key)) {
+                        $this->$dst_key = $row->{$p};
+                        break;
+                    }
                 }
             }
         }
