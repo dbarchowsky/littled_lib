@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent\Serialized;
 
+use Littled\Database\ConnectionTracker;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
@@ -22,6 +23,12 @@ abstract class SerializedContentIO extends SerializedContentValidation
     public bool                 $bypassCollectFromInput     = false;
     protected bool              $has_foreign_key            = true;
     protected static string     $table_name;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->initializeConnectionTracker();
+    }
 
     /**
      * Clears all form input values

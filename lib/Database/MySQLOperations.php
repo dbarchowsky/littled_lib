@@ -18,7 +18,9 @@ use mysqli_result;
 trait MySQLOperations
 {
     /** @var mysqli Connection to a database server. */
-    protected mysqli    $mysqli;
+    protected mysqli                    $mysqli;
+    protected int                       $conn_id;
+    protected static ConnectionTracker  $tracker;
 
     /**
      * Closes mysqli connection.
@@ -27,6 +29,7 @@ trait MySQLOperations
     {
         if (isset($this->mysqli) && Validation::isSubclass($this->mysqli, mysqli::class)) {
             $this->mysqli->close();
+            self::$tracker->removeConnection($this->conn_id);
         }
     }
 
@@ -81,6 +84,7 @@ trait MySQLOperations
                 $c->host .= ":$c->port";
             }
             $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema);
+            $this->conn_id = self::$tracker->addConnection(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
     }
 
@@ -350,6 +354,18 @@ trait MySQLOperations
             return (false);
         }
         return ($this->mysqli->connect_error === null);
+    }
+
+    /**
+     * Ensures a ConnectionTracker instance has been assigned to the $tracker property.
+     * @return $this
+     */
+    public function initializeConnectionTracker(): static
+    {
+        if (!isset(self::$tracker)) {
+            self::$tracker = new ConnectionTracker();
+        }
+        return $this;
     }
 
     /**
