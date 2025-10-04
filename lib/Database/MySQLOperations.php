@@ -30,6 +30,7 @@ trait MySQLOperations
         if (isset($this->mysqli) && Validation::isSubclass($this->mysqli, mysqli::class)) {
             $this->mysqli->close();
             self::$tracker->removeConnection($this->conn_id);
+            unset($this->conn_id);
         }
     }
 
@@ -77,6 +78,9 @@ trait MySQLOperations
      */
     protected function connect(DBConnectionSettings $c): void
     {
+        if(isset($this->conn_id)) {
+            return;
+        }
         if (preg_match('/^\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}$/', $c->host)) {
             $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port);
         } else {
