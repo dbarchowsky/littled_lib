@@ -27,7 +27,7 @@ trait MySQLOperations
      */
     public function closeDatabaseConnection(): void
     {
-        if (isset($this->mysqli) && Validation::isSubclass($this->mysqli, mysqli::class)) {
+        if (isset($this->mysqli) && @$this->mysqli->ping()) {
             $this->mysqli->close();
             self::$tracker->removeConnection($this->conn_id);
             unset($this->conn_id);
