@@ -57,6 +57,9 @@ class ContentFilters extends FilterCollection
                 content_type_id: static::getContentTypeId())
                 ->shareConnection($this)
                 ->read();
+            if (!$this->hasConnection()) {
+                $this->shareConnection($this->content_properties);
+            }
         }
         catch (ContentValidationException |
             FailedQueryException |
