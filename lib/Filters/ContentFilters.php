@@ -3,6 +3,7 @@ namespace Littled\Filters;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentInitializationException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
@@ -37,6 +38,7 @@ class ContentFilters extends FilterCollection
      * @param string $properties_class Optional subclass of ContentProperties.
      * @param MySQLConnection|null $conn
      * @throws ContentInitializationException
+     * @throws ConnectionException
      */
     function __construct(string $properties_class = ContentProperties::class, ?MySQLConnection $conn = null)
     {
