@@ -16,7 +16,7 @@ class ConnectionTracker
         self::$connections[] = (new ConnectionDetails())
             ->setCreateTime($create_time)
             ->setBacktrace($backtrace);
-        return count(self::$connections) - 1;
+        return array_key_last(self::$connections);
     }
 
     /**

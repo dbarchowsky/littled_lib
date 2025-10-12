@@ -1,18 +1,21 @@
 <?php
-
 namespace Littled\Filters;
 
+use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentInitializationException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
-use Exception;
 use Littled\Validation\Validation;
-use mysqli;
 
 
 /**
- * Extends FilterCollection to add properties that provide information about the content being retrieved for listings data.
+ * Extends FilterCollection to add properties that provide information about the content being retrieved for the listings' data.
  */
 class ContentFilters extends FilterCollection
 {
@@ -32,23 +35,43 @@ class ContentFilters extends FilterCollection
     /**
      * ContentFilters constructor.
      * @param string $properties_class Optional subclass of ContentProperties.
-     * @param mysqli|null $mysqli Optional mysqli connection to assign to the filters object
-     * @throws ConfigurationUndefinedException Database connections properties not set.
-     * @throws Exception Error retrieving content section properties.
+     * @param MySQLConnection|null $conn
+     * @throws ContentInitializationException
      */
-    function __construct(string $properties_class = ContentProperties::class, ?mysqli $mysqli = null)
+    function __construct(string $properties_class = ContentProperties::class, ?MySQLConnection $conn = null)
     {
-        parent::__construct();
-        $this->content_properties = static::newContentPropertiesInstance(
-            properties_class: $properties_class,
-            content_type_id: static::getContentTypeId())
-            ->setMySQLi($mysqli ?: $this->getMySQLi())
-            ->read();
+        try {
+            parent::__construct();
+            if ($conn) {
+                $this->shareConnection($conn);
+            }
+        }
+        catch (NotImplementedException $ex) {
+            throw new ContentInitializationException('Class constructor not implemented. ' . $ex->getMessage());
+        }
+        try {
+            $this->content_properties = static::newContentPropertiesInstance(
+                properties_class: $properties_class,
+                content_type_id: static::getContentTypeId())
+                ->shareConnection($this)
+                ->read();
+        }
+        catch (ContentValidationException |
+            FailedQueryException |
+            InvalidTypeException |
+            NotImplementedException |
+            RecordNotFoundException $ex) {
+            throw new ContentInitializationException('Error loading content properties.' . $ex->getMessage());
+        }
     }
 
     /**
      * Return the label describing this filter's content type.
      * @return string
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
      */
     public function getContentLabel(): string
     {
@@ -72,7 +95,7 @@ class ContentFilters extends FilterCollection
     }
 
     /**
-     * Return new instance of this class's ContentProperties class.
+     * Return a new instance of this class's ContentProperties class.
      * @param string $properties_class
      * @param int|null $content_type_id
      * @return ContentProperties
@@ -108,18 +131,5 @@ class ContentFilters extends FilterCollection
     public static function setContentTypeId(int $content_id): void
     {
         static::$content_type_id = $content_id;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     */
-    public function setMySQLi(mysqli $mysqli): ContentFilters
-    {
-        parent::setMySQLi($mysqli);
-        if (isset($this->content_properties)) {
-            $this->content_properties->setMySQLi($this->getMySQLi());
-        }
-        return $this;
     }
 }

@@ -1,27 +1,29 @@
 <?php
-
 namespace Littled\API;
-
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
+
 
 class APIListingsRoute extends APIRoute
 {
     /**
      * @inheritDoc
      * @return $this
-     * @throws ConfigurationUndefinedException|NotImplementedException|InvalidStateException
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidStateException
+     * @throws NotImplementedException
+     * @throws ConnectionException
      */
-    public function collectRequestData(?array $src = null): APIRoute
+    public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData($src);
         $content_type_id = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
@@ -68,12 +70,10 @@ class APIListingsRoute extends APIRoute
     /**
      * @inheritDoc
      * @throws ContentValidationException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
      * @throws FailedQueryException
-     * @throws InvalidValueException
+     * @throws RecordNotFoundException
      */
-    protected function retrieveCoreContentProperties(): APIRoute
+    protected function retrieveCoreContentProperties(): static
     {
         $this->filters->content_properties->read();
         return $this;
@@ -81,9 +81,11 @@ class APIListingsRoute extends APIRoute
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException|InvalidStateException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidStateException
      */
-    public function setContentTypeId(int $content_id): APIRoute
+    public function setContentTypeId(int $content_id): static
     {
         if (!isset($filters)) {
             $this->initializeFiltersObject($content_id);

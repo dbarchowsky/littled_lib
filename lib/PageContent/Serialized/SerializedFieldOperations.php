@@ -1,9 +1,9 @@
 <?php
-
 namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -18,7 +18,7 @@ trait SerializedFieldOperations
     use InputOperations;
 
     /**
-     * Returns the form data members of the objects as series of nested associative arrays.
+     * Returns the form data members of the objects as a series of nested associative arrays.
      * @param array|null $exclude_keys (Optional) array of parameter names to exclude from the returned array.
      * @return array Associative array containing the object's form data members as name/value pairs.
      */
@@ -81,9 +81,9 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Set property values using input variable values, e.g. GET, POST, cookies
+     * Set property values using input variable values, e.g., GET, POST, cookies
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
-     * return $this
+     * @return $this
      */
     public function collectRequestData(?array $src = null): static
     {
@@ -129,6 +129,7 @@ trait SerializedFieldOperations
      * @param array $used_keys (Optional) Properties that have already been added to the stack.
      * @return QueryField[] Key/value pairs for each RequestInput property of the class.
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {
@@ -201,7 +202,7 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Returns list of all properties of the object that represent linked child records in the database.
+     * Returns a list of all properties of the object that represent linked child records in the database.
      * @param array $exclude
      * @return string[]
      */
@@ -260,7 +261,7 @@ trait SerializedFieldOperations
     {
         foreach ($this as $item) {
             if ($item instanceof RequestInput && !in_array($item->key, $excluded_keys)) {
-                // make sure to use template path for base object, which is a hidden input element
+                // make sure to use the template path for the base object, which is a hidden input element
                 $item->saveInForm(RequestInput::getTemplatePath());
             }
             elseif(is_object($item) && method_exists($item, 'preserveInForm')) {

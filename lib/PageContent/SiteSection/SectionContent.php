@@ -1,8 +1,6 @@
 <?php
-
 namespace Littled\PageContent\SiteSection;
 
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
@@ -14,7 +12,6 @@ use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\StringInput;
 use Exception;
-use mysqli;
 
 
 /**
@@ -28,7 +25,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * SectionContent constructor.
      * @param ?int $id Record id to retrieve.
-     * @param ?int $content_type_id Record id of site section where this piece of content belongs.
+     * @param ?int $content_type_id Record id of the site section where this piece of content belongs.
      * @throws InvalidStateException
      */
     public function __construct(int $id = null, int $content_type_id = null)
@@ -136,7 +133,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Returns the path to the "listings" template for this type of content.
      * The client app will set the value of the $listingsTemplate property.
-     * @return string Path to listings template.
+     * @return string Path to the listing template.
      * @throws Exception
      */
     public function getListingsTemplatePath(): string
@@ -166,7 +163,7 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * Generates markup to use to refresh listings content after inline edits have been applied to the "listings" data.
+     * Generates markup to use to refresh the listing content after inline edits have been applied to the "listings" data.
      * @param FilterCollection $filters Filters to apply to listings content
      * @return string Updated listings markup.
      * @throws ResourceNotFoundException
@@ -210,19 +207,6 @@ abstract class SectionContent extends SerializedContent
         }
         $this->content_properties->read();
         parent::save();
-    }
-
-    /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     */
-    public function setMySQLi(mysqli $mysqli): static
-    {
-        parent::setMySQLi($mysqli);
-        if (isset($this->content_properties->id->value)) {
-            $this->content_properties->setMySQLi($this->getMySQLi());
-        }
-        return $this;
     }
 
     /**

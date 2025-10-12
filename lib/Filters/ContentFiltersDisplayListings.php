@@ -2,13 +2,13 @@
 namespace Littled\Filters;
 
 use Littled\PageContent\SiteSection\ContentProperties;
-use mysqli;
+
 
 class ContentFiltersDisplayListings extends ContentFilters
 {
-    public function __construct(string $properties_class = ContentProperties::class, ?mysqli $mysqli = null)
+    public function __construct(string $properties_class = ContentProperties::class)
     {
-        parent::__construct($properties_class, $mysqli);
+        parent::__construct($properties_class);
         $this->display_listings->value = true;
     }
 

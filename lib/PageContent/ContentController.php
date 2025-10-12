@@ -1,9 +1,9 @@
 <?php
-
 namespace Littled\PageContent;
 
 use JetBrains\PhpStorm\NoReturn;
 use Littled\API\APIRoute;
+use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
@@ -16,11 +16,11 @@ use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
 use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
-use Exception;
 use Littled\Validation\Validation;
+use Exception;
 use ReflectionClass;
 use ReflectionException;
-use mysqli;
+
 
 abstract class ContentController
 {
@@ -55,7 +55,7 @@ abstract class ContentController
     }
 
     /**
-     * Returns a fully-qualified name of an APIRoute class corresponding to the given route components.
+     * Returns a fully qualified name of an APIRoute class corresponding to the given route components.
      * @param array $route_parts
      * @return string
      * @throws InvalidRouteException
@@ -70,7 +70,7 @@ abstract class ContentController
     }
 
     /**
-     * Returns an APIRoute class corresponding ot the given route components.
+     * Returns an APIRoute class corresponding to the given route components.
      * @throws InvalidTypeException|InvalidRouteException
      */
     public static function getAPIRouteInstance(array $route_parts): APIRoute
@@ -83,8 +83,8 @@ abstract class ContentController
     }
 
     /**
-     * Sets the filters object to the appropriate type based on the value of $content_id.
-     * @param int $content_id Content type to match with filter type.
+     * Sets the filter object to the appropriate type based on the value of $content_id.
+     * @param int $content_id Content type to match with the filter type.
      * @returns array
      * @throws Exception
      */
@@ -98,7 +98,7 @@ abstract class ContentController
     /**
      * Returns the name of the content class matching the content type id passed to the method.
      * Classes implementing this routine will return the values depending on the value of $content_id.
-     * @param int $content_id Content type to match with filter type.
+     * @param int $content_id Content type to match with the filter type.
      * @returns string
      * @throws Exception
      */
@@ -112,8 +112,8 @@ abstract class ContentController
     }
 
     /**
-     * Sets the filters object to the appropriate type based on the value of $content_id.
-     * @param int $content_id Content type to match with filter type.
+     * Sets the filter object to the appropriate type based on the value of $content_id.
+     * @param int $content_id Content type to match with the filter type.
      * @return string
      * @throws InvalidTypeException
      */
@@ -129,25 +129,18 @@ abstract class ContentController
     /**
      * Returns an object derived from ContentFilters appropriate to the content type represented by $content_id
      * @param int $content_id Content type identifier
-     * @param ?mysqli $mysqli Database connection
+     * @param MySQLConnection|null $conn
      * @return ContentFilters
-     * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
      */
-    public static function getContentFiltersObject(int $content_id, ?mysqli $mysqli=null): ContentFilters
+    public static function getContentFiltersObject(int $content_id, ?MySQLConnection $conn = null): ContentFilters
     {
-        // load objects used to fill out listings markup
+        // load objects used to fill out listing markup
         $class = static::getContentFiltersClass($content_id);
         if (!class_exists($class) || !Validation::isSubclass($class, ContentFilters::class)) {
             throw new InvalidTypeException('Invalid content filters class: ' . $class);
         }
-        $filters = new $class(mysqli: $mysqli);
-        if ($mysqli !== null) {
-            $filters->setMySQLi($mysqli);
-        }
-
-        // returning variable instead return value of newInstance() is more reliable
-        return $filters;
+        return new $class(conn: $conn);
     }
 
     /**
@@ -157,7 +150,7 @@ abstract class ContentController
      */
     public static function getContentObject(int $content_id): SerializedContent
     {
-        // load objects used to fill out listings markup
+        // load objects used to fill out listing markup
         $class = static::getContentClass($content_id);
         try {
             $rc = new ReflectionClass($class);
@@ -182,7 +175,7 @@ abstract class ContentController
     /**
      * Returns the name of the PageContent class matching the content type id passed to the method.
      * Classes implementing this routine will return the values depending on the value of $content_id.
-     * @param int $content_id Content type to match with filter type.
+     * @param int $content_id Content type to match with the filter type.
      * @returns string
      * @throws Exception
      * @deprecated Use getRoutedPageContent() instead
@@ -191,7 +184,7 @@ abstract class ContentController
 
     /**
      * Returns the name of a RoutedPageContent class appropriate to serve a response matching the requested route represented by the $route_parts argument.
-     * @param array $route_parts The route that has been requested, exploded into its parts.
+     * @param array $route_parts The route that has been requested exploded into its parts.
      * @param bool $send_404 (Optional) Flag indicating to send a 404 response if the route is invalid.
      * @return string The name of the matching RoutedPageContent class.
      * @throws InvalidRouteException
@@ -209,7 +202,7 @@ abstract class ContentController
 
     /**
      * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by the $route_parts argument.
-     * @param array $route_parts The route that has been requested, exploded into its parts.
+     * @param array $route_parts The route that has been requested exploded into its parts.
      * @return RoutedPageContent
      * @throws InvalidTypeException|InvalidRouteException
      */
@@ -223,8 +216,8 @@ abstract class ContentController
     }
 
     /**
-     * Default action is to load content property values from the database. This method can instead be overridden to
-     * perform different actions depending on content type. E.g. replace the default action with a switch statement
+     * The default action is to load content property values from the database. This method can instead be overridden to
+     * perform different actions depending on the content type. E.g., replace the default action with a switch statement
      * evaluating the content type id value.
      * @param SerializedContent $content
      * @return void
@@ -242,7 +235,7 @@ abstract class ContentController
     }
 
     /**
-     * Respond to request with 404 error
+     * Respond to a request with 404 error
      * @return void
      */
     #[NoReturn] public static function send404ResponseAndExit(): void

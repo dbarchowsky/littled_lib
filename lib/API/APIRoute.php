@@ -1,11 +1,9 @@
 <?php
 namespace Littled\API;
 
-use Littled\Database\MySQLConnection;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotInitializedException;
-use Littled\PageContent\Serialized\SerializedContent;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -21,7 +19,6 @@ use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
 use Error;
 use Exception;
-use mysqli;
 use Throwable;
 
 
@@ -109,8 +106,11 @@ abstract class APIRoute extends APIRouteProperties
      * Assigns filter values from client request data.
      * @param ?array $src Optional array containing client data to use to populate filter values.
      * @param ?int $content_type_id Optional content type numerical identifier that will be assigned as any new filter collection instances' content type.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws InvalidStateException
      * @throws NotImplementedException
-     * @throws ConfigurationUndefinedException|InvalidStateException
      */
     public function collectFiltersRequestData(?array $src = null, ?int $content_type_id = null): void
     {
@@ -157,8 +157,7 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * Fills out input values from request data.
-     * @param ?array $src Optional array containing request data that will be used as the default source of request
-     * data of GET and POST data.
+     * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
      * @return $this;
      */
     public function collectRequestData(?array $src = null): APIRoute
@@ -245,7 +244,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new NotInitializedException($err_msg);
         }
         $this->route = (new ContentRoute())
-            ->setMySQLi($this->getMySQLi())
+            ->shareConnection($this)
             ->setContentType($this->getContentTypeId())
             ->setOperation($operation)
             ->lookupRoute();
@@ -273,7 +272,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new NotInitializedException($err_msg);
         }
         $this->template = (new ContentTemplate())
-            ->setMySQLi($this->getMySQLi())
+            ->shareConnection($this)
             ->setContentType($this->getContentTypeId())
             ->setOperation($name)
             ->lookupTemplateProperties();
@@ -292,7 +291,7 @@ abstract class APIRoute extends APIRouteProperties
     public function getTemplateContext(): array
     {
         $context = array(
-            'page_data' => $this->newAPIRouteInstance(),
+            'page_data' => $this->newAPIRouteInstance()->shareConnection($this),
             'content' => null,
             'filters' => null);
         if (isset($this->filters)) {
@@ -308,13 +307,15 @@ abstract class APIRoute extends APIRouteProperties
      * @param int|null $content_type_id
      * @return void
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws InvalidStateException
      */
     protected function initializeFiltersObject(?int $content_type_id = null): void
     {
         $this->filters = call_user_func(
             [static::getControllerClass(), 'getContentFiltersObject'],
-            $content_type_id ?: $this->getContentTypeId(), $this->getMySQLi());
+            $content_type_id ?: $this->getContentTypeId(),
+            $this);
         $this->getContentProperties()->setRecordId($content_type_id);
     }
 
@@ -412,7 +413,8 @@ abstract class APIRoute extends APIRouteProperties
      */
     protected function newTemplateInstance(?int $record_id = null, ?int $content_type_id = null, string $operation = '', string $base_dir = '', string $template = '', string $location = ''): ContentTemplate
     {
-        return new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location);
+        return (new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location))
+            ->shareConnection($this);
     }
 
     /**
@@ -429,14 +431,13 @@ abstract class APIRoute extends APIRouteProperties
      * Refresh content after performing an AJAX edit on a record. The markup that is generated is stored in the
      * class's JSON property's content property, which is then sent back to the client.
      * @param string $next_operation Token determining which template to load.
-     * @param array $context (Optional) Variables to insert into the template. When an array is provided, it will
-     * override the default template context. If not provided, the context will be generated using the object's
+     * @param array $context (Optional) Variables to insert into the template. When an array is provided, it will override the default template context. If not provided, the context will be generated using the object's
      * getTemplateContext() routine.
      * @throws Exception
      */
     public function refreshContentAfterEdit(string $next_operation, array $context=[]): void
     {
-        $template = $this->newTemplateInstance();
+        $template = ($this->newTemplateInstance())->shareConnection($this);
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
         $this->json->loadContentFromTemplate(
             $template->formatFullPath(),
@@ -449,7 +450,7 @@ abstract class APIRoute extends APIRouteProperties
      * @return APIRoute
      * @throws ConfigurationUndefinedException
      */
-    public function retrieveContentProperties(?int $content_type_id = null): APIRoute
+    public function retrieveContentProperties(?int $content_type_id = null): static
     {
         if ($content_type_id > 0) {
             $this->setContentTypeId($content_type_id);
@@ -466,9 +467,9 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * Hook for derived classes to fill their respective ContentProperties properties with data.
-     * @return mixed
+     * @return $this
      */
-    abstract protected function retrieveCoreContentProperties(): mixed;
+    abstract protected function retrieveCoreContentProperties(): static;
 
     /**
      * Retrieve template properties from the database and store them in the page's template property.
@@ -493,11 +494,12 @@ abstract class APIRoute extends APIRouteProperties
             $data[0]->name,
             $data[0]->base_path,
             $data[0]->template_path,
-            $data[0]->location);
+            $data[0]->location)
+        ->shareConnection($this);
     }
 
     /**
-     * Send error message as response to ajax request and stop processing the request.
+     * Send an error message as a response to ajax request and stop processing the request.
      * @param $err_msg
      * @return never
      */
@@ -525,20 +527,5 @@ abstract class APIRoute extends APIRouteProperties
     {
         header("Content-Type: text/plain\n\n");
         print($response ?: $this->json->content->value);
-    }
-
-    /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     */
-    public function setMySQLi(mysqli $mysqli): MySQLConnection
-    {
-        parent::setMySQLi($mysqli);
-        foreach($this as $item) {
-            if ($item instanceof SerializedContent) {
-                $item->setMySQLi(static::getMySQLiInstance());
-            }
-        }
-        return $this;
     }
 }

@@ -3,6 +3,8 @@ namespace Littled\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
@@ -18,6 +20,7 @@ use Littled\Request\StringInput;
 use Littled\Utility\LittledUtility;
 use Exception;
 
+
 abstract class APIRouteProperties extends PageContentBase
 {
     /** @var string */
@@ -25,7 +28,7 @@ abstract class APIRouteProperties extends PageContentBase
 
     /** @var string             Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
     protected static string     $cache_class = ContentCache::class;
-    /** @var string             Name a \Littled\PageContent\ContentController class to use as content controller. */
+    /** @var string             Name a \Littled\PageContent\ContentController class to use as a content controller. */
     protected static string     $controller_class = ContentController::class;
     /** @var string             Name of the default template to use in derived classes to generate markup. */
     protected static string     $default_template_dir = '';
@@ -46,7 +49,7 @@ abstract class APIRouteProperties extends PageContentBase
         parent::__construct();
         $this->json = new JSONRecordResponse();
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
-        $this->action = "";
+        $this->action = '';
     }
 
     /**
@@ -66,6 +69,10 @@ abstract class APIRouteProperties extends PageContentBase
      * Content label getter.
      * @return string
      * @throws ConfigurationUndefinedException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
      */
     public function getContentLabel(): string
     {
@@ -86,7 +93,7 @@ abstract class APIRouteProperties extends PageContentBase
     {
         // Do not check filters or content property for content properties object here.
         // Only check those properties in derived classes.
-        return ($this->newContentPropertiesInstance())->setMySQLi($this->getMySQLi());
+        return ($this->newContentPropertiesInstance())->shareConnection($this);
     }
 
     /**
@@ -175,7 +182,7 @@ abstract class APIRouteProperties extends PageContentBase
     public function getTemplatePath(): string
     {
         if (!isset($this->template)) {
-            throw new ConfigurationUndefinedException("Content template is not set.");
+            throw new ConfigurationUndefinedException('Content template is not set.');
         }
         if (!static::getDefaultTemplateDir()) {
             return $this->template->formatFullPath();
@@ -216,7 +223,7 @@ abstract class APIRouteProperties extends PageContentBase
 
     /**
      * Content cache class setter.
-     * @param string $class_name Name of class to use as content controller. Must be derived from \Littled\PageContent\ContentController
+     * @param string $class_name Name of class to use as a content controller. Must be derived from \Littled\PageContent\ContentController
      * @return void
      * @throws InvalidTypeException
      * @throws ConfigurationUndefinedException

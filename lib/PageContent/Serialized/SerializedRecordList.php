@@ -101,7 +101,7 @@ abstract class SerializedRecordList extends SerializedContentIO
                     for($i = 0; $i < count($src[$key]); $i++) {
                         $this->records[$i] = new static::$content_class();
                         $this->records[$i]
-                            ->setMySQLi($this->getMySQLi())
+                            ->shareConnection($this)
                             ->setIndex($i)
                             ->collectRequestData($src)
                             ->collectKeysRequestData($src);
@@ -421,7 +421,7 @@ abstract class SerializedRecordList extends SerializedContentIO
             $o->hydrateFromRecordsetRow($row);
             if (!$o->getLinkedId()) {
                 /*
-                 * assign parent id to child object if the assignment wasn't made in the hydrate routine
+                 * assign parent id to a child object if the assignment wasn't made in the hydrate routine
                  */
                 $o->setParentId($this->getParentId());
             }
@@ -500,7 +500,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Unshift link onto stack (at the beginning of the stack) and make necessary updates to the state of the list of
+     * Unshift link onto stack (at the beginning of the stack) and make the necessary updates to the state of the list of
      * linked records.
      * @param LinkedContent $link
      * @return void

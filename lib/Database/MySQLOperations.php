@@ -6,7 +6,6 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
-use Littled\Validation\Validation;
 use mysqli;
 use mysqli_sql_exception;
 use mysqli_result;
@@ -29,8 +28,7 @@ trait MySQLOperations
     {
         if (isset($this->mysqli) && @$this->mysqli->ping()) {
             $this->mysqli->close();
-            self::$tracker->removeConnection($this->conn_id);
-            unset($this->conn_id);
+            $this->unsetTracker();
         }
     }
 
@@ -44,9 +42,8 @@ trait MySQLOperations
      */
     public function columnExists(string $column_name, string $table_name): bool
     {
-        if (defined('MYSQL_SCHEMA')) {
-            $schema = MYSQL_SCHEMA;
-        } else {
+        $schema = $this::getAppSetting('MYSQL_SCHEMA');
+        if (!$schema) {
             throw new ConfigurationUndefinedException('Schema undefined in ' . __METHOD__ . '.');
         }
 
@@ -78,18 +75,17 @@ trait MySQLOperations
      */
     protected function connect(DBConnectionSettings $c): void
     {
-        if(isset($this->conn_id)) {
+        if($this->hasConnection()) {
             return;
         }
-        if (preg_match('/^\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}$/', $c->host)) {
-            $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port);
-        } else {
-            if ($c->port) {
-                $c->host .= ":$c->port";
-            }
-            $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema);
-            $this->conn_id = self::$tracker->addConnection(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
+        if ($c->port) {
+            $c->host .= ":$c->port";
         }
+        $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema);
+        if (!isset(self::$tracker)) {
+            $this->initializeConnectionTracker();
+        }
+        $this->conn_id = self::$tracker->addConnection(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
     }
 
     /**
@@ -110,7 +106,7 @@ trait MySQLOperations
         string $schema = '',
         string $port = ''): void
     {
-        if (!isset($this->mysqli)) {
+        if (!$this->hasConnection()) {
             try {
                 $this->connect(static::getConnectionSettings($host, $user, $password, $schema, $port));
             } catch (mysqli_sql_exception $ex) {
@@ -125,6 +121,7 @@ trait MySQLOperations
      * @param mixed $value Value to escape.
      * @return string|int|float Escaped value.
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     public function escapeSQLValue(mixed $value): float|int|string
     {
@@ -315,36 +312,14 @@ trait MySQLOperations
     }
 
     /**
-     * Returns a MySQLi object using either default connection settings or settings passed in.
-     * @param string $host (Optional) database connection host
-     * @param string $user (Optional) database connection user name
-     * @param string $password (Optional) database connection password
-     * @param string $schema (Optional) database name
-     * @param string $port (Optional) database connection port
+     * Return the current mysqli connection or return a new connection.
      * @return mysqli
      * @throws ConfigurationUndefinedException
-     */
-    public static function getMySQLiInstance(
-        string $host = '',
-        string $user = '',
-        string $password = '',
-        string $schema = '',
-        string $port = ''): mysqli
-    {
-        $c = static::getConnectionSettings($host, $user, $password, $schema, $port);
-        return (new mysqli($c->host, $c->user, $c->password, $c->schema, $c->port));
-    }
-
-    /**
-     * Return the current mysqli connection or return a new connection
-     * @return mysqli
-     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     public function getMySQLi(): mysqli
     {
-        if (!$this->hasConnection()) {
-            $this->mysqli = static::getMySQLiInstance();
-        }
+        $this->connectToDatabase();
         return $this->mysqli;
     }
 
@@ -354,7 +329,7 @@ trait MySQLOperations
      */
     public function hasConnection(): bool
     {
-        if (!isset($this->mysqli)) {
+        if (!isset($this->mysqli) || !@$this->mysqli->ping()) {
             return (false);
         }
         return ($this->mysqli->connect_error === null);
@@ -420,7 +395,6 @@ trait MySQLOperations
 
     /**
      * Alias for MySQLConnection->connectToDatabase() for convenience.
-     * Can be chained with other MySQLConnection methods.
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -447,11 +421,36 @@ trait MySQLOperations
 
     /**
      * Copy an existing MySQL connection to the object.
-     * @param mysqli $mysqli
+     * @param MySQLConnection $src
+     * @return $this
+     */
+    public function shareConnection(MySQLConnection $src): static
+    {
+        if (!$src->hasConnection()) {
+            return $this;
+        }
+        $this->mysqli = $src->mysqli;
+        $this->conn_id = $src->conn_id;
+        foreach($this as $prop) {
+            if ($prop instanceof MySQLConnection) {
+                $prop->shareConnection($this);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Removes instance of database connection tracker.
      * @return void
      */
-    public function setMySQLi(mysqli $mysqli): void
+    protected function unsetTracker(): void
     {
-        $this->mysqli = $mysqli;
+        self::$tracker->removeConnection($this->conn_id);
+        unset($this->conn_id);
+        foreach($this as $prop) {
+            if ($prop instanceof MySQLConnection) {
+                $prop->unsetTracker();
+            }
+        }
     }
 }

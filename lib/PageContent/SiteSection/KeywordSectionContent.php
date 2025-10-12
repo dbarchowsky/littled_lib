@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
@@ -13,7 +12,6 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\StringTextarea;
-use mysqli;
 
 
 /**
@@ -123,8 +121,8 @@ class KeywordSectionContent extends SectionContent
     /**
      * Sets object values that need to be set after submitting data from an inline form, typically a widget within a
      * page that uses AJAX to edit keyword values.
-     * @param ?array $src Optional array container of request variables. If specified, it will override
-     * inspecting the $_POST and $_GET collections for keyword values.
+     * @param ?array $src Optional array container of request variables.
+     * If specified, it will override inspecting the $_POST and $_GET collections for keyword values.
      */
     public function collectFromInlineInput(?array $src = null): void
     {
@@ -212,8 +210,8 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Formats a comma-delimited string out of the object's keywords.
-     * @param bool $fetch_from_database Optional. If TRUE return keywords from database. If FALSE return keyword terms. Default value is TRUE.
-     * stored in the object properties. Defaults to TRUE.
+     * @param bool $fetch_from_database Optional. If TRUE return keywords from the database. If FALSE return keyword terms.
+     * The default value is TRUE.
      * @return string Comma-delimited string containing all the current keywords associated with this record.
      * @throws FailedQueryException
      * @throws InvalidStateException
@@ -277,7 +275,7 @@ class KeywordSectionContent extends SectionContent
     }
 
     /**
-     * Returns path to keywords container template.
+     * Returns a path to the keyword container template.
      * @return string Path to keywords container template.
      */
     public static function getKeywordsCellTemplatePath(): string
@@ -286,8 +284,8 @@ class KeywordSectionContent extends SectionContent
     }
 
     /**
-     * Returns path to keywords list template
-     * @return string Path to keywords list template.
+     * Returns a path to the keyword list template
+     * @return string Path to the keyword list template.
      */
     public static function getKeywordsListTemplatePath(): string
     {
@@ -296,8 +294,8 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Returns an array containing just the keyword terms as strings for each keyword linked to the record in the database.
-     * @param bool $fetch_from_database Optional. If TRUE return keywords from database. If FALSE return keyword terms. Default value is TRUE.
-     * stored in the object properties. Defaults to TRUE.
+     * @param bool $fetch_from_database Optional. If TRUE return keywords from the database. If FALSE return keyword terms.
+     * The default value is TRUE.
      * @return array List of keyword terms currently linked to the record in the database.
      * @throws FailedQueryException
      * @throws InvalidStateException
@@ -433,7 +431,7 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Sets the class's keyword cell template path property.
-     * @param string $path Path to template file.
+     * @param string $path Path to the template file.
      */
     public static function setKeywordsCellTemplatePath(string $path): void
     {
@@ -442,20 +440,11 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Sets the class's keyword list template path property.
-     * @param string $path Path to template file.
+     * @param string $path Path to the template file.
      */
     public static function setKeywordsListTemplatePath(string $path): void
     {
         static::$keyword_list_template = $path;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setMySQLi(mysqli $mysqli): static
-    {
-        parent::setMySQLi($mysqli);
-        return $this;
     }
 
     /**

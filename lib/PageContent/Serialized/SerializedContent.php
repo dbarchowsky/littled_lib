@@ -18,7 +18,6 @@ use Littled\Log\Log;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Validation\Validation;
 use Exception;
-use mysqli;
 
 
 /**
@@ -42,7 +41,7 @@ abstract class SerializedContent extends SerializedContentIO
 
 
     /**
-     * Add type id to current stack.
+     * Add type id to the current stack.
      * @param int|int[] $link_ids
      * @return $this
      * @throws InvalidStateException
@@ -75,7 +74,7 @@ abstract class SerializedContent extends SerializedContentIO
             foreach ($link_ids as $link_id) {
                 /** @var LinkedContent $link */
                 $link = (new $content_class())
-                    ->setMySQLi(static::getMySQLiInstance())
+                    ->shareConnection($this)
                     ->setLinkedId($link_id);
                 if ($this->id->hasData()) {
                     $link->setPrimaryId($this->getRecordId());
@@ -165,6 +164,7 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @return array
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     protected function formatCommitQuery(): array
     {
@@ -181,7 +181,7 @@ abstract class SerializedContent extends SerializedContentIO
             ') '.
             'ON DUPLICATE KEY UPDATE ';
 
-        // strip out primary key variables since we're using previously assigned @insert_id SQL session variable
+        // strip out primary key variables since we're using the previously assigned @insert_id SQL session variable
         $fields = array_filter($fields, function($e) {
             return !$e->is_pk;
         });
@@ -200,6 +200,7 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
 \     */
     protected function formatRecordSelectPreparedStmt(): array
     {
@@ -261,7 +262,7 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Tests if this class has a primary key. It will not if it represents one-to-many link for two other tables
+     * Tests if this class has a primary key. It will not if it represents a one-to-many link for two other tables
      * if that link doesn't have a record id of its own.
      * @return bool
      */
@@ -277,7 +278,7 @@ abstract class SerializedContent extends SerializedContentIO
     abstract protected function hasRecordData(): bool;
 
     /**
-     * Tests if query string is a procedure call.
+     * Tests if the query string is a procedure call.
      * @param string $query
      * @return bool
      */
@@ -295,7 +296,7 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Create MySQL session variable to hold the value of the insert id resulting from a procedure call.
+     * Create the MySQL session variable to hold the value of the insert id resulting from a procedure call.
      * @return void
      * @throws FailedQueryException
      */
@@ -320,6 +321,7 @@ abstract class SerializedContent extends SerializedContentIO
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
      * @return $this
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
@@ -352,7 +354,7 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Confirm that a record with id value matching the current id value of the object currently exists in the database.
+     * Confirm that a record with the id value matching the current id value of the object currently exists in the database.
      * @return bool True/False depending on if a matching record is found.
      * @throws FailedQueryException
      */
@@ -408,22 +410,6 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @return $this
-     * @throws ConfigurationUndefinedException
-     */
-    public function setMySQLi(mysqli $mysqli): static
-    {
-        parent::setMySQLi($mysqli);
-        foreach($this as $property => $value) {
-            if($this->$property instanceof SerializedContent) {
-                $this->$property->setMySQLi($this->getMySQLi());
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
      */
     public function setRecordId(?int $record_id): static
     {
@@ -439,7 +425,7 @@ abstract class SerializedContent extends SerializedContentIO
                 try {
                     $property->$method($record_id);
                 } catch (NotInitializedException) {
-                    /* ignore & continue */
+                    /* ignore and continue */
                 }
             }
         }
@@ -448,7 +434,7 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
-     * @param string $msg Optional informational message to prepend to error message thrown when a valid parent id is not found.
+     * @param string $msg Optional informational message to prepend to an error message thrown when a valid parent id is not found.
      * @throws InvalidStateException
      */
     protected function testForParentID(string $msg = ''): void

@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\API;
 
 use Littled\App\LittledGlobals;
@@ -8,8 +7,6 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
@@ -18,7 +15,6 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Validation\Validation;
-use mysqli;
 
 
 class APIRecordRoute extends APIRoute
@@ -31,9 +27,13 @@ class APIRecordRoute extends APIRoute
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws NotInitializedException|InvalidQueryException
-     * @throws RecordNotFoundException|InvalidStateException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws InvalidQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
      */
     public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
     {
@@ -50,8 +50,8 @@ class APIRecordRoute extends APIRoute
      * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws InvalidQueryException
-     * @throws InvalidStateException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -68,7 +68,7 @@ class APIRecordRoute extends APIRoute
             }
         }
 
-        // next, collect record id value from ajax/post data using input property's internal parameter name
+        // next, collect record id value from an ajax or POST data using the input property's internal parameter name
         $this->content->id->collectRequestData($src);
         if ($this->content->id->value > 0) {
             // Call this routine to assign record id to any linked properties
@@ -76,8 +76,7 @@ class APIRecordRoute extends APIRoute
             return $this;
         }
 
-        // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value
-        // in ajax/post data using the default record id key
+        // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value in an AJAX or POST data using the default record id key
         if ($this->content->id->key != LittledGlobals::ID_KEY) {
             $this->content->id->value =
                 Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
@@ -106,15 +105,14 @@ class APIRecordRoute extends APIRoute
     /**
      * Confirm that the child object and its content properties both share a database connection with this parent.
      * @return void
-     * @throws ConfigurationUndefinedException
      */
     protected function confirmContentDBConnection(): void
     {
         if (isset($this->content)) {
-            $this->content->content_properties->setMySQLi($this->content->getMySQLi());
+            $this->content->content_properties->shareConnection($this);
         }
         elseif (isset($this->filters)) {
-            $this->filters->content_properties->setMySQLi($this->filters->getMySQLi());
+            $this->filters->content_properties->shareConnection($this);
         }
     }
 
@@ -156,7 +154,7 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Returns singular record id value if that is what is currently stored in the $record_ids property.
+     * Returns a singular record id value if that is what is currently stored in the $record_ids property.
      * Null is returned if $record_ids is storing no values or multiple values.
      * @return int|null
      */
@@ -171,9 +169,8 @@ class APIRecordRoute extends APIRoute
     /**
      * Route wildcard getter.
      * @return string
-     * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
     public function getRouteWildcard(): string
@@ -239,11 +236,11 @@ class APIRecordRoute extends APIRoute
             }
             $content_type_id = $this->collectContentTypeIdFromRequestData($src);
             if (!$content_type_id) {
-                throw new ContentValidationException("Content type not provided.");
+                throw new ContentValidationException('Content type not provided.');
             }
         }
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
-        $this->content->setMySQLi($this->getMySQLi());
+        $this->content->shareConnection($this);
         return $this;
     }
 
@@ -255,8 +252,8 @@ class APIRecordRoute extends APIRoute
      * @return false|int
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
+     * @throws FailedQueryException
      * @throws InvalidQueryException
-     * @throws InvalidStateException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -269,7 +266,7 @@ class APIRecordRoute extends APIRoute
             return false;
         }
 
-        // offset in request uri to first route part
+        // offset in request uri to the first route part
         if (!isset($_SERVER) || !array_key_exists('REQUEST_URI', $_SERVER)) {
             return false;
         }
@@ -310,9 +307,13 @@ class APIRecordRoute extends APIRoute
     /**
      * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
      * @return $this
-     * @throws ConfigurationUndefinedException|ConnectionException
-     * @throws NotInitializedException|InvalidQueryException
-     * @throws RecordNotFoundException|ContentValidationException|InvalidStateException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws FailedQueryException
+     * @throws NotInitializedException
+     * @throws InvalidQueryException
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
      */
     public function retrieveContentObjectAndData(): APIRecordRoute
     {
@@ -325,22 +326,20 @@ class APIRecordRoute extends APIRoute
 
     /**
      * Hydrates the content properties object by retrieving data from the database.
-     * @return mixed
+     * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @throws NotImplementedException
      * @throws RecordNotFoundException
      * @throws FailedQueryException
-     * @throws InvalidValueException
      */
-    public function retrieveCoreContentProperties(): mixed
+    public function retrieveCoreContentProperties(): static
     {
         if (!$this->hasContentPropertiesObject()) {
             throw new ConfigurationUndefinedException('Content object not available.');
         }
         $this->confirmContentDBConnection();
         $this->content->content_properties->read();
-        return null;
+        return $this;
     }
 
     /**
@@ -385,18 +384,6 @@ class APIRecordRoute extends APIRoute
         if ($wildcard && $this->getRecordId() > 0 && str_contains($container_id, $wildcard)) {
             $container_id = str_replace($wildcard, (string)$this->getRecordId(), $container_id);
             $this->json->container_id->value = $container_id;
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setMysqli(mysqli $mysqli): APIRecordRoute
-    {
-        $this->mysqli = $mysqli;
-        if (isset($this->content)) {
-            $this->content->setMySQLi($this->getMySQLi());
         }
         return $this;
     }

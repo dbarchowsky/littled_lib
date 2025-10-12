@@ -4,9 +4,9 @@ namespace Littled\Filters;
 
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentInitializationException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -18,8 +18,8 @@ class AlbumFilters extends ContentFilters
 {
     protected static string $cookie_key = 'alb';
     protected static int $default_listings_length = 20;
-    const                           RELEASED_AFTER_KEY = "fara";
-    const                           RELEASED_BEFORE_KEY = "farb";
+    const                           RELEASED_AFTER_KEY = 'fara';
+    const                           RELEASED_BEFORE_KEY = 'farb';
     /** @var StringContentFilter    Keyword filter. */
     public StringContentFilter $keyword;
     /** @var StringContentFilter    Album title filter. */
@@ -44,19 +44,19 @@ class AlbumFilters extends ContentFilters
      * @param int $content_type_id ID of the section of the site containing the listings. (From the site_section table.)
      * @param int $page_content_type_id ID of the site_section representing the images within the listings (From the site_section table.)
      * @param int $default_page_len Optional length of the pages of listings.
-     * @throws ConfigurationUndefinedException
+     * @throws ContentInitializationException
      */
     function __construct(int $content_type_id, int $page_content_type_id, int $default_page_len = 10)
     {
         parent::__construct();
 
-        $this->keyword = new StringContentFilter   ("keyword", Keyword::FILTER_KEY, '', 50, static::getCookieKey());
-        $this->title = new StringContentFilter   ("title", "fati", '', 50, static::getCookieKey());
-        $this->date = new StringContentFilter   ("date", "fadt", '', 20, static::getCookieKey());
-        $this->access = new StringContentFilter   ("access", "faac", '', 20, static::getCookieKey());
-        $this->release_after = new DateContentFilter     ("released after", $this::RELEASED_AFTER_KEY, '', 20, static::getCookieKey());
-        $this->release_before = new DateContentFilter     ("released before", $this::RELEASED_BEFORE_KEY, '', 20, static::getCookieKey());
-        $this->slot = new IntegerContentFilter  ("slot", "fasl", null, null, static::getCookieKey());
+        $this->keyword = new StringContentFilter   ('keyword', Keyword::FILTER_KEY, '', 50, static::getCookieKey());
+        $this->title = new StringContentFilter   ('title', 'fati', '', 50, static::getCookieKey());
+        $this->date = new StringContentFilter   ('date', 'fadt', '', 20, static::getCookieKey());
+        $this->access = new StringContentFilter   ('access', 'faac', '', 20, static::getCookieKey());
+        $this->release_after = new DateContentFilter     ('released after', $this::RELEASED_AFTER_KEY, '', 20, static::getCookieKey());
+        $this->release_before = new DateContentFilter     ('released before', $this::RELEASED_BEFORE_KEY, '', 20, static::getCookieKey());
+        $this->slot = new IntegerContentFilter  ('slot', 'fasl', null, null, static::getCookieKey());
 
         $this->name = &$this->title;
 
@@ -84,8 +84,8 @@ class AlbumFilters extends ContentFilters
         if (!isset($this->listings_length->value)) {
             $this->listings_length->value = static::getDefaultListingsLength();
         }
-        if ($this->next->value == "") {
-            $this->next->value = "view";
+        if ($this->next->value == '') {
+            $this->next->value = 'view';
         }
         $this->gallery->collectFilterValues($save_filters);
     }
@@ -97,7 +97,7 @@ class AlbumFilters extends ContentFilters
     {
         parent::formatListingsQuery($calculate_offset);
         $album_id = null;
-        return array("CALL albumFilteredListingsSelect(?,?,?,?,?,?,?,?,?,?,?,?,@total_matches)",
+        return array('CALL albumFilteredListingsSelect(?,?,?,?,?,?,?,?,?,?,?,?,@total_matches)',
             'iiiisssssis',
             &$this->listings_offset,
             &$this->listings_length->value,
@@ -114,8 +114,8 @@ class AlbumFilters extends ContentFilters
     }
 
     /**
-     * @deprecated Use stored procedure instead.
-     * Returns select portion of SQL statement to retrieve album listings.
+     * @deprecated Use a stored procedure instead.
+     * Returns a select portion of SQL statement to retrieve album listings.
      */
     protected function formatListingsSelectQuery(): string
     {
@@ -123,7 +123,7 @@ class AlbumFilters extends ContentFilters
     }
 
     /**
-     * @deprecated Use stored procedure instead.
+     * @deprecated Use a stored procedure instead.
      * Create SQL string containing WHERE clause that will filter down the listings.
      */
     public function formatQueryClause(): string
@@ -140,18 +140,16 @@ class AlbumFilters extends ContentFilters
     {
         parent::formatQueryString($exclude);
         $gqs = $this->gallery->formatQueryString($exclude);
-        $this->query_string .= preg_replace("/^\?/", "&", $gqs);
+        $this->query_string .= preg_replace('/^\?/', '&', $gqs);
         return ($this->query_string);
     }
 
     /**
      * Retrieve section properties.
-     * @param int|null $content_type_id The id of site section to retrieve properties for.
-     * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @param int|null $content_type_id The id of a site section to retrieve properties for.
      * @throws ContentValidationException
-     * @throws NotImplementedException|InvalidQueryException
+     * @throws RecordNotFoundException
+     * @throws FailedQueryException
      */
     public function getAjaxProperties(?int $content_type_id = null): void
     {
@@ -164,19 +162,19 @@ class AlbumFilters extends ContentFilters
     }
 
     /**
-     * Retrieves from database the uri of the page used to display details for this content type.
+     * Retrieves from a database the uri of the page used to display details for this content type.
      * @return string Uri of details page.
      * @throws Exception
      */
     public function getDetailsURI(): string
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
-            return ("");
+            return ('');
         }
 
-        $query = "SELECT `details_uri` " .
-            "FROM `section_operations` " .
-            "WHERE `section_id` = ?";
+        $query = 'SELECT `details_uri` ' .
+            'FROM `section_operations` ' .
+            'WHERE `section_id` = ?';
         $content_type_id = $this->getContentTypeId();
         $data = $this->fetchRecords($query, 'i', $content_type_id);
         if (count($data) > 0) {
@@ -186,10 +184,10 @@ class AlbumFilters extends ContentFilters
     }
 
     /**
-     * @deprecated Use stored procedure instead.
+     * @deprecated Use a stored procedure instead.
      * Sets values of internal properties of the object to the number of records and pages in the current set of listings.
      */
-    public function getPageCount()
+    public function getPageCount(): void
     {
         /** deprecated */
     }
@@ -198,14 +196,14 @@ class AlbumFilters extends ContentFilters
      * Returns a string containing all filters in the collection expressed as a JavaScript array.
      * Overrides parent to include image filters in the array.
      * @param array|null $exclude Array containing the names of any filters to not add to the string.
-     * @return string String containing JavaScript array.
+     * @return string String containing a JavaScript array.
      */
     public function jsonEncode(?array $exclude = null): string
     {
         $sJS1 = parent::jsonEncode($exclude);
         $sJS2 = $this->gallery->jsonEncode($exclude);
         if ($sJS1 && $sJS2) {
-            return ($sJS1 . ", " . $sJS2);
+            return ($sJS1 . ', ' . $sJS2);
         } else {
             return ($sJS1 . $sJS2);
         }
@@ -257,9 +255,9 @@ class AlbumFilters extends ContentFilters
         if ($this->display_listings->value) {
             $data = $this->retrieveListings();
             foreach ($data as $row) {
-                $row->name_widget_data = (object)array("id" => $row->id, "table" => $this->getTableName(), "value" => $row->title);
-                $row->access_widget_data = (object)array("id" => $row->id, "table" => $this->getTableName(), "value" => $row->access);
-                $row->date_widget_data = (object)array("id" => $row->id, "table" => $this->getTableName(), "value" => $row->release_date);
+                $row->name_widget_data = (object)array('id' => $row->id, 'table' => $this->getTableName(), 'value' => $row->title);
+                $row->access_widget_data = (object)array('id' => $row->id, 'table' => $this->getTableName(), 'value' => $row->access);
+                $row->date_widget_data = (object)array('id' => $row->id, 'table' => $this->getTableName(), 'value' => $row->release_date);
             }
             $context['data'] = $data;
         }
@@ -275,16 +273,16 @@ class AlbumFilters extends ContentFilters
     public function retrieveKeywordSearchResults(): array
     {
         $data = $this->fetchRecords(
-            "CALL albumTitlesSelect(?,?,?,?,@total_matches)",
+            'CALL albumTitlesSelect(?,?,?,?,@total_matches)',
             'iisi',
             $this->page->value,
             $this->listings_length->value,
             $this->keyword->value,
             $this->content_properties->id->value);
         if (count($data) < 1) {
-            throw new ResourceNotFoundException("Error retrieving album titles.");
+            throw new ResourceNotFoundException('Error retrieving album titles.');
         }
-        /* get record count from procedure results */
+        /* get a record count from procedure results */
         $this->getProcedurePageCount();
         return ($data);
     }
