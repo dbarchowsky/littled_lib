@@ -3,6 +3,7 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotInitializedException;
 use Littled\Request\ForeignKeyInput;
 
@@ -284,5 +285,29 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
     {
         $method = $flag ? 'setAsRequired' : 'setAsNotRequired';
         return $this->$method($flag);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateInput(array $exclude_properties = []): void
+    {
+        // Ingnore $link_id property when validating linked records. Determine if links are provided by evaluating the linked record list.
+        $links_required = $this->link_id->isRequired();
+        $this->link_id->setAsNotRequired();
+        try {
+            parent::validateInput($exclude_properties);
+        }
+        catch (ContentValidationException) {
+            /* continue */
+        }
+        if ($links_required) {
+            $this->link_id->setAsRequired();
+            if (count($this->records) < 1) {
+                $label = $this->getContentLabel();
+                $this->addValidationError(ucfirst($label) . ' is required.');
+                throw new ContentValidationException($this->validation_message);
+            }
+        }
     }
 }
