@@ -104,6 +104,15 @@ class OneToManyLinkedContent extends SerializedRecordList
     }
 
     /**
+     * Parent id property getter.
+     * @return ForeignKeyInput
+     */
+    protected function getParentIdObj(): ForeignKeyInput
+    {
+        return $this->parent_id;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getLinkedId(): int|null
