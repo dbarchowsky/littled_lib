@@ -3,6 +3,7 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
@@ -52,6 +53,7 @@ abstract class LinkedContent extends SerializedContent
      * @param array $used_keys
      * @return QueryField[]
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     public function extractPreparedStmtArgs(array &$used_keys = []): array
     {
@@ -87,6 +89,12 @@ abstract class LinkedContent extends SerializedContent
      * @return int|null
      */
     abstract public function getLinkedId(): int| null;
+
+    /**
+     * Returns the record id value of the parent record.
+     * @return int|null
+     */
+    abstract public function getParentId(): int|null;
 
     /**
      * Returns the key value for primary key input.
@@ -150,18 +158,14 @@ abstract class LinkedContent extends SerializedContent
                 continue;
             }
 
-            // temporarily remove prefixes from child objects when saving their records
-            $prefix = $this->{$property}->getRecordsetPrefix();
-            $col = $this->{$property}->stashColumnName('id');
-            $this->{$property}->removeRecordsetPrefix();
-
-            $this->{$property}->read();
-
-            // restore child object prefix values
-            if ($col) {
-                $this->{$property}->restoreColumnName('id', $col);
-            }
-            $this->{$property}->setRecordsetPrefix($prefix);
+            // Use a new instance to retrieve data from the database to avoid any overrides made to the instance that is a property of the parent.
+            $class = get_class($this->{$property});
+            /** @var SerializedContent $o */
+            $o = (new $class())
+                ->shareConnection($this)
+                ->setRecordId($this->{$property}->getRecordId())
+                ->read();
+            $this->{$property}->copy($o);
         }
         return $this;
     }
@@ -172,4 +176,11 @@ abstract class LinkedContent extends SerializedContent
      * @return $this
      */
     abstract public function setLinkedId(int|null $record_id): static;
+
+    /**
+     * Assigns the record id value of the parent record.
+     * @param int|null $record_id
+     * @return $this
+     */
+    abstract public function setParentId(int|null $record_id): static;
 }
