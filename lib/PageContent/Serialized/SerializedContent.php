@@ -39,7 +39,6 @@ abstract class SerializedContent extends SerializedContentIO
         $this->id = new PrimaryKeyInput('id', static::$default_id_key, false, $id);
     }
 
-
     /**
      * Add type id to the current stack.
      * @param int|int[] $link_ids

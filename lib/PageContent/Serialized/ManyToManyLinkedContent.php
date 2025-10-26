@@ -3,6 +3,7 @@ namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotInitializedException;
 use Littled\Request\ForeignKeyInput;
@@ -26,6 +27,7 @@ abstract class ManyToManyLinkedContent extends SerializedRecordList
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      */
     protected function formatRecordSelectPreparedStmt(): array
     {
