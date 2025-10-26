@@ -29,25 +29,6 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
     }
 
     /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     */
-    protected function formatRecordSelectPreparedStmt(): array
-    {
-        if ($this->id->hasData() && $this->id->isDatabaseField()) {
-            return parent::formatRecordSelectPreparedStmt();
-        }
-        $fields = $this->extractPreparedStmtArgs();
-        $query = 'SELECT `' .
-            implode('`,`', array_map(function ($e) {
-                return $e->key;
-            }, $fields)) . '` ' .
-            'FROM `' . $this::getTableName() . '` ' .
-            'WHERE ' . $this->parent_id->getColumnName('parent_id') . ' = ? ';
-        return [$query, 'i', $this->parent_id->value];
-    }
-
-    /**
      * @inheritdoc
      */
     public function getLinkedId(): int|null
