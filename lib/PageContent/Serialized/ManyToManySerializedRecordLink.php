@@ -101,7 +101,16 @@ abstract class ManyToManySerializedRecordLink extends LinkedContent
     }
 
     /**
-     * Primary id getter, i.e. the parent record's record id.
+     * Alias for getPrimaryId()
+     * @return int|null
+     */
+    public function getParentId(): int|null
+    {
+        return $this->getPrimaryId();
+    }
+
+    /**
+     * Primary id getter, i.e., the parent record's record id.
      * @return int|null
      */
     public function getPrimaryId(): ?int
@@ -248,9 +257,6 @@ abstract class ManyToManySerializedRecordLink extends LinkedContent
     {
         $previous_key = $this->link_id->getKey();
 
-        if (!isset($this->link_id)) {
-            throw new ConfigurationUndefinedException('Link property not set.');
-        }
         $this->link_id->setKey($key);
 
         // update the key value of the primary key property of any content properties representing the linked record
@@ -277,16 +283,22 @@ abstract class ManyToManySerializedRecordLink extends LinkedContent
     }
 
     /**
+     * Alias for setPrimaryId()
+     * @param int|null $record_id
+     * @return $this
+     */
+    public function setParentId(int|null $record_id): static
+    {
+        return $this->setPrimaryId($record_id);
+    }
+
+    /**
      * Primary id setter.
      * @param int|null $record_id
      * @return $this
-     * @throws InvalidStateException
      */
     public function setPrimaryId(int|null $record_id): static
     {
-        if (!isset($this->primary_id)) {
-            throw new InvalidStateException('Primary id object is not initialized.');
-        }
         $this->primary_id->setInputValue($record_id);
         return $this;
     }
@@ -304,7 +316,6 @@ abstract class ManyToManySerializedRecordLink extends LinkedContent
 
     /**
      * @inheritDoc
-     * @throws InvalidStateException
      */
     public function setRecordId(?int $record_id): static
     {
@@ -313,7 +324,7 @@ abstract class ManyToManySerializedRecordLink extends LinkedContent
             return $this;
         }
         if ($record_id === null) {
-            // the record doesn't have a primary key. instead it has a unique index to two other tables and uses
+            // The record doesn't have a primary key. Instead, it has a unique index to two other tables and uses
             // those values to update the database. In these cases, $record_id updates are not needed.
             return $this;
         }
