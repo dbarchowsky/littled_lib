@@ -1,16 +1,12 @@
 <?php
-
 namespace Littled\Keyword;
 
-
 use Exception;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\PageContent\Serialized\SerializedContentValidation;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringTextarea;
+
 
 /**
  * Class Keyword
@@ -48,17 +44,15 @@ class Keyword extends SerializedContentValidation
     function __construct(string $keyword, ?int $parent_id = null, ?int $type_id = null, int $count = 0)
     {
         parent::__construct();
-        $this->term = new StringTextarea("Keyword", Keyword::KEYWORD_KEY, true, $keyword, 1000, null);
-        $this->type_id = new IntegerInput("Keyword type", Keyword::TYPE_KEY, true, $type_id);
-        $this->parent_id = new IntegerInput("Parent", Keyword::PARENT_KEY, true, $parent_id);
+        $this->term = new StringTextarea('Keyword', Keyword::KEYWORD_KEY, true, $keyword, 1000, null);
+        $this->type_id = new IntegerInput('Keyword type', Keyword::TYPE_KEY, true, $type_id);
+        $this->parent_id = new IntegerInput('Parent', Keyword::PARENT_KEY, true, $parent_id);
         $this->count = $count;
     }
 
     /**
-     * Deletes Keyword record from database.
+     * Deletes Keyword record from the database.
      * @return string
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws Exception
      */
     public function delete(): string
@@ -73,13 +67,11 @@ class Keyword extends SerializedContentValidation
     /**
      * Checks if the search term already exists in the database.
      * @return bool True/false depending on whether the term already exists in the database for its parent.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function exists(): bool
     {
-        $data = $this->fetchRecords("CALL keywordLookup(?,?,?)", 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
+        $data = $this->fetchRecords('CALL keywordLookup(?,?,?)', 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
         return ($data[0]->match_count > 0);
     }
 
