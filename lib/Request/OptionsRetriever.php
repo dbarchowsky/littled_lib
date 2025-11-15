@@ -6,6 +6,11 @@ namespace Littled\Request;
  */
 trait OptionsRetriever
 {
+    /**
+     * Returns the query used to retrieve dropdown menu options from the database.
+     * The columns returned must include an "id" column and a "label" column.
+     * @return string
+     */
     protected function formatOptionsQuery(): string
     {
         return 'SELECT `id`, `name` AS `label` FROM `' . static::getTableName() . '` ORDER BY `name`';
