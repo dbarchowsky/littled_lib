@@ -104,9 +104,9 @@ class Address extends SerializedContent
         $this->non_us_state = new StringTextField('Non US State', 'nonUSState', false, '', 100);
         $this->zip = new StringTextField('Zip Code', 'adzc', true, '', 20);
         $this->country = new StringTextField('Country', 'adcn', false, '', 100);
-        $this->home_phone = new PhoneNumberTextField('Daytime phone number', 'ldp', false, '', 20);
-        $this->work_phone = new PhoneNumberTextField('Evening phone number', 'lep', false, '', 20);
-        $this->mobile_phone = new PhoneNumberTextField('Evening phone number', 'lep', false, '', 20);
+        $this->home_phone = new PhoneNumberTextField('Daytime phone number', 'hPho', false, '', 20);
+        $this->work_phone = new PhoneNumberTextField('Evening phone number', 'wPho', false, '', 20);
+        $this->mobile_phone = new PhoneNumberTextField('Evening phone number', 'mPho', false, '', 20);
         $this->fax = new PhoneNumberTextField('Fax number', 'fax', false, '', 20);
         $this->email = new EmailTextField('Email', 'lem', false, '', 200);
         $this->title = new EmailTextField('Title', 'ttl', false, '', 50);
@@ -241,7 +241,7 @@ class Address extends SerializedContent
         if ($this->state->getRecordId()) {
             if ($this->state->abbrev->value) {
                 $address .= $this->prependSeparator($this->state->abbrev->safeValue());
-            } elseif ($this->state->getRecordId()) {
+            } elseif ($this->state->name->value) {
                 $address .= $this->prependSeparator($this->state->name->safeValue());
             }
         } else {

@@ -57,7 +57,7 @@ class SerializedContentUtils extends AppContentBase
      * @inheritDoc
      * @return $this
      */
-    public function applyInputKeyPrefix(string $prefix): SerializedContentUtils
+    public function applyInputKeyPrefix(string $prefix): static
     {
         $this->traitApplyInputKeyPrefix($prefix);
         return $this;
@@ -67,7 +67,7 @@ class SerializedContentUtils extends AppContentBase
      * @inheritDoc
      * @return $this
      */
-    public function fill(object|array $src): SerializedContentUtils
+    public function fill(object|array $src): static
     {
         $this->traitFill($src);
         return $this;
@@ -126,6 +126,21 @@ class SerializedContentUtils extends AppContentBase
             throw new RecordNotFoundException('Record not found.');
         }
         $this->hydrateFromRecordsetRow($data[0]);
+    }
+
+    /**
+     * Tests if any of the RequestInput properties of the object are marked as required.
+     * @return bool
+     */
+    public function isRequired(): bool
+    {
+        $properties = $this->getKeyPropertiesList();
+        foreach ($properties as $property) {
+            if ($this->{$property}->isRequired()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -206,12 +221,53 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
-     * Sets the "not required" flag of all RequestInput properties of the object to FALSE.
+     * Sets the "not required" flag of any RequestInput properties of the object.
      * @return $this
      */
-    public function setAsNotRequired(): SerializedContentUtils
+    public function setAllNotRequired(): static
     {
-        $properties = $this->getInputPropertiesList();
+        // update all RequestInput properties
+        $properties = array_merge($this->getInputPropertiesList(), $this->getKeyPropertiesList());
+        foreach ($properties as $property) {
+            $this->$property->setAsNotRequired();
+        }
+        $properties = $this->getLinkedContentPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setAllNotRequired();
+        }
+        return $this;
+    }
+
+    /**
+     * Sets the "required" flag of any RequestInput properties on the object.
+     * @return $this
+     */
+    public function setAllRequired(): static
+    {
+        // update all RequestInput properties
+        $properties = array_merge($this->getInputPropertiesList(), $this->getKeyPropertiesList());
+        foreach ($properties as $property) {
+            $this->$property->setAsRequired();
+        }
+        $properties = $this->getLinkedContentPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setAllRequired();
+        }
+        return $this;
+    }
+
+    /**
+     * Sets the "not required" flag of any properties used to link the object to other objects.
+     * @return $this
+     */
+    public function setAsNotRequired(): static
+    {
+        // only update key properties
+        $properties = $this->getKeyPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setAsNotRequired();
+        }
+        $properties = $this->getLinkedContentPropertiesList();
         foreach ($properties as $property) {
             $this->$property->setAsNotRequired();
         }
@@ -222,18 +278,23 @@ class SerializedContentUtils extends AppContentBase
      * Alias for setAsNotRequired()
      * @return $this
      */
-    public function setAsOptional(): SerializedContentUtils
+    public function setAsOptional(): static
     {
         return $this->setAsNotRequired();
     }
 
     /**
-     * Sets the "not required" flag of all RequestInput properties of the object to TRUE.
+     * Sets the "required" flag of any properties used to link the object to other objects.
      * @return $this
      */
-    public function setAsRequired(): SerializedContentUtils
+    public function setAsRequired(): static
     {
-        $properties = $this->getInputPropertiesList();
+        // only update key properties
+        $properties = $this->getKeyPropertiesList();
+        foreach ($properties as $property) {
+            $this->$property->setAsRequired();
+        }
+        $properties = $this->getLinkedContentPropertiesList();
         foreach ($properties as $property) {
             $this->$property->setAsRequired();
         }
@@ -244,7 +305,7 @@ class SerializedContentUtils extends AppContentBase
      * @inheritDoc
      * @return $this
      */
-    public function setColumnPrefix(string $prefix): SerializedContentUtils
+    public function setColumnPrefix(string $prefix): static
     {
         $this->traitSetColumnPrefix($prefix);
         return $this;
@@ -254,7 +315,7 @@ class SerializedContentUtils extends AppContentBase
      * @inheritDoc
      * @return $this
      */
-    public function setInputPrefix(string $prefix): SerializedContentUtils
+    public function setInputPrefix(string $prefix): static
     {
         $this->traitSetInputPrefix($prefix);
         return $this;
@@ -264,7 +325,7 @@ class SerializedContentUtils extends AppContentBase
      * @inheritDoc
      * @return string|string[] $this
      */
-    public function setRecordsetPrefix(string|array $prefix): SerializedContentUtils
+    public function setRecordsetPrefix(string|array $prefix): static
     {
         $this->traitSetRecordsetPrefix($prefix);
         return $this;

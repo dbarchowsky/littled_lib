@@ -9,6 +9,7 @@ namespace Littled\PageContent\Serialized;
 class QueryField
 {
     public bool $is_pk = false;
+    public bool $is_fk = false;
     public string $key;
     public string $type;
     /** @var mixed */
@@ -26,6 +27,12 @@ class QueryField
         $this->key = $key;
         $this->type = $type;
         $this->value = $value;
+    }
+
+    public function setIsForeignKey(bool $flag): QueryField
+    {
+        $this->is_fk = $flag;
+        return $this;
     }
 
     public function setIsPrimaryKey(bool $flag): QueryField

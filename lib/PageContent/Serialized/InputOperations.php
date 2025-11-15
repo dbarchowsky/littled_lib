@@ -9,7 +9,7 @@ trait InputOperations
      * @param string $prefix
      * @return SerializedContentUtils
      */
-    public function applyInputKeyPrefix(string $prefix): SerializedContentUtils
+    public function applyInputKeyPrefix(string $prefix): static
     {
         $ip = $this->getInputPropertiesList(false);
         $assigned = [];
@@ -31,7 +31,7 @@ trait InputOperations
      * @param string $prefix
      * @return SerializedContentUtils
      */
-    public function applyLabelPrefix(string $prefix): SerializedContentUtils
+    public function applyLabelPrefix(string $prefix): static
     {
         $ip = $this->getInputPropertiesList(false);
         foreach($ip as $property) {

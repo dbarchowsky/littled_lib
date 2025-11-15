@@ -1,10 +1,8 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
-use Littled\Request\ForeignKeyInput;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Validation\Validation;
 
@@ -12,20 +10,12 @@ use Littled\Validation\Validation;
 /**
  * Operations for a single record in a list of records linked to a single parent record.
  */
-abstract class OneToManySerializedRecordLink extends LinkedContent
+abstract class OneToManyRecordLink extends LinkedContent
 {
-    public PrimaryKeyInput      $id;
-    public ForeignKeyInput      $parent_id;
-    protected SerializedContent $link;
-
-    /**
-     * Class constructor
-     */
     public function __construct()
     {
         parent::__construct();
         $this->id = (new PrimaryKeyInput())->setColumnName('id');
-        $this->parent_id = (new ForeignKeyInput())->setKey(LittledGlobals::ID_KEY);
     }
 
     /**
@@ -33,7 +23,7 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
      */
     public function getLinkedId(): int|null
     {
-        return $this->parent_id->value;
+        return $this->id->value;
     }
 
     /**
@@ -41,26 +31,6 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
      * @return string
      */
     public function getLinkedKey(): string
-    {
-        return $this->parent_id->getKey();
-    }
-
-    /**
-     * Parent id value getter.
-     * @return ?int
-     */
-    public function getParentId(): ?int
-    {
-        if (!isset($this->parent_id)) {
-            return null;
-        }
-        return $this->parent_id->value;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getPrimaryKey(): string
     {
         return $this->id->getKey();
     }
@@ -84,7 +54,7 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
     /**
      * Tests if property is a primary key
      * @param string $property
-     * return bool
+     * @return bool
      */
     protected function propertyIsPrimaryKey(string $property): bool
     {
@@ -101,7 +71,7 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
      */
     protected function isReadyToRead(): bool
     {
-        return $this->getParentId() > 0;
+        return $this->id->hasData();
     }
 
     /**
@@ -110,7 +80,7 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
      */
     public function isRequired(): bool
     {
-        return $this->parent_id->isRequired();
+        return $this->parent_id->isRequired() || $this->id->isRequired();
     }
 
     /**
@@ -135,29 +105,13 @@ abstract class OneToManySerializedRecordLink extends LinkedContent
      */
     public function setLinkedId(int|null $record_id): static
     {
-        $this->parent_id->setInputValue($record_id);
+        $this->id->setInputValue($record_id);
         return $this;
     }
 
-    /**
-     * Parent record id setter.
-     * @param int|null $record_id
-     * @return $this
-     */
-    public function setParentId(int|null $record_id): static
+    public function setLinkedKey(string $key): static
     {
-        $this->parent_id->setInputValue($record_id);
-        return $this;
-    }
-
-    /**
-     * Primary key setter.
-     * @param string $key
-     * @return $this
-     */
-    public function setParentKey(string $key): static
-    {
-        $this->parent_id->setKey($key);
+        $this->id->setKey($key);
         return $this;
     }
 }

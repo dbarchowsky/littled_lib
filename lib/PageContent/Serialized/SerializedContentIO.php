@@ -2,14 +2,15 @@
 
 namespace Littled\PageContent\Serialized;
 
-use Littled\Database\ConnectionTracker;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -21,7 +22,6 @@ abstract class SerializedContentIO extends SerializedContentValidation
 {
     /** @var bool               Flag to skip filling object values from input variables (GET or POST). */
     public bool                 $bypassCollectFromInput     = false;
-    protected bool              $has_foreign_key            = true;
     protected static string     $table_name;
 
     public function __construct()
@@ -69,7 +69,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      */
     protected function commitLinkedRecords(): void
     {
-        $lc = $this->getLinkedContentPropertyList();
+        $lc = $this->getLinkedContent();
         foreach ($lc as $property) {
             if (!$property instanceof SerializedContent && $property->hasRecordData()) {
                 $property->save();
@@ -78,7 +78,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     }
 
     /**
-     * Execute query that commits data stored in object instance to the database.
+     * Execute a query that commits data stored in an object instance to the database.
      * @param string $query Query string to execute
      * @param string $arg_types String describing parameter types, passed to mysqli prepared statement.
      * @param mixed $args,... Variables to insert into the query
@@ -92,19 +92,19 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Deletes the record from the database. Uses the value object's id property to look up the record.
-     * @return string Message indicating result of the deletion.
+     * @return string Message indicating the result of the deletion.
      */
     abstract public function delete(): string;
 
     /**
-     * Execute query that will commit the instance's property values to the database.
+     * Execute a query that will commit the instance's property values to the database.
      * @return void
      * @throws FailedQueryException
      */
     protected function executeCommitQuery(): void
     {
         try {
-            /* execute sql and store id value of the new record. */
+            /* execute SQL and store id value of the new record. */
             $args = $this->formatCommitQuery();
             $this->query(...$args);
             $this->updateIdAfterCommit($args[0]);
@@ -136,15 +136,6 @@ abstract class SerializedContentIO extends SerializedContentValidation
     public abstract function getContentLabel(): string;
 
     /**
-     * "Has foreign key" setting getter. Determines if this object is linked to another parent object in the database.
-     * @return bool
-     */
-    public function getHasForeignKey(): bool
-    {
-        return $this->has_foreign_key;
-    }
-
-    /**
      * Returns a descriptive label of the content type suitable to insert into a sentence.
      * @param bool $make_plural Makes the label plural if TRUE.
      * @return string
@@ -156,9 +147,9 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Returns a list of all the properties of the object that represent foreign keys.
-     * @return ManyToManyLinkedContent[]
+     * @return JunctionRecordList[]
      */
-    protected function getLinkedContentPropertyList(): array
+    protected function getLinkedContent(): array
     {
         $lc = [];
         foreach ($this as $property) {
@@ -182,7 +173,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     public static function getTableName(): string
     {
         if (!isset(static::$table_name)) {
-            throw new ConfigurationUndefinedException('Table name not set.');
+            throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class) . '.');
         }
         return static::$table_name;
     }
@@ -203,11 +194,16 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Retrieve all record data belonging to tables linked to this content type.
      * @return void
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws ConnectionException
+     * @throws NotInitializedException
      */
     public function readLinked(): void
     {
-        $lc = $this->getLinkedContentPropertyList();
+        $lc = $this->getLinkedContent();
         foreach ($lc as $property) {
             if ($property->isReadyToRead()) {
                 // save prefix
@@ -234,7 +230,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @param string $query Query string
      * @param string $types String containing types used to bind variables to query (mysqli prepared statement)
      * @param mixed $vars,... Variables to insert into the query.
-     * @throws NotImplementedException Currently only stored procedures are supported.
+     * @throws NotImplementedException Currently, only stored procedures are supported.
      * @throws InvalidTypeException $type does not represent a class derived from SerializedContent.
      */
     public function readList( string $property, string $type, string $query, string $types='', &...$vars ): void
@@ -262,17 +258,6 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * Commits the values stored in the class instance's properties to the database.
      */
     abstract public function save ();
-
-    /**
-     * "Has foreign key" setter. Determines if this object is linked to a parent object in the database.
-     * @param bool $flag
-     * @return $this
-     */
-    public function setHasForeignKey(bool $flag): SerializedContentIO
-    {
-        $this->has_foreign_key = $flag;
-        return $this;
-    }
 
     /**
      * Record id getter.

@@ -17,6 +17,8 @@ trait SerializedFieldOperations
 {
     use InputOperations;
 
+    protected bool              $has_foreign_key            = true;
+
     /**
      * Returns the form data members of the objects as a series of nested associative arrays.
      * @param array|null $exclude_keys (Optional) array of parameter names to exclude from the returned array.
@@ -81,6 +83,32 @@ trait SerializedFieldOperations
     }
 
     /**
+     * Assigns a value collected from request data to an individual input property. Any property can be passed as an
+     * argument to the method. The method tests the property to determine if its type and state allow for the
+     * assigment to be made.
+     * @param mixed $property
+     * @param array $src
+     * @return void
+     */
+    protected static function collectPropertyValueFromRequestData(mixed $property, array $src): void
+    {
+        if (!is_object($property)) {
+            return;
+        }
+        if (property_exists($property, 'bypassCollectFromInput') && $property->bypassCollectFromInput === true) {
+            return;
+        }
+        if (method_exists($property, 'isDatabaseField') && !$property->isDatabaseField()) {
+            return;
+        }
+        if (method_exists($property, 'collectRequestData')) {
+            $property->collectRequestData($src);
+        } elseif (method_exists($property, 'collectFormInput')) {
+            $property->collectFormInput(null, $src);
+        }
+    }
+
+    /**
      * Set property values using input variable values, e.g., GET, POST, cookies
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
      * @return $this
@@ -89,14 +117,7 @@ trait SerializedFieldOperations
     {
         $src = $src ?? Validation::getDefaultInputSource();
         foreach ($this as $item) {
-            if (is_object($item) &&
-                (!property_exists($item, 'bypassCollectFromInput') || $item->bypassCollectFromInput === false)) {
-                if (method_exists($item, 'collectRequestData')) {
-                    $item->collectRequestData($src);
-                } elseif (method_exists($item, 'collectFormInput')) {
-                    $item->collectFormInput(null, $src);
-                }
-            }
+            self::collectPropertyValueFromRequestData($item, $src);
         }
         return $this;
     }
@@ -142,6 +163,7 @@ trait SerializedFieldOperations
                 /* format column name and value for SQL statement */
                 $fields[] = (new QueryField())
                     ->setisPrimaryKey(Validation::isSubclass($item, PrimaryKeyInput::class))
+                    ->setIsForeignKey(Validation::isSubclass($item, ForeignKeyInput::class))
                     ->setKey($item->getColumnName($this->getRecordsetPrefix() . $key))
                     ->setType($item::getPreparedStatementTypeIdentifier())
                     ->setValue($item->escapeSQL($this->getMySQLi()));
@@ -152,6 +174,7 @@ trait SerializedFieldOperations
                 if ($item->isDatabaseProperty($item->id, $used_keys)) {
                     $fields[] = (new QueryField())
                         ->setisPrimaryKey(false) /* << not PK because it's a FK column in the parent table */
+                        ->setIsForeignKey(true)
                         ->setKey($item->id->getColumnName($item->getRecordsetPrefix() . 'id'))
                         ->setType($item->id::getPreparedStatementTypeIdentifier())
                         ->setValue($item->id->escapeSQL($this->getMySQLi()));
@@ -218,6 +241,15 @@ trait SerializedFieldOperations
     }
 
     /**
+     * "Has foreign key" setting getter. Determines if this object is linked to another parent object in the database.
+     * @return bool
+     */
+    public function getHasForeignKey(): bool
+    {
+        return $this->has_foreign_key;
+    }
+
+    /**
      * Returns a list of all properties that represent either primary or foreign keys.
      * @param $exclude string[]
      * @return array
@@ -239,14 +271,15 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Returns a list of all properties associated with records linked to this object.
-     * @return array
+     * Returns a list of all the names of properties associated with records linked to this object.
+     * @return string[]
      */
     protected function getLinkedContentPropertiesList(): array
     {
         $properties = [];
         foreach($this as $key => $property) {
-            if (Validation::isSubclass($property, SerializedContentIO::class)) {
+            if (Validation::isSubclass($property, SerializedContentIO::class) &&
+                !Validation::isSubclass($property, ContentProperties::class)) {
                 $properties[] = $key;
             }
         }
@@ -284,6 +317,17 @@ trait SerializedFieldOperations
     }
 
     /**
+     * "Has foreign key" setter. Determines if this object is linked to a parent object in the database.
+     * @param bool $flag
+     * @return $this
+     */
+    public function setHasForeignKey(bool $flag): static
+    {
+        $this->has_foreign_key = $flag;
+        return $this;
+    }
+
+    /**
      * Sets the index for all input properties of the object.
      * @param int $index
      * @param string[]|null $exclude
@@ -301,11 +345,10 @@ trait SerializedFieldOperations
                 $this->$property->index = $index;
             }
         }
-        $properties = $this->getContentPropertiesList($exclude ?? []);
+        $properties = $this->getLinkedContentPropertiesList();
         foreach ($properties as $property) {
             if (method_exists($this->$property, 'setIndex')) {
                 $this->$property->setIndex($index);
-
             }
         }
         return $this;

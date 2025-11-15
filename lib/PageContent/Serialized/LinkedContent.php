@@ -1,18 +1,29 @@
 <?php
-
 namespace Littled\PageContent\Serialized;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
 use Littled\Log\Log;
 
 
 abstract class LinkedContent extends SerializedContent
 {
+    public ForeignKeyInput      $parent_id;
+    // protected SerializedContent $link;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->parent_id = (new ForeignKeyInput())->setKey(LittledGlobals::ID_KEY);
+    }
+
+
     use HydrateFieldOperations, InputOperations {
         applyInputKeyPrefix as traitApplyInputKeyPrefix;
     }
@@ -22,14 +33,14 @@ abstract class LinkedContent extends SerializedContent
      * @param string $prefix
      * @return $this
      */
-    public function applyInputKeyPrefix(string $prefix): LinkedContent
+    public function applyInputKeyPrefix(string $prefix): static
     {
         $this->traitApplyInputKeyPrefix($prefix);
         return $this;
     }
 
     /**
-     * Returns a list of the names of the object properties that represent content objects, i.e. derived from
+     * Returns a list of the names of the object properties that represent content objects, i.e., derived from
      * SerializedContent.
      * @param string[] $exclude
      * @return array
@@ -48,7 +59,7 @@ abstract class LinkedContent extends SerializedContent
 
     /**
      * Returns only the fields that map to the table managed by this class. The parent routine returns all RequestInput
-     * properties of the object. This routine overrides that to subtract the fields from linked content object.
+     * properties of the object. This routine overrides that to subtract the fields from the linked content object.
      * It also tests for any properties that may be pointers to child properties.
      * @param array $used_keys
      * @return QueryField[]
@@ -65,7 +76,7 @@ abstract class LinkedContent extends SerializedContent
             if (in_array($fields[$i]->key, $content)) {
                 unset($fields[$i]);
             }
-            // re-index array to avoid missing elements in subsequent loops
+            // re-index array to avoid missing elements in later loops
             $fields = array_values($fields);
         }
 
@@ -77,7 +88,7 @@ abstract class LinkedContent extends SerializedContent
                     unset($fields[$i]);
                 }
             }
-            // re-index array to avoid missing elements in subsequent loops
+            // re-index array to avoid missing elements in later loops
             $fields = array_values($fields);
         }
 
@@ -91,16 +102,28 @@ abstract class LinkedContent extends SerializedContent
     abstract public function getLinkedId(): int| null;
 
     /**
+     * Link key value getter.
+     * @return string
+     */
+    abstract public function getLinkedKey(): string;
+
+    /**
      * Returns the record id value of the parent record.
      * @return int|null
      */
-    abstract public function getParentId(): int|null;
+    public function getParentId(): int|null
+    {
+        return $this->parent_id->value;
+    }
 
     /**
-     * Returns the key value for primary key input.
+     * Returns the key value for the primary key input.
      * @return string
      */
-    abstract public function getPrimaryKey(): string;
+    public function getParentKey(): string
+    {
+        return $this->parent_id->getKey();
+    }
 
     /**
      * Combines two prepared statement argument lists.
@@ -178,9 +201,26 @@ abstract class LinkedContent extends SerializedContent
     abstract public function setLinkedId(int|null $record_id): static;
 
     /**
-     * Assigns the record id value of the parent record.
-     * @param int|null $record_id
+     * Link key setter.
+     * @param string $key
      * @return $this
      */
-    abstract public function setParentId(int|null $record_id): static;
+    abstract public function setLinkedKey(string $key): static;
+
+    /**
+     * Assigns the record id value of the parent record.
+     * @param int|null $parent_id
+     * @return $this
+     */
+    public function setParentId(int|null $parent_id): static
+    {
+        $this->parent_id->setInputValue($parent_id);
+        return $this;
+    }
+
+    public function setParentKey(string $key): static
+    {
+        $this->parent_id->setKey($key);
+        return $this;
+    }
 }

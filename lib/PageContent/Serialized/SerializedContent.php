@@ -1,5 +1,4 @@
 <?php
-
 namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
@@ -69,17 +68,16 @@ abstract class SerializedContent extends SerializedContentIO
         if (!is_array($link_ids)) {
             $link_ids = [$link_ids];
         }
+        if (!$this->$links_property->getAllowDuplicates()) {
+            $link_ids = array_unique($link_ids);
+        }
         try {
             foreach ($link_ids as $link_id) {
-                /** @var LinkedContent $link */
-                $link = (new $content_class())
-                    ->shareConnection($this)
-                    ->setLinkedId($link_id);
-                if ($this->id->hasData()) {
-                    $link->setPrimaryId($this->getRecordId());
-                }
                 try {
-                    $this->$links_property->addLink($link);
+                    $this->$links_property->addLink((new $content_class())
+                        ->shareConnection($this)
+                        ->setParentId($this->getRecordId())
+                        ->setLinkedId($link_id));
                 } catch (DuplicateRecordException) {
                     /* continue */
                 }
@@ -181,11 +179,10 @@ abstract class SerializedContent extends SerializedContentIO
             'ON DUPLICATE KEY UPDATE ';
 
         // strip out primary key variables since we're using the previously assigned @insert_id SQL session variable
-        $fields = array_filter($fields, function($e) {
-            return !$e->is_pk;
-        });
+        $fields = static::stripPrimaryKeyFields($fields);
 
-        $query .= join(', ', array_map(fn($e): string => "`$e->key` = VALUE(`$e->key`)", $fields));
+        $update_fields = static::stripKeyFields($fields);
+        $query .= join(', ', array_map(fn($e): string => "`$e->key` = VALUE(`$e->key`)", $update_fields));
         $type_str = implode('', array_map(function ($e) {
             return $e->type;
         }, $fields));
@@ -200,7 +197,7 @@ abstract class SerializedContent extends SerializedContentIO
      * @inheritDoc
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-\     */
+     */
     protected function formatRecordSelectPreparedStmt(): array
     {
         $fields = $this->extractPreparedStmtArgs();
@@ -320,9 +317,13 @@ abstract class SerializedContent extends SerializedContentIO
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
      * @return $this
+     * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
     public function read(): static
@@ -413,22 +414,35 @@ abstract class SerializedContent extends SerializedContentIO
     public function setRecordId(?int $record_id): static
     {
         $this->id->setInputValue($record_id);
-        $lp = $this->getLinkedContentPropertyList();
+        $lp = $this->getLinkedContent();
         foreach($lp as $property) {
-            $method = match(true) {
-                method_exists($property, 'setPrimaryId') => 'setPrimaryId',
-                method_exists($property, 'setParentId') => 'setParentId',
-                true => ''
-            };
-            if ($method) {
-                try {
-                    $property->$method($record_id);
-                } catch (NotInitializedException) {
-                    /* ignore and continue */
-                }
+            if (method_exists($property, 'setParentId')) {
+                $property->setParentId($record_id);
             }
         }
         return $this;
+    }
+
+    /**
+     * Strips any fields that should not be included in the ON DUPLICATE KEY UPDATE statement.
+     * @param QueryField[] $fields
+     * @return QueryField[]
+     */
+    protected static function stripKeyFields(array $fields): array
+    {
+        return static::stripPrimaryKeyFields($fields);
+    }
+
+    /**
+     * Strips all primary key fields from a fields collection.
+     * @param QueryField[] $fields
+     * @return QueryField[]
+     */
+    protected static function stripPrimaryKeyFields(array $fields): array
+    {
+        return array_filter($fields, function($e) {
+            return !$e->is_pk;
+        });
     }
 
     /**

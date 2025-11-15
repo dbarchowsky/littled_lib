@@ -1,24 +1,52 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\DuplicateRecordException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Log\Log;
+use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
+use Error;
+use TypeError;
 
 
 abstract class SerializedRecordList extends SerializedContentIO
 {
     public bool                 $allow_duplicates = false;
+    public ForeignKeyInput      $parent_id;
     protected array             $records = [];
     protected static string     $content_class;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->parent_id = (new ForeignKeyInput())
+            ->setLabel('Primary id')
+            ->setKey(LittledGlobals::ID_KEY)
+            ->setAsNotRequired();
+    }
+
+    /**
+     * Push a link object onto the list, at the end of the list.
+     * @param LinkedContent $link
+     * @return $this
+     * @throws DuplicateRecordException
+     */
+    public function addLink(LinkedContent $link): static
+    {
+        $this->checkForPreexistingLink($link);
+        $this->pushLink($link->setParentId($this->getParentId()));
+        return $this;
+    }
 
     /**
      * Adds record id to the existing list of record ids.
@@ -43,19 +71,6 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Push a link object onto the list, at the end of the list.
-     * @param LinkedContent $link
-     * @return $this
-     * @throws DuplicateRecordException
-     */
-    public function addLink(LinkedContent $link): static
-    {
-        $this->checkForPreexistingLink($link);
-        $this->pushLink($link);
-        return $this;
-    }
-
-    /**
      * Tests if a record already exists in the stack matching the specified $link record.
      * @param LinkedContent $link
      * @return void
@@ -63,12 +78,11 @@ abstract class SerializedRecordList extends SerializedContentIO
      */
     protected function checkForPreexistingLink(LinkedContent $link): void
     {
-        $link_id = $this->getChildRecordId($link);
         if (!$this->allow_duplicates &&
-            $link_id > 0 &&
-            ($this->lookupRecordById($link_id) !== false)) {
+            $link->getLinkedId() > 0 &&
+            ($this->lookupRecordById($link->getLinkedId()) !== false)) {
             throw new DuplicateRecordException(
-                'A '. strtolower($this->getContentLabel()) . " record with id $link_id already exists.");
+                'A '. strtolower($this->getContentLabel()) . ' record with id ' . $link->getLinkedId() . ' already exists.');
         }
     }
 
@@ -110,7 +124,9 @@ abstract class SerializedRecordList extends SerializedContentIO
                 else {
                     // single link value
                     $o = new static::$content_class();
-                    $o->collectRequestData($src);
+                    $o
+                        ->shareConnection($this)
+                        ->collectRequestData($src);
                     $this->records[] = $o;
                 }
             }
@@ -147,13 +163,14 @@ abstract class SerializedRecordList extends SerializedContentIO
         $this->records = [];
         /** @var SerializedContent $class */
         $class = static::$content_class;
-        return 'The '.strtolower($class::getContentLabel()).' records were deleted. ';
+        return 'The '.strtolower((new $class())->getContentLabel()).' records were deleted. ';
     }
 
     /**
      * Deletes any stale links between the two tables.
      * @param int[] $link_ids
      * @return void
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws NotInitializedException
@@ -165,7 +182,7 @@ abstract class SerializedRecordList extends SerializedContentIO
         $this->query(...$args);
 
         for ($i = count($this->records) - 1; $i >= 0; $i--) {
-            if (in_array($this->records[$i]->getLinkId(), $stale_link_ids)) {
+            if (in_array($this->records[$i]->getLinkedId(), $stale_link_ids)) {
                 unset($this->records[$i]);
             }
         }
@@ -179,6 +196,48 @@ abstract class SerializedRecordList extends SerializedContentIO
     protected function formatCommitQuery(): array
     {
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
+     * @throws ConnectionException
+     */
+    protected function formatRecordSelectPreparedStmt(): array
+    {
+        $c = static::getContentClass();
+        try {
+            $fields = (new $c())->extractPreparedStmtArgs();
+        } catch (Error|TypeError) {
+            throw new ConfigurationUndefinedException('A content class has not been defined for ' . basename(str_replace('\\', '/', static::class)));
+        }
+        $query = 'SELECT `' .
+            implode('`,`', array_map(function ($e) {
+                return $e->key;
+            }, $fields)) .
+            '` FROM `' . static::getTableName(). '` '.
+            'WHERE `' .$this->parent_id->getColumnName('parent_id') . '` = ? ';
+        return [$query, 'i', &$this->parent_id->value];
+    }
+
+    /**
+     * Return SQL statement to use to delete stale linked records.
+     * @param array $stale_link_ids
+     * @return array
+     * @throws ConfigurationUndefinedException
+     */
+    abstract protected function formatDeleteStaleLinksStmt(array $stale_link_ids): array;
+
+    /**
+     * @inheritDoc
+     * @throws NotImplementedException
+     */
+    protected function executeCommitQuery(): void
+    {
+        throw new NotImplementedException('executeCommitQuery() is not implemented for JunctionRecordList.');
     }
 
     /**
@@ -235,23 +294,16 @@ abstract class SerializedRecordList extends SerializedContentIO
     /**
      * Get the name of the database table holding this object's data.
      * @return string
-     * @throws NotInitializedException
+     * @throws ConfigurationUndefinedException
      */
-    protected function getContentTableName(): string
+    public static function getTableName(): string
     {
-        $table = call_user_func([static::$content_class, 'getTableName']);
-        if (!trim($table)) {
-            $err_msg = 'A table has not been assigned within ' . Log::getClassBaseName(static::$content_class) . '.';
-            throw new NotInitializedException($err_msg);
+        $content_class = static::getContentClass();
+        if ($content_class === '') {
+            throw new ConfigurationUndefinedException('A content class has not been defined for ' . basename(str_replace('\\', '/', static::class)));
         }
-        return $table;
+        return call_user_func([$content_class, 'getTableName']);
     }
-
-    /**
-     * Returns the record id value of the linked record from the external table.
-     * @return int|null
-     */
-    abstract public function getLinkedId(): int|null;
 
     /**
      * Returns all currently stored link record id values in an array
@@ -259,20 +311,54 @@ abstract class SerializedRecordList extends SerializedContentIO
      */
     public function getLinkIds(): array
     {
-        return array_map(fn($e): int => (int)$e->id->safeValue(), $this->records);
+        return array_map(fn($e): int => (int)$e->getLinkedId(), $this->records);
     }
 
     /**
      * Return the key representing the value that links the list of records to a linked table.
      * @return string
+     * @throws NotInitializedException
      */
-    abstract protected function getLinkedKey(): string;
+    protected function getLinkedKey(): string
+    {
+        if (isset($this->records) && count($this->records) > 0) {
+            return $this->records[0]->link_id->key;
+        }
+        else {
+            if (!isset(static::$content_class)) {
+                throw new NotInitializedException('Content class property has not been assigned a value.');
+            }
+            $o = new static::$content_class();
+            return $o->link_id->key;
+        }
+    }
 
     /**
-     * Get the name of the property representing the link to a foreign table.
+     * Parent id getter
+     * @return int|null
+     */
+    public function getParentId(): int|null
+    {
+        return $this->parent_id->value;
+    }
+
+    /**
+     * Parent id property getter.
+     * @return ForeignKeyInput
+     */
+    protected function getParentIdObj(): ForeignKeyInput
+    {
+        return $this->parent_id;
+    }
+
+    /**
+     * Returns the key of the parent id property.
      * @return string
      */
-    abstract protected static function getLinkedPropertyName(): string;
+    protected function getParentKey(): string
+    {
+        return $this->parent_id->getKey();
+    }
 
     /**
      * Returns the id values of any records that aren't linked to the parent anymore.
@@ -285,7 +371,7 @@ abstract class SerializedRecordList extends SerializedContentIO
             return [];
         }
 
-        $stale_link_ids = array_map(fn($e): int => $this->getChildRecordId($e), $this->records);
+        $stale_link_ids = array_map(fn($e): int => $e->getLinkedId(), $this->records);
         $filtered = array_filter($stale_link_ids, function($e) use ($link_ids) { return !in_array($e, $link_ids); });
         return array_values($filtered);
     }
@@ -346,21 +432,43 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Create a new linked record and assign it's record id value.
-     * @param int|null $record_id
+     * Create a new linked record and assign its linked record id value.
+     * @param int|null $linked_id
      * @return LinkedContent
      * @throws NotInitializedException
      */
-    protected function instantiateChild(int $record_id=null): LinkedContent
+    protected function instantiateChild(int $linked_id=null): LinkedContent
     {
         if (!isset(static::$content_class)) {
             throw new NotInitializedException('Content class property has not been assigned a value.');
         }
-        $c = (new static::$content_class());
-        if ($this->getParentId() > 0) {
-            $c->setLinkedId($this->getParentId());
+        return (new static::$content_class())
+            ->setParentId($this->getParentId())
+            ->setLinkedId($linked_id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function isReadyToRead(): bool
+    {
+        return $this->parent_id->hasData();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isRequired(): bool
+    {
+        if (parent::isRequired()) {
+            return true;
         }
-        return $c->setRecordId($record_id);
+        foreach($this->records as $record) {
+            if ($record->isRequired()) {
+                return true;
+            }
+        }
+        return $this->parent_id->isRequired();
     }
 
     /**
@@ -388,12 +496,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      */
     public function lookupRecordById(int $record_id): bool|int
     {
-        for($i = 0; $i < count($this->records); $i++) {
-            if ($this->records[$i]->getRecordId() === $record_id) {
-                return $i;
-            }
-        }
-        return false;
+        return array_search($record_id, $this->getLinkIds());
     }
 
     /**
@@ -409,17 +512,22 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * @inheritDoc
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws FailedQueryException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
      */
     public function read(): static
     {
         $this->clearLinks();
         $data = $this->fetchRecords(...$this->formatRecordSelectPreparedStmt());
         foreach($data as $row) {
-            $o = new static::$content_class();
+            $o = (new static::$content_class())->shareConnection($this);
             $o->hydrateFromRecordsetRow($row);
-            if (!$o->getLinkedId()) {
+            if (!$o->getParentId()) {
                 /*
                  * assign parent id to a child object if the assignment wasn't made in the hydrate routine
                  */
@@ -468,27 +576,6 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Linked record id value setter.
-     * @param int|null $record_id
-     * @return $this
-     */
-    public function setLinkedId(?int $record_id): static
-    {
-        foreach($this->records as $record) {
-            $record->setLinkedId($record_id);
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setRecordId(?int $record_id): static
-    {
-        return $this->setLinkedId($record_id);
-    }
-
-    /**
      * Allow duplicates flag value setter.
      * @param bool $flag
      * @return $this
@@ -500,8 +587,93 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Unshift link onto stack (at the beginning of the stack) and make the necessary updates to the state of the list of
-     * linked records.
+     * @return $this
+     */
+    public function setAsNotRequired(): static
+    {
+        parent::setAsNotRequired();
+        foreach($this->records as $record) {
+            $record->setAsNotRequired();
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setAsRequired(): static
+    {
+        parent::setAsRequired();
+        foreach($this->records as $record) {
+            $record->setAsRequired();
+        }
+        return $this;
+    }
+
+    /**
+     * Linked record id value setter.
+     * @param int|null $link_id
+     * @return $this
+     */
+    public function setLinkedId(?int $link_id): static
+    {
+        foreach($this->records as $record) {
+            $record->setLinkedId($link_id);
+        }
+        return $this;
+    }
+
+    /**
+     * Linked property key value setter.
+     * @param string $key
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     */
+    public function setLinkedKey(string $key): static
+    {
+        foreach($this->records as $record) {
+            $record->setLinkedKey($key);
+        }
+        return $this;
+    }
+
+    /**
+     * Parent id setter.
+     * @param int|null $record_id
+     * @return $this
+     */
+    public function setParentId(int|null $record_id): static
+    {
+        $this->parent_id->setInputValue($record_id);
+        foreach($this->records as $record) {
+            $record->setParentId($record_id);
+        }
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRecordId(?int $record_id): static
+    {
+       $this->setParentId($record_id);
+       return $this;
+    }
+
+    /**
+     * Sets the object as required in form data depending on $flag value.
+     * @param bool $flag
+     * @return $this
+     */
+    public function setRequiredFlag(bool $flag): static
+    {
+        $method = $flag ? 'setAsRequired' : 'setAsNotRequired';
+        return $this->$method($flag);
+    }
+
+    /**
+     * Unshift the link onto stack (at the beginning of the stack) and make the necessary updates to the state of
+     * the list of linked records.
      * @param LinkedContent $link
      * @return void
      */
@@ -530,6 +702,9 @@ abstract class SerializedRecordList extends SerializedContentIO
             } catch (ContentValidationException) {
                 $this->addValidationError($record->validationErrors());
             }
+        }
+        if ($this->isRequired() && count($this->records) < 1) {
+            $this->addValidationError( ucfirst(strtolower(static::getContentLabel())) . ' is required.');
         }
 
         if ($this->hasValidationErrors()) {
