@@ -37,7 +37,7 @@ trait RequestSelect
     }
 
     /**
-     * Sets options to be displayed in select dropdown menu.
+     * Sets options to be displayed in a select dropdown menu.
      * @param int[] $options
      * @return $this
      */
@@ -51,7 +51,7 @@ trait RequestSelect
     }
 
     /**
-     * Options length setter. If this value is set, the number of options displayed will be limited to length value.
+     * Options length setter. If this value is set, the number of options displayed will be limited to the length value.
      * @param int $len
      * @return void
      */
@@ -61,7 +61,7 @@ trait RequestSelect
     }
 
     /**
-     * Set flag to suppress a default blank option on dropdown options.
+     * Sets the value of a flag to suppress a default blank option on dropdown options.
      * @return $this
      */
     public function suppressDefaultToNull(): static
