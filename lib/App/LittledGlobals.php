@@ -116,7 +116,7 @@ abstract class LittledGlobals
      */
     public static function getRootURI(): string
     {
-        if (!isset(self::$app_domain) || empty(self::$app_domain)) {
+        if (!isset(static::$app_domain) || empty(static::$app_domain)) {
             return '';
         }
         return 'https://' . rtrim(static::getAppDomain(), '/') . '/';
