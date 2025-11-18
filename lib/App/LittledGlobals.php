@@ -111,6 +111,18 @@ abstract class LittledGlobals
     }
 
     /**
+     * Returns the root URI for the app.
+     * @return string Root URI for the app.
+     */
+    public static function getRootURI(): string
+    {
+        if (!isset(self::$app_domain) || empty(self::$app_domain)) {
+            return '';
+        }
+        return 'https://' . rtrim(static::getAppDomain(), '/') . '/';
+    }
+
+    /**
      * Returns the current template root path.
      * @return string Template root path.
      * @throws ConfigurationUndefinedException
