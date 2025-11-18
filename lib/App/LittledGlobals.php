@@ -8,18 +8,16 @@ use Littled\Exception\NotInitializedException;
 
 abstract class LittledGlobals
 {
-    /** @var string             Path to app's root directory. */
+    /** @var string             Path to the app's root directory. */
     protected static string $app_base_dir;
     /** @var string             App domain name. */
-    protected static string $app_domain = '';
-    /** @var string             Root URI for CMS pages. */
-    protected static string $cms_root_uri = '';
+    protected static string $app_domain;
     protected static string $error_log;
-    /** @var string             Path to directory containing mysql authentication (outside public access). */
+    /** @var string             Path to the directory containing mysql authentication (outside public access). */
     protected static string $mysql_keys_path = '';
-    /** @var string             Path to directory containing app templates. */
+    /** @var string             Path to the directory containing app templates. */
     protected static string $local_template_path = '';
-    /** @var string             Path to directory containing app templates. */
+    /** @var string             Path to the directory containing app templates. */
     protected static string $shared_template_path = '';
     /** @var bool               Flag controlling adding verbose information to error messages displayed on the front
      *                          end. Override the default value in inherited classes within client apps.
@@ -39,11 +37,11 @@ abstract class LittledGlobals
      *                          collecting cookie data
      */
     const COOKIE_CONSENT_KEY = 'hasCookieConsent';
-    /** @var string             Key of request variable used to pass CSRF tokens. */
+    /** @var string             Key of the request variable used to pass CSRF tokens. */
     const CSRF_TOKEN_KEY = 'csrf';
     /** @var string             Key of request variable used to pass error messages. */
     const ERROR_MSG_KEY = 'err';
-    /** @var string             Request variable flag indicating that listings are being filtered. */
+    /** @var string             Request a variable flag indicating that listings are being filtered. */
     const FILTER_KEY = 'filter';
     /** @var string             Key of the record id request variable. */
     const ID_KEY = 'id';
@@ -74,17 +72,7 @@ abstract class LittledGlobals
      */
     public static function getAppDomain(): string
     {
-        return static::$app_domain;
-    }
-
-    /**
-     * Gets path to current CMS root URI.
-     * @return string CMS root URI.
-     * TODO refactor to remove
-     */
-    public static function getCMSRootURI(): string
-    {
-        return static::$cms_root_uri;
+        return static::$app_domain ?? '';
     }
 
     /**
@@ -101,7 +89,7 @@ abstract class LittledGlobals
     }
 
     /**
-     * Returns current template root path.
+     * Returns the current template root path.
      * @return string Template root path.
      * @throws ConfigurationUndefinedException
      */
@@ -123,7 +111,7 @@ abstract class LittledGlobals
     }
 
     /**
-     * Returns current template root path.
+     * Returns the current template root path.
      * @return string Template root path.
      * @throws ConfigurationUndefinedException
      */
@@ -145,16 +133,6 @@ abstract class LittledGlobals
     }
 
     /**
-     * Sets path to current CMS URI root.
-     * @param string $uri CMS URI root.
-     * TODO refactor to remove
-     */
-    public static function setCMSRootURI(string $uri): void
-    {
-        static::$cms_root_uri = (($uri) ? (rtrim($uri, '/') . '/') : (''));
-    }
-
-    /**
      * Error log path setter.
      * @param string $path
      * @return void
@@ -165,8 +143,8 @@ abstract class LittledGlobals
     }
 
     /**
-     * Sets root template directory path.
-     * @param string $path Path to root directory containing template files.
+     * Sets the root template directory path.
+     * @param string $path Path to the root directory containing template files.
      */
     public static function setLocalTemplatesPath(string $path): void
     {
@@ -183,8 +161,8 @@ abstract class LittledGlobals
     }
 
     /**
-     * Sets root template directory path.
-     * @param string $path Path to root directory containing template files.
+     * Sets the root template directory path.
+     * @param string $path Path to the root directory containing template files.
      */
     public static function setSharedTemplatesPath(string $path): void
     {
