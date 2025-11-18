@@ -4,52 +4,43 @@ namespace Littled\App;
 
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\NotInitializedException;
 
 abstract class LittledGlobals
 {
-    /** @var string             Path to the app's root directory. */
-    protected static string $app_base_dir;
-    /** @var string             App domain name. */
-    protected static string $app_domain;
-    protected static string $error_log;
-    /** @var string             Path to the directory containing mysql authentication (outside public access). */
-    protected static string $mysql_keys_path = '';
-    /** @var string             Path to the directory containing app templates. */
-    protected static string $local_template_path = '';
-    /** @var string             Path to the directory containing app templates. */
-    protected static string $shared_template_path = '';
-    /** @var bool               Flag controlling adding verbose information to error messages displayed on the front
-     *                          end. Override the default value in inherited classes within client apps.
-     */
-    protected static bool $show_verbose_errors = false;
-    /** @var string             Name of session variable use dto store CSRF tokens. */
-    const CSRF_SESSION_KEY = 'csrfToken';
-    /** @var string             Name of request header transmitting csrf token. */
-    const CSRF_HEADER_KEY = 'X_CSRF_TOKEN';
-    /** @var string             Request variable name to cancel operations. */
-    const CANCEL_KEY = 'cancel';
-    /** @var string             Request variable name to commit operations. */
-    const COMMIT_KEY = 'commit';
-    /** @var string             Key of the content type id request variable. */
-    const CONTENT_TYPE_KEY = 'tid';
-    /** @var string             Cookie variable containing value of flag indicating the user's consent to
-     *                          collecting cookie data
-     */
-    const COOKIE_CONSENT_KEY = 'hasCookieConsent';
-    /** @var string             Key of the request variable used to pass CSRF tokens. */
-    const CSRF_TOKEN_KEY = 'csrf';
-    /** @var string             Key of request variable used to pass error messages. */
-    const ERROR_MSG_KEY = 'err';
-    /** @var string             Request a variable flag indicating that listings are being filtered. */
-    const FILTER_KEY = 'filter';
-    /** @var string             Key of the record id request variable. */
+    protected static string|null    $app_base_dir;
+    protected static string         $app_domain;
+    protected static string|null    $config_path;
+    protected static string|null    $error_log;
+    protected static string         $mysql_keys_path;
+    protected static string|null    $local_template_path;
+    protected static string|null    $shared_template_path;
+    protected static bool           $show_verbose_errors = false;
+
+    /** @var string                 Name of session variable use dto store CSRF tokens. */
+    const                           CSRF_SESSION_KEY = 'csrfToken';
+    /** @var string                 Name of request header transmitting csrf token. */
+    const                           CSRF_HEADER_KEY = 'X_CSRF_TOKEN';
+    /** @var string                 Request variable name to cancel operations. */
+    const                           CANCEL_KEY = 'cancel';
+    /** @var string                 Request variable name to commit operations. */
+    const                           COMMIT_KEY = 'commit';
+    /** @var string                 Key of the content type id request variable. */
+    const                           CONTENT_TYPE_KEY = 'tid';
+    /** @var string                 Cookie variable containing value of flag indicating the user's consent to collecting cookie data */
+    const                           COOKIE_CONSENT_KEY = 'hasCookieConsent';
+    /** @var string                 Key of the request variable used to pass CSRF tokens. */
+    const                           CSRF_TOKEN_KEY = 'csrf';
+    /** @var string                 Key of request variable used to pass error messages. */
+    const                           ERROR_MSG_KEY = 'err';
+    /** @var string                 Request a variable flag indicating that listings are being filtered. */
+    const                           FILTER_KEY = 'filter';
+    /** @var string                 Key of the record id request variable. */
     const ID_KEY = 'id';
-    /** @var string             Request variable containing status message. */
+    /** @var string Request variable containing status message. */
     const INFO_MESSAGE_KEY = 'msg';
-    /** @var string             Key of the parent id request variable. */
+    /** @var string Key of the parent id request variable. */
     const PARENT_ID_KEY = 'pid';
-    /** @var string             Request variable name containing referring URLs. */
+    /** @var string Request variable name containing referring URLs. */
     const REFERER_KEY = 'ref';
     /** @var string */
     const OPERATION_KEY = 'op';
@@ -59,7 +50,7 @@ abstract class LittledGlobals
      */
     public static function getAppBaseDir(): string
     {
-        if (!isset(static::$app_base_dir)) {
+        if (!isset(static::$app_base_dir) || static::$app_base_dir === null) {
             throw new ConfigurationUndefinedException(
                 'Application\'s base directory was not configured within the app.');
         }
@@ -76,14 +67,27 @@ abstract class LittledGlobals
     }
 
     /**
+     * Configuration base path getter.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getConfigPath(): string
+    {
+        if (!isset(static::$config_path) || empty(static::$config_path)) {
+            throw new ConfigurationUndefinedException('A configuration path has not been configured.');
+        }
+        return static::$config_path;
+    }
+
+    /**
      * Error log path getter.
      * @return string
-     * @throws NotInitializedException
+     * @throws ConfigurationUndefinedException
      */
     public static function getErrorLogPath(): string
     {
-        if (!isset(static::$error_log)) {
-            throw new NotInitializedException('An error log path has not been configured.');
+        if (!isset(static::$error_log) || empty(static::$local_template_path)) {
+            throw new ConfigurationUndefinedException('An error log path has not been configured.');
         }
         return static::$error_log;
     }
@@ -95,7 +99,7 @@ abstract class LittledGlobals
      */
     public static function getLocalTemplatesPath(): string
     {
-        if ('' === static::$local_template_path) {
+        if (!isset(static::$local_template_path) || empty(static::$local_template_path)) {
             throw new ConfigurationUndefinedException('LittledGlobals local template path value not set.');
         }
         return static::$local_template_path;
@@ -107,7 +111,17 @@ abstract class LittledGlobals
      */
     public static function getMySQLKeysPath(): string
     {
-        return static::$mysql_keys_path;
+        if (isset(static::$mysql_keys_path) && !empty(static::$mysql_keys_path) &&
+            str_starts_with(static::$mysql_keys_path, '/')) {
+            return static::$mysql_keys_path;
+        }
+        $config_path = '';
+        try {
+            $config_path = static::getConfigPath();
+        } catch (ConfigurationUndefinedException $e) {
+            /* continue */
+        }
+        return $config_path . (static::$mysql_keys_path ?? '');
     }
 
     /**
@@ -145,6 +159,16 @@ abstract class LittledGlobals
     }
 
     /**
+     * Configuration base path setter.
+     * @param string|null $path
+     * @return void
+     */
+    public static function setConfigPath(string|null $path): void
+    {
+        static::$config_path = $path ? rtrim($path, '/') . '/' : '';
+    }
+
+    /**
      * Error log path setter.
      * @param string $path
      * @return void
@@ -165,11 +189,12 @@ abstract class LittledGlobals
 
     /**
      * Sets path to current MySQL authentication directory.
-     * @param string $path MySQL keys path.
+     * @param string|null $path MySQL keys path.
+     * @throws ConfigurationUndefinedException
      */
-    public static function setMySQLKeysPath(string $path): void
+    public static function setMySQLKeysPath(string|null $path): void
     {
-        static::$mysql_keys_path = (($path) ? (rtrim($path, '/') . '/') : (''));
+        static::$mysql_keys_path = ($path) ? rtrim($path, '/') . '/' : '';
     }
 
     /**
