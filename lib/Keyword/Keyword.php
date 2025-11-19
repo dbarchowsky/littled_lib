@@ -1,7 +1,6 @@
 <?php
 namespace Littled\Keyword;
 
-use Exception;
 use Littled\Exception\FailedQueryException;
 use Littled\PageContent\Serialized\SerializedContentValidation;
 use Littled\Request\IntegerInput;
@@ -16,23 +15,23 @@ use Littled\Request\StringTextarea;
 class Keyword extends SerializedContentValidation
 {
     /** @var string Parent input variable name. */
-    const PARENT_KEY = 'kwpi';
+    const                       PARENT_KEY = 'kwpi';
     /** @var string Keyword type input variable name. */
-    const TYPE_KEY = 'kwti';
+    const                       TYPE_KEY = 'kwti';
     /** @var string Keyword input variable name. */
-    const KEYWORD_KEY = 'kwtx';
+    const                       KEYWORD_KEY = 'kwtx';
     /** @var string Keyword filter variable name. */
-    const FILTER_KEY = 'flkw';
+    const                       FILTER_KEY = 'flkw';
     /** @var StringTextarea Keyword term. */
-    public StringTextarea $term;
+    public StringTextarea       $term;
     /** @var IntegerInput Keyword type id. */
-    public IntegerInput $type_id;
+    public IntegerInput         $type_id;
     /** @var IntegerInput Keyword parent id. */
-    public IntegerInput $parent_id;
+    public IntegerInput         $parent_id;
     /** @var string Keyword type name. */
-    public string $type;
+    public string               $type;
     /** @var int Keyword count. */
-    public int $count;
+    public int                  $count;
 
     /**
      * Keyword constructor.
@@ -41,7 +40,7 @@ class Keyword extends SerializedContentValidation
      * @param ?int $type_id Keyword type id.
      * @param int $count (Optional) Keyword count. Defaults to 0.
      */
-    function __construct(string $keyword, ?int $parent_id = null, ?int $type_id = null, int $count = 0)
+    function __construct(string $keyword='', ?int $parent_id = null, ?int $type_id = null, int $count = 0)
     {
         parent::__construct();
         $this->term = new StringTextarea('Keyword', Keyword::KEYWORD_KEY, true, $keyword, 1000, null);
@@ -53,7 +52,7 @@ class Keyword extends SerializedContentValidation
     /**
      * Deletes Keyword record from the database.
      * @return string
-     * @throws Exception
+     * @throws FailedQueryException
      */
     public function delete(): string
     {
@@ -73,6 +72,26 @@ class Keyword extends SerializedContentValidation
     {
         $data = $this->fetchRecords('CALL keywordLookup(?,?,?)', 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
         return ($data[0]->match_count > 0);
+    }
+
+    public function getCount(): int
+    {
+        return $this->count;
+    }
+
+    public function getParentId(): int
+    {
+        return $this->parent_id->value;
+    }
+
+    public function getTerm(): string
+    {
+        return $this->term->value;
+    }
+
+    public function getTypeId(): int
+    {
+        return $this->type_id->value;
     }
 
     /**
@@ -96,5 +115,29 @@ class Keyword extends SerializedContentValidation
             return;
         }
         $this->query('CALL keywordInsert(?,?,?)', 'sii', $this->term->value, $this->type_id->value, $this->parent_id->value);
+    }
+
+    public function setCount(int $count): static
+    {
+        $this->count = $count;
+        return $this;
+    }
+
+    public function setParentId(int $parent_id): static
+    {
+        $this->parent_id->value = $parent_id;
+        return $this;
+    }
+
+    public function setTerm(string $term): static
+    {
+        $this->term->value = $term;
+        return $this;
+    }
+
+    public function setTypeId(int $type_id): static
+    {
+        $this->type_id->value = $type_id;
+        return $this;
     }
 }
