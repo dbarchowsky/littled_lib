@@ -9,6 +9,7 @@ use Littled\PageContent\Albums\Gallery;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\ForeignKeyInput;
 use Littled\Request\PrimaryKeyInput;
+use Littled\Request\RenderedInput;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
@@ -145,8 +146,7 @@ trait SerializedFieldOperations
     }
 
     /**
-     * Returns a list of column names to use to format SQL queries that will be used to read and update
-     * records.
+     * Returns a list of column names to use to format SQL queries that will be used to read and update records.
      * @param array $used_keys (Optional) Properties that have already been added to the stack.
      * @return QueryField[] Key/value pairs for each RequestInput property of the class.
      * @throws ConfigurationUndefinedException
@@ -157,16 +157,16 @@ trait SerializedFieldOperations
         $fields = [];
         foreach ($this as $key => $item) {
 
-            // return any RequestInput properties that map to fields in the database record
+            // return any RenderedInput properties that map to fields in the database record
             if ($this->isDatabaseProperty($item, $used_keys)) {
-                /** @var RequestInput $item */
+                /** @var RenderedInput $item */
                 /* format column name and value for SQL statement */
                 $fields[] = (new QueryField())
                     ->setisPrimaryKey(Validation::isSubclass($item, PrimaryKeyInput::class))
                     ->setIsForeignKey(Validation::isSubclass($item, ForeignKeyInput::class))
                     ->setKey($item->getColumnName($this->getRecordsetPrefix() . $key))
                     ->setType($item::getPreparedStatementTypeIdentifier())
-                    ->setValue($item->escapeSQL($this->getMySQLi()));
+                    ->setValue($item->getInputValue());
             }
 
             // return any PK properties for linked records
@@ -177,7 +177,7 @@ trait SerializedFieldOperations
                         ->setIsForeignKey(true)
                         ->setKey($item->id->getColumnName($item->getRecordsetPrefix() . 'id'))
                         ->setType($item->id::getPreparedStatementTypeIdentifier())
-                        ->setValue($item->id->escapeSQL($this->getMySQLi()));
+                        ->setValue($item->id->getInputValue());
                 }
             }
 
@@ -293,9 +293,9 @@ trait SerializedFieldOperations
     public function preserveInForm(array $excluded_keys = []): void
     {
         foreach ($this as $item) {
-            if ($item instanceof RequestInput && !in_array($item->key, $excluded_keys)) {
+            if ($item instanceof RenderedInput && !in_array($item->key, $excluded_keys)) {
                 // make sure to use the template path for the base object, which is a hidden input element
-                $item->saveInForm(RequestInput::getTemplatePath());
+                $item->saveInForm(RenderedInput::getHiddenTemplatePath());
             }
             elseif(is_object($item) && method_exists($item, 'preserveInForm')) {
                 $item->preserveInForm($excluded_keys);

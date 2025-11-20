@@ -2,15 +2,10 @@
 
 namespace Littled\Request;
 
-use mysqli;
 use Littled\Validation\Validation;
 
 class FloatInput extends RenderedInput
 {
-    /** Form input element template filename */
-    protected static string     $input_template_filename = 'string-text-input.php';
-    /** Input container template filename */
-    protected static string     $template_filename = 'string-text-field.php';
     /** Data type identifier used with bind_param() calls */
     protected static string     $bind_param_type = 'd';
     const                       DEFAULT_DATA_SIZE = 16;
@@ -27,6 +22,10 @@ class FloatInput extends RenderedInput
         int|null        $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
+
+        static::$input_template_filename = 'string-text-input.php';
+        static::$template_filename = 'string-text-field.php';
+
         // make sure that invalid values are converted to a null value
         $this->setInputValue($value);
         $this->content_type = 'number';
@@ -57,7 +56,7 @@ class FloatInput extends RenderedInput
     /**
      * @inheritDoc
      */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): float|int|string|null
+    public function escapeSQL(bool $include_quotes = false): float|int|string|null
     {
         return Validation::parseNumeric($this->value);
     }

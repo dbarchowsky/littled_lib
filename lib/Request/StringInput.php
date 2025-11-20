@@ -8,12 +8,10 @@ use Littled\Validation\Validation;
 
 class StringInput extends RenderedInput
 {
-    /** @var string         Form input element template filename */
-    protected static string $input_template_filename = 'string-text-input.php';
-    /** @var string         Input container template filename */
-    protected static string $template_filename = 'string-text-field.php';
-    /** @var string         Data type identifier used with bind_param() calls */
-    protected static string $bind_param_type = 's';
+    protected static string     $bind_param_type = 's';
+    protected static string     $input_template_filename = 'string-text-input.php';
+    protected static string     $template_base_path;
+    protected static string     $template_filename = 'string-text-field.php';
 
     /**
      * @inheritDoc
@@ -27,6 +25,7 @@ class StringInput extends RenderedInput
         int|null        $index          = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
+
         // override to avoid null values
         $this->setInputValue($value);
     }
@@ -42,7 +41,7 @@ class StringInput extends RenderedInput
     /**
      * Collects the value of this form input and stores it in the object.
      * @param ?array $src Collection of input data. If not specified, will read input from POST, GET, Session vars.
-     * @param ?int $filters Filters for parsing request variables, e.g. FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
+     * @param ?int $filters Filters for parsing request variables, e.g., FILTER_UNSAFE_RAW, FILTER_SANITIZE_STRING, etc.
      * @param ?string $key Key to use in place of the internal $key property value.
      */
     public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null): void

@@ -4,7 +4,8 @@ namespace Littled\Filters;
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
-use Littled\Request\RequestInput;
+use Littled\Request\RenderedInput;
+use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
 use mysqli;
 
@@ -50,9 +51,9 @@ class ContentFilter
         if (isset($this->cookieKey)) {
             if (isset($_COOKIE[$this->cookieKey])) {
                 $expires = time() + 3600 * 24 * 90;
-                $ar = explode("|", $_COOKIE[$this->cookieKey]);
+                $ar = explode('|', $_COOKIE[$this->cookieKey]);
                 if (array_key_exists($this->key, $ar)) unset($ar[$this->key]);
-                setcookie($this->cookieKey, implode("|", $ar), $expires);
+                setcookie($this->cookieKey, implode('|', $ar), $expires);
             } else {
                 setcookie($this->cookieKey, '', time() - 1);
             }
@@ -83,7 +84,7 @@ class ContentFilter
      */
     protected function collectRequestValue(?array $src = null): void
     {
-        $value = Validation::collectRequestVar($this->key, Validation::DEFAULT_REQUEST_FILTER, $src);
+        $value = Validation::collectRequestVar($this->key, RequestValidation::DEFAULT_REQUEST_FILTER, $src);
         $this->value = $value ?: $this->value;
     }
 
@@ -111,7 +112,7 @@ class ContentFilter
     }
 
     /**
-     * Assigns value property using value stored in session variable.
+     * Assigns value property using value stored in the session variable.
      * @return void
      */
     public function collectValueFromSession(): void
@@ -138,11 +139,11 @@ class ContentFilter
         if ($this->value === false) {
             return ('0');
         }
-        return (($include_quotes) ? ("'") : ("")) . $mysqli->real_escape_string($this->value) . (($include_quotes) ? ("'") : (""));
+        return (($include_quotes) ? ("'") : ('')) . $mysqli->real_escape_string($this->value) . (($include_quotes) ? ("'") : (''));
     }
 
     /**
-     * Returns name/value pair from within query string representing the
+     * Returns name/value pair from within a query string representing the
      * current "param" and "value" property values of the object.
      * @return string Name/value pair formatted for insertion into a query string.
      */
@@ -178,13 +179,13 @@ class ContentFilter
      */
     public function getPreserveValueTemplatePath(): string
     {
-        return RequestInput::getTemplateBasePath() . static::$preserve_value_template;
+        return RenderedInput::getTemplateBasePath() . static::$preserve_value_template;
     }
 
     /**
      * Returns string safe from XSS attacks that can be embedded in HTML.
-     * @param ?int $options Combination of tokens to pass along, e.g. FILTER_SANITIZE_FULL_SPECIAL_CHARS
-     * Same values as 3rd argument to PHP's filter_var() routine.
+     * @param ?int $options Combination of tokens to pass along, e.g., FILTER_SANITIZE_FULL_SPECIAL_CHARS
+     * Same values as the 3rd argument to PHP's filter_var() routine.
      * @return string XSS-safe string.
      */
     public function safeValue(?int $options = ENT_NOQUOTES): string
@@ -200,11 +201,11 @@ class ContentFilter
         $expires = time() + 3600 * 24 * 90;
         if (isset($this->cookieKey)) {
             if (isset($_COOKIE[$this->cookieKey])) {
-                $ar = explode("|", $_COOKIE[$this->cookieKey]);
+                $ar = explode('|', $_COOKIE[$this->cookieKey]);
                 $ar[$this->key] = $this->value;
-                setcookie($this->cookieKey, implode("|", $ar), $expires);
+                setcookie($this->cookieKey, implode('|', $ar), $expires);
             } else {
-                setcookie($this->cookieKey, $this->key . "|" . $this->value, $expires);
+                setcookie($this->cookieKey, $this->key . '|' . $this->value, $expires);
             }
         } else {
             setcookie($this->key, $this->value, $expires);

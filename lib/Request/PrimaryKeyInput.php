@@ -1,7 +1,5 @@
 <?php
-
 namespace Littled\Request;
-
 
 use Littled\App\LittledGlobals;
 

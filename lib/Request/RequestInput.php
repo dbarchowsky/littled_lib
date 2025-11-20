@@ -2,13 +2,6 @@
 namespace Littled\Request;
 
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
-use Littled\Utility\LittledUtility;
-use Littled\Validation\ContentConversion;
-use Littled\Validation\Validation;
-use Exception;
-use mysqli;
 
 /**
  * Class RequestInput
@@ -17,24 +10,9 @@ use mysqli;
  */
 abstract class RequestInput
 {
-    /** Path to form input templates. */
-    protected static string     $template_base_path = '';
-    /** Input template filename. */
-    protected static string     $template_filename = 'hidden-input.php';
-    /** Input template filename. */
-    protected static string     $hidden_template_filename = 'hidden-input.php';
-    /** Form input element filename. */
-    protected static string     $input_template_filename = '';
-    /** Required field indicator string. */
-    protected static string     $required_field_indicator = ' (*)';
-    /** Error indicator CSS class. */
-    protected static string     $error_class = 'form-error';
-    protected static string     $input_error_css_class = 'input-error';
     /** Data type identifier used with bind_param() calls */
     protected static string     $bind_param_type = 's';
 
-    /** Name of CSS class to be used when displaying the form input. */
-    public string               $container_css_class='form-cell';
     /** Content type within HTML form, e.g., type="text", type="tel", type="email", etc. */
     public string               $content_type='text';
     /** If FALSE, this property will be passed over when retrieving or saving its value from or to the database. The default value is TRUE. */
@@ -45,12 +23,6 @@ abstract class RequestInput
     public bool                 $bypass_collect_request_data=false;
     public array                $attributes=[];
     public bool                 $allow_multiple = false;
-    /**
-     * Flag to control the insertion of a "placeholder" attribute
-     * when rendering the input. If TRUE, a placeholder attribute will be added
-     * (to text fields), using the object's "label" property value as its value.
-     */
-    public bool                 $display_placeholder=false;
     /** Flag indicating that an error was detected with the value supplied for this form data. */
     public bool                 $has_errors=false;
     /** If an error was detected with the value of a form data, a description of the error will be stored in this property. */
@@ -61,8 +33,6 @@ abstract class RequestInput
     public string               $label='';
     /** Name of script argument. Name of key in query string or form data. */
     public string               $key='';
-    /** CSS class identifier. */
-    public string               $input_css_class='';
     /** Set to TRUE if a value for this form data is required. */
     public bool                 $required=false;
     /** Size of data being held. Used to specify the size of varchar arguments in database calls. Also used to limit the length of input in textarea inputs. */
@@ -116,8 +86,7 @@ abstract class RequestInput
 
     /**
      * Assigns property value from corresponding value in JSON data passed along with a client request.
-     * @param object $data Collection of client ajax request data containing the key/value pair to use to assign
-     * the property value.
+     * @param object $data Collection of client ajax request data containing the key/value pair to use to assign the property value.
      */
     public function collectAjaxRequestData(object $data): void
     {
@@ -148,11 +117,11 @@ abstract class RequestInput
 
     /**
      * Escapes the object's value property for inclusion in SQL queries.
-     * @param mysqli $mysqli Database connection.
+     * @deprecated Use mysqli parameterized queries instead.
      * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Default is FALSE.
      * @return bool|int|float|string|null Escaped value.
      */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes=false): bool|float|int|string|null
+    public function escapeSQL(bool $include_quotes=false): bool|float|int|string|null
     {
         if ($this->value===null) {
             return null;
@@ -183,93 +152,22 @@ abstract class RequestInput
     }
 
     /**
-     * Returns string containing markup containing all attributes and their values stored in the object.
-     * @return string
-     */
-    public function formatAttributesMarkup(): string
-    {
-        $markup = implode(' ', array_map(
-            function($key, $value) {return "$key=\"$value\""; },
-            array_keys($this->attributes),
-            $this->attributes));
-        if($markup) {
-            $markup = ' '.$markup;
-        }
-        return $markup;
-    }
-
-    /**
-     * Formats the CSS class attribute string to be injected into markup of the input's container element.
-     * @param string $css_class (Optional) An additional CSS class to apply to the element in addition to the CSS class stored in the object.
-     * @param callable|null $css_callback (Optional) Routine to use to fetch the class from the input object that will be applied to the element. The markup element is either the input element itself or its container. Defaults to applying the input elements CSS class.
-     * @return string
-     */
-    public function formatClassAttributeMarkup(string $css_class='', ?callable $css_callback=null): string
-    {
-        if ($css_callback===null) {
-            $css_callback = [$this, 'getInputCssClass'];
-        }
-        $base_class = call_user_func($css_callback);
-        $error_class = '';
-        if ($this->has_errors) {
-            $error_class = (($css_callback[1]==='getInputCssClass')?(static::getInputErrorClass()):(static::getErrorClass()));
-        }
-        $classes = trim(implode(' ', array_filter([$base_class, $css_class, $error_class])));
-        return (($classes)?(" class=\"$classes\""):(''));
-    }
-
-    /**
      * Returns a consistently formatted label string for use in error messages.
      * Default format is first letter capitalized.
      * @return string Error label string.
      */
     public function formatErrorLabel(): string
     {
-        return (ucfirst(strtolower($this->label)));
+        return (ucfirst(strtolower($this->getLabel())));
     }
 
     /**
-     * Formats a string that can be inserted into markup to use the $index property value.
-     * @return string
+     * Returns the HTML element attributes for the form input that collects this variable.
+     * @return array
      */
-    public function formatIndexMarkup(): string
+    public function getAttributes(): array
     {
-        return ContentConversion::formatIndexMarkup($this->index);
-    }
-
-    /**
-     * Default routine for rendering the label of the input.
-     * @param string $label Text to display as the label for the form input. A null value will cause the internal label value to be used. An empty string will cause the label to not be rendered at all.
-     * @return string Label markup to insert into form content.
-     * @throws ResourceNotFoundException Template not found.
-     */
-    public function formatLabelMarkup( string $label ): string
-    {
-        if (strlen($label) > 0 && $this->display_placeholder===false) {
-            return (ContentUtils::loadTemplateContent(static::$template_base_path. 'form-input-label.php', [
-                'label' => $label,
-                'input' => &$this
-            ]));
-        }
-        return ('');
-    }
-
-    /**
-     * Returns markup to inject into the input container element to indicate on the front-end that the input form data is required.
-     * @return string
-     */
-    public function formatRequiredIndicatorMarkup(): string
-    {
-        return (($this->required)?(static::getRequiredIndicator()):(''));
-    }
-
-    /**
-     * Formats the value of the object in a way where it can be inserted into markup.
-     * @return string
-     */
-    public function formatValueMarkup(): string
-    {
-        return ('' .$this->value);
+        return $this->attributes;
     }
 
     /**
@@ -284,75 +182,21 @@ abstract class RequestInput
     }
 
     /**
-      * Container CSS class getter.
-      * @return string
-      */
-    public function getContainerCssClass(): string
+     * Index property getter.
+     * @return int|string|null
+     */
+    public function getIndex(): int|string|null
     {
-        return $this->container_css_class;
+        return $this->index;
     }
 
     /**
-     * Error CSS class getter.
-     * @return string Current error css class value.
+     * Value property getter..
+     * @return mixed
      */
-    public static function getErrorClass(): string
+    public function getInputValue(): mixed
     {
-        return (static::$error_class);
-    }
-
-    /**
-     * Hidden template filename getter.
-     * @return string
-     */
-    public static function getHiddenTemplateFilename(): string
-    {
-        return static::$hidden_template_filename;
-    }
-
-    /**
-     * Get a full path to the hidden form input element template file.
-     * @return string Full path to form input element template file.
-     */
-    public static function getHiddenTemplatePath(): string
-    {
-        return (LittledUtility::joinPaths(static::$template_base_path, static::$hidden_template_filename));
-    }
-
-    /**
-     * Error CSS class getter for the container element.
-     * @return string
-     */
-    public function getInputCssClass(): string
-    {
-        return $this->input_css_class;
-    }
-
-    /**
-     * Error CSS class getter for the input element.
-     * @return string Current error css class value.
-     */
-    public static function getInputErrorClass(): string
-    {
-        return (static::$input_error_css_class);
-    }
-
-    /**
-     * Returns the filename of the template used to render just the input element.
-     * @return string Form input template filename.
-     */
-    public static function getInputTemplateFilename(): string
-    {
-        return (static::$input_template_filename);
-    }
-
-    /**
-     * Returns full path to input element template file.
-     * @return string Path to input element template.
-     */
-    public static function getInputTemplatePath(): string
-    {
-        return(LittledUtility::joinPaths(static::$template_base_path, static::$input_template_filename));
+        return $this->value;
     }
 
     /**
@@ -374,39 +218,21 @@ abstract class RequestInput
     }
 
     /**
-     * Returns string to insert into front-end templates that will indicate that a field is required to submit form data.
-     * @return string Content to insert into template.
+     * Label property getter.
+     * @return string
      */
-    public static function getRequiredIndicator(): string
+    public function getLabel(): string
     {
-        return(static::$required_field_indicator);
+        return $this->label;
     }
 
     /**
-     * Template path getter.
-     * @return string Current internal template path value.
+     * Has validation errors flag getter.
+     * @return bool
      */
-    public static function getTemplateBasePath(): string
+    public function hasValidationErrors(): bool
     {
-        return (static::$template_base_path);
-    }
-
-    /**
-     * Template filename getter.
-     * @return string Current internal template filename.
-     */
-    public static function getTemplateFilename(): string
-    {
-        return (static::$template_filename);
-    }
-
-    /**
-     * Get full path to form input element template file.
-     * @return string Full path to form input element template file.
-     */
-    public static function getTemplatePath(): string
-    {
-        return (LittledUtility::joinPaths(static::$template_base_path, static::$template_filename));
+        return $this->has_errors;
     }
 
     /**
@@ -442,15 +268,6 @@ abstract class RequestInput
     abstract public function hasData(): bool;
 
     /**
-     * Tests if the inherited class has defined a template to use to render the input element group.
-     * @return bool TRUE if
-     */
-    public function isInputTemplateDefined(): bool
-    {
-        return (Validation::isStringWithContent($this::getInputTemplateFilename()));
-    }
-
-    /**
      * Required flag value getter.
      * @return bool
      */
@@ -460,79 +277,14 @@ abstract class RequestInput
     }
 
     /**
-     * Tests if the inherited class has defined a template to use to render the input element group.
-     * @return bool TRUE if
-     */
-    public function isTemplateDefined(): bool
-    {
-        return (Validation::isStringWithContent($this::getTemplateFilename()));
-    }
-
-    /**
-     * Tests if the inherited class has defined a template to use to render the input element group.
-     * @return bool TRUE if
-     */
-    public function isInputTemplateBasePathDefined(): bool
-    {
-        return (Validation::isStringWithContent($this::getTemplateBasePath()));
-    }
-
-    /**
-     * Renders the corresponding form field with a label to collect the input data.
-     * @param string $label
-     * @param string $css_class
-     */
-    abstract public function render( string $label='', string $css_class='');
-
-    /**
-     * Renders the corresponding form field with a label to collect the input data.
-     * @param ?string $label Label to display with an input element.
-     */
-    abstract public function renderInput(?string $label=null);
-
-    /**
-     * Wrapper for render() method that prints an error message if an exception is thrown rendering the form input element.
-     * @param ?string $label Optional label that will override the object's internal property value.
-     * @param ?string $css_class Optional CSS class name that will override the object's internal property value.
-     */
-    public function renderWithErrors(?string $label=null, ?string $css_class=null): void
-    {
-        try {
-            $this->render($label, $css_class);
-        }
-        catch(Exception $ex) {
-            ContentUtils::printError($ex->getMessage());
-        }
-    }
-
-    /**
      * Returns string safe from XSS attacks that can be embedded in HTML.
      * @param array|int $options Combination of tokens to pass along, e.g., FILTER_SANITIZE_FULL_SPECIAL_CHARS
      * Same values as the 3rd argument to PHP's filter_var() routine.
      * @return string XSS-safe string.
      */
-    public function safeValue(array|int $options=[] ): string
+    public function safeValue(array|int $options=[]): string
     {
         return (filter_var($this->value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
-    }
-
-    /**
-     * Prints out markup to save the input value in a hidden form input element.
-     * @param string $template Path to template to use to override the current template path stored in the object.
-     * @param string $key Key to use to override the default key value for the variable.
-     */
-    public function saveInForm( string $template='', string $key='' ): void
-    {
-        if (!$key) {
-            $key = $this->key;
-        }
-        if(!$template) {
-            $template = RequestInput::getTemplatePath();
-        }
-        ContentUtils::renderTemplateWithErrors($template, [
-            'key' => $key,
-            'input' => $this
-        ]);
     }
 
     /**
@@ -611,43 +363,12 @@ abstract class RequestInput
 
     /**
      * Container CSS class setter.
-     * @param string $class
-     * @return $this
-     */
-    public function setContainerCSSClass(string $class): static
-    {
-        $this->container_css_class = $class;
-        return $this;
-    }
-
-    /**
-     * Error CSS class setter.
-     * @param string $css_class CSS class name.
-     */
-    public function setErrorClass( string $css_class ): void
-    {
-        static::$error_class = $css_class;
-    }
-
-    /**
-     * Container CSS class setter.
      * @param string $label
      * @return $this
      */
     public function setLabel(string $label): static
     {
         $this->label = $label;
-        return $this;
-    }
-
-    /**
-     * Input CSS class setter.
-     * @param string $class
-     * @return $this
-     */
-    public function setInputCSSClass(string $class): static
-    {
-        $this->input_css_class = $class;
         return $this;
     }
 
@@ -660,26 +381,6 @@ abstract class RequestInput
     {
         $this->is_database_field = $is_field;
         return $this;
-    }
-
-    /**
-     * Hidden template filename setter.
-     * @param string $filename
-     * @return void
-     */
-    public static function setHiddenTemplateFilename(string $filename): void
-    {
-        static::$hidden_template_filename = $filename;
-    }
-
-    /**
-     * Form input element template filename setter.
-     * @param string $filename Template filename.
-     * @return void
-     */
-    public static function setInputTemplateFilename( string $filename ): void
-    {
-        static::$input_template_filename = $filename;
     }
 
     /**
@@ -718,15 +419,6 @@ abstract class RequestInput
     }
 
     /**
-     * Required field indicator string setter.
-     * @param string $str Required field indicator string.
-     */
-    public static function setRequiredIndicator( string $str ): void
-    {
-        static::$required_field_indicator = $str;
-    }
-
-    /**
      * Size limit setter.
      * @param int $size_limit
      * @return $this
@@ -735,24 +427,6 @@ abstract class RequestInput
     {
         $this->size_limit = $size_limit;
         return $this;
-    }
-
-    /**
-     * Sets the internal template path value.
-     * @param string $path Path to the template directory.
-     */
-    public static function setTemplateBasePath( string $path ): void
-    {
-        static::$template_base_path = $path;
-    }
-
-    /**
-     * Template filename setter.
-     * @param string $filename template filename
-     */
-    public static function setTemplateFilename( string $filename ): void
-    {
-        static::$template_filename = $filename;
     }
 
     /**

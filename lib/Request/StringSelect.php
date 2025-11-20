@@ -10,10 +10,10 @@ class StringSelect extends StringInput implements RequestSelectInterface
 {
     use RequestSelect;
 
-    protected static string $input_template_filename = 'string-select-input.php';
-    protected static string $template_filename = 'string-select-field.php';
+    protected   static string   $input_template_filename = 'string-select-input.php';
+    protected   static string   $template_filename = 'string-select-field.php';
     /** @var string[]|string */
-    public mixed $value;
+    public      mixed           $value;
 
     /**
      * @inheritdoc

@@ -6,10 +6,10 @@ namespace Littled\Account;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
@@ -40,7 +40,7 @@ class Address extends SerializedContent
     public const FORMAT_ADDRESS_GOOGLE = 'google';
 
     /**
-     * Inserts Google Maps key into URL to use to access Google Maps.
+     * Inserts Google Maps key into the URL to use to access Google Maps.
      * @return string google maps uri
      */
     public static function GOOGLE_MAPS_URI(): string
@@ -191,7 +191,7 @@ class Address extends SerializedContent
     }
 
     /**
-     * Formats full address formatted for Google API calls using current address values stored in the object.
+     * Formats full address formatted for Google AI calls using current address values stored in the object.
      * @return string Formatted address.
      */
     public function formatGoogleAddress(): string
@@ -200,7 +200,7 @@ class Address extends SerializedContent
     }
 
     /**
-     * Formats full address html markup based on current address values stored in the object.
+     * Formats full address HTML markup based on current address values stored in the object.
      * @param bool $include_name (Optional) Flag to include the individual's first and last name. Defaults to FALSE.
      * @return string Formatted address.
      */
@@ -444,38 +444,32 @@ class Address extends SerializedContent
      */
     public function lookupMapPositionByZip(): void
     {
-        $query = 'SEL' . 'ECT latitude, longitude FROM `zips` WHERE zipcode = ' . $this->zip->escapeSQL($this->mysqli);
-        $rs = $this->fetchRecords($query);
+        $query = 'SEL' . 'ECT latitude, longitude FROM `zips` WHERE zipcode = ?';
+        $rs = $this->fetchRecords($query, 's', $this->zip->value);
         if (count($rs) > 0) {
             list($this->longitude->value, $this->latitude->value) = $rs[0];
         }
     }
 
     /**
-     * Saves internal data values as hidden form inputs.
-     * @throws ResourceNotFoundException
-     */
-    function preserveInForm(array $excluded_keys = []): void
-    {
-        $template_path = static::$common_cms_template_path . $this::getAddressDataTemplate();
-        $context = array('input' => $this);
-        ContentUtils::renderTemplate($template_path, $context);
-    }
-
-    /**
-     * Inject property values into html form as hidden inputs.
+     * Inject property values into HTML form as hidden inputs.
      * @return void
      * @throws ResourceNotFoundException
      */
-    function preservePhysicalAddressInForm(): void
+    public function preservePhysicalAddressInForm(): void
     {
-        $template_path = static::$common_cms_template_path . $this::getStreetAddressDataTemplate();
-        $context = array('input' => $this);
-        ContentUtils::renderTemplate($template_path, $context);
+        $addr_keys = ['address1', 'address2', 'city', 'zip', 'country'];
+        $state_keys = ['id', 'name'];
+        foreach($addr_keys as $key) {
+            $this->{$key}->saveInForm();
+        }
+        foreach($state_keys as $key) {
+            $this->state->{$key}->saveInForm();
+        }
     }
 
     /**
-     * Retrieves extended state properties (name and abbreviation) from database.
+     * Retrieves extended state properties (name and abbreviation) from the database.
      * @throws RecordNotFoundException
      * @throws Exception
      */
@@ -586,24 +580,26 @@ class Address extends SerializedContent
     }
 
     /**
-     * Validates email addresses used with member accounts to make sure that they are valid email addresses, and that they do not already exist in the database.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * Validates email addresses used with member accounts to make sure that they are valid email addresses and that they do not already exist in the database.
+     * @return void
      * @throws ContentValidationException
-     * @throws Exception
+     * @throws FailedQueryException
      */
     public function validateUniqueEmail(): void
     {
         if ($this->email->value) {
-            $this->connectToDatabase();
+            $args = [$this->email->value];
+            $arg_types = 's';
             $query = 'SELECT c.email ' .
                 'FROM `address` c ' .
                 'INNER JOIN site_user l on c.id = l.contact_id ' .
-                'WHERE (c.email LIKE ' . $this->email->escapeSQL($this->mysqli) . ') ';
+                'WHERE (c.email LIKE ?)';
             if ($this->id->value > 0) {
-                $query .= 'AND (l.id != {$this->id->value}) ';
+                $args[] = $this->id->value;
+                $arg_types .= 'i';
+                $query .= 'AND (l.id != ?) ';
             }
-            $rs = $this->fetchRecords($query);
+            $rs = $this->fetchRecords($query, $arg_types, ...$args);
             $matches = count($rs);
 
             if ($matches > 0) {

@@ -9,9 +9,7 @@ use Littled\Validation\Validation;
 
 class BooleanInput extends RenderedInput
 {
-    /** @var string */
     protected static string $template_filename = 'hidden-input.php';
-    /** @var string             Data type identifier used with bind_param() calls */
     protected static string $bind_param_type = 'i';
 
     /**
@@ -39,14 +37,6 @@ class BooleanInput extends RenderedInput
     {
         parent::collectAjaxRequestData($data);
         $this->value = Validation::parseBoolean($this->value);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function escapeSQL($mysqli, $include_quotes = false): bool|null
-    {
-        return Validation::parseBoolean($this->value);
     }
 
     /**
@@ -97,7 +87,7 @@ class BooleanInput extends RenderedInput
     }
 
     /**
-     * Assigns a value to the object. Checks that passed value is boolean.
+     * Assigns a value to the object. Checks that passed value are boolean.
      * @inheritDoc
      */
     public function setInputValue(mixed $value): static

@@ -4,7 +4,7 @@ namespace Littled\Request;
 /**
  * Classes using this trait are assumed to be derived from \Littled\PageContent\SerializedContent\SerializedContent.
  */
-trait OptionsRetriever
+trait OptionsRetrieverTrait
 {
     /**
      * Returns the query used to retrieve dropdown menu options from the database.

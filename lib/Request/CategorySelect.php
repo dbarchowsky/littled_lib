@@ -1,11 +1,8 @@
 <?php
-
 namespace Littled\Request;
 
-use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Keyword\Keyword;
@@ -13,22 +10,29 @@ use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\ValidationErrors;
+use Exception;
 
 
-class CategorySelect extends MySQLConnection
+abstract class CategorySelect extends MySQLConnection
 {
-    protected static int $content_type_id;
-    protected static string $container_template = 'category-select-container.php';
+    use RenderedInputTrait;
+
+    protected static int        $content_type_id;
+    protected static string     $container_template = 'category-select-container.php';
+    protected static string     $template_base_path;
+
     /** @var Keyword[] */
-    public array $categories = [];
-    public StringSelect $category_input;
-    public StringTextField $new_category;
-    protected int $parent_id;
-    public ValidationErrors $validation_errors;
+    public                      array $categories = [];
+    public StringSelect         $category_input;
+    public StringTextField      $new_category;
+    protected int               $parent_id;
+    public ValidationErrors     $validation_errors;
 
     public function __construct()
     {
         parent::__construct();
+        static::$template_base_path = RenderedInput::getTemplateBasePath();
+
         $this->category_input = new StringSelect('Category', 'catTerm', false, [], 100);
         $this->category_input->setAllowMultiple();
         $this->new_category = new StringTextField('New category', 'catNew', false, '', 100);
@@ -74,8 +78,7 @@ class CategorySelect extends MySQLConnection
 
     /**
      * Deletes associated keyword records from the database.
-     * @throws ConnectionException
-     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      */
     public function deleteRecords(): void
     {
@@ -85,8 +88,8 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
-     * Returns current list of all category options. Just returns the internal values as they are. Doesn't perform
-     * any database retrieval, like e.g. ::retrieveCategoryOptions()
+     * Returns the current list of all category options. Just returns the internal values as they are. Doesn't perform
+     * any database retrieval, like e.g.: retrieveCategoryOptions()
      * @return array
      */
     public function getCategoryOptionList(): array
@@ -120,7 +123,7 @@ class CategorySelect extends MySQLConnection
      */
     public static function getContainerTemplatePath(): string
     {
-        return LittledUtility::joinPaths(RequestInput::getTemplateBasePath(), static::getContainerTemplateFilename());
+        return LittledUtility::joinPaths(static::getTemplateBasePath(), static::getContainerTemplateFilename());
     }
 
     /**
@@ -146,7 +149,7 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
-     * Returns flag indicating that the object is currently has some keyword terms attached to it.
+     * Returns flag indicating that the object is currently having some keyword terms attached to it.
      * @return bool
      */
     public function hasKeywordData(): bool
@@ -155,7 +158,7 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
-     * Returns boolean value indicating that this object has existing validation errors to report.
+     * Returns a boolean value indicating that this object has existing validation errors to report.
      * @return bool
      */
     public function hasValidationErrors(): bool
@@ -216,7 +219,7 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
-     * Returns list of strings with all category terms in use for this content type.
+     * Returns a list of strings with all category terms in use for this content type.
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
@@ -234,7 +237,7 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
-     * Commit category terms to database.
+     * Commit category terms to the database.
      * @return void
      * @throws FailedQueryException
      */
@@ -246,13 +249,13 @@ class CategorySelect extends MySQLConnection
     }
 
     /**
-     * @param string $class_name
+     * @param string $class
      * @return $this
      */
-    public function setContainerCSSClass(string $class_name): CategorySelect
+    public function setContainerCSSClass(string $class): CategorySelect
     {
-        $this->category_input->setContainerCSSClass($class_name);
-        $this->new_category->setContainerCSSClass($class_name);
+        $this->category_input->setContainerCSSClass($class);
+        $this->new_category->setContainerCSSClass($class);
         return $this;
     }
 
@@ -279,14 +282,15 @@ class CategorySelect extends MySQLConnection
     /**
      * Parent record id setter.
      * @param int $parent_id
-     * @return void
+     * @return $this
      */
-    public function setParentId(int $parent_id): void
+    public function setParentId(int $parent_id): static
     {
         $this->parent_id = $parent_id;
         foreach ($this->categories as $term) {
             $term->parent_id->value = $parent_id;
         }
+        return $this;
     }
 
     /**

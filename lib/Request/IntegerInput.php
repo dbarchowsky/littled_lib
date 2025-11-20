@@ -1,18 +1,15 @@
 <?php
-
 namespace Littled\Request;
 
-use mysqli;
 use Littled\Validation\Validation;
 
 class IntegerInput extends RenderedInput
 {
-    /** @var string         Form input element template filename */
-    protected static string $input_template_filename = 'string-text-input.php';
-    /** @var string         Input container filename template */
-    protected static string $template_filename = 'string-text-field.php';
     /** @var string         Data type identifier used with bind_param() calls */
     protected static string $bind_param_type = 'i';
+    protected static string $input_template_filename = 'string-text-input.php';
+    protected static string $template_filename = 'string-text-field.php';
+
     const DEFAULT_DATA_SIZE = 8;
 
     /**
@@ -51,14 +48,6 @@ class IntegerInput extends RenderedInput
     {
         parent::collectAjaxRequestData($data);
         $this->value = Validation::parseInteger($this->value);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): ?int
-    {
-        return Validation::parseInteger($this->value);
     }
 
     /**

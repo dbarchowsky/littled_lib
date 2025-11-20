@@ -2,13 +2,12 @@
 
 namespace Littled\Request;
 
-use DateTime;
-use mysqli;
 use Littled\Exception\ContentValidationException;
+use DateTime;
 
 
 /**
- * Date inputs base class.
+ * Base class of date inputs.
  */
 class DateInput extends StringInput
 {
@@ -46,55 +45,30 @@ class DateInput extends StringInput
     }
 
     /**
-     * Returns a string to use to save the object's value to a database record.
-     * @param mysqli $mysqli Database connection to use for its escape_string() routine.
-     * @param bool $include_quotes Optional. If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
-     * @return ?string Escaped value.
-     */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): ?string
-    {
-        $src = ($this->value === null) ? ($this->default) : ($this->value);
-        if ($src === '') {
-            return null;
-        }
-        $ts = strtotime($src);
-        if ($ts !== false) {
-            $date_string = date('Y-m-d H:i:s', $ts);
-        } else {
-            $date = DateTime::createFromFormat('d/m/Y', $src);
-            if ($date !== false) {
-                $date_string = $date->format('Y-m-d');
-            } else {
-                /* maybe it's in YYYY-MM-DD format, just send it back whatever it is */
-                $date_string = $src;
-            }
-        }
-        return ((($include_quotes) ? ("'") : ('')) . $mysqli->real_escape_string($date_string) . (($include_quotes) ? ("'") : ('')));
-    }
-
-    /**
-     * Returns the current value of the object as formatted string value.
+     * Returns the current value of the object as a formatted string value.
      * @param string $date_format
+     * @param string $date
      * @return ?string Formatted date string.
      * @throws ContentValidationException Current value not a valid date value.
      */
-    public function formatDateValue(string $date_format = ''): ?string
+    public function formatDateValue(string $date_format = '', string $date = ''): ?string
     {
         $date_format = $date_format ?: $this->format;
-        if ('' === $this->value || null === $this->value) {
+        $date = $date ?: $this->value;
+        if ('' === $date || null === $date) {
             return null;
         }
         $valid = (
-            (false !== strtotime($this->value)) ||
-            (DateTime::createFromFormat('d/m/Y', $this->value) !== false) ||
-            (DateTime::createFromFormat('Y-m-d', $this->value) !== false));
+            (false !== strtotime($date)) ||
+            (DateTime::createFromFormat('d/m/Y', $date) !== false) ||
+            (DateTime::createFromFormat('Y-m-d', $date) !== false));
         if (!$valid) {
             throw new ContentValidationException("$this->label is not in a recognized date format.");
         }
         if (null !== $date_format && '' !== $date_format) {
-            return (date($date_format, strtotime($this->value)));
+            return (date($date_format, strtotime($date)));
         }
-        return $this->value;
+        return $date;
     }
 
     /**
@@ -148,7 +122,7 @@ class DateInput extends StringInput
     }
 
     /**
-     * Assigns a value to the object after parsing the value in order to be in a workable format.
+     * Assigns a value to the object after parsing the value to be in a workable format.
      * @param ?mixed $value Value to assign to the object.
      * @param string $date_format
      * @return $this

@@ -8,7 +8,6 @@ use Littled\Validation\Validation;
 
 class PhoneNumberTextField extends StringTextField
 {
-
     /**
      * @inheritDoc
      */

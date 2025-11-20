@@ -9,9 +9,11 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
     use RequestSelect;
 
     public      static string   $input_template_filename = 'string-select-input.php';
+    protected   static string   $template_base_path;
     protected   static string   $template_filename = 'string-select-field.php';
+
     /** @var int[] */
-    public array $options;
+    public      array           $options;
     /** @var int|int[] */
     public      mixed           $value;
 

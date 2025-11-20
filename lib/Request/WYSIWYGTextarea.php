@@ -27,7 +27,7 @@ class WYSIWYGTextarea extends StringTextarea
 
     /**
      * @inheritDoc
-     * Sets filters to allow html tags.
+     * Sets filters to allow HTML tags.
      */
     public function collectRequestData(?array $src = null, ?int $filters = null, ?string $key = null): void
     {
@@ -68,7 +68,7 @@ class WYSIWYGTextarea extends StringTextarea
     }
 
     /**
-     * Overrides parent method to inject the editor class onto the editor DOM element.
+     * Overrides the parent method to inject the editor class onto the editor DOM element.
      * @param string $class
      * @return WYSIWYGTextarea
      */

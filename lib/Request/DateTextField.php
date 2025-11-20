@@ -13,7 +13,7 @@ use Littled\PageContent\ContentUtils;
  */
 class DateTextField extends DateInput
 {
-    /** @var string Defaults to "datepicker" in order to bind graphical calendar widget */
+    /** @var string Defaults to "datepicker" to bind the graphical calendar widget */
     public string $input_css_class = 'datepicker';
 
     /**
