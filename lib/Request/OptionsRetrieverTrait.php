@@ -9,11 +9,11 @@ trait OptionsRetrieverTrait
     /**
      * Returns the query used to retrieve dropdown menu options from the database.
      * The columns returned must include an "id" column and a "label" column.
-     * @return string
+     * @return array
      */
-    protected function formatOptionsQuery(): string
+    protected function formatOptionsQuery(): array
     {
-        return 'SELECT `id`, `name` AS `label` FROM `' . static::getTableName() . '` ORDER BY `name`';
+        return ['SELECT `id`, `name` AS `label` FROM `' . static::getTableName() . '` ORDER BY `name`'];
     }
 
     /**
@@ -32,7 +32,7 @@ trait OptionsRetrieverTrait
      */
     public function retrieveOptions(): array
     {
-        $result = $this->fetchRecords($this->formatOptionsQuery());
+        $result = $this->fetchRecords(...$this->formatOptionsQuery());
         $options = [];
         foreach ($result as $row) {
             $options[] = (new DropdownOptions())
