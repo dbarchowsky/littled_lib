@@ -243,7 +243,14 @@ trait RenderedInputTrait
      */
     public static function getTemplateBasePath(): string
     {
-        return static::getConfigurationValue('template_base_path');
+        $path = static::getConfigurationValue('template_base_path');
+        if (empty($path)) {
+            // If the class isn't a descendant of \Request\RenderedInput, then attempt to get the template path value
+            // from the RenderedInput class.
+            $path = RenderedInput::getTemplateBasePath();
+            static::setTemplateBasePath($path);
+        }
+        return $path;
     }
 
     /**
