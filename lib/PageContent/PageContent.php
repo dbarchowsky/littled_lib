@@ -44,7 +44,7 @@ abstract class PageContent extends PageContentBase
     }
 
     /**
-     * Sets the id property value of the object's content from request variable values, e.g. GET, POST, etc.
+     * Sets the id property value of the object's content from request variable values, e.g., GET, POST, etc.
      * First checks if a variable named "id" is present. 2nd, checks for a variable corresponding to the content
      * object's id's internal parameter name.
      * @todo Consider moving this method to dedicated cms page content class
@@ -122,7 +122,7 @@ abstract class PageContent extends PageContentBase
     }
 
     /**
-     * Render the page content using template file.
+     * Render the page content using a template file.
      * @param array|null $context
      * @return void
      * @throws ConfigurationUndefinedException
@@ -137,7 +137,7 @@ abstract class PageContent extends PageContentBase
     }
 
     /**
-     * Prevents any variable values that were previously cached from being passed along to subsequent pages.
+     * Prevents any variable values previously cached from being passed along to later pages.
      */
     public function resetPageVariables(): void
     {
@@ -145,7 +145,7 @@ abstract class PageContent extends PageContentBase
     }
 
     /**
-     * Injects content into template to generate markup to send as http response matching a client request.
+     * Injects content into a template to generate markup to send as http response matching a client request.
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
@@ -171,4 +171,15 @@ abstract class PageContent extends PageContentBase
      * Sets page properties.
      */
     abstract public function setPageState();
+
+    /**
+     * Content object record id value setter.
+     * @param int|null $id
+     * @return $this
+     */
+    public function setRecordId(int|null $id): static
+    {
+        $this->content->setRecordId($id);
+        return $this;
+    }
 }
