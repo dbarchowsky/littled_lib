@@ -61,7 +61,7 @@ abstract class RoutedPageContent extends PageContent
     public function verifyLogin(): void
     {
         if (static::getAccessLevel() > 0) {
-            $login = new LoginAuthenticator();
+            $login = (new LoginAuthenticator())->shareConnection($this);
             $login->requireLogin(static::getAccessLevel());
             unset($login);
         }
@@ -427,7 +427,7 @@ abstract class RoutedPageContent extends PageContent
             if (!class_exists($filters_class)) {
                 throw new InvalidTypeException(Log::getShortMethodName() . " \"$filters_class\" is not a valid class.");
             }
-            $this->filters = new $filters_class();
+            $this->filters = (new $filters_class())->shareConnection($this);
         }
     }
 
