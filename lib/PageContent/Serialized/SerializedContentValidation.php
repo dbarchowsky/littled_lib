@@ -16,7 +16,6 @@ class SerializedContentValidation extends SerializedContentUtils
 
     public function __construct()
     {
-        parent::__construct();
         $this->validation_errors = new ValidationErrors();
         $this->validation_message = 'Required information is missing.';
     }

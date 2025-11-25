@@ -46,7 +46,6 @@ abstract class APIRouteProperties extends PageContentBase
 
     public function __construct()
     {
-        parent::__construct();
         $this->json = new JSONRecordResponse();
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
         $this->action = '';

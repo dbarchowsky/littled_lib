@@ -30,7 +30,6 @@ abstract class CategorySelect extends MySQLConnection
 
     public function __construct()
     {
-        parent::__construct();
         static::$template_base_path = RenderedInput::getTemplateBasePath();
 
         $this->category_input = new StringSelect('Category', 'catTerm', false, [], 100);

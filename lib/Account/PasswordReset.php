@@ -15,7 +15,7 @@ class PasswordReset extends UserAccount
 {
     /** @var string Modify account URI */
     protected static string $modifyAccountURI = '';
-    /** @var string Path to template for reset password email content. */
+    /** @var string Path to the template for reset password email content. */
     protected static string $resetPasswordEmailTemplate = '';
     /** @var StringPasswordField New password. */
     public StringPasswordField $new_password;
@@ -26,7 +26,7 @@ class PasswordReset extends UserAccount
     public function __construct($id = null)
     {
         parent::__construct($id);
-        $this->new_password = new StringPasswordField("New Password", "sunp", false, "", 256);
+        $this->new_password = new StringPasswordField('New Password', 'sunp', false, '', 256);
         $this->new_password->is_database_field = false;
     }
 
@@ -46,7 +46,7 @@ class PasswordReset extends UserAccount
     public static function getModifyAccountURI(): string
     {
         if (static::$modifyAccountURI == '') {
-            throw new ConfigurationUndefinedException("Modify account URI not configured.");
+            throw new ConfigurationUndefinedException('Modify account URI not configured.');
         }
         return (static::$modifyAccountURI);
     }
@@ -59,13 +59,13 @@ class PasswordReset extends UserAccount
     public static function getResetPasswordEmailTemplate(): string
     {
         if (static::$resetPasswordEmailTemplate == '') {
-            throw new ConfigurationUndefinedException("Reset password email template path not configured.");
+            throw new ConfigurationUndefinedException('Reset password email template path not configured.');
         }
         return (static::$resetPasswordEmailTemplate);
     }
 
     /**
-     * Resets password to string of random characters.
+     * Resets password to a string of random characters.
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
@@ -76,7 +76,7 @@ class PasswordReset extends UserAccount
         }
 
         $this->password->value = PageUtils::generateRandomFilename(12, false);
-        $query = "UPDATE " . self::getTableName() . " SET " .
+        $query = 'UPDATE ' . static::getTableName() . ' SET ' .
             "`password` = PASSWORD('{$this->password->value}') " .
             "WHERE id = {$this->id->value}";
         $this->query($query);
@@ -92,47 +92,44 @@ class PasswordReset extends UserAccount
     public function sendPasswordResetNotificationEmail(): void
     {
         if (!$this->sender_name) {
-            throw new ConfigurationUndefinedException("Password reset sender name is not specified.");
+            throw new ConfigurationUndefinedException('Password reset sender name is not specified.');
         }
 
         /* retrieve email template */
         $path = $this->getResetPasswordEmailTemplate();
-        $f = fopen($path, "r");
+        $f = fopen($path, 'r');
 
         /* email subject line. first line of email template */
         $subject = fgets($f);
-        $subject = preg_replace("/\[\[subject:(.*)]]/i", "$1", $subject);
+        $subject = preg_replace('/\[\[subject:(.*)]]/i', '$1', $subject);
 
         $body = fread($f, filesize($path));
         fclose($f);
 
         /* update email template with login data */
         if ($this->contact_info->first_name->value) {
-            $body = str_replace("[[greeting]]", "Dear {$this->contact_info->first_name->value},", $body);
+            $body = str_replace('[[greeting]]', "Dear {$this->contact_info->first_name->value},", $body);
         } else {
-            $body = str_replace("[[greeting]]", "Hellow,", $body);
+            $body = str_replace('[[greeting]]', 'Hello,', $body);
         }
-        $body = str_replace("[[username]]", $this->uname->value, $body);
-        $body = str_replace("[[password]]", $this->password->value, $body);
-        $body = str_replace("[[account url]]", self::getAccountActivationuri(), $body);
+        $body = str_replace('[[username]]', $this->uname->value, $body);
+        $body = str_replace('[[password]]', $this->password->value, $body);
+        $body = str_replace('[[account url]]', self::getAccountActivationuri(), $body);
 
-        $mail = new Mailer(
-            $this->sender_name,
-            self::getContactEmail(),
-            $this->contact_info->formatContactName(),
-            $this->contact_info->email->value,
-            $subject,
-            $body
-        );
-        $mail->send();
+        (new Mailer())
+            ->setRecipient($this->contact_info->email->value, $this->contact_info->formatContactName())
+            ->setSenderName($this->sender_name)
+            ->setSubject($subject)
+            ->setBody($body)
+            ->send();
 
         /* update the login object with the encrypted password */
-        $query = "SEL" . "ECT `password` FROM " . self::getTableName() . " WHERE id = {$this->id->value}";
-        $rs = $this->fetchRecords($query);
+        $query = 'SELECT `password` FROM ' . static::getTableName() . ' WHERE id = ?';
+        $rs = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($rs) > 0) {
             list($this->password->value) = $rs[0];
         } else {
-            throw new Exception("Temporary password could not be retrieved.");
+            throw new Exception('Temporary password could not be retrieved.');
         }
     }
 
@@ -153,13 +150,13 @@ class PasswordReset extends UserAccount
     public static function setResetPasswordEmailTemplate(string $path): void
     {
         if (!file_exists($path)) {
-            throw new ResourceNotFoundException("Reset password email template not found.");
+            throw new ResourceNotFoundException('Reset password email template not found.');
         }
         static::$resetPasswordEmailTemplate = $path;
     }
 
     /**
-     * Validates form data submitted from reset password form.
+     * Validates form data submitted from the reset password form.
      * @param string[] $exclude_properties List of variable names to exclude from validation.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
@@ -174,27 +171,27 @@ class PasswordReset extends UserAccount
             $this->contact_info->email->validate();
         } catch (ContentValidationException $e) {
             $this->addValidationError($e->getMessage());
-            throw new ContentValidationException("Errors found in password reset information.");
+            throw new ContentValidationException('Errors found in password reset information.');
         }
 
-        $query = "SELECT l.id, l.`login`, c.firstname, c.lastname " .
-            "FROM `site_user` l " .
-            "INNER JOIN `address` c ON l.contact_id = c.id " .
-            "WHERE (c.email = " . $this->contact_info->email->escapeSQL($this->mysqli) . ") ";
-        $rs = $this->fetchRecords($query);
+        $query = 'SELECT l.id, l.`login`, c.firstname, c.lastname ' .
+            'FROM `site_user` l ' .
+            'INNER JOIN `address` c ON l.contact_id = c.id ' .
+            'WHERE c.email = ?';
+        $rs = $this->fetchRecords($query, 's', $this->contact_info->email->value);
         if (count($rs) > 0) {
             $this->id->value = $rs[0]->id;
             $this->uname->value = $rs[0]->login;
             $this->contact_info->first_name->value = $rs[0]->firstname;
             $this->contact_info->last_name->value = $rs[0]->lastname;
-            $this->contact_info->fullname = $rs[0]->firstname . " " . $rs[0]->lastname;
+            $this->contact_info->fullname = $rs[0]->firstname . ' ' . $rs[0]->lastname;
         } else {
             $this->contact_info->email->error = true;
-            $this->addValidationError("The mail address does not match an existing account");
+            $this->addValidationError('The mail address does not match an existing account');
         }
 
         if ($this->hasValidationErrors()) {
-            throw new ContentValidationException("Errors found in password reset information.");
+            throw new ContentValidationException('Errors found in password reset information.');
         }
     }
 

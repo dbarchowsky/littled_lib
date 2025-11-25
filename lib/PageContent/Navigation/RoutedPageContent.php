@@ -50,7 +50,6 @@ abstract class RoutedPageContent extends PageContent
      */
     function __construct()
     {
-        parent::__construct();
         $this->verifyLogin();
     }
 

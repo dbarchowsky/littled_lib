@@ -22,14 +22,6 @@ class AppBase
     protected static string $ajax_input_stream = 'php://input';
 
     /**
-     * Class constructor
-     */
-    function __construct()
-    {
-        /* nothing here for now. put logic in child classes. */
-    }
-
-    /**
      * Assigns client ajax request data values to object properties.
      * @param ?object $data
      */

@@ -34,16 +34,6 @@ abstract class PageContent extends PageContentBase
     public string $redirect_url = '';
 
     /**
-     * class constructor
-     * @return PageContent
-     */
-    function __construct()
-    {
-        parent::__construct();
-        return $this;
-    }
-
-    /**
      * Sets the id property value of the object's content from request variable values, e.g., GET, POST, etc.
      * First checks if a variable named "id" is present. 2nd, checks for a variable corresponding to the content
      * object's id's internal parameter name.

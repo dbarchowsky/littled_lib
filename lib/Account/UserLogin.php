@@ -5,8 +5,8 @@ namespace Littled\Account;
 
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidCredentialsException;
 use Littled\Request\StringTextField;
 use Littled\Request\StringPasswordField;
@@ -79,7 +79,7 @@ class UserLogin extends UserAccount
     }
 
     /**
-     * Checks the current login state. Throws InvalidCredentialsException if login state is not available or if the
+     * Checks the current login state. Throws InvalidCredentialsException if the login state is not available or if the
      * login state does not match the requested access level.
      * @param int $access_level Access level needed for the login.
      * @return void
@@ -107,20 +107,18 @@ class UserLogin extends UserAccount
     }
 
     /**
-     * Validates form data submitted from registration form.
+     * Validates form data submitted from the registration form.
      * Password is not entered during registration. It is assigned after the person has been approved.
      * Throws ContentValidationException if the form data is not valid, with the specific errors returned to the Exception's getMessage method.
      * @param array $exclude_properties Optional array of properties to exclude from validation.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
      */
     public function validateInput(array $exclude_properties = []): void
     {
         try {
             parent::validateInput();
-        } catch (ContentValidationException) {
+        } catch (ContentValidationException|FailedQueryException) {
             /* continue */
         }
 
@@ -140,7 +138,7 @@ class UserLogin extends UserAccount
     }
 
     /**
-     * Looks up username in database to confirm that it is not already in use.
+     * Retrieves username from database to confirm that it is not already in use.
      * Throws exception if the username is not valid, with the specific errors returned to the Exception's getMessage method.
      * @throws ContentValidationException
      * @throws Exception

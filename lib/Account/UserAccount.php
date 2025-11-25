@@ -4,8 +4,8 @@ namespace Littled\Account;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerSelect;
@@ -36,12 +36,12 @@ abstract class UserAccount extends SerializedContent
     /** @var int Admin credentials token value. */
     const ADMIN_AUTHENTICATION = 2;
     /** @var string Name of variable holding record id value. */
-    const ID_KEY = "suid";
-    const USERNAME_KEY = "uaUsername";
+    const ID_KEY = 'suid';
+    const USERNAME_KEY = 'uaUsername';
     /** @var string Name of variable holding password value for authentication purposes. */
-    const PASSWORD_KEY = "supw";
+    const PASSWORD_KEY = 'supw';
     /** @var string Name of variable holding requested access value. */
-    const ACCESS_KEY = "suac";
+    const ACCESS_KEY = 'suac';
     /** @var string Account activation URI. */
     protected static string $account_activation_uri = '';
     /** @var string Email address to display for support issues. */
@@ -75,16 +75,16 @@ abstract class UserAccount extends SerializedContent
     public function __construct(?int $id = null)
     {
         parent::__construct($id);
-        $this->id = new PrimaryKeyInput("Announcement id", self::ID_KEY, false);
-        $this->uname = new StringTextField("User name", self::USERNAME_KEY, true, '', 50);
+        $this->id = new PrimaryKeyInput('Announcement id', self::ID_KEY, false);
+        $this->uname = new StringTextField('User name', self::USERNAME_KEY, true, '', 50);
         $this->username = &$this->uname;
         $this->contact_info = new Address();
-        $this->email_opt_in = new BooleanCheckbox("Email Opt-In", "sueo", false, false);
-        $this->postal_opt_in = new BooleanCheckbox("Snail Mail Opt-In", "suso", false, false);
-        $this->password = new StringPasswordField("Password", self::PASSWORD_KEY, true, "", 256);
-        $this->password_confirm = new StringPasswordField("Confirm password", "uaPwdConfirm", false, "", 256);
+        $this->email_opt_in = new BooleanCheckbox('Email Opt-In', 'sueo', false, false);
+        $this->postal_opt_in = new BooleanCheckbox('Snail Mail Opt-In', 'suso', false, false);
+        $this->password = new StringPasswordField('Password', self::PASSWORD_KEY, true, '', 256);
+        $this->password_confirm = new StringPasswordField('Confirm password', 'uaPwdConfirm', false, '', 256);
         $this->password_confirm->is_database_field = false;
-        $this->access = new IntegerSelect("Access", self::ACCESS_KEY, true, self::BASIC_AUTHENTICATION);
+        $this->access = new IntegerSelect('Access', self::ACCESS_KEY, true, self::BASIC_AUTHENTICATION);
 
         $this->contact_id = &$this->contact_info->id;
         $this->contact_info->first_name->required = false;
@@ -95,7 +95,7 @@ abstract class UserAccount extends SerializedContent
         $this->contact_info->city->required = false;
         $this->contact_info->zip->required = false;
 
-        $this->fullname = "";
+        $this->fullname = '';
     }
 
     /**
@@ -145,7 +145,7 @@ abstract class UserAccount extends SerializedContent
     public static function getAccountActivationURI(): string
     {
         if (static::$account_activation_uri === '') {
-            throw new ConfigurationUndefinedException("Account activation URI not configured.");
+            throw new ConfigurationUndefinedException('Account activation URI not configured.');
         }
         return (static::$account_activation_uri);
     }
@@ -171,7 +171,7 @@ abstract class UserAccount extends SerializedContent
     public static function getContactEmail(): string
     {
         if (static::$account_activation_uri === '') {
-            throw new ConfigurationUndefinedException("Contact email not configured.");
+            throw new ConfigurationUndefinedException('Contact email not configured.');
         }
         return (static::$contact_email);
     }
@@ -184,7 +184,7 @@ abstract class UserAccount extends SerializedContent
     public static function getRegistrationNoticeEmailTemplate(): string
     {
         if (static::$registration_notice_email_template === '') {
-            throw new ConfigurationUndefinedException("Registration notice email template path not configured.");
+            throw new ConfigurationUndefinedException('Registration notice email template path not configured.');
         }
         return (static::$registration_notice_email_template);
     }
@@ -207,7 +207,7 @@ abstract class UserAccount extends SerializedContent
     }
 
     /**
-     * Sends notification email to contact within company to alert them that the registration has been submitted.
+     * Sends a notification email to contact within the company to alert them that the registration has been submitted.
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
@@ -215,33 +215,28 @@ abstract class UserAccount extends SerializedContent
     {
         /* retrieve email template */
         $template_path = self::getRegistrationNoticeEmailTemplate();
-        $f = fopen($template_path, "r");
+        $f = fopen($template_path, 'r');
 
         /* email subject line. first line of email template */
         $subject = fgets($f);
-        $subject = preg_replace("/\\[\\[subject:(.*)]]/i", "$1", $subject);
+        $subject = preg_replace("/\\[\\[subject:(.*)]]/i", '$1', $subject);
 
         $body = fread($f, filesize($template_path));
         fclose($f);
 
-        $cms_uri = self::getAccountActivationURI() . "?" . self::ID_KEY . "={$this->id->value}";
+        $cms_uri = self::getAccountActivationURI() . '?' . self::ID_KEY . "={$this->id->value}";
 
         /* update email template with login data */
-        $body = str_replace("[[username]]", $this->uname->value, $body);
-        $body = str_replace("[[site_domain]]", LittledGlobals::getAppDomain(), $body);
-        $body = str_replace("[[activate_url]]", $cms_uri, $body);
+        $body = str_replace('[[username]]', $this->uname->value, $body);
+        $body = str_replace('[[site_domain]]', LittledGlobals::getAppDomain(), $body);
+        $body = str_replace('[[activate_url]]', $cms_uri, $body);
 
-        /* send out notification email */
-        $mail = new Mailer(
-            $this->sender_name,
-            self::getContactEmail(),
-            self::getContactEmail(),
-            self::getContactEmail(),
-            "",
-            $subject,
-            $body);
-        $mail->send();
-        unset($mail);
+        (new Mailer())
+            ->setSenderName($this->sender_name)
+            ->setRecipient(static::getContactEmail())
+            ->setSubject($subject)
+            ->setBody($body)
+            ->send();
     }
 
     /**
@@ -280,7 +275,7 @@ abstract class UserAccount extends SerializedContent
     public static function setRegistrationNoticeEmailTemplate(string $path): void
     {
         if (!file_exists($path)) {
-            throw new ResourceNotFoundException("Registration notice email template not found.");
+            throw new ResourceNotFoundException('Registration notice email template not found.');
         }
         static::$registration_notice_email_template = $path;
     }
@@ -295,13 +290,12 @@ abstract class UserAccount extends SerializedContent
     }
 
     /**
-     * Validates form data submitted from registration form.
+     * Validates form data submitted from the registration form.
      * Password is not entered during registration. It is assigned after the person has been approved.
      * Throws ContentValidationException if the form data is not valid, with the specific errors returned to the Exception's getMessage method.
      * @param array $exclude_properties Optional array of properties to exclude from validation.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
+     * @throws FailedQueryException
      */
     public function validateInput(array $exclude_properties = []): void
     {
@@ -313,14 +307,14 @@ abstract class UserAccount extends SerializedContent
         if (!$this->contact_info->first_name->value &&
             !$this->contact_info->last_name->value &&
             !$this->contact_info->organization->value) {
-            $this->addValidationError("Either first name and last name or company must be entered.");
+            $this->addValidationError('Either first name and last name or company must be entered.');
         }
         if (!$this->contact_info->email->error) {
             $this->contact_info->validateUniqueEmail();
         }
 
         if ($this->hasValidationErrors()) {
-            throw new ContentValidationException("Error validating registration.");
+            throw new ContentValidationException('Error validating registration.');
         }
     }
 

@@ -54,7 +54,6 @@ class FilterCollectionProperties extends AppContentBase
      */
     function __construct()
     {
-        parent::__construct();
         $this->page = new IntegerContentFilter('Page', $this::PAGE_KEY, null, null, $this::getCookieKey());
         $this->listings_length = new IntegerContentFilter('Page length', $this::LISTINGS_LENGTH_KEY, $this::getDefaultListingsLength(), null, $this::getCookieKey());
         $this->next = new StringContentFilter('Next', $this::NEXT_OPERATION_KEY, '', 16, $this::getCookieKey());

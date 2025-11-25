@@ -64,8 +64,7 @@ class LoginAuthenticator extends UserLogin
 
     /**
      * Collects form data from the login form.
-     * @param ?array $src (Optional) Collection of input data. If not specified, will read input from the POST, GET, or
-     * session vars.
+     * @param ?array $src Collection of input data. If not specified, will read input from the POST, GET, or session vars.
      */
     public function collectRequestData(?array $src = null): static
     {
@@ -207,11 +206,11 @@ class LoginAuthenticator extends UserLogin
         $query = 'SELECT l.id, c.firstname, c.lastname, c.email, l.access ' .
             'FROM `site_user` l ' .
             'INNER JOIN `address` c ON l.contact_id = c.id ' .
-            'WHERE (l.`login`=' . $this->uname->escapeSQL($this->mysqli) . ') ' .
-            'AND (l.`password` = PASSWORD(' . $this->password->escapeSQL($this->mysqli) . ')) ' .
-            "AND (l.access >= $accessLevel) ";
+            'WHERE (l.`login`=?) ' .
+            'AND (l.`password` = PASSWORD(?)) ' .
+            'AND (l.access >= ?) ';
         try {
-            $rs = $this->fetchRecords($query);
+            $rs = $this->fetchRecords($query, 'ssi', $this->uname->value, $this->password->value, $accessLevel);
         } catch (Exception) {
             $this->logged_in = false;
             throw new InvalidCredentialsException('Login error.');
