@@ -2,9 +2,11 @@
 
 namespace Littled\Filters;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
+use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
 
 
@@ -43,14 +45,15 @@ class IntegerArrayContentFilter extends IntegerContentFilter
             return;
         }
         if (!defined('LITTLED_TEMPLATE_DIR')) {
-            throw new ConfigurationUndefinedException("LITTLED_TEMPLATE_DIR not found in app settings.");
+            throw new ConfigurationUndefinedException('LITTLED_TEMPLATE_DIR not found in app settings.');
         }
         foreach ($this->value as $value) {
-            ContentUtils::renderTemplate(LITTLED_TEMPLATE_DIR . "framework/forms/hidden-input.php", array(
+            $template_path = LittledUtility::joinPaths(LittledGlobals::getSharedTemplatesPath(), 'framework/forms/hidden-input.php');
+            ContentUtils::renderTemplate($template_path, [
                 'key' => $this->key,
                 'index' => '[]',
                 'value' => $value
-            ));
+            ]);
         }
     }
 }

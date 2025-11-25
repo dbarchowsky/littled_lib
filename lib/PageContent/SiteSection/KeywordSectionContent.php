@@ -387,7 +387,7 @@ class KeywordSectionContent extends SectionContent
      * @throws FailedQueryException
      * @throws InvalidStateException
      */
-    public function saveKeywords(): KeywordSectionContent
+    public function saveKeywords(): static
     {
         $this->testForParentID('Could not serialize keywords.');
         $this->deleteKeywords();
@@ -403,7 +403,7 @@ class KeywordSectionContent extends SectionContent
      * @param int $content_type_id
      * @return $this
      */
-    public function setContentType(int $content_type_id): KeywordSectionContent
+    public function setContentType(int $content_type_id): static
     {
         $this->content_properties->setRecordId($content_type_id);
         return $this;

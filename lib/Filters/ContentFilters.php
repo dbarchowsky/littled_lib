@@ -8,6 +8,7 @@ use Littled\Exception\ContentInitializationException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
@@ -38,7 +39,6 @@ class ContentFilters extends FilterCollection
      * @param string $properties_class Optional subclass of ContentProperties.
      * @param MySQLConnection|null $conn
      * @throws ContentInitializationException
-     * @throws ConnectionException
      */
     function __construct(string $properties_class = ContentProperties::class, ?MySQLConnection $conn = null)
     {
@@ -61,10 +61,15 @@ class ContentFilters extends FilterCollection
                 $this->shareConnection($this->content_properties);
             }
         }
-        catch (ContentValidationException |
+        catch (
+            ConfigurationUndefinedException |
+            ConnectionException |
+            ContentValidationException |
             FailedQueryException |
             InvalidTypeException |
+            InvalidValueException |
             NotImplementedException |
+            NotInitializedException |
             RecordNotFoundException $ex) {
             throw new ContentInitializationException('Error loading content properties.' . $ex->getMessage());
         }

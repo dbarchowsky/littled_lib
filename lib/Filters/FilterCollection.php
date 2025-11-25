@@ -12,6 +12,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\PageUtils;
+use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
 use Exception;
 
@@ -95,8 +96,8 @@ class FilterCollection extends FilterCollectionProperties
         $this->display_listings->value = null;
         $this->display_listings->collectValue(false, $src);
         if ($this->display_listings->value === null) {
-            $str_value = Validation::collectRequestVar($this->display_listings->key, Validation::DEFAULT_REQUEST_FILTER, $src);
-            if (strtolower('' . $str_value) == "filter") {
+            $str_value = Validation::collectRequestVar($this->display_listings->key, RequestValidation::DEFAULT_REQUEST_FILTER, $src);
+            if (strtolower('' . $str_value) == 'filter') {
                 $this->display_listings->value = true;
             }
         }
@@ -119,7 +120,7 @@ class FilterCollection extends FilterCollectionProperties
     {
         $ref = Validation::collectStringRequestVar(
             LittledGlobals::REFERER_KEY,
-            Validation::DEFAULT_REQUEST_FILTER,
+            RequestValidation::DEFAULT_REQUEST_FILTER,
             null,
             $src);
         $this->referer_uri = (($ref === null) ? ('') : ($ref));
@@ -149,8 +150,8 @@ class FilterCollection extends FilterCollectionProperties
             $this->listings_length->value = $this::getDefaultListingsLength();
         }
 
-        if ($this->next->value == "") {
-            $this->next->value = "view";
+        if ($this->next->value == '') {
+            $this->next->value = 'view';
         }
     }
 
@@ -196,7 +197,7 @@ class FilterCollection extends FilterCollectionProperties
     {
         $excluded_properties = array('recordCount', 'pageCount');
         $qs_array = array();
-        $this->query_string = "";
+        $this->query_string = '';
         foreach ($this as $key => $filter) {
             if (($filter instanceof ContentFilter) && (!in_array($key, $excluded_properties))) {
                 if ($exclude === null || !in_array($filter->key, $exclude)) {
@@ -391,7 +392,7 @@ class FilterCollection extends FilterCollectionProperties
     }
 
     /**
-     * Print out current filters as hidden inputs to be included in a form in order to preserve the filters after form submission.
+     * Print out current filters as hidden inputs to be included in a form to preserve the filters after form submission.
      * @param ?array $exclude List of parameter names that should not be included in the hidden form inputs.
      * @throws ResourceNotFoundException
      */
@@ -439,7 +440,7 @@ class FilterCollection extends FilterCollectionProperties
 
     /**
      * Retrieves listings data from database using object's filter values.
-     * @param bool $calculate_offset Optional flag to prevent the offset to the first record in the listings from being recalculated prior to retrieving the listings records.
+     * @param bool $calculate_offset Optional flag to prevent the offset to the first record in the listings from being recalculated before retrieving the listings records.
      * @return array Listings data
      * @throws FailedQueryException
      * @throws NotImplementedException

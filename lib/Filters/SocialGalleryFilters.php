@@ -2,7 +2,7 @@
 
 namespace Littled\Filters;
 
-use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentInitializationException;
 use Littled\Exception\NotImplementedException;
 
 class SocialGalleryFilters extends GalleryFilters
@@ -18,15 +18,14 @@ class SocialGalleryFilters extends GalleryFilters
     public BooleanContentFilter $hasShortURL;
 
     /**
-     * class constructor
-     * @throws ConfigurationUndefinedException
+     * @throws ContentInitializationException
      */
     function __construct()
     {
         parent::__construct();
-        $this->onWordpress = new BooleanContentFilter("posted on wordpress", "gfwp", null, null, $this::getCookieKey());
-        $this->onTwitter = new BooleanContentFilter("posted on twitter", "gftw", null, null, $this::getCookieKey());
-        $this->hasShortURL = new BooleanContentFilter("has short ulr", "gfsu", null, null, $this::getCookieKey());
+        $this->onWordpress = new BooleanContentFilter('posted on wordpress', 'gfwp', null, null, $this::getCookieKey());
+        $this->onTwitter = new BooleanContentFilter('posted on twitter', 'gftw', null, null, $this::getCookieKey());
+        $this->hasShortURL = new BooleanContentFilter('has short ulr', 'gfsu', null, null, $this::getCookieKey());
     }
 
     /**

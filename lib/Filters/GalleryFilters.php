@@ -6,10 +6,13 @@ namespace Littled\Filters;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentInitializationException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Keyword\Keyword;
 use Exception;
@@ -47,33 +50,32 @@ class GalleryFilters extends ContentFilters
     protected static int $default_image_listings_length = 10;
     const ALBUM_PARAM = LittledGlobals::PARENT_ID_KEY;
     const TYPE_PARAM = LittledGlobals::CONTENT_TYPE_KEY;
-    const ACCESS_PARAM = "filac";
-    const START_DATE_PARAM = "filsd";
-    const END_DATE_PARAM = "filed";
-    const SLOT_PARAM = "filsl";
+    const ACCESS_PARAM = 'file';
+    const START_DATE_PARAM = 'filsd';
+    const END_DATE_PARAM = 'filed';
+    const SLOT_PARAM = 'filsl';
 
     /**
-     * GalleryFilters constructor
-     * @throws ConfigurationUndefinedException
+     * @throws ContentInitializationException
      */
     function __construct()
     {
         parent::__construct();
-        $this->albumId = new IntegerContentFilter("album", $this::ALBUM_PARAM, null, null, $this::getCookieKey());
-        $this->title = new StringContentFilter("title", "filti", '', 50, $this::getCookieKey());
+        $this->albumId = new IntegerContentFilter('album', $this::ALBUM_PARAM, null, null, $this::getCookieKey());
+        $this->title = new StringContentFilter('title', 'filti', '', 50, $this::getCookieKey());
 
         /**
          * N.B. This causes problems in filter_collection_class::preserve_in_form
-         * because when it loops through the properties this one gets inserted into
+         * because when it loops through the properties, this one gets inserted into
          * the form twice.
          */
         $this->name = &$this->title;
 
-        $this->releaseAfter = new DateContentFilter("start date", $this::START_DATE_PARAM, '', 20, $this::getCookieKey());
-        $this->releaseBefore = new DateContentFilter("end date", $this::END_DATE_PARAM, '', 20, $this::getCookieKey());
-        $this->access = new StringContentFilter("access", $this::ACCESS_PARAM, '', 20, $this::getCookieKey());
-        $this->keyword = new StringContentFilter("keyword", Keyword::FILTER_KEY, '', 50, $this::getCookieKey());
-        $this->slot = new IntegerContentFilter("page", $this::SLOT_PARAM, null, null, $this::getCookieKey());
+        $this->releaseAfter = new DateContentFilter('start date', $this::START_DATE_PARAM, '', 20, $this::getCookieKey());
+        $this->releaseBefore = new DateContentFilter('end date', $this::END_DATE_PARAM, '', 20, $this::getCookieKey());
+        $this->access = new StringContentFilter('access', $this::ACCESS_PARAM, '', 20, $this::getCookieKey());
+        $this->keyword = new StringContentFilter('keyword', Keyword::FILTER_KEY, '', 50, $this::getCookieKey());
+        $this->slot = new IntegerContentFilter('page', $this::SLOT_PARAM, null, null, $this::getCookieKey());
     }
 
     /**
@@ -101,12 +103,15 @@ class GalleryFilters extends ContentFilters
     /**
      * Retrieve section properties.
      * @param int|null $content_type_id Record id of site section to retrieve properties for.
-     * @throws RecordNotFoundException
+     * @return void
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws InvalidTypeException
+     * @throws RecordNotFoundException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
      */
     public function getContentProperties(int|null $content_type_id = null): void
     {
@@ -126,14 +131,14 @@ class GalleryFilters extends ContentFilters
     }
 
     /**
-     * Retrieves from database the uri of the page used to display details for this content type.
+     * Retrieves from the database the uri of the page used to display details for this content type.
      * @returns string URI of the page used to display detailed image properties.
      * @throws Exception Error connecting to database, or running query.
      */
     public function getDetailsUri(): string
     {
         $this->connectToDatabase(); /* for the sake of real_escape_string */
-        $query = "CALL getContentDetailsURI(?)";
+        $query = 'CALL getContentDetailsURI(?)';
         $content_id = $this::getContentTypeId();
         $data = $this->fetchRecords($query, 'i', $content_id);
         $this->details_uri = $data[0]->details_uri;

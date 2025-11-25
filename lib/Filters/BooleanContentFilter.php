@@ -3,12 +3,8 @@
 namespace Littled\Filters;
 
 use Littled\Validation\Validation;
-use mysqli;
 
-/**
- * Class BooleanContentFilter
- * @package Littled\Filters
- */
+
 class BooleanContentFilter extends ContentFilter
 {
     /**
@@ -38,20 +34,6 @@ class BooleanContentFilter extends ContentFilter
         if ($read_cookies) {
             $this->collectValueFromCookie();
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes = false): ?string
-    {
-        if ($this->value === true || $this->value === 1) {
-            return ('1');
-        }
-        if ($this->value === false || $this->value === 0) {
-            return ('0');
-        }
-        return null;
     }
 
     /**

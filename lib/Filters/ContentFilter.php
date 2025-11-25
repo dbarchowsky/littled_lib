@@ -7,24 +7,23 @@ use Littled\PageContent\ContentUtils;
 use Littled\Request\RenderedInput;
 use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
-use mysqli;
 
 /**
  * Class for collecting request data used to filter listings content.
  */
 class ContentFilter
 {
-    protected static string $preserve_value_template = 'filter-preserved-input.php';
+    protected static string     $preserve_value_template = 'filter-preserved-input.php';
     /** @var string Key of the cookie element holding the filter value. */
-    public string $cookieKey;
+    public string               $cookieKey;
     /** @var string Variable name used to pass along filter values. */
-    public string $key;
+    public string               $key;
     /** @var string Label to display on filter form inputs. */
-    public string $label;
+    public string               $label;
     /** @var ?int Size limit of the filter value. */
-    public ?int $size;
+    public ?int                 $size;
     /** @var mixed|string Filter value. */
-    public mixed $value;
+    public mixed                $value;
 
     /**
      * ContentFilter constructor.
@@ -34,7 +33,7 @@ class ContentFilter
      * @param int|null $size Size limit of the filter value.
      * @param ?mixed $cookieKey Key of the cookie element holding the filter value.
      */
-    function __construct(string $label, string $key, mixed $value = null, int|null $size = 0, mixed $cookieKey = '')
+    function __construct(string $label='', string $key='', mixed $value = null, int|null $size = 0, mixed $cookieKey = '')
     {
         $this->label = $label;
         $this->key = $key;
@@ -123,26 +122,6 @@ class ContentFilter
     }
 
     /**
-     * Escapes the object's value property for inclusion in SQL queries.
-     * @param mysqli $mysqli Database connection.
-     * @param bool $include_quotes (Optional) If TRUE, the escape string will be enclosed in quotes. Defaults to TRUE.
-     * @return ?string Escaped value.
-     */
-    public function escapeSQL(mysqli $mysqli, bool $include_quotes = true): ?string
-    {
-        if ($this->value === null) {
-            return null;
-        }
-        if ($this->value === true) {
-            return ('1');
-        }
-        if ($this->value === false) {
-            return ('0');
-        }
-        return (($include_quotes) ? ("'") : ('')) . $mysqli->real_escape_string($this->value) . (($include_quotes) ? ("'") : (''));
-    }
-
-    /**
      * Returns name/value pair from within a query string representing the
      * current "param" and "value" property values of the object.
      * @return string Name/value pair formatted for insertion into a query string.
@@ -225,6 +204,24 @@ class ContentFilter
         ));
     }
 
+    public function setCookieKey(string $cookieKey): static
+    {
+        $this->cookieKey = $cookieKey;
+        return $this;
+    }
+
+    public function setKey(string $key): static
+    {
+        $this->key = $key;
+        return $this;
+    }
+
+    public function setLabel(string $label): static
+    {
+        $this->label = $label;
+        return $this;
+    }
+
     /**
      * Value preservation form setter.
      * @param string $filename
@@ -233,5 +230,17 @@ class ContentFilter
     public function setPreserveValueTemplate(string $filename): void
     {
         static::$preserve_value_template = $filename;
+    }
+
+    public function setSize(int $size): static
+    {
+        $this->size = $size;
+        return $this;
+    }
+
+    public function setValue(mixed $value): static
+    {
+        $this->value = $value;
+        return $this;
     }
 }

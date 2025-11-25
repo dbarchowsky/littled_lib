@@ -4,10 +4,14 @@ namespace Littled\Filters;
 
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentInitializationException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
@@ -147,9 +151,15 @@ class AlbumFilters extends ContentFilters
     /**
      * Retrieve section properties.
      * @param int|null $content_type_id The id of a site section to retrieve properties for.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws RecordNotFoundException
      * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
      */
     public function getAjaxProperties(?int $content_type_id = null): void
     {

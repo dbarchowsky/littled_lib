@@ -23,7 +23,7 @@ class FilterCollectionProperties extends AppContentBase
     public ?int $next_record_id = null;
     /** @var IntegerContentFilter   Current page number. */
     public IntegerContentFilter $page;
-    /** @var integer                Total number of pages available for records matching the current filter values. */
+    /** @var integer                The total number of pages available for records matching the current filter values. */
     public int $page_count;
     /** @var IntegerContentFilter   Maximum number of records to display per page. */
     public IntegerContentFilter $listings_length;
@@ -31,7 +31,7 @@ class FilterCollectionProperties extends AppContentBase
     public ?int $previous_record_id = null;
     /** @var string                 SQL query string used to fetch the current record set. */
     public string $query_string = '';
-    /** @var integer                Total number of records matching the current filter values. */
+    /** @var integer                The total number of records matching the current filter values. */
     public int $record_count = 0;
     /** @var string                 URL to redirect back to, if specified */
     public string $referer_uri = '';
@@ -55,10 +55,10 @@ class FilterCollectionProperties extends AppContentBase
     function __construct()
     {
         parent::__construct();
-        $this->page = new IntegerContentFilter("Page", $this::PAGE_KEY, null, null, $this::getCookieKey());
-        $this->listings_length = new IntegerContentFilter("Page length", $this::LISTINGS_LENGTH_KEY, $this::getDefaultListingsLength(), null, $this::getCookieKey());
-        $this->next = new StringContentFilter("Next", $this::NEXT_OPERATION_KEY, '', 16, $this::getCookieKey());
-        $this->display_listings = new BooleanContentFilter("Display listings", $this::FILTER_KEY, false, null, $this::getCookieKey());
+        $this->page = new IntegerContentFilter('Page', $this::PAGE_KEY, null, null, $this::getCookieKey());
+        $this->listings_length = new IntegerContentFilter('Page length', $this::LISTINGS_LENGTH_KEY, $this::getDefaultListingsLength(), null, $this::getCookieKey());
+        $this->next = new StringContentFilter('Next', $this::NEXT_OPERATION_KEY, '', 16, $this::getCookieKey());
+        $this->display_listings = new BooleanContentFilter('Display listings', $this::FILTER_KEY, false, null, $this::getCookieKey());
         $this->referer_uri = '';
     }
 
@@ -130,7 +130,7 @@ class FilterCollectionProperties extends AppContentBase
 
     /**
      * When content listings consist of many pages, the listings can be displayed with ellipses. This method returns
-     * page number in the sequence of pages where that break should begin.
+     * a page number in the sequence of pages where that break should begin.
      * @return int
      */
     public static function getPageListCollapsePoint(): int
@@ -139,7 +139,7 @@ class FilterCollectionProperties extends AppContentBase
     }
 
     /**
-     * Abstract method for table name getter. Child classes will set initial value within the method.
+     * Abstract method for table name getter. Child classes will set an initial value within the method.
      * @return string
      * @throws NotImplementedException
      */

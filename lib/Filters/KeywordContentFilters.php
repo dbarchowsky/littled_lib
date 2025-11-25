@@ -11,6 +11,6 @@ class KeywordContentFilters extends ContentFilters
     public function __construct(string $properties_class = ContentProperties::class)
     {
         parent::__construct($properties_class);
-        $this->keyword = new StringContentFilter("Keyword", "kw", '', 50, static::$cookie_key);
+        $this->keyword = new StringContentFilter('Keyword', 'kw', '', 50, static::$cookie_key);
     }
 }
