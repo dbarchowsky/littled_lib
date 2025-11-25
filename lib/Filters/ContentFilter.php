@@ -232,7 +232,7 @@ class ContentFilter
         static::$preserve_value_template = $filename;
     }
 
-    public function setSize(int $size): static
+    public function setSizeLimit(int $size): static
     {
         $this->size = $size;
         return $this;
