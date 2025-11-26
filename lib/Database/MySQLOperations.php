@@ -17,7 +17,7 @@ use mysqli_result;
 trait MySQLOperations
 {
     /** @var mysqli Connection to a database server. */
-    protected mysqli                    $mysqli;
+    public mysqli                       $mysqli;
     protected int                       $conn_id;
     protected static ConnectionTracker  $tracker;
 
@@ -290,6 +290,15 @@ trait MySQLOperations
     }
 
     /**
+     * Connection id value getter.
+     * @return int
+     */
+    public function getConnectionId(): int
+    {
+        return $this->conn_id;
+    }
+
+    /**
      * Returns a generic object with database settings. If no settings are supplied,
      * it will use default app settings.
      * @param string $host Database host. Empty string to use app settings.
@@ -430,7 +439,7 @@ trait MySQLOperations
             return $this;
         }
         $this->mysqli = $src->mysqli;
-        $this->conn_id = $src->conn_id;
+        $this->conn_id = $src->getConnectionId();
         foreach($this as $prop) {
             if ($prop instanceof MySQLConnection) {
                 $prop->shareConnection($this);

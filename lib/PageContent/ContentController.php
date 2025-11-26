@@ -4,13 +4,16 @@ namespace Littled\PageContent;
 use JetBrains\PhpStorm\NoReturn;
 use Littled\API\APIRoute;
 use Littled\Database\MySQLConnection;
+use Littled\Database\MySQLOperations;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
@@ -24,9 +27,11 @@ use ReflectionException;
 
 abstract class ContentController
 {
-    const OPERATION_LISTINGS = 'listings';
-    const OPERATION_DETAILS = 'details';
-    const OPERATION_EDIT = 'edit';
+    use MySQLOperations;
+
+    public const OPERATION_LISTINGS = 'listings';
+    public const OPERATION_DETAILS = 'details';
+    public const OPERATION_EDIT = 'edit';
 
     /**
      * Returns a navigation route for a given SiteSection page type and operation.
@@ -222,9 +227,13 @@ abstract class ContentController
      * @param SerializedContent $content
      * @return void
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
      * @throws RecordNotFoundException
+     * @throws NotInitializedException
      */
     public static function retrieveContentDataByType(SerializedContent $content): void
     {
