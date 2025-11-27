@@ -7,6 +7,8 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
@@ -245,7 +247,7 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Takes the current request URI and compares it to the object's route in order to determine if a record id
+     * Takes the current request URI and compares it to the object's route to determine if a record id
      * value is embedded in the request URI. It then returns the record id value as determined by the position of
      * the wildcard character or sequence stored in the corresponding content_route record.
      * @param string|null $wildcard
@@ -328,9 +330,13 @@ class APIRecordRoute extends APIRoute
      * Hydrates the content properties object by retrieving data from the database.
      * @return $this
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws RecordNotFoundException
      * @throws FailedQueryException
+     * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
      */
     public function retrieveCoreContentProperties(): static
     {
@@ -343,7 +349,8 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Renders a page content template based on the current content filter values and stores the markup in the object's $json property.
+     * Renders a page content template based on the current content filter values and stores the markup in the
+     * object's JSON property.
      * @throws ResourceNotFoundException|NotImplementedException
      */
     public function retrievePageContent(): void

@@ -19,7 +19,7 @@ class JSONField
      * JSONField constructor.
      * @param string $name JSON field key.
      * @param mixed $value JSON field value.
-     * @param string $format Enum indicating format to use when converting object to JSON data.
+     * @param string $format Enum indicating the format to use when converting an object to JSON data.
      * Acceptable values are 'CURRENCY'. Leave blank for no formatting.
      */
     function __construct(string $name = '', mixed $value = '', string $format = '')
@@ -36,12 +36,12 @@ class JSONField
      */
     public static function escapeHTML(string $src): string
     {
-        return (str_replace("&", "&amp;", str_replace(">", "&gt;", str_replace("<", "&lt;", mb_convert_encoding($src, 'UTF-8', 'ISO-8859-1')))));
+        return (str_replace('&', '&amp;', str_replace('>', '&gt;', subject: str_replace('<', '&lt;', mb_convert_encoding($src, 'UTF-8', 'ISO-8859-1')))));
     }
 
     /**
      * Adds the current key/value pair to the supplied array.
-     * @param array $data Array containing full set of JSON key/value pairs to be passed back to the client.
+     * @param array $data Array containing a full set of JSON key/value pairs to be passed back to the client.
      */
     public function formatJSON(array &$data): void
     {

@@ -3,6 +3,7 @@ namespace Littled\API;
 
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -68,9 +69,13 @@ abstract class APIRoute extends APIRouteProperties
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
      * @return $this
      * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
      * @throws RecordNotFoundException
+     * @throws InvalidTypeException
      */
     public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
     {

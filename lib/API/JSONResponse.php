@@ -26,7 +26,7 @@ class JSONResponse extends JSONResponseBase
     }
 
     /**
-     * Hook for inherited classes. Add any necessary cleanup after sending response to client.
+     * Hook for inherited classes. Add any necessary cleanup after sending a response to the client.
      * @return void
      */
     public function cleanup()
@@ -74,25 +74,25 @@ class JSONResponse extends JSONResponseBase
         };
 
         if ($error = error_get_last()) {
-            if (isset($error["message"])) {
-                $error_str .= " " . $error["message"];
+            if (isset($error['message'])) {
+                $error_str .= ' ' . $error['message'];
             }
-            if (isset($error["file"])) {
-                $error_str .= " at " . $error["file"];
+            if (isset($error['file'])) {
+                $error_str .= ' at ' . $error['file'];
             }
-            if (isset($error["line"])) {
-                $error_str .= " line " . $error["line"];
+            if (isset($error['line'])) {
+                $error_str .= ' line ' . $error['line'];
             }
         }
 
-        $response_data = array("error" => $error_str);
+        $response_data = array('error' => $error_str);
 
         if (isset($tags)) {
-            if (property_exists($tags, "id")) {
-                $response_data["id"] = $tags->id->value;
+            if (property_exists($tags, 'id')) {
+                $response_data['id'] = $tags->id->value;
             }
-            if (property_exists($tags, "containerID")) {
-                $response_data["container_id"] = $tags->containerID->value;
+            if (property_exists($tags, 'containerID')) {
+                $response_data['container_id'] = $tags->containerID->value;
             }
         }
 

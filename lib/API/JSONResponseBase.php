@@ -38,7 +38,7 @@ class JSONResponseBase
 
     /**
      * Sends json data as response to client.
-     * @param array $arr json data to send as response to client
+     * @param array $arr JSON data to send as a response to client
      */
     public static function sendJsonResponse(array $arr): void
     {
@@ -47,7 +47,7 @@ class JSONResponseBase
     }
 
     /**
-     * Formats JSON string using instance's current property values and sends it as a response.
+     * Formats JSON string using the instance's current property values and sends it as a response.
      */
     public function sendResponse(): void
     {

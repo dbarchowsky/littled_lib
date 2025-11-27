@@ -35,7 +35,7 @@ class JSONRecordResponse extends JSONResponse
 
     /**
      * Inserts data into a template file and stores the resulting content in the object's $content property.
-     * @param string $template_path Path to content template file.
+     * @param string $template_path Path to the content template file.
      * @param ?array $context Array containing data to insert into the template.
      * @throws ResourceNotFoundException
      */

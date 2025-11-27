@@ -7,7 +7,10 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidTypeException;
+use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
@@ -72,6 +75,14 @@ class APIListingsRoute extends APIRoute
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     * @throws InvalidTypeException
+     * @throws InvalidValueException
+     * @throws NotInitializedException
      */
     protected function retrieveCoreContentProperties(): static
     {
