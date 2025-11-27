@@ -3,8 +3,7 @@ namespace Littled\PageContent;
 
 use JetBrains\PhpStorm\NoReturn;
 use Littled\API\APIRoute;
-use Littled\Database\MySQLConnection;
-use Littled\Database\MySQLOperations;
+use Littled\Database\StaticDBConnector;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -21,13 +20,11 @@ use Littled\PageContent\Navigation\RoutedPageContent;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Validation\Validation;
 use Exception;
-use ReflectionClass;
-use ReflectionException;
 
 
 abstract class ContentController
 {
-    use MySQLOperations;
+    use StaticDBConnector;
 
     public const OPERATION_LISTINGS = 'listings';
     public const OPERATION_DETAILS = 'details';
@@ -105,7 +102,7 @@ abstract class ContentController
      * Classes implementing this routine will return the values depending on the value of $content_id.
      * @param int $content_id Content type to match with the filter type.
      * @returns string
-     * @throws Exception
+     * @throws InvalidTypeException
      */
     public static function getContentClass(int $content_id): string
     {
@@ -134,38 +131,43 @@ abstract class ContentController
     /**
      * Returns an object derived from ContentFilters appropriate to the content type represented by $content_id
      * @param int $content_id Content type identifier
-     * @param MySQLConnection|null $conn
      * @return ContentFilters
+     * @throws ConfigurationUndefinedException
+     * @throws ConnectionException
      * @throws InvalidTypeException
      */
-    public static function getContentFiltersObject(int $content_id, ?MySQLConnection $conn = null): ContentFilters
+    public static function getContentFiltersObject(int $content_id): ContentFilters
     {
         // load objects used to fill out listing markup
         $class = static::getContentFiltersClass($content_id);
         if (!class_exists($class) || !Validation::isSubclass($class, ContentFilters::class)) {
             throw new InvalidTypeException('Invalid content filters class: ' . $class);
         }
-        return new $class(conn: $conn);
+        try {
+            return (new $class())->shareConnection(static::getDBConnection());
+        } catch(ConfigurationUndefinedException $e) {
+            throw new ConnectionException('Connection error: ' . $e->getMessage());
+        }
     }
 
     /**
      * @param int $content_id
      * @return SerializedContent
-     * @throws Exception
+     * @throws ConnectionException
+     * @throws InvalidTypeException
      */
     public static function getContentObject(int $content_id): SerializedContent
     {
         // load objects used to fill out listing markup
         $class = static::getContentClass($content_id);
-        try {
-            $rc = new ReflectionClass($class);
-        } catch (ReflectionException) {
-            throw new InvalidTypeException("Could not create instance of $class.");
+        if (!class_exists($class) || !Validation::isSubclass($class, SerializedContent::class)) {
+            throw new InvalidTypeException("Invalid content class: $class.");
         }
-        /** @var SerializedContent $content */
-        $content = $rc->newInstance();
-        // returning variable because return value of newInstance() is object and method's return type is SectionContent
-        return $content;
+        try {
+            return (new $class())->shareConnection(static::getDBConnection());
+        } catch (ConfigurationUndefinedException $e) {
+            throw new ConnectionException('Connection error: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -209,7 +211,9 @@ abstract class ContentController
      * Returns a RoutedPageContent instance appropriate to serve a response matching the requested route represented by the $route_parts argument.
      * @param array $route_parts The route that has been requested exploded into its parts.
      * @return RoutedPageContent
-     * @throws InvalidTypeException|InvalidRouteException
+     * @throws ConnectionException
+     * @throws InvalidRouteException
+     * @throws InvalidTypeException
      */
     public static function getRoutedPageInstance(array $route_parts): RoutedPageContent
     {
@@ -217,7 +221,11 @@ abstract class ContentController
         if (!class_exists($class)) {
             throw new InvalidTypeException("Invalid routed page content class: \"" . basename($class) . "\".");
         }
-        return new $class();
+        try {
+            return (new $class())->shareConnection(static::getDBConnection());
+        } catch (ConfigurationUndefinedException $e) {
+            throw new ConnectionException('Connection error: ' . $e->getMessage());
+        }
     }
 
     /**
