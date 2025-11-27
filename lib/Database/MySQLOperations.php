@@ -6,6 +6,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
+use Error;
 use mysqli;
 use mysqli_sql_exception;
 use mysqli_result;
@@ -18,7 +19,7 @@ trait MySQLOperations
 {
     /** @var mysqli Connection to a database server. */
     public mysqli                       $mysqli;
-    protected int                       $conn_id;
+    protected int|null                  $conn_id = null;
     protected static ConnectionTracker  $tracker;
 
     /**
@@ -26,9 +27,14 @@ trait MySQLOperations
      */
     public function closeDatabaseConnection(): void
     {
-        if (isset($this->mysqli) && @$this->mysqli->ping()) {
-            $this->mysqli->close();
-            $this->unsetTracker();
+        if (isset($this->mysqli)) {
+            try {
+                $this->mysqli->ping();
+                $this->mysqli->close();
+                $this->unsetTracker();
+            } catch (Error) {
+                /* Connection already closed. */
+            }
         }
     }
 
@@ -291,9 +297,9 @@ trait MySQLOperations
 
     /**
      * Connection id value getter.
-     * @return int
+     * @return int|null
      */
-    public function getConnectionId(): int
+    public function getConnectionId(): int|null
     {
         return $this->conn_id;
     }
@@ -312,11 +318,11 @@ trait MySQLOperations
     protected static function getConnectionSettings(string $host = '', string $user = '', string $password = '', string $schema = '', string $port = ''): object
     {
         return new DBConnectionSettings(
-            $host ?: self::getAppSetting('MYSQL_HOST'),
-            $user ?: self::getAppSetting('MYSQL_USER'),
-            $password ?: self::getAppSetting('MYSQL_PASS'),
-            $schema ?: self::getAppSetting('MYSQL_SCHEMA'),
-            $port ?: self::getAppSetting('MYSQL_PORT', false)
+            $host ?: static::getAppSetting('MYSQL_HOST'),
+            $user ?: static::getAppSetting('MYSQL_USER'),
+            $password ?: static::getAppSetting('MYSQL_PASS'),
+            $schema ?: static::getAppSetting('MYSQL_SCHEMA'),
+            $port ?: static::getAppSetting('MYSQL_PORT', false)
         );
     }
 
@@ -338,10 +344,14 @@ trait MySQLOperations
      */
     public function hasConnection(): bool
     {
-        if (!isset($this->mysqli) || !@$this->mysqli->ping()) {
-            return (false);
+        if (!isset($this->mysqli)) {
+            return false;
         }
-        return ($this->mysqli->connect_error === null);
+        try {
+            return $this->mysqli->ping();
+        } catch (Error) {
+            return false;
+        }
     }
 
     /**
@@ -455,7 +465,7 @@ trait MySQLOperations
     protected function unsetTracker(): void
     {
         self::$tracker->removeConnection($this->conn_id);
-        unset($this->conn_id);
+        $this->conn_id = null;
         foreach($this as $prop) {
             if ($prop instanceof MySQLConnection) {
                 $prop->unsetTracker();
