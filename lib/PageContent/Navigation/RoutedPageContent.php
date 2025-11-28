@@ -11,7 +11,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
 use Littled\PageContent\PageContent;
-use Littled\PageContent\PageContentInterface;
+use Littled\PageContent\RouteInterface;
 use Littled\Utility\LittledUtility;
 
 
@@ -80,7 +80,7 @@ abstract class RoutedPageContent extends PageContent
         }
         if (isset($this->content) &&
             false === $this->content->hasValidationErrors() &&
-            in_array($this->edit_action, [PageContentInterface::COMMIT_ACTION, PageContentInterface::CANCEL_ACTION])) {
+            in_array($this->edit_action, [RouteInterface::COMMIT_ACTION, RouteInterface::CANCEL_ACTION])) {
             // load page selected to be the next page after editing and saving a record
             $page = $this->getUpdateResponsePage();
             $page->setUpdateType($this->getUpdateType());

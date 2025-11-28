@@ -6,7 +6,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Filters\ContentFilters;
 
 
-abstract class PageContentBase extends MySQLConnection implements PageContentInterface
+abstract class RouteBase extends MySQLConnection implements RouteInterface
 {
     use RouteTrait;
 
@@ -57,7 +57,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
      * @param ContentFilters $filters
      * @return $this
      */
-    public function setFilters(ContentFilters $filters): PageContentBase
+    public function setFilters(ContentFilters $filters): RouteBase
     {
         $this->filters = $filters;
         return $this;
@@ -68,7 +68,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
      * @param $path
      * @return $this
      */
-    public function setTemplatePath($path): PageContentBase
+    public function setTemplatePath($path): RouteBase
     {
         $this->template_path = $path;
         return $this;

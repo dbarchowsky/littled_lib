@@ -3,7 +3,7 @@
 namespace Littled\PageContent;
 
 
-interface PageContentInterface
+interface RouteInterface
 {
     const CANCEL_ACTION = 'cancel';
     const COMMIT_ACTION = 'commit';
@@ -29,9 +29,9 @@ interface PageContentInterface
 
     /**
      * Apply any necessary work to the request data. Use the request data to prepare a response.
-     * @return PageContentBase
+     * @return RouteBase
      */
-    public function processRequest(): PageContentBase;
+    public function processRequest(): RouteBase;
 
     /**
      * Injects content into a template to generate markup to send as http response matching a client request.

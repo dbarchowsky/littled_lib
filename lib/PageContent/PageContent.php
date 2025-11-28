@@ -17,7 +17,7 @@ use Littled\Validation\Validation;
 /**
  * Handles requests for page content by retrieving data and using it to render content using content templates.
  */
-abstract class PageContent extends PageContentBase
+abstract class PageContent extends RouteBase
 {
     /** @var string         Token representing the current action to take on the page. */
     public string $edit_action = '';

@@ -12,7 +12,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
-use Littled\PageContent\PageContentBase;
+use Littled\PageContent\RouteBase;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
@@ -21,7 +21,7 @@ use Littled\Utility\LittledUtility;
 use Exception;
 
 
-abstract class APIRouteProperties extends PageContentBase
+abstract class APIRouteProperties extends RouteBase
 {
     /** @var string */
     public const                TEMPLATE_TOKEN_KEY = 'templateToken';
