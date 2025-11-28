@@ -12,6 +12,7 @@ use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
 
@@ -71,7 +72,8 @@ class ContentFilters extends FilterCollection
             NotImplementedException |
             NotInitializedException |
             RecordNotFoundException $ex) {
-            throw new ContentInitializationException('Error loading content properties.' . $ex->getMessage());
+            $msg = 'Error loading content properties. (' . Log::getClassBaseName($ex::class) . ') ' .$ex->getMessage();
+            throw new ContentInitializationException($msg);
         }
     }
 
