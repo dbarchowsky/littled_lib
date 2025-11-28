@@ -28,15 +28,15 @@ interface PageContentInterface
     public function getContentLabel(): string;
 
     /**
-     * Apply any needed work to the request data. Use the request data to prepare a response.
+     * Apply any necessary work to the request data. Use the request data to prepare a response.
      * @return PageContentBase
      */
     public function processRequest(): PageContentBase;
 
     /**
-     * Injects content into template to generate markup to send as http response matching a client request.
+     * Injects content into a template to generate markup to send as http response matching a client request.
      * @param string $template_path Optional template path that will override the instance's internal template values.
-     * @param ?array $context Optional data to inject in the template to use in place of instance's internal property values.
+     * @param ?array $context Optional data to inject in the template to use in place of the instance's internal property values.
      */
     public function sendResponse(string $template_path = '', ?array $context = null);
 }
