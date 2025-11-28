@@ -6,11 +6,12 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -33,7 +34,6 @@ class APIRecordRoute extends APIRoute
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -51,9 +51,7 @@ class APIRecordRoute extends APIRoute
      * @param ?array $src Optional array of variables to use instead of POST data.
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -253,9 +251,7 @@ class APIRecordRoute extends APIRoute
      * @param string|null $wildcard
      * @return false|int
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
      * @throws NotInitializedException
      * @throws RecordNotFoundException
      */
@@ -293,16 +289,30 @@ class APIRecordRoute extends APIRoute
      * Retrieves content data from the database
      * @return APIRecordRoute
      * @throws ConfigurationUndefinedException
+     * @throws ReadException
      */
     public function retrieveContentData(): APIRecordRoute
     {
         if (!$this->hasContentPropertiesObject()) {
             return $this;
         }
-        if ($this->content->id->value === null || $this->content->id->value < 1) {
+        if (!($this->content->getRecordId() > 0)) {
             throw new ConfigurationUndefinedException('A record id was not provided.');
         }
-        call_user_func_array([$this::getControllerClass(), 'retrieveContentDataByType'], array($this->content));
+        try {
+            $this->content->read();
+        } catch (
+            ConfigurationUndefinedException |
+            ConnectionException |
+            ContentValidationException |
+            FailedQueryException |
+            InvalidStateException |
+            InvalidTypeException |
+            InvalidValueException |
+            NotInitializedException |
+            RecordNotFoundException $e) {
+            throw new ReadException('Error retrieving record: ' . $e->getMessage());
+        }
         return $this;
     }
 
@@ -310,12 +320,11 @@ class APIRecordRoute extends APIRoute
      * Loads the content object and uses the internal record id property value to hydrate the object's property value from the database.
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws InvalidQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws ContentValidationException
      */
     public function retrieveContentObjectAndData(): APIRecordRoute
     {
