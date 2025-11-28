@@ -13,7 +13,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     /** @var string             Query string to attach to page links. */
     protected string            $query_string = '';
     protected static array      $route_parts=[];
-    /** @var string             Path to template file. */
+    /** @var string             Path to a template file. */
     protected string            $template_path = '';
 
     /**
@@ -73,7 +73,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     }
 
     /**
-     * Returns one component of the route parts, the 2nd one by default.
+     * Returns one part of the route parts, the 2nd one by default.
      * @param int $index
      * @return string
      */
@@ -141,7 +141,7 @@ abstract class PageContentBase extends MySQLConnection implements PageContentInt
     /**
      * Sets a sub-route component of the object's route path.
      * @param string $sub_route Value to assign to the route component.
-     * @param int $index Optional 0-based index of the component to assign the sub route value. Defaults to 1, i.e. the 2nd component in the route path.
+     * @param int $index Optional 0-based index of the component to assign the sub route value. Defaults to 1, i.e., the 2nd component in the route path.
      * @return void
      */
     public static function setSubRoute(string $sub_route, int $index=1): void
