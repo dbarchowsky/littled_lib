@@ -172,9 +172,7 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Confirms that a content route has been initialized or attempts to initialize the $route property of the object
-     * if a route has not been initialized.
-     * @return void
+     * @inheritDoc
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws NotInitializedException

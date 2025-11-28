@@ -2,10 +2,8 @@
 namespace Littled\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordNotFoundException;
@@ -50,6 +48,13 @@ abstract class APIRouteProperties extends RouteBase
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
         $this->action = '';
     }
+
+    /**
+     * Confirms that a content route has been initialized or attempts to initialize the $route property of the object
+     * if a route has not been initialized.
+     * @return void
+     */
+    abstract protected function confirmRouteIsLoaded(): void;
 
     /**
      * Cache class name getter.
@@ -145,11 +150,6 @@ abstract class APIRouteProperties extends RouteBase
     /**
      * Returns the string value of the currently loaded api route.
      * @return string
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
      */
     public function getAPIRoutePath(): string
     {
@@ -161,11 +161,6 @@ abstract class APIRouteProperties extends RouteBase
      * Returns the string value of the currently loaded route. This should be overwritten in derived classes
      * to return the api_route property value if that is the appropriate route for a given request.
      * @return string
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
      */
     public function getRoutePath(): string
     {
