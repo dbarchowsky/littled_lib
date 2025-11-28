@@ -221,9 +221,14 @@ trait MySQLOperations
                 throw new FailedQueryException('Could not prepare statement: ' . $this->mysqli->error);
             }
             array_unshift($vars, $types);
-            call_user_func_array([$stmt, 'bind_param'], $vars);
-            if (!$stmt->execute()) {
-                throw new FailedQueryException('Error fetching records: ' . $stmt->error);
+            try {
+                $stmt->bind_param(...$vars);
+                if (!$stmt->execute()) {
+                    throw new FailedQueryException('Error fetching records: ' . $stmt->error);
+                }
+            }
+            catch(mysqli_sql_exception $ex) {
+                throw new FailedQueryException('Error fetching records: ' . $ex->getMessage());
             }
             $result = $stmt->get_result();
             $stmt->close();
