@@ -14,6 +14,7 @@ use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Log\Log;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -311,7 +312,8 @@ class APIRecordRoute extends APIRoute
             InvalidValueException |
             NotInitializedException |
             RecordNotFoundException $e) {
-            throw new ReadException('Error retrieving record: ' . $e->getMessage());
+            $msg = 'Error retrieving record: (' . Log::getClassBaseName($e::class) . ') ' . $e->getMessage();
+            throw new ReadException($msg);
         }
         return $this;
     }
