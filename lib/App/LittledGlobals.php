@@ -124,15 +124,15 @@ class LittledGlobals
 
     public static function getMySQLKeysFullPath(): string
     {
-        if ((static::$mysql_keys_path ?? '') === '') {
+        $path = static::$mysql_keys_path ?? self::$mysql_keys_path ?? '';
+        if ($path === '') {
             return '';
         }
-        if (isset(static::$mysql_keys_path) && !empty(static::$mysql_keys_path) &&
-            str_starts_with(static::$mysql_keys_path, '/')) {
-            return static::$mysql_keys_path;
+        if (str_starts_with($path, '/')) {
+            return $path;
         }
         try {
-            return LittledUtility::joinPaths(static::getConfigPath(), static::$mysql_keys_path);
+            return LittledUtility::joinPaths(static::getConfigPath(), $path);
         } catch (ConfigurationUndefinedException) {
             return '';
         }
@@ -144,7 +144,7 @@ class LittledGlobals
      */
     public static function getMySQLKeysPath(): string
     {
-        return static::$mysql_keys_path ?? '';
+        return static::$mysql_keys_path ?? self::$mysql_keys_path ?? '';
     }
 
     /**
