@@ -38,7 +38,7 @@ class ConnectionDetails
     }
 
     /**
-     * Create time setter.
+     * Creation time setter
      * @param float|null $timestamp
      * @return $this
      */

@@ -7,15 +7,16 @@ namespace Littled\Database;
 class DBConnectionSettings
 {
     /** @var string Database host name */
-    public string $host;
+    protected string       $host;
     /** @var string Database schema name */
-    public string $schema;
-    /** @var string Username used to establish databas connection */
-    public string $user;
+    protected string       $schema;
+    /** @var string Username used to establish database connection */
+    protected string       $user;
     /** @var string Database password */
-    public string $password;
+    protected string       $password;
     /** @var int|null Database port number */
-    public int|null $port;
+    protected int|null     $port;
+    public string          $aes_key = '';
 
     /**
      * DBConnectionSettings constructor.
@@ -34,31 +35,64 @@ class DBConnectionSettings
         $this->port = $port;
     }
 
-    public function setHost(string $host): DBConnectionSettings
+    public function aes_key(): string
+    {
+        return $this->aes_key;
+    }
+
+    public function schema(): string
+    {
+        return $this->schema;
+    }
+
+    public function host(): string
+    {
+        return $this->host;
+    }
+
+    public function password(): string
+    {
+        return $this->password;
+    }
+    public function port(): string
+    {
+        return $this->port;
+    }
+    public function user(): string
+    {
+        return $this->user;
+    }
+    public function setAESKey(string $key): static
+    {
+        $this->aes_key = $key;
+        return $this;
+    }
+
+    public function setHost(string $host): static
     {
         $this->host = $host;
         return $this;
     }
 
-    public function setSchema(string $schema): DBConnectionSettings
+    public function setSchema(string $schema): static
     {
         $this->schema = $schema;
         return $this;
     }
 
-    public function setUser(string $user): DBConnectionSettings
+    public function setUser(string $user): static
     {
         $this->user = $user;
         return $this;
     }
 
-    public function setPassword(string $password): DBConnectionSettings
+    public function setPassword(string $password): static
     {
         $this->password = $password;
         return $this;
     }
 
-    public function setPort(int $port): DBConnectionSettings
+    public function setPort(int $port): static
     {
         $this->port = $port;
         return $this;

@@ -4,6 +4,7 @@ namespace Littled\Database;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Log\Log;
 use mysqli;
 
 trait StaticDBConnector
@@ -35,12 +36,16 @@ trait StaticDBConnector
     /**
      * Get a shared MySQL connection to avoid opening multiple connections.
      * @return MySQLConnection
-     * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      */
     public static function getDBConnection(): MySQLConnection
     {
-        return static::connectToDatabase();
+        try {
+            return static::connectToDatabase();
+        } catch(ConfigurationUndefinedException $ex) {
+            $msg = 'Could not connect to database. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
+            throw new ConnectionException($msg);
+        }
     }
 
     /**
@@ -52,6 +57,15 @@ trait StaticDBConnector
     public function getMySQLi(): mysqli
     {
         return static::$conn->getMySQLi();
+    }
+
+    /**
+     * Tests if the object currently has a viable database connection.
+     * @return bool Flag indicating if there is a viable database connection or not.
+     */
+    public function hasConnection(): bool
+    {
+        return isset(static::$conn) && static::$conn->hasConnection();
     }
 
     /**

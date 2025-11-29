@@ -1,11 +1,13 @@
 <?php
 namespace Littled\Database;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
+use Exception;
 use Error;
 use mysqli;
 use mysqli_sql_exception;
@@ -48,16 +50,20 @@ trait MySQLOperations
      */
     public function columnExists(string $column_name, string $table_name): bool
     {
-        $schema = $this::getAppSetting('MYSQL_SCHEMA');
-        if (!$schema) {
-            throw new ConfigurationUndefinedException('Schema undefined in ' . __METHOD__ . '.');
-        }
-
         $query = 'SELECT EXISTS ' .
             '(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS ' .
             'WHERE TABLE_SCHEMA=? ' .
             'AND TABLE_NAME=? ' .
             'AND COLUMN_NAME=?) as `column_present`';
+
+        try {
+            $schema = LittledGlobals::getDBSettings()->schema();
+        } catch (ConfigurationUndefinedException $e) {
+            throw new ConfigurationUndefinedException('Schema undefined in ' . __METHOD__ . '. ' . $e->getMessage());
+        }
+        if (empty($schema)) {
+            throw new ConfigurationUndefinedException('Schema undefined in ' . __METHOD__ . '.');
+        }
 
         $data = $this->fetchRecords($query, 'sss', $schema, $table_name, $column_name);
         if (count($data) > 0) {
@@ -78,16 +84,24 @@ trait MySQLOperations
     /**
      * Make database connection
      * @param DBConnectionSettings $c Database connection properties
+     * @return void
+     * @throws ConnectionException
      */
     protected function connect(DBConnectionSettings $c): void
     {
         if($this->hasConnection()) {
             return;
         }
-        if ($c->port) {
-            $c->host .= ":$c->port";
+        $host = $c->host();
+        if ($c->port()) {
+            $host .= ":{$c->port()}";
         }
-        $this->mysqli = new mysqli($c->host, $c->user, $c->password, $c->schema);
+        try {
+            $this->mysqli = new mysqli($host, $c->user(), $c->password(), $c->schema());
+        }
+        catch (Exception $ex) {
+            throw new ConnectionException('Connection failed. ' . $ex->getMessage());
+        }
         if (!isset(self::$tracker)) {
             $this->initializeConnectionTracker();
         }
@@ -114,7 +128,7 @@ trait MySQLOperations
     {
         if (!$this->hasConnection()) {
             try {
-                $this->connect(static::getConnectionSettings($host, $user, $password, $schema, $port));
+                $this->connect(static::getConnectionSettings());
             } catch (mysqli_sql_exception $ex) {
                 throw new ConnectionException('Connection error: ' . $ex->__toString());
             }
@@ -312,23 +326,12 @@ trait MySQLOperations
     /**
      * Returns a generic object with database settings. If no settings are supplied,
      * it will use default app settings.
-     * @param string $host Database host. Empty string to use app settings.
-     * @param string $user Database user. Empty string to use app settings.
-     * @param string $password Database password. Empty string to use app settings.
-     * @param string $schema Database schema. Empty string to use app settings.
-     * @param string $port Database port. Empty string to use app settings.
      * @return DBConnectionSettings Initialized object containing database properties
      * @throws ConfigurationUndefinedException
      */
-    protected static function getConnectionSettings(string $host = '', string $user = '', string $password = '', string $schema = '', string $port = ''): object
+    protected static function getConnectionSettings(): DBConnectionSettings
     {
-        return new DBConnectionSettings(
-            $host ?: static::getAppSetting('MYSQL_HOST'),
-            $user ?: static::getAppSetting('MYSQL_USER'),
-            $password ?: static::getAppSetting('MYSQL_PASS'),
-            $schema ?: static::getAppSetting('MYSQL_SCHEMA'),
-            $port ?: static::getAppSetting('MYSQL_PORT', false)
-        );
+        return LittledGlobals::getDBSettings();
     }
 
     /**

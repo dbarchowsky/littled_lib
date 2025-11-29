@@ -3,9 +3,11 @@
 namespace Littled\App;
 
 
+use Littled\Database\DBConnectionSettings;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Utility\LittledUtility;
 
-abstract class LittledGlobals
+class LittledGlobals
 {
     protected static string|null    $app_base_dir;
     protected static string         $app_domain;
@@ -15,6 +17,8 @@ abstract class LittledGlobals
     protected static string|null    $local_template_path;
     protected static string|null    $shared_template_path;
     protected static bool           $show_verbose_errors = false;
+
+    protected static DBConnectionSettings   $db_config;
 
     /** @var string                 Name of session variable use dto store CSRF tokens. */
     const                           CSRF_SESSION_KEY = 'csrfToken';
@@ -80,6 +84,19 @@ abstract class LittledGlobals
     }
 
     /**
+     * Database connection settings getter.
+     * @return DBConnectionSettings
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getDBSettings(): DBConnectionSettings
+    {
+        if (!isset(static::$db_config)) {
+            throw new ConfigurationUndefinedException('Database configuration not set.');
+        }
+        return static::$db_config;
+    }
+
+    /**
      * Error log path getter.
      * @return string
      * @throws ConfigurationUndefinedException
@@ -105,23 +122,29 @@ abstract class LittledGlobals
         return static::$local_template_path;
     }
 
+    public static function getMySQLKeysFullPath(): string
+    {
+        if ((static::$mysql_keys_path ?? '') === '') {
+            return '';
+        }
+        if (isset(static::$mysql_keys_path) && !empty(static::$mysql_keys_path) &&
+            str_starts_with(static::$mysql_keys_path, '/')) {
+            return static::$mysql_keys_path;
+        }
+        try {
+            return LittledUtility::joinPaths(static::getConfigPath(), static::$mysql_keys_path);
+        } catch (ConfigurationUndefinedException) {
+            return '';
+        }
+    }
+
     /**
      * Gets path to current MySQL authentication directory.
      * @return string MySQL keys path.
      */
     public static function getMySQLKeysPath(): string
     {
-        if (isset(static::$mysql_keys_path) && !empty(static::$mysql_keys_path) &&
-            str_starts_with(static::$mysql_keys_path, '/')) {
-            return static::$mysql_keys_path;
-        }
-        $config_path = '';
-        try {
-            $config_path = static::getConfigPath();
-        } catch (ConfigurationUndefinedException $e) {
-            /* continue */
-        }
-        return $config_path . (static::$mysql_keys_path ?? '');
+        return static::$mysql_keys_path ?? '';
     }
 
     /**
@@ -147,6 +170,26 @@ abstract class LittledGlobals
             throw new ConfigurationUndefinedException('LittledGlobals shared template path value not set.');
         }
         return static::$shared_template_path;
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    public static function loadDatabaseConnection(): void
+    {
+        $path = static::getMySQLKeysFullPath();
+        if (!file_exists($path) || !is_readable($path) || is_dir($path)) {
+            throw new ConfigurationUndefinedException('MySQL keys file not found or not readable.');
+        }
+        $json = json_decode(file_get_contents($path));
+        static::$db_config = (new DBConnectionSettings())
+            ->setHost($json->host ?? '')
+            ->setSchema($json->schema ?? '')
+            ->setPort($json->port ?? '')
+            ->setUser($json->user ?? '')
+            ->setPassword($json->password ?? '')
+            ->setAESKey($json->aes_encrypt_key ?? '');
     }
 
     /**
@@ -189,12 +232,11 @@ abstract class LittledGlobals
 
     /**
      * Sets path to current MySQL authentication directory.
-     * @param string|null $path MySQL keys path.
-     * @throws ConfigurationUndefinedException
+     * @param string $path MySQL keys path.
      */
-    public static function setMySQLKeysPath(string|null $path): void
+    public static function setMySQLKeysPath(string $path): void
     {
-        static::$mysql_keys_path = ($path) ? rtrim($path, '/') . '/' : '';
+        static::$mysql_keys_path = $path;
     }
 
     /**

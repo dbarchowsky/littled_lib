@@ -16,7 +16,7 @@ class AppContentBase extends MySQLConnection
      */
     public static function getMethodDescriptor(): string
     {
-        return (basename(str_replace('\\', '/', get_called_class())) . "::" . debug_backtrace()[1]['function'] . "()");
+        return (basename(str_replace('\\', '/', get_called_class())) . '::' . debug_backtrace()[1]['function'] . '()');
     }
 
     /**

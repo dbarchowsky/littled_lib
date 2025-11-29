@@ -127,8 +127,7 @@ class AppBase
 
     /**
      * Gets client request data from either POST variables, GET variables, or AJAX client request data.
-     * @param array|null $src (Optional) Specify either $_POST or $_GET with this parameter to exclude the other from
-     * the data that can be returned.
+     * @param array|null $src (Optional) Specify either $_POST or $_GET with this parameter to exclude the other from the data that can be returned.
      * @return array
      */
     public static function getRequestData(?array $src = null): array

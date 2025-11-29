@@ -46,7 +46,7 @@ class DBUtils
      * Uses supplied SQL SELECT statement to retrieve name/value pairs from database. These name/value pairs are then written out at HTML option tags.
      * @param string $query SQL SELECT statement
      * @param array $selected_options Array containing the values of any selected options.
-     * @param string $css_error_class (Optional) css class to apply to option element in case of an error. Defaults to "alert alert-error".
+     * @param string $css_error_class (Optional) CSS class to apply to the option element in case of an error. Defaults to "alert alert-error".
      */
     public static function displayQueryOptions(string $query, array $selected_options, string $css_error_class = 'alert alert-error'): void
     {
@@ -71,7 +71,7 @@ class DBUtils
     }
 
     /**
-     * Runs supplied SQL SELECT statement to retrieve recordset. Fills supplied array with the first value in each row of the recordset (all other values in the row are ignored).
+     * Runs supplied SQL SELECT statement to retrieve a recordset. Fills the supplied array with the first value in each row of the recordset (all other values in the row are ignored).
      * @param string $query SQL SELECT query.
      * @param array $buffer Array where the results will be stored.
      * @throws FailedQueryException
@@ -87,7 +87,7 @@ class DBUtils
     }
 
     /**
-     * returns string containing values returned by database query formatted as a javascript array
+     * returns string containing values returned by a database query formatted as a JavaScript array
      * @param string $query MySQL query to run to retrieve values
      * @return string database values formatted as a javascript array
      * @throws FailedQueryException
@@ -105,8 +105,7 @@ class DBUtils
 
     /**
      * Formats a date in a format that can be stored in a MySQl database.
-     * @param int|string|null $timestamp Optional Time to be formatted in MySQL format. Time can be either an integer timestamp
-     * or a string date value. If no date is provided, the current time will be returned.
+     * @param int|string|null $timestamp Optional Time to be formatted in MySQL format. Time can be to an integer timestamp or a string date value. If no date is provided, the current time will be returned.
      * @return string
      */
     public static function formatSqlDate(int|string|null $timestamp = null): string
@@ -129,7 +128,7 @@ class DBUtils
 
     /**
      * Retrieve all possible values for a given ENUM column in a table in the database.
-     * @param string $table_name Name of table containing the ENUM column.
+     * @param string $table_name Name of the table containing the ENUM column.
      * @param string $column Name of the ENUM column.
      * @return array Array containing all the possible values as name/value pairs.
      * @throws FailedQueryException
@@ -163,7 +162,7 @@ class DBUtils
     }
 
     /**
-     * Looks up the next sequential unused record id value in a table, assuming the primary key column is named 'id'.
+     * Look up the next sequential unused record id value in a table, assuming the primary key column is named 'id'.
      * @param string $table_name Name of the table to search.
      * @return int Value of the next sequential unused id.
      * @throws FailedQueryException
@@ -187,7 +186,7 @@ class DBUtils
     /**
      * Fills $arOptions array with name/value pairs retrieved using the supplied SQL SELECT query.
      * @param string $query SQL SELECT query used to retrieve name/value array.
-     * @param array $options Function will fill this array with name/value pairs to be used in option list.
+     * @param array $options Function will fill this array with name/value pairs to be used in the option list.
      * @throws FailedQueryException
      */
     public static function retrieveOptionsList(string $query, array &$options): void
