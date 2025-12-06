@@ -1,142 +1,112 @@
 <?php
+
 namespace Littled\Request\Inline;
 
-use Exception;
+
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\FailedQueryException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\RecordNotFoundException;
-use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Request\IntegerInput;
-use Littled\Request\RequestInput;
+use Littled\Exception\InvalidPropertyException;
+use Littled\Log\Log;
+use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\StringInput;
 
-
-/**
- * Class InlineInput
- * @package Littled\Request\Inline
- */
-abstract class InlineInput extends SerializedContent
+abstract class InlineInput extends SectionContent
 {
-    /** @var IntegerInput Parent record id. */
-    public IntegerInput $parent_id;
-    /** @var StringInput Name of table in database that stores the value that is being updated. */
-    public StringInput $table;
-    /** @var StringInput Operation to be performed, e.g. "edit", "delete", etc. */
-    public StringInput $op;
-    /** @var array Property values to validate after changes are made in an HTML form. */
-    public array $validateProperties;
-    /** @var array Array of validation errors. */
-    public array $validationErrors = [];
-    /** @var string[] Possible column names. */
-    public array $columnNameOptions = [];
-    /** @var string Name of column holding date value. */
-    public string $column_name = '';
+    public StringInput $operation;
+    /** @var string[] Property values to validate after changes are made in an HTML form. */
+    public array $validate_properties;
+
+    public const OPERATION_KEY = 'op';
 
     /**
      * @inheritdoc
      */
-    function __construct(int|null $id = null)
+    function __construct()
     {
-        parent::__construct($id);
-        $this->parent_id = new IntegerInput('Parent id', 'id', true, false);
-        $this->table = new StringInput('Table', 't', true, '', 200);
-        $this->op = new StringInput('Operation', 'op', true, '', 20);
-        $this->validateProperties = ['parent_id', 'table'];
-    }
-
-    /**
-     * @param string $column_name
-     * @param string $table_name
-     * @return bool
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     */
-    public function columnExists(string $column_name, string $table_name = ''): bool
-    {
-        if ('' === $table_name) {
-            $table_name = $this->table->value;
-        }
-        return parent::columnExists($column_name, $table_name);
-    }
-
-    /**
-     * Placeholder for method that formats SQL query string to use to retrieve specific field values from the database.
-     * @throws NotImplementedException
-     */
-    abstract protected function formatSelectQuery(): array;
-
-    /**
-     * Placeholder for method that formats SQL query string to use to update specific field values stored in the database.
-     * @throws NotImplementedException
-     */
-    abstract protected function formatUpdateQuery(): array;
-
-    /**
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    protected function getColumnName(): void
-    {
-        foreach ($this->columnNameOptions as $column) {
-            if ($this->columnExists($column, $this->table->value)) {
-                $this->column_name = $column;
-                return;
+        try {
+            parent::__construct();
+        } catch (ConfigurationUndefinedException $ex) {
+            /** ignore unset content type */
+            if (!preg_match('/^content type/i', $ex->getMessage())) {
+                throw $ex;
             }
         }
-        throw new RecordNotFoundException('No matching columns were found.');
+        $this->content_properties = (new ContentProperties())
+            ->shareConnection($this)
+            ->setLabel('Content type')
+            ->setAsRequired();
+        $this->id
+            ->setLabel('Record id')
+            ->setAsRequired();
+        $this->operation = (new StringInput())
+            ->setLabel('Operation')
+            ->setKey(self::OPERATION_KEY)
+            ->setAsRequired()
+            ->setSizeLimit(20);
+        $this->validate_properties = ['id', 'content_properties' => ['id'], 'operation'];
     }
 
     /**
-     * Retrieves data from database used to fill inline HTML forms.
-     * @return $this
+     * @inheritdoc
      * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    public function read(): InlineInput
-    {
-        if (count($this->columnNameOptions) > 0) {
-            $this->getColumnName();
-        }
-        parent::read();
-        return $this;
-    }
-
-    /**
-     * Commits changes made to specific field values through inline HTML forms.
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     * @throws Exception
      */
     public function save(): void
     {
-        if (count($this->columnNameOptions) > 0) {
-            $this->getColumnName();
-        }
-        call_user_func_array([$this, 'query'], $this->formatUpdateQuery());
+        $this->query(...$this->formatCommitQuery());
     }
 
     /**
-     * Validates inline HTML edit values.
-     * @throws ContentValidationException
+     * @inheritDoc
+     * @throws InvalidPropertyException
      */
-    public function validateInlineInput(): void
+    public function validateInput(array $exclude_properties = []): void
     {
-        foreach ($this->validateProperties as $key) {
-            try {
-                /** @var RequestInput $property */
-                $property = $this->$key;
-                $property->validate();
-            } catch (ContentValidationException $ex) {
-                $this->validationErrors[] = $ex->getMessage();
+        foreach ($this->validate_properties as $key => $value) {
+            if (is_numeric($key) || is_string($value)) {
+                $this->validatePropertyValue($value);
+            }
+            elseif (is_array($value)) {
+                foreach ($value as $subvalue) {
+                    $this->validatePropertyValue($subvalue, $key);
+                }
             }
         }
-        if (count($this->validationErrors) > 0) {
+        if ($this->hasValidationErrors()) {
             throw new ContentValidationException('There were problems found in the information that was entered.');
+        }
+    }
+
+    /**
+     * Validates individual property values based on the property name.
+     * @param string $property
+     * @param string $obj_property
+     * @return void
+     * @throws InvalidPropertyException
+     */
+    protected function validatePropertyValue(string $property, string $obj_property=''): void
+    {
+        if (!empty($obj_property)) {
+            if (!property_exists($this, $obj_property)) {
+                throw new InvalidPropertyException("Invalid property '$obj_property' in " . Log::getShortMethodName() . '().');
+            }
+            if (!property_exists($this->{$obj_property}, $property)) {
+                throw new InvalidPropertyException("Invalid property '$property' on '$obj_property' in " . Log::getShortMethodName() . '().');
+            }
+            $p = $this->{$obj_property}->{$property};
+        }
+        else {
+            if (!property_exists($this, $property)) {
+                throw new InvalidPropertyException("Invalid property '$property' in " . Log::getShortMethodName() . '().');
+            }
+            $p = $this->{$property};
+        }
+        if (property_exists($this, $property) && method_exists($this->{$property}, 'validate')) {
+            try {
+                $p->validate();
+            } catch (ContentValidationException $ex) {
+                $this->addValidationError($ex->getMessage());
+            }
         }
     }
 }
