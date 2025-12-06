@@ -57,12 +57,12 @@ abstract class JunctionRecordLink extends LinkedContent
     /**
      * @inheritDoc
      */
-    protected function formatRecordSelectPreparedStmt(): array
+    protected function formatRecordSelectQuery(): array
     {
         // Replace the where clause that looks up record by the primary key with
         // a where clause that looks up record by the parent id and link id.
         $state = $this->bypassForeignKeyIndexFields();
-        [$query] = parent::formatRecordSelectPreparedStmt();
+        [$query] = parent::formatRecordSelectQuery();
         $this->restoreForeignKeyIndexFields($state);
 
         $query = substr($query, 0, strpos($query, 'WHERE')) .

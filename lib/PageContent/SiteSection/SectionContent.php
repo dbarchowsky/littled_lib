@@ -1,13 +1,18 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
+use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\StringInput;
@@ -26,14 +31,15 @@ abstract class SectionContent extends SerializedContent
      * SectionContent constructor.
      * @param ?int $id Record id to retrieve.
      * @param ?int $content_type_id Record id of the site section where this piece of content belongs.
-     * @throws InvalidStateException
+     * @throws ConfigurationUndefinedException
      */
     public function __construct(int $id = null, int $content_type_id = null)
     {
         parent::__construct($id);
-        $this->content_properties = new ContentProperties($content_type_id ?: static::getContentTypeId());
-        $this->content_properties->id->label = 'Content type';
-        $this->content_properties->id->required = true;
+        $this->content_properties = (new ContentProperties())
+            ->setRecordId($content_type_id ?: static::getContentTypeId())
+            ->setLabel('Content type')
+            ->setAsRequired();
     }
 
     /**
@@ -67,10 +73,10 @@ abstract class SectionContent extends SerializedContent
     /**
      * Deletes the Site Section record matching the object's internal ID value.
      * @return string
-     * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws NotInitializedException
+     * @throws ReadException
      * @throws RecordNotFoundException
      */
     public function delete(): string
@@ -81,10 +87,9 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Alias for retrieveSectionProperties()
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws InvalidStateException
-     * @throws RecordNotFoundException
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ReadException
      */
     public function fetchProperties(): void
     {
@@ -111,10 +116,8 @@ abstract class SectionContent extends SerializedContent
     /**
      * Returns a string representing the type of content of this content record.
      * @return string
-     * @throws ContentValidationException
-     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws ReadException
      */
     public function getContentLabel(): string
     {
@@ -149,16 +152,21 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * @inheritDoc
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     * @throws InvalidStateException
+     * Retrieves the content record from the database.
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws ReadException
      */
     public function read(): static
     {
-        parent::read();
-        $this->retrieveSectionProperties();
+        try {
+            parent::read();
+            $this->retrieveSectionProperties();
+        }
+        catch (FailedQueryException|RecordNotFoundException $ex) {
+            $msg = 'Error retrieving content record. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
+            throw new ReadException($msg);
+        }
         return $this;
     }
 
@@ -184,21 +192,33 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Retrieves site section properties and stores that data in object properties.
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     * @throws InvalidStateException
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ReadException
      */
     public function retrieveSectionProperties(): void
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
             $this->content_properties->id->value = static::getContentTypeId();
         }
-        $this->content_properties->read();
+        try {
+            $this->content_properties->read();
+        }
+        catch (
+            FailedQueryException|RecordNotFoundException $ex) {
+            $msg = 'Error retrieving site section properties. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
+            throw new ReadException($msg);
+        }
     }
 
     /**
      * @inheritdoc
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws InvalidValueException
+     * @throws RecordNotFoundException
+     * @throws NotImplementedException
+     * @throws ReadException
      */
     public function save(): void
     {
@@ -212,13 +232,13 @@ abstract class SectionContent extends SerializedContent
     /**
      * Tests for a valid content type id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg (Optional) Message to prepend to error message.
-     * @throws InvalidStateException
+     * @throws ConfigurationUndefinedException
      */
     protected function testForContentType(string $msg = ''): void
     {
         if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
             $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');
-            throw new InvalidStateException("$msg A content type was not specified.");
+            throw new ConfigurationUndefinedException("$msg A content type was not specified.");
         }
     }
 

@@ -66,8 +66,7 @@ class SerializedContentValidation extends SerializedContentUtils
 
     /**
      * Indicates if any form data has been entered for the current instance of the object.
-     * @return bool Returns true, when editing an existing record, a title has been entered, or if any gallery
-     * images have been uploaded. Most likely should be overridden in derived classes.
+     * @return bool Returns true, when editing an existing record, a title has been entered, or if any gallery images have been uploaded. Most likely should be overridden in derived classes.
      */
     public function hasData(): bool
     {

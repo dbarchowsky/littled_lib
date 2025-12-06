@@ -4,7 +4,6 @@ namespace Littled\PageContent\Serialized;
 use Littled\Database\AppContentBase;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
@@ -14,10 +13,6 @@ use Littled\Validation\Validation;
 use Exception;
 
 
-/**
- * Class SerializedContentUtils
- * @package Littled\PageContent\Serialized
- */
 class SerializedContentUtils extends AppContentBase
 {
     use PropertyEvaluations {
@@ -98,12 +93,12 @@ class SerializedContentUtils extends AppContentBase
     /**
      * Checks if the content type id property exists and returns its value.
      * @return ?int Class's content type id value, if it has been defined.
-     * @throws InvalidStateException
+     * @throws ConfigurationUndefinedException
      */
     public static function getContentTypeId(): ?int
     {
         if (!isset(static::$content_type_id)) {
-            throw new InvalidStateException('Content type not set.');
+            throw new ConfigurationUndefinedException('Content type not set.');
         }
         return static::$content_type_id;
     }

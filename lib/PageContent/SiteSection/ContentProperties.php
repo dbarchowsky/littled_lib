@@ -6,7 +6,9 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Log\Log;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerSelect;
@@ -15,7 +17,7 @@ use Exception;
 
 
 /**
- * Properties of different content types, e.g. content type id, table name, routes, and templates.
+ * Properties of different content types, e.g., content type id, table name, routes, and templates.
  */
 class ContentProperties extends SerializedContent
 {
@@ -26,7 +28,7 @@ class ContentProperties extends SerializedContent
     public StringTextField          $name;
     /** @var StringTextField        Label to use to describe the content records on the frontend */
     public StringTextField          $label;
-    /** @var StringTextField        Name of variable used to make requests for a particular type of content record. */
+    /** @var StringTextField        Name of a variable used to make requests for a particular type of content record. */
     public StringTextField          $id_key;
     /**
      * @var StringTextField         Text token used to identify the content type.
@@ -43,7 +45,7 @@ class ContentProperties extends SerializedContent
      * @todo Audit this field to determine if it should be deprecated. Consider using SerializedContent::$table_name in its place.
      */
     public StringTextField          $table;
-    /** @var IntegerSelect          Numeric identifier of content type that is parent to the principal content type */
+    /** @var IntegerSelect          Numeric identifier of the content type that is parent to the principal content type */
     public IntegerSelect            $parent_id;
     /** @var BooleanCheckbox        Flag indicating that this section's content gets cached. */
     public BooleanCheckbox          $is_cached;
@@ -89,7 +91,7 @@ class ContentProperties extends SerializedContent
 
     /**
      * Delete this record from the database. Clears parent id of any child records.
-     * @return string Message indicating result of the deletion.
+     * @return string Message indicating the result of the deletion.
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
@@ -103,20 +105,35 @@ class ContentProperties extends SerializedContent
         return (parent::delete());
     }
 
-    public function generateUpdateQuery(): ?array
+    /**
+     * @inheritDoc
+     */
+    public function formatCommitQuery(): array
     {
         return array('CALL siteSectionUpdate(@insert_id,?,?,?,?,?,?,?,?,?,?)',
             'ssssssiiii',
-            &$this->name->value,
-            &$this->label->value,
-            &$this->id_key->value,
-            &$this->slug->value,
-            &$this->root_dir->value,
-            &$this->table->value,
-            &$this->parent_id->value,
-            &$this->is_cached->value,
-            &$this->is_sortable->value,
-            &$this->gallery_thumbnail->value);
+            $this->name->value,
+            $this->label->value,
+            $this->id_key->value,
+            $this->slug->value,
+            $this->root_dir->value,
+            $this->table->value,
+            $this->parent_id->value,
+            $this->is_cached->value,
+            $this->is_sortable->value,
+            $this->gallery_thumbnail->value);
+    }
+
+    /**
+     * @inheritDoc
+     * @throws ContentValidationException
+     */
+    protected function formatRecordSelectQuery(): array
+    {
+        if ($this->id->value === null || $this->id->value < 1) {
+            throw new ContentValidationException('Record id not provided.');
+        }
+        return ['CALL siteSectionSelect(?)', 'i', $this->id->value];
     }
 
     /**
@@ -151,10 +168,8 @@ class ContentProperties extends SerializedContent
      * Content label getter.
      * @param bool $read_if_empty Flag to retrieve label from database if a value isn't present.
      * @return string
-     * @throws ContentValidationException
-     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws ReadException
      */
     public function getContentLabel(bool $read_if_empty=false): string
     {
@@ -163,13 +178,19 @@ class ContentProperties extends SerializedContent
                 $err_msg = 'A request was made to retrieve the content label, but a record id was not provided.';
                 throw new NotInitializedException($err_msg);
             }
-            $this->read();
+            try {
+                $this->read();
+            }
+            catch (FailedQueryException|RecordNotFoundException $ex) {
+                $msg = 'Error retrieving content record. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
+                throw new ReadException($msg);
+            }
         }
         return $this->label->value ?: $this->name->value;
     }
 
     /**
-     * Retrieves the parent id of the parent record of the current site_section record, if a parent exists.
+     * Retrieves the parent id of the parent record of the current site_section record if a parent exists.
      * @return ?int Record id of parent record.
      * @throws FailedQueryException
      */
@@ -234,7 +255,7 @@ class ContentProperties extends SerializedContent
     }
 
     /**
-     * Returns new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIRoute class's methods.
+     * Returns a new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate objects to the APIRoute class's methods.
      * @param int|null $record_id
      * @param int|null $content_type_id
      * @param string $operation
@@ -273,22 +294,7 @@ class ContentProperties extends SerializedContent
      */
     public function read(): static
     {
-        if ($this->id->value === null || $this->id->value < 1) {
-            throw new ContentValidationException('Record id not provided.');
-        }
-
-        $query = 'CALL siteSectionSelect(?)';
-        $data = $this->fetchRecords($query, 'i', $this->id->value);
-        if (count($data) < 1) {
-            throw new RecordNotFoundException('Requested record not found.');
-        }
-        $this->hydrateFromRecordsetRow($data[0]);
-
-        // extended properties
-        if ($data[0]->parent !== null) {
-            $this->parent = $data[0]->parent;
-        }
-
+        parent::read();
         $this->readRoutes();
         $this->readTemplates();
         return $this;
@@ -353,5 +359,36 @@ class ContentProperties extends SerializedContent
         $this->templates = array();
         $this->routes = array();
         $this->parent = '';
+    }
+
+    /**
+     * Makes the content type id property required.
+     * @return $this
+     */
+    public function setAsNOtRequired(): static
+    {
+        $this->id->setAsNotRequired();
+        return $this;
+    }
+
+    /**
+     * Makes the content type id property required.
+     * @return $this
+     */
+    public function setAsRequired(): static
+    {
+        $this->id->setAsRequired();
+        return $this;
+    }
+
+    /**
+     * Sets a label for the object by setting the label for its record id property.
+     * @param string $label
+     * @return $this
+     */
+    public function setLabel(string $label): static
+    {
+        $this->id->setLabel($label);
+        return $this;
     }
 }

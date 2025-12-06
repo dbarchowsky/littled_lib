@@ -12,6 +12,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\Request\PrimaryKeyInput;
@@ -161,7 +162,6 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @return array
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      */
     protected function formatCommitQuery(): array
     {
@@ -196,9 +196,8 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * @inheritDoc
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      */
-    protected function formatRecordSelectPreparedStmt(): array
+    protected function formatRecordSelectQuery(): array
     {
         $fields = $this->extractPreparedStmtArgs();
         $query = 'SELECT `' .
@@ -317,23 +316,18 @@ abstract class SerializedContent extends SerializedContentIO
      * class instance. Sets the values of the internal properties of the class
      * instance using the database data.
      * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
-     * @throws NotInitializedException
      * @throws RecordNotFoundException
+     * @throws ReadException
      */
     public function read(): static
     {
         if (!$this->id->hasData()) {
-            throw new ContentValidationException('Record id not set.');
+            throw new ReadException('Record id not set.');
         }
 
         try {
-            $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
+            $this->hydrateFromQuery(...$this->formatRecordSelectQuery());
         }
         catch (RecordNotFoundException) {
             $error_msg = 'The requested ' . strtolower(static::getContentLabel()) . ' record was not found.';
@@ -344,12 +338,7 @@ abstract class SerializedContent extends SerializedContentIO
             throw new FailedQueryException($msg);
         }
 
-        try {
-            $this->readLinked();
-        }
-        catch (FailedQueryException $e) {
-            throw new FailedQueryException('Error retrieving record data.' . $e->getMessage());
-        }
+        $this->readLinked();
         return $this;
     }
 
@@ -448,13 +437,13 @@ abstract class SerializedContent extends SerializedContentIO
     /**
      * Tests for a valid parent record id. Throws ContentValidationException if the property value isn't current set.
      * @param string $msg Optional informational message to prepend to an error message thrown when a valid parent id is not found.
-     * @throws InvalidStateException
+     * @throws ConfigurationUndefinedException
      */
     protected function testForParentID(string $msg = ''): void
     {
         if ($this->id->value === null || $this->id->value < 0) {
             $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');
-            throw new InvalidStateException("{$msg}A parent record was not provided.");
+            throw new ConfigurationUndefinedException("{$msg}A parent record was not provided.");
         }
     }
 }

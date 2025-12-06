@@ -206,7 +206,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      * @throws NotInitializedException
      * @throws ConnectionException
      */
-    protected function formatRecordSelectPreparedStmt(): array
+    protected function formatRecordSelectQuery(): array
     {
         $c = static::getContentClass();
         try {
@@ -523,7 +523,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     public function read(): static
     {
         $this->clearLinks();
-        $data = $this->fetchRecords(...$this->formatRecordSelectPreparedStmt());
+        $data = $this->fetchRecords(...$this->formatRecordSelectQuery());
         foreach($data as $row) {
             $o = (new static::$content_class())->shareConnection($this);
             $o->hydrateFromRecordsetRow($row);

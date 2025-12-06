@@ -11,6 +11,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -126,7 +127,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * Allows inherited classes to override the default prepared statement created in the object's read() routine.
      * @return array
      */
-    protected abstract function formatRecordSelectPreparedStmt(): array;
+    protected abstract function formatRecordSelectQuery(): array;
 
     /**
      * Returns a descriptive label for the object, usually corresponding to the name of the database table holding
@@ -194,12 +195,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     /**
      * Retrieve all record data belonging to tables linked to this content type.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
-     * @throws ConnectionException
-     * @throws NotInitializedException
+     * @throws ReadException
      */
     public function readLinked(): void
     {
@@ -212,8 +208,19 @@ abstract class SerializedContentIO extends SerializedContentValidation
                 // ignore prefix in this context
                 $property->setRecordsetPrefix('');
 
-                // retrieve record
-                $property->read();
+                try {
+                    // retrieve record
+                    $property->read();
+                }
+                catch (ConfigurationUndefinedException |
+                    ConnectionException |
+                    FailedQueryException |
+                    InvalidTypeException |
+                    InvalidValueException |
+                    NotInitializedException $e) {
+                    $msg = 'Error retrieving linked record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
+                    throw new ReadException($msg);
+                }
 
                 // restore prefix
                 $property->setRecordsetPrefix($prefix);

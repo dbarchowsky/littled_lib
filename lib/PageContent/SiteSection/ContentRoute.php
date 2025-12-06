@@ -33,7 +33,7 @@ class ContentRoute extends SerializedContent
     protected static int            $content_type_id = 34;
     protected static string         $table_name = 'content_route';
 
-    /** @var IntegerSelect          Record id representing the site content. Corresponds to table `site_section`. */
+    /** @var IntegerSelect          Record id representing the site content. Corresponds to the table `site_section`. */
     public IntegerSelect            $site_section_id;
     /** @var StringTextField        Token representing the action taken on the content, e.g. 'listings', 'details', or 'edit'. */
     public StringTextField          $operation;
@@ -164,7 +164,7 @@ class ContentRoute extends SerializedContent
     }
 
     /**
-     * Inject record id value into a route string containing a wildcard character holding the place for the id value.
+     * Inject a record id value into a route string containing a wildcard character holding the place for the id value.
      * @param int $record_id Record id value to insert into the route.
      * @return string Route containing record id.
      * @throws InvalidValueException
@@ -175,9 +175,9 @@ class ContentRoute extends SerializedContent
     }
 
     /**
-     * Inject record id value into a route string containing a wildcard character holding the place for the id value.
+     * Inject a record id value into a route string containing a wildcard character holding the place for the id value.
      * @param int $record_id Record id value to insert into the route.
-     * @param string $property Name of the route property to use to retrieve base route value.
+     * @param string $property Name of the route property to use to retrieve the base route value.
      * @return string Route containing record id.
      * @throws InvalidValueException
      */

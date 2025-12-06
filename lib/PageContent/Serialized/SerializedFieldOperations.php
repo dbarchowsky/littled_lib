@@ -2,8 +2,6 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\InvalidTypeException;
 use Littled\PageContent\Albums\Gallery;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -149,8 +147,6 @@ trait SerializedFieldOperations
      * Returns a list of column names to use to format SQL queries that will be used to read and update records.
      * @param array $used_keys (Optional) Properties that have already been added to the stack.
      * @return QueryField[] Key/value pairs for each RequestInput property of the class.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      */
     protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {

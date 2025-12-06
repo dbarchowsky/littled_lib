@@ -164,7 +164,7 @@ abstract class LinkedContent extends SerializedContent
         }
 
         try {
-            $this->hydrateFromQuery(...$this->formatRecordSelectPreparedStmt());
+            $this->hydrateFromQuery(...$this->formatRecordSelectQuery());
         } catch (RecordNotFoundException) {
             $table = '[ERR:TABLE NAME NOT CONFIGURED IN CLASS ' . Log::getClassBasename($this::class). ']';
             try {

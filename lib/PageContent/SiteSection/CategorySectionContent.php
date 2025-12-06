@@ -1,10 +1,8 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
-use Exception;
-use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Request\CategorySelect;
+use Exception;
 
 
 /**
@@ -47,11 +45,8 @@ abstract class CategorySectionContent extends KeywordSectionContent
 
     /**
      * @inheritDoc
-     * @return $this
-     * @throws FailedQueryException
-     * @throws InvalidStateException
      */
-    public function saveKeywords ( ): CategorySectionContent
+    public function saveKeywords ( ): static
     {
         $this->categories->setParentId($this->id->value);
         parent::saveKeywords();
@@ -61,7 +56,7 @@ abstract class CategorySectionContent extends KeywordSectionContent
     }
 
     /**
-     * Updates a concatenated list of keywords attached to this record, that is stored in the database.
+     * Updates a concatenated list of keywords attached to this record that is stored in the database.
      * @return void
      */
     abstract protected function updateKeywordCache(): void;
