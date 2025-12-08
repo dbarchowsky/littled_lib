@@ -106,9 +106,9 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Content properties id getter.
-     * @return int
+     * @return int|null
      */
-    public function getContentPropertyId(): int
+    public function getContentPropertyId(): int|null
     {
         return $this->content_properties->id->value;
     }
@@ -227,6 +227,16 @@ abstract class SectionContent extends SerializedContent
         }
         $this->content_properties->read();
         parent::save();
+    }
+
+    /**
+     * Content type id setter.
+     * @param int $id
+     * @return void
+     */
+    public function setContentType(int $id): void
+    {
+        $this->content_properties->setRecordId($id);
     }
 
     /**
