@@ -296,7 +296,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      * @return string
      * @throws ConfigurationUndefinedException
      */
-    public static function getTableName(): string
+    public function _getTableName(): string
     {
         $content_class = static::getContentClass();
         if ($content_class === '') {

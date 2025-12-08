@@ -18,12 +18,45 @@ use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\RequestInput;
 use Littled\Validation\Validation;
 
-
+/**
+ * Class SerializedContentIO
+ *
+ * @method getTableName(): string
+ * @method static getTableName(): string
+ */
 abstract class SerializedContentIO extends SerializedContentValidation
 {
     /** @var bool               Flag to skip filling object values from input variables (GET or POST). */
     public bool                 $bypassCollectFromInput     = false;
     protected static string     $table_name;
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     * @throws ConfigurationUndefinedException
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if ($name === 'getTableName') {
+            return $this->_getTableName();
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     * @throws ConfigurationUndefinedException
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        if ($name === 'getTableName') {
+            return (new static())->_getTableName();
+        }
+        return null;
+    }
 
     public function __construct()
     {
@@ -54,7 +87,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     public function columnExists(string $column_name, string $table_name=''): bool
     {
         if (''===$table_name) {
-            $table_name = $this::getTableName();
+            $table_name = $this->getTableName();
         }
         return(parent::columnExists($column_name, $table_name));
     }
@@ -127,14 +160,14 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * Allows inherited classes to override the default prepared statement created in the object's read() routine.
      * @return array
      */
-    protected abstract function formatRecordSelectQuery(): array;
+    abstract protected function formatRecordSelectQuery(): array;
 
     /**
      * Returns a descriptive label for the object, usually corresponding to the name of the database table holding
      * object records.
      * @return string
      */
-    public abstract function getContentLabel(): string;
+    abstract public function getContentLabel(): string;
 
     /**
      * Returns a descriptive label of the content type suitable to insert into a sentence.
@@ -171,7 +204,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @return string
      * @throws ConfigurationUndefinedException
      */
-    public static function getTableName(): string
+    protected function _getTableName(): string
     {
         if (!isset(static::$table_name)) {
             throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class) . '.');
