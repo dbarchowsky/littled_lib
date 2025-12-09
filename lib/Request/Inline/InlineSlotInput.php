@@ -10,9 +10,6 @@ abstract class InlineSlotInput extends InlineInput
     public IntegerInput $slot;
     protected static string $input_property = 'slot';
 
-    /**
-     * @inheritdoc
-     */
     public function __construct()
     {
         parent::__construct();

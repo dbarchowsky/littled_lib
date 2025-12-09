@@ -11,9 +11,6 @@ abstract class InlineStatusInput extends InlineInput
     protected static string $input_property = 'enabled';
 
 
-    /**
-     * @inheritdoc
-     */
     public function __construct()
     {
         parent::__construct();
