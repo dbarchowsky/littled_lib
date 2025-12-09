@@ -65,6 +65,19 @@ abstract class SerializedContentIO extends SerializedContentValidation
     }
 
     /**
+     * Table name getter.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    protected function _getTableName(): string
+    {
+        if (!isset(static::$table_name)) {
+            throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class) . '.');
+        }
+        return static::$table_name;
+    }
+
+    /**
      * Clears all form input values
      */
     public function clear(): void
@@ -197,19 +210,6 @@ abstract class SerializedContentIO extends SerializedContentValidation
             }
         }
         return $lc;
-    }
-
-    /**
-     * Table name getter.
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    protected function _getTableName(): string
-    {
-        if (!isset(static::$table_name)) {
-            throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class) . '.');
-        }
-        return static::$table_name;
     }
 
     /**

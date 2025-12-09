@@ -37,9 +37,21 @@ abstract class SectionContent extends SerializedContent
     {
         parent::__construct($id);
         $this->content_properties = (new ContentProperties())
+            ->shareConnection($this)
             ->setRecordId($content_type_id ?: static::getContentTypeId())
             ->setLabel('Content type')
             ->setAsRequired();
+    }
+
+    /**
+     * @inheritDoc
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     * @throws ReadException
+     */
+    protected function _getTableName(): string
+    {
+        return static::$table_name ?? $this->getContentProperties()->table->value;
     }
 
     /**
@@ -65,9 +77,18 @@ abstract class SectionContent extends SerializedContent
      */
     public function collectRequestData(?array $src = null): static
     {
-        $this->content_properties->bypassCollectFromInput = true;
+        $this->configureContentPropertyCollection();
         parent::collectRequestData($src);
         return $this;
+    }
+
+    /**
+     * Determines if the content properties property should be excluded from request data collection.
+     * @return void
+     */
+    protected function configureContentPropertyCollection(): void
+    {
+        $this->content_properties->bypassCollectFromInput = true;
     }
 
     /**
@@ -102,6 +123,23 @@ abstract class SectionContent extends SerializedContent
     public function generateUpdateQuery(): ?array
     {
         return array();
+    }
+
+    /**
+     * Returns the content properties object. Retrieves the object property values from the database if they aren't already set.
+     * @return ContentProperties
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     * @throws ReadException
+     * @throws RecordNotFoundException
+     */
+    public function getContentProperties(): ContentProperties
+    {
+        $this->testForContentType();
+        if (($this->content_properties->name->value ?? '') === '') {
+            $this->content_properties->read();
+        }
+        return $this->content_properties;
     }
 
     /**
@@ -213,30 +251,29 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritdoc
-     * @throws ContentValidationException
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
-     * @throws InvalidValueException
-     * @throws RecordNotFoundException
-     * @throws NotImplementedException
      * @throws ReadException
+     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     * @throws InvalidValueException
+     * @throws NotImplementedException
      */
     public function save(): void
     {
-        if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
-            throw new ContentValidationException('A content type was not specified.');
-        }
-        $this->content_properties->read();
+        $this->getContentProperties();
         parent::save();
     }
 
     /**
      * Content type id setter.
      * @param int $id
-     * @return void
+     * @return $this
      */
-    public function setContentType(int $id): void
+    public function setContentType(int $id): static
     {
         $this->content_properties->setRecordId($id);
+        return $this;
     }
 
     /**
@@ -246,7 +283,7 @@ abstract class SectionContent extends SerializedContent
      */
     protected function testForContentType(string $msg = ''): void
     {
-        if (null === $this->content_properties->id->value || 1 > $this->content_properties->id->value) {
+        if (($this->content_properties->id->value ?? 0) < 1) {
             $msg = ($msg) ? ("$msg ") : ('Could not perform operation. ');
             throw new ConfigurationUndefinedException("$msg A content type was not specified.");
         }
