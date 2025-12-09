@@ -5,7 +5,9 @@ namespace Littled\Request\Inline;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidPropertyException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -19,11 +21,16 @@ abstract class InlineInput extends SectionContent
 
     public const OPERATION_KEY = 'op';
 
+    protected static string $input_property;
+
     /**
      * @inheritdoc
      */
     function __construct()
     {
+        if (!isset(static::$input_property)) {
+            throw new ConfigurationUndefinedException('Input property not configured in ' . Log::getClassBaseName(static::class));
+        }
         try {
             parent::__construct();
         } catch (ConfigurationUndefinedException $ex) {
@@ -48,12 +55,73 @@ abstract class InlineInput extends SectionContent
     }
 
     /**
+     * @inheritDoc
+     * Collect content properties values when collecting request data.
+     */
+    protected function configureContentPropertyCollection(): void
+    {
+        $this->content_properties->bypassCollectFromInput = false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function formatCommitQuery(): array
+    {
+        $property = static::$input_property;
+        $query = 'UPDATE `' . $this->getTableName() . "` SET `$property` = ? WHERE `id` = ?";
+        return [$query, 'ii', $this->enabled->value, $this->id->value];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function formatRecordSelectQuery(): array
+    {
+        $property = static::$input_property;
+        $query = "SELECT `$property` FROM `" . $this->getTableName() . '` WHERE `id` = ?';
+        return [$query, 'i', $this->id->value];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function hasRecordData(): bool
+    {
+        $property = static::$input_property;
+        return $this->{$property}->hasData();
+    }
+
+    /**
+     * @inheritDoc
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     */
+    public function read(): static
+    {
+        $this->hydrateFromQuery(...$this->formatRecordSelectQuery());
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      * @throws ConfigurationUndefinedException
      */
     public function save(): void
     {
         $this->query(...$this->formatCommitQuery());
+    }
+
+    /**
+     * Sets the value of the property controlled by object.
+     * @param mixed $value
+     * @return $this
+     */
+    public function setValue(mixed $value): static
+    {
+        $property = static::$input_property;
+        $this->{$property}->setInputValue($value);
+        return $this;
     }
 
     /**
