@@ -7,51 +7,20 @@ use Littled\Request\BooleanInput;
 
 abstract class InlineStatusInput extends InlineInput
 {
-    public BooleanInput $status;
+    public BooleanInput $enabled;
+    protected static string $input_property = 'enabled';
+
 
     /**
      * @inheritdoc
      */
-    public function __construct(int|null $id = null)
+    public function __construct()
     {
-        parent::__construct($id);
-        $this->status = new BooleanInput('Status', 'sid', true, null);
-        $this->validateProperties[] = 'status';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function formatSelectQuery(): array
-    {
-        $query = "SELECT `enabled` FROM `{$this->table->value}` WHERE id = ?";
-        return [$query, 'i' & $this->parent_id->value];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function formatCommitQuery(): array
-    {
-        $query = "UPDATE `{$this->table->value}` SET `enabled` = ? WHERE id = ?";
-        return [$query, 'ii', &$this->status->value, &$this->parent_id->value];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function hasRecordData(): bool
-    {
-        return $this->status->hasData();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function read(): InlineStatusInput
-    {
-        $data = parent::read();
-        $this->status->value = $data[0]->enabled;
-        return $this;
+        parent::__construct();
+        $this->enabled = (new BooleanInput())
+            ->setLabel('status')
+            ->setKey('status')
+            ->setAsRequired();
+        $this->validate_properties[] = 'status';
     }
 }
