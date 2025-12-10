@@ -51,7 +51,7 @@ abstract class InlineInput extends SectionContent
             ->setKey(self::OPERATION_KEY)
             ->setAsRequired()
             ->setSizeLimit(20);
-        $this->validate_properties = ['id', 'content_properties' => ['id'], 'operation'];
+        $this->validate_properties = ['id', 'content_properties' => ['id'], 'operation', static::$input_property];
     }
 
     /**

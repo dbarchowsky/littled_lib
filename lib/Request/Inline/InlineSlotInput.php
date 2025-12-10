@@ -17,6 +17,5 @@ abstract class InlineSlotInput extends InlineInput
             ->setLabel('Slot')
             ->setKey('slt')
             ->setAsRequired();
-        $this->validate_properties[] = 'slot';
     }
 }

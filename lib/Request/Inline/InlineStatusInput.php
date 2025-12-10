@@ -18,6 +18,5 @@ abstract class InlineStatusInput extends InlineInput
             ->setLabel('status')
             ->setKey('status')
             ->setAsRequired();
-        $this->validate_properties[] = 'status';
     }
 }
