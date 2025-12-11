@@ -5,7 +5,7 @@ namespace Littled\Request\Inline;
 use Littled\Request\StringInput;
 
 
-abstract class InlineNameInput extends InlineStringInput
+abstract class InlineNameInput extends InlineInput
 {
     public StringInput $name;
     protected static string $input_property = 'name';

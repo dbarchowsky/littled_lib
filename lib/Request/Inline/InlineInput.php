@@ -70,7 +70,8 @@ abstract class InlineInput extends SectionContent
     {
         $property = static::$input_property;
         $query = 'UPDATE `' . $this->getTableName() . "` SET `$property` = ? WHERE `id` = ?";
-        return [$query, 'ii', $this->{$property}->value, $this->id->value];
+        $types_str = $this->{$property}::getPreparedStatementIdenifier() . 'i';
+        return [$query, $types_str, $this->{$property}->value, $this->id->value];
     }
 
     /**
