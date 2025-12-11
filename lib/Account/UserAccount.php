@@ -8,14 +8,13 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
-use Littled\Request\IntegerSelect;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Request\StringPasswordField;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringTextField;
-use Exception;
 use Littled\Utility\Mailer;
+use Exception;
 
 /**
  * Class UserAccount
@@ -29,12 +28,6 @@ abstract class UserAccount extends SerializedContent
     protected static string $table_name = 'site_user';
     /** @var string AES key used to encrypt passwords */
     protected static string $aes_key = '';
-    /** @var int Disabled value. */
-    const AUTHENTICATION_UNRESTRICTED = 0;
-    /** @var int Basic credentials token value. */
-    const BASIC_AUTHENTICATION = 1;
-    /** @var int Admin credentials token value. */
-    const ADMIN_AUTHENTICATION = 2;
     /** @var string Name of variable holding record id value. */
     const ID_KEY = 'suid';
     const USERNAME_KEY = 'uaUsername';
@@ -56,10 +49,10 @@ abstract class UserAccount extends SerializedContent
     public StringPasswordField $password;
     public StringPasswordField $password_confirm;
     public Address $contact_info;
-    public IntegerSelect $access;
-    /** @var BooleanCheckbox Flag allowing user account to opt in or out of email contact. */
+    public UserAccess $access;
+    /** @var BooleanCheckbox Flag allowing the user account to opt in or out of email contact. */
     public BooleanCheckbox $email_opt_in;
-    /** @var BooleanCheckbox Flag allowing user account to opt in or out of postal contact. */
+    /** @var BooleanCheckbox Flag allowing the user account to opt in or out of postal contact. */
     public BooleanCheckbox $postal_opt_in;
     /** @var IntegerInput Pointer to the record id of the contact information record linked to this user account. */
     public IntegerInput $contact_id;
@@ -78,13 +71,15 @@ abstract class UserAccount extends SerializedContent
         $this->id = new PrimaryKeyInput('Announcement id', self::ID_KEY, false);
         $this->uname = new StringTextField('User name', self::USERNAME_KEY, true, '', 50);
         $this->username = &$this->uname;
-        $this->contact_info = new Address();
+        $this->contact_info = (new Address())->shareConnection($this);
         $this->email_opt_in = new BooleanCheckbox('Email Opt-In', 'sueo', false, false);
         $this->postal_opt_in = new BooleanCheckbox('Snail Mail Opt-In', 'suso', false, false);
         $this->password = new StringPasswordField('Password', self::PASSWORD_KEY, true, '', 256);
         $this->password_confirm = new StringPasswordField('Confirm password', 'uaPwdConfirm', false, '', 256);
         $this->password_confirm->is_database_field = false;
-        $this->access = new IntegerSelect('Access', self::ACCESS_KEY, true, self::BASIC_AUTHENTICATION);
+        $this->access = (new UserAccess())
+            ->shareConnection($this)
+            ->setRecordId(UserAccess::NO_AUTHENTICATION);
 
         $this->contact_id = &$this->contact_info->id;
         $this->contact_info->first_name->required = false;
@@ -127,12 +122,12 @@ abstract class UserAccount extends SerializedContent
         return array(
             'userAccountUpdate(@insert_id,?,?,?,?,?,?,?)',
             'ssiiiis',
-            &$this->username->value,
-            &$this->password->value,
-            &$this->contact_info->id->value,
-            &$this->access->value,
-            &$this->email_opt_in->value,
-            &$this->postal_opt_in->value,
+            $this->username->value,
+            $this->password->value,
+            $this->contact_info->id->value,
+            $this->access->id->value,
+            $this->email_opt_in->value,
+            $this->postal_opt_in->value,
             $key
         );
     }
@@ -177,7 +172,7 @@ abstract class UserAccount extends SerializedContent
     }
 
     /**
-     * Getter for registration notice email template path.
+     * Getter for the registration notice email template path.
      * @returns string Registration notice email template path.
      * @throws ConfigurationUndefinedException
      */
@@ -214,7 +209,7 @@ abstract class UserAccount extends SerializedContent
     public function sendRegistrationNotificationEmail(): void
     {
         /* retrieve email template */
-        $template_path = self::getRegistrationNoticeEmailTemplate();
+        $template_path = static::getRegistrationNoticeEmailTemplate();
         $f = fopen($template_path, 'r');
 
         /* email subject line. first line of email template */
@@ -224,7 +219,7 @@ abstract class UserAccount extends SerializedContent
         $body = fread($f, filesize($template_path));
         fclose($f);
 
-        $cms_uri = self::getAccountActivationURI() . '?' . self::ID_KEY . "={$this->id->value}";
+        $cms_uri = static::getAccountActivationURI() . '?' . static::ID_KEY . "={$this->id->value}";
 
         /* update email template with login data */
         $body = str_replace('[[username]]', $this->uname->value, $body);
@@ -268,7 +263,7 @@ abstract class UserAccount extends SerializedContent
     }
 
     /**
-     * Setter for registration notice email template path.
+     * Setter for a registration notice email template path.
      * @param string $path Registration notice email template path.
      * @throws ResourceNotFoundException
      */

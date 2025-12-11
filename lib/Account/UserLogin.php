@@ -53,15 +53,15 @@ class UserLogin extends UserAccount
         parent::collectFromSession();
         $this->username->value = '';
         $this->password->value = '';
-        $this->access->value = self::AUTHENTICATION_UNRESTRICTED;
-        if (isset($_SESSION[$this->username->key])) {
-            $this->username->value = $_SESSION[$this->username->key];
+        $this->access->setRecordId(UserAccess::NO_AUTHENTICATION);
+        if (isset($_SESSION[$this->username->getKey()])) {
+            $this->username->value = $_SESSION[$this->username->getKey()];
         }
-        if (isset($_SESSION[$this->password->key])) {
-            $this->password->value = $_SESSION[$this->password->key];
+        if (isset($_SESSION[$this->password->getKey()])) {
+            $this->password->value = $_SESSION[$this->password->getKey()];
         }
-        if (isset($_SESSION[$this->access->key])) {
-            $this->access->value = $_SESSION[$this->access->key];
+        if (isset($_SESSION[$this->access->id->getKey()])) {
+            $this->access->setRecordId($_SESSION[$this->access->id->getKey()]);
         }
     }
 
@@ -91,7 +91,9 @@ class UserLogin extends UserAccount
         if ($this->username->value === '' || $this->password->value === '') {
             throw new InvalidCredentialsException('User is not logged in.');
         }
-        if ($this->access->value === null || $this->access->value <= UserAccount::AUTHENTICATION_UNRESTRICTED || $this->access->value < $access_level) {
+        if ($this->access->getRecordId() === null ||
+            $this->access->getRecordId() <= UserAccess::NO_AUTHENTICATION ||
+            $this->access->getRecordId() < $access_level) {
             throw new InvalidCredentialsException('User does not have access.');
         }
     }
