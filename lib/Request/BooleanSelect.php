@@ -75,10 +75,14 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
     public function renderInput(?string $label='', array $options=[]): void
     {
         try {
-            ContentUtils::renderTemplate(static::getInputTemplatePath(),
-                ['input' => $this,
-                    'label' => $label,
-                    'options' => $options]);
+            $context = ['input' => $this];
+            if (!empty($label)) {
+                $context['label'] = $label;
+            }
+            if (count($options)>0) {
+                $context['options'] = $options;
+            }
+            ContentUtils::renderTemplate(static::getInputTemplatePath(), $context);
         }
         catch(Exception $e) {
             ContentUtils::printError($e->getMessage());

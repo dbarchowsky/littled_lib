@@ -105,12 +105,14 @@ trait RenderedInputTrait
     }
 
     /**
-     * Formats the value of the object in a way where it can be inserted into markup.
-     * @return string
+     * Returns string safe from XSS attacks that can be embedded in HTML.
+     * @param array|int $options Combination of tokens to pass along, e.g., FILTER_SANITIZE_FULL_SPECIAL_CHARS
+     * Same values as the 3rd argument to PHP's filter_var() routine.
+     * @return string XSS-safe string.
      */
-    public function formatValueMarkup(): string
+    public function formatValueMarkup(array|int $options=[]): string
     {
-        return ('' .$this->getInputValue());
+        return (filter_var($this->getInputValue() ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
     }
 
     /**
@@ -161,7 +163,7 @@ trait RenderedInputTrait
 
     /**
      * Get a full path to the hidden form input element template file.
-     * @return string Full path to form input element template file.
+     * @return string Full path to form an input element template file.
      */
     public static function getHiddenTemplatePath(): string
     {
@@ -202,7 +204,7 @@ trait RenderedInputTrait
     }
 
     /**
-     * Returns full path to input element template file.
+     * Returns a full path to an input element template file.
      * @return string Path to input element template.
      */
     public static function getInputTemplatePath(): string
@@ -263,8 +265,8 @@ trait RenderedInputTrait
     }
 
     /**
-     * Get full path to form input element template file.
-     * @return string Full path to form input element template file.
+     * Get a full path to form an input element template file.
+     * @return string Full path to form an input element template file.
      */
     public static function getTemplatePath(): string
     {

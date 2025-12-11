@@ -25,13 +25,13 @@ abstract class RequestInput
     public bool                 $allow_multiple = false;
     /** Flag indicating that an error was detected with the value supplied for this form data. */
     public bool                 $has_errors=false;
-    /** If an error was detected with the value of a form data, a description of the error will be stored in this property. */
+    /** If an error was detected with the value of form data, a description of the error will be stored in this property. */
     public string               $error='';
     /** When supplying an array of values for a single key, the value can be used to sort them. */
     public string|int|null      $index=null;
     /** Label to display where descriptions of the input are needed. */
     public string               $label='';
-    /** Name of script argument. Name of key in query string or form data. */
+    /** Name of script argument. Name of a key in query string or form data. */
     public string               $key='';
     /** Set to TRUE if a value for this form data is required. */
     public bool                 $required=false;
@@ -74,6 +74,15 @@ abstract class RequestInput
     public function allowMultiple(): bool
     {
         return $this->allow_multiple;
+    }
+
+    /**
+     * Clears any error properties of the object.
+     */
+    public function clearValidationErrors(): void
+    {
+        $this->has_errors = false;
+        $this->error = '';
     }
 
     /**
@@ -209,6 +218,15 @@ abstract class RequestInput
     }
 
     /**
+     * Label property getter.
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    /**
      * Returns an identifier to use when using the value with a mysqli prepared statement.
      * @return string
      */
@@ -218,13 +236,10 @@ abstract class RequestInput
     }
 
     /**
-     * Label property getter.
-     * @return string
+     * Tests if the value of the object is not currently set.
+     * @return bool True/false depending on whether the value is set or not.
      */
-    public function getLabel(): string
-    {
-        return $this->label;
-    }
+    abstract public function hasData(): bool;
 
     /**
      * Has validation errors flag getter.
@@ -262,12 +277,6 @@ abstract class RequestInput
     }
 
     /**
-     * Tests if the value of the object is not currently set.
-     * @return bool True/false depending on whether the value is set or not.
-     */
-    abstract public function hasData(): bool;
-
-    /**
      * Required flag value getter.
      * @return bool
      */
@@ -277,6 +286,7 @@ abstract class RequestInput
     }
 
     /**
+     * @deprecated Use formatMarkupValue() instead.
      * Returns string safe from XSS attacks that can be embedded in HTML.
      * @param array|int $options Combination of tokens to pass along, e.g., FILTER_SANITIZE_FULL_SPECIAL_CHARS
      * Same values as the 3rd argument to PHP's filter_var() routine.
@@ -284,7 +294,7 @@ abstract class RequestInput
      */
     public function safeValue(array|int $options=[]): string
     {
-        return (filter_var($this->value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
+        return (filter_var($this->getInputValue() ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS, $options));
     }
 
     /**
@@ -362,17 +372,6 @@ abstract class RequestInput
     }
 
     /**
-     * Container CSS class setter.
-     * @param string $label
-     * @return $this
-     */
-    public function setLabel(string $label): static
-    {
-        $this->label = $label;
-        return $this;
-    }
-
-    /**
      * Chainable routine that sets the "is database field" flag to TRUE or FALSE.
      * @param bool $is_field Value for "is database field".
      * @return $this
@@ -407,6 +406,17 @@ abstract class RequestInput
     }
 
     /**
+     * Container CSS class setter.
+     * @param string $label
+     * @return $this
+     */
+    public function setLabel(string $label): static
+    {
+        $this->label = $label;
+        return $this;
+    }
+
+    /**
      * Sets the value of an arbitrary property of the class.
      * @param string $property Property name.
      * @param mixed $value Value to assign to the object property.
@@ -427,15 +437,6 @@ abstract class RequestInput
     {
         $this->size_limit = $size_limit;
         return $this;
-    }
-
-    /**
-     * Clears any error properties of the object.
-     */
-    public function clearValidationErrors(): void
-    {
-        $this->has_errors = false;
-        $this->error = '';
     }
 
     /**

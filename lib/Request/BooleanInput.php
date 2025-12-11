@@ -42,7 +42,7 @@ class BooleanInput extends RenderedInput
     /**
      * {@inheritDoc}
      */
-    public function formatValueMarkup(): string
+    public function formatValueMarkup(array|int $options=[]): string
     {
         if ($this->value === null) {
             return '';

@@ -69,7 +69,15 @@ class StringInput extends RenderedInput
      */
     public function setInputValue(mixed $value): static
     {
-        $this->value = '' . $value;
+        if ($value === true) {
+            $this->value = '1';
+        }
+        elseif ($value === false) {
+            $this->value = '0';
+        }
+        else {
+            $this->value = '' . $value;
+        }
         return $this;
     }
 

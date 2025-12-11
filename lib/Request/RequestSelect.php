@@ -37,6 +37,27 @@ trait RequestSelect
     }
 
     /**
+     * {@inheritDoc}
+     * @param string|string[] $label
+     * @param string $css_class
+     * @param array $context
+     */
+    public function render(string|array $label = '', string $css_class = '', array $context = []): void
+    {
+        if (!array_key_exists('options', $context)) {
+            if (count($context) > 0) {
+                $context = ['options' => $context];
+            }
+        }
+        if (array_key_exists('options', $context) && $this->getIncludeNullOption() === true) {
+            if (!array_key_exists('', $context['options']) || $context['options'][''] !== '') {
+                $context['options'] = ['' => ''] + $context['options'];
+            }
+        }
+        parent::render($label, $css_class, $context);
+    }
+
+    /**
      * Sets options to be displayed in a select dropdown menu.
      * @param int[] $options
      * @return $this
@@ -45,7 +66,9 @@ trait RequestSelect
     {
         $this->options = $options;
         if ($this->getIncludeNullOption()) {
-            $this->options = ['' => ''] + $this->options;
+            if (!array_key_exists('', $this->options) || '' !== $this->options['']) {
+                $this->options = ['' => ''] + $this->options;
+            }
         }
         return $this;
     }

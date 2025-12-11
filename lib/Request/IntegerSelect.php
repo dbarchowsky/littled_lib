@@ -83,17 +83,6 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
     /**
      * @inheritDoc
      */
-    public function render(string $label = '', string $css_class = '', array $context=[]): void
-    {
-        if (!array_key_exists('options', $context)) {
-            $context['options'] = $context;
-        }
-        parent::render($label, $css_class, $context);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function validate(): void
     {
         if (!is_array($this->value)) {

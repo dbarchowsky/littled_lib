@@ -79,20 +79,6 @@ class StringSelect extends StringInput implements RequestSelectInterface
     }
 
     /**
-     * {@inheritDoc}
-     * @param string|string[] $label
-     * @param string $css_class
-     * @param array $context
-     */
-    public function render(string|array $label = '', string $css_class = '', array $context = []): void
-    {
-        if (!array_key_exists('options', $context)) {
-            $context = ['options' => $context];
-        }
-        parent::render($label, $css_class, $context);
-    }
-
-    /**
      * @inheritDoc
      */
     public function setInputValue(mixed $value): static
@@ -106,7 +92,7 @@ class StringSelect extends StringInput implements RequestSelectInterface
                 $this->value = array_values(array_filter($value, function ($e) {
                     return ($e != '');
                 }));
-            } elseif ('' . $value) {
+            } elseif (($value ?? '') !== '') {
                 $this->value = [$value];
             } else {
                 $this->value = [];
