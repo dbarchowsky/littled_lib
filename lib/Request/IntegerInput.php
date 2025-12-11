@@ -61,6 +61,17 @@ class IntegerInput extends RenderedInput
     /**
      * {@inheritDoc}
      */
+    public function renderHidden(mixed $runtime_value = null, array $context = []): void
+    {
+        if ($runtime_value !== null) {
+            $runtime_value = Validation::parseInteger($runtime_value);
+        }
+        parent::renderHidden($runtime_value, $context);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function safeValue(array|int $options = []): string
     {
         if (!is_numeric($this->value) && !is_array($this->value)) {

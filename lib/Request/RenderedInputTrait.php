@@ -330,17 +330,17 @@ trait RenderedInputTrait
     }
 
     /**
-     * @param ?int $value_override Value to insert into the element instead of the object's stored value.
+     * @param mixed $runtime_value Value to insert into the element instead of the object's stored value.
      * @param array $context Optional array of variables to insert into the element template.
      * @return void
      */
-    public function renderHidden(?int $value_override = null, array $context = []): void
+    public function renderHidden(mixed $runtime_value = null, array $context = []): void
     {
         $context = array_merge($context, [
             'input' => &$this
         ]);
-        if ($value_override !== null) {
-            $context['value_override'] = $value_override;
+        if ($runtime_value !== null) {
+            $context['runtime_value'] = $runtime_value;
         }
         ContentUtils::renderTemplateWithErrors(static::getHiddenTemplatePath(), $context);
     }
