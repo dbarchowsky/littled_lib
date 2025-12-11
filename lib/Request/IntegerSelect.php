@@ -19,20 +19,18 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
 
     /**
      * Adds a value to the current values stored in the object.
-     * @param int $value
+     * @param int|array $value
      * @return $this
      */
-    public function addValue(int $value): IntegerSelect
+    public function addValue(int|array $value): IntegerSelect
     {
         if (!isset($this->value)) {
             $this->setInputValue($value);
             return $this;
         }
-        if (is_array($this->value)) {
-            $this->setInputValue(array_merge($this->value, [$value]));
-            return $this;
-        }
-        $this->setInputValue([$this->value, $value]);
+        $value = is_array($value) ? $value : [$value];
+        $value = array_merge(is_array($this->value) ? $this->value : [$this->value], $value);
+        $this->setInputValue($value);
         return $this;
     }
 
@@ -91,10 +89,13 @@ class IntegerSelect extends IntegerInput implements RequestSelectInterface
         elseif ($this->allowMultiple()===false) {
             $this->throwValidationError("Bad value for $this->label.");
         }
-        elseif($this->isRequired()) {
+        else {
             $parsed = Validation::parseNumericArray($this->value);
-            if (count($parsed) < 1) {
+            if ($this->isRequired() && count($parsed) < 1) {
                 $this->throwValidationError(ucfirst($this->label).' is required.');
+            }
+            elseif (count($parsed) < count($this->value)) {
+                $this->throwValidationError(ucfirst($this->label).' contains invalid values.');
             }
         }
     }

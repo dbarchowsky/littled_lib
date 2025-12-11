@@ -86,16 +86,27 @@ class IntegerInput extends RenderedInput
      */
     public function setInputValue(mixed $value): static
     {
-        if (is_array($value)) {
+        if ($this->allowMultiple()) {
             $this->value = [];
-            foreach ($value as $el) {
-                $el = Validation::parseInteger($el);
-                if (is_int($el)) {
-                    $this->value[] = $el;
+            if (!is_array($value)) {
+                $value = [$value];
+            }
+            foreach ($value as $i) {
+                if (is_int($i = Validation::parseInteger($i)) && !in_array($i, $this->value)) {
+                    $this->value[] = $i;
                 }
             }
-        } else {
-            $this->value = Validation::parseInteger($value);
+        }
+        else {
+            if (is_array($value)) {
+                if (count($value) === 0) {
+                    $this->value = null;
+                    return $this;
+                }
+                $this->value = Validation::parseInteger($value[0]);
+            } else {
+                $this->value = Validation::parseInteger($value);
+            }
         }
         return $this;
     }
