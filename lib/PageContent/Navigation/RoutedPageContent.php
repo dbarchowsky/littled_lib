@@ -3,6 +3,7 @@ namespace Littled\PageContent\Navigation;
 
 use Exception;
 use Littled\Account\LoginAuthenticator;
+use Littled\Account\UserAccess;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -45,7 +46,6 @@ abstract class RoutedPageContent extends PageContent
     public const                    UPDATE_EXISTING = 2;
 
     /**
-     * @inheritDoc
      * @throws ConfigurationUndefinedException
      */
     function __construct()
@@ -59,7 +59,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public function verifyLogin(): void
     {
-        if (static::getAccessLevel() > 0) {
+        if (static::getAccessLevel() > UserAccess::NO_AUTHENTICATION) {
             $login = (new LoginAuthenticator())->shareConnection($this);
             $login->requireLogin(static::getAccessLevel());
             unset($login);
@@ -81,7 +81,7 @@ abstract class RoutedPageContent extends PageContent
         if (isset($this->content) &&
             false === $this->content->hasValidationErrors() &&
             in_array($this->edit_action, [RouteInterface::COMMIT_ACTION, RouteInterface::CANCEL_ACTION])) {
-            // load page selected to be the next page after editing and saving a record
+            // load the page selected to be the next page after editing and saving a record
             $page = $this->getUpdateResponsePage();
             $page->setUpdateType($this->getUpdateType());
         }
@@ -125,7 +125,7 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Formats and returns path to use to reach this page.
+     * Formats and returns a path to use to reach this page.
      * @param int|null $record_id
      * @return string
      */
@@ -499,7 +499,7 @@ abstract class RoutedPageContent extends PageContent
 
     /**
      * Update type setter
-     * @param int $type Value to assign to update type.
+     * @param int $type Value to assign to an update type.
      * @return void
      */
     public function setUpdateType(int $type): void
