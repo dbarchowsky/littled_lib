@@ -2,10 +2,6 @@
 
 namespace Littled\Request\Inline;
 
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\FailedQueryException;
-use Littled\Exception\RecordNotFoundException;
 use Littled\Request\DateTextField;
 
 
@@ -14,7 +10,7 @@ abstract class InlineDateInput extends InlineInput
     public DateTextField $date;
     protected static string $input_property = 'date';
 
-    function __construct(array $column_names = [])
+    function __construct()
     {
         parent::__construct();
         $this->date = (new DateTextField())
