@@ -20,7 +20,8 @@ CREATE OR REPLACE PROCEDURE `addressUpdate`(
     IN p_location VARCHAR(200),
     IN p_url VARCHAR(255),
     IN p_latitude FLOAT,
-    IN p_longitude FLOAT
+    IN p_longitude FLOAT,
+    IN p_notes TEXT
 )
 BEGIN
 
@@ -45,29 +46,31 @@ INSERT INTO `address` (
     `location`,
     `url`,
     `latitude`,
-    `longitude`
+    `longitude`,
+    `notes`
 ) VALUES (
-     p_address_id,
-     p_salutation,
-     p_first_name,
-     p_last_name,
-     p_address1,
-     p_address2,
-     p_city,
-     p_state_id,
-     p_non_us_state,
-     p_zip,
-     p_country,
-     p_home_phone,
-     p_work_phone,
-     p_fax,
-     p_email,
-     p_company,
-     p_title,
-     p_location,
-     p_url,
-     p_latitude,
-     p_longitude
+    p_address_id,
+    p_salutation,
+    p_first_name,
+    p_last_name,
+    p_address1,
+    p_address2,
+    p_city,
+    p_state_id,
+    p_non_us_state,
+    p_zip,
+    p_country,
+    p_home_phone,
+    p_work_phone,
+    p_fax,
+    p_email,
+    p_company,
+    p_title,
+    p_location,
+    p_url,
+    p_latitude,
+    p_longitude,
+    p_notes
 )
 ON DUPLICATE KEY UPDATE
     id = VALUE(id),
@@ -90,7 +93,8 @@ ON DUPLICATE KEY UPDATE
     location = VALUE(location),
     url = VALUE(url),
     latitude = VALUE(latitude),
-    longitude = VALUE(longitude);
+    longitude = VALUE(longitude),
+    notes = VALUE(notes);
 
 IF p_address_id IS NULL THEN
     SELECT LAST_INSERT_ID() INTO p_address_id;
