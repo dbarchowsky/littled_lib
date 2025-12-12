@@ -41,7 +41,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
         if ($name === 'getTableName') {
             return $this->_getTableName();
         }
-        return null;
+        return parent::__call($name, $arguments);
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
         if ($name === 'getTableName') {
             return (new static())->_getTableName();
         }
-        return null;
+        return parent::__callStatic($name, $arguments);
     }
 
     public function __construct()
@@ -72,7 +72,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     protected function _getTableName(): string
     {
         if (!isset(static::$table_name)) {
-            throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class) . '.');
+            throw new ConfigurationUndefinedException('Table name not specified in ' . Log::getClassBaseName(static::class));
         }
         return static::$table_name;
     }
@@ -265,7 +265,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
      * @deprecated Use OneToManyLinkedContent property instead
      * Retrieves a list of records from the database using $query. Converts each row in the result to an object of
      * type $type. Stores the objects as an array in the object's property specified with $property.
-     * @param string $property Name of property to use to store list.
+     * @param string $property Name of property to use to store a list.
      * @param string $type Object type to push onto the array.
      * @param string $query Query string
      * @param string $types String containing types used to bind variables to query (mysqli prepared statement)

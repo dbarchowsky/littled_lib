@@ -31,7 +31,6 @@ abstract class SectionContent extends SerializedContent
      * SectionContent constructor.
      * @param ?int $id Record id to retrieve.
      * @param ?int $content_type_id Record id of the site section where this piece of content belongs.
-     * @throws ConfigurationUndefinedException
      */
     public function __construct(int $id = null, int $content_type_id = null)
     {
@@ -45,6 +44,7 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      * @throws ReadException
@@ -52,6 +52,17 @@ abstract class SectionContent extends SerializedContent
     protected function _getTableName(): string
     {
         return static::$table_name ?? $this->getContentProperties()->table->value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function _getContentTypeId(): int
+    {
+        if (isset($this->content_properties) && ($this->content_properties->getRecordId() ?? 0) > 0) {
+            return $this->content_properties->getRecordId();
+        }
+        return parent::_getContentTypeId();
     }
 
     /**
@@ -109,7 +120,6 @@ abstract class SectionContent extends SerializedContent
     /**
      * Alias for retrieveSectionProperties()
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws ReadException
      */
     public function fetchProperties(): void
@@ -118,7 +128,7 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * Implement abstract method not referenced for unit test purposes.
+     * Implements an abstract method not referenced for unit test purposes.
      */
     public function generateUpdateQuery(): ?array
     {
@@ -143,12 +153,14 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
+     * @deprecated Use getContentTypeId() instead.
      * Content properties id getter.
      * @return int|null
+     * @throws ConfigurationUndefinedException
      */
     public function getContentPropertyId(): int|null
     {
-        return $this->content_properties->id->value;
+        return $this->_getContentTypeId();
     }
 
     /**
@@ -192,7 +204,6 @@ abstract class SectionContent extends SerializedContent
     /**
      * Retrieves the content record from the database.
      * @return $this
-     * @throws ConfigurationUndefinedException
      * @throws ReadException
      */
     public function read(): static
@@ -231,7 +242,6 @@ abstract class SectionContent extends SerializedContent
     /**
      * Retrieves site section properties and stores that data in object properties.
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws ReadException
      */
     public function retrieveSectionProperties(): void
@@ -278,7 +288,7 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Tests for a valid content type id. Throws ContentValidationException if the property value isn't current set.
-     * @param string $msg (Optional) Message to prepend to error message.
+     * @param string $msg (Optional) Message to prepend to an error message.
      * @throws ConfigurationUndefinedException
      */
     protected function testForContentType(string $msg = ''): void

@@ -6,6 +6,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
@@ -13,6 +14,12 @@ use Littled\Validation\Validation;
 use Exception;
 
 
+/**
+ * Class SerializedContentUtils
+ *
+ * @method getContentTypeId(): int
+ * @method static getContentTypeId(): int
+ */
 class SerializedContentUtils extends AppContentBase
 {
     use PropertyEvaluations {
@@ -25,7 +32,6 @@ class SerializedContentUtils extends AppContentBase
         setInputPrefix as traitSetInputPrefix;
     }
 
-
     /** @var string             Path to CMS template dir */
     protected static string     $common_cms_template_path;
     protected static int        $content_type_id;
@@ -33,6 +39,47 @@ class SerializedContentUtils extends AppContentBase
     protected static string     $cache_template = '';
     /** @var string             Path to a rendered cache file to use on the site front-end. */
     protected static string     $output_cache_file = '';
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     * @throws ConfigurationUndefinedException
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if ($name === 'getContentTypeId') {
+            return $this->_getContentTypeId();
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     * @throws ConfigurationUndefinedException
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        if ($name === 'getContentTypeId') {
+            return (new static())->_getContentTypeId();
+        }
+        return null;
+    }
+
+    /**
+     * Checks if the content type id property exists and returns its value.
+     * @return ?int Class's content type id value, if it has been defined.
+     * @throws ConfigurationUndefinedException
+     */
+    protected function _getContentTypeId(): ?int
+    {
+        if (!isset(static::$content_type_id)) {
+            throw new ConfigurationUndefinedException('Content type not set in ' . Log::getClassBaseName(static::class));
+        }
+        return static::$content_type_id;
+    }
 
     /**
      * Add a separator string after a string.
@@ -88,19 +135,6 @@ class SerializedContentUtils extends AppContentBase
             throw new ConfigurationUndefinedException('Path to shared content templates not set.');
         }
         return static::$common_cms_template_path;
-    }
-
-    /**
-     * Checks if the content type id property exists and returns its value.
-     * @return ?int Class's content type id value, if it has been defined.
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getContentTypeId(): ?int
-    {
-        if (!isset(static::$content_type_id)) {
-            throw new ConfigurationUndefinedException('Content type not set.');
-        }
-        return static::$content_type_id;
     }
 
     /**
@@ -207,7 +241,7 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
-     * Sets value of shared cms templates path.
+     * Sets value of a shared cms templates path.
      * @param string $path Path to shared cms templates.
      */
     public static function setCommonCMSTemplatePath(string $path): void
