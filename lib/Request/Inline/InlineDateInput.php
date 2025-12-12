@@ -12,33 +12,26 @@ use Littled\Request\DateTextField;
 abstract class InlineDateInput extends InlineInput
 {
     public DateTextField $date;
+    protected static string $input_property = 'date';
 
-    /**
-     * @inheritdoc
-     * @param string[] $column_names List of possible column names representing the column in the table that stores
-     * the "name" value.
-     */
     function __construct(array $column_names = [])
     {
         parent::__construct();
-        $this->date = new DateTextField('Date', 'd', true, date('n/j/Y'));
-        $this->validateProperties[] = 'op';
-        $this->columnNameOptions = array_merge(['release_date', 'post_date', 'posted_date', 'date'], $column_names);
+        $this->date = (new DateTextField())
+            ->setLabel('Date')
+            ->setKey('d')
+            ->setAsRequired();
     }
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
      */
-    protected function formatSelectQuery(): array
+    protected function formatRecordSelectQuery(): array
     {
-        $this->getColumnName();
-        $query = 'SELECT DATE_FORMAT(`$this->column_name`,\'%m/%d/%Y\') AS `date` ' .
-            "FROM `{$this->table->value}` " .
-            'WHERE id = ?';
-        return [$query, 'i', &$this->parent_id->value];
+        $query = 'SELECT `' . static::$input_property . '` ' .
+            'FROM `' . static::getTableName(). '` ' .
+            'WHERE `id` = ?';
+        return [$query, 'i', $this->id->value];
     }
 
     /**
@@ -46,32 +39,21 @@ abstract class InlineDateInput extends InlineInput
      */
     public function formatCommitQuery(): array
     {
-        $query = "UPDATE `{$this->table->value}` " .
-            "SET `$this->column_name` = " . $this->date->escapeSQL($this->mysqli) . ' ' .
-            'WHERE id = ?';
-        return [$query, 'i', &$this->parent_id->value];
+        $property = static::$input_property;
+        $query = 'UPDATE `' . static::getTableName() . '` ' .
+            "SET `$property` = ? " .
+            'WHERE `id` = ?';
+        return [$query, 'si', $this->{$property}->formatDateValue(), $this->id->value];
     }
 
     /**
      * @inheritDoc
+     * @param mixed $value
+     * @param string $format
      */
-    protected function hasRecordData(): bool
+    public function setValue(mixed $value, string $format = ''): static
     {
-        return $this->date->hasData();
-    }
-
-    /**
-     * Retrieves the access value and stores it in the object properties.
-     * @return InlineDateInput
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    public function read(): InlineDateInput
-    {
-        $data = parent::read();
-        $this->date->value = $data[0]->date;
+        $this->{$this::$input_property}->setInputValue($value, $format);
         return $this;
     }
 }
