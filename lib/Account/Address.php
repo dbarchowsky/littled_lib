@@ -15,6 +15,7 @@ use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
 use Littled\Request\PhoneNumberTextField;
 use Littled\Request\StringSelect;
+use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
 use DOMDocument;
 use Exception;
@@ -40,7 +41,7 @@ class Address extends SerializedContent
     public const FORMAT_ADDRESS_GOOGLE = 'google';
 
     /**
-     * Inserts Google Maps key into the URL to use to access Google Maps.
+     * Inserts a Google Maps key into the URL to use to access Google Maps.
      * @return string google maps uri
      */
     public static function GOOGLE_MAPS_URI(): string
@@ -72,6 +73,7 @@ class Address extends SerializedContent
     public StringTextField      $url;
     public FloatTextField       $latitude;
     public FloatTextField       $longitude;
+    public StringTextarea       $notes;
     /** @deprecated Use $state->abbreviation instead */
     public string               $state_abbrev;
     /** @var string Combined first and last name. */
@@ -113,12 +115,17 @@ class Address extends SerializedContent
         $this->url = new StringTextField('URL', 'lur', false, '', 255);
         $this->latitude = new FloatTextField('Latitude', 'stlt', false);
         $this->longitude = new FloatTextField('Longitude', 'stlg', false);
+        $this->notes = (new StringTextarea())
+            ->setLabel('Notes')
+            ->setKey('addrNotes')
+            ->setAsNotRequired()
+            ->setSizeLimit(1000);
         $this->state->abbrev->value = '';
         $this->fullname = '';
     }
 
     /**
-     * Checks database to see if any identical addresses already exist.
+     * Checks a database to see if any identical addresses already exist.
      * @return bool True/false indicating that an existing record was or was not found.
      * @throws Exception
      */
@@ -156,12 +163,12 @@ class Address extends SerializedContent
      */
     public function formatCity(): string
     {
-        $state = ($this->state->abbrev->value != '') ? $this->state->abbrev->value : $this->state->name->safeValue();
-        $city_parts = array_filter(array(trim($this->city->safeValue()),
+        $state = ($this->state->abbrev->value != '') ? $this->state->abbrev->value : $this->state->name->formatValueMarkup();
+        $city_parts = array_filter(array(trim($this->city->formatValueMarkup()),
             trim($state),
-            trim($this->country->safeValue())));
+            trim($this->country->formatValueMarkup())));
         $city = join(', ', $city_parts);
-        $parts = array_filter(array($city, trim($this->zip->safeValue())));
+        $parts = array_filter(array($city, trim($this->zip->formatValueMarkup())));
         return join(' ', $parts);
     }
 
@@ -235,14 +242,14 @@ class Address extends SerializedContent
      */
     public function formatOneLineAddress(): string
     {
-        $address = $this->appendSeparator($this->address1->safeValue()) .
-            $this->appendSeparator($this->address2->safeValue()) .
-            $this->city->safeValue();
+        $address = $this->appendSeparator($this->address1->formatValueMarkup()) .
+            $this->appendSeparator($this->address2->formatValueMarkup()) .
+            $this->city->formatValueMarkup();
         if ($this->state->getRecordId()) {
             if ($this->state->abbrev->value) {
-                $address .= $this->prependSeparator($this->state->abbrev->safeValue());
+                $address .= $this->prependSeparator($this->state->abbrev->formatValueMarkup());
             } elseif ($this->state->name->value) {
-                $address .= $this->prependSeparator($this->state->name->safeValue());
+                $address .= $this->prependSeparator($this->state->name->formatValueMarkup());
             }
         } else {
             $address = preg_replace('/, $/', '', $address) . $this->prependSeparator($this->country->value);
@@ -452,7 +459,7 @@ class Address extends SerializedContent
     }
 
     /**
-     * Inject property values into HTML form as hidden inputs.
+     * Inject property values into an HTML form as hidden inputs.
      * @return void
      * @throws ResourceNotFoundException
      */
@@ -490,7 +497,7 @@ class Address extends SerializedContent
 
     /**
      * Commits current object data to the database.
-     * @param bool $do_gmap_lookup (Optional) Flag to lookup address longitude and latitude using Google Maps API. Defaults to false.
+     * @param bool $do_gmap_lookup (Optional) Flag to look up address longitude and latitude using Google Maps API. Defaults to false.
      * @param string $content_label (Optional) label describing the content type used to format error messages.
      * @throws Exception
      */
