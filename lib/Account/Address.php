@@ -127,7 +127,7 @@ class Address extends SerializedContent
     /**
      * Checks a database to see if any identical addresses already exist.
      * @return bool True/false indicating that an existing record was or was not found.
-     * @throws Exception
+     * @throws FailedQueryException
      */
     public function checkForDuplicate(): bool
     {
@@ -371,7 +371,7 @@ class Address extends SerializedContent
     /**
      * Returns the state id from the database that matches the current value of the object's state name property.
      * @return int|null
-     * @throws Exception
+     * @throws FailedQueryException
      */
     public function lookupStateByName(): ?int
     {
@@ -390,7 +390,8 @@ class Address extends SerializedContent
 
     /**
      * Retrieves longitude and latitude for the current address using Google Maps API.
-     * @throws Exception
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     public function lookupMapPosition(): void
     {
@@ -411,7 +412,7 @@ class Address extends SerializedContent
     /**
      * Retrieves longitude and latitude using street address. Updates the internal longitude and latitude properties.
      * @returns bool TRUE if longitude and latitude values were found. FALSE otherwise.
-     * @throws Exception
+     * @throws RecordNotFoundException
      */
     public function lookupMapPositionByAddress(): bool
     {
@@ -447,7 +448,7 @@ class Address extends SerializedContent
 
     /**
      * Retrieves longitude and latitude values from zip code database.
-     * @throws Exception
+     * @throws FailedQueryException
      */
     public function lookupMapPositionByZip(): void
     {
