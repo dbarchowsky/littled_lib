@@ -2,15 +2,11 @@
 namespace Littled\Request\Inline;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
-use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
+use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\KeywordSectionContent;
-use Littled\Request\PrimaryKeyInput;
 
 
 class InlineKeywordInput extends KeywordSectionContent
@@ -19,29 +15,39 @@ class InlineKeywordInput extends KeywordSectionContent
      * InlineKeywordInput constructor.
      * @param int|null $id Main record id.
      * @param int|null $content_type_id Content type identifier.
-     * @throws InvalidStateException
+     * @throws ConfigurationUndefinedException
      */
     function __construct(int|null $id = null, int|null $content_type_id = null)
     {
-        parent::__construct($id, $content_type_id);
-        $this->id = new PrimaryKeyInput('Record ID', Keyword::PARENT_KEY, true, null);
-        $this->content_properties->id->key = Keyword::TYPE_KEY;
+        try {
+            parent::__construct($id, $content_type_id);
+        }
+        catch (ConfigurationUndefinedException $ex) {
+            if (!preg_match('/^content type/i', $ex->getMessage())) {
+                throw $ex;
+            }
+        }
+        $this->content_properties = (new ContentProperties())
+            ->shareConnection($this)
+            ->setLabel('Content type')
+            ->setAsRequired();
+        $this->id
+            ->setLabel('Record id')
+            ->setKey(Keyword::TYPE_KEY)
+            ->setAsRequired();
     }
 
     /**
      * Fill keyword properties from form data.
      * @param array|null $src Optional array containing data to use in place of POST data.
-     * @return void
+     * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws InvalidStateException
-     * @throws RecordNotFoundException
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData($src);
-        $this->retrieveSectionProperties();
+        // $this->retrieveSectionProperties();
+        return $this;
     }
 
     /**

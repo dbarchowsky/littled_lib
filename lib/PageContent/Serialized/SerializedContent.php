@@ -30,7 +30,7 @@ abstract class SerializedContent extends SerializedContentIO
     protected static string $default_id_key = LittledGlobals::ID_KEY;
 
     /**
-     * SerializedContent constructor.
+     * @inheritDoc
      * @param ?int $id Optional initial value to assign to the object's id property.
      */
     function __construct(?int $id = null)

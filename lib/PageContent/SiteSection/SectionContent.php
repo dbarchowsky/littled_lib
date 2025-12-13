@@ -28,7 +28,7 @@ abstract class SectionContent extends SerializedContent
     public ContentProperties $content_properties;
 
     /**
-     * SectionContent constructor.
+     * @inheritDoc
      * @param ?int $id Record id to retrieve.
      * @param ?int $content_type_id Record id of the site section where this piece of content belongs.
      */
@@ -37,7 +37,7 @@ abstract class SectionContent extends SerializedContent
         parent::__construct($id);
         $this->content_properties = (new ContentProperties())
             ->shareConnection($this)
-            ->setRecordId($content_type_id ?: static::getContentTypeId())
+            ->setRecordId($content_type_id ?: $this->getContentTypeId())
             ->setLabel('Content type')
             ->setAsRequired();
     }
@@ -57,12 +57,17 @@ abstract class SectionContent extends SerializedContent
     /**
      * @inheritDoc
      */
-    public function _getContentTypeId(): int
+    public function _getContentTypeId(): int|null
     {
         if (isset($this->content_properties) && ($this->content_properties->getRecordId() ?? 0) > 0) {
             return $this->content_properties->getRecordId();
         }
-        return parent::_getContentTypeId();
+        try {
+            return parent::_getContentTypeId();
+        }
+        catch (ConfigurationUndefinedException $ex) {
+            return null;
+        }
     }
 
     /**

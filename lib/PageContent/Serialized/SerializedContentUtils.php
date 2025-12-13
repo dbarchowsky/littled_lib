@@ -70,10 +70,10 @@ class SerializedContentUtils extends AppContentBase
 
     /**
      * Checks if the content type id property exists and returns its value.
-     * @return ?int Class's content type id value, if it has been defined.
+     * @return int|null Class's content type id value, if it has been defined.
      * @throws ConfigurationUndefinedException
      */
-    protected function _getContentTypeId(): ?int
+    protected function _getContentTypeId(): int|null
     {
         if (!isset(static::$content_type_id)) {
             throw new ConfigurationUndefinedException('Content type not set in ' . Log::getClassBaseName(static::class));

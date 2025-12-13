@@ -40,11 +40,10 @@ class KeywordSectionContent extends SectionContent
      * KeywordSectionContent constructor.
      * @param ?int $id ID Optional value representing this object's record in the database. Defaults to NULL.
      * @param ?int $content_type_id Optional ID of this object's content type. Defaults to NULL.
-     * @throws ConfigurationUndefinedException
      */
     function __construct($id = null, $content_type_id = null)
     {
-        parent::__construct($id, $content_type_id ?: static::getContentTypeId());
+        parent::__construct($id, $content_type_id ?: $this->getContentTypeId());
 
         $this->content_properties->id->key = static::$keyword_key . $this->content_properties->id->key;
 
@@ -253,14 +252,6 @@ class KeywordSectionContent extends SectionContent
     }
 
     /**
-     * Implement abstract method not referenced for unit test purposes.
-     */
-    public function generateUpdateQuery(): ?array
-    {
-        return array();
-    }
-
-    /**
      * Keyword category id getter.
      * @return int The id of the keyword category.
      * @throws ConfigurationUndefinedException
@@ -414,12 +405,12 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * Sets the content type record id property value.
-     * @param int $content_type_id
+     * @param int $id
      * @return $this
      */
-    public function setContentType(int $content_type_id): static
+    public function setContentType(int $id): static
     {
-        $this->content_properties->setRecordId($content_type_id);
+        $this->content_properties->setRecordId($id);
         return $this;
     }
 

@@ -95,6 +95,7 @@ abstract class InlineInput extends SectionContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
@@ -114,7 +115,7 @@ abstract class InlineInput extends SectionContent
     }
 
     /**
-     * Sets the value of the property controlled by object.
+     * Sets the value of the property controlled by the object.
      * @param mixed $value
      * @return $this
      */
