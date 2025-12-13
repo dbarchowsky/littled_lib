@@ -3,6 +3,10 @@ namespace Littled\Request;
 
 /**
  * Classes using this trait are assumed to be derived from \Littled\PageContent\SerializedContent\SerializedContent.
+ *
+ * The following methods are implemented in SerializedContentIO
+ * @method getTableName(): string
+ * @method static getTableName(): string
  */
 trait OptionsRetrieverTrait
 {
@@ -13,7 +17,7 @@ trait OptionsRetrieverTrait
      */
     protected function formatOptionsQuery(): array
     {
-        return ['SELECT `id`, `name` AS `label` FROM `' . static::getTableName() . '` ORDER BY `name`'];
+        return ['SELECT `id`, `name` AS `label` FROM `' . $this->getTableName() . '` ORDER BY `name`'];
     }
 
     /**
@@ -24,7 +28,7 @@ trait OptionsRetrieverTrait
     /**
      * Implemented in SerializedContentIO
      */
-    abstract public static function getTableName(): string;
+    abstract protected function _getTableName(): string;
 
     /**
      * Retrieves a list of dropdown menu options from the database using the query defined in formatOptionsQuery().
