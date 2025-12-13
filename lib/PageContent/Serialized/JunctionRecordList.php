@@ -11,7 +11,7 @@ abstract class JunctionRecordList extends SerializedRecordList
      */
     protected function formatDeleteStaleLinksStmt(array $stale_link_ids): array
     {
-        $query = 'DELETE FROM `' . static::getTableName() . '` '.
+        $query = 'DELETE FROM `' . $this->getTableName() . '` '.
             'WHERE `' . $this->records[0]->parent_id->getColumnName('parent_id') . '` = ? '.
             'AND `' . $this->records[0]->link_id->getColumnName('link_id') . '` '.
             'IN (' . str_repeat('?,', count($stale_link_ids)-1) . '?)';
