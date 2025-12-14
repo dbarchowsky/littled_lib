@@ -178,10 +178,10 @@ trait MySQLOperations
         }
         $rs = array();
         while ($row = $result->fetch_object()) {
-            if (count($rs) == 0 && (!property_exists($row, 'id') || !property_exists($row, 'option'))) {
-                throw new FailedQueryException('Invalid query retrieving options.');
+            if (($key ??= static::lookupOptionKey($row)) === '') {
+                throw new FailedQueryException('Unhandled label value encountered while retrieving options.');
             }
-            $rs[$row->id] = $row->option;
+            $rs[$row->id] = $row->{$key};
         }
         $result->free();
         return ($rs);
@@ -344,6 +344,22 @@ trait MySQLOperations
     {
         $this->connectToDatabase();
         return $this->mysqli;
+    }
+
+    /**
+     * Returns the name of the key to use for retrieving option values from a database record.
+     * @param object $row Generic object holding a database record.
+     * @return string Name of the key to use for retrieving option values from the record.
+     */
+    private static function lookupOptionKey(object $row): string
+    {
+        $options = ['option', 'label', 'name'];
+        foreach($options as $key) {
+            if (property_exists($row, $key)) {
+                return $key;
+            }
+        }
+        return '';
     }
 
     /**
