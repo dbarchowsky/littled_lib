@@ -85,6 +85,16 @@ abstract class InlineInput extends SectionContent
     }
 
     /**
+     * Returns the value o the property controlled by the object.
+     * @return mixed
+     */
+    public function getValue(): mixed
+    {
+        $property = static::$input_property;
+        return $this->{$property}->value;
+    }
+
+    /**
      * @inheritDoc
      */
     protected function hasRecordData(): bool
