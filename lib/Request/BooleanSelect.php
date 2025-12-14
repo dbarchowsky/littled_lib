@@ -62,7 +62,7 @@ class BooleanSelect extends BooleanInput implements RequestSelectInterface
                     'input' => $this,
                     'label' => $label,
                     'css_class' => $css_class,
-                    'options' => $context]);
+                    'options' => count($context) > 0 ? $context : ($this->options ?? [])]);
         }
         catch(Exception $e) {
             ContentUtils::printError($e->getMessage());
