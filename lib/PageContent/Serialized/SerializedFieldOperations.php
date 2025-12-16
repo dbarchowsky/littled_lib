@@ -20,7 +20,7 @@ trait SerializedFieldOperations
 
     /**
      * Returns the form data members of the objects as a series of nested associative arrays.
-     * @param array|null $exclude_keys (Optional) array of parameter names to exclude from the returned array.
+     * @param array|null $exclude_keys An optional array of parameter names to exclude from the returned array.
      * @return array Associative array containing the object's form data members as name/value pairs.
      */
     public function arrayEncode(?array $exclude_keys = null): array
@@ -116,7 +116,7 @@ trait SerializedFieldOperations
     {
         $src = $src ?? Validation::getDefaultInputSource();
         foreach ($this as $item) {
-            self::collectPropertyValueFromRequestData($item, $src);
+            static::collectPropertyValueFromRequestData($item, $src);
         }
         return $this;
     }
