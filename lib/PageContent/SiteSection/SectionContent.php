@@ -65,7 +65,7 @@ abstract class SectionContent extends SerializedContent
         try {
             return parent::_getContentTypeId();
         }
-        catch (ConfigurationUndefinedException $ex) {
+        catch (ConfigurationUndefinedException) {
             return null;
         }
     }
@@ -87,14 +87,34 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
+     * Collects the content properties record id from the input data.
+     * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
+     * @return void
+     */
+    protected function collectContentPropertiesRequestData(?array $src = null): void
+    {
+        if ($this->content_properties->getRecordId() > 1) {
+            return;
+        }
+        $this->content_properties->id->collectRequestData($src);
+    }
+
+    /**
      * Fills the object's property values from input variable values, e.g. GET, POST, etc.
      * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
      * @return $this
      */
     public function collectRequestData(?array $src = null): static
     {
+        // skip over the content properties object when retrieving request data
         $this->configureContentPropertyCollection();
+
+        // collect request data applicable to the content record in the database
         parent::collectRequestData($src);
+
+        // collect just the content type record id and load the content type properties if it was specified
+        $this->collectContentPropertiesRequestData($src);
+
         return $this;
     }
 
