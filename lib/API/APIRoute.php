@@ -3,7 +3,6 @@ namespace Littled\API;
 
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -12,6 +11,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\SiteSection\ContentRoute;
@@ -69,13 +69,10 @@ abstract class APIRoute extends APIRouteProperties
      * Defaults to LittledGlobals::CONTENT_TYPE_ID.
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidValueException
-     * @throws NotInitializedException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws InvalidTypeException
      */
     public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
     {
@@ -150,11 +147,11 @@ abstract class APIRoute extends APIRouteProperties
             }
         }
         if (Validation::collectBooleanRequestVar(LittledGlobals::COMMIT_KEY, null, $src) === true) {
-            $this->action = self::COMMIT_ACTION;
+            $this->action = static::COMMIT_ACTION;
             return ($this);
         }
         if (Validation::collectBooleanRequestVar(LittledGlobals::CANCEL_KEY, null, $src) === true) {
-            $this->action = self::CANCEL_ACTION;
+            $this->action = static::CANCEL_ACTION;
             return ($this);
         }
         return ($this);
