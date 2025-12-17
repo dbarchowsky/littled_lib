@@ -11,7 +11,7 @@ class ContentUtils
 {
     /**
      * Inserts data into a template file and stores the resulting content in the object's $content property.
-     * @param string $template_path Path to content template file.
+     * @param string $template_path Path to a content template file.
      * @param ?array $context Array containing data to insert into the template.
      * @return string Markup with content inserted into it.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
@@ -31,7 +31,7 @@ class ContentUtils
     /**
      * Inserts error message into DOM.
      * @param string $msg Error message to print out.
-     * @param string $fmt Format to use to print out error message. Overrides the default format.
+     * @param string $fmt Format to use to print out an error message. Overrides the default format.
      * @param string $css_class (Optional) CSS class to apply to the element containing the error message. Defaults to
      * "alert alert-error".
      * @param string $encoding Defaults to 'UTF-8'
@@ -85,7 +85,7 @@ class ContentUtils
      */
     public static function renderTemplateWithErrors(
         string $template_path,
-        array  $context = null,
+        ?array $context = null,
         string $css_class = '',
         string $encoding = 'UTF-8'): void
     {

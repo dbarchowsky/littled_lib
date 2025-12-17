@@ -6,13 +6,12 @@ use Littled\API\APIRoute;
 use Littled\Database\StaticDBConnector;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\Log\Log;
@@ -42,9 +41,9 @@ abstract class ContentController
     protected static function formatNavigationRoute(RoutedPageContent $class, string $operation, ?int $record_id = null): string
     {
         switch ($operation) {
-            case self::OPERATION_LISTINGS;
+            case self::OPERATION_LISTINGS:
                 return call_user_func([$class, 'getListingsURI']);
-            case self::OPERATION_DETAILS;
+            case self::OPERATION_DETAILS:
                 if ($record_id === null || $record_id < 1) {
                     throw new InvalidValueException('Record id not provided.');
                 }
@@ -235,13 +234,9 @@ abstract class ContentController
      * @param SerializedContent $content
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
      * @throws RecordNotFoundException
-     * @throws NotInitializedException
+     * @throws ReadException
      */
     public static function retrieveContentDataByType(SerializedContent $content): void
     {
