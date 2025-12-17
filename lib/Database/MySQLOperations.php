@@ -29,14 +29,9 @@ trait MySQLOperations
      */
     public function closeDatabaseConnection(): void
     {
-        if (isset($this->mysqli)) {
-            try {
-                $this->mysqli->ping();
-                $this->mysqli->close();
-                $this->unsetTracker();
-            } catch (Error) {
-                /* Connection already closed. */
-            }
+        if (isset($this->mysqli)&& $this->mysqli->thread_id > 0) {
+            $this->mysqli->close();
+            $this->unsetTracker();
         }
     }
 
@@ -371,11 +366,7 @@ trait MySQLOperations
         if (!isset($this->mysqli)) {
             return false;
         }
-        try {
-            return $this->mysqli->ping();
-        } catch (Error) {
-            return false;
-        }
+        return $this->mysqli->thread_id > 0;
     }
 
     /**
