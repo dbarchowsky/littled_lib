@@ -437,7 +437,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      * @return LinkedContent
      * @throws NotInitializedException
      */
-    protected function instantiateChild(int $linked_id=null): LinkedContent
+    protected function instantiateChild(int|null $linked_id = null): LinkedContent
     {
         if (!isset(static::$content_class)) {
             throw new NotInitializedException('Content class property has not been assigned a value.');

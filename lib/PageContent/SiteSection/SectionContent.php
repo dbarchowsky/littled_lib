@@ -32,7 +32,7 @@ abstract class SectionContent extends SerializedContent
      * @param ?int $id Record id to retrieve.
      * @param ?int $content_type_id Record id of the site section where this piece of content belongs.
      */
-    public function __construct(int $id = null, int $content_type_id = null)
+    public function __construct(int|null $id = null, int|null $content_type_id = null)
     {
         parent::__construct($id);
         $this->content_properties = (new ContentProperties())

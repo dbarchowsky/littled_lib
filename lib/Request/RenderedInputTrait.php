@@ -330,7 +330,7 @@ trait RenderedInputTrait
      * @param string|null $template Path to template to use to override the current template path stored in the object.
      * @param string|null $key Key to use to override the default key value for the variable.
      */
-    public function saveInForm( string $template=null, string|null $key=null ): void
+    public function saveInForm( string|null $template=null, string|null $key=null ): void
     {
         $key = $key ?? $this->getKey();
         $template = $template ?? static::getHiddenTemplatePath();

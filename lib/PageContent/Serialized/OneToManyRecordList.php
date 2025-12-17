@@ -34,7 +34,7 @@ class OneToManyRecordList extends SerializedRecordList
      * Override to make the return type specific to this derived class.
      * @returns OneToManyRecordLink
      */
-    protected function instantiateChild(int $linked_id = null): LinkedContent|OneToManyRecordLink
+    protected function instantiateChild(int|null $linked_id = null): LinkedContent|OneToManyRecordLink
     {
         return parent::instantiateChild($linked_id);
     }

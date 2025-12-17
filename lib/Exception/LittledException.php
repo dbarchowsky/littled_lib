@@ -15,7 +15,7 @@ class LittledException extends Exception
      * @param string $message Error message.
      * @param Exception|null $previous
      */
-    public function __construct(string $message, $code = 0, Exception $previous = null)
+    public function __construct(string $message, $code = 0, Exception|null $previous = null)
     {
         // some code
 

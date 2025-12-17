@@ -23,7 +23,7 @@ abstract class JunctionRecordList extends SerializedRecordList
      * Override to make the return type specific to this derived class.
      * @returns JunctionRecordLink
      */
-    protected function instantiateChild(int $linked_id = null): LinkedContent|JunctionRecordLink
+    protected function instantiateChild(int|null $linked_id = null): LinkedContent|JunctionRecordLink
     {
         return parent::instantiateChild($linked_id);
     }

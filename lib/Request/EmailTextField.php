@@ -21,7 +21,7 @@ class EmailTextField extends StringTextField
         bool        $required = false,
         string|null $value = null,
         int         $size_limit = 255,
-        int         $index = null)
+        int|null    $index = null)
     {
         parent::__construct($label, $key, $required, $value, $size_limit, $index);
     }
