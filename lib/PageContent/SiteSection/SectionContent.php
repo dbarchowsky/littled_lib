@@ -152,6 +152,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Alias for retrieveSectionProperties()
      * @return void
+     * @throws ConfigurationUndefinedException
      * @throws ReadException
      */
     public function fetchProperties(): void
@@ -261,6 +262,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Retrieves the content record from the database.
      * @return $this
+     * @throws ConfigurationUndefinedException
      * @throws ReadException
      */
     public function read(): static
@@ -298,7 +300,7 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Retrieves site section properties and stores that data in object properties.
-     * @return void
+     * @throws ConfigurationUndefinedException
      * @throws ReadException
      */
     public function retrieveSectionProperties(): void
