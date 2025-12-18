@@ -18,6 +18,9 @@ use Littled\Utility\LittledUtility;
 
 /**
  * Extends PageContent to add methods to register and load record classes, filter classes, and routes for a specific content type.
+ *
+ * @mthod static formatRoutePath(?int $record_id): string
+ * @method static formatRoutePath(?int $record_id): string
  */
 abstract class RoutedPageContent extends PageContent
 {
@@ -41,9 +44,38 @@ abstract class RoutedPageContent extends PageContent
     protected static string         $template_filename='';
     protected int                   $update_type = self::UPDATE_NONE;
 
+    /** @var RoutePlaceholder[] */
+    public static array $placeholders;
+
     public const                    UPDATE_NONE = 0;
     public const                    UPDATE_NEW = 1;
     public const                    UPDATE_EXISTING = 2;
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if ($name === 'formatRoutePath') {
+            return $this->_formatRoutePath($arguments[0]);
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        if ($name === 'formatRoutePath') {
+            return (new static())->_formatRoutePath($arguments[0]);
+        }
+        return null;
+    }
 
     /**
      * @throws ConfigurationUndefinedException
@@ -51,19 +83,33 @@ abstract class RoutedPageContent extends PageContent
     function __construct()
     {
         $this->verifyLogin();
+        static::initializePlaceholders();
     }
 
     /**
-     * @return void
-     * @throws ConfigurationUndefinedException
+     * Formats and returns a path to use to reach this page.
+     * @param int|null $record_id
+     * @return string
      */
-    public function verifyLogin(): void
+    public function _formatRoutePath(?int $record_id = null): string
     {
-        if (static::getAccessLevel() > UserAccess::NO_AUTHENTICATION) {
-            $login = (new LoginAuthenticator())->shareConnection($this);
-            $login->requireLogin(static::getAccessLevel());
-            unset($login);
+        $route_parts = static::$route_parts;
+        if (($record_id ?? 0) === 0) {
+            if (isset($this->content)) {
+                $record_id = $this->content->getRecordId();
+            }
         }
+        if ($record_id > 0) {
+            $route_parts = static::substituteRoutePart($route_parts, 'int', $record_id);
+        }
+        if (isset($this->content) && $this->content->getContentTypeSlug()) {
+            $route_parts = static::substituteRoutePart($route_parts, 'str', $this->content->getContentTypeSlug());
+        }
+        $route = LittledUtility::joinPaths(...$route_parts);
+        if ($route === '') {
+            return $route;
+        }
+        return '/' . ltrim($route, '/');
     }
 
     /**
@@ -122,16 +168,6 @@ abstract class RoutedPageContent extends PageContent
             return (int)$route[1];
         }
         return null;
-    }
-
-    /**
-     * Formats and returns a path to use to reach this page.
-     * @param int|null $record_id
-     * @return string
-     */
-    public static function formatRoutePath(?int $record_id = null): string
-    {
-        return LittledUtility::joinPaths(static::$route_parts);
     }
 
     /**
@@ -323,6 +359,22 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
+     * Returns a list of wildcards for a given type.
+     * @param string $type
+     * @return string[]
+     */
+    protected static function getRouteWildcardsByType(string $type): array
+    {
+        $wc = [];
+        foreach (static::$placeholders as $placeholder) {
+            if ($placeholder->type === $type) {
+                $wc[] = $placeholder->wildcard;
+            }
+        }
+        return $wc;
+    }
+
+    /**
      * Template directory path getter.
      * @return string
      * @throws ConfigurationUndefinedException
@@ -409,6 +461,27 @@ abstract class RoutedPageContent extends PageContent
     public function hasContentUpdates(): bool
     {
         return ($this->update_type !== self::UPDATE_NONE);
+    }
+
+    protected static function initializePlaceholders(): void
+    {
+        if (isset(static::$placeholders)) {
+            return;
+        }
+        static::$placeholders = [
+            (new RoutePlaceholder())
+                ->setWildcard('%s')
+                ->setPattern('/^(?=[a-zA-Z0-9\-_\.]*[A-Za-z])[a-zA-Z0-9\-_\.]+$/')
+                ->setType('str'),
+            (new RoutePlaceholder())
+                ->setWildcard('%d')
+                ->setPattern('/^\d+$/')
+                ->setType('int'),
+            (new RoutePlaceholder())
+                ->setWildcard('#')
+                ->setPattern('/^\d+$/')
+                ->setType('int')
+        ];
     }
 
     /**
@@ -511,6 +584,24 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
+     * Swap out route parts containing wildcards for supplied values.
+     * @param string[] $route_parts
+     * @param string $type
+     * @param mixed $value
+     * @return string[]
+     */
+    protected static function substituteRoutePart(array $route_parts, string $type, mixed $value): array
+    {
+        $wc = static::getRouteWildcardsByType($type);
+        foreach ($route_parts as $i => $part) {
+            if (in_array($part, $wc, true)) {
+                $route_parts[$i] = $value;
+            }
+        }
+        return $route_parts;
+    }
+
+    /**
      * Save content edited within a page.
      * @return void
      */
@@ -552,6 +643,19 @@ abstract class RoutedPageContent extends PageContent
             }
             $class = $this::$routes_class;
             $this->routes = new $class();
+        }
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    public function verifyLogin(): void
+    {
+        if (static::getAccessLevel() > UserAccess::NO_AUTHENTICATION) {
+            $login = (new LoginAuthenticator())->shareConnection($this);
+            $login->requireLogin(static::getAccessLevel());
+            unset($login);
         }
     }
 }
