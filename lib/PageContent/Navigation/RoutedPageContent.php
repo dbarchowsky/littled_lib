@@ -51,7 +51,6 @@ abstract class RoutedPageContent extends PageContent
     function __construct()
     {
         $this->verifyLogin();
-        static::initializePlaceholders();
     }
 
     /**
@@ -387,27 +386,6 @@ abstract class RoutedPageContent extends PageContent
     public function hasContentUpdates(): bool
     {
         return ($this->update_type !== self::UPDATE_NONE);
-    }
-
-    protected static function initializePlaceholders(): void
-    {
-        if (isset(static::$placeholders)) {
-            return;
-        }
-        static::$placeholders = [
-            (new RoutePlaceholder())
-                ->setWildcard('%s')
-                ->setPattern('/^(?=[a-zA-Z0-9\-_\.]*[A-Za-z])[a-zA-Z0-9\-_\.]+$/')
-                ->setType('str'),
-            (new RoutePlaceholder())
-                ->setWildcard('%d')
-                ->setPattern('/^\d+$/')
-                ->setType('int'),
-            (new RoutePlaceholder())
-                ->setWildcard('#')
-                ->setPattern('/^\d+$/')
-                ->setType('int')
-        ];
     }
 
     /**

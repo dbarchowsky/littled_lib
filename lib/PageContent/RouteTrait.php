@@ -96,6 +96,9 @@ trait RouteTrait
     protected static function getRouteWildcardsByType(string $type): array
     {
         $wc = [];
+        if (!isset(static::$placeholders)) {
+            static::initializePlaceholders();
+        }
         foreach (static::$placeholders as $placeholder) {
             if ($placeholder->type === $type) {
                 $wc[] = $placeholder->wildcard;
@@ -115,6 +118,65 @@ trait RouteTrait
             return static::$route_parts[$index];
         }
         return '';
+    }
+
+    /**
+     * Configures route placeholder values.
+     * @return void
+     */
+    protected static function initializePlaceholders(): void
+    {
+        if (isset(static::$placeholders)) {
+            return;
+        }
+        static::$placeholders = [
+            (new RoutePlaceholder())
+                ->setWildcard('%s')
+                ->setPattern('/^(?=[a-zA-Z0-9\-_\.]*[A-Za-z])[a-zA-Z0-9\-_\.]+$/')
+                ->setType('str'),
+            (new RoutePlaceholder())
+                ->setWildcard('%d')
+                ->setPattern('/^\d+$/')
+                ->setType('int'),
+            (new RoutePlaceholder())
+                ->setWildcard('#')
+                ->setPattern('/^\d+$/')
+                ->setType('int')
+        ];
+    }
+
+    /**
+     * Compares route parts with internal route parts, ignoring values that may have been inserted in place of
+     * wildcard components of the route. Returns true if they match.
+     * @param array $rp
+     * @return bool
+     */
+    public static function matchRouteParts(array $rp): bool
+    {
+        if (count(static::$route_parts) !== count($rp)) {
+            // a route with a different number of parts is automatically invalid
+            return false;
+        }
+        if (!isset(static::$placeholders)) {
+            static::initializePlaceholders();
+        }
+        foreach(static::$placeholders as $placeholder) {
+            // a route is not allowed to contain placeholder values
+            if (in_array($placeholder->wildcard, $rp)) {
+                return false;
+            }
+        }
+
+        // pre-index by wildcard
+        $placeholders = array_column(static::$placeholders, null, 'wildcard');
+
+        for ($i = 0; $i < count(static::$route_parts); $i++) {
+            $placeholder = $placeholders[static::$route_parts[$i]] ?? null;
+            if ($placeholder && preg_match($placeholder->pattern, $rp[$i])) {
+                $rp[$i] = $placeholder->wildcard;
+            }
+        }
+        return static::$route_parts === $rp;
     }
 
     /**
