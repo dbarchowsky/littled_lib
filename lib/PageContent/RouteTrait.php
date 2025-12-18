@@ -2,23 +2,72 @@
 
 namespace Littled\PageContent;
 
+use Littled\PageContent\Navigation\RoutePlaceholder;
 use Littled\Utility\LittledUtility;
 
+/**
+ * @method formatRoutePath(?int $record_id = null): string
+ * @method static formatRoutePath(?int $record_id = null): string
+ */
 trait RouteTrait
 {
+    /** @var RoutePlaceholder[] */
+    public static array $placeholders;
     /** @var string[] */
     protected static array  $route_parts = [];
 
     /**
-     * Returns $route_parts property value as a string.
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if ($name === 'formatRoutePath') {
+            $record_id  = count($arguments) > 0 ? $arguments[0] : null;
+            return $this->_formatRoutePath($record_id);
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        if ($name === 'formatRoutePath') {
+            $record_id  = count($arguments) > 0 ? $arguments[0] : null;
+            return (new static())->_formatRoutePath($record_id);
+        }
+        return null;
+    }
+
+    /**
+     * Formats and returns a path to use to reach this page.
+     * @param int|null $record_id
      * @return string
      */
-    public static function formatRoute(): string
+    public function _formatRoutePath(?int $record_id = null): string
     {
-        if (count(static::$route_parts) < 1) {
-            return '';
+        $route_parts = static::$route_parts;
+        if (($record_id ?? 0) === 0) {
+            if (isset($this->content)) {
+                $record_id = $this->content->getRecordId();
+            }
         }
-        return LittledUtility::joinPaths(...static::$route_parts);
+        if ($record_id > 0) {
+            $route_parts = static::substituteRoutePart($route_parts, 'int', $record_id);
+        }
+        if (isset($this->content) && $this->content->getContentTypeSlug()) {
+            $route_parts = static::substituteRoutePart($route_parts, 'str', $this->content->getContentTypeSlug());
+        }
+        $route = LittledUtility::joinPaths(...$route_parts);
+        if ($route === '') {
+            return $route;
+        }
+        return '/' . ltrim($route, '/');
     }
 
     /**
@@ -40,6 +89,22 @@ trait RouteTrait
     }
 
     /**
+     * Returns a list of wildcards for a given type.
+     * @param string $type
+     * @return string[]
+     */
+    protected static function getRouteWildcardsByType(string $type): array
+    {
+        $wc = [];
+        foreach (static::$placeholders as $placeholder) {
+            if ($placeholder->type === $type) {
+                $wc[] = $placeholder->wildcard;
+            }
+        }
+        return $wc;
+    }
+
+    /**
      * Returns one part of the route parts, the 2nd one by default.
      * @param int $index
      * @return string
@@ -50,15 +115,6 @@ trait RouteTrait
             return static::$route_parts[$index];
         }
         return '';
-    }
-
-    /**
-     * Returns string that can be used to insert a page's route into HTML
-     * @return string
-     */
-    public static function insertRoute(): string
-    {
-        return '/' . static::formatRoute();
     }
 
     /**
@@ -99,5 +155,23 @@ trait RouteTrait
             }
         }
         static::$route_parts[$index] = $sub_route;
+    }
+
+    /**
+     * Swap out route parts containing wildcards for supplied values.
+     * @param string[] $route_parts
+     * @param string $type
+     * @param mixed $value
+     * @return string[]
+     */
+    protected static function substituteRoutePart(array $route_parts, string $type, mixed $value): array
+    {
+        $wc = static::getRouteWildcardsByType($type);
+        foreach ($route_parts as $i => $part) {
+            if (in_array($part, $wc, true)) {
+                $route_parts[$i] = $value;
+            }
+        }
+        return $route_parts;
     }
 }
