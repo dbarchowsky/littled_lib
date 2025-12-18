@@ -35,9 +35,16 @@ abstract class SectionContent extends SerializedContent
     public function __construct(int|null $id = null, int|null $content_type_id = null)
     {
         parent::__construct($id);
+        if ($content_type_id === null) {
+            try {
+                $content_type_id = static::getContentTypeId();
+            } catch(Exception) {
+                /* continue */
+            }
+        }
         $this->content_properties = (new ContentProperties())
             ->shareConnection($this)
-            ->setRecordId($content_type_id ?: $this->getContentTypeId())
+            ->setRecordId($content_type_id)
             ->setLabel('Content type')
             ->setAsRequired();
     }
@@ -197,6 +204,31 @@ abstract class SectionContent extends SerializedContent
     public function getContentLabel(): string
     {
         return $this->content_properties->getContentLabel(true);
+    }
+
+    /**
+     * Returns the content type id property value of the individual content record.
+     * @return int|null
+     * @throws ConfigurationUndefinedException
+     */
+    public function getContentTypeId(): int|null
+    {
+        if (!isset($this->content_properties)) {
+            throw new ConfigurationUndefinedException('Content properties not loaded for ' . Log::getClassBaseName($this::class));
+        }
+        return $this->content_properties->id->value;
+    }
+
+    /**
+     * Returns the content type slug property value of the individual content record.
+     * @return string
+     */
+    public function getContentTypeSlug(): string
+    {
+        if (!isset($this->content_properties)) {
+            return '';
+        }
+        return $this->content_properties->slug->value;
     }
 
     /**
