@@ -204,20 +204,11 @@ abstract class SectionContent extends SerializedContent
      */
     public function getContentLabel(): string
     {
-        return $this->content_properties->getContentLabel(true);
-    }
-
-    /**
-     * Returns the content type id property value of the individual content record.
-     * @return int|null
-     * @throws ConfigurationUndefinedException
-     */
-    public function getContentTypeId(): int|null
-    {
-        if (!isset($this->content_properties)) {
-            throw new ConfigurationUndefinedException('Content properties not loaded for ' . Log::getClassBaseName($this::class));
+        if ((($this->content_properties->getRecordId() ?: 0) < 1) &&
+            ((static::$content_type_id ?? 0) > 0)) {
+            $this->setContentType(static::$content_type_id);
         }
-        return $this->content_properties->id->value;
+        return $this->content_properties->getContentLabel(true);
     }
 
     /**
