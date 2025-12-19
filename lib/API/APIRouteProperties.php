@@ -2,11 +2,9 @@
 namespace Littled\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
-use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\ReadException;
 use Littled\Log\Log;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
@@ -14,6 +12,7 @@ use Littled\PageContent\RouteBase;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
+use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 use Littled\Utility\LittledUtility;
 use Exception;
@@ -33,6 +32,7 @@ abstract class APIRouteProperties extends RouteBase
     protected static string     $default_template_name = '';
     /** @var string             String indicating the action to be taken on the page. */
     public string               $action = '';
+    public IntegerInput         $content_type_id;
     /** @var JSONRecordResponse JSON response object. */
     public JSONRecordResponse   $json;
     /** @var StringInput        Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */
@@ -47,6 +47,9 @@ abstract class APIRouteProperties extends RouteBase
         $this->json = new JSONRecordResponse();
         $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
         $this->action = '';
+        $this->content_type_id = (new IntegerInput())
+            ->setLabel('Content type')
+            ->setKey(ContentProperties::ID_KEY);
     }
 
     /**
@@ -74,9 +77,7 @@ abstract class APIRouteProperties extends RouteBase
      * @return string
      * @throws ConfigurationUndefinedException
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
+     * @throws ReadException
      */
     public function getContentLabel(): string
     {
@@ -95,7 +96,7 @@ abstract class APIRouteProperties extends RouteBase
      */
     public function getContentProperties(): ContentProperties
     {
-        // Do not check filters or content property for content properties object here.
+        // Do not check filters or content property for a content properties object here.
         // Only check those properties in derived classes.
         return ($this->newContentPropertiesInstance())->shareConnection($this);
     }
@@ -114,7 +115,10 @@ abstract class APIRouteProperties extends RouteBase
      * Returns the current key value used to access the content type value in request data.
      * @return string
      */
-    abstract public function getContentTypeKey(): string;
+    public function getContentTypeKey(): string
+    {
+        return $this->content_type_id->getKey();
+    }
 
     /**
      * Controller class name getter.
@@ -213,7 +217,18 @@ abstract class APIRouteProperties extends RouteBase
      * @param int $content_id
      * @return $this
      */
-    abstract public function setContentTypeId(int $content_id): APIRouteProperties;
+    abstract public function setContentTypeId(int $content_id): static;
+
+    /**
+     * Sets the key value used to access the content type value in request data.
+     * @param string $key
+     * @return $this
+     */
+    public function setContentTypeKey(string $key): static
+    {
+        $this->content_type_id->setKey($key);
+        return $this;
+    }
 
     /**
      * Content cache class setter.
