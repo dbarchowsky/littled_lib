@@ -3,14 +3,12 @@ namespace Littled\Filters;
 
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentInitializationException;
-use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -19,21 +17,50 @@ use Littled\Validation\Validation;
 
 /**
  * Extends FilterCollection to add properties that provide information about the content being retrieved for the listings' data.
+ *
+ * @method getContentTypeId(): int|null
+ * @method static getContentTypeId(): int|null
  */
 class ContentFilters extends FilterCollection
 {
     /** @var string */
-    public const NEXT_OP_ADD = 'add';
+    public const                    NEXT_OP_ADD = 'add';
     /** @var string */
-    public const NEXT_OP_VIEW = 'view';
+    public const                    NEXT_OP_VIEW = 'view';
     /** @var string */
-    public const NEXT_OP_ADD_IMAGE = 'add_img';
+    public const                    NEXT_OP_ADD_IMAGE = 'add_img';
     /** @var string */
-    public const NEXT_OP_PREVIOUS = 'prev';
+    public const                    NEXT_OP_PREVIOUS = 'prev';
     /** @var string */
-    public const NEXT_OP_LIST = 'list';
-    public ContentProperties $content_properties;
-    protected static ?int $content_type_id = null;
+    public const                    NEXT_OP_LIST = 'list';
+    public ContentProperties        $content_properties;
+    protected static ?int           $content_type_id = null;
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return int|null
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if ($name === 'getContentTypeId') {
+            return $this->_getContentTypeId();
+        }
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return int|null
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        if ($name === 'getContentTypeId') {
+            return (new static())->_getContentTypeId();
+        }
+        return null;
+    }
 
     /**
      * ContentFilters constructor.
@@ -53,24 +80,21 @@ class ContentFilters extends FilterCollection
             throw new ContentInitializationException('Class constructor not implemented. ' . $ex->getMessage());
         }
         try {
-            $this->content_properties = static::newContentPropertiesInstance(
-                properties_class: $properties_class,
-                content_type_id: static::getContentTypeId())
-                ->shareConnection($this)
-                ->read();
-            if (!$this->hasConnection()) {
-                $this->shareConnection($this->content_properties);
+            if ($this->getContentTypeId() > 0) {
+                $this->content_properties = static::newContentPropertiesInstance(
+                    properties_class: $properties_class,
+                    content_type_id: static::getContentTypeId())
+                    ->shareConnection($this)
+                    ->read();
+                if (!$this->hasConnection()) {
+                    $this->shareConnection($this->content_properties);
+                }
             }
         }
         catch (
-            ConfigurationUndefinedException |
-            ConnectionException |
-            ContentValidationException |
             FailedQueryException |
             InvalidTypeException |
-            InvalidValueException |
-            NotImplementedException |
-            NotInitializedException |
+            ReadException |
             RecordNotFoundException $ex) {
             $msg = 'Error loading content properties. (' . Log::getClassBaseName($ex::class) . ') ' .$ex->getMessage();
             throw new ContentInitializationException($msg);
@@ -78,12 +102,25 @@ class ContentFilters extends FilterCollection
     }
 
     /**
+     * Checks if the content type id property exists and returns its value.
+     * @return int|null Class's content type id value, if it has been defined.
+     */
+    protected function _getContentTypeId(): int|null
+    {
+        if (isset(static::$content_type_id)) {
+            return static::$content_type_id;
+        }
+        if (isset($this->content_properties)) {
+            return $this->content_properties->getRecordId();
+        }
+        return null;
+    }
+
+    /**
      * Return the label describing this filter's content type.
      * @return string
-     * @throws ContentValidationException
-     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws ReadException
      */
     public function getContentLabel(): string
     {
@@ -91,19 +128,6 @@ class ContentFilters extends FilterCollection
             return $this->content_properties->getContentLabel();
         }
         return '';
-    }
-
-    /**
-     * Content type id getter.
-     * @return int
-     * @throws NotImplementedException
-     */
-    public static function getContentTypeId(): int
-    {
-        if (!static::$content_type_id) {
-            throw new NotImplementedException('Content type id not set in ' . get_called_class() . '.');
-        }
-        return static::$content_type_id;
     }
 
     /**
@@ -137,11 +161,25 @@ class ContentFilters extends FilterCollection
 
     /**
      * Content type id setter.
-     * @param int $content_id
-     * @return void
+     * @param int|null $content_type_id
+     * @return $this
+     * @throws FailedQueryException
+     * @throws InvalidTypeException
+     * @throws ReadException
+     * @throws RecordNotFoundException
      */
-    public static function setContentTypeId(int $content_id): void
+    public function setContentTypeId(int|null $content_type_id): static
     {
-        static::$content_type_id = $content_id;
+        if (isset($this->content_properties)) {
+            $this->content_properties->setRecordId($content_type_id);
+            if ($content_type_id > 0) {
+                $this->content_properties->read();
+            }
+        }
+        elseif ($content_type_id > 0) {
+            $this->content_properties = static::newContentPropertiesInstance(content_type_id: $content_type_id);
+        }
+        static::$content_type_id = $content_type_id;
+        return $this;
     }
 }

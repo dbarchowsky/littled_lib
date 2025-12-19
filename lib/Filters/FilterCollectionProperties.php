@@ -54,10 +54,10 @@ class FilterCollectionProperties extends AppContentBase
      */
     function __construct()
     {
-        $this->page = new IntegerContentFilter('Page', $this::PAGE_KEY, null, null, $this::getCookieKey());
-        $this->listings_length = new IntegerContentFilter('Page length', $this::LISTINGS_LENGTH_KEY, $this::getDefaultListingsLength(), null, $this::getCookieKey());
-        $this->next = new StringContentFilter('Next', $this::NEXT_OPERATION_KEY, '', 16, $this::getCookieKey());
-        $this->display_listings = new BooleanContentFilter('Display listings', $this::FILTER_KEY, false, null, $this::getCookieKey());
+        $this->page = new IntegerContentFilter('Page', static::PAGE_KEY, null, null, static::getCookieKey());
+        $this->listings_length = new IntegerContentFilter('Page length', static::LISTINGS_LENGTH_KEY, static::getDefaultListingsLength(), null, static::getCookieKey());
+        $this->next = new StringContentFilter('Next', static::NEXT_OPERATION_KEY, '', 16, static::getCookieKey());
+        $this->display_listings = new BooleanContentFilter('Display listings', static::FILTER_KEY, false, null, static::getCookieKey());
         $this->referer_uri = '';
     }
 
@@ -92,7 +92,7 @@ class FilterCollectionProperties extends AppContentBase
      */
     public static function getDefaultListingsLength(): int
     {
-        if (!static::$default_listings_length) {
+        if (!isset(static::$default_listings_length)) {
             throw new NotImplementedException('Default listings length value not set in ' . get_called_class() . '.');
         }
         return static::$default_listings_length;
@@ -134,7 +134,7 @@ class FilterCollectionProperties extends AppContentBase
      */
     public static function getPageListCollapsePoint(): int
     {
-        return (int)((FilterCollectionProperties::LINKS_OFFSET * 2) + (FilterCollectionProperties::LINKS_END_LENGTH * 2) + 1);
+        return (int)((static::LINKS_OFFSET * 2) + (static::LINKS_END_LENGTH * 2) + 1);
     }
 
     /**
@@ -151,7 +151,7 @@ class FilterCollectionProperties extends AppContentBase
     }
 
     /**
-     * Setter for key used to preserve filter values in cookie data.
+     * Setter for a key used to preserve filter values in cookie data.
      * @param string $key
      */
     public static function setCookieKey(string $key): void
