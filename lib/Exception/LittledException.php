@@ -3,6 +3,7 @@
 namespace Littled\Exception;
 
 use Exception;
+use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
@@ -28,7 +29,7 @@ class LittledException extends Exception
      */
     #[ReturnTypeWillChange] public function __toString()
     {
-        return static::class . ": [$this->code]: {$this->message}\n";
+        return static::class . " [$this->code]: {$this->message}\n";
     }
 
     public function getExceptionTypeMessage(): string
@@ -43,5 +44,15 @@ class LittledException extends Exception
             return static::class;
         }
         return substr(static::class, $pos + 1);
+    }
+
+    /**
+     * Returns a formatted error message with the exception class name.
+     * @param string $message
+     * @return string
+     */
+    public function throwMessage(string $message): string
+    {
+        return "$message: (" . static::getBaseClass(static::class) . " [$this->code]) {$this->message}\n";
     }
 }
