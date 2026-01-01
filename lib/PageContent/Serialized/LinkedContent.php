@@ -9,7 +9,6 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
-use Littled\Log\Log;
 
 
 abstract class LinkedContent extends SerializedContent
@@ -162,18 +161,7 @@ abstract class LinkedContent extends SerializedContent
         if ($this->id->hasData() && $this->id->isDatabaseField()) {
             parent::read();
         }
-
-        try {
-            $this->hydrateFromQuery(...$this->formatRecordSelectQuery());
-        } catch (RecordNotFoundException) {
-            $table = '[ERR:TABLE NAME NOT CONFIGURED IN CLASS ' . Log::getClassBasename($this::class). ']';
-            try {
-                $table = $this::getTableName();
-            }
-            catch(ConfigurationUndefinedException) { /* skip */ }
-            throw new RecordNotFoundException("The requested $table record was not found.");
-        }
-
+        $this->hydrateFromQuery(...$this->formatRecordSelectQuery());
         $linked = $this->getContentPropertiesList();
         foreach($linked as $property) {
 

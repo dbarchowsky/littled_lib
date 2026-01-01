@@ -101,9 +101,9 @@ trait PropertyEvaluations
         // don't allow ::isDatabaseProperty() to update $used_keys collection
         $used_keys = $saved;
 
-        // don't include primary key properties by default, unless it's not a top-level object as indicated by...
-        // (a) The object has a recordset prefix, something like "child_" for a structure like parent.child_id
-        // (b) The object has overridden its $id->key default value, e.g., with something like "child_id"
+        // Don't include primary key properties by default, unless it's not a top-level object as indicated by:
+        // (A) The object has a recordset prefix, something like "child_" for a structure like parent.child_id.
+        // (B) The object has overridden its $id->key default value, e.g., with something like "child_id".
         if ($property === LittledGlobals::ID_KEY &&
             !$this->hasRecordsetPrefix() &&
             $item->getColumnName(LittledGlobals::ID_KEY) === LittledGlobals::ID_KEY) {

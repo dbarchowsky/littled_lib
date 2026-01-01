@@ -1,7 +1,6 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Validation\Validation;
@@ -85,7 +84,6 @@ abstract class OneToManyRecordLink extends LinkedContent
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
     public function recordExists(): bool

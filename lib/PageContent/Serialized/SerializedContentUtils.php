@@ -353,6 +353,7 @@ class SerializedContentUtils extends AppContentBase
     /**
      * Sets the "required" flag of any properties used to link the object to other objects.
      * @param bool $required
+     * @return SerializedContentUtils
      */
     public function setIsRequired(bool $required): static
     {

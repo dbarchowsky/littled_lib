@@ -30,7 +30,6 @@ abstract class SerializedContent extends SerializedContentIO
     protected static string $default_id_key = LittledGlobals::ID_KEY;
 
     /**
-     * @inheritDoc
      * @param ?int $id Optional initial value to assign to the object's id property.
      */
     function __construct(?int $id = null)
@@ -143,8 +142,7 @@ abstract class SerializedContent extends SerializedContentIO
             $this->query($query, 'i', $this->id->value);
             return ("The record has been deleted. \n");
         }
-        catch(FailedQueryException |
-            ConfigurationUndefinedException $e) {
+        catch(FailedQueryException $e) {
             $err_msg = 'Error deleting the record: [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($err_msg);
         }
@@ -161,7 +159,6 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @return array
-     * @throws ConfigurationUndefinedException
      */
     protected function formatCommitQuery(): array
     {
@@ -195,7 +192,6 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
      */
     protected function formatRecordSelectQuery(): array
     {
@@ -333,10 +329,6 @@ abstract class SerializedContent extends SerializedContentIO
             $error_msg = 'The requested ' . strtolower(static::getContentLabel()) . ' record was not found.';
             throw new RecordNotFoundException($error_msg);
         }
-        catch (ConfigurationUndefinedException $e) {
-            $msg = 'Error retrieving record data. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
-            throw new FailedQueryException($msg);
-        }
 
         $this->readLinked();
         return $this;
@@ -358,8 +350,7 @@ abstract class SerializedContent extends SerializedContentIO
             $data = $this->fetchRecords($query, 'i', $this->id->value);
             return ((int)('0' . $data[0]->record_exists) === 1);
         }
-        catch (FailedQueryException|
-        ConfigurationUndefinedException $e) {
+        catch (FailedQueryException $e) {
             $msg = 'Error testing for record. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
             throw new FailedQueryException($msg);
         }

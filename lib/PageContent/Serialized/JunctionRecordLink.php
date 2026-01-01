@@ -1,7 +1,7 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
 use Littled\Request\ForeignKeyInput;
 use Littled\Request\PrimaryKeyInput;
@@ -35,7 +35,7 @@ abstract class JunctionRecordLink extends LinkedContent
 
     /**
      * @inheritdoc
-     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      */
     public function delete(): string
     {
@@ -44,7 +44,7 @@ abstract class JunctionRecordLink extends LinkedContent
                 return '';
             }
         }
-        catch (ConfigurationUndefinedException|InvalidStateException) {
+        catch (InvalidStateException) {
             return '';
         }
         $query = 'DELETE FROM `' . self::getTableName() . '` ' .
@@ -114,7 +114,7 @@ abstract class JunctionRecordLink extends LinkedContent
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      * @throws InvalidStateException
      */
     public function recordExists(): bool
