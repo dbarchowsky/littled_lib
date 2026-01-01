@@ -389,7 +389,7 @@ abstract class APIRoute extends APIRouteProperties
         try {
             $route_parts = $this
                 ->getContentProperties()
-                ->getContentRouteByOperation($this->operation->value ?? APIRecordRoute::LISTINGS_TOKEN)
+                ->getContentRouteByOperation($this->operation->value ?? APIRouteProperties::LISTINGS_TOKEN)
                 ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
         } catch (Error) {
             throw new RecordNotFoundException('Content route not found.');

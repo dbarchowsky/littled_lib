@@ -64,7 +64,7 @@ class JSONField
     }
 
     /**
-     * Foramt property setter.
+     * Format property setter.
      * @param string $format
      * @return $this
      */
