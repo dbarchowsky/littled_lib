@@ -10,6 +10,7 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
@@ -83,7 +84,7 @@ class ContentFilters extends FilterCollection
             if ($this->getContentTypeId() > 0) {
                 $this->content_properties = static::newContentPropertiesInstance(
                     properties_class: $properties_class,
-                    content_type_id: static::getContentTypeId())
+                    content_type_id: $this->getContentTypeId())
                     ->shareConnection($this)
                     ->read();
                 if (!$this->hasConnection()) {
@@ -160,26 +161,54 @@ class ContentFilters extends FilterCollection
     }
 
     /**
-     * Content type id setter.
-     * @param int|null $content_type_id
-     * @return $this
+     * Retrieves content properties from the database and loads them into the $content_properties property of the object
+     * if a content type has been set.
+     * @return void
      * @throws FailedQueryException
      * @throws InvalidTypeException
      * @throws ReadException
      * @throws RecordNotFoundException
      */
+    public function retrieveContentProperties(): void
+    {
+        if (!isset($this->content_properties)) {
+            $this->content_properties = static::newContentPropertiesInstance(content_type_id: static::$content_type_id ?? null);
+        }
+        if ($this->content_properties->hasRecordData()) {
+            return;
+        }
+        if ($this->content_properties->getRecordId() > 0) {
+            $this->content_properties->read();
+            return;
+        }
+        if (static::$content_type_id > 0) {
+            $this->content_properties->setRecordId(static::$content_type_id);
+            $this->content_properties->read();
+        }
+    }
+
+    /**
+     * Content type id setter.
+     * @param int|null $content_type_id
+     * @return $this
+     * @throws RecordUnavailableException
+     */
     public function setContentTypeId(int|null $content_type_id): static
     {
-        if (isset($this->content_properties)) {
-            $this->content_properties->setRecordId($content_type_id);
-            if ($content_type_id > 0) {
-                $this->content_properties->read();
+        try {
+            if (isset($this->content_properties)) {
+                $this->content_properties->setRecordId($content_type_id);
+                if ($content_type_id > 0) {
+                    $this->content_properties->read();
+                }
+            } elseif ($content_type_id > 0) {
+                $this->content_properties = static::newContentPropertiesInstance(content_type_id: $content_type_id);
             }
+            static::$content_type_id = $content_type_id;
         }
-        elseif ($content_type_id > 0) {
-            $this->content_properties = static::newContentPropertiesInstance(content_type_id: $content_type_id);
+        catch (FailedQueryException|InvalidTypeException|ReadException|RecordNotFoundException $ex) {
+            throw new RecordUnavailableException($ex->throwMessage('Unable to load content properties'));
         }
-        static::$content_type_id = $content_type_id;
         return $this;
     }
 }
