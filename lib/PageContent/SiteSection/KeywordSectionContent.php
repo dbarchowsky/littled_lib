@@ -41,7 +41,7 @@ class KeywordSectionContent extends SectionContent
      * @param ?int $id ID Optional value representing this object's record in the database. Defaults to NULL.
      * @param ?int $content_type_id Optional ID of this object's content type. Defaults to NULL.
      */
-    function __construct($id = null, $content_type_id = null)
+    function __construct(int|null $id = null, int|null $content_type_id = null)
     {
         parent::__construct($id, $content_type_id ?: $this->getContentTypeId());
 

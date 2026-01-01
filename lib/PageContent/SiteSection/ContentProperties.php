@@ -8,7 +8,7 @@ use Littled\Exception\InvalidStateException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
-use Littled\Log\Log;
+use Littled\Exception\RecordUnavailableException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerSelect;
@@ -92,10 +92,9 @@ class ContentProperties extends SerializedContent
     /**
      * Delete this record from the database. Clears parent id of any child records.
      * @return string Message indicating the result of the deletion.
-     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
-     * @throws RecordNotFoundException
      * @throws InvalidStateException
+     * @throws RecordNotFoundException
      */
     public function delete(): string
     {
@@ -166,24 +165,23 @@ class ContentProperties extends SerializedContent
 
     /**
      * Content label getter.
-     * @param bool $read_if_empty Flag to retrieve label from database if a value isn't present.
+     * @param bool $read_if_empty Flag to retrieve the label from the database if a value isn't present.
      * @return string
      * @throws NotInitializedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function getContentLabel(bool $read_if_empty=false): string
     {
         if ($this->label->value.'' === '' && $this->name->value.'' === '' && $read_if_empty) {
-            if (($this->id->value ?: 0) < 1) {
+            if (($this->getRecordId() ?: 0) < 1) {
                 $err_msg = 'A request was made to retrieve the content label, but a record id was not provided.';
                 throw new NotInitializedException($err_msg);
             }
             try {
                 $this->read();
             }
-            catch (FailedQueryException|RecordNotFoundException $ex) {
-                $msg = 'Error retrieving content record. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
-                throw new ReadException($msg);
+            catch (FailedQueryException|RecordNotFoundException|ReadException $ex) {
+                throw new RecordUnavailableException($ex->throwMessage('Error retrieving content record'));
             }
         }
         return $this->label->value ?: $this->name->value;
@@ -210,20 +208,20 @@ class ContentProperties extends SerializedContent
     /**
      * Retrieves the content type for the parent of the current content type.
      * @return ?int Content type id of the parent record.
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws Exception
      */
     public function getParentTypeID(): ?int
     {
         if ($this->id->value === null || $this->id->value < 1) {
             return null;
         }
-        $query = 'CALL siteSectionParentTypeID(?);';
+        $query = 'CALL siteSectionParentTypeIDSelect(?)';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         if (count($data) < 1) {
             throw new RecordNotFoundException('Parent content type not found.');
         }
-        return ($data[0]->content_type_id);
+        return $data[0]->parent_id;
     }
 
     /**
@@ -240,18 +238,16 @@ class ContentProperties extends SerializedContent
      * @param int|null $content_type_id
      * @param string $operation
      * @param string $route
-     * @param string $url
      * @return ContentRoute
      */
     protected function newRouteInstance(
         ?int   $record_id = null,
         ?int   $content_type_id = null,
         string $operation = '',
-        string $route = '',
-        string $url = ''
+        string $route = ''
     ): ContentRoute
     {
-        return new ContentRoute($record_id, $content_type_id, $operation, $route, $url);
+        return new ContentRoute($record_id, $content_type_id, $operation, $route);
     }
 
     /**
@@ -290,7 +286,7 @@ class ContentProperties extends SerializedContent
 
     /**
      * @inheritDoc
-     * Overrides parent routine to call procedure to retrieve item properties along with extended item properties.
+     * Overrides parent routine to instead call procedure to retrieve item properties along with extended item properties.
      */
     public function read(): static
     {
@@ -365,7 +361,7 @@ class ContentProperties extends SerializedContent
      * Makes the content type id property required.
      * @return $this
      */
-    public function setAsNOtRequired(): static
+    public function setAsNotRequired(): static
     {
         $this->id->setAsNotRequired();
         return $this;

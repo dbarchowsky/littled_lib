@@ -10,9 +10,9 @@ use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
-use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\StringInput;
@@ -152,8 +152,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Alias for retrieveSectionProperties()
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function fetchProperties(): void
     {
@@ -253,8 +252,7 @@ abstract class SectionContent extends SerializedContent
     /**
      * Retrieves the content record from the database.
      * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function read(): static
     {
@@ -262,9 +260,8 @@ abstract class SectionContent extends SerializedContent
             parent::read();
             $this->retrieveSectionProperties();
         }
-        catch (FailedQueryException|RecordNotFoundException $ex) {
-            $msg = 'Error retrieving content record. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
-            throw new ReadException($msg);
+        catch (FailedQueryException|ReadException|RecordNotFoundException $ex) {
+            throw new RecordUnavailableException($ex->throwMessage('Error retrieving content record'));
         }
         return $this;
     }
@@ -291,8 +288,7 @@ abstract class SectionContent extends SerializedContent
 
     /**
      * Retrieves site section properties and stores that data in object properties.
-     * @throws ConfigurationUndefinedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function retrieveSectionProperties(): void
     {
@@ -303,9 +299,8 @@ abstract class SectionContent extends SerializedContent
             $this->content_properties->read();
         }
         catch (
-            FailedQueryException|RecordNotFoundException $ex) {
-            $msg = 'Error retrieving site section properties. (' . Log::getClassBaseName($ex::class) . ') ' . $ex->getMessage();
-            throw new ReadException($msg);
+            FailedQueryException|ReadException|RecordNotFoundException $ex) {
+            throw new RecordUnavailableException($ex->throwMessage('Error retrieving content properties'));
         }
     }
 
