@@ -36,7 +36,7 @@ class JSONField
      */
     public static function escapeHTML(string $src): string
     {
-        return (str_replace('&', '&amp;', str_replace('>', '&gt;', subject: str_replace('<', '&lt;', mb_convert_encoding($src, 'UTF-8', 'ISO-8859-1')))));
+        return htmlspecialchars(mb_convert_encoding($src, 'UTF-8', 'ISO-8859-1'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
     /**
@@ -47,7 +47,7 @@ class JSONField
     {
         $func = function ($i) {
             if ($i instanceof JSONResponseBase) {
-                return ((object)$i->formatJson());
+                return ((object)$i->formatJSON());
             } else {
                 return ($i);
             }
@@ -61,5 +61,38 @@ class JSONField
             $val = number_format($val, 2);
         }
         $data[$this->name] = $val;
+    }
+
+    /**
+     * Foramt property setter.
+     * @param string $format
+     * @return $this
+     */
+    public function setFormat(string $format): static
+    {
+        $this->format = $format;
+        return $this;
+    }
+
+    /**
+     * Name property setter.
+     * @param string $name
+     * @return $this
+     */
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Value property setter.
+     * @param mixed $value
+     * @return $this
+     */
+    public function setValue(mixed $value): static
+    {
+        $this->value = $value;
+        return $this;
     }
 }
