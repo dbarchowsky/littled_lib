@@ -19,17 +19,17 @@ class JSONResponseBase
      * to be transmitted to another page as an AJAX response.
      * @return array
      */
-    public function formatJson(): array
+    public function formatJSON(): array
     {
-        $arr = array();
+        $arr = [];
         foreach ($this as $tag) {
             if ($tag instanceof JSONField) {
                 $tag->formatJSON($arr);
             } elseif ($tag instanceof JSONResponseBase) {
                 if ($tag->key) {
-                    $arr[$tag->key] = $tag->formatJson();
+                    $arr[$tag->key] = $tag->formatJSON();
                 } else {
-                    $arr = array_merge($arr, $tag->formatJson());
+                    $arr = array_merge($arr, $tag->formatJSON());
                 }
             }
         }
@@ -38,7 +38,7 @@ class JSONResponseBase
 
     /**
      * Sends json data as response to client.
-     * @param array $arr JSON data to send as a response to client
+     * @param array $arr JSON data to send as a response to the client
      */
     public static function sendJsonResponse(array $arr): void
     {
@@ -51,6 +51,6 @@ class JSONResponseBase
      */
     public function sendResponse(): void
     {
-        self::sendJsonResponse($this->formatJson());
+        self::sendJsonResponse($this->formatJSON());
     }
 }
