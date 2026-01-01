@@ -3,14 +3,11 @@ namespace Littled\PageContent\SiteSection;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerSelect;
-use Littled\Request\StringInput;
 use Littled\Request\StringTextField;
-use Littled\Request\URLTextField;
-use Littled\Validation\Validation;
 
 
 /**
@@ -22,12 +19,8 @@ class ContentRoute extends SerializedContent
     const                           PROPERTY_TOKEN_OPERATION = 'operation';
     /** @var string                 Token representing route property */
     const                           PROPERTY_TOKEN_ROUTE = 'route';
-    /** @var string                 Token representing api route path */
-    const                           PROPERTY_TOKEN_API_ROUTE = 'apiRoute';
     /** @var string                 Token representing route property in array format */
     const                           PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
-    /** @var string                 Token representing api route property in array format */
-    const                           PROPERTY_TOKEN_API_ROUTE_AS_ARRAY = 'apiRouteArray';
 
     /** @var int                    Value of this record in the site section table. */
     protected static int            $content_type_id = 34;
@@ -39,10 +32,6 @@ class ContentRoute extends SerializedContent
     public StringTextField          $operation;
     /** @var StringTextField        The route on the site to this content. */
     public StringTextField          $route;
-    /** @var StringTextField        The URL used to retrieve and refresh content. */
-    public StringTextField          $api_route;
-    /** @var StringTextField        The wildcard used to inject record ids into route strings. */
-    public StringTextField          $wildcard;
 
     /**
      * Class constructor
@@ -50,14 +39,12 @@ class ContentRoute extends SerializedContent
      * @param int|null $route_content_type_id
      * @param string $operation
      * @param string $route
-     * @param string $api_route
      */
     public function __construct(
         ?int   $id = null,
         ?int   $route_content_type_id = null,
         string $operation = '',
-        string $route = '',
-        string $api_route = '')
+        string $route = '')
     {
         parent::__construct($id);
 
@@ -67,21 +54,10 @@ class ContentRoute extends SerializedContent
         $this->site_section_id = new IntegerSelect('Site Section', 'routeSectionId', true, $route_content_type_id);
         $this->operation = new StringTextField('Name', 'routeOp', true, $operation, 45);
         $this->route = new StringTextField('Route', 'route', false, $route, 255);
-        $this->api_route = new URLTextField('URL', 'apiRoute', true, $api_route, 256);
-        $this->wildcard = new StringTextField('Wildcard', 'routeWC', false, '', 8);
     }
 
     /**
-     * Returns API route as array of its components.
-     * @return array
-     */
-    public function explodeAPIRoute(): array
-    {
-        return static::explodeRouteString($this->api_route->value);
-    }
-
-    /**
-     * Returns page route as array of its components.
+     * Returns a page route as an array of its components.
      * @return array
      */
     public function explodeRoute(): array
@@ -90,7 +66,7 @@ class ContentRoute extends SerializedContent
     }
 
     /**
-     * Returns route string as array of its components.
+     * Returns a route string as an array of its components.
      * @param string $route
      * @return array
      */
@@ -108,13 +84,11 @@ class ContentRoute extends SerializedContent
      */
     public function formatCommitQuery(): array
     {
-        return array('CALL contentRouteUpdate(@insert_id,?,?,?,?,?)',
-            'issss',
-            &$this->site_section_id->value,
-            &$this->operation->value,
-            &$this->route->value,
-            &$this->api_route->value,
-            &$this->wildcard->value);
+        return array('CALL contentRouteUpdate(@insert_id,?,?,?)',
+            'iss',
+            $this->site_section_id->value,
+            $this->operation->value,
+            $this->route->value);
     }
 
     /**
@@ -123,6 +97,21 @@ class ContentRoute extends SerializedContent
     public function getContentLabel(): string
     {
         return 'Content route';
+    }
+
+    /**
+     * Returns the name of the content type associated with this route.
+     * @return string
+     * @throws FailedQueryException
+     */
+    public function getContentTypeLabel(): string
+    {
+        $query = 'SELECT name FROM site_section WHERE id = ?';
+        $result = $this->fetchRecords($query, 'i', $this->site_section_id->value);
+        if (count($result) > 0) {
+            return $result[0]->name;
+        }
+        return '';
     }
 
     /**
@@ -137,8 +126,6 @@ class ContentRoute extends SerializedContent
             self::PROPERTY_TOKEN_OPERATION => $this->operation->value,
             self::PROPERTY_TOKEN_ROUTE => $this->route->value,
             self::PROPERTY_TOKEN_ROUTE_AS_ARRAY => explode('/', trim('' . $this->route->value, '/')),
-            self::PROPERTY_TOKEN_API_ROUTE => $this->api_route->value,
-            self::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY => explode('/', trim('' . $this->api_route->value, '/')),
             default => throw new InvalidValueException('Invalid property token.'),
         };
     }
@@ -148,45 +135,7 @@ class ContentRoute extends SerializedContent
      */
     public function hasRecordData(): bool
     {
-        return $this->api_route->value || $this->operation->value || $this->route->value;
-    }
-
-    /**
-     * Inject record id value into an api route string containing a wildcard character holding the place for
-     * the id value.
-     * @param int $record_id Record id value to insert into the route.
-     * @return string Route containing record id.
-     * @throws InvalidValueException
-     */
-    public function insertRecordIdIntoAPIRoute(int $record_id): string
-    {
-        return $this->insertRecordIdIntoRouteProperty($record_id, 'api_route');
-    }
-
-    /**
-     * Inject a record id value into a route string containing a wildcard character holding the place for the id value.
-     * @param int $record_id Record id value to insert into the route.
-     * @return string Route containing record id.
-     * @throws InvalidValueException
-     */
-    public function insertRecordIdIntoRoute(int $record_id): string
-    {
-        return $this->insertRecordIdIntoRouteProperty($record_id, 'route');
-    }
-
-    /**
-     * Inject a record id value into a route string containing a wildcard character holding the place for the id value.
-     * @param int $record_id Record id value to insert into the route.
-     * @param string $property Name of the route property to use to retrieve the base route value.
-     * @return string Route containing record id.
-     * @throws InvalidValueException
-     */
-    protected function insertRecordIdIntoRouteProperty(int $record_id, string $property): string
-    {
-        if (!property_exists($this, $property) || !Validation::isSubclass($this->$property, StringInput::class)) {
-            throw new InvalidValueException("Invalid route property \"$property\".");
-        }
-        return str_replace($this->wildcard->value, (string)$record_id, $this->$property->value);
+        return $this->operation->value || $this->route->value;
     }
 
     /**
@@ -195,7 +144,7 @@ class ContentRoute extends SerializedContent
      * @return $this
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
-     * @throws RecordNotFoundException
+     * @throws InvalidRouteException
      */
     public function lookupRoute(): ContentRoute
     {
@@ -211,22 +160,13 @@ class ContentRoute extends SerializedContent
             $this->site_section_id->value,
             $this->operation->value);
         if (count($result) < 1) {
-            throw new RecordNotFoundException('A matching content route record was not found.');
+            $content_label = strtoLower($this->getContentTypeLabel());
+            $msg = "A $content_label route is not registered for the \"{$this->operation->value}\" operation.";
+            throw new InvalidRouteException($msg);
         }
         /* id field is ignored in hydrateFromRRR() */
         $this->setRecordId($result[0]->id);
         $this->hydrateFromRecordsetRow($result[0]);
-        return $this;
-    }
-
-    /**
-     * Operation setter.
-     * @param string $route
-     * @return $this
-     */
-    public function setAPIRoute(string $route): ContentRoute
-    {
-        $this->api_route->value = $route;
         return $this;
     }
 
@@ -271,17 +211,6 @@ class ContentRoute extends SerializedContent
     public function setSiteSectionId(int $site_section_id): ContentRoute
     {
         $this->site_section_id->setInputValue($site_section_id);
-        return $this;
-    }
-
-    /**
-     * Site section id setter.
-     * @param string $wildcard
-     * @return $this
-     */
-    public function setWildcard(string $wildcard): ContentRoute
-    {
-        $this->wildcard->setInputValue($wildcard);
         return $this;
     }
 }

@@ -1,40 +1,33 @@
 <?php
 namespace Littled\API;
 
-use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\NotInitializedException;
-use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\PageContent\SiteSection\ContentProperties;
-use Littled\Validation\Validation;
 
 
 class APIListingsRoute extends APIRoute
 {
+    public function __construct()
+    {
+        static::setDefault('operation', APIRouteProperties::LISTINGS_TOKEN);
+        parent::__construct();
+    }
+
     /**
      * @inheritDoc
+     * @param array|null $src
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws InvalidStateException
      * @throws NotImplementedException
-     * @throws ConnectionException
+     * @throws RecordUnavailableException
      */
     public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData($src);
-        $content_type_id = Validation::collectIntegerRequestVar(LittledGlobals::CONTENT_TYPE_KEY, null, $src);
         if (!isset($this->filters)) {
-            if ($content_type_id === null || $content_type_id < 1) {
-                throw new ConfigurationUndefinedException('Content type not provided.');
-            }
-            $this->initializeFiltersObject($content_type_id);
+            $this->initializeFiltersObject();
         }
         $this->filters->collectFilterValues(true, [], $src);
         return $this;
@@ -68,40 +61,5 @@ class APIListingsRoute extends APIRoute
     public function hasContentPropertiesObject(): bool
     {
         return isset($this->filters);
-    }
-
-    /**
-     * @inheritDoc
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
-     * @throws NotInitializedException
-     */
-    protected function retrieveCoreContentProperties(): static
-    {
-        $this->filters->content_properties->read();
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidStateException
-     */
-    public function setContentTypeId(int $content_id): static
-    {
-        if (!isset($filters)) {
-            $this->initializeFiltersObject($content_id);
-        }
-        $this->filters->content_properties->id->setInputValue($content_id);
-        return $this;
     }
 }

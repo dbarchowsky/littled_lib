@@ -3,18 +3,14 @@ namespace Littled\API;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Log\Log;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -23,25 +19,32 @@ use Littled\Validation\Validation;
 
 class APIRecordRoute extends APIRoute
 {
-    public const LISTINGS_TOKEN = 'listings';
-
     protected static string $listings_token = self::LISTINGS_TOKEN;
 
     public SectionContent       $content;
 
+    public function __construct()
+    {
+        parent::__construct();
+        static::$default->operation = static::DETAILS_TOKEN;
+    }
+
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @param string $key
+     * @return APIRecordRoute
      * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
-    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
+    public function collectContentProperties(string $key = ContentProperties::ID_KEY): static
     {
-        parent::collectContentProperties($key);
-        $this->collectRecordId();
+        try {
+            parent::collectContentProperties($key);
+            $this->collectRecordId();
+        }
+        catch (ConfigurationUndefinedException|RecordUnavailableException $e) {
+            throw new RecordUnavailableException($e->throwMessage('Error collection record id value'));
+        }
         return $this;
     }
 
@@ -52,9 +55,8 @@ class APIRecordRoute extends APIRoute
      * @param ?array $src Optional array of variables to use instead of POST data.
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws ContentValidationException
+     * @throws RecordUnavailableException
      */
     public function collectRecordId(?array $src = null): APIRecordRoute
     {
@@ -62,12 +64,22 @@ class APIRecordRoute extends APIRoute
         if ($this->operation->hasData()) {
             $rp_id = $this->lookupRecordIdRoutePart();
             if ($rp_id) {
+                if (!isset($this->content)) {
+                    $this->initializeContentObject($this->content_type_id->value, $src);
+                }
                 $this->content->setRecordId(Validation::parseNumeric($rp_id));
                 if ($this->content->id->value > 0) {
                     return $this;
                 }
             }
         }
+
+        if (!isset($this->content)) {
+            $this->initializeContentObject($this->content_type_id->value, $src);
+        }
+
+        // save this value in case nothing is available in the request data
+        $start_id = $this->content->getRecordId();
 
         // next, collect record id value from an ajax or POST data using the input property's internal parameter name
         $this->content->id->collectRequestData($src);
@@ -77,19 +89,27 @@ class APIRecordRoute extends APIRoute
             return $this;
         }
 
-        // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value in an AJAX or POST data using the default record id key
+        // if the internal key value doesn't hold anything, and it's non-default, try looking up the record id value in
+        // AJAX or POST data using the default record id key
         if ($this->content->id->key != LittledGlobals::ID_KEY) {
             $this->content->id->value =
                 Validation::collectIntegerRequestVar(LittledGlobals::ID_KEY, null, $src);
+        }
+
+        // restored the previous value if nothing was available in the request data
+        if (($this->content->getRecordId() ?: 0) < 1) {
+            $this->content->setRecordId($start_id);
         }
         return $this;
     }
 
     /**
      * @inheritDoc
+     * @param array|null $src
+     * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @return $this
+     * @throws RecordUnavailableException
      */
     public function collectRequestData(?array $src = null): APIRoute
     {
@@ -99,6 +119,9 @@ class APIRecordRoute extends APIRoute
             $this->initializeContentObject(null, $src);
         }
         $this->content->collectRequestData($src);
+        if ($this->content->getRecordId() > 0) {
+            $this->retrieveContentData();
+        }
         $this->retrieveContentProperties();
         return $this;
     }
@@ -110,28 +133,40 @@ class APIRecordRoute extends APIRoute
     protected function confirmContentDBConnection(): void
     {
         if (isset($this->content)) {
-            $this->content->content_properties->shareConnection($this);
+            $this->content->shareConnection($this);
         }
         elseif (isset($this->filters)) {
-            $this->filters->content_properties->shareConnection($this);
+            $this->filters->shareConnection($this);
         }
     }
 
     /**
      * @inheritDoc
+     * @throws RecordUnavailableException
      */
     public function getContentProperties(): ContentProperties
     {
-        if ($this->hasContentPropertiesObject()) {
-            $this->confirmContentDBConnection();
-            if (isset($this->content)) {
-                return $this->content->content_properties;
+        try {
+            if ($this->hasContentPropertiesObject()) {
+                if (isset($this->content)) {
+                    $this->content->retrieveSectionProperties();
+                    return $this->content->content_properties;
+                }
+                else {
+                    $this->filters->retrieveContentProperties();
+                    return $this->filters->content_properties;
+                }
             }
-            else {
-                return $this->filters->content_properties;
-            }
+            $this->initializeFiltersObject($this->getContentTypeId());
+            return $this->filters->content_properties;
         }
-        return parent::getContentProperties();
+        catch (ConfigurationUndefinedException |
+            FailedQueryException |
+            InvalidTypeException |
+            ReadException |
+            RecordNotFoundException $e) {
+            throw new RecordUnavailableException($e->throwMessage('Error retrieving content properties'));
+        }
     }
 
     /**
@@ -165,24 +200,6 @@ class APIRecordRoute extends APIRoute
             return null;
         }
         return ($this->content->id->value === false ? null : $this->content->id->value);
-    }
-
-    /**
-     * Route wildcard getter.
-     * @return string
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    public function getRouteWildcard(): string
-    {
-        try {
-            $this->confirmRouteIsLoaded();
-        }
-        catch (NotInitializedException) {
-            return '';
-        }
-        return $this->route->wildcard->value;
     }
 
     /**
@@ -249,21 +266,15 @@ class APIRecordRoute extends APIRoute
      * Takes the current request URI and compares it to the object's route to determine if a record id
      * value is embedded in the request URI. It then returns the record id value as determined by the position of
      * the wildcard character or sequence stored in the corresponding content_route record.
-     * @param string|null $wildcard
-     * @return false|int
+     * @return bool|int
      * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
-    protected function lookupRecordIdRoutePart(?string $wildcard = null): false|int
+    protected function lookupRecordIdRoutePart(): bool|int
     {
         // load the route
         $this->confirmRouteIsLoaded();
-        $wildcard ??= $this->route->wildcard->value;
-        if (Validation::isStringBlank($wildcard)) {
-            return false;
-        }
+        $route_parts = $this->route->explodeRoute();
 
         // offset in request uri to the first route part
         if (!isset($_SERVER) || !array_key_exists('REQUEST_URI', $_SERVER)) {
@@ -271,17 +282,25 @@ class APIRecordRoute extends APIRoute
         }
         $uri = $_SERVER['REQUEST_URI'];
         $uri_parts = explode('/', trim($uri, '/'));
-        $route_parts = explode('/', trim($this->getRoutePath(), '/'));
+        if (!$this->matchRouteParts($uri_parts, $route_parts)) {
+            return false;
+        }
 
-        $index = array_search($wildcard, $route_parts);
-        if ($index !== false) {
-            if (count($uri_parts) > $index) {
-                $result = Validation::parseInteger($uri_parts[$index]);
-                return ($result === null ? false : $result);
+        $int_wildcards = [];
+        foreach (static::$placeholders as $ph) {
+            if ($ph->type === 'int') {
+                $int_wildcards[] = $ph->wildcard;
             }
-            else {
-                return false;
+        }
+        $i = 0;
+        foreach ($route_parts as $e) {
+            if (in_array($e, $int_wildcards)) {
+                if (count($uri_parts) > $i) {
+                    $result = Validation::parseInteger($uri_parts[$i]);
+                    return ($result === null ? false : $result);
+                }
             }
+            $i++;
         }
         return false;
     }
@@ -290,7 +309,7 @@ class APIRecordRoute extends APIRoute
      * Retrieves content data from the database
      * @return APIRecordRoute
      * @throws ConfigurationUndefinedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function retrieveContentData(): APIRecordRoute
     {
@@ -300,21 +319,7 @@ class APIRecordRoute extends APIRoute
         if (!($this->content->getRecordId() > 0)) {
             throw new ConfigurationUndefinedException('A record id was not provided.');
         }
-        try {
-            $this->content->read();
-        } catch (
-            ConfigurationUndefinedException |
-            ConnectionException |
-            ContentValidationException |
-            FailedQueryException |
-            InvalidStateException |
-            InvalidTypeException |
-            InvalidValueException |
-            NotInitializedException |
-            RecordNotFoundException $e) {
-            $msg = 'Error retrieving record: (' . Log::getClassBaseName($e::class) . ') ' . $e->getMessage();
-            throw new ReadException($msg);
-        }
+        $this->content->read();
         return $this;
     }
 
@@ -323,10 +328,7 @@ class APIRecordRoute extends APIRoute
      * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws ReadException
-     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function retrieveContentObjectAndData(): APIRecordRoute
     {
@@ -338,24 +340,39 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Hydrates the content properties object by retrieving data from the database.
-     * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
+     * @inheritDoc
      */
-    public function retrieveCoreContentProperties(): static
+    public function retrieveCoreContentProperties(?array $src = null, string $key = ContentProperties::ID_KEY): static
     {
-        if (!$this->hasContentPropertiesObject()) {
-            throw new ConfigurationUndefinedException('Content object not available.');
+        $content_type_id = $this->getContentTypeId();
+        if ($content_type_id === null) {
+            throw new ConfigurationUndefinedException('Content type not available.');
         }
-        $this->confirmContentDBConnection();
-        $this->content->content_properties->read();
+        try {
+            if (isset($this->content)) {
+                // considering the content type id value may come from AJAX or POST data and may be different from
+                // an existing value, reload the content properties from the database with the current value
+                $this->content->setContentType($content_type_id);
+                $this->content->retrieveSectionProperties();
+            } elseif (isset($this->filters)) {
+                // reload content properties goes if there is a filters object initialized but no content object
+                $this->filters->setContentTypeId($content_type_id);
+                $this->filters->retrieveContentProperties();
+            } else {
+                // store content properties in the content object if there is currently no content or filters object
+                $this->initializeContentObject($content_type_id, $src);
+                $this->content->retrieveSectionProperties();
+            }
+        }
+        catch (ContentValidationException|
+            FailedQueryException|
+            InvalidTypeException|
+            ReadException|
+            RecordNotFOundException $e) {
+            throw new RecordUnavailableException($e->throwMessage('Error retrieving content properties'));
+        }
+        $this->lookupRoute();
+        $this->lookupTemplate();
         return $this;
     }
 
@@ -372,15 +389,13 @@ class APIRecordRoute extends APIRoute
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
      */
-    public function setContentTypeId(int $content_id): APIRoute
+    public function setContentTypeId(?int $content_type_id): static
     {
-        if (!$this->hasContentPropertiesObject()) {
-            $this->initializeContentObject($content_id);
+        parent::setContentTypeId($content_type_id);
+        if (isset($this->content)) {
+            $this->content->setContentType($content_type_id);
         }
-        $this->content->content_properties->id->setInputValue($content_id);
         return $this;
     }
 
@@ -394,7 +409,10 @@ class APIRecordRoute extends APIRoute
         static::$listings_token = $token;
     }
 
-    public function setResponseContainerId(string $container_id = ''): APIRoute
+    /**
+     * @inheritDoc
+     */
+    public function setResponseContainerId(string $container_id = ''): static
     {
         parent::setResponseContainerId($container_id);
         $container_id = $this->json->container_id->value;

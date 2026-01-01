@@ -148,12 +148,14 @@ trait RouteTrait
     /**
      * Compares route parts with internal route parts, ignoring values that may have been inserted in place of
      * wildcard components of the route. Returns true if they match.
-     * @param array $rp
+     * @param array $route
+     * @param array|null $src
      * @return bool
      */
-    public static function matchRouteParts(array $rp): bool
+    public static function matchRouteParts(array $route, ?array $src=null): bool
     {
-        if (count(static::$route_parts) !== count($rp)) {
+        $src ??= static::$route_parts;
+        if (count($src) !== count($route)) {
             // a route with a different number of parts is automatically invalid
             return false;
         }
@@ -162,7 +164,7 @@ trait RouteTrait
         }
         foreach(static::$placeholders as $placeholder) {
             // a route is not allowed to contain placeholder values
-            if (in_array($placeholder->wildcard, $rp)) {
+            if (in_array($placeholder->wildcard, $route)) {
                 return false;
             }
         }
@@ -170,13 +172,13 @@ trait RouteTrait
         // pre-index by wildcard
         $placeholders = array_column(static::$placeholders, null, 'wildcard');
 
-        for ($i = 0; $i < count(static::$route_parts); $i++) {
-            $placeholder = $placeholders[static::$route_parts[$i]] ?? null;
-            if ($placeholder && preg_match($placeholder->pattern, $rp[$i])) {
-                $rp[$i] = $placeholder->wildcard;
+        for ($i = 0; $i < count($src); $i++) {
+            $placeholder = $placeholders[$src[$i]] ?? null;
+            if ($placeholder && preg_match($placeholder->pattern, $route[$i])) {
+                $route[$i] = $placeholder->wildcard;
             }
         }
-        return static::$route_parts === $rp;
+        return $src === $route;
     }
 
     /**

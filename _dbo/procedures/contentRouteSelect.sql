@@ -11,9 +11,7 @@ BEGIN
         r.`id`,
         r.site_section_id,
         r.`operation`,
-        r.`route`,
-        r.`api_route`,
-        r.`wildcard`
+        r.`route`
     FROM `content_route` r
     WHERE (p_id IS NULL OR r.`id` = p_id)
     AND ((p_site_section_id IS NULL OR r.site_section_id = p_site_section_id))

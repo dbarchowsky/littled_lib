@@ -2,9 +2,15 @@
 namespace Littled\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidPropertyException;
+use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
+use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Log\Log;
 use Littled\PageContent\Cache\ContentCache;
 use Littled\PageContent\ContentController;
@@ -15,21 +21,21 @@ use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
 use Littled\Utility\LittledUtility;
-use Exception;
 
 
 abstract class APIRouteProperties extends RouteBase
 {
     /** @var string */
     public const                TEMPLATE_TOKEN_KEY = 'templateToken';
+    public const                DETAILS_TOKEN = 'details';
+    public const                LISTINGS_TOKEN = 'listings';
+
 
     /** @var string             Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
     protected static string     $cache_class = ContentCache::class;
     /** @var string             Name a \Littled\PageContent\ContentController class to use as a content controller. */
     protected static string     $controller_class = ContentController::class;
-    /** @var string             Name of the default template to use in derived classes to generate markup. */
-    protected static string     $default_template_dir = '';
-    protected static string     $default_template_name = '';
+    protected static APIRouteDefaultProperties $default;
     /** @var string             String indicating the action to be taken on the page. */
     public string               $action = '';
     public IntegerInput         $content_type_id;
@@ -42,10 +48,14 @@ abstract class APIRouteProperties extends RouteBase
     /** @var ?ContentRoute      Current content route properties. */
     public ?ContentRoute        $route;
 
+    /**
+     * APIRouteProperties constructor.
+     * @throws InvalidPropertyException
+     */
     public function __construct()
     {
         $this->json = new JSONRecordResponse();
-        $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefaultTemplateName(), 45);
+        $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefault('operation'), 45);
         $this->action = '';
         $this->content_type_id = (new IntegerInput())
             ->setLabel('Content type')
@@ -53,11 +63,39 @@ abstract class APIRouteProperties extends RouteBase
     }
 
     /**
-     * Confirms that a content route has been initialized or attempts to initialize the $route property of the object
-     * if a route has not been initialized.
+     * Resets default property values to their defaults.
      * @return void
      */
-    abstract protected function confirmRouteIsLoaded(): void;
+    public static function clearDefaults(): void
+    {
+        static::$default = new APIRouteDefaultProperties();
+    }
+
+    /**
+     * Confirms that a content route has been initialized or attempts to initialize the $route property of the object
+     * if a route has not been initialized.
+     * @return bool
+     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
+     */
+    protected function confirmRouteIsLoaded(): bool
+    {
+        if (isset($this->route) &&
+            $this->route->operation->hasData() &&
+            $this->route->route->hasData()) {
+            return true;
+        }
+        if (($this->getContentTypeId() ?: 0) < 1) {
+            throw new ConfigurationUndefinedException('A content type value is required to load the route.');
+        }
+        if (!$this->operation->hasData()) {
+            throw new ConfigurationUndefinedException('An operation is required to load the route.');
+        }
+        if ($this->getContentTypeId() > 0 && $this->operation->hasData()) {
+            $this->fetchContentRoute();
+        }
+        return isset($this->route) && $this->route->route->hasData();
+    }
 
     /**
      * Cache class name getter.
@@ -77,15 +115,11 @@ abstract class APIRouteProperties extends RouteBase
      * @return string
      * @throws ConfigurationUndefinedException
      * @throws NotInitializedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function getContentLabel(): string
     {
-        $cp = $this->getContentProperties();
-        if (1 > $cp->getRecordId()) {
-            return '';
-        }
-        return $cp->getContentLabel();
+        return $this->getContentProperties()->getContentLabel();
     }
 
     /**
@@ -93,22 +127,49 @@ abstract class APIRouteProperties extends RouteBase
      * for already initialized ContentProperties objects
      * @return ContentProperties
      * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function getContentProperties(): ContentProperties
     {
-        // Do not check filters or content property for a content properties object here.
-        // Only check those properties in derived classes.
+        if (isset($this->filters)) {
+            return $this->filters->content_properties;
+        }
         return ($this->newContentPropertiesInstance())->shareConnection($this);
     }
 
     /**
      * Content type id getter.
      * @return ?int
-     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function getContentTypeId(): ?int
     {
-        return $this->getContentProperties()->id->value;
+        // first try content type id property value
+        if ($this->content_type_id->value > 0) {
+            return $this->content_type_id->value;
+        }
+
+        // fall back to the content properties object
+        if ($this->hasContentPropertiesObject()) {
+            try {
+                $record_id = $this->getContentProperties()->getRecordId();
+                if ($record_id > 0) {
+                    return $record_id;
+                }
+            } catch (ConfigurationUndefinedException) {
+                /* quiet IDE inspections */
+            }
+        }
+
+        // fall back to request data
+        $this->content_type_id->collectRequestData($_POST ?? []);
+        if ($this->content_type_id->value > 0) {
+            return $this->content_type_id->value;
+        }
+
+        // fall back to AJAX data
+        $this->content_type_id->collectAjaxRequestData((object)static::getAjaxRequestData());
+        return $this->content_type_id->value;
     }
 
     /**
@@ -134,37 +195,28 @@ abstract class APIRouteProperties extends RouteBase
     }
 
     /**
-     * Default token name getter.
-     * @return string
+     * Default properties getter.
+     * @param string $property
+     * @return mixed
+     * @throws InvalidPropertyException
      */
-    public static function getDefaultTemplateDir(): string
+    public static function getDefault(string $property): mixed
     {
-        return static::$default_template_dir;
-    }
-
-    /**
-     * Default token name getter.
-     * @return string
-     */
-    public static function getDefaultTemplateName(): string
-    {
-        return static::$default_template_name;
-    }
-
-    /**
-     * Returns the string value of the currently loaded api route.
-     * @return string
-     */
-    public function getAPIRoutePath(): string
-    {
-        $this->confirmRouteIsLoaded();
-        return $this->route->api_route->value;
+        if (!isset(static::$default)) {
+            static::$default = new APIRouteDefaultProperties();
+        }
+        if (!property_exists(static::$default, $property)) {
+            throw new InvalidPropertyException("\"$property\" is not a valid default property.");
+        }
+        return static::$default->{$property} ?? null;
     }
 
     /**
      * Returns the string value of the currently loaded route. This should be overwritten in derived classes
      * to return the api_route property value if that is the appropriate route for a given request.
      * @return string
+     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function getRoutePath(): string
     {
@@ -174,25 +226,76 @@ abstract class APIRouteProperties extends RouteBase
 
     /**
      * @inheritDoc
+     * @return string
      * @throws ConfigurationUndefinedException
-     * @throws Exception
+     * @throws InvalidPropertyException
      */
     public function getTemplatePath(): string
     {
         if (!isset($this->template)) {
             throw new ConfigurationUndefinedException('Content template is not set.');
         }
-        if (!static::getDefaultTemplateDir()) {
+        if (!static::getDefault('template_path')) {
             return $this->template->formatFullPath();
         }
-        return LittledUtility::joinPaths(static::getDefaultTemplateDir(), $this->template->path->value);
+        return LittledUtility::joinPaths(static::getDefault('template_path'), $this->template->path->value);
     }
 
     /**
      * Test if this instance has content properties currently loaded.
      * @return bool
      */
-    abstract public function hasContentPropertiesObject(): bool;
+    public function hasContentPropertiesObject(): bool
+    {
+        return isset($this->filters);
+    }
+
+    /**
+     * Retrieves content properties from the database and loads them into the $filters property of the object.
+     * @param ?int $content_type_id
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
+     */
+    protected function loadFiltersContentType(?int $content_type_id): void
+    {
+        if (isset($this->filters)) {
+            try {
+                $this->filters->content_properties->setRecordId($content_type_id);
+                if ($content_type_id > 0) {
+                    $this->filters->content_properties->read();
+                }
+            }
+            catch(FailedQueryException|ReadException|RecordNotFoundException $e) {
+                throw new RecordUnavailableException($e->throwMessage('Unable to load content properties'));
+            }
+            return;
+        }
+
+        try {
+            $this->initializeFiltersObject($content_type_id);
+        }
+        catch(ConfigurationUndefinedException|ConnectionException|InvalidStateException $e) {
+            throw new ConfigurationUndefinedException($e->throwMessage('Unable to load content properties'));
+        }
+    }
+
+    /**
+     * Assigns a new ContentFilters instance to the $filters property to clear any values that may have been
+     * previously loaded.
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected function reloadFilters(): void
+    {
+        if (!isset($this->filters)) {
+            return;
+        }
+        $this->filters = call_user_func(
+            [static::getControllerClass(), 'getContentFiltersObject'],
+            null,
+            $this);
+    }
 
     /**
      * Content cache class setter.
@@ -214,10 +317,22 @@ abstract class APIRouteProperties extends RouteBase
 
     /**
      * Content type id setter.
-     * @param int $content_id
+     * @param ?int $content_type_id
      * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
-    abstract public function setContentTypeId(int $content_id): static;
+    public function setContentTypeId(?int $content_type_id): static
+    {
+        $this->content_type_id->setInputValue($content_type_id);
+        if ($content_type_id > 0) {
+            $this->loadFiltersContentType($content_type_id);
+        }
+        else {
+            $this->reloadFilters();
+        }
+        return $this;
+    }
 
     /**
      * Sets the key value used to access the content type value in request data.
@@ -251,22 +366,20 @@ abstract class APIRouteProperties extends RouteBase
 
     /**
      * Default template directory path setter.
-     * @param string $path
+     * @param string $property
+     * @param mixed $value
      * @return void
+     * @throws InvalidPropertyException
      */
-    public static function setDefaultTemplateDir(string $path): void
+    public static function setDefault(string $property, mixed $value): void
     {
-        static::$default_template_dir = $path;
-    }
-
-    /**
-     * Default template name setter.
-     * @param string $name
-     * @return void
-     */
-    public static function setDefaultTemplateName(string $name): void
-    {
-        static::$default_template_name = $name;
+        if (!isset(static::$default)) {
+            static::$default = new APIRouteDefaultProperties();
+        }
+        if (!property_exists(static::$default, $property)) {
+            throw new InvalidPropertyException("\"$property\" is not a valid default property.");
+        }
+        static::$default->{$property} = $value;
     }
 
     /**
@@ -274,7 +387,7 @@ abstract class APIRouteProperties extends RouteBase
      * @param string $operation
      * @return $this
      */
-    public function setOperation(string $operation): APIRouteProperties
+    public function setOperation(string $operation): static
     {
         $this->operation->setInputValue($operation);
         return $this;
@@ -287,7 +400,7 @@ abstract class APIRouteProperties extends RouteBase
      * @return $this
      * @throws ConfigurationUndefinedException
      */
-    public function setResponseContainerId(string $container_id=''): APIRouteProperties
+    public function setResponseContainerId(string $container_id=''): static
     {
         if (!$container_id) {
             if (!isset($this->template) || !$this->template->hasData() || !$this->template->container_id->hasData()) {
@@ -305,7 +418,7 @@ abstract class APIRouteProperties extends RouteBase
      * @param string $content
      * @return $this
      */
-    public function setResponseContent(string $content): APIRouteProperties
+    public function setResponseContent(string $content): static
     {
         $this->json->setResponseContent($content);
         return $this;
@@ -318,7 +431,7 @@ abstract class APIRouteProperties extends RouteBase
      * @param string $container_id
      * @return $this
      */
-    public function setResponseData(string $content, string $status, string $container_id): APIRouteProperties
+    public function setResponseData(string $content, string $status, string $container_id): static
     {
         $this->json->setResponseData($content, $status, $container_id);
         return $this;
@@ -329,7 +442,7 @@ abstract class APIRouteProperties extends RouteBase
      * @param string $err
      * @return $this
      */
-    public function setResponseError(string $err): APIRouteProperties
+    public function setResponseError(string $err): static
     {
         $this->json->setErrorMessage($err);
         return $this;
@@ -340,7 +453,7 @@ abstract class APIRouteProperties extends RouteBase
      * @param string $status
      * @return $this
      */
-    public function setResponseStatus(string $status): APIRouteProperties
+    public function setResponseStatus(string $status): static
     {
         $this->json->setResponseStatus($status);
         return $this;

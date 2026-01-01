@@ -2,18 +2,21 @@
 namespace Littled\API;
 
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidStateException;
+use Littled\Exception\InvalidPropertyException;
+use Littled\Exception\InvalidRouteException;
+use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotInitializedException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Exception\ResponseException;
+use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\PageContent\SiteSection\ContentProperties;
@@ -29,15 +32,23 @@ use Throwable;
 abstract class APIRoute extends APIRouteProperties
 {
     /**
-     * Class destructor
+     * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
+     * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
+     * Defaults to LittledGlobals::CONTENT_TYPE_ID.
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidPropertyException
+     * @throws RecordUnavailableException
      */
-    public function __destruct()
+    public function collectContentProperties(string $key = ContentProperties::ID_KEY): APIRoute
     {
-        foreach ($this as $item) {
-            if (is_object($item) || is_array($item)) {
-                unset($item);
-            }
-        }
+        // use ajax request data by default
+        $ajax_data = static::getAjaxRequestData();
+        $this->retrieveCoreContentProperties($ajax_data, $key);
+        $this->collectOperation($ajax_data);
+        $this->lookupRoute();
+        $this->lookupTemplate();
+        return $this;
     }
 
     /**
@@ -64,55 +75,13 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
-     * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
-     * Defaults to LittledGlobals::CONTENT_TYPE_ID.
-     * @return $this
-     * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws FailedQueryException
-     * @throws ReadException
-     * @throws RecordNotFoundException
-     */
-    public function collectContentProperties(string $key = LittledGlobals::CONTENT_TYPE_KEY): APIRoute
-    {
-        // use ajax request data by default
-        $ajax_rd = static::getAjaxRequestData();
-
-        $cp = $this->getContentProperties();
-        if (!$cp->id->value) {
-            $content_type_id = $this->collectContentTypeIdFromRequestData($ajax_rd, [$key]);
-            if ($content_type_id === null) {
-                throw new ContentValidationException('Content type not specified.');
-            }
-            $this->setContentTypeId($content_type_id);
-        }
-        if ($this->getContentTypeId() === null) {
-            throw new ContentValidationException('Content type not specified.');
-        }
-        $this->getContentProperties()->read();
-
-        $saved = $this->operation->value;
-        $this->operation->collectRequestData($ajax_rd);
-        if (!$this->operation->value) {
-            $this->operation->value = $saved;
-        }
-        if (!$this->operation->value) {
-            $this->operation->value = static::getDefaultTemplateName();
-        }
-        $this->lookupTemplate();
-        return $this;
-    }
-
-    /**
      * Assigns filter values from client request data.
      * @param ?array $src Optional array containing client data to use to populate filter values.
      * @param ?int $content_type_id Optional content type numerical identifier that will be assigned as any new filter collection instances' content type.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidStateException
      * @throws NotImplementedException
+     * @throws RecordUnavailableException
      */
     public function collectFiltersRequestData(?array $src = null, ?int $content_type_id = null): void
     {
@@ -120,12 +89,41 @@ abstract class APIRoute extends APIRouteProperties
             $src = static::getAjaxRequestData() ?: $_POST;
         }
         if (!isset($this->filters)) {
+            $content_type_id ??= $this->getContentTypeId();
             if (!$content_type_id) {
                 throw new ConfigurationUndefinedException('Content type not provided.');
             }
             $this->initializeFiltersObject($content_type_id);
         }
         $this->filters->collectFilterValues(true, [], $src);
+    }
+
+    /**
+     * Assign an operation value using AJAX or POST data.
+     * AJAX or POST data will overwrite any existing value.
+     * If no other values are available, the default value will be used.
+     * @param ?array $src Optional array containing client data to use to populate filter values.
+     * @return void
+     * @throws InvalidPropertyException
+     */
+    protected function collectOperation(?array $src=null): void
+    {
+        // AJAX data has priority
+        $src ??= static::getAjaxRequestData();
+        $saved = $this->operation->value;
+
+        // Fallback to POST data
+        $this->operation->collectRequestData($src);
+
+        // Restore the previous value if nothing was available in AJAX or POST
+        if (!$this->operation->value) {
+            $this->operation->value = $saved;
+        }
+
+        // Finally, use the default value if available
+        if (!$this->operation->value) {
+            $this->operation->value = static::getDefault('operation');
+        }
     }
 
     /**
@@ -169,33 +167,15 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * @inheritDoc
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
-     */
-    protected function confirmRouteIsLoaded(): void
-    {
-        if (isset($this->route) && (
-            $this->route->operation->hasData() ||
-            $this->route->route->hasData() ||
-            $this->route->api_route->hasData() ||
-            $this->route->wildcard->hasData())) {
-            return;
-        }
-        $this->fetchContentRoute();
-    }
-
-    /**
      * Error handler. Catch the error and return the error message to the client making an ajax request.
      * @param int $err_no
      * @param string $err_str
      * @param string $err_file
      * @param ?int $err_line
-     * @returns never
+     * @return void
+     * @throws ResponseException
      */
-    public function errorHandler(int $err_no, string $err_str, string $err_file = '', ?int $err_line = null): never
+    public function errorHandler(int $err_no, string $err_str, string $err_file = '', ?int $err_line = null): void
     {
         // remove anything that might currently be in the output buffer
         while (ob_get_level()) {
@@ -214,9 +194,10 @@ abstract class APIRoute extends APIRouteProperties
     /**
      * Exception handler. Catch exceptions and return the error message to the client making ajax request.
      * @param Exception $ex
-     * @returns never
+     * @return void
+     * @throws ResponseException
      */
-    public function exceptionHandler(Throwable $ex): never
+    public function exceptionHandler(Throwable $ex): void
     {
         $this->json->returnError($ex->getMessage());
     }
@@ -229,19 +210,19 @@ abstract class APIRoute extends APIRouteProperties
      * @return $this
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
-     * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws InvalidRouteException
+     * @throws RecordUnavailableException
      */
     public function fetchContentRoute(?string $operation=null): APIRoute
     {
         $operation ??= $this->operation->value;
         if (!$this->getContentTypeId()) {
             $err_msg = 'The content route could not be retrieved. Content type not available.';
-            throw new NotInitializedException($err_msg);
+            throw new ConfigurationUndefinedException($err_msg);
         }
         if (Validation::isStringBlank($operation)) {
             $err_msg = 'The content route could not be retrieved. Operation not available.';
-            throw new NotInitializedException($err_msg);
+            throw new ConfigurationUndefinedException($err_msg);
         }
         $this->route = (new ContentRoute())
             ->shareConnection($this)
@@ -257,47 +238,47 @@ abstract class APIRoute extends APIRouteProperties
      * argument.
      * @param ?string $name
      * @return $this
-     * @throws ConfigurationUndefinedException|NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function fetchContentTemplate(?string $name=null): APIRoute
     {
         $name ??= $this->operation->value;
         if (!$this->getContentTypeId()) {
             $err_msg = 'The content template could not be retrieved. Content type not available.';
-            throw new NotInitializedException($err_msg);
+            throw new ConfigurationUndefinedException($err_msg);
         }
-        if (Validation::isStringBlank($name)) {
+        if (empty($name)) {
             $err_msg = 'The content template could not be retrieved. Operation not available.';
-            throw new NotInitializedException($err_msg);
+            throw new ConfigurationUndefinedException($err_msg);
         }
-        $this->template = (new ContentTemplate())
-            ->shareConnection($this)
-            ->setContentType($this->getContentTypeId())
-            ->setOperation($name)
-            ->lookupTemplateProperties();
+        try {
+            $this->template = (new ContentTemplate())
+                ->shareConnection($this)
+                ->setContentType($this->getContentTypeId())
+                ->setOperation($name)
+                ->lookupTemplateProperties();
+        }
+        catch (ConfigurationUndefinedException|NotInitializedException|RecordNotFoundException $e) {
+            throw new RecordUnavailableException($e->throwMessage('Unable to load content template'));
+        }
         return $this;
     }
 
     /**
      * Sets the data to be injected into templates.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws FailedQueryException
-     * @throws InvalidQueryException
-     * @throws InvalidValueException
-     * @throws RecordNotFoundException
+     * @return array
      */
     public function getTemplateContext(): array
     {
-        $context = array(
-            'page_data' => $this->newAPIRouteInstance()->shareConnection($this),
+        $context = [
+            'page_data' => $this,
             'content' => null,
-            'filters' => null);
+            'filters' => null];
         if (isset($this->filters)) {
-            return array_merge($context, array(
+            return array_merge($context, [
                 'filters' => &$this->filters,
-                'qs' => $this->filters->formatQueryString()));
+                'qs' => $this->filters->formatQueryString()]);
         }
         return $context;
     }
@@ -307,24 +288,33 @@ abstract class APIRoute extends APIRouteProperties
      * @param int|null $content_type_id
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidStateException
+     * @throws RecordUnavailableException
      */
     protected function initializeFiltersObject(?int $content_type_id = null): void
     {
-        $this->filters = call_user_func(
-            [static::getControllerClass(), 'getContentFiltersObject'],
-            $content_type_id ?: $this->getContentTypeId(),
-            $this);
-        $this->getContentProperties()->setRecordId($content_type_id);
+        $content_type_id ??= $this->getContentTypeId();
+        if (($content_type_id ?: 0) < 1) {
+            throw new ConfigurationUndefinedException('Content type not provided in ' . Log::getShortMethodName());
+        }
+        try {
+            $this->filters = call_user_func(
+                [static::getControllerClass(), 'getContentFiltersObject'],
+                $content_type_id ?: $this->getContentTypeId(),
+                $this);
+            $this->getContentProperties()->setRecordId($content_type_id);
+        }
+        catch(ConfigurationUndefinedException|ConnectionException|InvalidTypeException $e) {
+            throw new RecordUnavailableException($e->throwMessage('Unable to load content filters'));
+        }
     }
 
     /**
      * Inserts content into a content template. Stores the resulting markup in the object's internal "json" property.
      * @param array|null $context Optional array containing data to inject into the template.
      * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidPropertyException
      * @throws ResourceNotFoundException
-     * @throws Exception
      */
     public function loadTemplateContent(?array $context = null): APIRoute
     {
@@ -339,10 +329,14 @@ abstract class APIRoute extends APIRouteProperties
      * * property value to perform the lookup if the $operation parameter is not supplied.
      * @return $this
      * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function lookupRoute(string $operation = ''): APIRoute
     {
         $operation = $operation ?: $this->operation->value;
+        if (empty($operation)) {
+            return $this;
+        }
         $this->route = $this->getContentProperties()->getContentRouteByOperation($operation);
         return $this;
     }
@@ -353,10 +347,14 @@ abstract class APIRoute extends APIRouteProperties
      * @param string $operation
      * @return $this
      * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function lookupTemplate(string $operation = ''): APIRoute
     {
         $operation = $operation ?: $this->operation->value;
+        if (empty($operation)) {
+            return $this;
+        }
         $this->template = $this->getContentProperties()->getContentTemplateByName($operation);
         return $this;
     }
@@ -366,21 +364,21 @@ abstract class APIRoute extends APIRouteProperties
      * ContentProperties objects to the APIRoute class's methods.
      * @param int|null $record_id Initial content type record id value.
      * @return ContentProperties
+     * @throws RecordUnavailableException
      */
     protected function newContentPropertiesInstance(?int $record_id = null): ContentProperties
     {
-        return new ContentProperties($record_id);
+        return new ContentProperties($record_id ?: static::getContentTypeId());
     }
 
     /**
      * Returns an instance of a PageContent class used to render front-end content.
      * @return APIRoute
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
      * @throws InvalidValueException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     protected function newAPIRouteInstance(): APIRoute
     {
@@ -391,8 +389,8 @@ abstract class APIRoute extends APIRouteProperties
         try {
             $route_parts = $this
                 ->getContentProperties()
-                ->getContentRouteByOperation('listings')
-                ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_API_ROUTE_AS_ARRAY);
+                ->getContentRouteByOperation($this->operation->value ?? APIRecordRoute::LISTINGS_TOKEN)
+                ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
         } catch (Error) {
             throw new RecordNotFoundException('Content route not found.');
         }
@@ -419,6 +417,9 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * @inheritDoc
+     * @return APIRoute
+     * @throws ConfigurationUndefinedException
+     * @throws InvalidPropertyException
      * @throws ResourceNotFoundException
      */
     public function processRequest(): APIRoute
@@ -449,6 +450,7 @@ abstract class APIRoute extends APIRouteProperties
      * @param null|int $content_type_id
      * @return APIRoute
      * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
     public function retrieveContentProperties(?int $content_type_id = null): static
     {
@@ -467,9 +469,43 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * Hook for derived classes to fill their respective ContentProperties properties with data.
+     * @param array|null $src Optional array containing client data to use to populate filter values.
+     * @param string $key Optional key to use to retrieve the content type id from the array.
      * @return $this
+     * @throws ConfigurationUndefinedException
+     * @throws RecordUnavailableException
      */
-    abstract protected function retrieveCoreContentProperties(): static;
+    protected function retrieveCoreContentProperties(?array $src = null, string $key = ContentProperties::ID_KEY): static
+    {
+        $cp = $this->getContentProperties();
+        if (($cp->getRecordId() ?: 0) < 1) {
+            $content_type_id = $this->collectContentTypeIdFromRequestData($src, [$key]);
+            if ($content_type_id === null) {
+                throw new ConfigurationUndefinedException('Content type not specified.');
+            }
+            $this->setContentTypeId($content_type_id);
+        }
+        if ($this->getContentTypeId() === null) {
+            throw new ConfigurationUndefinedException('Content type not available.');
+        }
+        if (!isset($this->filters)) {
+            // make sure the content properties are attached to this object.
+            try {
+                $this->initializeFiltersObject();
+                $this->filters->retrieveContentProperties();
+                $this->lookupRoute();
+                $this->lookupTemplate();
+            }
+            catch (ConfigurationUndefinedException |
+                FailedQueryException |
+                InvalidTypeException |
+                ReadException |
+                RecordNotFoundException $e) {
+                throw new RecordUnavailableException($e->throwMessage('Unable to initialize filters object.'));
+            }
+        }
+        return $this;
+    }
 
     /**
      * Retrieve template properties from the database and store them in the page's template property.

@@ -19,30 +19,29 @@ use Exception;
 class ResortBase extends MySQLConnection
 {
     /** @var StringInput Edit DOM id */
-    public StringInput $edit_dom_id;
+    public StringInput      $edit_dom_id;
     /** @var array List of all record ids. */
-    public array $id_list = [];
+    public array            $id_list = [];
     /** @var ?int ID of parent record. */
-    public ?int $parent_id = null;
+    public ?int             $parent_id = null;
     /** @var StringInput List of all record positions. */
-    public StringInput $position_list;
+    public StringInput      $position_list;
     /** @var IntegerInput Position of active record within the overall list of records. */
-    public IntegerInput $position_offset;
+    public IntegerInput     $position_offset;
     /** @var ContentProperties Content properties. */
     public ContentProperties $content_properties;
     /** @var StringInput Table type. */
-    public StringInput $type;
+    public StringInput      $type;
     /** @var ?int Content type id. */
-    public ?int $type_id = null;
+    public ?int             $type_id = null;
     /** @var array Validation errors list. */
-    public array $validation_errors = [];
+    public array            $validation_errors = [];
 
     /**
      * ResortBase constructor.
      */
     function __construct()
     {
-        parent::__construct();
         $this->content_properties = new ContentProperties();
         $this->content_properties->id->required = true;
         $this->edit_dom_id = new StringInput('Edit DOM ID', 'rid', false, '', 100);

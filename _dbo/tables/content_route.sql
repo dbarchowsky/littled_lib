@@ -20,3 +20,10 @@ INSERT INTO content_route
 (site_section_id, operation, route, api_route, wildcard)
 VALUES
 (6037, 'add', '/test/add', '', '');
+
+INSERT INTO content_route (operation, route, site_section_id)
+SELECT CONCAT('api-', operation), api_route, site_section_id FROM content_route WHERE NULLIF(TRIM(api_route), '') IS NOT NULL;
+
+DELETE FROM content_route WHERE route IS NULL OR TRIM(route) = '';
+
+ALTER TABLE content_route DROP COLUMN api_route, DROP COLUMN wildcard;
