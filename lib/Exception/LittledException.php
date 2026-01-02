@@ -40,9 +40,6 @@ class LittledException extends Exception
     protected static function getBaseClass(): string
     {
         $pos = strrpos(static::class, '\\');
-        if ($pos === false) {
-            return static::class;
-        }
         return substr(static::class, $pos + 1);
     }
 
