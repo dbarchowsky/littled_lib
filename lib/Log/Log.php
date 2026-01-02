@@ -56,6 +56,6 @@ class Log
     {
         $debug = debug_backtrace();
         $class_path = explode('\\', $debug[1]['class']);
-        return end($class_path)."::".$debug[1]['function'];
+        return end($class_path). '::' .$debug[1]['function'];
     }
 }
