@@ -1,6 +1,7 @@
 <?php
 namespace Littled\Database;
 
+use ArgumentCountError;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -8,7 +9,6 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Exception;
-use Error;
 use mysqli;
 use mysqli_sql_exception;
 use mysqli_result;
@@ -225,7 +225,12 @@ trait MySQLOperations
             throw new FailedQueryException($msg);
         }
         if ($types) {
-            $stmt = $this->mysqli->prepare($query);
+            try {
+                $stmt = $this->mysqli->prepare($query);
+            }
+            catch(mysqli_sql_exception $ex) {
+                    throw new FailedQueryException('Could not prepare statement: ' . $ex->getMessage());
+            }
             if (!$stmt) {
                 throw new FailedQueryException('Could not prepare statement: ' . $this->mysqli->error);
             }
@@ -235,6 +240,9 @@ trait MySQLOperations
                 if (!$stmt->execute()) {
                     throw new FailedQueryException('Error fetching records: ' . $stmt->error);
                 }
+            }
+            catch(ArgumentCountError $ex) {
+                throw new FailedQueryException('Bad arguments to query: ' . $ex->getMessage());
             }
             catch(mysqli_sql_exception $ex) {
                 throw new FailedQueryException('Error fetching records: ' . $ex->getMessage());
