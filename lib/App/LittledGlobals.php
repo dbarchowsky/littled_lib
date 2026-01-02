@@ -30,7 +30,7 @@ class LittledGlobals
     const                           COMMIT_KEY = 'commit';
     /** @var string                 Key of the content type id request variable. */
     const                           CONTENT_TYPE_KEY = 'tid';
-    /** @var string                 Cookie variable containing value of flag indicating the user's consent to collecting cookie data */
+    /** @var string                 Cookie variable containing the value of a flag indicating the user's consent to collecting cookie data */
     const                           COOKIE_CONSENT_KEY = 'hasCookieConsent';
     /** @var string                 Key of the request variable used to pass CSRF tokens. */
     const                           CSRF_TOKEN_KEY = 'csrf';
@@ -139,7 +139,7 @@ class LittledGlobals
     }
 
     /**
-     * Gets path to current MySQL authentication directory.
+     * Gets a path to the current MySQL authentication directory.
      * @return string MySQL keys path.
      */
     public static function getMySQLKeysPath(): string
@@ -190,6 +190,15 @@ class LittledGlobals
             ->setUser($json->user ?? '')
             ->setPassword($json->password ?? '')
             ->setAESKey($json->aes_encrypt_key ?? '');
+    }
+
+    /**
+     * Sets the application base directory path.
+     * @param string $path Path to the application's base directory.
+     */
+    public static function setAppBaseDir(string $path): void
+    {
+        static::$app_base_dir = rtrim($path, '/') . '/';
     }
 
     /**
