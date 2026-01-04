@@ -145,14 +145,10 @@ class SerializedContentUtils extends AppContentBase
      */
     protected function hydrateFromQuery(string $query, string $arg_types = '', &...$args): void
     {
-        if ($arg_types) {
-            array_unshift($args, $query, $arg_types);
-            $data = $this->fetchRecords(...$args);
-        } else {
-            $data = $this->fetchRecords($query);
-        }
+        $data = $this->fetchRecords($query, $arg_types, ...$args);
         if (count($data) < 1) {
-            throw new RecordNotFoundException('Record not found.');
+            $msg = (ucfirst(strtolower(static::getContentLabel())) ?: 'Record') . ' not found.';
+            throw new RecordNotFoundException($msg);
         }
         $this->hydrateFromRecordsetRow($data[0]);
     }
