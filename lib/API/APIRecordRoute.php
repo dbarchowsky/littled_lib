@@ -229,8 +229,19 @@ class APIRecordRoute extends APIRoute
      */
     public function hasContentPropertiesObject(): bool
     {
-        return isset($this->content) || isset($this->filters);
+        return isset($this->content) || parent::hasContentPropertiesObject();
     }
+
+    /**
+     * Test if this instance has content properties currently loaded.
+     * @return bool
+     */
+    public function hasContentPropertiesData(): bool
+    {
+        return (isset($this->content->content_properties) && $this->content->content_properties->id->hasData()) ||
+            parent::hasContentPropertiesData();
+    }
+
 
     /**
      * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.

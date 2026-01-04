@@ -131,7 +131,7 @@ abstract class APIRouteProperties extends RouteBase
      */
     public function getContentProperties(): ContentProperties
     {
-        if (isset($this->filters)) {
+        if (isset($this->filters->content_properties)) {
             return $this->filters->content_properties;
         }
         return ($this->newContentPropertiesInstance())->shareConnection($this);
@@ -150,7 +150,7 @@ abstract class APIRouteProperties extends RouteBase
         }
 
         // fall back to the content properties object
-        if ($this->hasContentPropertiesObject()) {
+        if ($this->hasContentPropertiesData()) {
             try {
                 $record_id = $this->getContentProperties()->getRecordId();
                 if ($record_id > 0) {
@@ -248,6 +248,15 @@ abstract class APIRouteProperties extends RouteBase
     public function hasContentPropertiesObject(): bool
     {
         return isset($this->filters);
+    }
+
+    /**
+     * Test if this instance has content properties currently loaded.
+     * @return bool
+     */
+    public function hasContentPropertiesData(): bool
+    {
+        return isset($this->filters->content_properties) && $this->filters->content_properties->id->hasData();
     }
 
     /**

@@ -36,17 +36,6 @@ class APIListingsRoute extends APIRoute
     /**
      * @inheritDoc
      */
-    public function getContentProperties(): ContentProperties
-    {
-        if (isset($this->filters)) {
-            return $this->filters->content_properties;
-        }
-        return parent::getContentProperties();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getContentTypeKey(): string
     {
         if (isset($this->filters)) {
