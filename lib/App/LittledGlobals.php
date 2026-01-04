@@ -54,7 +54,7 @@ class LittledGlobals
      */
     public static function getAppBaseDir(): string
     {
-        if (!isset(static::$app_base_dir) || static::$app_base_dir === null) {
+        if (!isset(static::$app_base_dir) || static::$app_base_dir === null || static::$app_base_dir === '') {
             throw new ConfigurationUndefinedException(
                 'Application\'s base directory was not configured within the app.');
         }
@@ -198,6 +198,10 @@ class LittledGlobals
      */
     public static function setAppBaseDir(string $path): void
     {
+        if ($path === '') {
+            static::$app_base_dir = '';
+            return;
+        }
         static::$app_base_dir = rtrim($path, '/') . '/';
     }
 
