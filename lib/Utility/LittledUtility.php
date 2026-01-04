@@ -12,6 +12,7 @@ class LittledUtility
     /**
      * @deprecated Use LittledUtility::joinPaths() instead.
      * Joins parts of a filesystem path into a single path.
+     * @codeCoverageIgnore
      * @param string[] $parts
      * @return string
      */
