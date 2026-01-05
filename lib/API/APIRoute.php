@@ -434,7 +434,10 @@ abstract class APIRoute extends APIRouteProperties
      * @param string $next_operation Token determining which template to load.
      * @param array $context (Optional) Variables to insert into the template. When an array is provided, it will override the default template context. If not provided, the context will be generated using the object's
      * getTemplateContext() routine.
-     * @throws Exception
+     * @throws ConfigurationUndefinedException
+     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
+     * @throws ResourceNotFoundException
      */
     public function refreshContentAfterEdit(string $next_operation, array $context=[]): void
     {
