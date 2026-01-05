@@ -139,10 +139,11 @@ abstract class APIRouteProperties extends RouteBase
 
     /**
      * Content type id getter.
+     * @param ?array $runtime_data
      * @return ?int
      * @throws RecordUnavailableException
      */
-    public function getContentTypeId(): ?int
+    public function getContentTypeId(?array $runtime_data = null): ?int
     {
         // first try content type id property value
         if ($this->content_type_id->value > 0) {
@@ -162,7 +163,7 @@ abstract class APIRouteProperties extends RouteBase
         }
 
         // fall back to request data
-        $this->content_type_id->collectRequestData($_POST ?? []);
+        $this->content_type_id->collectRequestData($runtime_data ?? $_POST ?? []);
         if ($this->content_type_id->value > 0) {
             return $this->content_type_id->value;
         }

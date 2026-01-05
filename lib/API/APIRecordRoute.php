@@ -199,7 +199,7 @@ class APIRecordRoute extends APIRoute
         if (!isset($this->content)) {
             return null;
         }
-        return ($this->content->id->value === false ? null : $this->content->id->value);
+        return $this->content->getRecordId();
     }
 
     /**
@@ -242,34 +242,30 @@ class APIRecordRoute extends APIRoute
             parent::hasContentPropertiesData();
     }
 
-
     /**
      * Checks the "class" variable of the POST data and uses it to instantiate an object to be used to manipulate the record content.
      * @param ?int $content_type_id Optional content type id to use to retrieve content instance.
-     * @param ?array $src Optional array of variables to use instead of POST data.
+     * @param ?array $runtime_data Optional array of variables to use instead of POST data.
      * @return $this
-     * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws RecordUnavailableException
      */
-    public function initializeContentObject(?int $content_type_id = null, ?array $src = null): APIRecordRoute
+    public function initializeContentObject(?int $content_type_id = null, ?array $runtime_data = null): APIRecordRoute
     {
         if (isset($this->content) && Validation::isSubclass($this->content, SerializedContent::class)) {
             // already initialized
             return $this;
         }
 
+        $content_type_id ??= $this->getContentTypeId($runtime_data);
         if (!$content_type_id) {
-            if ($src === null) {
-                // ignore GET request data
-                $src = &$_POST;
-            }
-            $content_type_id = $this->collectContentTypeIdFromRequestData($src);
-            if (!$content_type_id) {
-                throw new ContentValidationException('Content type not provided.');
-            }
+            throw new ContentValidationException('Content type not provided.');
         }
+
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
         $this->content->shareConnection($this);
+        $this->content_type_id->value = $content_type_id;
         return $this;
     }
 
