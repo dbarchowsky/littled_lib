@@ -28,14 +28,14 @@ class RequestValidation extends StringValidation
                 array_key_exists(LittledGlobals::COOKIE_CONSENT_KEY, $_SESSION) &&
                 $_SESSION[LittledGlobals::COOKIE_CONSENT_KEY] === true)
         ) {
-            /** Cookie key can only be set with user's consent. */
+            /** Cookie key can only be set with the user's consent. */
             return true;
         }
         return false;
     }
 
     /**
-     * Get IP address of website visitor for the purposes of inspecting their location
+     * Get the IP address of a website visitor to inspect their location
      * @return string IP address
      */
     protected static function getClientIP(): string
@@ -80,13 +80,13 @@ class RequestValidation extends StringValidation
         $response = curl_exec($ch); // string
         curl_close($ch);
 
-        // lookup country in API response
+        // look up country in API response
         $ip_data = json_decode($response, true);
         return self::processGeoLookupResponse($ip_data);
     }
 
     /**
-     * Gets default input source. POST or REQUEST data if present, or API client data.
+     * Gets a default input source. POST or REQUEST data if present, or API client data.
      * @param array $ignore_keys Optional array of keys to ignore in GET or POST data
      * @return array
      */
@@ -101,11 +101,11 @@ class RequestValidation extends StringValidation
             return $src;
         }
         // fall back to API request client data
-        return AppBase::getAjaxRequestData() ?: [];
+        return AppBase::getAjaxRequestData() ?? [];
     }
 
     /**
-     * Tests if client is located in the European Union based on their IP.
+     * Tests if a client is located in the European Union based on their IP.
      * @param string $ip (Optional) explicit IP value to test.
      * @return bool True if the client request is determined to be originating in the EU.
      * @throws InvalidValueException
@@ -190,7 +190,7 @@ class RequestValidation extends StringValidation
 
     /**
      * Check for valid CSRF token.
-     * @param object|null $data Optional object that will contain the CSRF token. POST data is used by default if this
+     * @param object|null $data Optional object that will contain the CSRF token. POST-data is used by default if this
      * parameter is not supplied.
      * @return bool TRUE if the CSRF token is valid, FALSE otherwise.
      */
