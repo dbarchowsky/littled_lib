@@ -8,7 +8,8 @@ class InputValidation extends RequestValidation
 {
     /**
      * Retrieves any valid integer values passed as request parameters.
-     * @param int $input_type Token representing input type, e.g. INPUT_GET or INPUT_POST
+     * @codeCoverageIgnore
+     * @param int $input_type Token representing an input type, e.g., INPUT_GET or INPUT_POST
      * @param string $key Key in the input collection to use to collect values.
      * @param array $definition Filtering definition to pass to PHP's filter_input_array() routine.
      * @return array|null
@@ -33,10 +34,10 @@ class InputValidation extends RequestValidation
     /**
      * Returns request variable as explicit integer value, or null if the request variable is not set or does not
      * represent a float value.
-     * @param int $filter Filter to apply to the variable value, e.g. FILTER_VALIDATE_INT or FILTER_VALIDATE_FLOAT
+     * @param int $filter Filter to apply to the variable value, e.g., FILTER_VALIDATE_INT or FILTER_VALIDATE_FLOAT
      * @param string $key Key in the collection storing the value to look up.
-     * @param int|null $index Index of the array to look up, if the variable's value is an array.
-     * @param array|null $src Array to search for $key, e.g. $_GET or $_POST
+     * @param int|null $index Index of the array to look up if the variable's value is an array.
+     * @param array|null $src Array to search for $key, e.g., $_GET or $_POST
      * @return string|bool|null
      */
     protected static function _parseInput(
@@ -72,7 +73,7 @@ class InputValidation extends RequestValidation
     }
 
     /**
-     * Get default client request input source and check it for an existing value. Returns FALSE if no existing value
+     * Get the default client request input source and check it for an existing value. Returns FALSE if no existing value
      * is found.
      * @param array|null $src
      * @param string $key
@@ -91,7 +92,7 @@ class InputValidation extends RequestValidation
 
     /**
      * Returns TRUE/FALSE depending on the value of the requested input variable.
-     * @param string $key Input variable name in either GET  or POST data.
+     * @param string $key Input variable name in either GET or POST data.
      * @param int|null $index (Optional) index of the element to test, if the variable is an array.
      * @param array|null $src (Optional) array to use in place of GET or POST data.
      * @return bool|null TRUE/FALSE depending on the value of the input variable.
@@ -103,19 +104,19 @@ class InputValidation extends RequestValidation
         }
         $value = null;
         if ($index !== null) {
-            $arr = filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER, FILTER_REQUIRE_ARRAY);
+            $arr = filter_var($src[$key], RequestValidation::DEFAULT_REQUEST_FILTER, FILTER_REQUIRE_ARRAY);
             if (is_array($arr) && count($arr) >= ($index - 1)) {
                 $value = $arr[$index];
             }
         } else {
-            $value = $src[$key] === false ? false : trim(filter_var($src[$key], Validation::DEFAULT_REQUEST_FILTER));
+            $value = $src[$key] === false ? false : trim(filter_var($src[$key], RequestValidation::DEFAULT_REQUEST_FILTER));
         }
 
         return Validation::parseBoolean($value);
     }
 
     /**
-     * Converts script argument (query string or form data) to array of numeric values.
+     * Converts script argument (query string or form data) to an array of numeric values.
      * @param string $key Key containing potential numeric values.
      * @param ?array $src Array of variables to use instead of GET or POST data.
      * @return array|null Returns an array if values are found for the specified key. Null otherwise.
@@ -145,8 +146,8 @@ class InputValidation extends RequestValidation
      * Returns request variable as explicit integer value, or null if the request variable is not set or does not
      * represent a float value.
      * @param string $key Key in the collection storing the value to look up.
-     * @param int|null $index Index of the array to look up, if the variable's value is an array.
-     * @param array|null $src Array to search for $key, e.g. $_GET or $_POST
+     * @param int|null $index Index of the array to look up if the variable's value is an array.
+     * @param array|null $src Array to search for $key, e.g., $_GET or $_POST
      * @return int|null
      */
     public static function collectIntegerRequestVar(string $key, ?int $index = null, ?array $src = null): ?int
@@ -159,8 +160,8 @@ class InputValidation extends RequestValidation
      * Returns request variable as explicit integer value, or null if the request variable is not set or does not
      * represent a float value.
      * @param string $key Key in the collection storing the value to look up.
-     * @param int|null $index Index of the array to look up, if the variable's value is an array.
-     * @param array|null $src Array to search for $key, e.g. $_GET or $_POST
+     * @param int|null $index Index of the array to look up if the variable's value is an array.
+     * @param array|null $src Array to search for $key, e.g., $_GET or $_POST
      * @return float|int|null
      */
     public static function collectNumericRequestVar(string $key, ?int $index = null, ?array $src = null): float|int|null
@@ -170,7 +171,7 @@ class InputValidation extends RequestValidation
     }
 
     /**
-     * Converts script argument (query string or form data) to array of numeric values.
+     * Converts script argument (query string or form data) to an array of numeric values.
      * @param string $key Key containing potential numeric values.
      * @param array|null $src Optional array of variables to use instead of GET or POST data.
      * @return array|null Returns an array if values are found for the specified key. Null otherwise.
@@ -198,7 +199,7 @@ class InputValidation extends RequestValidation
      */
     public static function collectRequestVar(
         string $key,
-        int    $filter = Validation::DEFAULT_REQUEST_FILTER,
+        int    $filter = RequestValidation::DEFAULT_REQUEST_FILTER,
         ?array $src = null
     ): ?string
     {
@@ -209,7 +210,7 @@ class InputValidation extends RequestValidation
     }
 
     /**
-     * Converts script argument (query string or form data) to array of numeric values.
+     * Converts script argument (query string or form data) to an array of numeric values.
      * @param string $key Key containing potential numeric values.
      * @param array|null $src Optional array of variables to use instead of GET or POST data.
      * @return array|null Returns an array if values are found for the specified key. Null otherwise.
@@ -217,7 +218,7 @@ class InputValidation extends RequestValidation
     public static function collectStringArrayRequestVar(
         string $key,
         ?array $src = null,
-        int    $filter = Validation::DEFAULT_REQUEST_FILTER
+        int    $filter = RequestValidation::DEFAULT_REQUEST_FILTER
     ): ?array
     {
         if (!static::checkSourceValue($src, $key)) {
@@ -241,7 +242,7 @@ class InputValidation extends RequestValidation
      */
     public static function collectStringRequestVar(
         string $key,
-        int    $filter = Validation::DEFAULT_REQUEST_FILTER,
+        int    $filter = RequestValidation::DEFAULT_REQUEST_FILTER,
         ?int   $index = null,
         ?array $src = null
     ): ?string
@@ -261,11 +262,11 @@ class InputValidation extends RequestValidation
      */
     public static function getPageAction(): string
     {
-        $action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, Validation::DEFAULT_REQUEST_FILTER));
+        $action = trim(filter_input(INPUT_POST, LittledGlobals::COMMIT_KEY, RequestValidation::DEFAULT_REQUEST_FILTER));
         if (strlen($action) > 0) {
             $action = LittledGlobals::COMMIT_KEY;
         } else {
-            $action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, Validation::DEFAULT_REQUEST_FILTER));
+            $action = trim(filter_input(INPUT_POST, LittledGlobals::CANCEL_KEY, RequestValidation::DEFAULT_REQUEST_FILTER));
             if (strlen($action) > 0) {
                 $action = LittledGlobals::CANCEL_KEY;
             }
