@@ -5,6 +5,7 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidPropertyException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ReadException;
@@ -40,10 +41,18 @@ class APIRecordRoute extends APIRoute
     {
         try {
             parent::collectContentProperties($key);
+        }
+        catch (ConfigurationUndefinedException $e) {
+            throw new ContentValidationException($e->throwMessage('Required input not provided'));
+        }
+        catch (InvalidPropertyException|RecordUnavailableException $e) {
+            throw new ContentValidationException($e->throwMessage('Error retrieving content properties'));
+        }
+        try {
             $this->collectRecordId();
         }
         catch (ConfigurationUndefinedException|RecordUnavailableException $e) {
-            throw new RecordUnavailableException($e->throwMessage('Error collection record id value'));
+            throw new RecordUnavailableException($e->throwMessage('Error collecting record id value'));
         }
         return $this;
     }
