@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent;
 
+use BadMethodCallException;
 use Littled\PageContent\Navigation\RoutePlaceholder;
 use Littled\Utility\LittledUtility;
 
@@ -27,7 +28,7 @@ trait RouteTrait
             $record_id  = count($arguments) > 0 ? $arguments[0] : null;
             return $this->_formatRoutePath($record_id);
         }
-        return null;
+        throw new BadMethodCallException("Method $name does not exist on " . get_class($this));
     }
 
     /**
@@ -41,7 +42,7 @@ trait RouteTrait
             $record_id  = count($arguments) > 0 ? $arguments[0] : null;
             return (new static())->_formatRoutePath($record_id);
         }
-        return null;
+        throw new BadMethodCallException("Method $name does not exist on " . get_called_class());
     }
 
     /**
