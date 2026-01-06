@@ -439,4 +439,18 @@ class APIRecordRoute extends APIRoute
         }
         return $this;
     }
+
+    /**
+     * @inheritDoc
+     */
+    protected function throwContentTypeValidationException(ContentValidationException|RecordUnavailableException $e): void
+    {
+        if (isset($this->content->content_properties)) {
+            $this->content->addValidationError($e->getMessage());
+            $this->content->content_properties->addValidationError($e->getMessage());
+            $this->content->content_properties->id->has_errors = true;
+            $this->content->content_properties->id->error = $e->getMessage();
+        }
+        parent::throwContentTypeValidationException($e);
+    }
 }

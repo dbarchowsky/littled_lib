@@ -1,10 +1,12 @@
 <?php
 namespace Littled\API;
 
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidPropertyException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\LittledException;
 use Littled\Exception\NotInitializedException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -566,5 +568,43 @@ abstract class APIRoute extends APIRouteProperties
     {
         header("Content-Type: text/plain\n\n");
         print($response ?: $this->json->content->value);
+    }
+
+    /**
+     * Sets property values and throws exception after the content type value is unsuccessfully validated.
+     * @param ContentValidationException|RecordUnavailableException $e
+     * @return void
+     * @throws ContentValidationException
+     * @throws RecordUnavailableException
+     */
+    protected function throwContentTypeValidationException(ContentValidationException|RecordUnavailableException $e): void
+    {
+        $this->content_type_id->has_errors = true;
+        $this->content_type_id->error = $e->getMessage();
+        if (isset($this->filters->content_properties)) {
+            $this->filters->content_properties->addValidationError($e->getMessage());
+            $this->filters->content_properties->id->has_errors = true;
+            $this->filters->content_properties->id->error = $e->getMessage();
+        }
+        throw $e;
+    }
+
+    /**
+     * Test object properties for a content type value.
+     * @return void
+     * @throws ContentValidationException
+     * @throws RecordUnavailableException
+     */
+    protected function validateContentTypeValue(): void
+    {
+        try {
+            if ($this->getContentTypeId() > 0) {
+                return;
+            }
+            $this->throwContentTypeValidationException(new ContentValidationException('Content type is required.'));
+        }
+        catch(RecordUnavailableException $e) {
+            $this->throwContentTypeValidationException(new RecordUnavailableException('Invalid content type.'));
+        }
     }
 }
