@@ -51,7 +51,7 @@ trait RouteTrait
      */
     public function _formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
     {
-        $route_parts = $route_parts ?? static::$route_parts;
+        $route_parts = $route_parts ?? ($this->route->route->value ?? null) ?? static::$route_parts;
         if (is_string($route_parts)) {
             $route_parts = explode('/', $route_parts);
         }
