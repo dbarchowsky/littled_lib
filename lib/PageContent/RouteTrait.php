@@ -7,8 +7,8 @@ use Littled\PageContent\Navigation\RoutePlaceholder;
 use Littled\Utility\LittledUtility;
 
 /**
- * @method formatRoutePath(?int $record_id = null): string
- * @method static formatRoutePath(?int $record_id = null): string
+ * @method formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
+ * @method static formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
  */
 trait RouteTrait
 {
@@ -25,8 +25,7 @@ trait RouteTrait
     public function __call(string $name, array $arguments)
     {
         if ($name === 'formatRoutePath') {
-            $record_id  = count($arguments) > 0 ? $arguments[0] : null;
-            return $this->_formatRoutePath($record_id);
+            return $this->_formatRoutePath(...$arguments);
         }
         throw new BadMethodCallException("Method $name does not exist on " . get_class($this));
     }
@@ -39,8 +38,7 @@ trait RouteTrait
     public static function __callStatic(string $name, array $arguments)
     {
         if ($name === 'formatRoutePath') {
-            $record_id  = count($arguments) > 0 ? $arguments[0] : null;
-            return (new static())->_formatRoutePath($record_id);
+            return (new static())->_formatRoutePath(...$arguments);
         }
         throw new BadMethodCallException("Method $name does not exist on " . get_called_class());
     }
@@ -48,11 +46,15 @@ trait RouteTrait
     /**
      * Formats and returns a path to use to reach this page.
      * @param int|null $record_id
+     * @param array|string|null $route_parts
      * @return string
      */
-    public function _formatRoutePath(?int $record_id = null): string
+    public function _formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
     {
-        $route_parts = static::$route_parts;
+        $route_parts = $route_parts ?? static::$route_parts;
+        if (is_string($route_parts)) {
+            $route_parts = explode('/', $route_parts);
+        }
         if (($record_id ?? 0) === 0) {
             if (isset($this->content)) {
                 $record_id = $this->content->getRecordId();
