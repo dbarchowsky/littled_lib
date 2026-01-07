@@ -6,12 +6,10 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidPropertyException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
-use Littled\Exception\LittledException;
 use Littled\Exception\NotInitializedException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
@@ -23,7 +21,6 @@ use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
-use Error;
 use Exception;
 use Throwable;
 
@@ -374,33 +371,6 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Returns an instance of a PageContent class used to render front-end content.
-     * @return APIRoute
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws InvalidValueException
-     * @throws RecordNotFoundException
-     * @throws RecordUnavailableException
-     */
-    protected function newAPIRouteInstance(): APIRoute
-    {
-        if (!$this->hasContentPropertiesObject()) {
-            throw new ConfigurationUndefinedException('Content properties not available.');
-        }
-        $this->getContentProperties()->readRoutes();
-        try {
-            $route_parts = $this
-                ->getContentProperties()
-                ->getContentRouteByOperation($this->operation->value ?? APIRouteProperties::LISTINGS_TOKEN)
-                ->getPropertyValue(ContentRoute::PROPERTY_TOKEN_ROUTE_AS_ARRAY);
-        } catch (Error) {
-            throw new RecordNotFoundException('Content route not found.');
-        }
-        $rpc_class = call_user_func([static::getControllerClass(), 'getAPIRouteClassName'], $route_parts);
-        return new $rpc_class();
-    }
-
-    /**
      * Returns a new ContentTemplate instance. Can be used in derived classes to provide customized ContentTemplate
      * objects to the APIRoute class's methods.
      * @param int|null $record_id
@@ -571,7 +541,7 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Sets property values and throws exception after the content type value is unsuccessfully validated.
+     * Sets property values and throws an exception after the content type value is unsuccessfully validated.
      * @param ContentValidationException|RecordUnavailableException $e
      * @return void
      * @throws ContentValidationException
@@ -603,7 +573,7 @@ abstract class APIRoute extends APIRouteProperties
             }
             $this->throwContentTypeValidationException(new ContentValidationException('Content type is required.'));
         }
-        catch(RecordUnavailableException $e) {
+        catch(RecordUnavailableException) {
             $this->throwContentTypeValidationException(new RecordUnavailableException('Invalid content type.'));
         }
     }
