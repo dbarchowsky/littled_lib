@@ -136,7 +136,6 @@ class SerializedContentValidation extends SerializedContentUtils
                     $property->validateInput($exclude_properties);
                 } catch (ContentValidationException) {
                     $this->addValidationError($property->validationErrors());
-                    $exclude_properties[] = $property->key;
                 }
             }
         }
