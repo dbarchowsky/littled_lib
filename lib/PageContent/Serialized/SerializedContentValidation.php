@@ -127,6 +127,7 @@ class SerializedContentValidation extends SerializedContentUtils
                     $property->validate();
                 } catch (ContentValidationException $ex) {
                     $this->addValidationError($ex->getMessage());
+                    $exclude_properties[] = $property->key;
                 }
             } elseif (
                 $property instanceof SerializedContentValidation ||
@@ -135,6 +136,7 @@ class SerializedContentValidation extends SerializedContentUtils
                     $property->validateInput($exclude_properties);
                 } catch (ContentValidationException) {
                     $this->addValidationError($property->validationErrors());
+                    $exclude_properties[] = $property->key;
                 }
             }
         }
