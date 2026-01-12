@@ -33,11 +33,12 @@ class SerializedContentValidation extends SerializedContentUtils
     /**
      * Specify if the object should skip validation.
      * @param bool $option (Optional) Set to TRUE (default value) to cause the object to bypass validation.
-     * @return void
+     * @return $this
      */
-    public function bypassValidation(bool $option = true): void
+    public function bypassValidation(bool $option = true): static
     {
         $this->bypass_validation = $option;
+        return $this;
     }
 
     /**
