@@ -14,6 +14,10 @@ abstract class JunctionRecordLink extends LinkedContent
     public function __construct()
     {
         parent::__construct();
+
+        // JunctionRecordLink objects use parent_id and link_id properties to identify the linked record.
+        $this->id->setIsDatabaseField(false);
+
         $this->link_id = (new ForeignKeyInput())
             ->setLabel('Link id')
             ->setKey('linkId')
