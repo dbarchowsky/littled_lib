@@ -12,6 +12,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\OutOfBoundsException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\ForeignKeyInput;
 use Littled\Validation\Validation;
@@ -476,7 +477,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      * record in the list, at the $index position.
      * @param int|null $index
      * @return LinkedContent|LinkedContent[]
-     * @throws InvalidValueException
+     * @throws OutOfBoundsException
      */
     public function items(?int $index = null): LinkedContent|array
     {
@@ -484,7 +485,7 @@ abstract class SerializedRecordList extends SerializedContentIO
             return $this->records;
         }
         if (count($this->records) < $index+1) {
-            throw new InvalidValueException('Requested index is out of bounds.');
+            throw new OutOfBoundsException('Requested index is out of bounds.');
         }
         return $this->records[$index];
     }
