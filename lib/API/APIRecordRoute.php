@@ -32,10 +32,7 @@ class APIRecordRoute extends APIRoute
 
     /**
      * @inheritDoc
-     * @param string $key
-     * @return APIRecordRoute
      * @throws ContentValidationException
-     * @throws RecordUnavailableException
      */
     public function collectContentProperties(string $key = ContentProperties::ID_KEY): static
     {
