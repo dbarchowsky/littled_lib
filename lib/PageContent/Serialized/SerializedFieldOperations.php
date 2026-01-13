@@ -248,7 +248,7 @@ trait SerializedFieldOperations
     /**
      * Returns a list of all properties that represent either primary or foreign keys.
      * @param $exclude string[]
-     * @return array
+     * @return string[]
      */
     protected function getKeyPropertiesList(array $exclude=[]): array
     {
