@@ -4,6 +4,7 @@ namespace Littled\Account;
 
 
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanSelect;
@@ -48,12 +49,14 @@ class State extends SerializedContent
     /**
      * @return int|null
      * @throws FailedQueryException
-     * @throws RecordNotFoundException
      */
     public function lookupByName(): ?int
     {
+        $this->stashRecordsetPrefix();
+        $this->setRecordsetPrefix('state_');
         $this->clear(['name', 'abbrev']);
         if (!$this->name->hasData() && !$this->abbrev->hasData()) {
+            $this->restoreRecordsetPrefix();
             return null;
         }
         try {
@@ -63,6 +66,32 @@ class State extends SerializedContent
         catch(RecordNotFoundException) {
             return null;
         }
+        finally {
+            $this->restoreRecordsetPrefix();
+        }
+    }
+
+    /**
+     * Returns the active sales tax rate matching the object's state id or state name property value.
+     * @return float|null
+     * @throws FailedQueryException
+     */
+    public function lookupSalesTaxRate(): ?float
+    {
+        if ($this->sales_tax->value > 0) {
+            return $this->sales_tax->value;
+        }
+        try {
+            if ($this->id->hasData()) {
+                $this->read();
+                return $this->sales_tax->value;
+            }
+            $this->lookupByName();
+        }
+        catch(RecordNotFoundException|ReadException) {
+            return null;
+        }
+        return $this->sales_tax->value;
     }
 
     /**
@@ -75,11 +104,6 @@ class State extends SerializedContent
         if ($this->id->hasData()) {
             return $this->getRecordId();
         }
-        try {
-            return $this->lookupByName();
-        }
-        catch(RecordNotFoundException) {
-            return null;
-        }
+        return $this->lookupByName();
     }
 }
