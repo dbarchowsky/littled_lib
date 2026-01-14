@@ -5,10 +5,11 @@ CREATE OR REPLACE PROCEDURE `lookupStateByName` (
 BEGIN
 
     SELECT
-        `id`,
+        `id` AS `state_id`,
         `name` AS `state_name`,
-        `abbrev` AS `state_abbreviation`,
-        IF(`charge_tax`, `sales_tax`, 0) AS `sales_tax`
+        `abbrev` AS `state_abbrev`,
+        sales_tax AS `state_sales_tax`,
+        charge_tax AS `state_charge_tax`
     FROM `states`
     WHERE `name` LIKE p_state
     OR `abbrev` LIKE p_state;
