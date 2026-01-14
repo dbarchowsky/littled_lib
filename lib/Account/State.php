@@ -56,7 +56,30 @@ class State extends SerializedContent
         if (!$this->name->hasData() && !$this->abbrev->hasData()) {
             return null;
         }
-        $this->hydrateFromQuery('CALL lookupStateByName(?)', 's', $this->name->value ?: $this->abbrev->value);
-        return $this->getRecordId();
+        try {
+            $this->hydrateFromQuery('CALL lookupStateByName(?)', 's', $this->name->value ?: $this->abbrev->value);
+            return $this->getRecordId();
+        }
+        catch(RecordNotFoundException) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the id of the record matching the state name property value.
+     * @return int|null
+     * @throws FailedQueryException
+     */
+    public function lookupStateId(): ?int
+    {
+        if ($this->id->hasData()) {
+            return $this->getRecordId();
+        }
+        try {
+            return $this->lookupByName();
+        }
+        catch(RecordNotFoundException) {
+            return null;
+        }
     }
 }
