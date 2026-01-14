@@ -79,14 +79,23 @@ abstract class SerializedContentIO extends SerializedContentValidation
 
     /**
      * Clears all form input values
+     * @param array $exclude
+     * @return $this
      */
-    public function clear(): void
+    public function clear(array $exclude=[]): static
     {
-        foreach ($this as $p) {
-            if ($p instanceof RequestInput) {
+        foreach ($this as $key => $p) {
+            if (in_array($key, $exclude)) {
+                continue;
+            }
+            if ($p instanceof SerializedContentIO) {
+                $p->clear($exclude);
+            }
+            elseif ($p instanceof RequestInput) {
                 $p->clearValue();
             }
         }
+        return $this;
     }
 
     /**
