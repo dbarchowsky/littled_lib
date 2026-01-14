@@ -3,6 +3,8 @@
 namespace Littled\Account;
 
 
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanSelect;
 use Littled\Request\FloatTextField;
@@ -41,5 +43,20 @@ class State extends SerializedContent
     public function getContentLabel(): string
     {
         return 'state';
+    }
+
+    /**
+     * @return int|null
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     */
+    public function lookupByName(): ?int
+    {
+        $this->clear(['name', 'abbrev']);
+        if (!$this->name->hasData() && !$this->abbrev->hasData()) {
+            return null;
+        }
+        $this->hydrateFromQuery('CALL lookupStateByName(?)', 's', $this->name->value ?: $this->abbrev->value);
+        return $this->getRecordId();
     }
 }
