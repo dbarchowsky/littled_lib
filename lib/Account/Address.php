@@ -372,20 +372,11 @@ class Address extends SerializedContent
      * Returns the state id from the database that matches the current value of the object's state name property.
      * @return int|null
      * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     public function lookupStateByName(): ?int
     {
-        $this->id->value = null;
-        if (!$this->state->name->hasData() && !$this->state->abbrev->hasData()) {
-            return null;
-        }
-        $state = $this->state->name->value ?: $this->state->abbrev->value;
-        $data = $this->fetchRecords('CALL lookupStateByName(?)', 's', $state);
-        if (1 > count($data)) {
-            return null;
-        }
-        $this->id->setInputValue($data[0]->id);
-        return $this->id->value;
+        return $this->state->lookupByName();
     }
 
     /**
