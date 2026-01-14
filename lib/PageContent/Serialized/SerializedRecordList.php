@@ -281,8 +281,10 @@ abstract class SerializedRecordList extends SerializedContentIO
                 $label = $links[0]->getContentLabel();
             }
         }
-        catch (InvalidValueException) {
-        }
+        // @codeCoverageIgnoreStart
+        catch (OutOfBoundsException) { /* suppress IDE inspection */ }
+        // @codeCoverageIgnoreEnd
+
         if (!$label) {
             $class = static::$content_class;
             $o = new $class();
