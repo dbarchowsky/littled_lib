@@ -3,14 +3,16 @@
 namespace Littled\Account;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\CommitException;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
+use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Exception\ResourceUnavailableException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\EmailTextField;
 use Littled\Request\FloatTextField;
@@ -266,39 +268,6 @@ class Address extends SerializedContent
     }
 
     /**
-     * Returns a query to use to store the current object property values in the database.
-     * @return array
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     */
-    public function generateUpdateQuery(): array
-    {
-        $this->connectToDatabase();
-        return array('CALL addressUpdate(@insert_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-            'ssssssisssssssssssii',
-            &$this->salutation->value,
-            &$this->first_name->value,
-            &$this->last_name->value,
-            &$this->address1->value,
-            &$this->address2->value,
-            &$this->city->value,
-            &$this->state->id->value,
-            &$this->non_us_state->value,
-            &$this->zip->value,
-            &$this->country->value,
-            &$this->home_phone->value,
-            &$this->work_phone->value,
-            &$this->fax->value,
-            &$this->email->value,
-            &$this->organization->value,
-            &$this->title->value,
-            &$this->location->value,
-            &$this->url->value,
-            &$this->latitude->value,
-            &$this->longitude->value);
-    }
-
-    /**
      * Address data template file name getter
      * @return string
      */
@@ -319,6 +288,7 @@ class Address extends SerializedContent
     /**
      * Inserts a Google Maps key into the URL to use to access Google Maps.
      * @return string google maps uri
+     * @throws ConfigurationUndefinedException
      */
     protected static function getGoogleMapsURI(): string
     {
@@ -337,11 +307,12 @@ class Address extends SerializedContent
     /**
      * Returns current Google Maps API key value.
      * @return string Current Google Maps API key value
+     * @throws ConfigurationUndefinedException
      */
     public static function getGMapAPIKey(): string
     {
         if (!isset(static::$gmap_api_key) && isset(static::$api_keys_path)) {
-            $json = json_decode(file_get_contents(static::$api_keys_path));
+            $json = json_decode(file_get_contents(static::getAPIKeysPath()));
             if (isset($json->{'google-api-key'})) {
                 static::$gmap_api_key = $json->{'google-api-key'};
             }
@@ -358,7 +329,7 @@ class Address extends SerializedContent
         if ((static::$api_keys_path ?? '') === '') {
             throw new ConfigurationUndefinedException('API keys path not set.');
         }
-        return static::$api_keys_path;
+        return LittledUtility::joinPaths(LittledGlobals::getKeysPath(), static::$api_keys_path);
     }
 
     /**
@@ -434,52 +405,57 @@ class Address extends SerializedContent
      */
     public function lookupMapPosition(): void
     {
-        /**** LOOKUP BASED ON STREET ADDRESS, CITY & STATE ****/
         if ($this->city->hasData() && $this->state->getRecordId()) {
-            if (!$this->lookupMapPositionByAddress()) {
-                /**** try zip code ****/
-                if ($this->zip->hasData()) {
-                    $this->lookupMapPositionByZip();
-                }
-            }
-        } /**** LOOKUP BASED ON ZIP CODE ****/
-        else if ($this->zip->hasData()) {
+            $this->lookupMapPositionByAddress();
+            return;
+        }
+        if ($this->zip->hasData()) {
             $this->lookupMapPositionByZip();
         }
     }
 
     /**
      * Retrieves longitude and latitude using street address. Updates the internal longitude and latitude properties.
-     * @return bool
+     * @return void
      * @throws InvalidRequestException
      * @throws RecordNotFoundException
      */
-    public function lookupMapPositionByAddress(): bool
+    public function lookupMapPositionByAddress(): void
     {
         $this->longitude->value = '0';
         $this->latitude->value = '0';
 
-        if ($this->state->getRecordId()) {
-            $this->readStateProperties();
-        }
-        $address = $this->city->value . ', ' . $this->state->name->value;
-        if ($this->address1->value) {
-            $address = $this->address1->value . ', ' . $address;
-        }
+        try {
+            if ($this->state->getRecordId()) {
+                $this->readStateProperties();
+            }
+            $address = $this->city->value . ', ' . $this->state->name->value;
+            if ($this->address1->value) {
+                $address = $this->address1->value . ', ' . $address;
+            }
 
-        $response = file_get_contents(static::getGoogleMapsURI() . urlencode($address));
-        $json = json_decode($response);
-        switch ($json->status) {
-            case 'OK':
-                $this->longitude->value = $json->results[0]->geometry->location->lng;
-                $this->latitude->value = $json->results[0]->geometry->location->lat;
-                break;
-            case 'REQUEST_DENIED':
-                throw new InvalidRequestException($json->error_message);
-            default:
-                throw new InvalidRequestException("Unhandled maps api status: \"$json->status\"");
+            $response = file_get_contents(static::getGoogleMapsURI() . urlencode($address));
+            $json = json_decode($response);
+            switch ($json->status) {
+                case 'OK':
+                    $this->longitude->value = $json->results[0]->geometry->location->lng;
+                    $this->latitude->value = $json->results[0]->geometry->location->lat;
+                    break;
+                case 'REQUEST_DENIED':
+                    throw new InvalidRequestException($json->error_message);
+                case 'ZERO_RESULTS':
+                    throw new InvalidRequestException('No results found for address: "' . $address . '"');
+                default:
+                    // @codeCoverageIgnoreStart
+                    throw new InvalidRequestException("Unhandled maps api status: \"$json->status\"");
+                // @codeCoverageIgnoreEnd
+            }
         }
-        return true;
+        // @codeCoverageIgnoreStart
+        catch (ConfigurationUndefinedException|FailedQueryException $e) {
+            throw new InvalidRequestException($e->throwMessage('Unable to look up address coordinates'));
+        }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -490,9 +466,12 @@ class Address extends SerializedContent
     {
         $query = 'SEL' . 'ECT latitude, longitude FROM `zips` WHERE zipcode = ?';
         $rs = $this->fetchRecords($query, 's', $this->zip->value);
+        /* zips table is not implemented yet */
+        // @codeCoverageIgnoreStart
         if (count($rs) > 0) {
             list($this->longitude->value, $this->latitude->value) = $rs[0];
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -514,8 +493,8 @@ class Address extends SerializedContent
 
     /**
      * Retrieves extended state properties (name and abbreviation) from the database.
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws Exception
      */
     public function readStateProperties(): void
     {
@@ -534,22 +513,42 @@ class Address extends SerializedContent
 
     /**
      * Commits current object data to the database.
-     * @param bool $do_gmap_lookup (Optional) Flag to look up address longitude and latitude using Google Maps API. Defaults to false.
+     * @param bool $do_coordinate_lookup (Optional) Flag to look up address longitude and latitude using Google Maps API. Defaults to false.
      * @param string $content_label (Optional) label describing the content type used to format error messages.
-     * @throws Exception
+     * @throws CommitException
+     * @throws ContentValidationException
+     * @throws ResourceUnavailableException
      */
-    public function save(bool $do_gmap_lookup = false, string $content_label = 'address'): void
+    public function save(bool $do_coordinate_lookup = false, string $content_label = 'address'): void
     {
-        if (!$this->hasData()) {
-            throw new Exception(ucfirst($content_label) . ' has nothing to save.');
+        if (!$this->hasRecordData()) {
+            throw new ContentValidationException(ucfirst($content_label) . ' has nothing to save.');
         }
 
-        if ($do_gmap_lookup === true) {
-            /* translate street address into longitude and latitude */
-            $this->lookupMapPosition();
+        try {
+            if ($do_coordinate_lookup) {
+                /* translate street address into longitude and latitude */
+                $this->lookupMapPosition();
+            }
         }
+        // @codeCoverageIgnoreStart
+        catch (FailedQueryException|InvalidRequestException|RecordNotFoundException $e) {
+            throw new ResourceUnavailableException($e->throwMessage('Unable to look up address coordinates'));
+        }
+        // @codeCoverageIgnoreEnd
 
-        parent::save();
+        try {
+            parent::save();
+        }
+        // @codeCoverageIgnoreStart
+        catch(FailedQueryException |
+            ContentValidationException |
+            InvalidValueException |
+            NotImplementedException |
+            RecordNotFoundException $e) {
+            throw new CommitException($e->throwMessage('Error saving $content_label record'));
+        }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -582,11 +581,10 @@ class Address extends SerializedContent
     /**
      * @param string $path
      * @return void
-     * @throws ConfigurationUndefinedException
      */
-    protected static function setAPIKeyPath(string $path): void
+    protected static function setAPIKeysPath(string $path): void
     {
-        static::$api_keys_path = LittledUtility::joinPaths(LittledGlobals::getKeysPath(), $path);
+        static::$api_keys_path = $path;
     }
 
     /**
@@ -642,23 +640,11 @@ class Address extends SerializedContent
     public function validateUniqueEmail(): void
     {
         if ($this->email->value) {
-            $args = [$this->email->value];
-            $arg_types = 's';
-            $query = 'SELECT c.email ' .
-                'FROM `address` c ' .
-                'INNER JOIN site_user l on c.id = l.contact_id ' .
-                'WHERE (c.email LIKE ?)';
-            if ($this->id->value > 0) {
-                $args[] = $this->id->value;
-                $arg_types .= 'i';
-                $query .= 'AND (l.id != ?) ';
-            }
-            $rs = $this->fetchRecords($query, $arg_types, ...$args);
-            $matches = count($rs);
-
-            if ($matches > 0) {
+            $query = 'CALL lookupUserEmail(?,?)';
+            $result = $this->fetchRecords($query, 'si', $this->email->value, $this->id->value);
+            if ($result[0]->count > 0) {
                 $this->email->error = true;
-                $err_msg = 'The email address \'{$this->email->value}\' has already been registered.';
+                $err_msg = "The email address \"{$this->email->value}\" has already been registered.";
                 $this->addValidationError($err_msg);
                 throw new ContentValidationException($err_msg);
             }
