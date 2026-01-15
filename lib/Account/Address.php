@@ -546,7 +546,7 @@ class Address extends SerializedContent
             InvalidValueException |
             NotImplementedException |
             RecordNotFoundException $e) {
-            throw new CommitException($e->throwMessage('Error saving $content_label record'));
+            throw new CommitException($e->throwMessage("Error saving $content_label record"));
         }
         // @codeCoverageIgnoreEnd
     }
