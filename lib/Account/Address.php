@@ -2,11 +2,12 @@
 
 namespace Littled\Account;
 
-
+use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
@@ -17,8 +18,8 @@ use Littled\Request\PhoneNumberTextField;
 use Littled\Request\StringSelect;
 use Littled\Request\StringTextarea;
 use Littled\Request\StringTextField;
-use DOMDocument;
 use Exception;
+use Littled\Utility\LittledUtility;
 
 
 /**
@@ -31,6 +32,7 @@ class Address extends SerializedContent
 
     /** @var string Google maps api key */
     protected static string $gmap_api_key;
+    protected static string $api_keys_path;
     protected static string $address_data_template = 'forms/data/address_class_data.php';
     protected static string $street_address_data_template = 'forms/data/street_address_form_data.php';
     public const ID_KEY = 'adid';
@@ -39,18 +41,7 @@ class Address extends SerializedContent
     public const FORMAT_ADDRESS_ONE_LINE = 'one_line';
     public const FORMAT_ADDRESS_HTML = 'html';
     public const FORMAT_ADDRESS_GOOGLE = 'google';
-
-    /**
-     * Inserts a Google Maps key into the URL to use to access Google Maps.
-     * @return string google maps uri
-     */
-    public static function GOOGLE_MAPS_URI(): string
-    {
-        if (!isset(static::$gmap_api_key)) {
-            return '';
-        }
-        return ('https://maps.googleapis.com/maps/api/geocode/xml?key=' . static::$gmap_api_key . '&address=');
-    }
+    protected const GOOGLE_MAPS_API_URI = 'https://maps.googleapis.com/maps/api/geocode/json?key=%s&address=';
 
     public StringSelect         $salutation;
     public StringTextField      $first_name;
@@ -326,6 +317,15 @@ class Address extends SerializedContent
     }
 
     /**
+     * Inserts a Google Maps key into the URL to use to access Google Maps.
+     * @return string google maps uri
+     */
+    protected static function getGoogleMapsURI(): string
+    {
+        return sprintf(static::GOOGLE_MAPS_API_URI, static::getGMapAPIKey());
+    }
+
+    /**
      * Street address data template file name getter
      * @return string
      */
@@ -340,7 +340,25 @@ class Address extends SerializedContent
      */
     public static function getGMapAPIKey(): string
     {
-        return static::$gmap_api_key;
+        if (!isset(static::$gmap_api_key) && isset(static::$api_keys_path)) {
+            $json = json_decode(file_get_contents(static::$api_keys_path));
+            if (isset($json->{'google-api-key'})) {
+                static::$gmap_api_key = $json->{'google-api-key'};
+            }
+        }
+        return static::$gmap_api_key ?? '';
+    }
+
+    /**
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getAPIKeysPath(): string
+    {
+        if ((static::$api_keys_path ?? '') === '') {
+            throw new ConfigurationUndefinedException('API keys path not set.');
+        }
+        return static::$api_keys_path;
     }
 
     /**
@@ -369,10 +387,29 @@ class Address extends SerializedContent
     }
 
     /**
-     * Returns the state id from the database that matches the current value of the object's state name property.
+     * Returns the tax rate associated with the current state object property. Returns the value from the following in order of precedence:
+     * - Internal sales tax value in the state object.
+     * - Sales tax rate associated with the record in the database matching the state objects record id value.
+     * - Sales tax rate associated with the state name or abbreviation in the database.
+     * @return float|null
+     * @throws FailedQueryException
+     */
+    public function lookupSalesTaxRate(): ?float
+    {
+        $this->state->stashRecordsetPrefix();
+        try {
+            return $this->state->lookupSalesTaxRate();
+        }
+        finally {
+            $this->state->restoreRecordsetPrefix();
+        }
+    }
+
+    /**
+     * Hydrates the state object with record data from the database that matches either the current state record id value
+     * or the state name or abbreviation property. Returns the state record id if a matching record is found.
      * @return int|null
      * @throws FailedQueryException
-     * @throws RecordNotFoundException
      */
     public function lookupStateByName(): ?int
     {
@@ -380,8 +417,19 @@ class Address extends SerializedContent
     }
 
     /**
+     * Returns the state id from the database that matches the current value of the object's state name or abbreviation property.
+     * @return int|null
+     * @throws FailedQueryException
+     */
+    public function lookupStateId(): ?int
+    {
+        return $this->state->lookupStateId();
+    }
+
+    /**
      * Retrieves longitude and latitude for the current address using Google Maps API.
      * @throws FailedQueryException
+     * @throws InvalidRequestException
      * @throws RecordNotFoundException
      */
     public function lookupMapPosition(): void
@@ -402,7 +450,8 @@ class Address extends SerializedContent
 
     /**
      * Retrieves longitude and latitude using street address. Updates the internal longitude and latitude properties.
-     * @returns bool TRUE if longitude and latitude values were found. FALSE otherwise.
+     * @return bool
+     * @throws InvalidRequestException
      * @throws RecordNotFoundException
      */
     public function lookupMapPositionByAddress(): bool
@@ -418,23 +467,19 @@ class Address extends SerializedContent
             $address = $this->address1->value . ', ' . $address;
         }
 
-        $xml = new DOMDocument();
-        if ($xml->load(self::GOOGLE_MAPS_URI() . urlencode($address))) {
-            $nl = $xml->getElementsByTagName('coordinates');
-            if ($nl->length >= 0 && is_object($nl->item(0))) {
-                $n = $nl->item(0)->firstChild;
-                if ($n) {
-                    list($this->longitude->value, $this->latitude->value) = explode(',', $n->nodeValue);
-                } else {
-                    unset($xml);
-                    return (false);
-                }
-            } else {
-                unset($xml);
-                return (false);
-            }
+        $response = file_get_contents(static::getGoogleMapsURI() . urlencode($address));
+        $json = json_decode($response);
+        switch ($json->status) {
+            case 'OK':
+                $this->longitude->value = $json->results[0]->geometry->location->lng;
+                $this->latitude->value = $json->results[0]->geometry->location->lat;
+                break;
+            case 'REQUEST_DENIED':
+                throw new InvalidRequestException($json->error_message);
+            default:
+                throw new InvalidRequestException("Unhandled maps api status: \"$json->status\"");
         }
-        return (true);
+        return true;
     }
 
     /**
@@ -532,6 +577,16 @@ class Address extends SerializedContent
     public static function setAddressDataTemplate(string $filename): void
     {
         static::$address_data_template = $filename;
+    }
+
+    /**
+     * @param string $path
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected static function setAPIKeyPath(string $path): void
+    {
+        static::$api_keys_path = LittledUtility::joinPaths(LittledGlobals::getKeysPath(), $path);
     }
 
     /**
