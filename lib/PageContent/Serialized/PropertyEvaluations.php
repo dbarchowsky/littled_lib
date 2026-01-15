@@ -37,13 +37,24 @@ trait PropertyEvaluations
     /**
      * Recordset prefix getter.
      * @return string|string[]
+     * @param ?int $index
      */
-    public function getRecordsetPrefix(): array|string
+    public function getRecordsetPrefix(?int $index = null): array|string
     {
         if (!isset($this->recordset_prefix)) {
             return '';
         }
-        return $this->recordset_prefix->getPrefix();
+        $prefix = $this->recordset_prefix->getPrefix();
+        if ($index === null) {
+            return $prefix;
+        }
+        if (is_array($prefix)) {
+            if ($index < count($prefix)) {
+                return $prefix[$index];
+            }
+            return $prefix[count($prefix) - 1];
+        }
+        return $prefix;
     }
 
     /**
