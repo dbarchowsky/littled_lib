@@ -13,6 +13,7 @@ class LittledGlobals
     protected static string         $app_domain;
     protected static string|null    $config_path;
     protected static string|null    $error_log;
+    protected static string         $keys_path;
     protected static string         $mysql_keys_path;
     protected static string|null    $local_template_path;
     protected static string|null    $shared_template_path;
@@ -71,6 +72,19 @@ class LittledGlobals
     }
 
     /**
+     * @param string $key
+     * @return mixed
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getAppSetting(string $key): mixed
+    {
+        if (!isset(static::${$key}) || empty(static::${$key})) {
+            throw new ConfigurationUndefinedException("A value has not been assigned to the \"$key\" LittledGlobals property.");
+        }
+        return static::${$key};
+    }
+
+    /**
      * Configuration base path getter.
      * @return string
      * @throws ConfigurationUndefinedException
@@ -107,6 +121,15 @@ class LittledGlobals
             throw new ConfigurationUndefinedException('An error log path has not been configured.');
         }
         return static::$error_log;
+    }
+
+    /**
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getKeysPath(): string
+    {
+        return static::getAppSetting('keys_path');
     }
 
     /**
@@ -215,6 +238,20 @@ class LittledGlobals
     }
 
     /**
+     * Assign value to app setting property.
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public static function setAppSetting(string $key, mixed $value): void
+    {
+        if (!property_exists(static::class, $key)) {
+            return;
+        }
+        static::${$key} = $value;
+    }
+
+    /**
      * Configuration base path setter.
      * @param string|null $path
      * @return void
@@ -235,6 +272,16 @@ class LittledGlobals
     }
 
     /**
+     * Keys directory path setter.
+     * @param string $path
+     * @return void
+     */
+    public static function setKeysPath(string $path): void
+    {
+        static::setAppSetting('keys_path', $path);
+    }
+
+    /**
      * Sets the root template directory path.
      * @param string $path Path to the root directory containing template files.
      */
@@ -249,7 +296,7 @@ class LittledGlobals
      */
     public static function setMySQLKeysPath(string $path): void
     {
-        static::$mysql_keys_path = $path;
+        static::setAppSetting('mysql_keys_path', $path);
     }
 
     /**
