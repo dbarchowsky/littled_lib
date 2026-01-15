@@ -151,6 +151,7 @@ trait SerializedFieldOperations
     protected function extractPreparedStmtArgs(array &$used_keys = []): array
     {
         $fields = [];
+
         foreach ($this as $key => $item) {
 
             // return any RenderedInput properties that map to fields in the database record
@@ -160,7 +161,7 @@ trait SerializedFieldOperations
                 $fields[] = (new QueryField())
                     ->setisPrimaryKey(Validation::isSubclass($item, PrimaryKeyInput::class))
                     ->setIsForeignKey(Validation::isSubclass($item, ForeignKeyInput::class))
-                    ->setKey($item->getColumnName($this->getRecordsetPrefix() . $key))
+                    ->setKey($item->getColumnName($this->getRecordsetPrefix(0) . $key))
                     ->setType($item::getPreparedStatementTypeIdentifier())
                     ->setValue($item->getInputValue());
             }
@@ -171,7 +172,7 @@ trait SerializedFieldOperations
                     $fields[] = (new QueryField())
                         ->setisPrimaryKey(false) /* << not PK because it's a FK column in the parent table */
                         ->setIsForeignKey(true)
-                        ->setKey($item->id->getColumnName($item->getRecordsetPrefix() . 'id'))
+                        ->setKey($item->id->getColumnName($item->getRecordsetPrefix(0) . 'id'))
                         ->setType($item->id::getPreparedStatementTypeIdentifier())
                         ->setValue($item->id->getInputValue());
                 }
