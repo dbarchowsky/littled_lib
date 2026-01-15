@@ -162,32 +162,39 @@ abstract class SerializedContent extends SerializedContentIO
      */
     protected function formatCommitQuery(): array
     {
-        // record id value managed using SQL @insert_id session variable
-        $fields = $this->extractPreparedStmtArgs();
+        $this->stashRecordsetPrefix();
 
-        $keys = array_map(function ($e) {
-            return $e->key;
-        }, $fields);
-        $query = 'INS' . 'ERT INTO `' . static::getTableName() . '` (`' .
-            implode('`,`', $keys) .
-            '`) VALUES (' . ($this->hasPrimaryKey() ? '@insert_id' : '?') . ',' .
-            rtrim(str_repeat('?,', count($fields) - 1), ',').
-            ') '.
-            'ON DUPLICATE KEY UPDATE ';
+        try {
+            // record id value managed using SQL @insert_id session variable
+            $fields = $this->extractPreparedStmtArgs();
 
-        // strip out primary key variables since we're using the previously assigned @insert_id SQL session variable
-        $fields = static::stripPrimaryKeyFields($fields);
+            $keys = array_map(function ($e) {
+                return $e->key;
+            }, $fields);
+            $query = 'INS' . 'ERT INTO `' . static::getTableName() . '` (`' .
+                implode('`,`', $keys) .
+                '`) VALUES (' . ($this->hasPrimaryKey() ? '@insert_id' : '?') . ',' .
+                rtrim(str_repeat('?,', count($fields) - 1), ',') .
+                ') ' .
+                'ON DUPLICATE KEY UPDATE ';
 
-        $update_fields = static::stripKeyFields($fields);
-        $query .= join(', ', array_map(fn($e): string => "`$e->key` = VALUE(`$e->key`)", $update_fields));
-        $type_str = implode('', array_map(function ($e) {
-            return $e->type;
-        }, $fields));
+            // strip out primary key variables since we're using the previously assigned @insert_id SQL session variable
+            $fields = static::stripPrimaryKeyFields($fields);
 
-        $args = array_map(function ($e) {
-            return $e->value;
-        }, $fields);
-        return [$query, $type_str, ...$args];
+            $update_fields = static::stripKeyFields($fields);
+            $query .= join(', ', array_map(fn($e): string => "`$e->key` = VALUE(`$e->key`)", $update_fields));
+            $type_str = implode('', array_map(function ($e) {
+                return $e->type;
+            }, $fields));
+
+            $args = array_map(function ($e) {
+                return $e->value;
+            }, $fields);
+            return [$query, $type_str, ...$args];
+        }
+        finally {
+            $this->restoreRecordsetPrefix();
+        }
     }
 
     /**
