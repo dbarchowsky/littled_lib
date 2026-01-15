@@ -10,7 +10,8 @@ use Littled\Validation\Validation;
 trait PropertyEvaluations
 {
     protected RecordsetPrefix   $recordset_prefix;
-    protected string            $stashed_prefix = '';
+    /** @var string|string[] */
+    protected string|array      $stashed_prefix = '';
 
     /**
      * Returns a list of all RequestInput properties of an object.
