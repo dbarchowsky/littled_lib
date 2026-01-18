@@ -178,6 +178,37 @@ class Address extends SerializedContent
         return (join(' ', $parts));
     }
 
+    public function formatCommitQuery(): array
+    {
+        return [
+            'CALL addressUpdate(@insert_id,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+            'ssssssissssssssssssdds',
+            $this->salutation->value,
+            $this->first_name->value,
+            $this->last_name->value,
+            $this->address1->value,
+            $this->address2->value,
+            $this->city->value,
+            $this->state->getRecordId(),
+            $this->non_us_state->value,
+            $this->zip->value,
+            $this->country->value,
+            $this->home_phone->value,
+            $this->work_phone->value,
+            $this->mobile_phone->value,
+            $this->fax->value,
+            $this->email->value,
+            $this->organization->value,
+            $this->title->value,
+            $this->location->value,
+            $this->url->value,
+            $this->latitude->value,
+            $this->longitude->value,
+            $this->notes->value,
+
+        ];
+    }
+
     /**
      * Formats full name based on current salutation, first name, and last name values stored in the object.
      * @return string Formatted full name.
