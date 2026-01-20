@@ -10,6 +10,15 @@ namespace Littled\Database;
  */
 class AppContentBase extends MySQLConnection
 {
+    public function __clone(): void
+    {
+        foreach($this as $property => $value) {
+            if(is_object($value)) {
+                $this->$property = clone $value;
+            }
+        }
+    }
+
     /**
      * Returns the current class base name and method name.
      * @return string Class and method description.
