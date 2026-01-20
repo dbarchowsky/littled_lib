@@ -4,6 +4,8 @@
 namespace Littled\Database;
 
 
+use Littled\Request\RequestInput;
+
 /**
  * Class AppContentBase
  * @package Littled\Database
@@ -13,9 +15,11 @@ class AppContentBase extends MySQLConnection
     public function __clone(): void
     {
         foreach($this as $property => $value) {
-            if(is_object($value)) {
-                $this->$property = clone $value;
-            }
+            $this->$property = match(true) {
+                $value instanceof AppContentBase,
+                $value instanceof RequestInput => clone $value,
+                default => $value
+            };
         }
     }
 
