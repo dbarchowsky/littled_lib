@@ -24,10 +24,6 @@ use Exception;
 use Littled\Utility\LittledUtility;
 
 
-/**
- * Class Address
- * @package Littled\Account
- */
 class Address extends SerializedContent
 {
     protected static string $table_name = 'address';
