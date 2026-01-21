@@ -18,7 +18,6 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Validation\Validation;
-use Exception;
 
 
 /**
@@ -100,7 +99,11 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * @inheritDoc
+     * Execute a commit query and assign the new record id value to the object's id property.
+     * @param string $query
+     * @param string $arg_types
+     * @param mixed ...$args
+     * @return void
      * @throws CommitException
      */
     protected function commitSaveQuery(string $query, string $arg_types = '', ...$args): void
