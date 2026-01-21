@@ -2,6 +2,7 @@
 namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
+use Littled\Exception\CommitException;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
@@ -100,25 +101,32 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws Exception
+     * @throws CommitException
      */
     protected function commitSaveQuery(string $query, string $arg_types = '', ...$args): void
     {
-        $this->connectToDatabase();
-        $s1 = $this->mysqli->prepare('SET @insert_id = ?');
-        $s1->bind_param('i', $this->id->value);
-        $s1->execute();
+        try {
+            $this->connectToDatabase();
+            $s1 = $this->mysqli->prepare('SET @insert_id = ?');
+            $s1->bind_param('i', $this->id->value);
+            $s1->execute();
 
-        $this->query($query, $arg_types, ...$args);
+            $this->query($query, $arg_types, ...$args);
 
-        if (null === $this->id->value || 1 > $this->id->value) {
-            $data = $this->fetchRecords('SELECT @insert_id as `insert_id`');
-            if (1 > count($data)) {
-                throw new Exception('New record id not found.');
+            if (null === $this->id->value || 1 > $this->id->value) {
+                $data = $this->fetchRecords('SELECT @insert_id as `insert_id`');
+                if (1 > count($data) || null === $data[0]->insert_id) {
+                    $msg = implode(' ', ['New', strtolower(static::getContentLabel()), 'record id not found.']);
+                    throw new CommitException($msg);
+                }
+                $this->id->setInputValue($data[0]->insert_id);
             }
-            $this->id->setInputValue($data[0]->insert_id);
+            $s1->close();
         }
-        $s1->close();
+        catch (ConfigurationUndefinedException|ConnectionException|FailedQueryException $e) {
+            $msg = implode(' ', ['Could not commit', strtolower(static::getContentLabel()), 'record']);
+            throw new CommitException($e->throwMessage($msg));
+        }
     }
 
     /**
