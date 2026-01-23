@@ -194,7 +194,7 @@ trait MySQLOperations
     {
         $result = $this->fetchRecords($query, $types, ...$vars);
         $row = $result[0]->json_result;
-        $json = json_decode($row, true);
+        $json = json_decode($row);
         if ($json === null) {
             throw new FailedQueryException('Could not decode JSON result.');
         }
