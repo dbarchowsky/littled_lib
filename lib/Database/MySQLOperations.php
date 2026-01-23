@@ -183,6 +183,25 @@ trait MySQLOperations
     }
 
     /**
+     * Returns associative array retrieved with a database query.
+     * @param string $query SQL query to execute
+     * @param string $types
+     * @param mixed $vars,...
+     * @return array Array of generic objects.
+     * @throws FailedQueryException
+     */
+    public function fetchJson(string $query, string $types = '', ...$vars): array
+    {
+        $result = $this->fetchRecords($query, $types, ...$vars);
+        $row = $result[0]->json_result;
+        $json = json_decode($row, true);
+        if ($json === null) {
+            throw new FailedQueryException('Could not decode JSON result.');
+        }
+        return $json;
+    }
+
+    /**
      * Returns records from a database query. This routine will eat up all result sets returned by
      * the execution of the query. Use fetchRecordsNonExhaustive() to return only the first result.
      * @param string $query SQL query to execute
