@@ -682,6 +682,7 @@ abstract class SerializedRecordList extends SerializedContentIO
      */
     protected function unshiftLink(LinkedContent $link): void
     {
+        $link->setParentId($this->getParentId());
         array_unshift($this->records, $link);
         for($i=0; $i< count($this->records); $i++) {
             $this->records[$i]->setIndex($i);
