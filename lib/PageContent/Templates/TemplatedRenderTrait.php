@@ -35,7 +35,9 @@ trait TemplatedRenderTrait
             // If the class isn't a descendant of \Request\RenderedInput, then attempt to get the template path value
             // from the RenderedInput class.
             $path = RenderedInput::getTemplateBasePath();
-            static::setTemplateBasePath($path);
+            if (!empty($path)) {
+                static::setTemplateBasePath($path);
+            }
         }
         return $path;
     }
