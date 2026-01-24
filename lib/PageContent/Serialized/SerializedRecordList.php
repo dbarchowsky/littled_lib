@@ -503,6 +503,17 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
+     * @inheritDoc
+     */
+    public function preserveInForm(array $excluded_keys = []): void
+    {
+        parent::preserveInForm($excluded_keys);
+        foreach($this->records as $record) {
+            $record->preserveInForm([$this->getParentKey(), ...$excluded_keys]);
+        }
+    }
+
+    /**
      * Push link on stack and make the necessary updates to the state of the list of linked records.
      * @param LinkedContent $link
      * @return void
