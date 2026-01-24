@@ -293,9 +293,11 @@ trait SerializedFieldOperations
             if ($item instanceof RenderedInput && !in_array($item->key, $excluded_keys)) {
                 // make sure to use the template path for the base object, which is a hidden input element
                 $item->saveInForm(RenderedInput::getHiddenTemplatePath());
+                $excluded_keys[] = $item->getKey();
             }
             elseif(is_object($item) && method_exists($item, 'preserveInForm')) {
                 $item->preserveInForm($excluded_keys);
+                $excluded_keys[] = $item->getKey();
             }
         }
     }
