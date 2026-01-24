@@ -5,6 +5,7 @@ namespace Littled\PageContent\Templates;
 use Littled\PageContent\ContentUtils;
 use Littled\Request\RenderedInput;
 use Littled\Utility\LittledUtility;
+use Littled\Validation\Validation;
 
 trait TemplatedRenderTrait
 {
@@ -31,11 +32,11 @@ trait TemplatedRenderTrait
     public static function getTemplateBasePath(): string
     {
         $path = static::getConfigurationValue('template_base_path');
-        if (empty($path)) {
+        if (empty($path) && !Validation::isSubclass(static::class, RenderedInput::class)) {
             // If the class isn't a descendant of \Request\RenderedInput, then attempt to get the template path value
             // from the RenderedInput class.
             $path = RenderedInput::getTemplateBasePath();
-            if (!empty($path)) {
+            if (empty($path)) {
                 static::setTemplateBasePath($path);
             }
         }
