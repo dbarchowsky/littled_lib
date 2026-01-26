@@ -2,6 +2,7 @@
 namespace Littled\Database;
 
 use ArgumentCountError;
+use Error;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
@@ -393,7 +394,15 @@ trait MySQLOperations
         if (!isset($this->mysqli)) {
             return false;
         }
-        return $this->mysqli->thread_id > 0;
+        try {
+            return $this->mysqli->thread_id > 0;
+        }
+        catch (Error $e) {
+            if (preg_match('/mysqli .*already closed/', $e->getMessage())) {
+                return false;
+            }
+            throw $e;
+        }
     }
 
     /**
