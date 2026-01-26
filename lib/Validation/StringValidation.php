@@ -7,6 +7,23 @@ use DateTime;
 
 class StringValidation extends ValueValidation
 {
+    public static function isDate(string $date, array|string|null $format = null): bool
+    {
+        if (is_string($format)) {
+            $format = [$format];
+        }
+        else {
+            $format ??= ['Y-m-d', 'Y-m-d H:i:s', 'Y-m-d H:i', 'Y-n-j', 'n/j/Y', 'm/d/Y'];
+        }
+        foreach ($format as $f) {
+            $d = DateTime::createFromFormat($f, $date);
+            if ($d && $d->format($f) === $date) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Tests if there are non-whitespace characters in a string.
      * @param string|null $var
