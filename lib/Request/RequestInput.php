@@ -361,6 +361,18 @@ abstract class RequestInput
     }
 
     /**
+     * Sets the value of the object's "has errors" flag and error message.'
+     * @param string $error
+     * @return $this
+     */
+    public function setValidationError(string $error): static
+    {
+        $this->has_errors = true;
+        $this->error = $error;
+        return $this;
+    }
+
+    /**
      * Chainable routine that sets column name property value.
      * @param string $column_name The name of the column in the database corresponding to this object.
      * @return $this
@@ -446,8 +458,7 @@ abstract class RequestInput
      */
     protected function throwValidationError( string $err )
     {
-        $this->has_errors = true;
-        $this->error = $err;
+        $this->setValidationError($err);
         throw new ContentValidationException($this->error);
     }
 
