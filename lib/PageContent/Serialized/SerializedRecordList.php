@@ -731,8 +731,8 @@ abstract class SerializedRecordList extends SerializedContentIO
         foreach($this->records as $record) {
             try {
                 $record->validateInput($exclude_properties);
-            } catch (ContentValidationException) {
-                $this->addValidationError($record->validationErrors());
+            } catch (ContentValidationException $ex) {
+                $this->addValidationError($ex->getMessage());
             }
         }
         if ($this->isRequired() && count($this->records) < 1) {
