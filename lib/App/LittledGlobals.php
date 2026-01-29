@@ -78,7 +78,7 @@ class LittledGlobals
      */
     public static function getAppSetting(string $key): mixed
     {
-        if (!isset(static::${$key}) || empty(static::${$key})) {
+        if (!isset(static::${$key}) || static::${$key} === null) {
             throw new ConfigurationUndefinedException("A value has not been assigned to the \"$key\" LittledGlobals property.");
         }
         return static::${$key};
