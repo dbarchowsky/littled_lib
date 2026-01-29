@@ -297,7 +297,9 @@ trait SerializedFieldOperations
             }
             elseif(is_object($item) && method_exists($item, 'preserveInForm')) {
                 $item->preserveInForm($excluded_keys);
-                $excluded_keys[] = $item->getKey();
+                if (method_exists($item, 'getKey')) {
+                    $excluded_keys[] = $item->getKey();
+                }
             }
         }
     }
