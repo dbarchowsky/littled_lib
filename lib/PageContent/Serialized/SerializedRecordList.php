@@ -422,6 +422,23 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
+     * Returns true if the object properties have a validation error or if any of the child records have a validation error.
+     * @return bool
+     */
+    public function hasValidationErrors(): bool
+    {
+        if (parent::hasValidationErrors()) {
+            return true;
+        }
+        foreach($this->records as $record) {
+            if ($record->hasValidationErrors()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Insert link object onto the list, at the beginning of the list.
      * @param LinkedContent $link
      * @return $this
