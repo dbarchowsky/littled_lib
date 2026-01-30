@@ -732,7 +732,7 @@ abstract class SerializedRecordList extends SerializedContentIO
             try {
                 $record->validateInput($exclude_properties);
             }
-            catch (ContentValidationException $ex) {
+            catch (ContentValidationException) {
                 /* continue */
             }
         }

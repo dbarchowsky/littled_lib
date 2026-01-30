@@ -62,7 +62,8 @@ class SerializedContentValidation extends SerializedContentUtils
             return '';
         }
         return (($include_header && $this->validation_message) ? ($this->validation_message . $delimiter) : ('')) .
-            $this->validation_errors->getErrorsString($delimiter);
+            implode($delimiter, $this->validationErrors());
+
     }
 
     /**
