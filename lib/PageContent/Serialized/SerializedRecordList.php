@@ -744,4 +744,17 @@ abstract class SerializedRecordList extends SerializedContentIO
             throw new ContentValidationException($this->validation_message);
         }
     }
+
+    /**
+     * Returns an array of validation errors from the parent object and all child objects.
+     * @return array
+     */
+    public function validationErrors(): array
+    {
+        $list = parent::validationErrors();
+        foreach($this->records as $record) {
+            $list = array_merge($list, $record->validationErrors());
+        }
+        return $list;
+    }
 }
