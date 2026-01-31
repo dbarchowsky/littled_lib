@@ -88,12 +88,13 @@ class Address extends SerializedContent
         $this->state = (new State())
             ->applyLabelPrefix('State')
             ->setRecordsetPrefix('state_')
-            ->applyInputKeyPrefix('a')
-            ->setAsNotRequired();
+            ->applyInputKeyPrefix('a');
         $this->state->id
             ->setLabel('State')
             ->setKey('stateId')
             ->setAsRequired();
+        $this->state->name->setAsNotRequired();
+        $this->state->abbrev->setAsNotRequired();
         $this->non_us_state = new StringTextField('Non US State', 'nonUSState', false, '', 100);
         $this->zip = new StringTextField('Zip Code', 'adzc', true, '', 20);
         $this->country = new StringTextField('Country', 'adcn', false, '', 100);
