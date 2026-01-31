@@ -12,12 +12,11 @@ class SerializedContentValidation extends SerializedContentUtils
     protected bool                  $bypass_validation = false;
     protected ValidationErrors      $validation_errors;
     /** @var string                 Error message returned when invalid form data is encountered. */
-    public string                   $validation_message = '';
+    public string                   $validation_message = 'Required information is missing.';
 
     public function __construct()
     {
         $this->validation_errors = new ValidationErrors();
-        $this->validation_message = 'Required information is missing.';
     }
 
     /**
