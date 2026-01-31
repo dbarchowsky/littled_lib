@@ -88,7 +88,8 @@ class Address extends SerializedContent
         $this->state = (new State())
             ->applyLabelPrefix('State')
             ->setRecordsetPrefix('state_')
-            ->applyInputKeyPrefix('a');
+            ->applyInputKeyPrefix('a')
+            ->setAsNotRequired();
         $this->state->id
             ->setLabel('State')
             ->setKey('stateId')
