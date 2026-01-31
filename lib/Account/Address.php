@@ -86,6 +86,7 @@ class Address extends SerializedContent
         $this->address2 = new StringTextField('Street', 'ads2', false, '', 100);
         $this->city = new StringTextField('City', 'adct', true, '', 50);
         $this->state = (new State())
+            ->applyLabelPrefix('State')
             ->setRecordsetPrefix('state_')
             ->applyInputKeyPrefix('a');
         $this->state->id
