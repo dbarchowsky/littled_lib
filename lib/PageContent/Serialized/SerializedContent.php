@@ -376,23 +376,27 @@ abstract class SerializedContent extends SerializedContentIO
 
     /**
      * @inheritDoc
-     * @throws FailedQueryException
+     * @throws CommitException
      * @throws ContentValidationException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
      */
     public function save(): void
     {
-        if (!$this->hasData()) {
+        if (!$this->hasRecordData()) {
             throw new ContentValidationException('Record has no data to save.');
         }
-        if ($this->id->hasData() && !$this->id->isDatabaseField() && $this->recordExists()) {
-            throw new RecordNotFoundException('A matching record is not available to update.');
-        }
 
-        $this->executeCommitQuery();
-        $this->commitLinkedRecords();
+        try {
+            $this->executeCommitQuery();
+            $this->commitLinkedRecords();
+        }
+        catch (FailedQueryException |
+            ContentValidationException |
+            InvalidValueException |
+            NotImplementedException |
+            RecordNotFoundException $e) {
+            $msg = implode(' ', ['Error saving ', strtolower(static::getContentLabel()), 'record']);
+            throw new CommitException($e->throwMessage($msg));
+        }
     }
 
     /**
