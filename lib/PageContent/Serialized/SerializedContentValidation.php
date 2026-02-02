@@ -128,10 +128,11 @@ class SerializedContentValidation extends SerializedContentUtils
      * Validates the internal property values of the object for data that is not valid.
      * Updates the $validation_errors property of the object with messages describing the invalid values.
      * @param array $exclude_properties Names of class properties to exclude from validation.
+     * @param bool $clear_existing Optional flag controlling whether to clear existing validation errors before validation. Defaults to true.
      * @return void
      * @throws ContentValidationException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         if (true === $this->bypass_validation) {
             $this->validateKeyProperties($exclude_properties);
@@ -141,7 +142,9 @@ class SerializedContentValidation extends SerializedContentUtils
             return;
         }
 
-        $this->validation_errors->clear();
+        if ($clear_existing) {
+            $this->validation_errors->clear();
+        }
         foreach ($this as $key => $property) {
             if (in_array($key, $exclude_properties)) {
                 continue;
