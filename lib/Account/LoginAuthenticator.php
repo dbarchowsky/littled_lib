@@ -2,7 +2,6 @@
 
 namespace Littled\Account;
 
-
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -20,8 +19,8 @@ use Littled\Request\StringInput;
 class LoginAuthenticator extends UserLogin
 {
     /** @var string Value to insert in the login form */
-    const LOGIN_ACTION = 'login';
-    /** @var string URI of page containing login authentication form. */
+    const string LOGIN_ACTION = 'login';
+    /** @var string URI of the page containing a login authentication form. */
     protected static string $login_uri = '';
     /** @var bool Flag to allow overrides of login situations. */
     public bool $bypass_login = false;
@@ -48,7 +47,7 @@ class LoginAuthenticator extends UserLogin
      */
     public function authenticate(int $access_level = 100): void
     {
-        if (!$this->uname->value || !$this->password->value || $this->access->value > $access_level) {
+        if (!$this->uname->value || !$this->password->value || $this->access->getRecordId() > $access_level) {
             $this->logged_in = false;
         }
 
@@ -106,7 +105,7 @@ class LoginAuthenticator extends UserLogin
         $_SESSION[$this->id->key] = $this->id->value;
         $_SESSION[$this->uname->key] = $this->uname->value;
         $_SESSION[$this->password->key] = $this->password->value;
-        $_SESSION[$this->access->key] = $this->access->value;
+        $_SESSION[$this->access->id->key] = $this->access->id->value;
         $_SESSION[$this->contact_info->email->key] = $this->contact_info->email->value;
         $_SESSION[$this->contact_info->first_name->key] = $this->contact_info->first_name->value;
         $_SESSION[$this->contact_info->last_name->key] = $this->contact_info->last_name->value;
@@ -126,7 +125,7 @@ class LoginAuthenticator extends UserLogin
         unset($_SESSION[$this->id->key]);
         unset($_SESSION[$this->uname->key]);
         unset($_SESSION[$this->password->key]);
-        unset($_SESSION[$this->access->key]);
+        unset($_SESSION[$this->access->id->key]);
         unset($_SESSION[$this->contact_info->email->key]);
         unset($_SESSION[$this->contact_info->first_name->key]);
         unset($_SESSION[$this->contact_info->last_name->key]);
@@ -171,10 +170,11 @@ class LoginAuthenticator extends UserLogin
     /**
      * Validates form data submitted from the login form.
      * Throws exception if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
-     * @param string[] $exclude_properties (Optional) List of property names to exclude from validation.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
             $this->uname->validate();
@@ -192,7 +192,7 @@ class LoginAuthenticator extends UserLogin
     }
 
     /**
-     * Look up user in database to confirm that the login and password match an existing and valid login record.
+     * Look up a user in a database to confirm that the login and password match an existing and valid login record.
      * Sets the values of the object's logged_in property to indicate if valid login settings were detected.
      * Logs the user in if a valid database record is found.
      * @param int $accessLevel Token representing the level of access required to view the current page.
@@ -227,7 +227,7 @@ class LoginAuthenticator extends UserLogin
         $this->contact_info->first_name->value = $rs[0]->firstname;
         $this->contact_info->last_name->value = $rs[0]->lastname;
         $this->contact_info->email->value = $rs[0]->email;
-        $this->access->value = $rs[0]->access;
+        $this->access->id->value = $rs[0]->access;
 
         $this->login();
     }
@@ -243,7 +243,7 @@ class LoginAuthenticator extends UserLogin
         if (isset($_SESSION[$this->id->key]) && ($_SESSION[$this->id->key] > 0) &&
             isset($_SESSION[$this->uname->key]) && (strlen($_SESSION[$this->uname->key]) > 0) &&
             isset($_SESSION[$this->password->key]) && (strlen($_SESSION[$this->password->key]) > 0) &&
-            ((isset($_SESSION[$this->access->key])) && ($_SESSION[$this->access->key]) >= $accessLevel)) {
+            ((isset($_SESSION[$this->access->id->key])) && ($_SESSION[$this->access->id->value]) >= $accessLevel)) {
             /* user is logged in for this session */
             $this->collectFromSession();
             $this->logged_in = true;

@@ -2,7 +2,6 @@
 
 namespace Littled\Account;
 
-use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Request\StringPasswordField;
@@ -17,13 +16,13 @@ class PasswordUpdate extends UserAccount
      * - The password matches the confirmation password.
      * - Both the password and confirmation password were entered in the form if they are required.
      * Throws exception if the form data is not valid, with the specific errors returned in the Exception's getMessage method.
-     * @param array $exclude_properties Associative list of properties to exclude from validation.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         if ($this->id->value > 0 && $this->password->value) {
             $query = 'SELECT id FROM ' . static::getTableName() . ' WHERE `password` = PASSWORD(?) AND id = ?';

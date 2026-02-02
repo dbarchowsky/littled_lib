@@ -14,13 +14,13 @@ class UserAccess extends SerializedContent
 
     protected static string $table_name = 'user_access';
 
-    public const ID_KEY = 'accessId';
+    public const string ID_KEY = 'accessId';
     /** @var int Disabled value. */
-    const NO_AUTHENTICATION = 1;
+    const int NO_AUTHENTICATION = 1;
     /** @var int Basic credentials token value. */
-    const BASIC_AUTHENTICATION = 2;
+    const int BASIC_AUTHENTICATION = 2;
     /** @var int Admin credentials token value. */
-    const ADMIN_AUTHENTICATION = 3;
+    const int ADMIN_AUTHENTICATION = 3;
 
     public function __construct()
     {

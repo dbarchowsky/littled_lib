@@ -39,7 +39,7 @@ class PasswordReset extends UserAccount
     }
 
     /**
-     * Getter for modify account uri.
+     * Getter for modified account uri.
      * @return string Modify account uri.
      * @throws ConfigurationUndefinedException
      */
@@ -52,7 +52,7 @@ class PasswordReset extends UserAccount
     }
 
     /**
-     * Getter for reset password email template path.
+     * Getter for a reset password email template path.
      * @return string Reset password email template path.
      * @throws ConfigurationUndefinedException
      */
@@ -134,7 +134,7 @@ class PasswordReset extends UserAccount
     }
 
     /**
-     * Setter for modify account uri
+     * Setter for modified account uri
      * @param string $uri Modify account uri
      */
     public static function setModifyAccountURI(string $uri): void
@@ -157,13 +157,14 @@ class PasswordReset extends UserAccount
 
     /**
      * Validates form data submitted from the reset password form.
-     * @param string[] $exclude_properties List of variable names to exclude from validation.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
      * @throws Exception
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         $this->connectToDatabase();
 

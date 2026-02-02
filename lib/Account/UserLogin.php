@@ -2,7 +2,6 @@
 
 namespace Littled\Account;
 
-
 use Exception;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
@@ -10,6 +9,7 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidCredentialsException;
 use Littled\Request\StringTextField;
 use Littled\Request\StringPasswordField;
+
 
 /**
  * Class UserLogin
@@ -112,14 +112,15 @@ class UserLogin extends UserAccount
      * Validates form data submitted from the registration form.
      * Password is not entered during registration. It is assigned after the person has been approved.
      * Throws ContentValidationException if the form data is not valid, with the specific errors returned to the Exception's getMessage method.
-     * @param array $exclude_properties Optional array of properties to exclude from validation.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @return void
      * @throws ContentValidationException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput();
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException|FailedQueryException) {
             /* continue */
         }

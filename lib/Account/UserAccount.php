@@ -22,44 +22,38 @@ use Exception;
  */
 abstract class UserAccount extends SerializedContent
 {
-    /** @var int Type of site content represented by user account records, as found in the site_content table. */
-    const SITE_SECTION_ID = 10;
-    /** @var string */
-    protected static string $table_name = 'site_user';
-    /** @var string AES key used to encrypt passwords */
-    protected static string $aes_key = '';
-    /** @var string Name of variable holding record id value. */
-    const ID_KEY = 'suid';
-    const USERNAME_KEY = 'uaUsername';
-    /** @var string Name of variable holding password value for authentication purposes. */
-    const PASSWORD_KEY = 'supw';
-    /** @var string Name of variable holding requested access value. */
-    const ACCESS_KEY = 'suac';
-    /** @var string Account activation URI. */
-    protected static string $account_activation_uri = '';
-    /** @var string Email address to display for support issues. */
-    protected static string $contact_email = '';
-    /** @var string Registration notice email template path. */
-    protected static string $registration_notice_email_template = '';
+    /** Type of site content represented by user account records, as found in the site_content table. */
+    const int                       SITE_SECTION_ID = 10;
+    protected static string         $table_name = 'site_user';
+    /** AES key used to encrypt passwords */
+    protected static string         $aes_key = '';
+    /** Name of variable holding record id value. */
+    const string                    ID_KEY = 'suid';
+    const string                    USERNAME_KEY = 'uaUsername';
+    /** Name of variable holding password value for authentication purposes. */
+    const string                    PASSWORD_KEY = 'supw';
+    /** Name of variable holding requested access value. */
+    const string                    ACCESS_KEY = 'suac';
+    /** Account activation URI. */
+    protected static string         $account_activation_uri = '';
+    /** Email address to display for support issues. */
+    protected static string         $contact_email = '';
+    /** Registration notice email template path. */
+    protected static string         $registration_notice_email_template = '';
 
     /** @var StringTextField Username/login. */
-    public StringTextField $uname;
+    public StringTextField          $uname;
     /** @var StringTextField Pointer to username/login property. */
-    public StringTextField $username;
-    public StringPasswordField $password;
-    public StringPasswordField $password_confirm;
-    public Address $contact_info;
-    public UserAccess $access;
-    /** @var BooleanCheckbox Flag allowing the user account to opt in or out of email contact. */
-    public BooleanCheckbox $email_opt_in;
-    /** @var BooleanCheckbox Flag allowing the user account to opt in or out of postal contact. */
-    public BooleanCheckbox $postal_opt_in;
-    /** @var IntegerInput Pointer to the record id of the contact information record linked to this user account. */
-    public IntegerInput $contact_id;
-    /** @var string Shortcut to the first and last name associated with the account. */
-    public string $fullname;
-    /** @var string Name of sender for password reset emails. */
-    protected string $sender_name;
+    public StringTextField          $username;
+    public StringPasswordField      $password;
+    public StringPasswordField      $password_confirm;
+    public Address                  $contact_info;
+    public UserAccess               $access;
+    public BooleanCheckbox          $email_opt_in;
+    public BooleanCheckbox          $postal_opt_in;
+    public IntegerInput             $contact_id;
+    public string                   $fullname;
+    protected string                $sender_name;
 
     /**
      * UserAccount constructor.
@@ -115,6 +109,7 @@ abstract class UserAccount extends SerializedContent
 
     /**
      * @inheritDoc
+     * @throws ConfigurationUndefinedException
      */
     public function formatCommitQuery(): array
     {
@@ -288,14 +283,15 @@ abstract class UserAccount extends SerializedContent
      * Validates form data submitted from the registration form.
      * Password is not entered during registration. It is assigned after the person has been approved.
      * Throws ContentValidationException if the form data is not valid, with the specific errors returned to the Exception's getMessage method.
-     * @param array $exclude_properties Optional array of properties to exclude from validation.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException
      * @throws FailedQueryException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput();
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException) {
             /* continue */
         }

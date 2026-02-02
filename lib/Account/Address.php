@@ -9,7 +9,6 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\ResourceUnavailableException;
@@ -33,13 +32,13 @@ class Address extends SerializedContent
     protected static string $api_keys_path;
     protected static string $address_data_template = 'forms/data/address_class_data.php';
     protected static string $street_address_data_template = 'forms/data/street_address_form_data.php';
-    public const ID_KEY = 'adid';
-    public const LOCATION_KEY = 'adlo';
+    public const string ID_KEY = 'adid';
+    public const string LOCATION_KEY = 'adlo';
     // possible values for formatting address data into strings
-    public const FORMAT_ADDRESS_ONE_LINE = 'one_line';
-    public const FORMAT_ADDRESS_HTML = 'html';
-    public const FORMAT_ADDRESS_GOOGLE = 'google';
-    protected const GOOGLE_MAPS_API_URI = 'https://maps.googleapis.com/maps/api/geocode/json?key=%s&address=';
+    public const string FORMAT_ADDRESS_ONE_LINE = 'one_line';
+    public const string FORMAT_ADDRESS_HTML = 'html';
+    public const string FORMAT_ADDRESS_GOOGLE = 'google';
+    protected const string GOOGLE_MAPS_API_URI = 'https://maps.googleapis.com/maps/api/geocode/json?key=%s&address=';
 
     public StringSelect         $salutation;
     public StringTextField      $first_name;
@@ -571,11 +570,8 @@ class Address extends SerializedContent
             parent::save();
         }
         // @codeCoverageIgnoreStart
-        catch(FailedQueryException |
-            ContentValidationException |
-            InvalidValueException |
-            NotImplementedException |
-            RecordNotFoundException $e) {
+        catch(ContentValidationException |
+        RecordNotFoundException $e) {
             throw new CommitException($e->throwMessage("Error saving $content_label record"));
         }
         // @codeCoverageIgnoreEnd
