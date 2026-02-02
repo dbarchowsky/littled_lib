@@ -1,15 +1,15 @@
 <?php
 namespace Littled\PageContent\SiteSection;
 
+use Littled\Exception\CommitException;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
 use Littled\PageContent\ContentUtils;
@@ -153,12 +153,13 @@ class KeywordSectionContent extends SectionContent
 
     /**
      * @inheritDoc
+     * @return string
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws InvalidStateException
-     * @throws ReadException
-     * @throws RecordNotFoundException
      * @throws NotInitializedException
+     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function delete(): string
     {
@@ -374,10 +375,9 @@ class KeywordSectionContent extends SectionContent
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
      * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws CommitException
      */
     public function save(): void
     {
@@ -476,15 +476,16 @@ class KeywordSectionContent extends SectionContent
     /**
      * Validates the internal property values of the object for data that is not valid.
      * Updates the $validation_errors property of the object with messages describing the invalid values.
-     * @param array $exclude_properties (Optional) Collection of variable names to ignore in the request data.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException Errors found in the form data.
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
             /* bypass validation of site section properties */
             $exclude_properties[] = 'content_properties';
-            parent::validateInput($exclude_properties);
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException) {
             /* continue validating collected request data */
         }

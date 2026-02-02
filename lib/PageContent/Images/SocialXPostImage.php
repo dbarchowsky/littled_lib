@@ -5,14 +5,10 @@ namespace Littled\PageContent\Images;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\StringInput;
 
@@ -24,26 +20,20 @@ class SocialXPostImage extends ImageUpload
 {
     /** @var StringInput        Flickr post id */
     public StringInput          $flickr_id;
-    /** @var StringInput        WordPress post id */
+    /** @var StringInput        The id of the WordPress post */
     public StringInput          $wp_id;
-    /** @var StringInput        Twitter post id */
+    /** @var StringInput        The id of the Twitter post */
     public StringInput          $twitter_id;
-    /** @var StringInput        Short URL, e.g. Bit.ly URL */
+    /** @var StringInput        Short URL, e.g., Bit.ly URL */
     public StringInput          $short_url;
 
     /**
-     * @param bool $generic_params (Optional) If set to true then the parameter names of the object's id, parent id,
-     * and type id parameters will be set to generic names, ie "id", "pid", and "tid". Defaults to true.
-     * @param int $content_type_id (Optional) ID of this collection's site section within the CMS.
-     * @param int $parent_id (Optional) ID of the image collection's parent content record.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     * @throws InvalidStateException
-     * @throws InvalidValueException
+     * @param bool $generic_params (Optional) If set to true, then the parameter names of the object's id, parent id,
+     * And type id parameters will be set to generic names, i.e. "id", "pid", and "tid". Defaults to true.
+     * @param null $content_type_id (Optional) ID of this collection's site section within the CMS.
+     * @param null $parent_id (Optional) ID of the image collection's parent content record.
+     * @throws FailedQueryException
+     * @throws RecordUnavailableException
      */
     function __construct($generic_params = true, $content_type_id = null, $parent_id = null)
     {
@@ -69,20 +59,17 @@ class SocialXPostImage extends ImageUpload
     }
 
     /**
-     * Retrieve image properties from database.
+     * Retrieve image properties from a database.
      * @param bool $read_keywords (Optional) Flag to suppress retrieving keywords linked to the image_link record.
      * Defaults to TRUE.
      * @return $this
-     * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
-     * @throws InvalidValueException
-     * @throws InvalidStateException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     * @throws ReadException
+     * @throws RecordUnavailableException
      */
-    function read(bool $read_keywords = true): SocialXPostImage
+    function read(bool $read_keywords = true): static
     {
         parent::read($read_keywords);
 
@@ -105,17 +92,14 @@ class SocialXPostImage extends ImageUpload
     }
 
     /**
-     * Upload images attached to the object, and save their properties in the database.
+     * Upload images attached to the object and save their properties in the database.
      * @param bool $save_keywords (Optional) Update keywords for the record. Defaults to true.
      * @param bool $randomize_filename
-     * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
+     * @throws FailedQueryException
      */
     function save(bool $save_keywords = true, bool $randomize_filename = false): void
     {

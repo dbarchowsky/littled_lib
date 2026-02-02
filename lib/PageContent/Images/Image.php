@@ -4,7 +4,8 @@ namespace Littled\PageContent\Images;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\RecordNotFoundException;
 
 
 class Image extends ImageOperations
@@ -17,7 +18,8 @@ class Image extends ImageOperations
      * @return int Record id of the new thumbnail image record.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     public function generateThumbnail(string $sub_dir, int $target_length, string $column_name): int
     {

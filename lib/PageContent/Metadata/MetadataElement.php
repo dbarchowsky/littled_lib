@@ -10,7 +10,7 @@ class MetadataElement
     public string       $value;
     public string       $content;
     /** @var array */
-    protected const     valid_attributes = ['name', 'http-equiv', 'charset', 'itemprop', 'property'];
+    protected const     array valid_attributes = ['name', 'http-equiv', 'charset', 'itemprop', 'property'];
 
     /**
      * @param string $attribute

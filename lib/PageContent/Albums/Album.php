@@ -4,18 +4,16 @@ namespace Littled\PageContent\Albums;
 
 use Exception;
 use Littled\App\LittledGlobals;
+use Littled\Exception\CommitException;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\PrimaryKeyInput;
 use Littled\Validation\Validation;
@@ -45,9 +43,9 @@ class Album extends KeywordSectionContent
     /** @var string Id http variable name. */
     const ID_KEY = 'abid';
     /** @var string Title http variable name. */
-    const TITLE_KEY = 'ab' . 'ti';
+    const string TITLE_KEY = 'ab' . 'ti';
     /** @var string Description http variable name. */
-    const DESCRIPTION_KEY = 'ab' . 'ds';
+    const string DESCRIPTION_KEY = 'ab' . 'ds';
     /** @var Gallery Album gallery containing images, pages, clips, views, etc. */
     public Gallery $gallery;
     /** @var StringTextField Name/title of the record. */
@@ -85,14 +83,10 @@ class Album extends KeywordSectionContent
      * @param int $images_content_type_id The id of the gallery's site section
      * @param ?int $id (Optional) The id of the content record.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
-     * @throws InvalidTypeException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws InvalidValueException
+     * @throws RecordUnavailableException
      */
     function __construct(int $content_type_id, int $images_content_type_id, ?int $id = null)
     {
@@ -127,9 +121,11 @@ class Album extends KeywordSectionContent
      * specific id parameter (GET and POST), and any slug that may have been used to request the album.
      * @param ?array $src Array of variables to use to fill object properties if not using POST data to fill object property values.
      * @return void
+     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
+     * @throws ConnectionException
      */
     public function collectAlbumID(?array $src = null): void
     {
@@ -163,14 +159,10 @@ class Album extends KeywordSectionContent
      * @param ?array $src Optional array of variables to use to fill the object's property values instead of using POST data.
      * @return $this
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function collectRequestData(?array $src = null): static
     {
@@ -195,7 +187,7 @@ class Album extends KeywordSectionContent
         if ($this->id->value === null) {
             $this->id->collectRequestData($src);
         }
-        $this->section_id->value = $this->getContentPropertyId();
+        $this->section_id->value = $this->getContentTypeId();
         $this->title->collectRequestData($src);
         if ($this->id->value > 0) {
             $this->slug->collectRequestData($src);
@@ -213,15 +205,13 @@ class Album extends KeywordSectionContent
      * Deletes core content record, along with all gallery images and keywords.
      * @return string Status message reporting the results of the operation.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
      * @throws ContentValidationException
      * @throws FailedQueryException
-     * @throws InvalidQueryException
      * @throws InvalidStateException
-     * @throws InvalidTypeException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
      * @throws NotInitializedException
+     * @throws ReadException
+     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function delete(): string
     {
@@ -233,7 +223,7 @@ class Album extends KeywordSectionContent
         $status = $this->gallery->delete();
 
         /* N.B. logic for deleting keyword records linked to the album and
-         * the album's thumbnail were removed. I believe that keywords are
+         * the album's thumbnail was removed. I believe that keywords are
          * deleted in the db_keyword_content_class::delete() routine, and
          * that the thumbnail record is deleted as part of the
          * gallery_class::delete() routine.
@@ -247,11 +237,9 @@ class Album extends KeywordSectionContent
 
     /**
      * Returns a message to display to indicate that a record was successfully removed.
-     * @returns string Message to display to indicate a successful deletion operation.
-     * @throws ContentValidationException
-     * @throws FailedQueryException
+     * @return string
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     protected function formatDeleteStatusMessage(): string
     {
@@ -330,10 +318,8 @@ class Album extends KeywordSectionContent
     /**
      * Returns the title of the album.
      * @return string Title of the album.
-     * @throws ContentValidationException
-     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function getBookTitle(): string
     {
@@ -345,9 +331,10 @@ class Album extends KeywordSectionContent
      * @param bool $read_keywords Optional flag. If set to true, keywords associated with the image will also be retrieved. Defaults to false.
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws ConnectionException
-     * @throws Exception
+     * @throws RecordUnavailableException
      */
     public function getDefaultPage(bool $read_keywords = false): void
     {
@@ -420,7 +407,7 @@ class Album extends KeywordSectionContent
     protected function hasThumbnailLink(): bool
     {
         return (
-            /* manual setting from database specifying to use a gallery image as the album thumbnail */
+            /* manual setting from the database specifying to use a gallery image as the album thumbnail */
             $this->content_properties->gallery_thumbnail->value == true &&
 
             /* test that there is one and only one image currently in the gallery */
@@ -479,7 +466,7 @@ class Album extends KeywordSectionContent
     {
         $first_page_id = $last_page_id = null;
         $record_id = $this->getRecordId();
-        $content_type_id = $this->getContentPropertyId();
+        $content_type_id = $this->getContentTypeId();
         $query = 'CALL albumFirstPageSelect(?,?)';
         $data = $this->fetchRecords($query, 'ii', $record_id, $content_type_id);
         if (count($data) > 0) {
@@ -502,14 +489,12 @@ class Album extends KeywordSectionContent
      * Read the content record, along with its site section properties, gallery images, and keywords.
      * @param bool $read_images (Optional) Flag to additionally read all the images attached to the record. Defaults to true.
      * @param bool $read_image_keywords (Optional) Flag to additionally read the keywords for all the images in the gallery. Defaults to false.
+     * @return Album
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws Exception
+     * @throws RecordUnavailableException
      */
     public function read(bool $read_images = true, bool $read_image_keywords = false): static
     {
@@ -539,7 +524,7 @@ class Album extends KeywordSectionContent
              * content type???
              */
             $query = 'SELECT `id` FROM `site_section` WHERE `parent_id` = ?';
-            $content_type_id = $this->getContentPropertyId();
+            $content_type_id = $this->getContentTypeId();
             $data = $this->fetchRecords($query, 'i', $content_type_id);
             $this->gallery->content_properties->id->value = ((count($data) > 0) ? ($data[0]->id) : (null));
         }
@@ -558,10 +543,10 @@ class Album extends KeywordSectionContent
      * @param int $page_id The id of the image_link record to load.
      * @param bool $read_keywords (optional) if set to true, keywords associated with the image will also be retrieved. defaults to false.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws Exception
+     * @throws RecordUnavailableException
+     * @throws ReadException
      */
     public function readPage(int $page_id, bool $read_keywords = false): void
     {
@@ -583,13 +568,13 @@ class Album extends KeywordSectionContent
      * @param bool $update_cache (Optional) Flag to additionally update the content cache. Default TRUE.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ContentValidationException
-     * @throws RecordNotFoundException
      * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     * @throws ReadException
+     * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
+     * @throws CommitException
      * @throws Exception
      */
     public function save(bool $save_thumbnail = true, bool $update_cache = true): void
@@ -653,7 +638,6 @@ class Album extends KeywordSectionContent
     /**
      * Updates the slot value on new album records to put the new record at the top of the list.
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
     protected function setDefaultSlotValue(): void
@@ -713,7 +697,6 @@ class Album extends KeywordSectionContent
      * @param bool $has_slot
      * @param bool $has_section_id
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
     protected function testForSlotColumns(bool &$has_slot, bool &$has_section_id): void
@@ -750,7 +733,6 @@ class Album extends KeywordSectionContent
     /**
      * Updates the internal column that stores all keywords for this record and all of its child records used for fulltext searches.
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
     public function updateFulltextKeywords(): void
@@ -760,21 +742,22 @@ class Album extends KeywordSectionContent
 
         $query = 'CALL albumFulltextKeywordsUpdate(' . static::getTableName() . ',?,?,?';
         $record_id = $this->getRecordId();
-        $content_type_id = $this->getContentPropertyId();
+        $content_type_id = $this->getContentTypeId();
         $gallery_content_type_id = static::getPagesContentType();
         $this->query($query, 'iii', $record_id, $content_type_id, $gallery_content_type_id);
     }
 
     /**
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput();
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException) {
             /* continue */
         }
@@ -801,9 +784,8 @@ class Album extends KeywordSectionContent
 
     /**
      * Validates the current value of the object's $slug property against existing records in the database.
-    /**
+     * /**
      * @return void
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      */

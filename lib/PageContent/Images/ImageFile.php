@@ -6,7 +6,7 @@ namespace Littled\PageContent\Images;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\OperationAbortedException;
@@ -22,7 +22,7 @@ use Littled\Utility\LittledUtility;
  */
 class ImageFile extends ImageBase
 {
-    /** @var string Target filename of image file that is saved to disk. */
+    /** @var string Target the filename of an image file that is saved to disk. */
     protected string $target_name = '';
 
     /**
@@ -30,7 +30,7 @@ class ImageFile extends ImageBase
      * @param string $target_basename New filename for the image file.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function changeFilename(string $target_basename): void
     {
@@ -49,19 +49,18 @@ class ImageFile extends ImageBase
         @rename($image_root . $this->path->value, $image_root . $new_path);
         $this->path->value = $new_path;
 
-        $query = 'UPDATE `images` SET `path` = ' . $this->path->escapeSQL($this->mysqli) . " WHERE `id` = {$this->id->value}";
-        $this->query($query);
+        $query = 'UPDATE `images` SET `path` = ? WHERE `id` = ?';
+        $this->query($query, 's', $this->path->value, $this->id->value);
     }
 
     /**
      * Using an image id, look up the path to the image and delete the image file off the server.
-     * @param ?int $img_id id of the image. (image.id) if set to null it will use the value of the id properties of the image object
+     * @param ?int $img_id id of the image. (image.id) if set to null, it will use the value of the id properties of the image object
      * @param bool $bypass_on_match If true, don't delete the file if the path in the database matches the current value image class object's path property. Default is false.
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws InvalidQueryException
-     * @throws ConnectionException
      */
     public function deleteExistingImageFile(?int $img_id = null, bool $bypass_on_match = false): void
     {
@@ -72,7 +71,7 @@ class ImageFile extends ImageBase
             throw new ContentValidationException('Image id not provided.');
         }
 
-        /* Retrieve image path from database. */
+        /* Retrieve image path from the database. */
         $query = "SELECT `path` FROM `images` WHERE `id` = $img_id";
         $result = $this->fetchRecords($query);
         if (count($result) < 1) {
@@ -82,9 +81,9 @@ class ImageFile extends ImageBase
 
         /* got a value from the database */
         if ($db_path) {
-            /* don't delete on matching filename if that option is specified */
+            /* avoid deleting on matching filename if that option is specified */
             if ($bypass_on_match && basename($db_path) != basename($this->path->value)) {
-                /* make sure file exists before attempting to delete */
+                /* make sure the file exists before attempting to delete */
                 if (file_exists($this->getSiteRoot($db_path) . $db_path)) {
                     @unlink($this->getSiteRoot($db_path) . $db_path);
                 }
@@ -93,7 +92,7 @@ class ImageFile extends ImageBase
     }
 
     /**
-     * Extract the keywords from image file linked to the Image object.
+     * Extract the keywords from an image file linked to the Image object.
      * @param Keyword[] $keywords Array to use to store keyword data.
      * @param int $parent_id Record id of the content object to which the image is linked.
      * @param int $keyword_content_type_id Content type identifier for the images.
@@ -117,9 +116,9 @@ class ImageFile extends ImageBase
 
     /**
      * Reads keywords stored in an image file's metadata.
-     * @param string $path Path to image file containing keywords.
+     * @param string $path Path to an image file containing keywords.
      * @param Keyword[] $keywords Keyword list to be filled from source.
-     * @throws ResourceNotFoundException Image file not found at $path.
+     * @throws ResourceNotFoundException Image file isn't found at $path.
      */
     protected function extractKeywordsFromFile(string $path, array &$keywords): void
     {
@@ -129,7 +128,7 @@ class ImageFile extends ImageBase
         }
         getimagesize($path, $info);
         if (isset($info['APP13'])) {
-            /* extract keywords from source */
+            /* extract keywords from the source */
             $iptc = iptcparse($info['APP13']);
             if (is_array($iptc) && array_key_exists('2#025', $iptc)) {
                 $keywords = $iptc['2#025'];
@@ -139,6 +138,7 @@ class ImageFile extends ImageBase
 
     protected function formatCommitQuery(): array
     {
+        /** @noinspection SpellCheckingInspection */
         return [
             'CALL imagesUpdate(?,?,?,?,?,?,?,?)',
             'isiissss',
@@ -154,7 +154,7 @@ class ImageFile extends ImageBase
 
     /**
      * Renames an upload with a new name if specified with $target_basename, or with a random filename if $bRandomize is true. Also replaces whitespace in the filename with dashes.
-     * @param string $target_name Path to image file.
+     * @param string $target_name Path to an image file.
      * @param string $target_basename Optional new name for the image file.
      * @param boolean $randomize If set to true, the new upload file will be given a randomized name.
      * @return string The new filename.
@@ -168,7 +168,7 @@ class ImageFile extends ImageBase
             /* change filename to new filename */
             $target_name = $target_basename . substr($target_name, strrpos($target_name, '.'));
         } elseif ($randomize) {
-            /* change filename to the current date followed by a random string */
+            /* change the filename to the current date followed by a random string */
             $target_name = PageUtils::generateRandomFilename(8, preg_replace('/.*\.(.*)$/i', "\$1", $target_name));
         }
         /* remove whitespace */
@@ -176,8 +176,8 @@ class ImageFile extends ImageBase
     }
 
     /**
-     * Adds index to filename until a unique file name is found for the image. Also updates the value of the $filename parameter.
-     * @param string $dir_name Name of destination directory for the image.
+     * Adds index to the filename until a unique file name is found for the image. Also updates the value of the $filename parameter.
+     * @param string $dir_name Name of the destination directory for the image.
      * @param string $filename Target filename of the image.
      * @return string New, unique path for the image.
      */
@@ -202,7 +202,7 @@ class ImageFile extends ImageBase
     }
 
     /**
-     * @param string $path Path to use to determine file extension. If omitted, object's internal $path property value will be used.
+     * @param string $path Path to use to determine file extension. If omitted, the object's internal $path property value will be used.
      * @return string File extension.
      * @throws InvalidValueException
      */
@@ -222,13 +222,14 @@ class ImageFile extends ImageBase
      * Return the absolute path to the site's root directory. If $path is supplied, append that path to the root path. The path that is returned will always have a forward slash at the end of it.
      * @param string $sub_dir Path of any subdirectory within the site that should be appended to the root path.
      * @return string The full local path, with a forward slash at the end of it, including the subdirectory if supplied.
-     * @throws ConfigurationUndefinedException APP_BASE_DIR constant not defined.
+     * @throws ConfigurationUndefinedException
      */
     public function getSiteRoot(string $sub_dir = ''): string
     {
         if (!defined('APP_BASE_DIR')) {
             throw new ConfigurationUndefinedException('APP_BASE_DIR not defined.');
         }
+        /** @noinspection PhpUndefinedConstantInspection */
         $path = APP_BASE_DIR;
         if ($path == '' && property_exists($this, 'path')) {
             $path = $this->path->value;
@@ -267,7 +268,7 @@ class ImageFile extends ImageBase
      */
     protected function moveUploadToDestination($tmp_path, $target_name, $upload_dir): void
     {
-        /* no resampling: move file to its directory */
+        /* no resampling: move a file to its directory */
         $upload_path = $this->formatUniquePath($upload_dir, $target_name);
         if (!move_uploaded_file($tmp_path, $upload_path)) {
             throw new OperationAbortedException('Error moving uploaded file.');
@@ -295,7 +296,7 @@ class ImageFile extends ImageBase
      * @param string $sub_dir Path within the images directory where the image file should be saved.
      * @param string $target_basename Target filename for the final image file.
      * @param bool $randomize Randomize the destination filename.
-     * @return array Path to temporary upload file. Path to upload directory.
+     * @return array Path to a temporary upload file. Path to upload directory.
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
      * @throws OperationAbortedException
@@ -303,7 +304,7 @@ class ImageFile extends ImageBase
      */
     protected function processUpload(string $sub_dir, string $target_basename, bool $randomize): array
     {
-        /* Get local path to the destination directory for the new image file. */
+        /* Get a local path to the destination directory for the new image file. */
         $image_root = $this->getSiteRoot($this->image_dir);
 
         /* Make sure there is valid data to work with. */
@@ -321,7 +322,7 @@ class ImageFile extends ImageBase
         }
 
         if ($sub_dir == '') {
-            /* extract keywords from original file for main image but not thumbnails */
+            /* extract keywords from an original file for the main image but not thumbnails */
             $keyword_array = [];
             $this->extractKeywordsFromFile($tmp_path, $keyword_array);
         }
@@ -334,17 +335,16 @@ class ImageFile extends ImageBase
      * If this image has already been saved in the database, update its properties, and if a new image file is uploaded, delete the existing image file of the server.
      * @param ImageDims|null $target_dims Target image width and height for the final image file.
      * @param string $target_ext optional file extension of the new image file, converts the image to this type if it's different from the original file type
-     * @param string $sub_dir optional name of the subdirectory in which to place the new image file. this is in addition to the object's interal image_dir property
+     * @param string $sub_dir optional name of the subdirectory in which to place the new image file. this is in addition to the object's internal image_dir property
      * @param string $target_basename optional new name for the image file
-     * @param bool $randomize optional flag if set to true the new image file will be given a randomized filename
+     * @param bool $randomize optional flag if set to true, the new image file will be given a randomized filename
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws InvalidTypeException
      * @throws OperationAbortedException
      * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
      */
     function save(
         ?ImageDims $target_dims = null,
@@ -370,8 +370,8 @@ class ImageFile extends ImageBase
     }
 
     /**
-     * Check file uploaded through form. Make sure a file was uploaded and that it is an accepted file type. Throws Exception if there is anything upacceptable about the upload.
-     * @param string $tmp_path Passed by reference. Set to the temporary name of the uploaded file after return.
+     * Check file uploaded through form. Make sure a file was uploaded and that it is an accepted file type. Throws Exception if there is anything unacceptable about the upload.
+     * @param string $tmp_path Passed by reference. Set to the temporary name of the uploaded file after returning.
      * @param string $target_name Passed by reference. Set to the original name of the file will be stored in this variable after return.
      * @return boolean Returns false if there is no upload to work with. Throws Exception if there is something unacceptable about the upload.
      * @throws InvalidTypeException

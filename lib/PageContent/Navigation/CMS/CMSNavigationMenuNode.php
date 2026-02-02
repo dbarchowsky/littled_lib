@@ -12,7 +12,7 @@ class CMSNavigationMenuNode extends NavigationMenuNode
     /**
      * CMSNavigationMenuNode constructor.
      * @param string $label Menu item label
-     * @param string $url URL that the menu items links to.
+     * @param string $url URL that the menu items link to.
      * @param string $target Browser window to target for the link
      * @param int $level Nesting level of the menu item.
      * @param string $dom_id DOM id to assign to the menu item element

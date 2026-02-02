@@ -5,6 +5,7 @@ namespace Littled\PageContent;
 use JetBrains\PhpStorm\NoReturn;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\NotImplementedException;
@@ -29,14 +30,16 @@ class PageController extends MySQLConnection
     public string $section_base_path = '';
 
     /**
-     * Retrieves album properties (album slug & id) using the referring uri.
-     * - If a matching album record is found the slug and id values will be stored
+     * Retrieves album properties (album slug and id) using the referring uri.
+     * - If a matching album record is found, the slug and id values will be stored
      * in the object's $album_slug and $album_id properties, and the section
      * id and slug will be stored in the object's $section_id and $section_slug properties.
      * @param array $exclude List of paths that will not trigger a redirect.
+     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws RecordNotFoundException
      * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     * @throws ConnectionException
      */
     public function collectAlbumProperties(array $exclude = []): void
     {
@@ -92,7 +95,7 @@ class PageController extends MySQLConnection
     }
 
     /**
-     * Formats URI to album details page using internal path and album id property values.
+     * Formats URI to the album details page using internal path and album id property values.
      * @return string Album details URI.
      * @throws NotImplementedException
      */
@@ -104,10 +107,10 @@ class PageController extends MySQLConnection
     }
 
     /**
-     * Looks up album record using the slug value.
+     * It looks up an album record using the slug value.
      * - Stores album record id in the object's $album_id property.
      * @param string $slug (Optional) Sets the object's internal $album_slug property
-     * to this value if provided. If not provided the current $album_slug value
+     * to this value if provided. If not provided, the current $album_slug value
      * is used to look up the album record.
      * @param int|null $section_id (Optional) Content type id used to search album records.
      * If a value is not provided, then the object's internal "section_id" property
@@ -115,6 +118,7 @@ class PageController extends MySQLConnection
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
+     * @throws ConnectionException
      */
     public function lookupAlbumProperties(string $slug = '', ?int $section_id = null): void
     {
@@ -156,8 +160,8 @@ class PageController extends MySQLConnection
     }
 
     /**
-     * Looks up matching site section records using the $slug value.
-     * - Returns path to the site section content on the server.
+     * It looks up matching site section records using the $slug value.
+     * - Returns a path to the site section content on the server.
      * - Stores the site section record id in the object's "section_id" property.
      * - Stores the path to the section base directory in the object's $section_base_path property.
      * @param string $slug (Optional) Sets the object's internal $section_slug
@@ -197,7 +201,7 @@ class PageController extends MySQLConnection
     }
 
     /**
-     * Formats path to content root directory, relative to the web root directory.
+     * Formats path to the content root directory, relative to the web root directory.
      * Stores the result in the object's $section_base_path property.
      * @param string $base_path Path to the content section's base directory, relative to the web root.
      * @param string $subdirectory (Optional) subdirectory name.
@@ -219,12 +223,14 @@ class PageController extends MySQLConnection
      * - Redirect to either the section or the page within the section using the
      * section and page slugs.
      * @param array $exclude Array of values representing the URL of the
-     * current page. These values are matched against the original url value and
-     * if they don't match a redirect to the requested content will be attempted.
+     * current page. These values are matched against the original url value, and
+     * if they don't match, a redirect to the requested content will be attempted.
+     * @throws ConnectionException
      * @throws ContentValidationException
-     * @throws RecordNotFoundException
      * @throws FailedQueryException
      * @throws NotImplementedException
+     * @throws RecordNotFoundException
+     * @throws ConnectionException
      */
     public function testForRedirect(array $exclude = []): void
     {

@@ -41,9 +41,9 @@ abstract class RoutedPageContent extends PageContent
     protected static string         $template_filename='';
     protected int                   $update_type = self::UPDATE_NONE;
 
-    public const                    UPDATE_NONE = 0;
-    public const                    UPDATE_NEW = 1;
-    public const                    UPDATE_EXISTING = 2;
+    public const                    int UPDATE_NONE = 0;
+    public const                    int UPDATE_NEW = 1;
+    public const                    int UPDATE_EXISTING = 2;
 
     /**
      * @throws ConfigurationUndefinedException

@@ -2,13 +2,10 @@
 
 namespace Littled\PageContent\Images;
 
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\IntegerInput;
@@ -25,7 +22,7 @@ use Littled\Request\StringTextarea;
 abstract class ImageBase extends SerializedContent
 {
     /** @var array HTTP request variable names. */
-    const vars = [
+    const array vars = [
         'id' => 'imid',
         'path' => 'pat',
         'original_path' => 'pat_orig',
@@ -36,7 +33,7 @@ abstract class ImageBase extends SerializedContent
         'target' => 'imtg',
         'caption' => 'imca'
     ];
-    const TABLE_NAME = 'images';
+    const string TABLE_NAME = 'images';
     /** @var StringInput Image filename. */
     public StringInput $path;
     /** @var IntegerInput Image width. */
@@ -47,7 +44,7 @@ abstract class ImageBase extends SerializedContent
     public StringTextField $alt;
     /** @var StringTextField URL if image is linked. */
     public StringTextField $url;
-    /** @var StringTextField Target if image is linked. */
+    /** @var StringTextField Target if the image is linked. */
     public StringTextField $target;
     /** @var StringTextarea Image caption. */
     public StringTextarea $caption;
@@ -70,17 +67,17 @@ abstract class ImageBase extends SerializedContent
     /**
      * class constructor
      * @param string $image_dir Upload destination.
-     * @param string $key_prefix Prepend this string to all variabls involved with uploading the image data in forms.
-     * @param int|null $id Initial value to assign to the objct's id property.
-     * @param int|null $index Index of this image wihen handling a series of images, either as uploads or as
+     * @param string $key_prefix Prepend this string to all variables involved with uploading the image data in forms.
+     * @param int|null $id Initial value to assign to the object's id property.
+     * @param int|null $index Index of this image when handling a series of images, either as uploads or as
      * properties retrieved from a database.
-     * @param string|null $path Path (or filename) of image file.
+     * @param string|null $path Path (or filename) of an image file.
      * @param int|null $width Image width in pixels.
      * @param int|null $height Image height in pixels.
      * @param string|null $alt Image alt tag value.
      * @param string|null $url Arbitrary URI that the image links to.
-     * @param string|null $target Value for target attribute when linking images.
-     * @param string|null $caption Image caption/descrption.
+     * @param string|null $target Value for the target attribute when linking images.
+     * @param string|null $caption Image caption/description.
      */
     function __construct(
         string  $image_dir,
@@ -178,24 +175,6 @@ abstract class ImageBase extends SerializedContent
     }
 
     /**
-     * Returns SQL query used to save image properties to the database.
-     * @return string SQL query.
-     */
-    protected function formatUpdateQuery(): string
-    {
-        return ('CALL imagesUpdate(' .
-            $this->id->escapeSQL($this->mysqli) . ',' .
-            $this->path->escapeSQL($this->mysqli) . ',' .
-            $this->width->escapeSQL($this->mysqli) . ',' .
-            $this->height->escapeSQL($this->mysqli) . ',' .
-            $this->alt->escapeSQL($this->mysqli) . ',' .
-            $this->url->escapeSQL($this->mysqli) . ',' .
-            $this->target->escapeSQL($this->mysqli) . ',' .
-            $this->caption->escapeSQL($this->mysqli) . ',' .
-            '1);');
-    }
-
-    /**
      * Checks if the object currently holds any data that would require being saved to the database.
      * @return bool TRUE if the object contains data. FALSE if the object doesn't contain data.
      */
@@ -219,16 +198,13 @@ abstract class ImageBase extends SerializedContent
 
     /**
      * Overrides parent method to ensure that the method returns silently if the object's id value is not set.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
+     * @return ImageBase
+     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws InvalidValueException
+     * @throws RecordNotFoundException
+     * @throws ReadException
      */
-    public function read(): ImageBase
+    public function read(): static
     {
         if ($this->id->value === null || $this->id->value < 0) {
             throw new NotInitializedException('An image record id was not provided.');
@@ -241,9 +217,8 @@ abstract class ImageBase extends SerializedContent
      * Upload, resize, and place an image file on the server submitted through a form.
      * Save the image properties in the database.
      * If this image has already been saved in the database, update its properties, and if a new image file is uploaded, delete the existing image file of the server.
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     public function save(): void
     {
@@ -252,9 +227,7 @@ abstract class ImageBase extends SerializedContent
         }
 
         /* save image properties in the database */
-        $this->connectToDatabase();
-        $query = $this->formatUpdateQuery();
-        $this->query($query);
+        $this->query(...$this->formatCommitQuery());
 
         /* retrieve id of any new image records */
         if ($this->id->value === null) {
@@ -291,10 +264,11 @@ abstract class ImageBase extends SerializedContent
 
     /**
      * Validates the current values of the object properties.
-     * @param string[] $exclude_properties Names of object properties that should not be validated.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException Invalid property values found.
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         if ($this->id->value === null) {
             try {

@@ -25,9 +25,9 @@ abstract class ContentController
 {
     use StaticDBConnector;
 
-    public const OPERATION_LISTINGS = 'listings';
-    public const OPERATION_DETAILS = 'details';
-    public const OPERATION_EDIT = 'edit';
+    public const string OPERATION_LISTINGS = 'listings';
+    public const string OPERATION_DETAILS = 'details';
+    public const string OPERATION_EDIT = 'edit';
 
     /**
      * Returns a navigation route for a given SiteSection page type and operation.

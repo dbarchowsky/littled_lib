@@ -12,7 +12,7 @@ class NavigationMenuNode extends NavigationNodeBase
     protected static string $node_template_path = '';
     /** @var string Description */
     public string $title = '';
-    /** @var string Path to image to display as content of the menu node. */
+    /** @var string Path to the image to display as content of the menu node. */
     public string $image_path = '';
     /** @var int Nesting level of the node. */
     public int $level = 0;

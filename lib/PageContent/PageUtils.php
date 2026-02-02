@@ -13,7 +13,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Validation\Validation;
 
 /**
- * Class containing collection of static page manipulation methods.
+ * Class containing a collection of static page manipulation methods.
  */
 class PageUtils
 {
@@ -36,7 +36,7 @@ class PageUtils
     }
 
     /**
-     * Handles redirects to other pages. If page argument "ref" has a value,
+     * Handles redirects to other pages. If the page argument "ref" has a value,
      * that will be used as the url for the redirect, overriding the $sURI argument passed to the script.
      * @param string $target_uri URI to redirect to.
      * @param ?string $msg Optional message to pass along to the next page.
@@ -52,10 +52,11 @@ class PageUtils
         $iPos = strpos($uri, '/');
         if (is_numeric($iPos) && ($iPos == 0)) {
             /* NB INPUT_SERVER is unreliable with filter_input() */
-            $uri = 'http://' . $_SERVER['HTTP_HOST'] . $uri;
+            $uri = 'https://' . $_SERVER['HTTP_HOST'] . $uri;
         }
 
         if (function_exists('cleanup')) {
+            /** @noinspection PhpUndefinedFunctionInspection */
             cleanup();
         }
         header("Location: $uri\n\n");
@@ -133,7 +134,7 @@ class PageUtils
     }
 
     /**
-     * Generates a randomized filenames of varying lengths.
+     * Generates a randomized filename of varying lengths.
      * @param int $size Size of the file name (excluding the extension).
      * @param string $file_extension Extension to add to the filename
      * @return string Randomized filename.
@@ -141,6 +142,7 @@ class PageUtils
     public static function generateRandomFilename(int $size, string $file_extension): string
     {
         $filename = '';
+        /** @noinspection SpellCheckingInspection */
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         for ($i = 0; $i < $size; $i++) {
             $idx = rand(0, 61);
@@ -158,6 +160,7 @@ class PageUtils
     public static function generateRandomString(int $size, bool $alphanumeric_only = true): string
     {
         $rand_str = '';
+        /** @noinspection SpellCheckingInspection */
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         if (!$alphanumeric_only) {
             $chars .= '@#!*^|:;%';
@@ -174,7 +177,7 @@ class PageUtils
      * Fetches remote content when curl is not available.
      * @param string $hostname Host name
      * @param string $url URL of the remote content
-     * @return string Content read from remote source.
+     * @return string Content read from a remote source.
      * @throws ConfigurationUndefinedException
      */
     public static function getRemoteContent(string $hostname, string $url): string
@@ -183,10 +186,11 @@ class PageUtils
             throw new ConfigurationUndefinedException('NON_SECURE_SERVER not defined in app settings.');
         }
         $crlf = "\r\n";
-        $f = fsockopen($hostname, 80, $errno, $errstr, 12);
+        $f = fsockopen($hostname, 80, $errno, $err_msg, 12);
 
         fputs($f, "GET $url HTTP/1.0\r\n");
         fputs($f, "Host: $hostname\r\n");
+        /** @noinspection PhpUndefinedConstantInspection */
         fputs($f, 'Referer: ' . NON_SECURE_SERVER . "\r\n");
         fputs($f, "User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)\r\n\r\n");
 
@@ -206,7 +210,7 @@ class PageUtils
 
     /**
      * Highlights a keyword within a larger string. Won't insert the tags around the keyword if it's found within HTML tags.
-     * see: http://stackoverflow.com/questions/4081372/highlight-keywords-in-a-paragraph
+     * See: http://stackoverflow.com/questions/4081372/highlight-keywords-in-a-paragraph
      * @param string $src String to search for the keyword text.
      * @param string $keyword String to search for and highlight.
      * @return string The original text with SPAN tags inserted around the keyword with a class attribute of 'highlight'.
@@ -255,8 +259,8 @@ class PageUtils
      */
     public static function realpath(string $path): string
     {
-        // check if path begins with "/" i.e. is absolute
-        // if it isn't concat with script path
+        // check if a path begins with "/" i.e., is absolute
+        // if it isn't concat with a script path
         if (!str_starts_with($path, '/')) {
             $base = dirname($_SERVER['SCRIPT_FILENAME']);
             $path = $base . '/' . $path;
@@ -277,7 +281,7 @@ class PageUtils
         }
         $final_path = '/' . implode('/', $new_path) . '/';
 
-        // check then return valid path or filename
+        // check then return a valid path or filename
         if (file_exists($final_path)) {
             return ($final_path);
         } else {
@@ -325,7 +329,7 @@ class PageUtils
     /**
      * Appends a trailing slash.
      * Will remove trailing forward and backslashes if it exists already before adding
-     * a trailing forward slash. This prevents double slashing a string or path.
+     * a trailing forward slash. This prevents doubly slashing a string or path.
      * The primary use of this is for paths and thus should be used for paths. It is
      * not restricted to paths and offers no specific path support.
      * @param string $string What to add the trailing slash to.

@@ -13,7 +13,6 @@ use Littled\PageContent\Serialized\SerializedContent;
 use Littled\Request\BooleanCheckbox;
 use Littled\Request\IntegerSelect;
 use Littled\Request\StringTextField;
-use Exception;
 
 
 /**
@@ -21,7 +20,7 @@ use Exception;
  */
 class ContentProperties extends SerializedContent
 {
-    const                           ID_KEY = 'ssid';
+    const                           string ID_KEY = 'ssid';
     protected static int            $content_type_id = 27;
     protected static string         $table_name = 'site_section';
     /** @var StringTextField        Name of the content. */

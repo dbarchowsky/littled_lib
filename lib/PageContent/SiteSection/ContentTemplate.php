@@ -334,16 +334,17 @@ class ContentTemplate extends SerializedContent
     /**
      * Validates the data stored in the instance. Error messages are stored in the instance's $validation_errors
      * property.
-     * @param string[] $exclude_properties (Optional) Names of class properties to exclude from validation.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws Exception
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput(['parentID']);
+            parent::validateInput(['parentID'], $clear_existing);
         } catch (ContentValidationException) { /* continue */
         }
 

@@ -67,11 +67,8 @@ class ResortBase extends MySQLConnection
 
         $this->edit_dom_id->collectRequestData($src);
         $this->position_offset->collectRequestData($src);
-        $position_str = '';
         if (array_key_exists($this->position_list->key, $src)) {
             $position_str = trim(filter_var($src[$this->position_list->key], FILTER_UNSAFE_RAW));
-        }
-        if ($position_str) {
             $this->position_list->value = json_decode($position_str);
         }
     }
@@ -97,7 +94,7 @@ class ResortBase extends MySQLConnection
         switch ($this->content_properties->table->value) {
             case 'ImageLink':
                 /*
-                 * in the case of images you can't just get all the records in the table
+                 * in the case of images, you can't just get all the records in the table
                  * they must be filtered by type and parent id
                  */
                 $data = $this->retrieveImageIDs();
@@ -156,7 +153,7 @@ class ResortBase extends MySQLConnection
 
     /**
      * Commit resorted slot values to database.
-     * @return string String containing description of the results of the operation.
+     * @return string String containing a description of the results of the operation.
      * @throws OperationAbortedException
      */
     function save(): string

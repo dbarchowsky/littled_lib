@@ -24,14 +24,6 @@ abstract class ContentCache extends MySQLConnection
     protected static string $controller_class = ContentController::class;
 
     /**
-     * class constructor
-     */
-    function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Controller class getter
      * @return string
      * @throws ConfigurationUndefinedException
@@ -47,8 +39,8 @@ abstract class ContentCache extends MySQLConnection
     /**
      * Returns the path to the template used to render the markup returned to the client and sets
      * any necessary state property values within the $page object.
-     * @param APIRoute $page Page content object used to return markup to client.
-     * @param string $operation Token representing operation being requested by the client.
+     * @param APIRoute $page Page content object used to return markup to a client.
+     * @param string $operation Token representing the operation being requested by the client.
      * @return string
      */
     protected abstract static function loadJsonTemplatePath(APIRoute $page, string $operation): string;
@@ -84,7 +76,7 @@ abstract class ContentCache extends MySQLConnection
     }
 
     /**
-     * Updates parent link to child based on content type.
+     * Updates a parent link to a child based on content type.
      * @param SectionContent $content Content type object.
      */
     public abstract static function setInitialProperties(SectionContent $content);
@@ -106,18 +98,11 @@ abstract class ContentCache extends MySQLConnection
      * @param int $id Record id of the record to update.
      * @param int $content_id Content type id of the record being updated.
      * @throws Exception
+     * @noinspection PhpUnusedParameterInspection
      */
     public static function updateKeywords(int $id, int $content_id): void
     {
-        $_content = null;
-
         static::updateKeywordsByType($content_id);
-
-        if (is_object($_content)) {
-            $_content->id->value = $id;
-            $_content->update_fulltext_keywords();
-            unset($_content);
-        }
     }
 
     /**
@@ -125,6 +110,7 @@ abstract class ContentCache extends MySQLConnection
      * @param int $content_id
      * @return void
      * @throws NotImplementedException
+     * @noinspection PhpUnusedParameterInspection
      */
     protected static function updateKeywordsByType(int $content_id): void
     {

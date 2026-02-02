@@ -8,8 +8,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Cache\ContentCache;
@@ -33,7 +31,7 @@ class ImageLink extends KeywordSectionContent
     /** @var string Name of class to use to cache content. */
     protected static string $cache_class = ContentCache::class;
     /** @var array HTTP request variable names. */
-    const vars = array(
+    const array vars = array(
         'id' => 'ilid',
         'parent_id' => 'ilpi',
         'content_type' => 'ilti',
@@ -93,7 +91,6 @@ class ImageLink extends KeywordSectionContent
      * @param string $caption
      * @param int|null $slot
      * @param string $access
-     * @throws InvalidStateException
      */
     function __construct(
         string  $image_dir = '',
@@ -203,10 +200,10 @@ class ImageLink extends KeywordSectionContent
     /**
      * Deletes image_link record along with all images records and files attached to the record.
      * @return string Status message detailing the results of the operation.
-     * @throws RecordNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      * @throws Exception
      */
     public function delete(): string
@@ -240,9 +237,8 @@ class ImageLink extends KeywordSectionContent
      * @return string Description of the results of the operation.
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
-     * @throws InvalidQueryException
-     * @throws Exception
      */
     protected static function deleteLinkedImage(Image $image, string $description): string
     {
@@ -309,7 +305,7 @@ class ImageLink extends KeywordSectionContent
                     'FROM `image_link` ' .
                     'WHERE `parent_id` = ? ' .
                     'AND `type_id` = ?';
-                $content_type_id = $this->getContentPropertyId();
+                $content_type_id = $this->getContentTypeId();
                 $data = $this->fetchRecords($query, 'ii', $this->parent_id->value, $content_type_id);
                 $page_count = $data[0]->count;
 
@@ -319,7 +315,7 @@ class ImageLink extends KeywordSectionContent
                     $this->query($query, 'si', $parent_table, $this->parent_id->value);
                 } else {
                     $query = 'CALL thumbnailUpdateParentWithImageLink(?,?,?,?)';
-                    $content_type_id = $this->getContentPropertyId();
+                    $content_type_id = $this->getContentTypeId();
                     $this->query($query,
                         'siii',
                         $parent_table,
@@ -453,6 +449,7 @@ class ImageLink extends KeywordSectionContent
     /**
      * Returns the content type id of the parent of this ImageLink record.
      * @return int|null Parent content type id.
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
     public function getParentContentTypeID(): ?int
@@ -547,9 +544,9 @@ class ImageLink extends KeywordSectionContent
      * Adds to parent's save_keywords routine to also save a cached set of the keywords in a single column of the image_link record to be used with fulltext searches.
      * Also updates parent's keywords if the parent object has a keyword cache.
      * @return $this
-     * @throws InvalidStateException
-     * @throws RecordNotFoundException
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     public function saveKeywords(): static
     {
@@ -644,7 +641,7 @@ class ImageLink extends KeywordSectionContent
          * goal of this logic is.
          */
         if ($this->parent_id->value > 0 && $this->content_properties->getParentTypeID()) {
-            ContentCache::updateKeywords($this->parent_id->value, $this->getContentPropertyId());
+            ContentCache::updateKeywords($this->parent_id->value, $this->getContentTypeId());
         }
     }
 
@@ -706,13 +703,14 @@ class ImageLink extends KeywordSectionContent
 
     /**
      * Validates object properties after they have been filled from form data.
-     * @param array $exclude_properties Array of properties that should not be validated.
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException Errors found in object property values.
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput($exclude_properties);
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException) {
             /* continue */
         }

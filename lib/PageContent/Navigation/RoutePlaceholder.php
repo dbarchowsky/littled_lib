@@ -10,7 +10,7 @@ class RoutePlaceholder
     public string $pattern = '';
     public string $type = 'int';
     public string $wildcard = '';
-    protected const ALLOWED_TYPES = ['int', 'str'];
+    protected const array ALLOWED_TYPES = ['int', 'str'];
 
     /**
      * Replacement pattern setter.

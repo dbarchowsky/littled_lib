@@ -1,12 +1,12 @@
 <?php
+
 namespace Littled\PageContent\SiteSection;
 
+use Littled\Exception\CommitException;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidStateException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
@@ -140,8 +140,8 @@ abstract class SectionContent extends SerializedContent
      * @throws FailedQueryException
      * @throws InvalidStateException
      * @throws NotInitializedException
-     * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function delete(): string
     {
@@ -199,7 +199,7 @@ abstract class SectionContent extends SerializedContent
      * Returns a string representing the type of content of this content record.
      * @return string
      * @throws NotInitializedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function getContentLabel(): string
     {
@@ -307,12 +307,11 @@ abstract class SectionContent extends SerializedContent
     /**
      * @inheritdoc
      * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws ContentValidationException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
+     * @throws CommitException
      */
     public function save(): void
     {
@@ -345,11 +344,13 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @inheritDoc
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         $this->content_properties->bypass_validation = true;
-        parent::validateInput($exclude_properties);
+        parent::validateInput($exclude_properties, $clear_existing);
     }
 }

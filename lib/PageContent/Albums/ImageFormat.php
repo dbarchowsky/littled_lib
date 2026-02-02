@@ -26,7 +26,7 @@ class ImageFormat extends SerializedContent
     public IntegerTextField     $width;
     /** @var IntegerTextField Image target height. */
     public IntegerTextField     $height;
-    /** @var StringSelect Format of the image, e.g. jpeg, gif, png, webp */
+    /** @var StringSelect Format of the image, e.g., jpeg, GIF, png, webp */
     public StringSelect         $format;
     /** @var StringTextField Token to prepend to variable names used to collect image properties record data. */
     public StringTextField      $key_prefix;
@@ -101,6 +101,7 @@ class ImageFormat extends SerializedContent
     /**
      * @inheritDoc
      * Overrides parent routine to use stored procedure that returns extended properties.
+     * @throws ContentValidationException
      */
     function read(): static
     {

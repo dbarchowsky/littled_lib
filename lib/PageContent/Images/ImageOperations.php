@@ -5,10 +5,11 @@ namespace Littled\PageContent\Images;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
-use Littled\Exception\InvalidQueryException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\OperationAbortedException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 
 class ImageOperations extends ImageFile
@@ -95,14 +96,14 @@ class ImageOperations extends ImageFile
     }
 
     /**
-     * Embeds list of keywords in an image file.
+     * Embeds a list of keywords in an image file.
      * @param string[] &$terms List of keywords to embed.
      * image will be assumed to be a scaled down version of an original image.
      * @throws ConfigurationUndefinedException
      */
     protected function embedKeywords(array $terms): void
     {
-        /* preserve keywords in new file, but only if it's the main image and not a thumbnail */
+        /* preserve keywords in a new file, but only if it's the main image and not a thumbnail */
         $iptc_data = '';
         foreach ($terms as $term) {
             $iptc_data .= $this->makeIPTCTag(2, '025', $term);
@@ -117,7 +118,7 @@ class ImageOperations extends ImageFile
 
     /**
      * Format the path to a new resized image file.
-     * @param string $root_path Root path of directory where images are stored.
+     * @param string $root_path Root path of the directory where images are stored.
      * @param string $target_name Target filename of the new image.
      * @param string $src_ext Extension of the source image file, indicating its file type.
      * @param string $target_ext Target extension of the new image, indicating its file type.
@@ -142,7 +143,7 @@ class ImageOperations extends ImageFile
     /**
      * Read raw image pixel data to manipulate.
      * @param string $path Path to image.
-     * @param string $extension Extension of the image to indicate file type.
+     * @param string $extension Extension of the image to indicate a file type.
      * @return resource Image pixel data.
      * @throws InvalidTypeException Unsupported image file type.
      */
@@ -159,7 +160,7 @@ class ImageOperations extends ImageFile
 
     /**
      * Loads image properties for the image file specified with $src_path.
-     * @param string $src_path Path to source image file.
+     * @param string $src_path Path to a source image file.
      * @param string $target_name New filename of manipulated image.
      * @return array Image properties: image data, file extension, and image dimensions.
      * @throws InvalidTypeException Unsupported image file type.
@@ -171,7 +172,7 @@ class ImageOperations extends ImageFile
         /* get file type of uploaded image */
         $ext = $this->getFileExtension($target_name);
 
-        /* validate path */
+        /* validate a path */
         if (!file_exists($src_path)) {
             throw new ResourceNotFoundException("File not available for resampling: $src_path.");
         }
@@ -185,7 +186,7 @@ class ImageOperations extends ImageFile
     }
 
     /**
-     * Converts keyword term into IPTC tag to embed in image file.
+     * Converts keyword term into IPTC tag to embed in an image file.
      * @param int $rec
      * @param string $data
      * @param string $value keyword term.
@@ -218,13 +219,14 @@ class ImageOperations extends ImageFile
      * @param string $sub_dir Path withing the image root directory where the new image will be saved.
      * @param string $field_name Field within the database that stores the thumbnail id.
      * @return int Record id of the thumbnail record.
-     * @throws InvalidTypeException
-     * @throws OperationAbortedException
-     * @throws ResourceNotFoundException
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws InvalidTypeException
      * @throws InvalidValueException
+     * @throws OperationAbortedException
+     * @throws ResourceNotFoundException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
     function makeThumbnailCopy(
         string    $target_name,
@@ -256,6 +258,7 @@ class ImageOperations extends ImageFile
         }
 
         if ($thumbnail_id > 0) {
+            /** @noinspection SpellCheckingInspection */
             $this->query(
                 'CALL imagesUpdateThumbnail(?,?,?,?,?)',
                 'isiis',
@@ -265,6 +268,7 @@ class ImageOperations extends ImageFile
                 $src_dims->height,
                 $this->alt->value);
         } else {
+            /** @noinspection SpellCheckingInspection */
             $this->query(
                 'CALL imagesInsertThumbnail(?,?,?,?)',
                 'siis',
@@ -282,10 +286,10 @@ class ImageOperations extends ImageFile
      * Resizes an image file.
      * @param string $src_path Path to the source image file.
      * @param string $target_name Filename of the new image file.
-     * @param ImageDims|null $target_dims Target width and height of the new file in pixels.
-     * @param string $target_ext Specify non-default extension for the destination file.
-     * @param string $sub_dir Subdirectory path for destination file. Defaults to no subdirectory.
-     * @param bool $do_cleanup Removes the source file from disk if set to TRUE. Defaults to FALSE.
+     * @param ImageDims|null $target_dims Target the width and height of the new file in pixels.
+     * @param string $target_ext Specify a non-default extension for the destination file.
+     * @param string $sub_dir Subdirectory path for a destination file. Defaults to no subdirectory.
+     * @param bool $do_cleanup Removes the source file from the disk if set to TRUE. Defaults to FALSE.
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException

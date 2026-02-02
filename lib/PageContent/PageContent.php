@@ -4,10 +4,8 @@ namespace Littled\PageContent;
 
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ContentValidationException;
-use Littled\Exception\FailedQueryException;
 use Littled\Exception\NotInitializedException;
-use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -57,10 +55,8 @@ abstract class PageContent extends RouteBase
      */
     /**
      * @return string
-     * @throws ContentValidationException
-     * @throws FailedQueryException
      * @throws NotInitializedException
-     * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function getContentLabel(): string
     {

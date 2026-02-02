@@ -7,13 +7,14 @@ use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidStateException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
 use Littled\Exception\OperationAbortedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
@@ -29,11 +30,11 @@ class ImageUpload extends ImageLink
     public StringInput $upload_type;
     /** @var string $label Label text to accompany buttons and other editing controls for the images. */
     public string $label;
-    /** @var bool $generic_params Flag to indicate that generic parameters should be used to retrieve image, type and parent id values. */
+    /** @var bool $generic_params Flag to indicate that generic parameters should be used to retrieve image, type, and parent id values. */
     public bool $generic_params;
-    const UPLOAD_TYPE_PARAM = 'ut';
-    const SINGLE_UPLOAD = 'single';
-    const LISTINGS_UPLOAD = 'listings';
+    const string UPLOAD_TYPE_PARAM = 'ut';
+    const string SINGLE_UPLOAD = 'single';
+    const string LISTINGS_UPLOAD = 'listings';
 
     public static function ID_PARAM()
     {
@@ -54,14 +55,8 @@ class ImageUpload extends ImageLink
      * Class constructor.
      * @param int|null $content_type_id Record id of this image's site section.
      * @param int|null $parent_type_id
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
+     * @throws FailedQueryException
+     * @throws RecordUnavailableException
      */
     function __construct(?int $content_type_id = null, ?int $parent_type_id = null)
     {
@@ -80,28 +75,24 @@ class ImageUpload extends ImageLink
     }
 
     /**
-     * Collects and parses form data, and assigns internal variables using the form data.
+     * Collects and parses form data and assigns internal variables using the form data.
      * @param array|null $src
+     * @return ImageUpload
      */
-    public function collectRequestData(?array $src = null): void
+    public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData($src);
         $this->new_name->collectRequestData($src);
         $this->page->collectRequestData($src);
         $this->upload_type->collectRequestData($src);
+        return $this;
     }
 
     /**
      * Collects variables needed to load inline edit forms. Sets internal variables based on type id, etc.
      * @param array|null $src
-     * @throws ContentValidationException
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
-     * @throws InvalidValueException
-     * @throws InvalidStateException
+     * @throws FailedQueryException
+     * @throws RecordUnavailableException
      */
     public function collectInlineInput(array $src = null): void
     {
@@ -150,19 +141,16 @@ class ImageUpload extends ImageLink
     }
 
     /**
-     * Retrieve image properties from database.
+     * Retrieve image properties from a database.
      * @param bool $read_keywords Flag to suppress retrieving keywords linked to the image_link record. Defaults to TRUE.
-     * @return $this
+     * @return ImageUpload
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
-    public function read(bool $read_keywords = true): ImageUpload
+    public function read(bool $read_keywords = true): static
     {
         parent::read($read_keywords);
         $this->retrieveLabel();
@@ -170,12 +158,10 @@ class ImageUpload extends ImageLink
     }
 
     /**
-     * Retrieves label for the edit form from database based on the content type of the image.
+     * Retrieves label for the edit form from a database based on the content type of the image.
      * - The label is stored in the object's "label" property.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      */
     public function retrieveLabel(): void
     {
@@ -204,14 +190,8 @@ SQL;
     /**
      * Overrides parent class's routine to set the image id, image type id, and image parent id parameter names to different values.
      * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidStateException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
-     * @throws RecordNotFoundException
+     * @throws FailedQueryException
+     * @throws RecordUnavailableException
      */
     public function retrieveSectionProperties(): void
     {
@@ -224,9 +204,9 @@ SQL;
      * Overrides the image_upload_class's default parameter names for
      * - image id
      * - image parent id
-     * - image type id
+     * - Image type id
      *
-     * @param mixed|null $generic_params (Optional) Flag to override parameter names of the object's id, parent id, and type id parameters will be set to generic names, ie "id", "pid", and "tid".
+     * @param mixed|null $generic_params (Optional) Flag to override parameter names of the object's id, parent id, and type id parameters will be set to generic names, i.e. "id", "pid", and "tid".
      *        Defaults to NULL which will not change the current setting of the "generic_params" property.
      *        Pass in true or false to change the "generic_params" setting of the object.
      */
@@ -254,7 +234,7 @@ SQL;
     /**
      * Upload and process each of the images attached to this object,
      * including operations such as extracting keywords, resizing, and renaming.
-     * @param bool $randomize_filename Flag if set to true the new image file will be given a randomized filename
+     * @param bool $randomize_filename Flag if set to true, the new image file will be given a randomized filename
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      * @throws ContentValidationException
@@ -269,7 +249,7 @@ SQL;
     {
         parent::upload($randomize_filename);
 
-        /* if new name is present, rename the video file */
+        /* if a new name is present, rename the video file */
         if ($this->new_name->value) {
             $properties = array('full', 'med', 'mini');
             foreach ($properties as $property) {
@@ -281,7 +261,7 @@ SQL;
     }
 
     /**
-     * Validates basic data sent to run AJAX script as opposed to validation needed after edit form is submitted.
+     * Validates basic data sent to run an AJAX script as opposed to validation needed after an edit form is submitted.
      * @throws ContentValidationException
      */
     public function validateInlineInput(): void
@@ -294,14 +274,15 @@ SQL;
     }
 
     /**
-     * Validates form data. Throws exception with detailed error message if any invalid form data is detected.
+     * Validates form data. Throws an exception with a detailed error message if any invalid form data is detected.
      * @param array $exclude_properties
+     * @param bool $clear_existing
      * @throws ContentValidationException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput($exclude_properties);
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException) {
             /* continue evaluating form data */
         }

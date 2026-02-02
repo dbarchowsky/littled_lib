@@ -5,8 +5,8 @@ namespace Littled\PageContent;
 
 interface RouteInterface
 {
-    const CANCEL_ACTION = 'cancel';
-    const COMMIT_ACTION = 'commit';
+    const string CANCEL_ACTION = 'cancel';
+    const string COMMIT_ACTION = 'commit';
 
     /**
      * Collect client request data.

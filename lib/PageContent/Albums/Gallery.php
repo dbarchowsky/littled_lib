@@ -2,17 +2,15 @@
 
 namespace Littled\PageContent\Albums;
 
-use Exception;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\ContentValidationException;
-use Littled\Exception\InvalidQueryException;
-use Littled\Exception\InvalidTypeException;
-use Littled\Exception\InvalidValueException;
-use Littled\Exception\NotImplementedException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\FailedQueryException;
+use Littled\Exception\NotInitializedException;
+use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
+use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\Images\ImageLink;
 use Littled\PageContent\Serialized\SerializedContent;
@@ -50,23 +48,19 @@ class Gallery extends MySQLConnection
      * @param int $content_type_id Content type of the gallery
      * @param int|null $parent_type_id (Optional) The id of the gallery's parent record.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     function __construct(int $content_type_id, ?int $parent_type_id = null)
     {
-        parent::__construct();
         $this->content_properties = new ContentProperties($content_type_id);
         $this->parent_id = $parent_type_id;
-        $this->label = "Image";
+        $this->label = 'Image';
 
         $this->list = array();
-        $this->tn = new ImageLink("", "", $content_type_id, $this->parent_id);
+        $this->tn = new ImageLink('', '', $content_type_id, $this->parent_id);
         $this->tn_id = &$this->tn->id;
         $this->type_id = &$this->content_properties->id;
         $this->image_count = -1;
@@ -75,8 +69,8 @@ class Gallery extends MySQLConnection
     }
 
     /**
-     * Returns the form data members of the objects as series of nested associative arrays.
-     * @param array|null $exclude_keys (Optional) array of parameter names to exclude from the returned array.
+     * Returns the form data members of the objects as a series of nested associative arrays.
+     * @param array|null $exclude_keys Optional array of parameter names to exclude from the returned array.
      * @return array Associative array containing the object's form data members as name/value pairs.
      */
     public function arrayEncode(?array $exclude_keys = null): array
@@ -85,18 +79,18 @@ class Gallery extends MySQLConnection
         foreach ($this as $key => $item) {
             if (is_object($item)) {
                 if (!is_array($exclude_keys) || !in_array($key, $exclude_keys)) {
-                    if (is_subclass_of($item, "RequestInput")) {
+                    if (is_subclass_of($item, 'RequestInput')) {
                         $ar[$key] = $item->value;
-                    } elseif (is_subclass_of($item, "SerializedContent")) {
+                    } elseif (is_subclass_of($item, 'SerializedContent')) {
                         /** @var SerializedContent $item */
                         $ar[$key] = $item->arrayEncode();
                     }
                 }
-            } elseif ($key == "list") {
+            } elseif ($key == 'list') {
                 $ar[$key] = array();
                 if (is_array($item)) {
                     foreach ($item as $img_lnk) {
-                        $ar[$key][count($ar[$key])] = $img_lnk->arrayEncode(array("site_section"));
+                        $ar[$key][count($ar[$key])] = $img_lnk->arrayEncode(array('site_section'));
                     }
                 }
             }
@@ -111,13 +105,10 @@ class Gallery extends MySQLConnection
      * the object properties. Otherwise, the values are extracted from POST data.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function collectFromInput(?int $section_id = null, ?array $src = null): void
     {
@@ -151,16 +142,18 @@ class Gallery extends MySQLConnection
     }
 
     /**
-     * Deletes all images records attached to the current gallery including the image files on disk and all the keywords assigned to the images. Also deletes the gallery thumbnail.
+     * Deletes all images records attached to the current gallery, including the image files on disk and all the keywords assigned to the images. Also deletes the gallery thumbnail.
      * @return string String describing the results of the operation.
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
-     * @throws InvalidQueryException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
+     * @throws FailedQueryException
+     * @throws FailedQueryException
      */
     function delete(): string
     {
-        $status = "";
+        $status = '';
         $image_ids = array();
         foreach ($this->list as $image_link) {
             $image_ids[] = $image_link->id->value;
@@ -177,12 +170,11 @@ class Gallery extends MySQLConnection
     /**
      * Retrieves the "gallery thumbnail" setting for the gallery, which indicates that a thumbnail image is expected for the gallery.
      * @return array Containing the gallery thumbnail setting and the parent id of the gallery.
-     * @throws InvalidQueryException
-     * @throws Exception
+     * @throws FailedQueryException
      */
     protected function fetchGalleryThumbnail(): array
     {
-        $query = "CALL galleryGalleryThumbnailSettingSelect(?)";
+        $query = 'CALL galleryGalleryThumbnailSettingSelect(?)';
         $content_type_id = $this->getContentTypeId();
         $data = $this->fetchRecords($query, 'i', $content_type_id);
         if (count($data) > 0) {
@@ -194,11 +186,10 @@ class Gallery extends MySQLConnection
     /**
      * Assigns ImageLink property values using data from query.
      * @param ImageLink $image_link Image set to fill with the data from the recordset row.
-     * @param stdClass $row Recordset row containing data to store in ImageLink object.
-     * @param bool $read_keywords (Optional) Flag indicating that keywords should be retrieved for each image. Default value is FALSE.
-     * @throws ContentValidationException
+     * @param stdClass $row Recordset row containing data to store in an ImageLink object.
+     * @param bool $read_keywords (Optional) Flag indicating that keywords should be retrieved for each image. The default value is FALSE.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
+     * @throws FailedQueryException
      */
     protected function fillImageSetFromRecordset(
         ImageLink $image_link,
@@ -218,12 +209,14 @@ class Gallery extends MySQLConnection
      */
     public function formatItemCountString(): string
     {
-        return (count($this->list) . " " . strtolower($this->content_properties->label->value) . ((count($this->list) != 1) ? ("s") : ("")));
+        return (count($this->list) . ' ' . strtolower($this->content_properties->label->value) . ((count($this->list) != 1) ? ('s') : ('')));
     }
 
     /**
      * Return the label describing this filter's content type.
      * @return string
+     * @throws NotInitializedException
+     * @throws RecordUnavailableException
      */
     public function getContentLabel(): string
     {
@@ -254,13 +247,13 @@ class Gallery extends MySQLConnection
         } elseif ($this->image_count >= 0) {
             return $this->image_count;
         } else {
-            $query = "SELECT COUNT(1) AS `count` FROM `image_link` " .
+            $query = 'SELECT COUNT(1) AS `count` FROM `image_link` ' .
                 "WHERE parent_id = $this->parent_id " .
                 "AND type_id = {$this->type_id->value}";
             $types_str = 'ii';
             $vars = array($this->parent_id, $this->type_id->value);
             if ($access) {
-                $query .= " AND access = ?";
+                $query .= ' AND access = ?';
                 $types_str .= 's';
                 $vars[] = $access;
             }
@@ -291,7 +284,7 @@ class Gallery extends MySQLConnection
     public function isFirstPage(): bool
     {
         return (
-            property_exists($this->list[0], "is_first_page") && (
+            property_exists($this->list[0], 'is_first_page') && (
                 ($this->list[0]->is_first_page->value == true) ||
                 (count($this->list) > 1 && $this->list[1]->is_first_page->value == true)));
     }
@@ -303,7 +296,7 @@ class Gallery extends MySQLConnection
     public function isLastPage(): bool
     {
         return (
-            property_exists($this->list[0], "is_last_page") && (
+            property_exists($this->list[0], 'is_last_page') && (
                 ($this->list[0]->is_last_page->value == true) ||
                 (count($this->list) > 1 && $this->list[1]->is_last_page->value == true)));
     }
@@ -311,17 +304,14 @@ class Gallery extends MySQLConnection
     /**
      * Retrieve all images in the collection.
      * @param bool $read_keywords Optional flag to control if keywords are read for the listings. Defaults to false.
-     * @param bool $read_thumbnails Optional flag to control if the collection's thumbnail record will be retrieved.
+     * @param bool $read_thumbnails Optional flag to control if the collection's thumbnail record is retrieved.
      * Defaults to true.
      * @param bool $public_only Optional flag to indicate that only public images should be retrieved.
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws Exception
+     * @throws RecordUnavailableException
      */
     public function read(bool $read_keywords = false, bool $read_thumbnails = true, bool $public_only = false): void
     {
@@ -330,7 +320,7 @@ class Gallery extends MySQLConnection
         $this->retrieveSectionProperties();
 
         $content_type_id = $this->getContentTypeId();
-        $data = $this->fetchRecords("CALL gallerySelect(?,?,?)",
+        $data = $this->fetchRecords('CALL gallerySelect(?,?,?)',
             'iii',
             $this->parent_id,
             $content_type_id,
@@ -340,8 +330,8 @@ class Gallery extends MySQLConnection
         foreach ($data as $row) {
             $i = count($this->list);
             $this->list[$i] = new ImageLink(
-                $this->content_properties->image_path->value,
-                $this->content_properties->param_prefix->value,
+                '', // $this->content_properties->image_path->value,
+                '', // $this->content_properties->param_prefix->value,
                 $this->content_properties->id->value,
                 $this->parent_id,
                 $row->id);
@@ -357,12 +347,10 @@ class Gallery extends MySQLConnection
      * Retrieves the thumbnail properties for the gallery.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidValueException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
+     * @throws RecordUnavailableException
      */
     public function readThumbnail(): void
     {
@@ -376,7 +364,7 @@ class Gallery extends MySQLConnection
         }
 
         $content_type_id = $this->getContentTypeId();
-        $data = $this->fetchRecords("CALL galleryExternalThumbnailSelect(?,?)",
+        $data = $this->fetchRecords('CALL galleryExternalThumbnailSelect(?,?)',
             'ii',
             $this->parent_id,
             $content_type_id);
@@ -390,15 +378,13 @@ class Gallery extends MySQLConnection
     }
 
     /**
-     * Retrieves the gallery's content properties from database. Sets object's internal values.
+     * Retrieves the gallery's content properties from the database. Sets object's internal values.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws NotImplementedException
+     * @throws FailedQueryException
+     * @throws ReadException
      * @throws RecordNotFoundException
-     * @throws InvalidValueException
+     * @throws RecordUnavailableException
      */
     public function retrieveSectionProperties(): void
     {
@@ -408,7 +394,7 @@ class Gallery extends MySQLConnection
 
         if ($parent_gallery_thumbnail) {
             /**
-             * If the thumbnail is a pointer to one of the images in the gallery its content type value
+             * If the thumbnail is a pointer to one of the images in the gallery, its content type value
              * should match the gallery's content type.
              */
             $this->tn->type_id->value = $this->type_id->value;
@@ -417,10 +403,12 @@ class Gallery extends MySQLConnection
         }
         $this->tn->retrieveSectionProperties();
 
+        /*
         if ($this->content_properties->image_label->value !== null &&
             $this->content_properties->image_label->value != "") {
             $this->label = $this->content_properties->image_label->value;
         }
+        */
     }
 
     /**
@@ -429,10 +417,7 @@ class Gallery extends MySQLConnection
      * the gallery's core properties. FALSE by default.
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
-     * @throws ContentValidationException
-     * @throws InvalidQueryException
-     * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws FailedQueryException
      * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
      */
@@ -452,8 +437,9 @@ class Gallery extends MySQLConnection
     }
 
     /**
-     * Updates parent table's tn_id column with the id of the current thumbnail record.
-     * @throws InvalidQueryException|Exception
+     * Updates the parent table's tn_id column with the id of the current thumbnail record.
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      */
     public function saveThumbnail(): void
     {
@@ -465,10 +451,10 @@ class Gallery extends MySQLConnection
 
         /* get parent content properties */
         $parent_content_id = $parent_table = null;
-        $query = "SELECT p.`id`, p.`table` " .
+        $query = 'SELECT p.`id`, p.`table` ' .
             "FROM 'site_section' p " .
-            "INNER JOIN `site_section` c ON p.`id` = c.`parent_id` " .
-            "WHERE c.`id` = ?";
+            'INNER JOIN `site_section` c ON p.`id` = c.`parent_id` ' .
+            'WHERE c.`id` = ?';
         $content_type_id = $this->getContentTypeId();
         $data = $this->fetchRecords($query, 'i', $content_type_id);
         if (count($data) > 0) {
@@ -481,11 +467,11 @@ class Gallery extends MySQLConnection
         }
 
         /* set parent thumbnail id if the parent table supports it */
-        if ($this->columnExists("tn_id", $parent_table)) {
-            $query = "UP" . "DATE `$parent_table` SET tn_id = ? WHERE id = ?";
+        if ($this->columnExists('tn_id', $parent_table)) {
+            $query = 'UP' . "DATE `$parent_table` SET tn_id = ? WHERE id = ?";
             $this->query($query, 'ii', $this->tn->id->value, $this->parent_id);
 
-            $query = "UPDATE `image_link` SET parent_id = ? WHERE id = ?";
+            $query = 'UPDATE `image_link` SET parent_id = ? WHERE id = ?';
             $this->query($query, 'ii', $this->parent_id, $this->tn->id->value);
         }
     }
@@ -497,19 +483,19 @@ class Gallery extends MySQLConnection
     protected function testForContentType(): void
     {
         if ($this->content_properties->id->value === null || $this->content_properties->id->value < 1) {
-            throw new ConfigurationUndefinedException("Site section not set. ");
+            throw new ConfigurationUndefinedException('Site section not set. ');
         }
     }
 
     /**
-     * Tests if the content type and parent of the object is set in cases where a content type and parent is required.
+     * Tests if the content type and parent of the object is set in cases where the content type and parent are required.
      * @throws ConfigurationUndefinedException Content type is not currently set for the object.
      */
     protected function testForContentTypeAndParent(): void
     {
         $this->testForContentType();
         if ($this->parent_id === null || $this->parent_id < 1) {
-            throw new ConfigurationUndefinedException("Gallery parent not set.");
+            throw new ConfigurationUndefinedException('Gallery parent not set.');
         }
     }
 
@@ -524,11 +510,11 @@ class Gallery extends MySQLConnection
             try {
                 $image_link->validateInput();
             } catch (ContentValidationException) {
-                $this->validation_errors = array_merge($this->validation_errors, $image_link->validationErrors);
+                $this->validation_errors = array_merge($this->validation_errors, $image_link->validationErrors());
             }
         }
         if (count($this->validation_errors) > 0) {
-            throw new ContentValidationException("Errors were found in the gallery.");
+            throw new ContentValidationException('Errors were found in the gallery.');
         }
     }
 }

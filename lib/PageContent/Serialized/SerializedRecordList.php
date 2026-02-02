@@ -718,19 +718,21 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @inheritDoc
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         try {
-            parent::validateInput($exclude_properties);
+            parent::validateInput($exclude_properties, $clear_existing);
         } catch (ContentValidationException) {
             /* continue */
         }
 
         foreach($this->records as $record) {
             try {
-                $record->validateInput($exclude_properties);
+                $record->validateInput($exclude_properties, $clear_existing);
             }
             catch (ContentValidationException) {
                 /* continue */
