@@ -2,6 +2,7 @@
 
 namespace Littled\Request\Inline;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Request\DateTextField;
 
 
@@ -10,6 +11,9 @@ abstract class InlineDateInput extends InlineInput
     public DateTextField $date;
     protected static string $input_property = 'date';
 
+    /**
+     * @throws ConfigurationUndefinedException
+     */
     function __construct()
     {
         parent::__construct();

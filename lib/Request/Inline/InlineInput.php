@@ -19,26 +19,21 @@ abstract class InlineInput extends SectionContent
     /** @var string[] Property values to validate after changes are made in an HTML form. */
     public array $validate_properties;
 
-    public const OPERATION_KEY = 'op';
+    public const string OPERATION_KEY = 'op';
 
     protected static string $input_property;
 
     /**
      * @inheritdoc
+     * @throws ConfigurationUndefinedException
+     * @throws ConfigurationUndefinedException
      */
     function __construct()
     {
         if (!isset(static::$input_property)) {
             throw new ConfigurationUndefinedException('Input property not configured in ' . Log::getClassBaseName(static::class));
         }
-        try {
-            parent::__construct();
-        } catch (ConfigurationUndefinedException $ex) {
-            /** ignore unset content type */
-            if (!preg_match('/^content type/i', $ex->getMessage())) {
-                throw $ex;
-            }
-        }
+        parent::__construct();
         $this->content_properties = (new ContentProperties())
             ->shareConnection($this)
             ->setLabel('Content type')
@@ -85,7 +80,7 @@ abstract class InlineInput extends SectionContent
     }
 
     /**
-     * Returns the value o the property controlled by the object.
+     * Returns the value of the property controlled by the object.
      * @return mixed
      */
     public function getValue(): mixed
@@ -105,7 +100,7 @@ abstract class InlineInput extends SectionContent
 
     /**
      * @inheritDoc
-     * @throws ConfigurationUndefinedException
+     * @return InlineInput
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
@@ -117,7 +112,7 @@ abstract class InlineInput extends SectionContent
 
     /**
      * @inheritdoc
-     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
      */
     public function save(): void
     {
@@ -137,10 +132,12 @@ abstract class InlineInput extends SectionContent
     }
 
     /**
+     * @param array $exclude_properties
+     * @param bool $clear_existing
      * @inheritDoc
      * @throws InvalidPropertyException
      */
-    public function validateInput(array $exclude_properties = []): void
+    public function validateInput(array $exclude_properties = [], bool $clear_existing = true): void
     {
         foreach ($this->validate_properties as $key => $value) {
             if (is_numeric($key) || is_string($value)) {

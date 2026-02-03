@@ -15,18 +15,10 @@ class InlineKeywordInput extends KeywordSectionContent
      * InlineKeywordInput constructor.
      * @param int|null $id Main record id.
      * @param int|null $content_type_id Content type identifier.
-     * @throws ConfigurationUndefinedException
      */
     function __construct(int|null $id = null, int|null $content_type_id = null)
     {
-        try {
-            parent::__construct($id, $content_type_id);
-        }
-        catch (ConfigurationUndefinedException $ex) {
-            if (!preg_match('/^content type/i', $ex->getMessage())) {
-                throw $ex;
-            }
-        }
+        parent::__construct($id, $content_type_id);
         $this->content_properties = (new ContentProperties())
             ->shareConnection($this)
             ->setLabel('Content type')
