@@ -8,6 +8,17 @@ use Littled\Validation\Validation;
 
 class PhoneNumberTextField extends StringTextField
 {
+    public function __construct(
+        string $label = 'Phone number',
+        string $key = 'phNo',
+        bool $required = false,
+        ?string $value = null,
+        int $size_limit = 26,
+        ?int $index = null)
+    {
+        parent::__construct($label, $key, $required, $value, $size_limit, $index);
+    }
+
     /**
      * @inheritDoc
      */
