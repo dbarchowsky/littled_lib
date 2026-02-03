@@ -570,8 +570,7 @@ class Address extends SerializedContent
             parent::save();
         }
         // @codeCoverageIgnoreStart
-        catch(ContentValidationException |
-        RecordNotFoundException $e) {
+        catch(ContentValidationException $e) {
             throw new CommitException($e->throwMessage("Error saving $content_label record"));
         }
         // @codeCoverageIgnoreEnd
