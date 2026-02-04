@@ -22,33 +22,33 @@ class LittledGlobals
     protected static DBConnectionSettings   $db_config;
 
     /** @var string                 Name of session variable use dto store CSRF tokens. */
-    const                           CSRF_SESSION_KEY = 'csrfToken';
+    const string                    CSRF_SESSION_KEY = 'csrfToken';
     /** @var string                 Name of request header transmitting csrf token. */
-    const                           CSRF_HEADER_KEY = 'X_CSRF_TOKEN';
+    const string                    CSRF_HEADER_KEY = 'X_CSRF_TOKEN';
     /** @var string                 Request variable name to cancel operations. */
-    const                           CANCEL_KEY = 'cancel';
+    const string                    CANCEL_KEY = 'cancel';
     /** @var string                 Request variable name to commit operations. */
-    const                           COMMIT_KEY = 'commit';
+    const string                    COMMIT_KEY = 'commit';
     /** @var string                 Key of the content type id request variable. */
-    const                           CONTENT_TYPE_KEY = 'tid';
+    const string                    CONTENT_TYPE_KEY = 'tid';
     /** @var string                 Cookie variable containing the value of a flag indicating the user's consent to collecting cookie data */
-    const                           COOKIE_CONSENT_KEY = 'hasCookieConsent';
+    const string                    COOKIE_CONSENT_KEY = 'hasCookieConsent';
     /** @var string                 Key of the request variable used to pass CSRF tokens. */
-    const                           CSRF_TOKEN_KEY = 'csrf';
+    const string                    CSRF_TOKEN_KEY = 'csrf';
     /** @var string                 Key of request variable used to pass error messages. */
-    const                           ERROR_MSG_KEY = 'err';
+    const string                    ERROR_MSG_KEY = 'err';
     /** @var string                 Request a variable flag indicating that listings are being filtered. */
-    const                           FILTER_KEY = 'filter';
+    const string                    FILTER_KEY = 'filter';
     /** @var string                 Key of the record id request variable. */
-    const ID_KEY = 'id';
+    const string                    ID_KEY = 'id';
     /** @var string Request variable containing status message. */
-    const INFO_MESSAGE_KEY = 'msg';
+    const string                    INFO_MESSAGE_KEY = 'msg';
     /** @var string Key of the parent id request variable. */
-    const PARENT_ID_KEY = 'pid';
+    const string                    PARENT_ID_KEY = 'pid';
     /** @var string Request variable name containing referring URLs. */
-    const REFERER_KEY = 'ref';
+    const string                    REFERER_KEY = 'ref';
     /** @var string */
-    const OPERATION_KEY = 'op';
+    const string                    OPERATION_KEY = 'op';
 
     /**
      * @throws ConfigurationUndefinedException
@@ -197,22 +197,16 @@ class LittledGlobals
 
     /**
      * @return void
-     * @throws ConfigurationUndefinedException
      */
     public static function loadDatabaseConnection(): void
     {
-        $path = static::getMySQLKeysFullPath();
-        if (!file_exists($path) || !is_readable($path) || is_dir($path)) {
-            throw new ConfigurationUndefinedException('MySQL keys file not found or not readable.');
-        }
-        $json = json_decode(file_get_contents($path));
         static::$db_config = (new DBConnectionSettings())
-            ->setHost($json->host ?? '')
-            ->setSchema($json->schema ?? '')
-            ->setPort($json->port ?? '')
-            ->setUser($json->user ?? '')
-            ->setPassword($json->password ?? '')
-            ->setAESKey($json->aes_encrypt_key ?? '');
+            ->setHost($_ENV['MYSQL_HOST'] ?? '')
+            ->setSchema($_ENV['MYSQL_SCHEMA'] ?? '')
+            ->setPort($_ENV['MYSQL_PORT'] ?? '')
+            ->setUser($_ENV['MYSQL_USER'] ?? '')
+            ->setPassword($_ENV['MYSQL_PASS'] ?? '')
+            ->setAESKey($_ENV['MD5_KEY'] ?? '');
     }
 
     /**
