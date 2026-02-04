@@ -29,7 +29,6 @@ class Address extends SerializedContent
 
     /** @var string Google maps api key */
     protected static string $gmap_api_key;
-    protected static string $api_keys_path;
     protected static string $address_data_template = 'forms/data/address_class_data.php';
     protected static string $street_address_data_template = 'forms/data/street_address_form_data.php';
     public const string ID_KEY = 'adid';
@@ -340,25 +339,13 @@ class Address extends SerializedContent
      */
     public static function getGMapAPIKey(): string
     {
-        if (!isset(static::$gmap_api_key) && isset(static::$api_keys_path)) {
-            $json = json_decode(file_get_contents(static::getAPIKeysPath()));
-            if (isset($json->{'google-api-key'})) {
-                static::$gmap_api_key = $json->{'google-api-key'};
+        if (!isset(static::$gmap_api_key)) {
+            if (!isset($_ENV['GOOGLE_API_KEY'])) {
+                throw new ConfigurationUndefinedException('Google Maps API key not set.');
             }
+            static::$gmap_api_key = $_ENV['GOOGLE_API_KEY'];
         }
-        return static::$gmap_api_key ?? '';
-    }
-
-    /**
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getAPIKeysPath(): string
-    {
-        if ((static::$api_keys_path ?? '') === '') {
-            throw new ConfigurationUndefinedException('API keys path not set.');
-        }
-        return LittledUtility::joinPaths(LittledGlobals::getKeysPath(), static::$api_keys_path);
+        return static::$gmap_api_key;
     }
 
     /**
@@ -601,15 +588,6 @@ class Address extends SerializedContent
     public static function setAddressDataTemplate(string $filename): void
     {
         static::$address_data_template = $filename;
-    }
-
-    /**
-     * @param string $path
-     * @return void
-     */
-    protected static function setAPIKeysPath(string $path): void
-    {
-        static::$api_keys_path = $path;
     }
 
     /**

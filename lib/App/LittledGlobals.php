@@ -2,10 +2,9 @@
 
 namespace Littled\App;
 
-
 use Littled\Database\DBConnectionSettings;
 use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Utility\LittledUtility;
+
 
 class LittledGlobals
 {
@@ -13,8 +12,6 @@ class LittledGlobals
     protected static string         $app_domain;
     protected static string|null    $config_path;
     protected static string|null    $error_log;
-    protected static string         $keys_path;
-    protected static string         $mysql_keys_path;
     protected static string|null    $local_template_path;
     protected static string|null    $shared_template_path;
     protected static bool           $show_verbose_errors = false;
@@ -143,31 +140,6 @@ class LittledGlobals
             throw new ConfigurationUndefinedException('LittledGlobals local template path value not set.');
         }
         return static::$local_template_path;
-    }
-
-    public static function getMySQLKeysFullPath(): string
-    {
-        $path = static::$mysql_keys_path ?? self::$mysql_keys_path ?? '';
-        if ($path === '') {
-            return '';
-        }
-        if (str_starts_with($path, '/')) {
-            return $path;
-        }
-        try {
-            return LittledUtility::joinPaths(static::getConfigPath(), $path);
-        } catch (ConfigurationUndefinedException) {
-            return '';
-        }
-    }
-
-    /**
-     * Gets a path to the current MySQL authentication directory.
-     * @return string MySQL keys path.
-     */
-    public static function getMySQLKeysPath(): string
-    {
-        return static::$mysql_keys_path ?? self::$mysql_keys_path ?? '';
     }
 
     /**
