@@ -18,7 +18,7 @@ class Mailer
     public bool             $is_html        = true;
     public string           $mail_errors    = '';
 
-    public static string    $host           = '';
+    public static string    $host;
     public static ?int      $port           = 25;
 
     /**
@@ -40,7 +40,7 @@ class Mailer
     }
 
     /**
-     * Format plain text portion of email by stripping tags from HTML body.
+     * Format plain text portion of email by stripping tags from the HTML body.
      * @return string
      */
     public function getAltBody(): string
@@ -56,7 +56,8 @@ class Mailer
      */
     public static function getHost(): string
     {
-        return static::$host ?? '';
+        static::$host = (static::$host ?? '') ?: ($_ENV['SMTP_HOST'] ?? '');
+        return static::$host;
     }
 
     /**
@@ -74,12 +75,13 @@ class Mailer
      */
     public static function getPort(): ?int
     {
-        return static::$port ?? '';
+        static::$port = (static::$port ?? '') ?: ($_ENV['SMTP_PORT'] ?? '');
+        return static::$port;
     }
 
     public static function hasHost(): bool
     {
-        return isset(static::$host) && static::$host && isset(static::$port) && static::$port > 0;
+        return !empty(static::getHost()) && !empty(static::getPort());
     }
 
     /**
@@ -99,8 +101,8 @@ class Mailer
             $mail->isSMTP();
             $mail->SMTPAuth = true;
             $mail->SMTPSecure = 'ssl';
-            $mail->Host = static::$host;
-            $mail->Port = static::$port;
+            $mail->Host = static::getHost();
+            $mail->Port = static::getPort();
             $mail->Username = $this->sender->email;
             $mail->Password = $this->password;
         }
