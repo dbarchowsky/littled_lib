@@ -178,7 +178,7 @@ class LittledGlobals
             ->setPort($_ENV['MYSQL_PORT'] ?? '')
             ->setUser($_ENV['MYSQL_USER'] ?? '')
             ->setPassword($_ENV['MYSQL_PASS'] ?? '')
-            ->setAESKey($_ENV['MD5_KEY'] ?? '');
+            ->setAESKey($_ENV['MYSQL_AES_ENCRYPT_KEY'] ?? '');
     }
 
     /**
