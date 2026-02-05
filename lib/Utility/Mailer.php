@@ -86,11 +86,12 @@ class Mailer
 
     /**
      * Sends email. Expects properties of the object to be set before calling this routine.
+     * @param int $debug_level Sets the PHPMailer debug level. Defaults to 0 for no debugging.
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws Exception
      */
-    public function send(): void
+    public function send(int $debug_level=0): void
     {
         if (!$this->sender->hasData() || !$this->recipient->hasData() || !$this->subject || !$this->body) {
             throw new ConfigurationUndefinedException('Email properties not set.');
@@ -109,7 +110,6 @@ class Mailer
 
         // secure connection settings
         if (in_array($mail->Port, [465, 587])) {
-            // $mail->SMTPAutoTLS = true;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         }
 
@@ -129,9 +129,10 @@ class Mailer
             $mail->IsHTML(false);
             $mail->Body = $this->getAltBody();
         }
-        if ((($_ENV['IS_DEV'] ?? false) || ($_ENV['IS_STAGING'] ?? false)) && ($_ENV['VERBOSE_ERRORS'] ?? false)){
-            $mail->SMTPDebug = 3;
-        }
+
+        // This sends output to the console.
+        $mail->SMTPDebug = $debug_level;
+
         $mail->send();
     }
 
