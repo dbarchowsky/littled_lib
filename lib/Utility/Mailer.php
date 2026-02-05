@@ -19,7 +19,7 @@ class Mailer
     public string           $mail_errors    = '';
 
     public static string    $host;
-    public static ?int      $port           = 25;
+    public static ?int      $port;
 
     /**
      * class constructor
@@ -106,6 +106,14 @@ class Mailer
             $mail->Username = $this->sender->email;
             $mail->Password = $this->password;
         }
+
+        // secure connection settings
+        if (in_array($mail->Port, [465, 587])) {
+            // $mail->SMTPAutoTLS = true;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        }
+
+
         $mail->setFrom($this->sender->email, $this->sender->name);
         $mail->addAddress($this->recipient->email, $this->recipient->name);
         if ($this->reply_to->hasData()) {
@@ -120,6 +128,9 @@ class Mailer
         else {
             $mail->IsHTML(false);
             $mail->Body = $this->getAltBody();
+        }
+        if ((($_ENV['IS_DEV'] ?? false) || ($_ENV['IS_STAGING'] ?? false)) && ($_ENV['VERBOSE_ERRORS'] ?? false)){
+            $mail->SMTPDebug = 3;
         }
         $mail->send();
     }
