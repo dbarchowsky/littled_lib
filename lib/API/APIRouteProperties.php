@@ -26,9 +26,9 @@ use Littled\Utility\LittledUtility;
 abstract class APIRouteProperties extends RouteBase
 {
     /** @var string */
-    public const                TEMPLATE_TOKEN_KEY = 'templateToken';
-    public const                DETAILS_TOKEN = 'details';
-    public const                LISTINGS_TOKEN = 'listings';
+    public const string         TEMPLATE_TOKEN_KEY = 'templateToken';
+    public const string         DETAILS_TOKEN = 'details';
+    public const string         LISTINGS_TOKEN = 'listings';
 
 
     /** @var string             Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
