@@ -85,6 +85,12 @@ class JSONRecordResponse extends JSONResponse
             ->setResponseStatus($status);
     }
 
+    public function setResponseId(int $id): JSONRecordResponse
+    {
+        $this->id->value = $id;
+        return $this;
+    }
+
     public function setResponseLabel(string $label): JSONRecordResponse
     {
         $this->label->value = $label;
