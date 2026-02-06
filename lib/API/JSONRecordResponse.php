@@ -85,6 +85,12 @@ class JSONRecordResponse extends JSONResponse
             ->setResponseStatus($status);
     }
 
+    public function setResponseLabel(string $label): JSONRecordResponse
+    {
+        $this->label->value = $label;
+        return $this;
+    }
+
     /**
      * Chainable response status value setter.
      * @param string $status
