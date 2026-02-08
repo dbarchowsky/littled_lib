@@ -340,7 +340,7 @@ trait SerializedFieldOperations
 
         // Add primary keys and foreign keys for child objects, but the top-level PK value is unique and not
         // passed in the request as an array of values
-        $properties = array_merge($properties, $this->getKeyPropertiesList([LittledGlobals::ID_KEY]));
+        $properties = array_merge($properties, $this->getKeyPropertiesList([...$exclude, LittledGlobals::ID_KEY]));
         foreach ($properties as $property) {
             if ($this->$property->getKey() !== LittledGlobals::ID_KEY) {
                 $this->$property->index = $index;
