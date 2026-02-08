@@ -1,6 +1,8 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
+use Littled\App\LittledGlobals;
+
 /**
  * Maintains a list of one-to-many records linked to a parent record.
  */
