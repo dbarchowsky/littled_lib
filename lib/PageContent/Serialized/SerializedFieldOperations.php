@@ -334,22 +334,20 @@ trait SerializedFieldOperations
      * @param string[] $exclude
      * @return $this
      */
-    public function setIndex(int $index, array $exclude = []): static
+    public function setIndex(int $index, array $exclude = [LittledGlobals::ID_KEY]): static
     {
         $properties = $this->getInputPropertiesList(true, $exclude);
 
         // Add primary keys and foreign keys for child objects, but the top-level PK value is unique and not
         // passed in the request as an array of values
-        $properties = array_merge($properties, $this->getKeyPropertiesList([...$exclude, LittledGlobals::ID_KEY]));
+        $properties = array_unique([...$properties, ...$this->getKeyPropertiesList($exclude)]);
         foreach ($properties as $property) {
-            if ($this->$property->getKey() !== LittledGlobals::ID_KEY) {
-                $this->$property->index = $index;
-            }
+            $this->{$property}->index = $index;
         }
         $properties = $this->getLinkedContentPropertiesList();
         foreach ($properties as $property) {
             if (method_exists($this->$property, 'setIndex')) {
-                $this->$property->setIndex($index);
+                $this->{$property}->setIndex($index);
             }
         }
         return $this;
