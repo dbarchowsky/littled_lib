@@ -331,10 +331,10 @@ trait SerializedFieldOperations
     /**
      * Sets the index for all input properties of the object.
      * @param int $index
-     * @param string[]|null $exclude
+     * @param string[] $exclude
      * @return $this
      */
-    public function setIndex(int $index, array|null $exclude = null): static
+    public function setIndex(int $index, array $exclude = []): static
     {
         $properties = $this->getInputPropertiesList(true, $exclude);
 
