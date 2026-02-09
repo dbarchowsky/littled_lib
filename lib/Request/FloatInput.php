@@ -41,7 +41,7 @@ class FloatInput extends RenderedInput
         if ($this->bypass_collect_request_data === true) {
             return;
         }
-        $this->value = Validation::collectNumericRequestVar((($key) ?: ($this->key)), null, $src);
+        $this->value = Validation::collectNumericRequestVar((($key) ?: ($this->key)), $this->index, $src);
     }
 
     /**
