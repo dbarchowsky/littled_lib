@@ -19,6 +19,8 @@ use Exception;
  *
  * @method getContentTypeId(): int
  * @method static getContentTypeId(): int
+ * @method getInputKeys(): string[]
+ * @method static getInputKeys(): string[]
  */
 class SerializedContentUtils extends AppContentBase
 {
@@ -48,10 +50,11 @@ class SerializedContentUtils extends AppContentBase
      */
     public function __call(string $name, array $arguments)
     {
-        if ($name === 'getContentTypeId') {
-            return $this->_getContentTypeId();
-        }
-        return null;
+        return match ($name) {
+            'getContentTypeId' => $this->_getContentTypeId(),
+            'getInputKeys' => $this->_getInputKeys(),
+            default => null
+        };
     }
 
     /**
@@ -62,10 +65,11 @@ class SerializedContentUtils extends AppContentBase
      */
     public static function __callStatic(string $name, array $arguments)
     {
-        if ($name === 'getContentTypeId') {
-            return (new static())->_getContentTypeId();
-        }
-        return null;
+        return match ($name) {
+            'getContentTypeId' => (new static())->_getContentTypeId(),
+            'getInputKeys' => (new static())->_getInputKeys(),
+            default => null
+        };
     }
 
     /**
@@ -79,6 +83,20 @@ class SerializedContentUtils extends AppContentBase
             throw new ConfigurationUndefinedException('Content type not set in ' . Log::getClassBaseName(static::class));
         }
         return static::$content_type_id;
+    }
+
+    /**
+     * Returns a list of all top-level request input keys associated with the object.
+     * @return string[]
+     */
+    protected function _getInputKeys(): array
+    {
+        $keys = [];
+        $properties = array_unique([...$this->getInputPropertiesList(), ...$this->getKeyPropertiesList()]);
+        foreach ($properties as $property) {
+            $keys[] = $this->$property->key;
+        }
+        return $keys;
     }
 
     /**
@@ -372,7 +390,7 @@ class SerializedContentUtils extends AppContentBase
     }
 
     /**
-     * Remove column name value from property.
+     * Remove the column name value from the property.
      * @param string $property
      * @return string
      */
