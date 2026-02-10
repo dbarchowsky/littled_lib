@@ -8,6 +8,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
+use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
@@ -91,14 +92,21 @@ class SerializedContentUtils extends AppContentBase
      */
     protected function _getInputKeys(): array
     {
-        $keys = [];
-        $properties = array_unique([...$this->getInputPropertiesList(), ...$this->getKeyPropertiesList()]);
+        $keys = $properties = [];
+        $linked = $this->getLinkedContentPropertiesList();
+        foreach ($linked as $property) {
+            if (property_exists($this->$property, 'id') &&
+                $this->{$property}->id instanceof RequestInput) {
+                $keys[] = $this->{$property}->id->getKey();
+            }
+        }
+        $properties = array_unique([...$properties, ...$this->getInputPropertiesList(), ...$this->getKeyPropertiesList()]);
         foreach ($properties as $property) {
             /** @var RequestInput $p */
             $p = $this->{$property};
             $keys[] = $p->getKey();
         }
-        return $keys;
+        return array_unique($keys);
     }
 
     /**
