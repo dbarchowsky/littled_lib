@@ -108,14 +108,23 @@ abstract class SerializedRecordList extends SerializedContentIO
     public function collectRequestData(?array $src = null): static
     {
         if (isset(static::$content_class)) {
-            $key = $this->getLinkedKey();
             $src = $src ?? Validation::getDefaultInputSource();
-            if (array_key_exists($key, $src)) {
-                if (is_array($src[$key])) {
+            $keys = call_user_func([static::$content_class, 'getInputKeys']);
+            $intersect = array_intersect($keys, array_keys($src));
+            if (!empty($intersect)) {
+
+                // how many?
+                $count = null;
+                foreach($intersect as $key) {
+                    if (is_array($src[$key]) && count($src[$key]) > $count) {
+                        $count = count($src[$key]);
+                    }
+                }
+
+                if ($count !== null) {
                     // processing an array of record ids, one for each linked record
-                    for($i = 0; $i < count($src[$key]); $i++) {
-                        $this->records[$i] = new static::$content_class();
-                        $this->records[$i]
+                    for($i = 0; $i < $count; $i++) {
+                        $this->records[$i] = (new static::$content_class())
                             ->shareConnection($this)
                             ->setIndex($i)
                             ->collectRequestData($src)
@@ -123,12 +132,9 @@ abstract class SerializedRecordList extends SerializedContentIO
                     }
                 }
                 else {
-                    // single link value
-                    $o = new static::$content_class();
-                    $o
+                    $this->records[] = (new static::$content_class())
                         ->shareConnection($this)
                         ->collectRequestData($src);
-                    $this->records[] = $o;
                 }
             }
         }
