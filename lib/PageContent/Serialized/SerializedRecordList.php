@@ -537,7 +537,7 @@ abstract class SerializedRecordList extends SerializedContentIO
     }
 
     /**
-     * Push link on stack and make the necessary updates to the state of the list of linked records.
+     * Push the link on the stack and make the necessary updates to the state of the list of linked records.
      * @param LinkedContent $link
      * @return void
      */

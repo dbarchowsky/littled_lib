@@ -8,7 +8,6 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Log\Log;
 use Littled\PageContent\ContentUtils;
-use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Request\RequestInput;
 use Littled\Request\StringInput;
 use Littled\Validation\Validation;
