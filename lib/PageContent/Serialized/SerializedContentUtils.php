@@ -94,7 +94,9 @@ class SerializedContentUtils extends AppContentBase
         $keys = [];
         $properties = array_unique([...$this->getInputPropertiesList(), ...$this->getKeyPropertiesList()]);
         foreach ($properties as $property) {
-            $keys[] = $this->$property->key;
+            /** @var RequestInput $p */
+            $p = $this->{$property};
+            $keys[] = $p->getKey();
         }
         return $keys;
     }
