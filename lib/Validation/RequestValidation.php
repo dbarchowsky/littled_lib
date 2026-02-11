@@ -78,7 +78,6 @@ class RequestValidation extends StringValidation
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         $response = curl_exec($ch); // string
-        curl_close($ch);
 
         // look up country in API response
         $ip_data = json_decode($response, true);
