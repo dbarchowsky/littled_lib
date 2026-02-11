@@ -10,7 +10,7 @@ class IntegerInput extends RenderedInput
     protected static string $input_template_filename = 'string-text-input.php';
     protected static string $template_filename = 'string-text-field.php';
 
-    const DEFAULT_DATA_SIZE = 8;
+    const int DEFAULT_DATA_SIZE = 8;
 
     /**
      * @inheritdoc
@@ -69,15 +69,20 @@ class IntegerInput extends RenderedInput
         parent::renderHidden($runtime_value, $context);
     }
 
+    public function formatValueMarkup(int|array $options = []): string
+    {
+        if (!is_numeric($this->value) && !is_array($this->value)) {
+            return ('');
+        }
+        return parent::formatValueMarkup($options);
+    }
+
     /**
      * {@inheritDoc}
      */
     public function safeValue(array|int $options = []): string
     {
-        if (!is_numeric($this->value) && !is_array($this->value)) {
-            return ('');
-        }
-        return parent::safeValue($options);
+        return $this->formatValueMarkup($options);
     }
 
     /**
