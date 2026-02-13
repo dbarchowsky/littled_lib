@@ -51,6 +51,6 @@ class JSONResponseBase
      */
     public function sendResponse(): void
     {
-        self::sendJsonResponse($this->formatJSON());
+        static::sendJsonResponse($this->formatJSON());
     }
 }
