@@ -94,7 +94,7 @@ class StringInput extends RenderedInput
                 $this->throwValidationError($this->formatErrorLabel() . ' is required.');
             }
         }
-        if (strlen($this->value) > $this->size_limit) {
+        if (strlen($this->value ?? '') > $this->size_limit) {
             $this->throwValidationError($this->formatErrorLabel() . " is limited to $this->size_limit characters.");
         }
     }
