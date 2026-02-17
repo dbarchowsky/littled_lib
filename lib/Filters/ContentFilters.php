@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\Filters;
 
 use Littled\Database\MySQLConnection;
@@ -24,16 +25,12 @@ use Littled\Validation\Validation;
  */
 class ContentFilters extends FilterCollection
 {
-    /** @var string */
-    public const                    NEXT_OP_ADD = 'add';
-    /** @var string */
-    public const                    NEXT_OP_VIEW = 'view';
-    /** @var string */
-    public const                    NEXT_OP_ADD_IMAGE = 'add_img';
-    /** @var string */
-    public const                    NEXT_OP_PREVIOUS = 'prev';
-    /** @var string */
-    public const                    NEXT_OP_LIST = 'list';
+    public const string             NEXT_OP_ADD = 'add';
+    public const string             NEXT_OP_VIEW = 'view';
+    public const string             NEXT_OP_ADD_IMAGE = 'add_img';
+    public const string             NEXT_OP_PREVIOUS = 'prev';
+    public const string             NEXT_OP_LIST = 'list';
+
     public ContentProperties        $content_properties;
     protected static ?int           $content_type_id = null;
 
@@ -121,7 +118,7 @@ class ContentFilters extends FilterCollection
      * Return the label describing this filter's content type.
      * @return string
      * @throws NotInitializedException
-     * @throws ReadException
+     * @throws RecordUnavailableException
      */
     public function getContentLabel(): string
     {

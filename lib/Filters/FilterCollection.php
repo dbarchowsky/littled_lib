@@ -4,13 +4,9 @@ namespace Littled\Filters;
 
 use Littled\App\LittledGlobals;
 use Littled\Database\DBUtils;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidQueryException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\Log\Log;
 use Littled\PageContent\PageUtils;
 use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
@@ -23,7 +19,7 @@ use Exception;
 class FilterCollection extends FilterCollectionProperties
 {
     /** @var string */
-    protected const RECORD_COUNT_ARG = '@total_matches';
+    protected const string RECORD_COUNT_ARG = '@total_matches';
     protected static bool $autoload_default = false;
     /** @var int Value calculated before retrieving listings by multiplying page value by listings length */
     protected int $listings_offset;
@@ -88,7 +84,7 @@ class FilterCollection extends FilterCollectionProperties
      * Specialized routine for collection the "display listings" setting.
      * - Don't check cookies for this filter's value.
      * - If the input value is set to "filter", set the object's property value to TRUE.
-     * @param ?array $src Client request data that will override GET and POST data.
+     * @param ?array $src Optional request data collection that overrides POST data.
      */
     protected function collectDisplayListingsSetting(?array $src = null): void
     {
@@ -109,14 +105,15 @@ class FilterCollection extends FilterCollectionProperties
     /**
      * Extract values for listings filters from form data and query string.
      * @param bool $save_filters Optional. If set to TRUE, save all filter values in session variables.
-     * @param array $excluded_properties Optional list of keys to exclude from collection.
+     * @param array $excluded_properties Optional list of keys to exclude from a collection.
      * @param ?array $src Optional array containing data to use to extract request client data.
+     * @returns $this
      * @throws NotImplementedException
      */
     public function collectFilterValues(
         bool   $save_filters = true,
         array  $excluded_properties = [],
-        ?array $src = null): void
+        ?array $src = null): static
     {
         $ref = Validation::collectStringRequestVar(
             LittledGlobals::REFERER_KEY,
@@ -153,6 +150,7 @@ class FilterCollection extends FilterCollectionProperties
         if ($this->next->value == '') {
             $this->next->value = 'view';
         }
+        return $this;
     }
 
     /**
@@ -167,10 +165,8 @@ class FilterCollection extends FilterCollectionProperties
     /**
      * Format and return the query string that will retrieve filters listings data.
      * @param bool $calculate_offset Optional flag to prevent the offset to the start of the records from being recalculated.
-     * @returns array Returns an array where the first element is a sql query followed by an array of variables to bind
-     * to the query. See mysqli_statement::bind_param() for specs of the array variables. The 2nd element of the
-     * array is a string describing the types of the following values in the array, e.g. 'iissiis' for int, int,
-     * string, int, etc.
+     * @returns array Returns an array where the first element is a SQL query followed by an array of variables to bind
+     * to the query. See mysqli_statement::bind_param() for specs of the array variables.
      */
     protected function formatListingsQuery(bool $calculate_offset = true): array
     {
@@ -252,7 +248,7 @@ class FilterCollection extends FilterCollectionProperties
 
     /**
      * Formats SQL clauses to the offset and page size of the recordset.
-     * @return array First element is the lower limit value and the 2nd element is the upper limit value.
+     * @return array The first element is the lower limit value, and the 2nd element is the upper limit value.
      * @throws FailedQueryException
      * @throws NotImplementedException
      */
@@ -275,7 +271,7 @@ class FilterCollection extends FilterCollectionProperties
     }
 
     /**
-     * Retrieves total number of records matching the current filter values.
+     * Retrieves the total number of records matching the current filter values.
      * @return void
      * @throws FailedQueryException
      * @throws NotImplementedException
@@ -290,9 +286,8 @@ class FilterCollection extends FilterCollectionProperties
         try {
             $data = $this->fetchRecords($query);
         }
-        catch (ConfigurationUndefinedException|ConnectionException|InvalidQueryException $e) {
-            $msg = 'Error retrieving page count. [' . Log::getClassBaseName($e::class) . '] ' . $e->getMessage();
-            throw new FailedQueryException($msg);
+        catch (FailedQueryException $ex) {
+            throw new FailedQueryException($ex->throwMessage('Error retrieving page count'));
         }
 
         $this->record_count = $data[0]->count;
@@ -315,7 +310,7 @@ class FilterCollection extends FilterCollectionProperties
     }
 
     /**
-     * Store total number of matching results for later use when rendering listings.
+     * Store the total number of matching results for later use when rendering listings.
      * @return void
      * @throws FailedQueryException
      */
@@ -365,13 +360,13 @@ class FilterCollection extends FilterCollectionProperties
                 return true;
             }
             if ($this->page->value == $this->page_count && $page_position === count($data)) {
-                // current record is the last record of the entire set of listings. store previous id & done.
+                // the current record is the last record of the entire set of listings. store previous id & done.
                 return true;
             }
         }
         if ($page_position === 1 && $this->page->value === 1) {
             if (count($data) > 1) {
-                // current record is the first record in the entire set of records. store next record id & done.
+                // the current record is the first record in the entire set of records. store next record id & done.
                 return true;
             }
             if (count($data) === 1 && $this->record_count === 1) {
@@ -476,7 +471,7 @@ class FilterCollection extends FilterCollectionProperties
         $this->previous_record_id = null;
         $this->next_record_id = null;
 
-        // retrieve current page of listings containing the record currently being viewed
+        // retrieve the current page of listings containing the record currently being viewed
         $data = $this->retrieveListings();
         if (count($data) < 1) {
             // no matching records found
@@ -494,7 +489,7 @@ class FilterCollection extends FilterCollectionProperties
             return;
         }
 
-        // At this point, either the previous or next record exist outside the set of listings representing the current page of listings.
+        // At this point, either the previous or next record exists outside the set of listings representing the current page of listings.
         $this->setOutOfBoundNeighborIds($data, $page_position);
     }
 
