@@ -3,23 +3,20 @@
 namespace Littled\Exception;
 
 use Exception;
-use Littled\Log\Log;
-use Littled\PageContent\ContentUtils;
-use Littled\Utility\LittledUtility;
-use Littled\Validation\Validation;
 use ReturnTypeWillChange;
+
 
 class LittledException extends Exception
 {
-    /**
-     * NotImplementedException constructor.
-     * @param string $message Error message.
-     * @param Exception|null $previous
-     */
-    public function __construct(string $message, $code = 0, Exception|null $previous = null)
-    {
-        // some code
+    public string                           $frontend_error;
 
+    /**
+     * @param string                        $message Error message.
+     * @param int                           $code
+     * @param Exception|null                $previous
+     */
+    public function __construct(string $message, int $code = 0, Exception|null $previous = null)
+    {
         // make sure everything is assigned properly
         parent::__construct($message, $code, $previous);
     }
@@ -29,18 +26,41 @@ class LittledException extends Exception
      */
     #[ReturnTypeWillChange] public function __toString()
     {
-        return static::class . " [$this->code]: {$this->message}\n";
+        return static::class . " [$this->code]: $this->message\n";
     }
 
     public function getExceptionTypeMessage(): string
     {
-        return static::getBaseClass() . " ({$this->code}) {$this->message}\n";
+        return static::getBaseClass() . " ($this->code) $this->message\n";
     }
 
+    /**
+     * Returns an error message to be displayed on the frontend.
+     * @return string
+     */
+    public function getFrontendError(): string
+    {
+        return ($this->frontend_error ?? '') ?: $this->message;
+    }
+
+    /**
+     * @return string
+     */
     protected static function getBaseClass(): string
     {
         $pos = strrpos(static::class, '\\');
         return substr(static::class, $pos + 1);
+    }
+
+    /**
+     * Sets a message to be displayed on the frontend.
+     * @param string $error
+     * @return $this
+     */
+    public function setFrontendError(string $error): static
+    {
+        $this->frontend_error = $error;
+        return $this;
     }
 
     /**
@@ -50,6 +70,6 @@ class LittledException extends Exception
      */
     public function throwMessage(string $message): string
     {
-        return "$message: (" . static::getBaseClass(static::class) . " [$this->code]) {$this->message}\n";
+        return "$message: (" . static::getBaseClass() . " [$this->code]) $this->message\n";
     }
 }
