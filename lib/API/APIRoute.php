@@ -516,6 +516,7 @@ abstract class APIRoute extends APIRouteProperties
      */
     public static function sendErrorAndExit($err_msg): never
     {
+        header('Content-Type: application/json');
         echo(json_encode(['error' => $err_msg]));
         throw new ResponseException($err_msg);
     }
