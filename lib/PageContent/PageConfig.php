@@ -12,7 +12,6 @@ use Littled\Validation\Validation;
 use Littled\PageContent\Metadata\PageMetadata;
 use Littled\PageContent\Navigation\NavigationMenu;
 use Littled\PageContent\Navigation\Breadcrumbs;
-use Exception;
 
 /**
  * Class PageConfig
@@ -21,26 +20,20 @@ use Exception;
  */
 class PageConfig
 {
-    /** @var string CSS class to apply to the page content. */
-    public static string $contentCSSClass = '';
-    /** @var string[] List of css includes. */
-    public static array $stylesheets = array();
-    /** @var string[] List of script includes. */
-    public static array $scripts = array();
-    /** @var Preload[] List of preload images. */
-    public static array $preloads = array();
-    /** @var PageMetadata Site metadata */
-    protected static PageMetadata $metadata;
-    /** @var string Status message passed from one page to another */
-    protected static string $status = '';
-    /** @var ?NavigationMenu Page utility links list. */
-    protected static ?NavigationMenu $utilityLinks;
-    /** @var ?Breadcrumbs Page breadcrumb list. */
-    protected static ?Breadcrumbs $breadcrumbs;
+    public static string                    $contentCSSClass = '';
+    /** @var string[] */
+    public static array                     $stylesheets = array();
+    /** @var string[] */
+    public static array                     $scripts = array();
+    public static array                     $preloads = array();
+    protected static PageMetadata           $metadata;
+    protected static string                 $status = '';
+    protected static NavigationMenu|null    $utilityLinks;
+    protected static Breadcrumbs|null       $breadcrumbs;
     /** @var string */
-    protected static string $breadcrumbs_class = Breadcrumbs::class;
+    protected static string                 $breadcrumbs_class = Breadcrumbs::class;
     /** @var string */
-    protected static string $navigation_menu_class = NavigationMenu::class;
+    protected static string                 $navigation_menu_class = NavigationMenu::class;
 
     /**
      * Adds breadcrumb node.
@@ -303,7 +296,7 @@ class PageConfig
     {
         if (isset(static::$breadcrumbs)) {
             if ($label) {
-                // remove breadcrumb with matching label
+                // remove breadcrumb with a matching label
                 static::$breadcrumbs->removeByLabel($label);
             } else {
                 // remove the last breadcrumb
@@ -344,7 +337,7 @@ class PageConfig
     }
 
     /**
-     * Remove metadata property from stack if it matches type, name, and value.
+     * Remove a metadata property from the stack if it matches type, name, and value.
      * @param string $attribute
      * @param string $value
      * @param string $content
@@ -381,7 +374,7 @@ class PageConfig
     }
 
     /**
-     * Sets current breadcrumb links list.
+     * Sets the current breadcrumb links list.
      * @param $breadcrumbs Breadcrumbs
      */
     public static function setBreadcrumbs(Breadcrumbs $breadcrumbs): void
@@ -416,7 +409,7 @@ class PageConfig
     }
 
     /**
-     * Sets a css class to assign to the page content element.
+     * Sets a CSS class to assign to the page content element.
      * @param string $css_class
      */
     public static function setContentCSSClass(string $css_class): void
@@ -449,16 +442,15 @@ class PageConfig
     /**
      * Sets the list of keywords to be inserted into the page headers for SEO.
      * @param array $keywords List of keywords to be inserted into the page headers for SEO.
-     * @throws Exception
      */
     public static function setKeywords(array $keywords): void
     {
-        self::metadata();
+        static::metadata();
         static::$metadata->setKeywords($keywords);
     }
 
     /**
-     * Push metadata property onto stack.
+     * Push metadata property onto the stack.
      * @param string $attribute
      * @param string $value
      * @param string $content
@@ -506,7 +498,7 @@ class PageConfig
     }
 
     /**
-     * Sets the site label value, e.g. the string that will represent the site in the title bar of the browser.
+     * Sets the site label value, e.g., the string that will represent the site in the title bar of the browser.
      * @param string $site_label
      */
     public static function setSiteLabel(string $site_label): void
@@ -516,7 +508,7 @@ class PageConfig
     }
 
     /**
-     * Sets current breadcrumb links list.
+     * Sets the current breadcrumb links list.
      * @param NavigationMenu $links
      */
     public static function setUtilityLinks(NavigationMenu $links): void
