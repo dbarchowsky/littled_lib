@@ -4,6 +4,7 @@ namespace Littled\Exception;
 
 use Exception;
 use ReturnTypeWillChange;
+use Throwable;
 
 
 class LittledException extends Exception
@@ -41,6 +42,23 @@ class LittledException extends Exception
     public function getFrontendError(): string
     {
         return ($this->frontend_error ?? '') ?: $this->message;
+    }
+
+    /**
+     * Returns the full trace of the exception, including previous exceptions.
+     * @return array
+     */
+    public function getFullTrace(): array
+    {
+        $trace = $this->getTrace();
+
+        $previous = $this->getPrevious();
+        while ($previous !== null) {
+            $trace = array_merge($trace, $previous->getTrace());
+            $previous = $previous->getPrevious();
+        }
+
+        return $trace;
     }
 
     /**
