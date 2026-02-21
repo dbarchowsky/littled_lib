@@ -4,7 +4,6 @@ namespace Littled\Exception;
 
 use Exception;
 use ReturnTypeWillChange;
-use Throwable;
 
 
 class LittledException extends Exception
@@ -59,6 +58,44 @@ class LittledException extends Exception
         }
 
         return $trace;
+    }
+
+    /**
+     * Returns the full trace of the exception as a string, including previous exceptions.
+     * @return string
+     */
+    public function getFullTraceAsString(): string
+    {
+        $trace = $this->getFullTrace();
+        $result = '';
+
+        foreach ($trace as $index => $frame) {
+            $result .= '#' . $index . ' ';
+
+            if (isset($frame['file'])) {
+                $result .= $frame['file'];
+                if (isset($frame['line'])) {
+                    $result .= '(' . $frame['line'] . ')';
+                }
+                $result .= ': ';
+            }
+
+            if (isset($frame['class'])) {
+                $result .= $frame['class'];
+            }
+
+            if (isset($frame['type'])) {
+                $result .= $frame['type'];
+            }
+
+            if (isset($frame['function'])) {
+                $result .= $frame['function'] . '()';
+            }
+
+            $result .= "\n";
+        }
+
+        return $result;
     }
 
     /**
