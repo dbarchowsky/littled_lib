@@ -512,17 +512,6 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Send an error message as a response to ajax request and stop processing the request.
-     * @param $err_msg
-     * @throws ResponseException
-     */
-    public static function sendErrorAndExit($err_msg): never
-    {
-        echo(json_encode(['error' => $err_msg]));
-        throw new ResponseException($err_msg);
-    }
-
-    /**
      * The ResponseException should be caught and handled by exiting the script.
      * @param string|LittledException $err
      * @return void
