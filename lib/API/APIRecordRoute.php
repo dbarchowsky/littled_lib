@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\API;
 
 use Littled\App\LittledGlobals;

@@ -1,10 +1,10 @@
 <?php
+
 namespace Littled\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordUnavailableException;
-use Littled\PageContent\SiteSection\ContentProperties;
 
 
 class APIListingsRoute extends APIRoute

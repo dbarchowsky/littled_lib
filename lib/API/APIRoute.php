@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\API;
 
 use Littled\Exception\ContentValidationException;
@@ -389,12 +390,12 @@ abstract class APIRoute extends APIRouteProperties
 
     /**
      * @inheritDoc
-     * @return APIRoute
+     * @return $this
      * @throws ConfigurationUndefinedException
      * @throws InvalidPropertyException
      * @throws ResourceNotFoundException
      */
-    public function processRequest(): APIRoute
+    public function processRequest(): static
     {
         $this->loadTemplateContent();
         return $this;
