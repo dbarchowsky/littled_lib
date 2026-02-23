@@ -7,6 +7,7 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidPropertyException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
+use Littled\Exception\LittledException;
 use Littled\Exception\NotInitializedException;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
@@ -517,10 +518,37 @@ abstract class APIRoute extends APIRouteProperties
      */
     public static function sendErrorAndExit($err_msg): never
     {
-        header('Content-Type: application/json');
         echo(json_encode(['error' => $err_msg]));
         throw new ResponseException($err_msg);
     }
+
+    /**
+     * The ResponseException should be caught and handled by exiting the script.
+     * @param string|LittledException $err
+     * @return void
+     * @throws ResponseException
+     */
+    public function sendErrorResponse(string|LittledException $err): void
+    {
+        $json = $this->json->formatJson();
+        $json['error'] = is_string($err) ? $err : $err->getFrontendError();
+
+        header('Content-Type: application/json');
+        echo(json_encode($json));
+
+        if (is_string($err)) {
+            throw new ResponseException($err);
+        }
+        if ($err instanceof ResponseException) {
+            /** @noinspection PhpRedundantVariableDocTypeInspection */
+            /** @var ResponseException $err */
+            throw $err;
+        }
+        else {
+            throw new ResponseException(message: $err->getMessage(), previous: $err);
+        }
+    }
+
 
     /**
      * Sends out whatever values are currently stored within the object's "json" property as JSON.
