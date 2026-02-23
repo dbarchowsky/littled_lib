@@ -29,9 +29,9 @@ interface RouteInterface
 
     /**
      * Apply any necessary work to the request data. Use the request data to prepare a response.
-     * @return RouteBase
+     * @return $this
      */
-    public function processRequest(): RouteBase;
+    public function processRequest(): static;
 
     /**
      * Injects content into a template to generate markup to send as http response matching a client request.
