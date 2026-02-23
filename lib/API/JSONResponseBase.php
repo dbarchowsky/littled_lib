@@ -42,7 +42,7 @@ class JSONResponseBase
      */
     public static function sendJsonResponse(array $arr): void
     {
-        header('Content-type: application/json; charset=utf-8');
+        header('Content-type: application/json');
         print json_encode($arr, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG);
     }
 
