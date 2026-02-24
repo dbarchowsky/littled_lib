@@ -29,9 +29,71 @@ use Throwable;
 
 /**
  * Extends PageContent to add a JSONRecordResponse property used to convert the page content from the content normally sent as an HTML response to content sent as JSON.
+ *
+ * @method sendErrorResponse(string|LittledException $err): void
+ * @method static sendErrorResponse(string|LittledException $err): void
  */
 abstract class APIRoute extends APIRouteProperties
 {
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     * @throws ResponseException
+     */
+    public function __call(string $name, array $arguments)
+    {
+        if ($name === 'sendErrorResponse') {
+            $this->_sendErrorResponse(...$arguments);
+        }
+        return parent::__call($name, $arguments);
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return string|null
+     * @throws ResponseException
+     */
+    public static function __callStatic(string $name, array $arguments)
+    {
+        if ($name === 'sendErrorResponse') {
+            static::_sendErrorResponseStatic(...$arguments);
+        }
+        return parent::__callStatic($name, $arguments);
+    }
+
+    /**
+     * Send an error message as a JSON response along with the rest of the object's property values.
+     * The ResponseException should be caught and handled by exiting the script.
+     * @param string|LittledException $err
+     * @return void
+     * @throws ResponseException
+     */
+    public function _sendErrorResponse(string|LittledException $err): void
+    {
+        $json = $this->json->formatJson();
+        $json['error'] = is_string($err) ? $err : $err->getFrontendError();
+
+        header('Content-Type: application/json');
+        echo(json_encode($json));
+
+        static::exitWithError($err);
+    }
+
+    /**
+     * Send an error message as a JSON response.
+     * @param string|LittledException $err
+     * @return void
+     * @throws ResponseException
+     */
+    public static function _sendErrorResponseStatic(string|LittledException $err): void
+    {
+        header('Content-Type: application/json');
+        echo(json_encode(['error' => is_string($err) ? $err : $err->getFrontendError()]));
+        static::exitWithError($err);
+    }
+
     /**
      * Retrieves content type id from script arguments/form data and uses that value to retrieve content properties from the database.
      * @param string $key (Optional) Key used to retrieve content type id value from script arguments/form data.
@@ -201,6 +263,27 @@ abstract class APIRoute extends APIRouteProperties
     public function exceptionHandler(Throwable $ex): void
     {
         $this->json->returnError($ex->getMessage());
+    }
+
+    /**
+     * Throws a ResponseException exception to indicate the script should exit with an error response.
+     * @param string|LittledException $err
+     * @return void
+     * @throws ResponseException
+     */
+    protected static function exitWithError(string|LittledException $err): void
+    {
+        if (is_string($err)) {
+            throw new ResponseException($err);
+        }
+        if ($err instanceof ResponseException) {
+            /** @noinspection PhpRedundantVariableDocTypeInspection */
+            /** @var ResponseException $err */
+            throw $err;
+        }
+        else {
+            throw new ResponseException(message: $err->getMessage(), previous: $err);
+        }
     }
 
     /**
@@ -510,34 +593,6 @@ abstract class APIRoute extends APIRouteProperties
             $data[0]->location)
         ->shareConnection($this);
     }
-
-    /**
-     * The ResponseException should be caught and handled by exiting the script.
-     * @param string|LittledException $err
-     * @return void
-     * @throws ResponseException
-     */
-    public function sendErrorResponse(string|LittledException $err): void
-    {
-        $json = $this->json->formatJson();
-        $json['error'] = is_string($err) ? $err : $err->getFrontendError();
-
-        header('Content-Type: application/json');
-        echo(json_encode($json));
-
-        if (is_string($err)) {
-            throw new ResponseException($err);
-        }
-        if ($err instanceof ResponseException) {
-            /** @noinspection PhpRedundantVariableDocTypeInspection */
-            /** @var ResponseException $err */
-            throw $err;
-        }
-        else {
-            throw new ResponseException(message: $err->getMessage(), previous: $err);
-        }
-    }
-
 
     /**
      * Sends out whatever values are currently stored within the object's "json" property as JSON.
