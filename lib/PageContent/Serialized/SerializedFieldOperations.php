@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\PageContent\Serialized;
 
 use Littled\App\LittledGlobals;
@@ -148,7 +149,7 @@ trait SerializedFieldOperations
      * @param array $used_keys (Optional) Properties that have already been added to the stack.
      * @return QueryField[] Key/value pairs for each RequestInput property of the class.
      */
-    protected function extractPreparedStmtArgs(array &$used_keys = []): array
+    public function extractPreparedStmtArgs(array &$used_keys = []): array
     {
         $fields = [];
 
@@ -191,7 +192,7 @@ trait SerializedFieldOperations
      * Fills object properties using property values found in $src argument.
      * @param object|array $src Source object containing values to assign to this instance.
      */
-    public function fill(object|array $src): void
+    public function fill(object|array $src): static
     {
         foreach ($src as $key => $val) {
             if (property_exists(get_class($this), $key)) {
@@ -219,6 +220,7 @@ trait SerializedFieldOperations
                 $item->fill($src);
             }
         }
+        return $this;
     }
 
     /**
@@ -307,14 +309,15 @@ trait SerializedFieldOperations
     /**
      * Adds a prefix to any RequestInput property of the object.
      * @param string $prefix
-     * @return void
+     * @return $this
      */
-    public function setColumnPrefix(string $prefix): void
+    public function setColumnPrefix(string $prefix): static
     {
         $properties = $this->getInputPropertiesList();
         foreach ($properties as $property) {
             $this->$property->setColumnName($prefix . $property);
         }
+        return $this;
     }
 
     /**
@@ -330,11 +333,11 @@ trait SerializedFieldOperations
 
     /**
      * Sets the index for all input properties of the object.
-     * @param int $index
-     * @param string[] $exclude
+     * @param int $index Index value to assign to all input properties.
+     * @param string[]|null $exclude List of input keys corresponding to properties to exclude from the assignment.
      * @return $this
      */
-    public function setIndex(int $index, array $exclude = [LittledGlobals::ID_KEY]): static
+    public function setIndex(int $index, ?array $exclude = [LittledGlobals::ID_KEY]): static
     {
         $properties = $this->getInputPropertiesList(true, $exclude);
 
@@ -356,14 +359,15 @@ trait SerializedFieldOperations
     /**
      * Adds a prefix to any RequestInput property of the object.
      * @param string $prefix
-     * @return void
+     * @return $this
      */
-    public function setInputPrefix(string $prefix): void
+    public function setInputPrefix(string $prefix): static
     {
         $properties = $this->getInputPropertiesList();
         foreach ($properties as $property) {
             $this->$property->setKey($prefix . $this->$property->key);
         }
+        return $this;
     }
 
     /**

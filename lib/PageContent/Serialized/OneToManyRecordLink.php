@@ -11,6 +11,10 @@ use Littled\Validation\Validation;
  */
 abstract class OneToManyRecordLink extends LinkedContent
 {
+    use SerializedFieldOperations {
+        setIndex as traitSetIndex;
+    }
+
     public function __construct()
     {
         parent::__construct();
@@ -96,6 +100,16 @@ abstract class OneToManyRecordLink extends LinkedContent
             ') AS `record_exists`';
         $data = $this->fetchRecords($query, 'i', $this->id->value);
         return ((int)('0' . $data[0]->record_exists) === 1);
+    }
+
+    /**
+     * @inheritDoc
+     * Overrides the parent method to exclude the parent_id property from assignments by default.
+     */
+    public function setIndex(int $index, ?array $exclude = null): static
+    {
+        $exclude ??= [];
+        return $this->traitSetIndex($index, $exclude);
     }
 
     /**

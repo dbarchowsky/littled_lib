@@ -13,6 +13,10 @@ use Littled\Validation\Validation;
 
 abstract class LinkedContent extends SerializedContent
 {
+    use HydrateFieldOperations, InputOperations {
+        InputOperations::applyInputKeyPrefix as traitApplyInputKeyPrefix;
+    }
+
     public ForeignKeyInput      $parent_id;
     // protected SerializedContent $link;
 
@@ -20,11 +24,6 @@ abstract class LinkedContent extends SerializedContent
     {
         parent::__construct();
         $this->parent_id = (new ForeignKeyInput())->setKey(LittledGlobals::ID_KEY);
-    }
-
-
-    use HydrateFieldOperations, InputOperations {
-        applyInputKeyPrefix as traitApplyInputKeyPrefix;
     }
 
     /**

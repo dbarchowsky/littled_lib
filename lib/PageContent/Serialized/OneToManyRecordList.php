@@ -1,13 +1,15 @@
 <?php
 namespace Littled\PageContent\Serialized;
 
-use Littled\App\LittledGlobals;
-
 /**
  * Maintains a list of one-to-many records linked to a parent record.
  */
 class OneToManyRecordList extends SerializedRecordList
 {
+    use PropertyEvaluations {
+        getInputPropertiesList as traitGetInputPropertiesList;
+    }
+
     /**
      * @inheritDoc
      */
@@ -17,6 +19,14 @@ class OneToManyRecordList extends SerializedRecordList
             'WHERE `' . $this->records[0]->id->getColumnName('id') . '` IN '.
             '(' . str_repeat('?,', count($stale_link_ids)-1) . '?)';
         return [$query, str_repeat('i', count($stale_link_ids)), ...$stale_link_ids];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getInputPropertiesList(bool $db_only = true, ?array $ignore_keys = null): array
+    {
+        return $this->traitGetInputPropertiesList($db_only, $ignore_keys ?? []);
     }
 
     /**

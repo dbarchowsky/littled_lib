@@ -21,13 +21,20 @@ trait PropertyEvaluations
      */
     protected function getInputPropertiesList(bool $db_only=true, array|null $ignore_keys = null): array
     {
-        $ignore_keys ??= ['id', 'index'];
+        if ($ignore_keys === null) {
+            $ignore_keys = [$this->id->getKey()];
+            if (property_exists($this, 'index') &&
+                Validation::isSubclass($this->index, RequestInput::class)) {
+                $ignore_keys[] = $this->index->getKey();
+            }
+        }
+
         $properties = [];
         foreach($this as $key => $property) {
             if (Validation::isSubclass($property, RequestInput::class)) {
                 /** @var RequestInput $property */
                 if ((!$db_only || $property->isDatabaseField()) &&
-                    (!in_array($key, $ignore_keys))) {
+                    (!in_array($property->getKey(), $ignore_keys))) {
                     $properties[] = $key;
                 }
             }
@@ -163,8 +170,9 @@ trait PropertyEvaluations
     /**
      * Recordset prefix setter.
      * @param string|string[] $prefix
+     * @return $this
      */
-    public function setRecordsetPrefix(string|array $prefix): void
+    public function setRecordsetPrefix(string|array $prefix): static
     {
         $this->recordset_prefix ??= new RecordsetPrefix();
         $this->recordset_prefix->setPrefix($prefix);
@@ -173,6 +181,7 @@ trait PropertyEvaluations
                 $property->setRecordsetPrefix($prefix);
             }
         }
+        return $this;
     }
 
     /**

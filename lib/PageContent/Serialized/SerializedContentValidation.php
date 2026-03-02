@@ -1,106 +1,23 @@
 <?php
+
 namespace Littled\PageContent\Serialized;
 
 use Littled\Exception\ContentValidationException;
-use Littled\Request\CategorySelect;
-use Littled\Request\RequestInput;
-use Littled\Validation\ValidationErrors;
+use Littled\Validation\ContentValidationTrait;
 
 
 class SerializedContentValidation extends SerializedContentUtils
 {
-    protected bool                  $bypass_validation = false;
-    protected ValidationErrors      $validation_errors;
-    /** @var string                 Error message returned when invalid form data is encountered. */
-    public string                   $validation_message = 'Required information is missing.';
+    use ContentValidationTrait {
+        validateInput as protected traitValidateInput;
+    }
 
     public function __construct()
     {
-        $this->validation_errors = new ValidationErrors();
+        $this->bootstrapValidation();
     }
 
-    /**
-     * Stores new error message string on stack of current error messages.
-     * @param array|string $err Array or string containing errors to push onto the current
-     * stack of error messages.
-     */
-    public function addValidationError(array|string $err): void
-    {
-        $this->validation_errors->push($err);
-    }
 
-    /**
-     * Specify if the object should skip validation.
-     * @param bool $option (Optional) Set to TRUE (default value) to cause the object to bypass validation.
-     * @return $this
-     */
-    public function bypassValidation(bool $option = true): static
-    {
-        $this->bypass_validation = $option;
-        return $this;
-    }
-
-    /**
-     * Clear all current validation error messages.
-     * @return void
-     */
-    public function clearValidationErrors(): void
-    {
-        $this->validation_errors->clear();
-    }
-
-    /**
-     * Returns all validation errors as a single string
-     * @param string $delimiter (optional) string to insert between the individual error messages.
-     * @param bool $include_header Include the class's generalized error message before specific errors.
-     * @return string
-     */
-    public function getErrorsString(string $delimiter = " \n", bool $include_header = false): string
-    {
-        if (!$this->hasValidationErrors()) {
-            return '';
-        }
-        return (($include_header && $this->validation_message) ? ($this->validation_message . $delimiter) : ('')) .
-            implode($delimiter, $this->validationErrors());
-
-    }
-
-    /**
-     * Indicates if any form data has been entered for the current instance of the object.
-     * @return bool Returns true, when editing an existing record, a title has been entered, or if any gallery images have been uploaded. Most likely should be overridden in derived classes.
-     */
-    public function hasData(): bool
-    {
-        foreach ($this as $property) {
-            if ($property instanceof RequestInput && $property->required === true) {
-                if ($property->hasData()) {
-                    return true;
-                }
-            } elseif ($property instanceof SerializedContentValidation && $property->hasData()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Tests if the object currently has any validation errors.
-     * @return bool Returns TRUE if validation errors are detected, FALSE otherwise.
-     */
-    public function hasValidationErrors(): bool
-    {
-        return $this->validation_errors->hasErrors();
-    }
-
-    /**
-     * Add an error message or messages to the beginning of the existing list of errors.
-     * @param array|string $err
-     * @return void
-     */
-    public function unshiftValidationError(array|string $err): void
-    {
-        $this->validation_errors->unshift($err);
-    }
 
     /**
      * Validates only the primary and foreign key properties of the object.
@@ -141,45 +58,6 @@ class SerializedContentValidation extends SerializedContentUtils
             }
             return;
         }
-
-        if ($clear_existing) {
-            $this->validation_errors->clear();
-        }
-        foreach ($this as $key => $property) {
-            if (in_array($key, $exclude_properties)) {
-                continue;
-            }
-            if ($property instanceof RequestInput) {
-                try {
-                    if (in_array($property->key, $exclude_properties)) {
-                        continue;
-                    }
-                    $property->validate();
-                } catch (ContentValidationException $ex) {
-                    $this->addValidationError($ex->getMessage());
-                    $exclude_properties[] = $property->key;
-                }
-            } elseif (
-                $property instanceof SerializedContentValidation ||
-                $property instanceof CategorySelect) {
-                try {
-                    $property->validateInput($exclude_properties);
-                } catch (ContentValidationException) {
-                    $this->addValidationError($property->validationErrors());
-                }
-            }
-        }
-        if ($this->hasValidationErrors()) {
-            throw new ContentValidationException($this->validation_message);
-        }
-    }
-
-    /**
-     * Validation errors getter.
-     * @return array
-     */
-    public function validationErrors(): array
-    {
-        return $this->validation_errors->getList();
+        $this->traitValidateInput($exclude_properties, $clear_existing);
     }
 }

@@ -9,6 +9,10 @@ use Littled\Request\PrimaryKeyInput;
 
 abstract class JunctionRecordLink extends LinkedContent
 {
+    use SerializedFieldOperations {
+        setIndex as traitSetIndex;
+    }
+
     public ForeignKeyInput|PrimaryKeyInput $link_id;
 
     public function __construct()
@@ -165,6 +169,16 @@ abstract class JunctionRecordLink extends LinkedContent
         parent::setAsRequired();
         $this->link_id->setAsRequired();
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     * Overrides the parent method to include the parent_id property in the exclude list.
+     */
+    public function setIndex(int $index, ?array $exclude = null): static
+    {
+        $exclude ??= [$this->id->getKey(), $this->parent_id->getKey()];
+        return $this->traitSetIndex($index, $exclude);
     }
 
     /**
