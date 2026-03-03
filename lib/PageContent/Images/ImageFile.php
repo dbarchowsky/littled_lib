@@ -9,7 +9,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\OperationFailedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Keyword\Keyword;
@@ -264,14 +264,14 @@ class ImageFile extends ImageBase
      * @param $tmp_path
      * @param $target_name
      * @param $upload_dir
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      */
     protected function moveUploadToDestination($tmp_path, $target_name, $upload_dir): void
     {
         /* no resampling: move a file to its directory */
         $upload_path = $this->formatUniquePath($upload_dir, $target_name);
         if (!move_uploaded_file($tmp_path, $upload_path)) {
-            throw new OperationAbortedException('Error moving uploaded file.');
+            throw new OperationFailedException('Error moving uploaded file.');
         }
     }
 
@@ -282,7 +282,7 @@ class ImageFile extends ImageBase
      * @return string
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      * @throws ResourceNotFoundException
      */
     public function placeUploadFile(string $sub_dir = '', string $target_basename = '', bool $randomize = false): string
@@ -299,7 +299,7 @@ class ImageFile extends ImageBase
      * @return array Path to a temporary upload file. Path to upload directory.
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      * @throws ResourceNotFoundException
      */
     protected function processUpload(string $sub_dir, string $target_basename, bool $randomize): array
@@ -342,7 +342,7 @@ class ImageFile extends ImageBase
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
      */
@@ -375,7 +375,7 @@ class ImageFile extends ImageBase
      * @param string $target_name Passed by reference. Set to the original name of the file will be stored in this variable after return.
      * @return boolean Returns false if there is no upload to work with. Throws Exception if there is something unacceptable about the upload.
      * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      */
     function validateUpload(string &$tmp_path, string &$target_name): bool
     {
@@ -406,7 +406,7 @@ class ImageFile extends ImageBase
 
         /* make sure there is a valid upload to work with */
         if (!is_uploaded_file($tmp_path)) {
-            throw new OperationAbortedException("Error uploading image file to \"$tmp_path\".");
+            throw new OperationFailedException("Error uploading image file to \"$tmp_path\".");
         }
 
         return (true);

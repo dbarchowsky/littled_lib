@@ -7,7 +7,7 @@ use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\NotImplementedException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\OperationFailedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Request\IntegerInput;
 use Littled\Request\RequestInput;
@@ -154,7 +154,7 @@ class ResortBase extends MySQLConnection
     /**
      * Commit resorted slot values to database.
      * @return string String containing a description of the results of the operation.
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      */
     function save(): string
     {
@@ -173,7 +173,7 @@ class ResortBase extends MySQLConnection
             // updateCache() in class ContentCache is abstract. Figure out the appropriate way to handle this before uncommenting.
             // $status .= ContentCache::updateCache($this->contentProperties, $this->parentID);
         } catch (Exception $ex) {
-            throw new OperationAbortedException('Error updating position of record #' . ((count($this->id_list) < $i) ? ($this->id_list[$i]) : ('unavailable')) . ': ' . $ex->getMessage());
+            throw new OperationFailedException('Error updating position of record #' . ((count($this->id_list) < $i) ? ($this->id_list[$i]) : ('unavailable')) . ': ' . $ex->getMessage());
         }
         return ($status);
     }

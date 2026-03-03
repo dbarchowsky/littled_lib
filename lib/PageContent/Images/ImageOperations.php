@@ -8,7 +8,7 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\OperationFailedException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\ResourceNotFoundException;
 
@@ -37,30 +37,30 @@ class ImageOperations extends ImageFile
      * @param string $target_ext File extension, which determines the file type of the image file.
      * @param string $upload_path Path where the image file is to be saved.
      * @throws InvalidTypeException Unsupported image type.
-     * @throws OperationAbortedException Error saving image file.
+     * @throws OperationFailedException Error saving image file.
      */
     protected function commitImageDataToDisk($image_data, string $target_ext, string $upload_path): void
     {
         switch ($target_ext) {
             case 'png':
                 if (!imagepng($image_data, $upload_path)) {
-                    throw new OperationAbortedException("Error saving resampled PNG image: $upload_path. ");
+                    throw new OperationFailedException("Error saving resampled PNG image: $upload_path. ");
                 }
                 break;
             case 'jpg':
             case 'jpeg':
                 if (!imagejpeg($image_data, $upload_path, 100)) {
-                    throw new OperationAbortedException("Error saving resampled JPEG image: $upload_path. ");
+                    throw new OperationFailedException("Error saving resampled JPEG image: $upload_path. ");
                 }
                 break;
             case 'gif':
                 if (!imagegif($image_data, $upload_path)) {
-                    throw new OperationAbortedException("Error saving resampled GIF image: $upload_path. ");
+                    throw new OperationFailedException("Error saving resampled GIF image: $upload_path. ");
                 }
                 break;
             case 'bmp':
                 if (!imagewbmp($image_data, $upload_path)) {
-                    throw new OperationAbortedException("Error saving resampled BMP image: $upload_path. ");
+                    throw new OperationFailedException("Error saving resampled BMP image: $upload_path. ");
                 }
                 break;
             default:
@@ -223,7 +223,7 @@ class ImageOperations extends ImageFile
      * @throws ConnectionException
      * @throws InvalidTypeException
      * @throws InvalidValueException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      * @throws ResourceNotFoundException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
@@ -294,7 +294,7 @@ class ImageOperations extends ImageFile
      * @throws ConfigurationUndefinedException
      * @throws InvalidTypeException
      * @throws InvalidValueException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      * @throws ResourceNotFoundException
      */
     public function resample(

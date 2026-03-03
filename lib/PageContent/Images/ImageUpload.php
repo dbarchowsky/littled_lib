@@ -11,7 +11,7 @@ use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidQueryException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
-use Littled\Exception\OperationAbortedException;
+use Littled\Exception\OperationFailedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\RecordUnavailableException;
@@ -240,7 +240,7 @@ SQL;
      * @throws ContentValidationException
      * @throws InvalidQueryException
      * @throws InvalidTypeException
-     * @throws OperationAbortedException
+     * @throws OperationFailedException
      * @throws RecordNotFoundException
      * @throws ResourceNotFoundException
      * @throws InvalidValueException

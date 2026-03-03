@@ -3,6 +3,7 @@ namespace Littled\Utility;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidValueException;
+use Littled\Exception\OperationFailedException;
 use PHPMailer\PHPMailer\PHPMailer;
 use Exception;
 
@@ -40,7 +41,7 @@ class Mailer
     }
 
     /**
-     * Format plain text portion of email by stripping tags from the HTML body.
+     * Format the plain text portion of the email by stripping tags from the HTML body.
      * @return string
      */
     public function getAltBody(): string
@@ -89,7 +90,8 @@ class Mailer
      * @param int $debug_level Sets the PHPMailer debug level. Defaults to 0 for no debugging.
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws Exception
+     * @throws InvalidValueException
+     * @throws OperationFailedException
      */
     public function send(int $debug_level=0): void
     {
@@ -114,10 +116,15 @@ class Mailer
         }
 
 
-        $mail->setFrom($this->sender->email, $this->sender->name);
-        $mail->addAddress($this->recipient->email, $this->recipient->name);
-        if ($this->reply_to->hasData()) {
-            $mail->addReplyTo($this->reply_to->email, $this->reply_to->name);
+        try {
+            $mail->setFrom($this->sender->email, $this->sender->name);
+            $mail->addAddress($this->recipient->email, $this->recipient->name);
+            if ($this->reply_to->hasData()) {
+                $mail->addReplyTo($this->reply_to->email, $this->reply_to->name);
+            }
+        }
+        catch (Exception $ex) {
+            throw new InvalidValueException(message: 'Could not set email address', previous: $ex);
         }
         $mail->Subject = $this->subject;
         if ($this->is_html) {
@@ -133,7 +140,12 @@ class Mailer
         // This sends output to the console.
         $mail->SMTPDebug = $debug_level;
 
-        $mail->send();
+        try {
+            $mail->send();
+        }
+        catch (Exception $ex) {
+            throw new OperationFailedException(message: 'An error occurred sending the email.', previous: $ex);
+        }
     }
 
     /**
