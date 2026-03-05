@@ -1,4 +1,5 @@
 <?php
+
 namespace Littled\Utility;
 
 use Littled\Exception\ConfigurationUndefinedException;
@@ -80,9 +81,22 @@ class Mailer
         return static::$port;
     }
 
+    /**
+     * Checks if SMTP host and port are configured.
+     * @return bool
+     */
     public static function hasHost(): bool
     {
         return !empty(static::getHost()) && !empty(static::getPort());
+    }
+
+    /**
+     * Returns a handler for the PHPMailer debug output.
+     * @return callable|string
+     */
+    protected static function debugOutputHandler(): callable|string
+    {
+        return 'error_log';
     }
 
     /**
@@ -100,21 +114,30 @@ class Mailer
         }
 
         $mail = new PHPMailer(true);
-        if (static::hasHost() && $this->password) {
-            $mail->isSMTP();
-            $mail->SMTPAuth = true;
-            $mail->SMTPSecure = 'ssl';
-            $mail->Host = static::getHost();
-            $mail->Port = static::getPort();
-            $mail->Username = $this->sender->email;
-            $mail->Password = $this->password;
+
+        $mail->SMTPDebug = $debug_level;
+        $mail->Debugoutput = static::debugOutputHandler();
+
+        if (!static::hasHost()) {
+            throw new ConfigurationUndefinedException('SMTP host is not set.');
         }
 
-        // secure connection settings
-        if (in_array($mail->Port, [465, 587])) {
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        }
+        $mail->isSMTP();
+        $mail->Host = static::getHost();
+        $mail->Port = static::getPort();
 
+        $mail->SMTPAuth = true;
+        if (!$this->password) {
+            throw new ConfigurationUndefinedException('SMTP password is not set.');
+        }
+        $mail->Username = $this->sender->email;
+        $mail->Password = $this->password;
+
+        $mail->SMTPSecure = match($mail->Port) {
+            465 => PHPMailer::ENCRYPTION_SMTPS,
+            587 => PHPMailer::ENCRYPTION_STARTTLS,
+            default => ''
+        };
 
         try {
             $mail->setFrom($this->sender->email, $this->sender->name);
@@ -136,9 +159,6 @@ class Mailer
             $mail->IsHTML(false);
             $mail->Body = $this->getAltBody();
         }
-
-        // This sends output to the console.
-        $mail->SMTPDebug = $debug_level;
 
         try {
             $mail->send();
