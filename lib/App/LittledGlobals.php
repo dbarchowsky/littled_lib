@@ -114,7 +114,7 @@ class LittledGlobals
      */
     public static function getErrorLogPath(): string
     {
-        if (!isset(static::$error_log) || empty(static::$local_template_path)) {
+        if (!isset(static::$error_log) || empty(static::$error_log)) {
             throw new ConfigurationUndefinedException('An error log path has not been configured.');
         }
         return static::$error_log;

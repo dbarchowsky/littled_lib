@@ -2,6 +2,7 @@
 
 namespace Littled\Log;
 
+use Littled\App\LittledGlobals;
 use Littled\Exception\LittledException;
 use Littled\Exception\OperationFailedException;
 use Littled\Utility\Mailer;
@@ -12,6 +13,8 @@ use Littled\PageContent\ContentUtils;
 use Throwable;
 
 /**
+ * @method AppDiagnostics logError(string $err_msg)
+ * @method static void logError(string $err_msg)
  * @method AppDiagnostics setEmailTemplatePath(string $email_template)
  * @method static void setEmailTemplatePath(string $email_template)
  */
@@ -28,28 +31,48 @@ class AppDiagnostics
     protected static string $server;
     protected static string $template_path;
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return $this
+     * @throws ConfigurationUndefinedException
+     */
     public function __call(string $name, array $arguments): static
     {
-        return match ($name) {
-            'setEmailTemplatePath' => $this->_setEmailTemplatePath(...$arguments),
-            default => $this
-        };
-    }
-
-    public static function __callStatic(string $name, array $arguments): void
-    {
         match ($name) {
-            'setEmailTemplatePath' => static::_setEmailTemplatePathStatic(...$arguments)
+            'logError' => static::_logError(...$arguments),
+            'setEmailTemplatePath' => static::_setEmailTemplatePath(...$arguments)
         };
-    }
-
-    protected function _setEmailTemplatePath(string $email_template): static
-    {
-        static::$template_path = $email_template;
         return $this;
     }
 
-    protected static function _setEmailTemplatePathStatic(string $email_template): void
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    public static function __callStatic(string $name, array $arguments): void
+    {
+        match ($name) {
+            'logError' => static::_logError(...$arguments),
+            'setEmailTemplatePath' => static::_setEmailTemplatePath(...$arguments)
+        };
+    }
+
+    /**
+     * Logs an error message to the error log.
+     * @param string $err_msg
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected static function _logError(string $err_msg): void
+    {
+        $time = date('[Y-m-d H:i:s]');
+        error_log("$time $err_msg \n", 3, static::getErrorLogPath());
+    }
+
+    protected static function _setEmailTemplatePath(string $email_template): void
     {
         static::$template_path = $email_template;
     }
@@ -96,20 +119,21 @@ class AppDiagnostics
     }
 
     /**
-     * Instantiate a Mailer instance in a method to allow for mocking in tests.
-     * @return Mailer
-     */
-    protected static function instantiateMailer(): Mailer
-    {
-        return new Mailer();
-    }
-
-    /**
      * @return string
      */
     public static function getEmailTemplatePath(): string
     {
         return (static::$template_path ?? '');
+    }
+
+    /**
+     * Returns the path to the error log file.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getErrorLogPath(): string
+    {
+        return LittledGlobals::getErrorLogPath();
     }
 
     /**
@@ -170,6 +194,15 @@ class AppDiagnostics
             $frame['function'] ?? null,
             $frame['file'] ?? null,
             $frame['line'] ?? null);
+    }
+
+    /**
+     * Instantiate a Mailer instance in a method to allow for mocking in tests.
+     * @return Mailer
+     */
+    protected static function instantiateMailer(): Mailer
+    {
+        return new Mailer();
     }
 
     /**
