@@ -106,7 +106,6 @@ class AppDiagnostics
 
     /**
      * @return string
-     * @throws ConfigurationUndefinedException
      */
     public static function getEmailTemplatePath(): string
     {
