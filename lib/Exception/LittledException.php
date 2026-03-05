@@ -26,12 +26,12 @@ class LittledException extends Exception
      */
     #[ReturnTypeWillChange] public function __toString()
     {
-        return static::class . " [$this->code]: $this->message\n";
+        return $this->getExceptionTypeMessage();
     }
 
     public function getExceptionTypeMessage(): string
     {
-        return static::getBaseClass() . " ($this->code) $this->message\n";
+        return static::getBaseClass() . " [$this->code] $this->message";
     }
 
     /**
