@@ -38,7 +38,7 @@ trait RouteTrait
     public static function __callStatic(string $name, array $arguments)
     {
         if ($name === 'formatRoutePath') {
-            return (new static())->_formatRoutePath(...$arguments);
+            return static::_formatRoutePathStatic(...$arguments);
         }
         throw new BadMethodCallException("Method $name does not exist on " . get_called_class());
     }
@@ -49,7 +49,7 @@ trait RouteTrait
      * @param array|string|null $route_parts
      * @return string
      */
-    public function _formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
+    protected function _formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
     {
         $route_parts = $route_parts ?? ($this->route->route->value ?? null) ?? static::$route_parts;
         if (is_string($route_parts)) {
@@ -67,6 +67,26 @@ trait RouteTrait
             $route_parts = static::substituteRoutePart($route_parts, 'str', $this->content->getContentTypeSlug());
         }
         $route = LittledUtility::joinPaths(...$route_parts);
+        if ($route === '') {
+            return $route;
+        }
+        return '/' . ltrim($route, '/');
+    }
+
+    /**
+     * Static version of _formatRoutePath.
+     * @param int|null $record_id
+     * @param array|string|null $route_parts
+     * @return string
+     */
+    protected static function _formatRoutePathStatic(?int $record_id = null, array|string|null $route_parts = null): string
+    {
+        $route_parts = $route_parts ?? static::$route_parts ?? '';
+        if (is_array($route_parts)) {
+            $route = LittledUtility::joinPaths(...$route_parts);
+        } else {
+            $route = $route_parts;
+        }
         if ($route === '') {
             return $route;
         }
