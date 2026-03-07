@@ -22,10 +22,10 @@ class PageConfig
 {
     public static string                    $contentCSSClass = '';
     /** @var string[] */
-    public static array                     $stylesheets = array();
-    /** @var string[] */
-    public static array                     $scripts = array();
-    public static array                     $preloads = array();
+    public static array                     $stylesheets = [];
+    /** @var PageScript[] */
+    public static array                     $scripts = [];
+    public static array                     $preloads = [];
     protected static PageMetadata           $metadata;
     protected static string                 $status = '';
     protected static NavigationMenu|null    $utilityLinks;
@@ -130,7 +130,7 @@ class PageConfig
      */
     public static function clearStylesheets(): void
     {
-        static::$stylesheets = array();
+        static::$stylesheets = [];
     }
 
     /**
@@ -138,7 +138,7 @@ class PageConfig
      */
     public static function clearScripts(): void
     {
-        static::$scripts = array();
+        static::$scripts = [];
     }
 
     /**
@@ -316,12 +316,15 @@ class PageConfig
 
     /**
      * Pushes the URL of a script, typically a JavaScript file, to load with the page.
-     * @param string $src
+     * @param PageScript|string $src
      */
-    public static function registerScript(string $src): void
+    public static function registerScript(PageScript|string $src): void
     {
-        if (!in_array($src, static::$scripts)) {
+        if ($src instanceof PageScript) {
             static::$scripts[] = $src;
+        }
+        else {
+            static::$scripts[] = (new PageScript())->setScript($src);
         }
     }
 
@@ -551,8 +554,8 @@ class PageConfig
      */
     public static function unregisterScript(string $src): void
     {
-        for ($i = 0; $i < count(static::$scripts); $i++) {
-            if (static::$scripts[$i] == $src) {
+        foreach(static::$scripts as $i => $script) {
+            if ($script->getScript() == $src) {
                 unset(static::$scripts[$i]);
             }
         }
