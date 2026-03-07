@@ -321,10 +321,14 @@ class PageConfig
     public static function registerScript(PageScript|string $src): void
     {
         if ($src instanceof PageScript) {
-            static::$scripts[] = $src;
+            if (!in_array($src->getScript(), array_map(fn($s) => $s->getScript(), static::$scripts))) {
+                static::$scripts[] = $src;
+            }
         }
         else {
-            static::$scripts[] = (new PageScript())->setScript($src);
+            if (!in_array($src, array_map(fn($s) => $s->getScript(), static::$scripts))) {
+                static::$scripts[] = (new PageScript())->setScript($src);
+            }
         }
     }
 
