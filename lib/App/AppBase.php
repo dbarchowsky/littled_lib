@@ -83,6 +83,18 @@ class AppBase
     }
 
     /**
+     * Returns the environment the app is running in.
+     * @return string Returns the environment the app is running in. Defaults to 'production' if the environment is not set.
+     */
+    public static function getAppEnv(): string
+    {
+        if (isset($_SERVER['APP_ENV'])) {
+            return $_SERVER['APP_ENV'];
+        }
+        return 'production';
+    }
+
+    /**
      * Returns the path to the app's document root.
      * @return string Path to document root. Or empty string if the path is unavailable.
      */
