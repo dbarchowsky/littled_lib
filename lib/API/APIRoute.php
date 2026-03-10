@@ -71,7 +71,7 @@ abstract class APIRoute extends APIRouteProperties
      * @return void
      * @throws ResponseException
      */
-    public function _sendErrorResponse(string|LittledException $err): void
+    protected function _sendErrorResponse(string|LittledException $err): void
     {
         $json = $this->json->formatJson();
         $json['error'] = is_string($err) ? $err : $err->getFrontendError();
