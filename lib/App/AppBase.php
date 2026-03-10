@@ -88,10 +88,7 @@ class AppBase
      */
     public static function getAppEnv(): string
     {
-        if (isset($_SERVER['APP_ENV'])) {
-            return $_SERVER['APP_ENV'];
-        }
-        return 'production';
+        return $_ENV['APP_ENV'] ?? 'production';
     }
 
     /**
