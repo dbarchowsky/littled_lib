@@ -606,6 +606,15 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
+     * @param array $json
+     * @return void
+     */
+    public function sendJsonResponse(array $json): void
+    {
+        $this->json->sendJsonResponse($json);
+    }
+
+    /**
      * Sends out whatever values are currently stored within the object's "json" property as JSON.
      */
     public function sendResponse(string $template_path = '', ?array $context = null): void
