@@ -22,6 +22,7 @@ use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
 use Littled\PageContent\SiteSection\ContentProperties;
+use Littled\Validation\RequestValidation;
 use Littled\Validation\Validation;
 use Exception;
 use Throwable;
@@ -227,6 +228,16 @@ abstract class APIRoute extends APIRouteProperties
     {
         $this->operation->collectRequestData($src);
         return $this;
+    }
+
+    /**
+     * Validates CSRF token from request data.
+     * @param ?array $src Optional array containing request data that will be used as the default source of request data of GET and POST data.
+     * @return bool
+     */
+    public static function validateCSRF(?array $src = null): bool
+    {
+        return RequestValidation::validateCSRF($src === null ? null : (object)$src);
     }
 
     /**
