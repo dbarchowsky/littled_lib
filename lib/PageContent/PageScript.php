@@ -29,7 +29,7 @@ class PageScript
     public function getViteAsset(): string
     {
         $isDev = AppBase::getAppEnv() === 'development';
-        $assetPath = 'app/js/';
+        $assetPath = 'scripts/';
         $devHost = 'http://localhost:5173';
 
         $fullPath = $assetPath . $this->script;
