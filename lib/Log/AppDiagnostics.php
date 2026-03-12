@@ -104,6 +104,7 @@ class AppDiagnostics
 
     /**
      * @return string
+     * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
      */
     protected function formatDiagnosticsMessage(): string
@@ -111,7 +112,7 @@ class AppDiagnostics
         return ContentUtils::loadTemplateContent(
             $this::getEmailTemplatePath(),
             [
-                'server' => static::$server,
+                'server' => static::getServer(),
                 'source' => $this->source ?? static::getSource(2),
                 'message' => $this->message,
             ]
