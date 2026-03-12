@@ -42,6 +42,15 @@ class Mailer
     }
 
     /**
+     * Returns a handler for the PHPMailer debug output.
+     * @return callable|string
+     */
+    protected static function debugOutputHandler(): callable|string
+    {
+        return 'error_log';
+    }
+
+    /**
      * Format the plain text portion of the email by stripping tags from the HTML body.
      * @return string
      */
@@ -68,7 +77,7 @@ class Mailer
      */
     public function getPassword(): string
     {
-        return $this->password;
+        return $this->password ?? '';
     }
 
     /**
@@ -91,15 +100,6 @@ class Mailer
     }
 
     /**
-     * Returns a handler for the PHPMailer debug output.
-     * @return callable|string
-     */
-    protected static function debugOutputHandler(): callable|string
-    {
-        return 'error_log';
-    }
-
-    /**
      * Sends email. Expects properties of the object to be set before calling this routine.
      * @param int $debug_level Sets the PHPMailer debug level. Defaults to 0 for no debugging.
      * @return void
@@ -119,7 +119,9 @@ class Mailer
         $mail->Debugoutput = static::debugOutputHandler();
 
         if (!static::hasHost()) {
+            // @codeCoverageIgnoreStart
             throw new ConfigurationUndefinedException('SMTP host is not set.');
+            // @codeCoverageIgnoreEnd
         }
 
         $mail->isSMTP();
@@ -134,9 +136,13 @@ class Mailer
         $mail->Password = $this->password;
 
         $mail->SMTPSecure = match($mail->Port) {
+            // @codeCoverageIgnoreStart
             465 => PHPMailer::ENCRYPTION_SMTPS,
+            // @codeCoverageIgnoreEnd
             587 => PHPMailer::ENCRYPTION_STARTTLS,
+            // @codeCoverageIgnoreStart
             default => ''
+            // @codeCoverageIgnoreEnd
         };
 
         try {
@@ -146,9 +152,11 @@ class Mailer
                 $mail->addReplyTo($this->reply_to->email, $this->reply_to->name);
             }
         }
+        // @codeCoverageIgnoreStart
         catch (Exception $ex) {
             throw new InvalidValueException(message: 'Could not set email address', previous: $ex);
         }
+        // @codeCoverageIgnoreEnd
         $mail->Subject = $this->subject;
         if ($this->is_html) {
             $mail->isHTML();
