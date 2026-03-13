@@ -39,6 +39,7 @@ abstract class APIRouteProperties extends RouteBase
     /** @var string             String indicating the action to be taken on the page. */
     public string               $action = '';
     public IntegerInput         $content_type_id;
+    protected static bool       $dev_only = false;
     /** @var JSONRecordResponse JSON response object. */
     public JSONRecordResponse   $json;
     /** @var StringInput        Token to use to select which content template to load. Corresponds to the "name" field of the content_template table. */

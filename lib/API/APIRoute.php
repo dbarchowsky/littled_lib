@@ -2,8 +2,10 @@
 
 namespace Littled\API;
 
+use Littled\App\AppBase;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidCredentialsException;
 use Littled\Exception\InvalidPropertyException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\InvalidTypeException;
@@ -93,6 +95,17 @@ abstract class APIRoute extends APIRouteProperties
         header('Content-Type: application/json');
         echo(json_encode(['error' => is_string($err) ? $err : $err->getFrontendError()]));
         static::exitWithError($err);
+    }
+
+    /**
+     * @return void
+     * @throws InvalidCredentialsException
+     */
+    protected static function checkIfDevOnly(): void
+    {
+        if (static::$dev_only && !in_array(AppBase::getAppEnv(), [LittledGlobals::ENV_DEVELOPMENT, LittledGlobals::ENV_STAGING])) {
+            throw new InvalidCredentialsException('Not allowed.');
+        }
     }
 
     /**

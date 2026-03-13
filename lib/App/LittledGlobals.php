@@ -46,6 +46,10 @@ class LittledGlobals
     const string                    REFERER_KEY = 'ref';
     /** @var string */
     const string                    OPERATION_KEY = 'op';
+    public const string             ENV_DEVELOPMENT         = 'development';
+    public const string             ENV_PREVIEW             = 'preview';
+    public const string             ENV_PRODUCTION          = 'production';
+    public const string             ENV_STAGING             = 'staging';
 
     /**
      * @throws ConfigurationUndefinedException
