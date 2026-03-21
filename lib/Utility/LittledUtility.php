@@ -2,6 +2,7 @@
 
 namespace Littled\Utility;
 
+use NumberFormatter;
 use Random\RandomException;
 
 /**
@@ -9,6 +10,31 @@ use Random\RandomException;
  */
 class LittledUtility
 {
+    /**
+     * Formats a currency value using the specified locale, or as a string with comma separators, or a float value limited to two decimal places.
+     * @param float $amount
+     * @param bool $includeCommas
+     * @param string $currency
+     * @param string $locale
+     * @return string
+     */
+    public static function formatCurrencyValue(
+        float           $amount,
+        bool            $includeCommas      = true,
+        string          $currency           = 'USD',
+        string          $locale             ='en_US'
+    ): string
+    {
+        if ($currency) {
+            return (new NumberFormatter($locale, NumberFormatter::CURRENCY))->formatCurrency($amount, $currency);
+        }
+        $formatted = number_format($amount, 2);
+        if ($includeCommas) {
+            return $formatted;
+        }
+        return str_replace(',', '', $formatted);
+    }
+
     /**
      * @deprecated Use LittledUtility::joinPaths() instead.
      * Joins parts of a filesystem path into a single path.
