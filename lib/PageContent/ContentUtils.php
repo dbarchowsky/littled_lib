@@ -10,25 +10,23 @@ use Littled\Exception\ResourceNotFoundException;
 class ContentUtils
 {
     /**
+     * @deprecated Use TemplateRenderer->renderAsMarkup() instead.
      * Inserts data into a template file and stores the resulting content in the object's $content property.
      * @param string $template_path Path to a content template file.
      * @param ?array $context Array containing data to insert into the template.
      * @return string Markup with content inserted into it.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
      */
-    public static function loadTemplateContent(string $template_path, ?array $context = null): string
+    public static function loadTemplateContent(string $template_path, ?array $context = []): string
     {
-        ob_start();
-        try {
-            ContentUtils::renderTemplate($template_path, $context);
-            $markup = ob_get_contents();
-        } finally {
-            ob_end_clean();
-        }
-        return ($markup);
+        return TemplateRenderer::create()
+            ->withTemplate($template_path)
+            ->withContext($context ?? [])
+            ->renderAsMarkup();
     }
 
     /**
+     * @deprecated Use ErrorTemplate->renderError() instead.
      * Inserts error message into DOM.
      * @param string $msg Error message to print out.
      * @param string $fmt Format to use to print out an error message. Overrides the default format.
@@ -36,11 +34,17 @@ class ContentUtils
      * "alert alert-error".
      * @param string $encoding Defaults to 'UTF-8'
      */
-    public static function printError(string $msg, string $fmt = '', string $css_class = '', string $encoding = 'UTF-8'): void
+    public static function printError(
+        string $msg,
+        string $fmt = '<div class="%s">%s</div>',
+        string $css_class = 'alert alert-error',
+        string $encoding = 'UTF-8'): void
     {
-        $css_class = $css_class ?: 'alert alert-error';
-        $fmt = $fmt ?: "<div class=\"$css_class\">%s</div>";
-        printf($fmt, htmlspecialchars($msg, ENT_QUOTES, $encoding));
+        (new ErrorTemplate())
+            ->setCSSClass($css_class)
+            ->setFormat($fmt)
+            ->setEncoding($encoding)
+            ->renderError($msg);
     }
 
     /**
@@ -54,45 +58,33 @@ class ContentUtils
     }
 
     /**
+     * @deprecated Use TemplateRenderer instead.
      * Inserts data into a template file and renders the result.
      * @param string $template_path Path to template to render.
      * @param ?array $context Data to insert into the template.
      * @throws ResourceNotFoundException If the requested template file cannot be located.
      */
-    public static function renderTemplate(string $template_path, ?array $context = null): void
+    public static function renderTemplate(string $template_path, ?array $context = []): void
     {
-        if (!file_exists($template_path)) {
-            if ($template_path) {
-                throw new ResourceNotFoundException("Template \"" . basename($template_path) . "\" not found.");
-            } else {
-                throw new ResourceNotFoundException('Template not found.');
-            }
-        }
-        if (is_array($context)) {
-            foreach ($context as $context_key => $context_value) {
-                ${$context_key} = $context_value;
-            }
-        }
-        include($template_path);
+        TemplateRenderer::create()
+            ->withTemplate($template_path)
+            ->withContext($context ?? [])
+            ->render();
     }
 
     /**
+     * @deprecated Use TemplateRenderer->renderWithErrors() instead.
      * Inserts data into a template file and renders the result. Catches exceptions and prints error messages directly to the DOM.
      * @param string $template_path Path to template to render.
      * @param array|null $context Data to insert into the template.
-     * @param string $css_class (Optional) CSS class to apply to the error message container element.
-     * @param string $encoding (Optional) Defaults to 'UTF-8'
      */
     public static function renderTemplateWithErrors(
         string $template_path,
-        ?array $context = null,
-        string $css_class = '',
-        string $encoding = 'UTF-8'): void
+        ?array $context = []): void
     {
-        try {
-            ContentUtils::renderTemplate($template_path, $context);
-        } catch (ResourceNotFoundException $ex) {
-            ContentUtils::printError($ex->getMessage(), '', $css_class, $encoding);
-        }
+        TemplateRenderer::create()
+            ->withTemplate($template_path)
+            ->withContext($context ?? [])
+            ->renderWithErrors();
     }
 }
