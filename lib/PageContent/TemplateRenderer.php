@@ -31,9 +31,9 @@ readonly class TemplateRenderer
             }
             throw new ResourceNotFoundException($msg);
         }
-        foreach ($this->context as $key => $value) {
-            ${$key} = $value;
-        }
+        // shadow copy due to "readonly" nature of the class and property
+        $localContext = $this->context;
+        extract($localContext);
         include($this->template_path);
     }
 
