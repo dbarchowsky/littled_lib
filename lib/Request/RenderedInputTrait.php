@@ -3,6 +3,7 @@ namespace Littled\Request;
 
 use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
+use Littled\PageContent\TemplateRenderer;
 use Littled\PageContent\Templates\TemplatedRenderTrait;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\ContentConversion;
@@ -88,12 +89,15 @@ trait RenderedInputTrait
     public function formatLabelMarkup( string $label ): string
     {
         if (strlen($label) > 0 && $this->display_placeholder===false) {
-            return (ContentUtils::loadTemplateContent(static::$template_base_path. 'form-input-label.php', [
-                'label' => $label,
-                'input' => &$this
-            ]));
+            TemplateRenderer::create()
+                ->withTemplate(static::$template_base_path. 'form-input-label.php')
+                ->withContext([
+                    'label' => $label,
+                    'input' => &$this
+                ])
+                ->renderAsMarkup();
         }
-        return ('');
+        return '';
     }
 
     /**
@@ -280,7 +284,10 @@ trait RenderedInputTrait
             'label' => $label ?: $this->getLabel(),
             'css_class' => $css_class
         ]);
-        ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), $context);
+        TemplateRenderer::create()
+            ->withTemplate(static::getTemplatePath())
+            ->withContext($context)
+            ->renderWithErrors();
     }
 
     /**
@@ -296,7 +303,10 @@ trait RenderedInputTrait
         if ($runtime_value !== null) {
             $context['runtime_value'] = $runtime_value;
         }
-        ContentUtils::renderTemplateWithErrors(static::getHiddenTemplatePath(), $context);
+        TemplateRenderer::create()
+            ->withTemplate(static::getHiddenTemplatePath())
+            ->withContext($context)
+            ->renderWithErrors();
     }
 
     /**
@@ -305,24 +315,12 @@ trait RenderedInputTrait
      */
     public function renderInput(?string $label = null): void
     {
-        ContentUtils::renderTemplateWithErrors(static::getInputTemplatePath(), [
-            'input' => &$this,
-            'label' => $label ?? $this->getLabel()
-        ]);
-    }
-    /**
-     * Wrapper for render() method that prints an error message if an exception is thrown rendering the form input element.
-     * @param ?string $label Optional label that will override the object's internal property value.
-     * @param ?string $css_class Optional CSS class name that will override the object's internal property value.
-     */
-    public function renderWithErrors(?string $label=null, ?string $css_class=null): void
-    {
-        try {
-            $this->render($label, $css_class);
-        }
-        catch(Exception $ex) {
-            ContentUtils::printError($ex->getMessage());
-        }
+        TemplateRenderer::create()
+            ->withTemplate(static::getInputTemplatePath())
+            ->withContext([
+                'input' => &$this,
+                'label' => $label ?? $this->getLabel()])
+            ->renderWithErrors();
     }
 
     /**
@@ -332,12 +330,13 @@ trait RenderedInputTrait
      */
     public function saveInForm( string|null $template=null, string|null $key=null ): void
     {
-        $key = $key ?? $this->getKey();
-        $template = $template ?? static::getHiddenTemplatePath();
-        ContentUtils::renderTemplateWithErrors($template, [
-            'key' => $key,
-            'input' => $this
-        ]);
+        TemplateRenderer::create()
+            ->withTemplate($template ?? static::getHiddenTemplatePath())
+            ->withContext([
+                'key' => $key ?? $this->getKey(),
+                'input' => $this
+            ])
+            ->renderWithErrors();
     }
 
     /**
