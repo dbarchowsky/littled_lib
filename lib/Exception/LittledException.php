@@ -4,6 +4,7 @@ namespace Littled\Exception;
 
 use Exception;
 use ReturnTypeWillChange;
+use Throwable;
 
 
 class LittledException extends Exception
@@ -15,7 +16,7 @@ class LittledException extends Exception
      * @param int                           $code
      * @param Exception|null                $previous
      */
-    public function __construct(string $message, int $code = 0, Exception|null $previous = null)
+    public function __construct(string $message, int $code = 0, Throwable|null $previous = null)
     {
         // make sure everything is assigned properly
         parent::__construct($message, $code, $previous);
