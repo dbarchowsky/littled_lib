@@ -33,8 +33,8 @@ use Throwable;
 /**
  * Extends PageContent to add a JSONRecordResponse property used to convert the page content from the content normally sent as an HTML response to content sent as JSON.
  *
- * @method sendErrorResponse(string|LittledException $err): void
- * @method static sendErrorResponse(string|LittledException $err): void
+ * @method sendErrorResponse(string|LittledException $err, int|null $http_response_code = null): void
+ * @method static sendErrorResponse(string|LittledException $err, int|null $http_response_code = null): void
  */
 abstract class APIRoute extends APIRouteProperties
 {
@@ -70,15 +70,19 @@ abstract class APIRoute extends APIRouteProperties
      * Send an error message as a JSON response along with the rest of the object's property values.
      * The ResponseException should be caught and handled by exiting the script.
      * @param string|LittledException $err
+     * @param int|null $http_response_code (Optional) HTTP response code to use for the response.
      * @return void
      * @throws ResponseException
      */
-    protected function _sendErrorResponse(string|LittledException $err): void
+    protected function _sendErrorResponse(string|LittledException $err, int|null $http_response_code = null): void
     {
         $json = $this->json->formatJson();
         $json['error'] = is_string($err) ? $err : $err->getFrontendError();
 
         header('Content-Type: application/json');
+        if ($http_response_code) {
+            http_response_code($http_response_code);
+        }
         echo(json_encode($json));
 
         static::exitWithError($err);
@@ -87,12 +91,16 @@ abstract class APIRoute extends APIRouteProperties
     /**
      * Send an error message as a JSON response.
      * @param string|LittledException $err
+     * @param int|null $http_response_code (Optional) HTTP response code to use for the response.
      * @return void
      * @throws ResponseException
      */
-    public static function _sendErrorResponseStatic(string|LittledException $err): void
+    public static function _sendErrorResponseStatic(string|LittledException $err, int|null $http_response_code = null): void
     {
         header('Content-Type: application/json');
+        if ($http_response_code) {
+            http_response_code($http_response_code);
+        }
         echo(json_encode(['error' => is_string($err) ? $err : $err->getFrontendError()]));
         static::exitWithError($err);
     }
