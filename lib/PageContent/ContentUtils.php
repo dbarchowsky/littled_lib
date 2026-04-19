@@ -10,6 +10,20 @@ use Littled\Exception\ResourceNotFoundException;
 class ContentUtils
 {
     /**
+     * Formats a phone number string into the format (xxx) xxx-xxxx.
+     * @param string $phone_number Phone number string to format.
+     * @return string Formatted phone number string.
+     */
+    public static function formatPhoneNumber(string $phone_number): string
+    {
+        return match (true) {
+            preg_match('/^[0-9]{10}$/', $phone_number) === 1
+            => preg_replace('/^(\d{3})(\d{3})(\d{4})$/', '($1) $2-$3', $phone_number),
+            default => $phone_number
+        };
+    }
+
+    /**
      * @deprecated Use TemplateRenderer->renderAsMarkup() instead.
      * Inserts data into a template file and stores the resulting content in the object's $content property.
      * @param string $template_path Path to a content template file.
