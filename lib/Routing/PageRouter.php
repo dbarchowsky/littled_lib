@@ -23,7 +23,7 @@ class PageRouter
      * @param string $route
      * @return string
      */
-    protected static function collectRoute(string $route=''): string
+    public static function collectRoute(string $route=''): string
     {
         $route = $route ?: static::collectRouteFromRequest();
         return '/' . ltrim($route, '/');
