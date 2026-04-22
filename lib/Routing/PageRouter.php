@@ -19,6 +19,17 @@ class PageRouter
     protected static string $route_key= 'route';
 
     /**
+     * Collects and formats the route string.
+     * @param string $route
+     * @return string
+     */
+    protected static function collectRoute(string $route=''): string
+    {
+        $route = $route ?: static::collectRouteFromRequest();
+        return '/' . ltrim($route, '/');
+    }
+
+    /**
      * Collects route value from request data.
      * @return string
      */
@@ -38,7 +49,7 @@ class PageRouter
     public static function dispatchRoute(string $route=''): void
     {
         try {
-            $route = $route ?: static::collectRouteFromRequest();
+            $route = static::collectRoute($route);
             static::getPageInstance($route)->processRequest();
         }
         catch (ConfigurationUndefinedException |
