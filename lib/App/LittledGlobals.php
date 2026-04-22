@@ -179,7 +179,7 @@ class LittledGlobals
         static::$db_config = (new DBConnectionSettings())
             ->setHost($_ENV['MYSQL_HOST'] ?? '')
             ->setSchema($_ENV['MYSQL_SCHEMA'] ?? '')
-            ->setPort($_ENV['MYSQL_PORT'] ?? '')
+            ->setPort(!empty($_ENV['MYSQL_PORT']) ? (int)$_ENV['MYSQL_PORT'] : null)
             ->setUser($_ENV['MYSQL_USER'] ?? '')
             ->setPassword($_ENV['MYSQL_PASS'] ?? '')
             ->setAESKey($_ENV['MYSQL_AES_ENCRYPT_KEY'] ?? '');

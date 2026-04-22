@@ -92,7 +92,7 @@ class DBConnectionSettings
         return $this;
     }
 
-    public function setPort(int $port): static
+    public function setPort(int|null $port=null): static
     {
         $this->port = $port;
         return $this;
