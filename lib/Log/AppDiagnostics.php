@@ -5,16 +5,18 @@ namespace Littled\Log;
 use Littled\App\LittledGlobals;
 use Littled\Exception\LittledException;
 use Littled\Exception\OperationFailedException;
+use Littled\PageContent\TemplateRenderer;
 use Littled\Utility\Mailer;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
 use Throwable;
 
 /**
  * @method AppDiagnostics logError(string $err_msg)
  * @method static void logError(string $err_msg)
+ * @method AppDiagnostics logException(Throwable $t, bool $logStackTrace=false)
+ * @method static void logException(Throwable $t, bool $logStackTrace=false)
  * @method AppDiagnostics setEmailTemplatePath(string $email_template)
  * @method static void setEmailTemplatePath(string $email_template)
  */
@@ -41,6 +43,7 @@ class AppDiagnostics
     {
         match ($name) {
             'logError' => static::_logError(...$arguments),
+            'logException' => static::_logThrowable(...$arguments),
             'setEmailTemplatePath' => static::_setEmailTemplatePath(...$arguments)
         };
         return $this;
@@ -56,6 +59,7 @@ class AppDiagnostics
     {
         match ($name) {
             'logError' => static::_logError(...$arguments),
+            'logException' => static::_logThrowable(...$arguments),
             'setEmailTemplatePath' => static::_setEmailTemplatePath(...$arguments)
         };
     }
@@ -68,8 +72,36 @@ class AppDiagnostics
      */
     protected static function _logError(string $err_msg): void
     {
-        $time = date('[Y-m-d H:i:s]');
-        error_log("$time $err_msg \n", 3, static::getErrorLogPath());
+        $timestamp = static::formatTimestamp();
+        error_log("$timestamp $err_msg \n", 3, static::getErrorLogPath());
+    }
+
+    /**
+     * Logs a Throwable object to the error log.
+     * @param Throwable $t
+     * @param bool $logStackTrace
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
+    protected static function _logThrowable(Throwable $t, bool $logStackTrace=false): void
+    {
+        $format = '%s: %s in %s:%d';
+        if ($logStackTrace) {
+            $format .= "\nStack trace:\n%s";
+        } else {
+            $format .= '%s';
+        }
+
+        $message = sprintf(
+            $format,
+            get_class($t),
+            $t->getMessage(),
+            $t->getFile(),
+            $t->getLine(),
+            $logStackTrace ? $t->getTraceAsString() : ''
+        );
+        $timestamp = static::formatTimestamp();
+        error_log("$timestamp $message \n", 3, static::getErrorLogPath());
     }
 
     protected static function _setEmailTemplatePath(string $email_template): void
@@ -109,14 +141,22 @@ class AppDiagnostics
      */
     protected function formatDiagnosticsMessage(): string
     {
-        return ContentUtils::loadTemplateContent(
-            $this::getEmailTemplatePath(),
-            [
+        return TemplateRenderer::create()
+            ->withTemplate($this::getEmailTemplatePath())
+            ->withContext([
                 'server' => static::getServer(),
                 'source' => $this->source ?? static::getSource(2),
-                'message' => $this->message,
-            ]
-        );
+                'message' => $this->message])
+            ->renderAsMarkup();
+    }
+
+    /**
+     * Returns the current timestamp in a human-readable format.
+     * @return string
+     */
+    protected static function formatTimestamp(): string
+    {
+        return date('[d-M-Y H:i:s e]');
     }
 
     /**
