@@ -66,7 +66,7 @@ class Debug
      */
     public static function log(string $status, string $msg): int
     {
-        $fh = fopen(LittledGlobals::getErrorLogPath(), 'a+');
+        $fh = fopen(AppDiagnostics::getLogPath(), 'a+');
         if (!$fh) {
             return (0);
         }
@@ -87,7 +87,7 @@ class Debug
      */
     public static function logVariable(mixed $var): void
     {
-        $f = fopen(LittledGlobals::getErrorLogPath() . static::generateLogFilename(), 'a');
+        $f = fopen(AppDiagnostics::getLogPath() . static::generateLogFilename(), 'a');
         if ($f) {
             fwrite($f, json_encode($var));
         }

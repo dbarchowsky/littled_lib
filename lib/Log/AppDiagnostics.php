@@ -25,6 +25,7 @@ class AppDiagnostics
     protected string        $message;
     protected string        $source;
 
+    protected static string $log_path;
     protected static string $password;
     protected static string $recipient_email;
     protected static string $recipient_name = 'Website Health Check';
@@ -73,7 +74,7 @@ class AppDiagnostics
     protected static function _logError(string $err_msg): void
     {
         $timestamp = static::formatTimestamp();
-        error_log("$timestamp $err_msg \n", 3, static::getErrorLogPath());
+        error_log("$timestamp $err_msg \n", 3, static::getLogPath());
     }
 
     /**
@@ -101,7 +102,7 @@ class AppDiagnostics
             $logStackTrace ? $t->getTraceAsString() : ''
         );
         $timestamp = static::formatTimestamp();
-        error_log("$timestamp $message \n", 3, static::getErrorLogPath());
+        error_log("$timestamp $message \n", 3, static::getLogPath());
     }
 
     protected static function _setEmailTemplatePath(string $email_template): void
@@ -170,11 +171,10 @@ class AppDiagnostics
     /**
      * Returns the path to the error log file.
      * @return string
-     * @throws ConfigurationUndefinedException
      */
-    public static function getErrorLogPath(): string
+    public static function getLogPath(): string
     {
-        return LittledGlobals::getErrorLogPath();
+        return static::$log_path ?? ini_get('error_log');
     }
 
     /**
@@ -269,6 +269,11 @@ class AppDiagnostics
             ->setBody($msg)
             ->send($debug_level);
         return $this;
+    }
+
+    public static function setLogPath(string $log_path): void
+    {
+        static::$log_path = $log_path;
     }
 
     /**

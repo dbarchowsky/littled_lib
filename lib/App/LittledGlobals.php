@@ -11,7 +11,6 @@ class LittledGlobals
     protected static string|null    $app_base_dir;
     protected static string         $app_domain;
     protected static string|null    $config_path;
-    protected static string|null    $error_log;
     protected static string|null    $local_template_path;
     protected static string|null    $shared_template_path;
     protected static bool           $show_verbose_errors = false;
@@ -109,19 +108,6 @@ class LittledGlobals
             throw new ConfigurationUndefinedException('Database configuration not set.');
         }
         return static::$db_config;
-    }
-
-    /**
-     * Error log path getter.
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getErrorLogPath(): string
-    {
-        if (!isset(static::$error_log) || empty(static::$error_log)) {
-            throw new ConfigurationUndefinedException('An error log path has not been configured.');
-        }
-        return static::$error_log;
     }
 
     /**
@@ -232,16 +218,6 @@ class LittledGlobals
     }
 
     /**
-     * Error log path setter.
-     * @param string $path
-     * @return void
-     */
-    public static function setErrorLogPath(string $path): void
-    {
-        static::$error_log = $path;
-    }
-
-    /**
      * Keys directory path setter.
      * @param string $path
      * @return void
@@ -261,7 +237,7 @@ class LittledGlobals
     }
 
     /**
-     * Sets path to current MySQL authentication directory.
+     * Sets the path to the current MySQL authentication directory.
      * @param string $path MySQL keys path.
      */
     public static function setMySQLKeysPath(string $path): void
