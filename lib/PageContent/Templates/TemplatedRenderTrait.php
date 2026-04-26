@@ -2,7 +2,9 @@
 
 namespace Littled\PageContent\Templates;
 
+use Littled\Exception\ResourceNotFoundException;
 use Littled\PageContent\ContentUtils;
+use Littled\PageContent\TemplateRenderer;
 use Littled\Request\RenderedInput;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
@@ -64,10 +66,14 @@ trait TemplatedRenderTrait
     /**
      * Returns string containing HTML to render the input elements in a form.
      * @param array $context Contextual data to be injected into the template.
+     * @throws ResourceNotFoundException
      */
     public function render(array $context = []): void
     {
-        ContentUtils::renderTemplateWithErrors(static::getTemplatePath(), $context);
+        TemplateRenderer::create()
+            ->withTemplate(static::getTemplatePath())
+            ->withContext($context)
+            ->render();
     }
 
     /**
