@@ -9,7 +9,6 @@ use Littled\Exception\ConfigurationUndefinedException;
 class LittledGlobals
 {
     protected static string|null    $app_base_dir;
-    protected static string         $app_domain;
     protected static string|null    $config_path;
     protected static string|null    $local_template_path;
     protected static string|null    $shared_template_path;
@@ -68,7 +67,7 @@ class LittledGlobals
      */
     public static function getAppDomain(): string
     {
-        return static::$app_domain ?? '';
+        return $_ENV['APP_DOMAIN'] ?? '';
     }
 
     /**
@@ -138,10 +137,8 @@ class LittledGlobals
      */
     public static function getRootURI(): string
     {
-        if (!isset(static::$app_domain) || empty(static::$app_domain)) {
-            return '';
-        }
-        return 'https://' . rtrim(static::getAppDomain(), '/') . '/';
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || ($_SERVER['SERVER_PORT'] ?? '') == 443) ? 'https://' : 'ht'.'tp://';
+        return "$protocol{$_ENV['APP_DOMAIN']}/";
     }
 
     /**
@@ -182,15 +179,6 @@ class LittledGlobals
             return;
         }
         static::$app_base_dir = rtrim($path, '/') . '/';
-    }
-
-    /**
-     * Sets the domain name for the app.
-     * @param string $domain App domain name.
-     */
-    public static function setAppDomain(string $domain = ''): void
-    {
-        static::$app_domain = $domain;
     }
 
     /**
