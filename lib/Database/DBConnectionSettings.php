@@ -54,9 +54,9 @@ class DBConnectionSettings
     {
         return $this->password;
     }
-    public function port(): string
+    public function port(): int|null
     {
-        return $this->port;
+        return $this->port ?? null;
     }
     public function user(): string
     {
