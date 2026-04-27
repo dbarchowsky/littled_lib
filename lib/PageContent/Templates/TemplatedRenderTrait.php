@@ -3,8 +3,6 @@
 namespace Littled\PageContent\Templates;
 
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
-use Littled\PageContent\TemplateRenderer;
 use Littled\Request\RenderedInput;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;

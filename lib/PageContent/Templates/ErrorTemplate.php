@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\PageContent;
+namespace Littled\PageContent\Templates;
 
 
 class ErrorTemplate

@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\PageContent;
+namespace Littled\PageContent\Templates;
 
 use Littled\Exception\ResourceNotFoundException;
 
@@ -25,11 +25,11 @@ readonly class TemplateRenderer
     public function render(): void {
         if (!file_exists($this->template_path)) {
             if (empty($this->template_path)) {
-                $msg = 'Template file not provided.';
+                throw new ResourceNotFoundException('Template file not provided.');
             } else {
-                $msg = 'Template "' .  basename($this->template_path) . '" not found.';
+                throw (new ResourceNotFoundException("Template file \"$this->template_path\" not found."))
+                    ->setFrontendError('Template file not found.');
             }
-            throw new ResourceNotFoundException($msg);
         }
         // shadow copy due to "readonly" nature of the class and property
         $localContext = $this->context;
