@@ -2,10 +2,9 @@
 
 namespace Littled\Log;
 
-use Littled\App\LittledGlobals;
 use Littled\Exception\LittledException;
 use Littled\Exception\OperationFailedException;
-use Littled\PageContent\TemplateRenderer;
+use Littled\PageContent\Templates\TemplateRenderer;
 use Littled\Utility\Mailer;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidValueException;

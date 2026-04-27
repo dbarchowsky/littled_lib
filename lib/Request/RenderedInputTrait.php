@@ -2,8 +2,7 @@
 namespace Littled\Request;
 
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
-use Littled\PageContent\TemplateRenderer;
+use Littled\PageContent\Templates\TemplateRenderer;
 use Littled\PageContent\Templates\TemplatedRenderTrait;
 use Littled\Utility\LittledUtility;
 use Littled\Validation\ContentConversion;

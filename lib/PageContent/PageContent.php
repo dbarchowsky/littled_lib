@@ -10,6 +10,7 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\RequestInput;
+use Littled\PageContent\Templates\TemplateRenderer;
 use Littled\Validation\Validation;
 
 /**

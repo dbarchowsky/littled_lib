@@ -3,6 +3,8 @@
 namespace Littled\PageContent;
 
 use Littled\Exception\ResourceNotFoundException;
+use Littled\PageContent\Templates\ErrorTemplate;
+use Littled\PageContent\Templates\TemplateRenderer;
 
 /**
  * Class containing static methods for injecting templated content into pages.
