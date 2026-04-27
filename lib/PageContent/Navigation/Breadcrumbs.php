@@ -5,13 +5,15 @@ namespace Littled\PageContent\Navigation;
 
 class Breadcrumbs extends NavigationMenuBase
 {
+    /** @var BreadcrumbsNode */
+    public NavigationNodeBase $first;
     /** @var string */
     protected static string $menu_template_path = '';
     /** @var string */
     protected static string $node_type = 'Littled\PageContent\Navigation\BreadcrumbsNode';
 
     /**
-     * Adds menu item to navigation menu and sets its properties.
+     * Adds a menu item to the navigation menu and sets its properties.
      * @param string $label Text to display for this item within the navigation menu.
      * @param string $url (Optional) URL where the menu item will link to.
      * @param string $dom_id (Optional) value for the breadcrumb node's id attribute.
@@ -37,15 +39,12 @@ class Breadcrumbs extends NavigationMenuBase
      */
     public function find(string $label): ?BreadcrumbsNode
     {
-        /** @var BreadcrumbsNode $node */
-        if (isset($this->first)) {
-            $node = $this->first;
-            while ($node) {
-                if ($label === $node->label) {
-                    return $node;
-                }
-                $node = ((isset($node->next_node)) ? ($node->next_node) : (null));
+        $node = $this->first ?? null;
+        while ($node) {
+            if ($label === $node->label) {
+                return $node;
             }
+            $node = $node->next_node ?? null;
         }
         return null;
     }
