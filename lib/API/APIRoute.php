@@ -434,7 +434,7 @@ abstract class APIRoute extends APIRouteProperties
      */
     public function loadTemplateContent(?array $context = null): APIRoute
     {
-        $this->json->loadContentFromTemplate($this->getTemplatePath(), $context ?: $this->getTemplateContext());
+        $this->json->loadContentFromTemplate($this->getTemplateFilename(), $context ?: $this->getTemplateContext());
         return $this;
     }
 

@@ -38,7 +38,6 @@ abstract class RoutedPageContent extends PageContent
     protected static string         $add_token = 'add';
     /** @var string @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record. */
     protected static string         $edit_token = 'edit';
-    protected static string         $template_filename='';
     protected int                   $update_type = self::UPDATE_NONE;
 
     public const                    int UPDATE_NONE = 0;
@@ -121,7 +120,7 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Add token getter.
+     * "Add token" property getter.
      * @return string
      */
     public static function getAddToken(): string
@@ -156,7 +155,7 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Returns the details route including a query string including variables used to filter listings content.
+     * Returns the details route including a query string including variables used to filter the listings' content.
      * @param int|null $record_id The record id to inject into the URI. The content property's internal value will be used if a record id value is not passed in this argument.
      * @return string
      * @throws ConfigurationUndefinedException
@@ -312,24 +311,16 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Template directory path getter.
-     * @return string
-     */
-    public static function getTemplateFilename(): string
-    {
-        return static::$template_filename;
-    }
-
-    /**
      * Template full path getter.
      * @return string
      * @throws ConfigurationUndefinedException
      */
-    public static function getTemplateFullPath(): string
+    public function getTemplatePath(): string
     {
-        $routes_class = static::getValidatedRoutesClass('getTemplateDir');
-        /** @var SectionNavigationRoutes $routes_class */
-        return LittledUtility::joinPaths($routes_class::getTemplateDir(), static::$template_filename);
+        if (str_starts_with($this->template_filename ?? '', '/')) {
+            return $this->template_filename;
+        }
+        return LittledUtility::joinPaths(static::getTemplateDir(), $this->template_filename ?? '');
     }
 
     /**
@@ -360,19 +351,8 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getTemplatePath(): string
-    {
-        if (str_starts_with((static::$template_filename ?? ''), '/')) {
-            return static::$template_filename;
-        }
-        return LittledUtility::joinPaths($this->template_path ?? '', static::$template_filename ?? '');
-    }
-
-    /**
      * Validates that the $routes_class property value is currently set to an appropriate class type before returning
-     * the name of the routes class.
+     * the name of the route class.
      * @param string $method Optional method name. If present, the class will be checked to make sure that the method
      * exists within the class.
      * @return string
@@ -479,17 +459,7 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Template filename setter.
-     * @param string $filename
-     * @return void
-     */
-    public static function setTemplateFilename(string $filename): void
-    {
-        static::$template_filename = $filename;
-    }
-
-    /**
-     * Update type setter
+     * Update type property setter
      * @param int $type Value to assign to an update type.
      * @return void
      */

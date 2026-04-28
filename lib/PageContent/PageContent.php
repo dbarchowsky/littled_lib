@@ -117,11 +117,11 @@ abstract class PageContent extends RouteBase
      */
     public function render(?array $context = null): void
     {
-        if (static::getTemplatePath() === '') {
+        if (static::getTemplateFilename() === '') {
             throw new ConfigurationUndefinedException('Page template not configured.');
         }
         TemplateRenderer::create()
-            ->withTemplate(static::getTemplatePath())
+            ->withTemplate(static::getTemplateFilename())
             ->withContext($context ?? [])
             ->render();
     }
@@ -142,7 +142,7 @@ abstract class PageContent extends RouteBase
     public function sendResponse(string $template_path = '', ?array $context = null): void
     {
         if ($template_path) {
-            $this->setTemplatePath($template_path);
+            $this->setTemplateFilename($template_path);
         }
         $context = $context ?: $this->getTemplateContext();
         $this->render($context);

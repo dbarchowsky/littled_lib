@@ -3,7 +3,9 @@
 namespace Littled\PageContent;
 
 use Littled\Database\MySQLConnection;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Filters\ContentFilters;
+use Littled\Log\Log;
 
 
 abstract class RouteBase extends MySQLConnection implements RouteInterface
@@ -15,7 +17,7 @@ abstract class RouteBase extends MySQLConnection implements RouteInterface
     /** @var string             Query string to attach to page links. */
     protected string            $query_string = '';
     /** @var string             Path to a template file. */
-    protected string            $template_path = '';
+    protected string            $template_filename;
 
     /**
      * Formats and stores query string from current filter property values.
@@ -44,12 +46,28 @@ abstract class RouteBase extends MySQLConnection implements RouteInterface
     }
 
     /**
-     * Template path getter.
+     * Template filename getter.
      * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public function getTemplateFilename(): string
+    {
+        if (!isset($this->template_filename)) {
+            throw new ConfigurationUndefinedException('The template filename is not defined in ' . Log::getClassBaseName($this::class) . '.');
+        }
+        return $this->template_filename;
+    }
+
+    /**
+     * Template full path getter
+     * @return string
+     * @throws ConfigurationUndefinedException
      */
     public function getTemplatePath(): string
     {
-        return $this->template_path;
+        // alias for getTemplateFilename() intended to be overridden by child classes
+        // (e.g., route classes where a template path property is defined)
+        return $this->getTemplateFilename();
     }
 
     /**
@@ -68,9 +86,9 @@ abstract class RouteBase extends MySQLConnection implements RouteInterface
      * @param $path
      * @return $this
      */
-    public function setTemplatePath($path): RouteBase
+    public function setTemplateFilename($path): RouteBase
     {
-        $this->template_path = $path;
+        $this->template_filename = $path;
         return $this;
     }
 }

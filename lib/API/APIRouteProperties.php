@@ -232,7 +232,7 @@ abstract class APIRouteProperties extends RouteBase
      * @throws ConfigurationUndefinedException
      * @throws InvalidPropertyException
      */
-    public function getTemplatePath(): string
+    public function getTemplateFilename(): string
     {
         if (!isset($this->template)) {
             throw new ConfigurationUndefinedException('Content template is not set.');
