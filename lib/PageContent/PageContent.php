@@ -117,11 +117,8 @@ abstract class PageContent extends RouteBase
      */
     public function render(?array $context = null): void
     {
-        if (static::getTemplateFilename() === '') {
-            throw new ConfigurationUndefinedException('Page template not configured.');
-        }
         TemplateRenderer::create()
-            ->withTemplate(static::getTemplateFilename())
+            ->withTemplate($this->getTemplatePath())
             ->withContext($context ?? [])
             ->render();
     }
