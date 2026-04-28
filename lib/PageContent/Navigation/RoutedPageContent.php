@@ -360,6 +360,17 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getTemplatePath(): string
+    {
+        if (str_starts_with((static::$template_filename ?? ''), '/')) {
+            return static::$template_filename;
+        }
+        return LittledUtility::joinPaths($this->template_path ?? '', static::$template_filename ?? '');
+    }
+
+    /**
      * Validates that the $routes_class property value is currently set to an appropriate class type before returning
      * the name of the routes class.
      * @param string $method Optional method name. If present, the class will be checked to make sure that the method
