@@ -11,7 +11,7 @@ abstract class SectionNavigationRoutes
     protected static string $details_page_class = '';
     protected static string $edit_page_class = '';
     protected static string $listings_page_class = '';
-    protected static string $template_dir = '';
+    protected static string $template_dir;
 
     /**
      * Details page class name getter. Returns empty string if the details route class has not been specified in the
@@ -37,7 +37,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Returns the first component of the details route. Returns empty string if this value has not been set in the
+     * Returns the first component of the details route. Returns an empty string if this value has not been set in the
      * client app.
      * @return string
      */
@@ -50,7 +50,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Edit page class name getter. Returns empty string if the editing route class has not been set in the client app.
+     * Edit page class name getter. Returns an empty string if the editing route class has not been set in the client app.
      * @return string
      */
     public static function getEditPageClass(): string
@@ -59,7 +59,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Edit route getter. Returns empty string if a route has not been defined.
+     * Edit route getter. Returns an empty string if a route has not been defined.
      * @param ?int $record_id Record id of the record being edited.
      * @return string
      */
@@ -72,7 +72,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Listings page class name getter. Returns empty string if routed page class is undefined.
+     * Listings page class name getter. Returns an empty string if the routed page class is undefined.
      * @return string
      */
     public static function getListingsPageClass(): string
@@ -81,7 +81,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Listings route getter. Returns empty string if routed page class is undefined.
+     * Listings route getter. Returns an empty string if the routed page class is undefined.
      * @return string
      */
     public static function getListingsRoute(): string
@@ -93,7 +93,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Returns the first component of the listings route. Returns empty string if listings route class has not been
+     * Returns the first component of the listings' route. Returns an empty string if the listings' route class has not been
      * specified in the client app.
      * @return string
      */
@@ -106,7 +106,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Return page route for a specified class.
+     * Return a page route for a specified class.
      * @param string $class Class name
      * @param int|null $record_id Optional record id to be incorporated into the route
      * Default value is TRUE.
@@ -129,7 +129,7 @@ abstract class SectionNavigationRoutes
     }
 
     /**
-     * Template path getter. Returns empty string if the template directory path has not been specified.
+     * Template path getter. Returns an empty string if the template directory path has not been specified.
      * @return string
      */
     public static function getTemplateDir(): string
