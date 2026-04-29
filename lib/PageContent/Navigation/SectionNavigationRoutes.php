@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent\Navigation;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidTypeException;
 use Littled\Validation\Validation;
 
@@ -33,7 +34,7 @@ abstract class SectionNavigationRoutes
         /** @var RoutedPageContent $class */
         $class = static::getDetailsPageClass();
         return (Validation::isSubclass($class, RoutedPageContent::class) ?
-            $class::formatRoutePath($record_id) : '');
+            (new $class())->formatRoutePath($record_id) : '');
     }
 
     /**
@@ -62,13 +63,14 @@ abstract class SectionNavigationRoutes
      * Edit route getter. Returns an empty string if a route has not been defined.
      * @param ?int $record_id Record id of the record being edited.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     public static function getEditRoute(?int $record_id = null): string
     {
         /** @var RoutedPageContent $class */
         $class = static::getEditPageClass();
         return (Validation::isSubclass($class, RoutedPageContent::class) ?
-            $class::formatRoutePath($record_id) : '');
+            (new $class())->formatRoutePath($record_id) : '');
     }
 
     /**
@@ -89,7 +91,7 @@ abstract class SectionNavigationRoutes
         /** @var RoutedPageContent $class */
         $class = static::getListingsPageClass();
         return (Validation::isSubclass($class, RoutedPageContent::class) ?
-            $class::formatRoutePath() : '');
+            (new $class())->formatRoutePath() : '');
     }
 
     /**
