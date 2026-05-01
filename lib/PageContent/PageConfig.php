@@ -7,7 +7,8 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Log\Log;
-use Littled\PageContent\Assets\PageScript;
+use Littled\PageContent\Assets\ViteScript;
+use Littled\PageContent\Assets\ViteStylesheet;
 use Littled\PageContent\Metadata\Preload;
 use Littled\Validation\Validation;
 use Littled\PageContent\Metadata\PageMetadata;
@@ -22,9 +23,9 @@ use Littled\PageContent\Navigation\Breadcrumbs;
 class PageConfig
 {
     public static string                    $contentCSSClass = '';
-    /** @var string[] */
+    /** @var ViteStylesheet[] */
     public static array                     $stylesheets = [];
-    /** @var PageScript[] */
+    /** @var ViteScript[] */
     public static array                     $scripts = [];
     public static array                     $preloads = [];
     protected static PageMetadata           $metadata;
@@ -153,7 +154,7 @@ class PageConfig
     }
 
     /**
-     * Collects page status value as defined in request variables (e.g. GET, POST, session)
+     * Collects page status value as defined in request variables (e.g., GET, POST, session)
      */
     public static function collectPageStatus(): void
     {
@@ -317,30 +318,37 @@ class PageConfig
 
     /**
      * Pushes the URL of a script, typically a JavaScript file, to load with the page.
-     * @param PageScript|string $src
+     * @param ViteScript|string $src
      */
-    public static function registerScript(PageScript|string $src): void
+    public static function registerScript(ViteScript|string $src): void
     {
-        if ($src instanceof PageScript) {
-            if (!in_array($src->getScript(), array_map(fn($s) => $s->getScript(), static::$scripts))) {
+        if ($src instanceof ViteScript) {
+            if (!in_array($src->getPath(), array_map(fn($s) => $s->getPath(), static::$scripts))) {
                 static::$scripts[] = $src;
             }
         }
         else {
-            if (!in_array($src, array_map(fn($s) => $s->getScript(), static::$scripts))) {
-                static::$scripts[] = (new PageScript())->setScript($src);
+            if (!in_array($src, array_map(fn($s) => $s->getPath(), static::$scripts))) {
+                static::$scripts[] = (new ViteScript())->setPath($src);
             }
         }
     }
 
     /**
      * Pushes the URL of a stylesheet to load with the page.
-     * @param string $src
+     * @param ViteStylesheet|string $src
      */
-    public static function registerStylesheet(string $src): void
+    public static function registerStylesheet(ViteStylesheet|string $src): void
     {
-        if (!in_array($src, static::$stylesheets)) {
-            static::$stylesheets[] = $src;
+        if ($src instanceof ViteStylesheet) {
+            if (!in_array($src->getPath(), array_map(fn($s) => $s->getPath(), static::$stylesheets))) {
+                static::$stylesheets[] = $src;
+            }
+        }
+        else {
+            if (!in_array($src, array_map(fn($s) => $s->getPath(), static::$stylesheets))) {
+                static::$stylesheets[] = (new ViteStylesheet())->setPath($src);
+            }
         }
     }
 
@@ -405,7 +413,7 @@ class PageConfig
     }
 
     /**
-     * Sets the CSS class of the breadcrumbs parent element.
+     * Sets the CSS class of the breadcrumbs' parent element.
      * @param string $css_class
      */
     public static function setBreadcrumbsCssClass(string $css_class): void
@@ -560,7 +568,7 @@ class PageConfig
     public static function unregisterScript(string $src): void
     {
         foreach(static::$scripts as $i => $script) {
-            if ($script->getScript() == $src) {
+            if ($script->getPath() === $src) {
                 unset(static::$scripts[$i]);
             }
         }
@@ -573,8 +581,8 @@ class PageConfig
      */
     public static function unregisterStylesheet(string $src): void
     {
-        for ($i = 0; $i < count(static::$stylesheets); $i++) {
-            if (static::$stylesheets[$i] == $src) {
+        foreach(static::$stylesheets as $i => $stylesheet) {
+            if ($stylesheet->getPath() === $src) {
                 unset(static::$stylesheets[$i]);
             }
         }

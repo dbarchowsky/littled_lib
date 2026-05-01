@@ -2,21 +2,23 @@
 
 namespace Littled\PageContent\Assets;
 
+
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
 use Littled\Exception\ConfigurationUndefinedException;
 
-class PageScript
+class ViteAsset
 {
-    public string $script;
+    public string $path;
     public string $type;
-    protected static string $asset_path = 'scripts/';
+
+    protected static string $asset_dir = '';
     protected static string $dev_host = 'http://localhost:5173';
     protected static ?array $manifest = null;
 
-    public function getScript(): string
+    public function getPath(): string
     {
-        return $this->script ?? '';
+        return $this->path ?? '';
     }
 
     public function getType(): string
@@ -31,7 +33,7 @@ class PageScript
      */
     public function getViteAsset(): string
     {
-        $path = static::$asset_path . $this->script;
+        $path = static::$asset_dir . $this->path;
         if (AppBase::getAppEnv() === 'development') {
             return static::$dev_host . "/$path";
         }
@@ -54,9 +56,9 @@ class PageScript
         return LittledGlobals::getAppBaseDir() . 'dist/.vite/manifest.json';
     }
 
-    public function setScript(string $script): static
+    public function setPath(string $path): static
     {
-        $this->script = $script;
+        $this->path = $path;
         return $this;
     }
 
