@@ -7,6 +7,7 @@ use Littled\Exception\InvalidTypeException;
 use Littled\Exception\InvalidValueException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Log\Log;
+use Littled\PageContent\Assets\PageScript;
 use Littled\PageContent\Metadata\Preload;
 use Littled\Validation\Validation;
 use Littled\PageContent\Metadata\PageMetadata;

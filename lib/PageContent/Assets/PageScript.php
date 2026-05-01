@@ -1,6 +1,6 @@
 <?php
 
-namespace Littled\PageContent;
+namespace Littled\PageContent\Assets;
 
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
