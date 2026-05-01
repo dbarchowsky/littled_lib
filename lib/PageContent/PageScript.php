@@ -10,6 +10,9 @@ class PageScript
 {
     public string $script;
     public string $type;
+    protected static string $asset_path = 'scripts/';
+    protected static string $dev_host = 'http://localhost:5173';
+    protected static ?array $manifest = null;
 
     public function getScript(): string
     {
@@ -28,24 +31,17 @@ class PageScript
      */
     public function getViteAsset(): string
     {
-        $isDev = AppBase::getAppEnv() === 'development';
-        $assetPath = 'scripts/';
-        $devHost = 'http://localhost:5173';
-
-        $fullPath = $assetPath . $this->script;
-        if ($isDev) {
-            return "$devHost/$fullPath";
+        $path = static::$asset_path . $this->script;
+        if (AppBase::getAppEnv() === 'development') {
+            return static::$dev_host . "/$path";
         }
 
-        if (!file_exists(static::getViteManifestPath())) {
-            return "/dist/$fullPath";
+        if (static::$manifest === null) {
+            static::$manifest = file_exists(static::getViteManifestPath())
+                ? json_decode(file_get_contents(static::getViteManifestPath()), true)
+                : [];
         }
-        $manifest = json_decode(file_get_contents(static::getViteManifestPath()), true);
-
-        if (isset($manifest[$fullPath])) {
-            return '/dist/' . $manifest[$fullPath]['file'];
-        }
-        return "/dist/$fullPath";
+        return '/dist/' . (static::$manifest[$path]['file'] ?? $path);
     }
 
     /**
