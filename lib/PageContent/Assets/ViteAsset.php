@@ -33,6 +33,9 @@ class ViteAsset
      */
     public function getViteAsset(): string
     {
+        if (preg_match('/^(\/\/|https?:\/\/)/', $this->path)) {
+            return $this->path;
+        }
         $path = static::$asset_dir . $this->path;
         if (AppBase::getAppEnv() === 'development') {
             return static::$dev_host . "/$path";
