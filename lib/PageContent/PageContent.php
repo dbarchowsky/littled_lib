@@ -7,6 +7,7 @@ use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\NotInitializedException;
 use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Exception\TemplateOutputException;
 use Littled\Filters\ContentFilters;
 use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\RequestInput;
@@ -114,6 +115,7 @@ abstract class PageContent extends RouteBase
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function render(?array $context = null): void
     {
@@ -133,8 +135,11 @@ abstract class PageContent extends RouteBase
 
     /**
      * Injects content into a template to generate markup to send as http response matching a client request.
+     * @param string $template_path
+     * @param array|null $context
      * @throws ConfigurationUndefinedException
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function sendResponse(string $template_path = '', ?array $context = null): void
     {
