@@ -3,6 +3,7 @@
 namespace Littled\PageContent\Templates;
 
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Exception\TemplateOutputException;
 
 
 readonly class TemplateRenderer
@@ -21,6 +22,7 @@ readonly class TemplateRenderer
      * Renders the template with the provided context.
      * @return void
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function render(): void {
         if (!file_exists($this->template_path)) {
@@ -41,6 +43,7 @@ readonly class TemplateRenderer
      * Renders the template and returns the rendered markup as a string.
      * @return string
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function renderAsMarkup(): string
     {
@@ -58,6 +61,7 @@ readonly class TemplateRenderer
     /**
      * Catch errors thrown by the render method and render an error message in place of the template content.
      * @return void
+     * @throws TemplateOutputException
      */
     public function renderWithErrors(): void
     {
