@@ -10,7 +10,8 @@ use Littled\Request\StringInput;
 
 trait CSRFPageTrait
 {
-    public StringInput $csrf;
+    public StringInput      $csrf;
+    public const string     CSRF_TOKEN_KEY = 'csrf-token';
 
     /**
      * Class constructor.
@@ -42,7 +43,7 @@ trait CSRFPageTrait
     {
         PageConfig::addPageMetadata(
             attribute: 'name',
-            value: 'csrf-token',
+            value: static::CSRF_TOKEN_KEY,
             content: $this->csrf->value);
     }
 }
