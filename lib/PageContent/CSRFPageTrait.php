@@ -8,16 +8,21 @@ use Littled\Exception\InvalidValueException;
 use Littled\Request\StringInput;
 
 
-abstract class CSRFPageContent extends PageContent
+trait CSRFPageTrait
 {
     public StringInput $csrf;
 
     /**
      * Class constructor.
      */
-    function __construct()
+    protected function initializeCsrfPageTrait(): void
     {
-        $this->csrf = new StringInput('CSRF token', LittledGlobals::CSRF_TOKEN_KEY, true, $this::getCSRFToken(), 500);
+        $this->csrf = (new StringInput())
+            ->setLabel('CSRF token')
+            ->setKey(LittledGlobals::CSRF_TOKEN_KEY)
+            ->setAsRequired()
+            ->setSizeLimit(500)
+            ->setInputValue(AppBase::getCSRFToken());
     }
 
     /**
@@ -33,11 +38,11 @@ abstract class CSRFPageContent extends PageContent
      * @return void
      * @throws InvalidValueException
      */
-    public function setPageState(): void
+    public function addCsrfMetadata(): void
     {
         PageConfig::addPageMetadata(
             attribute: 'name',
             value: 'csrf-token',
-            content: AppBase::getCSRFToken());
+            content: $this->csrf->value);
     }
 }
