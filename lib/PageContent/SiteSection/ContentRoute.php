@@ -70,7 +70,7 @@ class ContentRoute extends SerializedContent
      * @param string $route
      * @return array
      */
-    protected static function explodeRouteString(string $route): array
+    public static function explodeRouteString(string $route): array
     {
         $route = trim($route, '/');
         if (!$route) {
