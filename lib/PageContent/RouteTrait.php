@@ -4,11 +4,12 @@ namespace Littled\PageContent;
 
 use BadMethodCallException;
 use Littled\PageContent\Navigation\RoutePlaceholder;
+use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\Utility\LittledUtility;
 
 /**
- * @method formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
- * @method static formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
+ * @method formatRoutePath(?int $record_id = null, array|string|null $route = null): string
+ * @method static formatRoutePath(?int $record_id = null, array|string|null $route = null): string
  */
 trait RouteTrait
 {
@@ -46,14 +47,18 @@ trait RouteTrait
     /**
      * Formats and returns a path to use to reach this page.
      * @param int|null $record_id
-     * @param array|string|null $route_parts
+     * @param array|string|null $route
      * @return string
      */
-    protected function _formatRoutePath(?int $record_id = null, array|string|null $route_parts = null): string
+    protected function _formatRoutePath(?int $record_id = null, array|string|null $route = null): string
     {
-        $route_parts = $route_parts ?? ($this->route->route->value ?? null) ?? static::$route_parts;
-        if (is_string($route_parts)) {
-            $route_parts = explode('/', $route_parts);
+        $route = $route ?? ($this->route->route->value ?? null) ?? static::$route_parts;
+        if (empty($route)) {
+            return '';
+        }
+
+        if (is_string($route)) {
+            $route = explode('/', $route);
         }
         if (($record_id ?? 0) === 0) {
             if (isset($this->content)) {
@@ -61,34 +66,37 @@ trait RouteTrait
             }
         }
         if ($record_id > 0) {
-            $route_parts = static::substituteRoutePart($route_parts, 'int', $record_id);
+            $route = static::substituteRoutePart($route, 'int', $record_id);
         }
         if (isset($this->content) && $this->content->getContentTypeSlug()) {
-            $route_parts = static::substituteRoutePart($route_parts, 'str', $this->content->getContentTypeSlug());
+            $route = static::substituteRoutePart($route, 'str', $this->content->getContentTypeSlug());
         }
-        $route = LittledUtility::joinPaths(...$route_parts);
-        if ($route === '') {
-            return $route;
-        }
+        $route = LittledUtility::joinPaths(...$route);
         return '/' . ltrim($route, '/');
     }
 
     /**
      * Static version of _formatRoutePath.
      * @param int|null $record_id
-     * @param array|string|null $route_parts
+     * @param array|string|null $route
      * @return string
      */
-    protected static function _formatRoutePathStatic(?int $record_id = null, array|string|null $route_parts = null): string
+    protected static function _formatRoutePathStatic(?int $record_id = null, array|string|null $route = null): string
     {
-        $route_parts = $route_parts ?? static::$route_parts ?? '';
-        if (is_array($route_parts)) {
-            $route = LittledUtility::joinPaths(...$route_parts);
-        } else {
-            $route = $route_parts;
+        $route = $route ?? static::$route_parts ?? '';
+        if (empty($route)) {
+            return '';
         }
-        if ($route === '') {
-            return $route;
+
+        if ($record_id > 0) {
+            if (is_string($route)) {
+                $route = ContentRoute::explodeRouteString($route);
+            }
+            $route = static::substituteRoutePart($route, 'int', $record_id);
+        }
+
+        if (is_array($route)) {
+            $route = LittledUtility::joinPaths(...$route);
         }
         return '/' . ltrim($route, '/');
     }
