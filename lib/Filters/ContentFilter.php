@@ -162,6 +162,15 @@ class ContentFilter
     }
 
     /**
+     * Tests if the filter has been assigned a value.
+     * @return bool
+     */
+    public function hasData(): bool
+    {
+        return ($this->value ?? '') !== '';
+    }
+
+    /**
      * Returns string safe from XSS attacks that can be embedded in HTML.
      * @param ?int $options Combination of tokens to pass along, e.g., FILTER_SANITIZE_FULL_SPECIAL_CHARS
      * Same values as the 3rd argument to PHP's filter_var() routine.

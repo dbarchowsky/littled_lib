@@ -10,10 +10,6 @@ use Littled\Utility\LittledUtility;
 use Littled\Validation\Validation;
 
 
-/**
- * Class IntegerArrayContentFilter
- * @package Littled\Filters
- */
 class IntegerArrayContentFilter extends IntegerContentFilter
 {
     /**
@@ -32,6 +28,14 @@ class IntegerArrayContentFilter extends IntegerContentFilter
     public function formatValuesString(string $delimiter = ','): string
     {
         return implode($delimiter, $this->value);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasData(): bool
+    {
+        return is_array($this->value) && count($this->value) > 0;
     }
 
     /**
