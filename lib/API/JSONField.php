@@ -3,17 +3,14 @@
 namespace Littled\API;
 
 
-/**
- * Class JSONField
- * @package Littled\PageContent\API
- */
 class JSONField
 {
-    const FORMAT_CURRENCY = 'CURRENCY';
+    const string        FORMAT_CURRENCY = 'CURRENCY';
 
-    public string $name;
-    public mixed $value;
-    public string $format;
+    public string       $name;
+    public mixed        $value;
+    public string       $format;
+    public bool         $send_when_empty = true;
 
     /**
      * JSONField constructor.
@@ -54,6 +51,10 @@ class JSONField
         };
 
         $val = $this->value;
+        if (($val ?? '') === '' && !$this->sendWhenEmpty()) {
+            return;
+        }
+
         if (is_array($val)) {
             $val = array_map($func, $val);
         }
@@ -61,6 +62,15 @@ class JSONField
             $val = number_format($val, 2);
         }
         $data[$this->name] = $val;
+    }
+
+    /**
+     * "Send when empty" property getter.
+     * @return bool
+     */
+    public function sendWhenEmpty(): bool
+    {
+        return $this->send_when_empty;
     }
 
     /**
@@ -82,6 +92,17 @@ class JSONField
     public function setName(string $name): static
     {
         $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * "Send when empty" property setter.
+     * @param bool $send_when_empty
+     * @return $this
+     */
+    public function setSendWhenEmpty(bool $send_when_empty): static
+    {
+        $this->send_when_empty = $send_when_empty;
         return $this;
     }
 
