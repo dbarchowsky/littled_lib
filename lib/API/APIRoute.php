@@ -170,9 +170,7 @@ abstract class APIRoute extends APIRouteProperties
      */
     public function collectFiltersRequestData(?array $src = null, ?int $content_type_id = null): void
     {
-        if ($src === null) {
-            $src = static::getAjaxRequestData() ?: $_POST;
-        }
+        $src ??= static::getAjaxRequestData() ?: $_POST;
         if (!isset($this->filters)) {
             $content_type_id ??= $this->getContentTypeId();
             if (!$content_type_id) {
@@ -247,6 +245,7 @@ abstract class APIRoute extends APIRouteProperties
      */
     public function collectRequestData(?array $src = null): APIRoute
     {
+        $src ??= static::getAjaxRequestData() ?: $_POST;
         $this->operation->collectRequestData($src);
         return $this;
     }
