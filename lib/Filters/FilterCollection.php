@@ -103,7 +103,7 @@ class FilterCollection extends FilterCollectionProperties
     }
 
     /**
-     * Extract values for listings filters from form data and query string.
+     * Extract values for record listings filters from form data and query string.
      * @param bool $save_filters Optional. If set to TRUE, save all filter values in session variables.
      * @param array $excluded_properties Optional list of keys to exclude from a collection.
      * @param ?array $src Optional array containing data to use to extract request client data.
@@ -115,6 +115,8 @@ class FilterCollection extends FilterCollectionProperties
         array  $excluded_properties = [],
         ?array $src = null): static
     {
+        $src ??= static::getAjaxRequestData() ?: $_POST ?: $_GET;
+
         $ref = Validation::collectStringRequestVar(
             LittledGlobals::REFERER_KEY,
             RequestValidation::DEFAULT_REQUEST_FILTER,
