@@ -27,10 +27,12 @@ class JSONRecordResponse extends JSONResponse
     function __construct(string $key = '')
     {
         parent::__construct($key);
-        $this->id = new JSONField('id');
-        $this->content = new JSONField('content');
-        $this->label = new JSONField('label');
-        $this->container_id = new JSONField('container_id');
+        $this->id = (new JSONField())->setName('id')->setSendWhenEmpty(false);
+        $this->content = (new JSONField('content'))->setName('content')->setSendWhenEmpty(false);
+        $this->label = (new JSONField())->setName('label')->setSendWhenEmpty(false);
+        $this->container_id = (new JSONField())->setName('container_id')->setSendWhenEmpty(false);
+        $this->status->setSendWhenEmpty(false);
+        $this->error->setSendWhenEmpty(false);
     }
 
     /**
