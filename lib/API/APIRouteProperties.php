@@ -52,7 +52,12 @@ abstract class APIRouteProperties extends RouteBase
     public function __construct()
     {
         $this->json = new JSONRecordResponse();
-        $this->operation = new StringInput('Template token', self::TEMPLATE_TOKEN_KEY, false, static::getDefault('operation'), 45);
+        $this->operation = (new StringInput())
+            ->setLabel('Template token')
+            ->setKey(self::TEMPLATE_TOKEN_KEY)
+            ->setInputValue(static::getDefault('operation'))
+            ->setSizeLimit(45)
+            ->setAsNotRequired();
         $this->action = '';
         $this->content_type_id = (new IntegerInput())
             ->setLabel('Content type')
