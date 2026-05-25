@@ -16,11 +16,12 @@ use Littled\Request\StringTextField;
 class ContentRoute extends SerializedContent
 {
     /** @var string                 Token representing operation property */
-    const                           string PROPERTY_TOKEN_OPERATION = 'operation';
+    public const string             PROPERTY_TOKEN_OPERATION = 'operation';
     /** @var string                 Token representing route property */
-    const                           string PROPERTY_TOKEN_ROUTE = 'route';
+    public const string             PROPERTY_TOKEN_ROUTE = 'route';
     /** @var string                 Token representing route property in array format */
-    const                           string PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
+    public const string             PROPERTY_TOKEN_ROUTE_AS_ARRAY = 'routeArray';
+    public const string             ROUTE_KEY = 'route';
 
     /** @var int                    Value of this record in the site section table. */
     protected static int            $content_type_id = 34;
