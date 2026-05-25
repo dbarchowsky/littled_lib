@@ -40,7 +40,7 @@ abstract class APIRouteProperties extends RouteBase
     public string               $action = '';
     public IntegerInput         $content_type_id;
     protected static bool       $dev_only = false;
-    public JSONRecordResponse|JSONResponse   $json;
+    public JSONRecordResponse   $json;
     public StringInput          $operation;
     public ?ContentTemplate     $template;
     public ?ContentRoute        $route;
