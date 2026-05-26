@@ -125,7 +125,7 @@ abstract class SerializedRecordList extends SerializedContentIO
                     // processing an array of record ids, one for each linked record
                     for($i = 0; $i < $count; $i++) {
                         $this->records[$i] = (new static::$content_class())
-                            ->shareConnection($this)
+                            ->withConnection($this)
                             ->setIndex($i)
                             ->collectRequestData($src)
                             ->collectKeysRequestData($src);
@@ -133,7 +133,7 @@ abstract class SerializedRecordList extends SerializedContentIO
                 }
                 else {
                     $this->records[] = (new static::$content_class())
-                        ->shareConnection($this)
+                        ->withConnection($this)
                         ->collectRequestData($src);
                 }
             }
@@ -562,7 +562,7 @@ abstract class SerializedRecordList extends SerializedContentIO
         $this->clearLinks();
         $data = $this->fetchRecords(...$this->formatRecordSelectQuery());
         foreach($data as $row) {
-            $o = (new static::$content_class())->shareConnection($this);
+            $o = (new static::$content_class())->withConnection($this);
             $o->hydrateFromRecordsetRow($row);
             if (!$o->getParentId()) {
                 /*

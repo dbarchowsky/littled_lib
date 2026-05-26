@@ -136,7 +136,7 @@ abstract class APIRouteProperties extends RouteBase
         if (isset($this->filters->content_properties)) {
             return $this->filters->content_properties;
         }
-        return ($this->newContentPropertiesInstance())->shareConnection($this);
+        return ($this->newContentPropertiesInstance())->withConnection($this);
     }
 
     /**

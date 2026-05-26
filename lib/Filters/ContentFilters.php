@@ -71,7 +71,7 @@ class ContentFilters extends FilterCollection
         try {
             parent::__construct();
             if ($conn) {
-                $this->shareConnection($conn);
+                $this->withConnection($conn);
             }
         }
         catch (NotImplementedException $ex) {
@@ -82,10 +82,10 @@ class ContentFilters extends FilterCollection
                 $this->content_properties = static::newContentPropertiesInstance(
                     properties_class: $properties_class,
                     content_type_id: $this->getContentTypeId())
-                    ->shareConnection($this)
+                    ->withConnection($this)
                     ->read();
                 if (!$this->hasConnection()) {
-                    $this->shareConnection($this->content_properties);
+                    $this->withConnection($this->content_properties);
                 }
             }
         }

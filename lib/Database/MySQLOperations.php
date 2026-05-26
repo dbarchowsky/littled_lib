@@ -493,24 +493,15 @@ trait MySQLOperations
      * Copy an existing MySQL connection to the object.
      * @param MySQLConnection $src
      * @return $this
+     * @deprecated Use MySQLConnection::withConnection() instead.
      */
     public function shareConnection(MySQLConnection $src): static
     {
-        if (!$src->hasConnection()) {
-            return $this;
-        }
-        $this->mysqli = $src->mysqli;
-        $this->conn_id = $src->getConnectionId();
-        foreach($this as $prop) {
-            if ($prop instanceof MySQLConnection) {
-                $prop->shareConnection($this);
-            }
-        }
-        return $this;
+        return $this->withConnection($src);
     }
 
     /**
-     * Removes instance of database connection tracker.
+     * Removes the instance of the database connection tracker.
      * @return void
      */
     protected function unsetTracker(): void
@@ -522,5 +513,25 @@ trait MySQLOperations
                 $prop->unsetTracker();
             }
         }
+    }
+
+    /**
+     * Copy an existing MySQL connection to the object.
+     * @param MySQLConnection $src
+     * @return $this
+     */
+    public function withConnection(MySQLConnection $src): static
+    {
+        if (!$src->hasConnection()) {
+            return $this;
+        }
+        $this->mysqli = $src->mysqli;
+        $this->conn_id = $src->getConnectionId();
+        foreach($this as $prop) {
+            if ($prop instanceof MySQLConnection) {
+                $prop->withConnection($this);
+            }
+        }
+        return $this;
     }
 }

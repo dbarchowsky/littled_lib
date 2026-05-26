@@ -26,7 +26,7 @@ class MySQLConnection extends AppBase
         $this->traitConnectToDatabase($host, $user, $password, $schema, $port);
         foreach($this as $prop) {
             if ($prop instanceof MySQLConnection) {
-                $prop->shareConnection($this);
+                $prop->withConnection($this);
             }
         }
         return $this;

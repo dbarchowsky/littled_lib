@@ -143,7 +143,7 @@ abstract class ContentController
             throw new InvalidTypeException('Invalid content filters class: ' . $class);
         }
         try {
-            return (new $class())->shareConnection(static::getDBConnection());
+            return (new $class())->withConnection(static::getDBConnection());
         } catch(ConfigurationUndefinedException $e) {
             throw new ConnectionException('Connection error: ' . $e->getMessage());
         }
@@ -163,7 +163,7 @@ abstract class ContentController
             throw new InvalidTypeException("Invalid content class: $class.");
         }
         try {
-            return (new $class())->shareConnection(static::getDBConnection());
+            return (new $class())->withConnection(static::getDBConnection());
         } catch (ConfigurationUndefinedException $e) {
             throw new ConnectionException('Connection error: ' . $e->getMessage());
         }
@@ -221,7 +221,7 @@ abstract class ContentController
             throw new InvalidTypeException("Invalid routed page content class: \"" . basename($class) . "\".");
         }
         try {
-            return (new $class())->shareConnection(static::getDBConnection());
+            return (new $class())->withConnection(static::getDBConnection());
         } catch (ConfigurationUndefinedException $e) {
             throw new ConnectionException('Connection error: ' . $e->getMessage());
         }

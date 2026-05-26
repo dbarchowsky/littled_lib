@@ -340,7 +340,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new ConfigurationUndefinedException($err_msg);
         }
         $this->route = (new ContentRoute())
-            ->shareConnection($this)
+            ->withConnection($this)
             ->setContentType($this->getContentTypeId())
             ->setOperation($operation)
             ->lookupRoute();
@@ -369,7 +369,7 @@ abstract class APIRoute extends APIRouteProperties
         }
         try {
             $this->template = (new ContentTemplate())
-                ->shareConnection($this)
+                ->withConnection($this)
                 ->setContentType($this->getContentTypeId())
                 ->setOperation($name)
                 ->lookupTemplateProperties();
@@ -500,7 +500,7 @@ abstract class APIRoute extends APIRouteProperties
     protected function newTemplateInstance(?int $record_id = null, ?int $content_type_id = null, string $operation = '', string $base_dir = '', string $template = '', string $location = ''): ContentTemplate
     {
         return (new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location))
-            ->shareConnection($this);
+            ->withConnection($this);
     }
 
     /**
@@ -529,7 +529,7 @@ abstract class APIRoute extends APIRouteProperties
      */
     public function refreshContentAfterEdit(string $next_operation, array $context=[]): void
     {
-        $template = ($this->newTemplateInstance())->shareConnection($this);
+        $template = ($this->newTemplateInstance())->withConnection($this);
         $template->retrieveUsingContentTypeAndOperation($this->getContentTypeId(), $next_operation);
         $this->json->loadContentFromTemplate(
             $template->formatFullPath(),
@@ -622,7 +622,7 @@ abstract class APIRoute extends APIRouteProperties
             $data[0]->base_path,
             $data[0]->template_path,
             $data[0]->location)
-        ->shareConnection($this);
+        ->withConnection($this);
     }
 
     /**

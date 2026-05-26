@@ -553,7 +553,7 @@ class Album extends KeywordSectionContent
         $this->gallery->list = array();
         $this->gallery->list[0] =
             (new ImageLink())
-                ->shareConnection($this)
+                ->withConnection($this)
                 ->setContentType($this->gallery->content_properties->id->value)
                 ->setParentId($this->id->value)
                 ->setRecordId($page_id);

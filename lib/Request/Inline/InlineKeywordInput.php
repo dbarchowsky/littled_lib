@@ -20,7 +20,7 @@ class InlineKeywordInput extends KeywordSectionContent
     {
         parent::__construct($id, $content_type_id);
         $this->content_properties = (new ContentProperties())
-            ->shareConnection($this)
+            ->withConnection($this)
             ->setLabel('Content type')
             ->setAsRequired();
         $this->id

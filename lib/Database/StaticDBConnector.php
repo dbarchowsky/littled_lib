@@ -72,13 +72,24 @@ trait StaticDBConnector
      * Assign a shared MySQL connection to this object.
      * @param MySQLConnection $src
      * @return $this
+     * @deprecated Use StaticDBConnector->withConnection() instead
      */
     public function shareConnection(MySQLConnection $src): static
+    {
+        return $this->withConnection($src);
+    }
+
+    /**
+     * Assign a shared MySQL connection to this object.
+     * @param MySQLConnection $src
+     * @return $this
+     */
+    public function withConnection(MySQLConnection $src): static
     {
         if (!isset(static::$conn)) {
             static::$conn = new MySQLConnection();
         }
-        static::$conn->shareConnection($src);
+        static::$conn->withConnection($src);
         return $this;
     }
 }

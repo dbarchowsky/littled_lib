@@ -35,7 +35,7 @@ abstract class InlineInput extends SectionContent
         }
         parent::__construct();
         $this->content_properties = (new ContentProperties())
-            ->shareConnection($this)
+            ->withConnection($this)
             ->setLabel('Content type')
             ->setAsRequired();
         $this->id

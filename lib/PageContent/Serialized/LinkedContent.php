@@ -172,7 +172,7 @@ abstract class LinkedContent extends SerializedContent
             $class = get_class($this->{$property});
             /** @var SerializedContent $o */
             $o = (new $class())
-                ->shareConnection($this)
+                ->withConnection($this)
                 ->setRecordId($this->{$property}->getRecordId())
                 ->read();
             $this->{$property}->copy($o);

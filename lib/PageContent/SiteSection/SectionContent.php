@@ -43,7 +43,7 @@ abstract class SectionContent extends SerializedContent
             }
         }
         $this->content_properties = (new ContentProperties())
-            ->shareConnection($this)
+            ->withConnection($this)
             ->setRecordId($content_type_id)
             ->setLabel('Content type')
             ->setAsRequired();

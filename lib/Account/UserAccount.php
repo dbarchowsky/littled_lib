@@ -65,14 +65,14 @@ abstract class UserAccount extends SerializedContent
         $this->id = new PrimaryKeyInput('Announcement id', self::ID_KEY, false);
         $this->uname = new StringTextField('User name', self::USERNAME_KEY, true, '', 50);
         $this->username = &$this->uname;
-        $this->contact_info = (new Address())->shareConnection($this);
+        $this->contact_info = (new Address())->withConnection($this);
         $this->email_opt_in = new BooleanCheckbox('Email Opt-In', 'sueo', false, false);
         $this->postal_opt_in = new BooleanCheckbox('Snail Mail Opt-In', 'suso', false, false);
         $this->password = new StringPasswordField('Password', self::PASSWORD_KEY, true, '', 256);
         $this->password_confirm = new StringPasswordField('Confirm password', 'uaPwdConfirm', false, '', 256);
         $this->password_confirm->is_database_field = false;
         $this->access = (new UserAccess())
-            ->shareConnection($this)
+            ->withConnection($this)
             ->setRecordId(UserAccess::NO_AUTHENTICATION);
 
         $this->contact_id = &$this->contact_info->id;

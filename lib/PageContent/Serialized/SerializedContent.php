@@ -75,7 +75,7 @@ abstract class SerializedContent extends SerializedContentIO
             foreach ($link_ids as $link_id) {
                 try {
                     $this->$links_property->addLink((new $content_class())
-                        ->shareConnection($this)
+                        ->withConnection($this)
                         ->setParentId($this->getRecordId())
                         ->setLinkedId($link_id));
                 } catch (DuplicateRecordException) {

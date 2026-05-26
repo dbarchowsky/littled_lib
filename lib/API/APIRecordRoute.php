@@ -140,10 +140,10 @@ class APIRecordRoute extends APIRoute
     protected function confirmContentDBConnection(): void
     {
         if (isset($this->content)) {
-            $this->content->shareConnection($this);
+            $this->content->withConnection($this);
         }
         elseif (isset($this->filters)) {
-            $this->filters->shareConnection($this);
+            $this->filters->withConnection($this);
         }
     }
 
@@ -271,7 +271,7 @@ class APIRecordRoute extends APIRoute
         }
 
         $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
-        $this->content->shareConnection($this);
+        $this->content->withConnection($this);
         $this->content_type_id->value = $content_type_id;
         return $this;
     }
