@@ -3,7 +3,8 @@
 namespace Littled\API;
 
 use Littled\Exception\ResourceNotFoundException;
-use Littled\PageContent\ContentUtils;
+use Littled\Exception\TemplateOutputException;
+use Littled\PageContent\Templates\TemplateRenderer;
 
 /**
  * Class JSONResponse
@@ -11,14 +12,13 @@ use Littled\PageContent\ContentUtils;
  */
 class JSONRecordResponse extends JSONResponse
 {
-    /** @var JSONField Record id. */
     public JSONField $id;
-    /** @var JSONField Name of the element in the DOM to update. */
     public JSONField $container_id;
-    /** @var JSONField Page content to be inserted into the DOM. */
     public JSONField $content;
-    /** @var JSONField Element label value. */
     public JSONField $label;
+    public JSONField $record_label;
+    public JSONField $content_label;
+
 
     /**
      * Class constructor.
@@ -30,6 +30,8 @@ class JSONRecordResponse extends JSONResponse
         $this->id = (new JSONField())->setName('id')->setSendWhenEmpty(false);
         $this->content = (new JSONField('content'))->setName('content')->setSendWhenEmpty(false);
         $this->label = (new JSONField())->setName('label')->setSendWhenEmpty(false);
+        $this->record_label = (new JSONField())->setName('record_label')->setSendWhenEmpty(false);
+        $this->content_label = (new JSONField())->setName('content_label')->setSendWhenEmpty(false);
         $this->container_id = (new JSONField())->setName('container_id')->setSendWhenEmpty(false);
         $this->status->setSendWhenEmpty(false);
         $this->error->setSendWhenEmpty(false);
@@ -40,6 +42,7 @@ class JSONRecordResponse extends JSONResponse
      * @param string $template_path Path to the content template file.
      * @param ?array $context Array containing data to insert into the template.
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function loadContentFromTemplate(string $template_path, ?array $context = null): void
     {
@@ -48,7 +51,10 @@ class JSONRecordResponse extends JSONResponse
                 ${$key} = $val;
             }
         }
-        $this->content->value = ContentUtils::loadTemplateContent($template_path, $context);
+        $this->content->value = TemplateRenderer::create()
+            ->withTemplate($template_path)
+            ->withContext($context ?? [])
+            ->renderAsMarkup();
     }
 
     /**
