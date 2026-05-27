@@ -2,7 +2,9 @@
 
 namespace Littled\API;
 
+use Littled\Database\AppContentBase;
 use Littled\Exception\ResponseException;
+use Littled\Request\RequestInput;
 
 /**
  * Standardized container for JSON responses to api requests.
@@ -23,6 +25,17 @@ class JSONResponse extends JSONResponseBase
         parent::__construct($key);
         $this->status = new JSONField('status');
         $this->error = new JSONField('error');
+    }
+
+    public function __clone(): void
+    {
+        foreach($this as $property => $value) {
+            $this->$property = match(true) {
+                $value instanceof JSONField,
+                $value instanceof JSONResponse => clone $value,
+                default => $value
+            };
+        }
     }
 
     /**
