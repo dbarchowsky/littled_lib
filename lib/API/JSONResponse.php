@@ -2,9 +2,7 @@
 
 namespace Littled\API;
 
-use Littled\Database\AppContentBase;
 use Littled\Exception\ResponseException;
-use Littled\Request\RequestInput;
 
 /**
  * Standardized container for JSON responses to api requests.
