@@ -247,6 +247,7 @@ abstract class APIRoute extends APIRouteProperties
     {
         $src ??= static::getAjaxRequestData() ?: $_POST;
         $this->operation->collectRequestData($src);
+        $this->collectContentTypeIdFromRequestData($src);
         return $this;
     }
 
