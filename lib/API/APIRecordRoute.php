@@ -123,7 +123,7 @@ class APIRecordRoute extends APIRoute
         parent::collectRequestData($src);
         $this->collectPageAction($src);
         if (!isset($this->content)) {
-            $this->initializeContentObject(null, $src);
+            $this->initializeContentObject($this->content_type_id->value, $src);
         }
         $this->content->collectRequestData($src);
         if ($this->content->getRecordId() > 0) {

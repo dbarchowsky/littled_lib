@@ -20,6 +20,7 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\ResponseException;
+use Littled\Exception\TemplateOutputException;
 use Littled\Log\Log;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
@@ -144,10 +145,10 @@ abstract class APIRoute extends APIRouteProperties
      */
     protected function collectContentTypeIdFromRequestData(?array $src=null, array $keys=[]): ?int
     {
-        $key_options = [
+        $key_options = array_unique([
             LittledGlobals::CONTENT_TYPE_KEY,
             ContentProperties::ID_KEY,
-            $this->getContentTypeKey()];
+            $this->getContentTypeKey()]);
         $key_options = array_unique(array_merge($key_options, $keys));
         $content_id = null;
         foreach($key_options as $key) {
@@ -156,6 +157,7 @@ abstract class APIRoute extends APIRouteProperties
                 break;
             }
         }
+        $this->content_type_id->setInputValue($content_id);
         return $content_id;
     }
 
@@ -431,6 +433,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws ConfigurationUndefinedException
      * @throws InvalidPropertyException
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function loadTemplateContent(?array $context = null): APIRoute
     {
@@ -510,6 +513,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws ConfigurationUndefinedException
      * @throws InvalidPropertyException
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function processRequest(): static
     {
@@ -527,6 +531,7 @@ abstract class APIRoute extends APIRouteProperties
      * @throws RecordNotFoundException
      * @throws RecordUnavailableException
      * @throws ResourceNotFoundException
+     * @throws TemplateOutputException
      */
     public function refreshContentAfterEdit(string $next_operation, array $context=[]): void
     {
@@ -644,7 +649,7 @@ abstract class APIRoute extends APIRouteProperties
     }
 
     /**
-     * Send current JSON content value as plain text.
+     * Send the current JSON content value as plain text.
      * @param string $response Text to send as a response, if not using value stored in JSON property.
      * @return void
      */
