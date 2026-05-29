@@ -13,8 +13,8 @@ use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Filters\FilterCollection;
-use Littled\PageContent\ContentUtils;
 use Littled\PageContent\Serialized\SerializedContent;
+use Littled\PageContent\Templates\TemplateRenderer;
 use Littled\Request\StringInput;
 use Exception;
 
@@ -107,7 +107,7 @@ abstract class SectionContent extends SerializedContent
     }
 
     /**
-     * Fills the object's property values from input variable values, e.g. GET, POST, etc.
+     * Fills the object's property values using input variable values, e.g., GET, POST, etc.
      * @param ?array $src (Optional) Collection of input data. If not specified, will read input from POST, GET, Session vars.
      * @return $this
      */
@@ -283,7 +283,10 @@ abstract class SectionContent extends SerializedContent
         $context = array(
             'content' => &$this,
             'filters' => &$filters);
-        return (ContentUtils::loadTemplateContent($template, $context));
+        return TemplateRenderer::create()
+            ->withTemplate($template)
+            ->withContext($context)
+            ->renderAsMarkup();
     }
 
     /**
