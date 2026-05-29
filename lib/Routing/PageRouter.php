@@ -26,6 +26,9 @@ class PageRouter
     public static function collectRoute(string $route=''): string
     {
         $route = $route ?: static::collectRouteFromRequest();
+        if (empty($route)) {
+            return $_SERVER['REQUEST_URI'] ?? '/';
+        }
         return '/' . ltrim($route, '/');
     }
 
