@@ -9,13 +9,13 @@ class ContentMap
     public string       $slug;
     public string       $class;
 
-    function __construct(?int $id=null, string $name='', string $class='')
+    function __construct(?int $id=null, string $slug='', string $class='')
     {
         if ($id) {
             $this->id = $id;
         }
-        if ($name) {
-            $this->slug = $name;
+        if ($slug) {
+            $this->slug = $slug;
         }
         if ($class) {
             $this->class = $class;
