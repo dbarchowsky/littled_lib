@@ -3,6 +3,7 @@ namespace Littled\API;
 
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\InvalidPropertyException;
 use Littled\Exception\InvalidStateException;
@@ -11,15 +12,16 @@ use Littled\Exception\NotInitializedException;
 use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\RecordUnavailableException;
-use Littled\Log\Log;
 use Littled\PageContent\Cache\ContentCache;
-use Littled\PageContent\ContentController;
 use Littled\PageContent\RouteBase;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\ContentRoute;
 use Littled\PageContent\SiteSection\ContentTemplate;
+use Littled\PageContent\SiteSection\SectionContent;
 use Littled\Request\IntegerInput;
 use Littled\Request\StringInput;
+use Littled\Routing\ContentRegistry;
+use Littled\Routing\PageRouter;
 use Littled\Utility\LittledUtility;
 
 
@@ -33,8 +35,6 @@ abstract class APIRouteProperties extends RouteBase
 
     /** @var string             Name of a \Littled\PageContent\Cache\ContentCache class to use to cache content. */
     protected static string     $cache_class = ContentCache::class;
-    /** @var string             Name a \Littled\PageContent\ContentController class to use as a content controller. */
-    protected static string     $controller_class = ContentController::class;
     protected static APIRouteDefaultProperties $default;
     /** @var string             String indicating the action to be taken on the page. */
     public string               $action = '';
@@ -42,6 +42,8 @@ abstract class APIRouteProperties extends RouteBase
     protected static bool       $dev_only = false;
     public JSONRecordResponse   $json;
     public StringInput          $operation;
+    /** @var int Index of the content slug within the route parts */
+    public int                  $slug_index;
     public ?ContentTemplate     $template;
     public ?ContentRoute        $route;
 
@@ -100,6 +102,21 @@ abstract class APIRouteProperties extends RouteBase
     }
 
     /**
+     * Extracts the slug from the route based on the configured slug index.
+     * @param string $route
+     * @return string
+     */
+    public function extractSlugFromRoute(string $route=''): string
+    {
+        $route = $route ?: PageRouter::collectRoute();
+        $route_parts = array_values(array_filter(explode('/', $route)));
+        if (isset($route_parts[$this->slug_index ?? -1])) {
+            return $route_parts[$this->slug_index];
+        }
+        return '';
+    }
+
+    /**
      * Cache class name getter.
      * @return string
      * @throws ConfigurationUndefinedException
@@ -141,11 +158,11 @@ abstract class APIRouteProperties extends RouteBase
 
     /**
      * Content type id getter.
-     * @param ?array $runtime_data
+     * @param ?array $request_data
      * @return ?int
      * @throws RecordUnavailableException
      */
-    public function getContentTypeId(?array $runtime_data = null): ?int
+    public function getContentTypeId(?array $request_data = null): ?int
     {
         // first try content type id property value
         if ($this->content_type_id->value > 0) {
@@ -157,6 +174,7 @@ abstract class APIRouteProperties extends RouteBase
             try {
                 $record_id = $this->getContentProperties()->getRecordId();
                 if ($record_id > 0) {
+                    $this->content_type_id->setInputValue($record_id);
                     return $record_id;
                 }
             } catch (ConfigurationUndefinedException) {
@@ -164,15 +182,15 @@ abstract class APIRouteProperties extends RouteBase
             }
         }
 
-        // fall back to request data
-        $this->content_type_id->collectRequestData($runtime_data ?? $_POST ?? []);
-        if ($this->content_type_id->value > 0) {
+        try {
+            // fall back to extracting the content type from the route or request data
+            $this->content_type_id->value = ContentRegistry::collectContentType(
+                request_data: $request_data,
+                key: $this->content_type_id->getKey());
             return $this->content_type_id->value;
+        } catch (ContentValidationException) {
+            return null;
         }
-
-        // fall back to AJAX data
-        $this->content_type_id->collectAjaxRequestData((object)static::getAjaxRequestData());
-        return $this->content_type_id->value;
     }
 
     /**
@@ -182,19 +200,6 @@ abstract class APIRouteProperties extends RouteBase
     public function getContentTypeKey(): string
     {
         return $this->content_type_id->getKey();
-    }
-
-    /**
-     * Controller class name getter.
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getControllerClass(): string
-    {
-        if (ContentController::class === static::$controller_class) {
-            throw new ConfigurationUndefinedException('Controller class not configured.');
-        }
-        return static::$controller_class;
     }
 
     /**
@@ -212,6 +217,15 @@ abstract class APIRouteProperties extends RouteBase
             throw new InvalidPropertyException("\"$property\" is not a valid default property.");
         }
         return static::$default->{$property} ?? null;
+    }
+
+    /**
+     * Slug index getter.
+     * @return int
+     */
+    public function getSlugIndex(): int
+    {
+        return $this->slug_index;
     }
 
     /**
@@ -293,23 +307,6 @@ abstract class APIRouteProperties extends RouteBase
     }
 
     /**
-     * Assigns a new ContentFilters instance to the $filters property to clear any values that may have been
-     * previously loaded.
-     * @return void
-     * @throws ConfigurationUndefinedException
-     */
-    protected function reloadFilters(): void
-    {
-        if (!isset($this->filters)) {
-            return;
-        }
-        $this->filters = call_user_func(
-            [static::getControllerClass(), 'getContentFiltersObject'],
-            null,
-            $this);
-    }
-
-    /**
      * Content cache class setter.
      * @param string $class_name Name of class to use to cache ajax content. Must be derived from \Littled\PageContent\Cache\ContentCache
      * @return void
@@ -328,6 +325,13 @@ abstract class APIRouteProperties extends RouteBase
     }
 
     /**
+     * Sets the content object to be used by the controller.
+     * @param SectionContent $content
+     * @return $this
+     */
+    abstract public function setContent(SectionContent $content): static;
+
+    /**
      * Content type id setter.
      * @param ?int $content_type_id
      * @return $this
@@ -341,7 +345,7 @@ abstract class APIRouteProperties extends RouteBase
             $this->loadFiltersContentType($content_type_id);
         }
         else {
-            $this->reloadFilters();
+            unset($this->filters);
         }
         return $this;
     }
@@ -355,25 +359,6 @@ abstract class APIRouteProperties extends RouteBase
     {
         $this->content_type_id->setKey($key);
         return $this;
-    }
-
-    /**
-     * Content cache class setter.
-     * @param string $class_name Name of class to use as a content controller. Must be derived from \Littled\PageContent\ContentController
-     * @return void
-     * @throws InvalidTypeException
-     * @throws ConfigurationUndefinedException
-     */
-    public static function setControllerClass(string $class_name): void
-    {
-        if ($class_name === ContentController::class) {
-            throw new ConfigurationUndefinedException('Controller type must be derived from base controller type.');
-        }
-        if (!is_a($class_name, ContentController::class, true)) {
-            throw new InvalidTypeException(Log::getShortMethodName() . ' Invalid controller type. ');
-        }
-        unset($o);
-        static::$controller_class = $class_name;
     }
 
     /**
@@ -468,6 +453,17 @@ abstract class APIRouteProperties extends RouteBase
     public function setResponseStatus(string $status): static
     {
         $this->json->setResponseStatus($status);
+        return $this;
+    }
+
+    /**
+     * Slug index setter.
+     * @param int $index
+     * @return $this
+     */
+    public function setSlugIndex(int $index): static
+    {
+        $this->slug_index = $index;
         return $this;
     }
 }

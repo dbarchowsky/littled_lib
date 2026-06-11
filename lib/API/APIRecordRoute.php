@@ -13,6 +13,7 @@ use Littled\Exception\ReadException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Exception\RecordUnavailableException;
 use Littled\Exception\ResourceNotFoundException;
+use Littled\Routing\ContentRegistry;
 use Littled\PageContent\Serialized\SerializedContent;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
@@ -65,7 +66,7 @@ class APIRecordRoute extends APIRoute
      * @throws ContentValidationException
      * @throws RecordUnavailableException
      */
-    public function collectRecordId(?array $src = null): APIRecordRoute
+    public function collectRecordId(?array $src = null): static
     {
         // first, try extracting the record id from the api route
         if ($this->operation->hasData()) {
@@ -118,7 +119,7 @@ class APIRecordRoute extends APIRoute
      * @throws ContentValidationException
      * @throws RecordUnavailableException
      */
-    public function collectRequestData(?array $src = null): APIRoute
+    public function collectRequestData(?array $src = null): static
     {
         parent::collectRequestData($src);
         $this->collectPageAction($src);
@@ -149,6 +150,8 @@ class APIRecordRoute extends APIRoute
 
     /**
      * @inheritDoc
+     * @return ContentProperties
+     * @throws ContentValidationException
      * @throws RecordUnavailableException
      */
     public function getContentProperties(): ContentProperties
@@ -167,8 +170,7 @@ class APIRecordRoute extends APIRoute
             $this->initializeFiltersObject($this->getContentTypeId());
             return $this->filters->content_properties;
         }
-        catch (ConfigurationUndefinedException |
-            FailedQueryException |
+        catch (FailedQueryException |
             InvalidTypeException |
             ReadException |
             RecordNotFoundException $e) {
@@ -188,7 +190,7 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Listings token getter
+     * Record listings token getter
      * @return string
      */
     public static function getListingsToken(): string
@@ -254,25 +256,30 @@ class APIRecordRoute extends APIRoute
      * @param ?int $content_type_id Optional content type id to use to retrieve content instance.
      * @param ?array $runtime_data Optional array of variables to use instead of POST data.
      * @return $this
-     * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws RecordUnavailableException
      */
-    public function initializeContentObject(?int $content_type_id = null, ?array $runtime_data = null): APIRecordRoute
+    public function initializeContentObject(?int $content_type_id = null, ?array $runtime_data = null): static
     {
         if (isset($this->content) && Validation::isSubclass($this->content, SerializedContent::class)) {
             // already initialized
             return $this;
         }
 
+        $slug = '';
         $content_type_id ??= $this->getContentTypeId($runtime_data);
-        if (!$content_type_id) {
-            throw new ContentValidationException('Content type not provided.');
+        if (($content_type_id ?: 0) < 1) {
+            $slug = $this->extractSlugFromRoute();
+            if (!$slug) {
+                throw new ContentValidationException('Content type not provided.');
+            }
         }
 
-        $this->content = call_user_func([static::getControllerClass(), 'getContentObject'], $content_type_id);
-        $this->content->withConnection($this);
-        $this->content_type_id->value = $content_type_id;
+        $class_name = ContentRegistry::getContentClass($content_type_id ?? $slug);
+        if (!$class_name) {
+            throw new ContentValidationException('Invalid content type ' . ($content_type_id ?? $slug) . '.');
+        }
+        $this->content = (new $class_name())->withConnection($this);
         return $this;
     }
 
@@ -369,7 +376,7 @@ class APIRecordRoute extends APIRoute
                 $this->content->setContentType($content_type_id);
                 $this->content->retrieveSectionProperties();
             } elseif (isset($this->filters)) {
-                // reload content properties goes if there is a filters object initialized but no content object
+                // reload content properties goes if there is a filter object initialized but no content object
                 $this->filters->setContentTypeId($content_type_id);
                 $this->filters->retrieveContentProperties();
             } else {
@@ -404,6 +411,15 @@ class APIRecordRoute extends APIRoute
     /**
      * @inheritDoc
      */
+    public function setContent(SectionContent $content): static
+    {
+        $this->content = $content;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setContentTypeId(?int $content_type_id): static
     {
         parent::setContentTypeId($content_type_id);
@@ -414,7 +430,7 @@ class APIRecordRoute extends APIRoute
     }
 
     /**
-     * Listings token getter.
+     * Record listings token getter.
      * @param string $token
      * @return void
      */

@@ -2,9 +2,10 @@
 
 namespace Littled\API;
 
-use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\NotImplementedException;
 use Littled\Exception\RecordUnavailableException;
+use Littled\PageContent\SiteSection\SectionContent;
 
 
 class APIListingsRoute extends APIRoute
@@ -19,9 +20,9 @@ class APIListingsRoute extends APIRoute
      * @inheritDoc
      * @param array|null $src
      * @return $this
-     * @throws ConfigurationUndefinedException
      * @throws NotImplementedException
      * @throws RecordUnavailableException
+     * @throws ContentValidationException
      */
     public function collectRequestData(?array $src = null): static
     {
@@ -50,5 +51,11 @@ class APIListingsRoute extends APIRoute
     public function hasContentPropertiesObject(): bool
     {
         return isset($this->filters);
+    }
+
+    public function setContent(SectionContent $content): static
+    {
+        // Placeholder for PageRouter class methods. No content property exists for record listings routes.
+        return $this;
     }
 }
