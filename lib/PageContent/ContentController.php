@@ -21,6 +21,9 @@ use Littled\Validation\Validation;
 use Exception;
 
 
+/**
+ * @deprecated Use Resitry classes instead.
+ */
 abstract class ContentController
 {
     use StaticDBConnector;
