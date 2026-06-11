@@ -5,12 +5,9 @@ namespace Littled\PageContent\Cache;
 use Littled\API\APIRoute;
 use Littled\API\JSONRecordResponse;
 use Littled\Database\MySQLConnection;
-use Littled\Exception\ConfigurationUndefinedException;
-use Littled\Exception\InvalidTypeException;
 use Littled\Exception\NotImplementedException;
 use Littled\Filters\FilterCollection;
 use Littled\Log\Log;
-use Littled\PageContent\ContentController;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\PageContent\SiteSection\SectionContent;
 use Exception;
@@ -21,21 +18,6 @@ use Exception;
  */
 abstract class ContentCache extends MySQLConnection
 {
-    protected static string $controller_class = ContentController::class;
-
-    /**
-     * Controller class getter
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getControllerClass(): string
-    {
-        if (ContentController::class === static::$controller_class) {
-            throw new ConfigurationUndefinedException('Controller class not set.');
-        }
-        return static::$controller_class;
-    }
-
     /**
      * Returns the path to the template used to render the markup returned to the client and sets
      * any necessary state property values within the $page object.
@@ -54,26 +36,10 @@ abstract class ContentCache extends MySQLConnection
      * @throws Exception
      */
     public abstract static function refreshContentAfterImageEdit(
-        SectionContent     &$content,
-        FilterCollection   &$filters,
+        SectionContent     $content,
+        FilterCollection   $filters,
         JSONRecordResponse $json
     ): void;
-
-    /**
-     * Controller class setter.
-     * @param string $class_name
-     * @return void
-     * @throws InvalidTypeException
-     */
-    public static function setControllerClass(string $class_name): void
-    {
-        $o = new $class_name;
-        if (!$o instanceof ContentController) {
-            throw new InvalidTypeException(Log::getShortMethodName() . ' invalid controller class ' . $class_name . '.');
-        }
-        unset($o);
-        static::$controller_class = $class_name;
-    }
 
     /**
      * Updates a parent link to a child based on content type.
