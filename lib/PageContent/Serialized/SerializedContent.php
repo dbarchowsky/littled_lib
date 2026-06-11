@@ -436,7 +436,7 @@ abstract class SerializedContent extends SerializedContentIO
     }
 
     /**
-     * Strips all primary key fields from a fields collection.
+     * Strips all primary key fields from a field collection.
      * @param QueryField[] $fields
      * @return QueryField[]
      */
