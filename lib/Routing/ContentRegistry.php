@@ -18,10 +18,11 @@ class ContentRegistry
      * Extracts the content type id from the request or route.
      * @param array|null $request_data
      * @param string $slug
+     * @param string $key
      * @return int
      * @throws ContentValidationException
      */
-    public static function collectContentType(?array $request_data = null, string $slug=''): int
+    public static function collectContentType(?array $request_data = null, string $slug='', string $key=''): int
     {
         // first check route for content slug
         if ($contentMap = static::lookup($slug)) {
@@ -32,6 +33,9 @@ class ContentRegistry
         $request_data ??= AppBase::getAjaxRequestData() ?: $_POST ?: [];
 
         $keys = [LittledGlobals::CONTENT_TYPE_KEY, ContentProperties::ID_KEY];
+        if ($key) {
+            array_unshift($keys, $key);
+        }
 
         foreach($keys as $key) {
             if ($contentTypeId = Validation::collectIntegerRequestVar($key, null, $request_data)) {
