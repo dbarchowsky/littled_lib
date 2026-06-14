@@ -37,7 +37,7 @@ class JSONResponseBase
     }
 
     /**
-     * Sends json data as response to client.
+     * Sends json data in response to a client request.
      * @param array $arr JSON data to send as a response to the client
      */
     public static function sendJsonResponse(array $arr): void
@@ -48,9 +48,11 @@ class JSONResponseBase
 
     /**
      * Formats JSON string using the instance's current property values and sends it as a response.
+     * @param array|null $response Optional JSON data to send as a response to the client. The internal property values are used if not provided.
+     * @return void
      */
-    public function sendResponse(): void
+    public function sendResponse(?array $response = null): void
     {
-        static::sendJsonResponse($this->formatJSON());
+        static::sendJsonResponse($response ?? $this->formatJSON());
     }
 }
