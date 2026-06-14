@@ -3,6 +3,7 @@
 namespace Littled\Routing;
 
 use Littled\API\APIRoute;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\InvalidRouteException;
 use Littled\Exception\LittledException;
 use Littled\Exception\ResponseException;
@@ -44,39 +45,50 @@ class PageRouter
 
     /**
      * Dispatches route to a page instance that handles the request.
-     * @param string $route
+     * @param string $route_path
      * @return void
      * @throws InvalidRouteException
      * @throws ResponseException
      */
-    public static function dispatchRoute(string $route =''): void
+    public static function dispatchRoute(string $route_path =''): void
     {
         try {
-            $route = $route ?: static::collectRoute($route);
+            $route_path = $route_path ?: static::collectRoute($route_path);
 
-            $routeMap = RouteRegistry::lookup($route);
+            $routeMap = RouteRegistry::lookup($route_path);
             if ($routeMap === null) {
-                throw new InvalidRouteException("Unrecognized route \"$route\".");
+                throw new InvalidRouteException("Unrecognized route \"$route_path\".");
             }
 
-            if (empty($routeMap->slug)) {
-                $contentMap = ContentRegistry::lookupById(ContentRegistry::collectContentType());
-            } else {
+            if (!empty($routeMap->slug)) {
                 $contentMap = ContentRegistry::lookup($routeMap->slug);
+            } else {
+                try {
+                    $contentMap = ContentRegistry::lookupById(ContentRegistry::collectContentType());
+                }
+                catch (ContentValidationException) {
+                    /** continue without a content type */
+                }
             }
 
-            $content = new $contentMap->class();
-            $recordId = $routeMap->collectRecordId($route);
-            if ($recordId > 0) {
-                $content->setRecordId($recordId)->read();
+            $route = new $routeMap->class();
+
+            if (isset($contentMap)) {
+
+                // when available, register a content type and record for the api route to act on
+                $content = new $contentMap->class();
+                $recordId = $routeMap->collectRecordId($route_path);
+                if ($recordId > 0) {
+                    $content->setRecordId($recordId)->read();
+                }
+
+                $route->withConnection($content)
+                    ->setContentTypeId($contentMap->id)
+                    ->setContent($content);
             }
 
-            (new $routeMap->class())
-                ->withConnection($content)
-                ->setContentTypeId($contentMap->id)
-                ->setContent($content)
-                ->processRequest()
-                ->sendResponse();
+            // process the api request and send a response
+            $route->processRequest()->sendResponse();
         }
         catch (InvalidRouteException $ex) {
             throw $ex;
