@@ -5,6 +5,7 @@ namespace Littled\Routing;
 
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\PageContent\SiteSection\ContentProperties;
 use Littled\Validation\Validation;
@@ -38,7 +39,8 @@ class ContentRegistry
         }
 
         foreach($keys as $key) {
-            if ($contentTypeId = Validation::collectIntegerRequestVar($key, null, $request_data)) {
+            $contentTypeId = Validation::collectIntegerRequestVar($key, null, $request_data);
+            if ($contentTypeId > 0) {
                 return $contentTypeId;
             }
         }
@@ -77,21 +79,24 @@ class ContentRegistry
      */
     public static function lookupById(int $type_id): ?ContentMap
     {
-        foreach (static::$registry as $map) {
-            if ($map->id === $type_id) {
-                return $map;
-            }
-        }
-        return null;
+        return array_find(static::$registry, fn($map) => $map->id === $type_id);
     }
 
     /**
      * Registers a content map.
      * @param ContentMap $map
      * @return void
+     * @throws ConfigurationUndefinedException
      */
     public static function register(ContentMap $map): void
     {
-        static::$registry[$map->slug] = $map;
+        if (empty($map->slug)) {
+            throw new ConfigurationUndefinedException('A content slug value was not provided.');
+        }
+
+        $slugs = is_array($map->slug) ? $map->slug : [$map->slug];
+        foreach($slugs as $slug) {
+            static::$registry[$slug] = clone $map->setSlug($slug);
+        }
     }
 }
