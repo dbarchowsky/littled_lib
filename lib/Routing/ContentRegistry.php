@@ -90,7 +90,7 @@ class ContentRegistry
      */
     public static function register(ContentMap $map): void
     {
-        if (empty($map->slug)) {
+        if (!isset($map->slug)) {
             throw new ConfigurationUndefinedException('A content slug value was not provided.');
         }
 
