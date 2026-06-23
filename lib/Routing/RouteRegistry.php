@@ -2,8 +2,9 @@
 
 namespace Littled\Routing;
 
-
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\InvalidRouteException;
+
 
 class RouteRegistry
 {
@@ -25,18 +26,31 @@ class RouteRegistry
         return $map->class;
     }
 
+    /**
+     * Returns the route map for a route.
+     * @param string $route
+     * @return RouteMap|null
+     */
     public static function lookup(string $route): ?RouteMap
     {
-        foreach (static::$registry as $map) {
-            if ($map->matches($route)) {
-                return $map;
-            }
-        }
-        return null;
+        return array_find(static::$registry, fn($map) => $map->matches($route));
     }
 
+    /**
+     * Register a map between a route pattern and the class used to perform the business logic for the route.
+     * @param RouteMap $map
+     * @return void
+     * @throws ConfigurationUndefinedException
+     */
     public static function register(RouteMap $map): void
     {
-        static::$registry[] = $map;
+        if (empty($map->pattern)) {
+            throw new ConfigurationUndefinedException('A pattern was not provided.');
+        }
+
+        $patternList = is_array($map->pattern) ? $map->pattern : [$map->pattern];
+        foreach($patternList as $pattern) {
+            static::$registry[] = clone $map->setPattern($pattern);
+        }
     }
 }
