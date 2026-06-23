@@ -94,11 +94,11 @@ class PageRouter
             throw $ex;
         }
         catch (LittledException $ex) {
-            throw (new InvalidRouteException(message: $ex->getMessage(), previous: $ex))
-                ->setFrontendError('Invalid route.');
+            throw new ResponseException(message: $ex->getMessage(), previous: $ex)
+                ->setFrontendError('An internal error occurred.');
         }
         catch (Throwable $ex) {
-            throw (new ResponseException(message: $ex->getMessage(), previous: $ex))
+            throw new ResponseException(message: $ex->getMessage(), previous: $ex)
                 ->setFrontendError('An internal error occurred while processing the request.');
         }
     }
