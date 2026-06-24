@@ -2,6 +2,7 @@
 
 namespace Littled\PageContent\Templates;
 
+use Littled\Exception\LittledException;
 use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\TemplateOutputException;
 
@@ -29,7 +30,7 @@ readonly class TemplateRenderer
             if (empty($this->template_path)) {
                 throw new ResourceNotFoundException('Template file not provided.');
             } else {
-                throw (new ResourceNotFoundException("Template file \"$this->template_path\" not found."))
+                throw new ResourceNotFoundException("Template file \"$this->template_path\" not found.")
                     ->setFrontendError('Template file not found.');
             }
         }
@@ -61,14 +62,13 @@ readonly class TemplateRenderer
     /**
      * Catch errors thrown by the render method and render an error message in place of the template content.
      * @return void
-     * @throws TemplateOutputException
      */
     public function renderWithErrors(): void
     {
         try {
             $this->render();
         }
-        catch (ResourceNotFoundException $e) {
+        catch (LittledException $e) {
             $this->errorTemplate->renderError($e->getMessage());
         }
     }
