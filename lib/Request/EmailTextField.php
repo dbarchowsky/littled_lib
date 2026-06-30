@@ -37,7 +37,7 @@ class EmailTextField extends StringTextField
     public function validate(): void
     {
         parent::validate();
-        if (strlen(trim($this->value)) > 0) {
+        if (strlen(trim($this->value ?? '')) > 0) {
             if (Validation::validateEmailAddress($this->value) === false) {
                 $this->throwValidationError($this->formatErrorLabel() . ' is not in a recognized email format.');
             }
