@@ -4,6 +4,7 @@ namespace Littled\Routing;
 
 use Littled\API\APIRoute;
 use Littled\Exception\ContentValidationException;
+use Littled\Exception\FailedRequestException;
 use Littled\Exception\InvalidCredentialsException;
 use Littled\Exception\InvalidRequestException;
 use Littled\Exception\InvalidRouteException;
@@ -49,6 +50,7 @@ class PageRouter
      * Dispatches route to a page instance that handles the request.
      * @param string $route_path
      * @return void
+     * @throws FailedRequestException
      * @throws InvalidCredentialsException
      * @throws InvalidRequestException
      * @throws InvalidRouteException
@@ -94,7 +96,8 @@ class PageRouter
             // process the api request and send a response
             $route->processRequest()->sendResponse();
         }
-        catch (InvalidCredentialsException |
+        catch (FailedRequestException |
+            InvalidCredentialsException |
             InvalidRequestException |
             InvalidRouteException $ex) {
             throw $ex;
