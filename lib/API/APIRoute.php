@@ -339,7 +339,7 @@ abstract class APIRoute extends APIRouteProperties
             $err_msg = 'The content route could not be retrieved. Operation not available.';
             throw new ConfigurationUndefinedException($err_msg);
         }
-        $this->route = (new ContentRoute())
+        $this->route = new ContentRoute()
             ->withConnection($this)
             ->setContentType($this->getContentTypeId())
             ->setOperation($operation)
@@ -368,7 +368,7 @@ abstract class APIRoute extends APIRouteProperties
             throw new ConfigurationUndefinedException($err_msg);
         }
         try {
-            $this->template = (new ContentTemplate())
+            $this->template = new ContentTemplate()
                 ->withConnection($this)
                 ->setContentType($this->getContentTypeId())
                 ->setOperation($name)
@@ -426,7 +426,7 @@ abstract class APIRoute extends APIRouteProperties
         if (!$class_name) {
             throw new ContentValidationException('Invalid filters type ' . ($content_type_id ?? $slug) . '.');
         }
-        $this->filters = (new $class_name())->withConnection($this);
+        $this->filters = new $class_name()->withConnection($this);
         return $this;
     }
 
@@ -514,7 +514,7 @@ abstract class APIRoute extends APIRouteProperties
         string      $location = ''
     ): ContentTemplate
     {
-        return (new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location))
+        return new ContentTemplate($record_id, $content_type_id, $operation, $base_dir, $template, $location)
             ->withConnection($this);
     }
 

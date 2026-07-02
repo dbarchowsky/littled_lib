@@ -6,10 +6,6 @@ use Littled\Exception\ResourceNotFoundException;
 use Littled\Exception\TemplateOutputException;
 use Littled\PageContent\Templates\TemplateRenderer;
 
-/**
- * Class JSONResponse
- * @package Littled\PageContent\API
- */
 class JSONRecordResponse extends JSONResponse
 {
     public JSONField $id;
@@ -27,12 +23,12 @@ class JSONRecordResponse extends JSONResponse
     function __construct(string $key = '')
     {
         parent::__construct($key);
-        $this->id = (new JSONField())->setName('id')->setSendWhenEmpty(false);
-        $this->content = (new JSONField('content'))->setName('content')->setSendWhenEmpty(false);
-        $this->label = (new JSONField())->setName('label')->setSendWhenEmpty(false);
-        $this->record_label = (new JSONField())->setName('record_label')->setSendWhenEmpty(false);
-        $this->content_label = (new JSONField())->setName('content_label')->setSendWhenEmpty(false);
-        $this->container_id = (new JSONField())->setName('container_id')->setSendWhenEmpty(false);
+        $this->id = new JSONField()->setName('id')->setSendWhenEmpty(false);
+        $this->content = new JSONField('content')->setName('content')->setSendWhenEmpty(false);
+        $this->label = new JSONField()->setName('label')->setSendWhenEmpty(false);
+        $this->record_label = new JSONField()->setName('record_label')->setSendWhenEmpty(false);
+        $this->content_label = new JSONField()->setName('content_label')->setSendWhenEmpty(false);
+        $this->container_id = new JSONField()->setName('container_id')->setSendWhenEmpty(false);
         $this->status->setSendWhenEmpty(false);
         $this->error->setSendWhenEmpty(false);
     }
