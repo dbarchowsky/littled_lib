@@ -53,6 +53,9 @@ class JSONResponseBase
      */
     public function sendResponse(?array $response = null): void
     {
+        if (isset($this->httpStatus)) {
+            http_response_code($this->httpStatus);
+        }
         static::sendJsonResponse($response ?? $this->formatJSON());
     }
 }

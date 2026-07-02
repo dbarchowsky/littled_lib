@@ -9,10 +9,11 @@ use Littled\Exception\ResponseException;
  */
 class JSONResponse extends JSONResponseBase
 {
-    /** @var JSONField Operation results message. */
-    public JSONField $status;
-    /** @var JSONField Error message. */
-    public JSONField $error;
+    /** Error message. */
+    public JSONField    $error;
+    public int          $httpStatus;
+    /** Operation results message. */
+    public JSONField    $status;
 
     /**
      * Class constructor.
