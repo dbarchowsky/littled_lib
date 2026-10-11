@@ -28,7 +28,7 @@ trait StaticDBConnector
     public static function connectToDatabase(): MySQLConnection
     {
         if (!isset(static::$conn) || static::$conn->getConnectionId() === null) {
-            static::$conn = (new MySQLConnection())->connectToDatabase();
+            static::$conn = new MySQLConnection()->connectToDatabase();
         }
         return static::$conn;
     }
@@ -54,7 +54,7 @@ trait StaticDBConnector
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      */
-    public function getMySQLi(): mysqli
+    public static function getMySQLi(): mysqli
     {
         return static::$conn->getMySQLi();
     }
