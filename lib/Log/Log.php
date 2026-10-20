@@ -2,8 +2,8 @@
 
 namespace Littled\Log;
 
-use Littled\PageContent\ContentUtils;
 use Littled\PageContent\PageContent;
+use Littled\PageContent\Templates\ErrorTemplate;
 use Throwable;
 
 class Log
@@ -23,15 +23,15 @@ class Log
         string $msg = '',
         bool $redirect = false): void
     {
-        $format = '';
-        if ($verbose) {
-            $format = "<div class=\"alert alert-error\"><pre>%s</pre></div>\n";
-            $msg = $e->getMessage()."\n".$e->getTraceAsString();
-        }
+        $format = "<div class=\"%s\"><pre>%s</pre></div>\n";
+        $msg = $msg ?: $e->getMessage();
+        $msg .= $verbose ? "\n".$e->getTraceAsString() : '';
         if ($redirect) {
             PageContent::redirectToErrorPage($msg);
         }
-        ContentUtils::printError($msg, $format);
+        new ErrorTemplate()
+            ->setFormat($format)
+            ->renderError($msg);
     }
 
     /**
