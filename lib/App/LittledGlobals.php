@@ -121,14 +121,11 @@ class LittledGlobals
     /**
      * Returns the current template root path.
      * @return string Template root path.
-     * @throws ConfigurationUndefinedException
+     * @deprecated Use environment variable `TEMPLATE_DIR` instead.
      */
     public static function getLocalTemplatesPath(): string
     {
-        if (!isset(static::$local_template_path) || empty(static::$local_template_path)) {
-            throw new ConfigurationUndefinedException('LittledGlobals local template path value not set.');
-        }
-        return static::$local_template_path;
+        return $_ENV['TEMPLATE_DIR'];
     }
 
     /**
@@ -144,14 +141,11 @@ class LittledGlobals
     /**
      * Returns the current template root path.
      * @return string Template root path.
-     * @throws ConfigurationUndefinedException
+     * @deprecated Use environment variable 'SHARED_TEMPLATE_DIR' instead.
      */
     public static function getSharedTemplatesPath(): string
     {
-        if ('' === static::$shared_template_path) {
-            throw new ConfigurationUndefinedException('LittledGlobals shared template path value not set.');
-        }
-        return static::$shared_template_path;
+        return $_ENV['SHARED_TEMPLATE_DIR'];
     }
 
     /**
