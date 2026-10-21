@@ -131,7 +131,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getAddToken(): string
     {
-        return self::$add_token;
+        return static::$add_token;
     }
 
     /**
@@ -140,7 +140,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getContentClassName(): string
     {
-        return self::$content_class;
+        return static::$content_class;
     }
 
     /**
@@ -216,7 +216,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getFiltersClassName(): string
     {
-        return self::$filters_class;
+        return static::$filters_class;
     }
 
     /**
@@ -435,7 +435,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function setContentClassName(string $class): void
     {
-        self::$content_class = $class;
+        static::$content_class = $class;
     }
 
     /**
@@ -445,7 +445,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function setFiltersClassName(string $class): void
     {
-        self::$filters_class = $class;
+        static::$filters_class = $class;
     }
 
     /**
