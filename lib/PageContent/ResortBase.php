@@ -152,7 +152,7 @@ class ResortBase extends MySQLConnection
     }
 
     /**
-     * Commit resorted slot values to database.
+     * Commit resorted slot values to the database.
      * @return string String containing a description of the results of the operation.
      * @throws OperationFailedException
      */

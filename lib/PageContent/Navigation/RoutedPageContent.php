@@ -38,8 +38,14 @@ abstract class RoutedPageContent extends PageContent
     protected static string         $add_token = 'add';
     /** @var string @todo Similar to $add_token, audit this property to see if it can be replaced with a "content_route" record. */
     protected static string         $edit_token = 'edit';
-    protected int                   $update_type = self::UPDATE_NONE;
-
+    protected(set) int              $update_type = self::UPDATE_NONE {
+        get {
+            return $this->update_type;
+        }
+        set {
+            $this->update_type = $value;
+        }
+    }
     public const                    int UPDATE_NONE = 0;
     public const                    int UPDATE_NEW = 1;
     public const                    int UPDATE_EXISTING = 2;
@@ -69,7 +75,7 @@ abstract class RoutedPageContent extends PageContent
             in_array($this->edit_action, [RouteInterface::COMMIT_ACTION, RouteInterface::CANCEL_ACTION])) {
             // load the page selected to be the next page after editing and saving a record
             $page = $this->getUpdateResponsePage();
-            $page->setUpdateType($this->getUpdateType());
+            $page->update_type = $this->update_type;
         }
         return $page;
     }
@@ -83,7 +89,7 @@ abstract class RoutedPageContent extends PageContent
     public static function collectActionFromRoute(array $route): RouteAction
     {
         $action = new RouteAction();
-        $action->record_id = static::collectRecordIdFromRoute($route);
+        $action->record_id = self::collectRecordIdFromRoute($route);
         if (null===$action->record_id) {
             if (count($route) > 1 && preg_match('/^[a-zA-Z\-_]*$/', $route[1])) {
                 $action->token = $route[1];
@@ -116,7 +122,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getAccessLevel(): ?int
     {
-        return ((isset(static::$access_level)?(static::$access_level):(null)));
+        return static::$access_level ?? null;
     }
 
     /**
@@ -125,7 +131,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getAddToken(): string
     {
-        return static::$add_token;
+        return self::$add_token;
     }
 
     /**
@@ -134,7 +140,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getContentClassName(): string
     {
-        return static::$content_class;
+        return self::$content_class;
     }
 
     /**
@@ -172,7 +178,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getEditToken(): string
     {
-        return static::$edit_token;
+        return self::$edit_token;
     }
 
     /**
@@ -210,7 +216,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getFiltersClassName(): string
     {
-        return static::$filters_class;
+        return self::$filters_class;
     }
 
     /**
@@ -305,7 +311,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getTemplateDir(): string
     {
-        $routes_class = static::getValidatedRoutesClass('getTemplateDir');
+        $routes_class = self::getValidatedRoutesClass('getTemplateDir');
         /** @var SectionNavigationRoutes $routes_class */
         return $routes_class::getTemplateDir();
     }
@@ -320,7 +326,7 @@ abstract class RoutedPageContent extends PageContent
         if (str_starts_with($this->template_filename ?? '', '/')) {
             return $this->template_filename;
         }
-        return LittledUtility::joinPaths(static::getTemplateDir(), $this->template_filename ?? '');
+        return LittledUtility::joinPaths(self::getTemplateDir(), $this->template_filename ?? '');
     }
 
     /**
@@ -342,15 +348,6 @@ abstract class RoutedPageContent extends PageContent
     }
 
     /**
-     * Update type getter
-     * @return int
-     */
-    public function getUpdateType(): int
-    {
-        return $this->update_type;
-    }
-
-    /**
      * Validates that the $routes_class property value is currently set to an appropriate class type before returning
      * the name of the route class.
      * @param string $method Optional method name. If present, the class will be checked to make sure that the method
@@ -360,6 +357,9 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function getValidatedRoutesClass(string $method=''): string
     {
+        if (!static::$routes_class) {
+            throw new ConfigurationUndefinedException('Routes class is not set.');
+        }
         $routes_class = static::$routes_class;
         if (!class_exists($routes_class)) {
             throw new ConfigurationUndefinedException('Invalid route object in '.get_called_class().'.');
@@ -385,8 +385,8 @@ abstract class RoutedPageContent extends PageContent
      */
     protected function instantiateProperties(): void
     {
-        $routes_class = static::getRoutesClassName();
-        $filters_class = static::getFiltersClassName();
+        $routes_class = self::getRoutesClassName();
+        $filters_class = self::getFiltersClassName();
         if ($routes_class) {
             if (!class_exists($routes_class)) {
                 throw new InvalidTypeException(Log::getShortMethodName()." \"$routes_class\" is not a valid class.");
@@ -397,7 +397,7 @@ abstract class RoutedPageContent extends PageContent
             if (!class_exists($filters_class)) {
                 throw new InvalidTypeException(Log::getShortMethodName() . " \"$filters_class\" is not a valid class.");
             }
-            $this->filters = (new $filters_class())->withConnection($this);
+            $this->filters = new $filters_class()->withConnection($this);
         }
     }
 
@@ -435,7 +435,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function setContentClassName(string $class): void
     {
-        static::$content_class = $class;
+        self::$content_class = $class;
     }
 
     /**
@@ -445,7 +445,7 @@ abstract class RoutedPageContent extends PageContent
      */
     public static function setFiltersClassName(string $class): void
     {
-        static::$filters_class = $class;
+        self::$filters_class = $class;
     }
 
     /**
@@ -456,16 +456,6 @@ abstract class RoutedPageContent extends PageContent
     public static function setRoutesClassName(string $routes_class): void
     {
         static::$routes_class = $routes_class;
-    }
-
-    /**
-     * Update type property setter
-     * @param int $type Value to assign to an update type.
-     * @return void
-     */
-    public function setUpdateType(int $type): void
-    {
-        $this->update_type = $type;
     }
 
     /**
@@ -490,7 +480,7 @@ abstract class RoutedPageContent extends PageContent
         try {
             $new = !$this->content->id->value;
             $this->content->save();
-            $this->setUpdateType($new ? self::UPDATE_NEW : self::UPDATE_EXISTING);
+            $this->update_type = $new ? self::UPDATE_NEW : self::UPDATE_EXISTING;
         }
         catch(Exception $e) {
             $this->content->addValidationError($e->getMessage());
@@ -504,13 +494,8 @@ abstract class RoutedPageContent extends PageContent
      */
     protected function verifyAndLoadRoutes(): void
     {
-        if (!isset($this->routes)) {
-            if (!static::$routes_class) {
-                throw new ConfigurationUndefinedException('Routes class unavailable.');
-            }
-            $class = $this::$routes_class;
-            $this->routes = new $class();
-        }
+        $class = self::getValidatedRoutesClass();
+        $this->routes = new $class();
     }
 
     /**
@@ -519,9 +504,9 @@ abstract class RoutedPageContent extends PageContent
      */
     public function verifyLogin(): void
     {
-        if (static::getAccessLevel() > UserAccess::NO_AUTHENTICATION) {
-            $login = (new LoginAuthenticator())->withConnection($this);
-            $login->requireLogin(static::getAccessLevel());
+        if (self::getAccessLevel() > UserAccess::NO_AUTHENTICATION) {
+            $login = new LoginAuthenticator()->withConnection($this);
+            $login->requireLogin(self::getAccessLevel());
             unset($login);
         }
     }

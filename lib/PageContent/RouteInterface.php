@@ -39,4 +39,11 @@ interface RouteInterface
      * @param ?array $context Optional data to inject in the template to use in place of the instance's internal property values.
      */
     public function sendResponse(string $template_path = '', ?array $context = null);
+
+    /**
+     * Sets the content type record id for a route that corresponds to a site_section record.
+     * @param int $content_type_id
+     * @return $this
+     */
+    public function setContentTypeId(int $content_type_id): static;
 }
