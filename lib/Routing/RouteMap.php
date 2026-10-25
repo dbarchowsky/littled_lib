@@ -2,17 +2,32 @@
 
 namespace Littled\Routing;
 
+use Littled\API\APIRoute;
 use Littled\App\AppBase;
 use Littled\App\LittledGlobals;
+use Littled\Exception\InvalidTypeException;
+use Littled\PageContent\PageContent;
 use Littled\Validation\Validation;
 
 
 class RouteMap
 {
     /** @var string|string[] */
-    public string|array $pattern;
-    public string $slug;
-    public string $class;
+    public string|array         $pattern;
+    public string               $slug;
+    public string               $class {
+        /**
+         * @param string $class
+         * @return void
+         * @throws InvalidTypeException
+         */
+        set(string $class) {
+            if (!Validation::isSubclass($class, PageContent::class) && !Validation::isSubclass($class, APIRoute::class)) {
+                throw new InvalidTypeException('Invalid class assignment. The class assigned to a route map must be either PageContent or APIRoute.');
+            }
+            $this->class = $class;
+        }
+    }
 
     /**
      * @param string|string[] $pattern

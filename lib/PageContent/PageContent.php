@@ -20,11 +20,11 @@ use Littled\Validation\Validation;
 abstract class PageContent extends RouteBase
 {
     /** @var string         Token representing the current action to take on the page. */
-    public string $edit_action = '';
+    public string               $edit_action = '';
     /** @var SectionContent Page content. */
-    public SectionContent $content;
+    public SectionContent       $content;
     /** @var ContentFilters Content filters. */
-    public ContentFilters $filters;
+    public ContentFilters       $filters;
     /**
      * @var string          Label used to identify the content type in content templates.
      * @todo Audit this property. Consider using $content->content_properties->name or $filters->content_properties->name in its place.
@@ -151,6 +151,15 @@ abstract class PageContent extends RouteBase
     }
 
     /**
+     * @inheritDoc
+     */
+    public function setContent(SectionContent $content): static
+    {
+        $this->content = $content;
+        return $this;
+    }
+
+    /**
      * Sets the error message to display on a page.
      * @param string $error_msg string
      */
@@ -173,5 +182,15 @@ abstract class PageContent extends RouteBase
     {
         $this->content->setRecordId($id);
         return $this;
+    }
+
+    /**
+     * Alias for setContent()
+     * @param SectionContent $content
+     * @return $this
+     */
+    public function withContent(SectionContent $content): static
+    {
+        return $this->setContent($content);
     }
 }

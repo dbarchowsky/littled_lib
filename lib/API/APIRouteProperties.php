@@ -326,13 +326,6 @@ abstract class APIRouteProperties extends RouteBase
     }
 
     /**
-     * Sets the content object to be used by the controller.
-     * @param SectionContent $content
-     * @return $this
-     */
-    abstract public function setContent(SectionContent $content): static;
-
-    /**
      * Content type id setter.
      * @param ?int $content_type_id
      * @return $this
@@ -466,5 +459,14 @@ abstract class APIRouteProperties extends RouteBase
     {
         $this->slug_index = $index;
         return $this;
+    }
+
+    /**
+     * @param SectionContent $content
+     * @return $this
+     */
+    public function withContent(SectionContent $content): static
+    {
+        return $this->setContent($content);
     }
 }

@@ -3,6 +3,8 @@
 namespace Littled\PageContent;
 
 
+use Littled\PageContent\SiteSection\SectionContent;
+
 interface RouteInterface
 {
     const string CANCEL_ACTION = 'cancel';
@@ -41,9 +43,23 @@ interface RouteInterface
     public function sendResponse(string $template_path = '', ?array $context = null);
 
     /**
+     * Sets the content object to be used by the controller.
+     * @param SectionContent $content
+     * @return $this
+     */
+    public function setContent(SectionContent $content): static;
+
+    /**
      * Sets the content type record id for a route that corresponds to a site_section record.
      * @param int $content_type_id
      * @return $this
      */
     public function setContentTypeId(int $content_type_id): static;
+
+    /**
+     * Alias for setContent()
+     * @param SectionContent $content
+     * @return $this
+     */
+    public function withContent(SectionContent $content): static;
 }
