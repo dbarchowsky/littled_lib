@@ -53,7 +53,7 @@ abstract class SerializedContentIO extends SerializedContentValidation
     public static function __callStatic(string $name, array $arguments)
     {
         if ($name === 'getTableName') {
-            return (new static())->_getTableName();
+            return new static()->_getTableName();
         }
         return parent::__callStatic($name, $arguments);
     }
