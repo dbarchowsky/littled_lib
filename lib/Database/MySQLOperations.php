@@ -111,7 +111,7 @@ trait MySQLOperations
      * @param string $user Username for connecting to MySQL server.
      * @param string $password Password for connecting to MySQL server.
      * @param string $schema Name of schema.
-     * @param string $port Port number of MySQL server if not using default.
+     * @param int|null $port Port number of MySQL server if not using default.
      * @throws ConnectionException
      * @throws ConfigurationUndefinedException
      */
@@ -120,11 +120,11 @@ trait MySQLOperations
         string $user = '',
         string $password = '',
         string $schema = '',
-        string $port = ''): void
+        ?int $port = null): void
     {
         if (!$this->hasConnection()) {
             try {
-                $this->connect(static::getConnectionSettings());
+                $this->connect(static::getConnectionSettings($host, $user, $password, $schema, $port));
             } catch (mysqli_sql_exception $ex) {
                 throw new ConnectionException('Connection error: ' . $ex->__toString());
             }
@@ -347,14 +347,29 @@ trait MySQLOperations
     }
 
     /**
-     * Returns a generic object with database settings. If no settings are supplied,
-     * it will use default app settings.
+     * Returns a generic object with database settings. If no settings are supplied, it will use default app settings.
+     * @param string $host
+     * @param string $user
+     * @param string $password
+     * @param string $schema
+     * @param int|null $port
      * @return DBConnectionSettings Initialized object containing database properties
      * @throws ConfigurationUndefinedException
      */
-    protected static function getConnectionSettings(): DBConnectionSettings
+    protected static function getConnectionSettings(
+        string $host = '',
+        string $user = '',
+        string $password = '',
+        string $schema = '',
+        int|null $port = null
+    ): DBConnectionSettings
     {
-        return LittledGlobals::getDBSettings();
+        return new DBConnectionSettings()
+            ->setHost($host ?: LittledGlobals::getDBSettings()->host())
+            ->setUser($user ?: LittledGlobals::getDBSettings()->user())
+            ->setPassword($password ?: LittledGlobals::getDBSettings()->password())
+            ->setSchema($schema ?: LittledGlobals::getDBSettings()->schema())
+            ->setPort($port ?: LittledGlobals::getDBSettings()->port());
     }
 
     /**
