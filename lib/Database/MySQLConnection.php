@@ -12,6 +12,8 @@ class MySQLConnection extends AppBase
         connectToDatabase as traitConnectToDatabase;
     }
 
+    protected bool         $shareConnection = true;
+
     /**
      * @inheritDoc
      * @return $this
@@ -25,10 +27,20 @@ class MySQLConnection extends AppBase
     {
         $this->traitConnectToDatabase($host, $user, $password, $schema, $port);
         foreach($this as $prop) {
-            if ($prop instanceof MySQLConnection) {
+            if ($prop instanceof MySQLConnection && $prop->shareConnection) {
                 $prop->withConnection($this);
             }
         }
+        return $this;
+    }
+
+    /**
+     * @param bool $shareConnection
+     * @return $this
+     */
+    public function withSharedConnection(bool $shareConnection=true): static
+    {
+        $this->shareConnection = $shareConnection;
         return $this;
     }
 }
