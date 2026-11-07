@@ -34,6 +34,7 @@ abstract class ETLBase extends MySQLConnection
     protected function connectToLegacy(): void
     {
         $this->legacyDB = new MySQLConnection()
+            ->withSharedConnection(false)
             ->connectToDatabase(
                 $_ENV['MYSQL_LEGACY_HOST'],
                 $_ENV['MYSQL_USER'],
