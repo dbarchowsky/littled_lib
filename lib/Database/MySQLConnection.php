@@ -21,7 +21,7 @@ class MySQLConnection extends AppBase
         string $user = '',
         string $password = '',
         string $schema = '',
-        string $port = ''): static
+        int|null $port = null): static
     {
         $this->traitConnectToDatabase($host, $user, $password, $schema, $port);
         foreach($this as $prop) {
