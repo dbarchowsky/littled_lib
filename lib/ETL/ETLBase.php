@@ -61,7 +61,9 @@ abstract class ETLBase extends MySQLConnection
      */
     public function fetch(): array
     {
-        return $this->legacyDB->fetchRecords($this->formatFetchQuery(), 'ii', $this->chunkSize, $this->offset);
+        $result = $this->legacyDB->fetchRecords($this->formatFetchQuery(), 'ii', $this->chunkSize, $this->offset);
+        $this->offset += $this->chunkSize;
+        return $result;
     }
 
     /**
