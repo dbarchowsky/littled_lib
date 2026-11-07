@@ -107,9 +107,37 @@ abstract class ETLBase extends MySQLConnection
     {
         // defaults to no transformation other than casting to array
         if (is_object($data)) {
-            return (array)$data;
+            $src = (array)$data;
         } else {
-            return $data;
+            $src= $data;
         }
+
+        $new = [];
+        foreach($src as $row) {
+            if ($this->validateRow($row)) {
+                $new[] = $this->transformRow($row);
+            }
+        }
+        return $new;
+    }
+
+    /**
+     * Transforms the data within a row before insertion into the new database.
+     * @param object $row
+     * @return object
+     */
+    protected function transformRow(object $row): object
+    {
+        return $row;
+    }
+
+    /**
+     * Validate data within a row before insertion into new database.
+     * @param object $row
+     * @return bool
+     */
+    protected function validateRow(object $row): bool
+    {
+        return count((array)$row) > 0;
     }
 }
