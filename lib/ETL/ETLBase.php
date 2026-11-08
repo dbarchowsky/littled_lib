@@ -14,6 +14,8 @@ use stdClass;
 abstract class ETLBase extends MySQLConnection
 {
     protected static string     $table;
+    /** @var string[] */
+    protected static array      $insertProperties;
 
     public int                  $chunkSize = 500;
     protected MySQLConnection   $legacyDB;
@@ -26,6 +28,22 @@ abstract class ETLBase extends MySQLConnection
     public function __construct()
     {
         $this->connectToLegacy();
+    }
+
+    /**
+     * @param mixed $legacy
+     * @param mixed $new
+     * @param string $propertyName
+     * @param int $recordId
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    protected function assertPropertyMatches(mixed $legacy, mixed $new, string $propertyName, int $recordId): void
+    {
+        if ($legacy !== $new) {
+            throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $legacy != $new");
+        }
     }
 
     /**
@@ -181,6 +199,22 @@ abstract class ETLBase extends MySQLConnection
      * @return void
      */
     public function validateMigration(): void {}
+
+    /**
+     * Validates the data for a single record.
+     * @param int $recordId
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     */
+    protected function validateRecordData(int $recordId): void
+    {
+        [$legacy, $new] = $this->fetchSampleRecord($recordId);
+        foreach(static::$insertProperties as $p) {
+            $this->assertPropertyMatches($legacy->$p, $new->$p, $p, $recordId);
+        }
+    }
 
     /**
      * Validate data within a row before insertion into new database.
