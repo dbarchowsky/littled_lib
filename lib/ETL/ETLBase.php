@@ -31,18 +31,18 @@ abstract class ETLBase extends MySQLConnection
     }
 
     /**
-     * @param mixed $legacy
-     * @param mixed $new
+     * @param mixed $expected
+     * @param mixed $actual
      * @param string $propertyName
      * @param int $recordId
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
-    protected function assertPropertyMatches(mixed $legacy, mixed $new, string $propertyName, int $recordId): void
+    protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName, int $recordId): void
     {
-        if ($legacy !== $new) {
-            throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $legacy != $new");
+        if ($expected !== $actual) {
+            throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $expected != $actual");
         }
     }
 
