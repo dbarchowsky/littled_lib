@@ -42,7 +42,7 @@ abstract class ETLBase extends MySQLConnection
     protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName, int $recordId): void
     {
         if ($expected !== $actual) {
-            throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $expected != $actual");
+            throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $actual does not match expected $expected");
         }
     }
 
