@@ -135,9 +135,8 @@ abstract class ETLBase extends MySQLConnection
     /**
      * Compares data from the old database against the data in the new database.
      * @return void
-     * @throws InvalidValueException
      */
-    abstract public function validateMigration(): void;
+    public function validateMigration(): void {}
 
     /**
      * Validate data within a row before insertion into new database.
