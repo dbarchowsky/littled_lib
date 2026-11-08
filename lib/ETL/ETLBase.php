@@ -126,15 +126,11 @@ abstract class ETLBase extends MySQLConnection
      */
     public function fetchRandomId(): int|null
     {
-        $query = 'SELECT id ' .
-            'FROM `' . static::getTableName() . '` ' .
-            'WHERE id >= ('.
-            'SELECT FLOOR(RAND() * (MAX(id) - MIN(id) + 1)) + MIN(id)' .
-            'FROM cart_order' .
-            ') ' .
-            'ORDER BY id ' .
-            'LIMIT 1';
-        $result = $this->legacyDB->fetchRecords($query);
+        $this->legacyDB->query('SELECT COUNT(*) INTO @row_count FROM `' . static::getTableName() . '`');
+        $this->legacyDB->query('SET @offset := FLOOR(RAND() * @row_count)');
+        $this->legacyDB->query('PREPARE stmt FROM \'SELECT id FROM `' . static::getTableName() . '` LIMIT 1 OFFSET ?\'');
+        $result = $this->legacyDB->fetchRecords('EXECUTE stmt USING @offset');
+        $this->legacyDB->query('DEALLOCATE PREPARE stmt');
         return $result[0]->id ?? null;
     }
 
