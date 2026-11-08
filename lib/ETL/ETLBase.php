@@ -6,7 +6,6 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
-use Littled\Exception\InvalidValueException;
 use Littled\Log\Log;
 
 
@@ -45,18 +44,6 @@ abstract class ETLBase extends MySQLConnection
     }
 
     /**
-     * @return string
-     * @throws ConfigurationUndefinedException
-     */
-    public static function getTableName(): string
-    {
-        if (empty(static::$table)) {
-            throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class));
-        }
-        return static::$table;
-    }
-
-    /**
      * Fetches one batch of data from the table in the old database
      * @return array
      * @throws FailedQueryException
@@ -66,6 +53,28 @@ abstract class ETLBase extends MySQLConnection
         $result = $this->legacyDB->fetchRecords($this->formatFetchQuery(), 'ii', $this->chunkSize, $this->offset);
         $this->offset += $this->chunkSize;
         return $result;
+    }
+
+    /**
+     * @return int|null
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    public function fetchMaxId(): int|null
+    {
+        $result = $this->legacyDB->fetchRecords('SELECT MAX(id) as maxId FROM `' . static::getTableName() . '`');
+        return $result[0]['maxId'] ?? null;
+    }
+
+    /**
+     * @return int|null
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    public function fetchMinId(): int|null
+    {
+        $result = $this->legacyDB->fetchRecords('SELECT MIN(id) as minId FROM `' . static::getTableName() . '`');
+        return $result[0]['minId'] ?? null;
     }
 
     /**
@@ -82,6 +91,18 @@ abstract class ETLBase extends MySQLConnection
      * @return string[]
      */
     abstract protected function formatInsertQuery(): array;
+
+    /**
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    public static function getTableName(): string
+    {
+        if (empty(static::$table)) {
+            throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class));
+        }
+        return static::$table;
+    }
 
     /**
      * Inserts data into the table in the new database.
