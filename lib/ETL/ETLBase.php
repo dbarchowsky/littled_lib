@@ -6,6 +6,7 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\InvalidValueException;
 use Littled\Log\Log;
 
 
@@ -130,6 +131,13 @@ abstract class ETLBase extends MySQLConnection
     {
         return $row;
     }
+
+    /**
+     * Compares data from the old database against the data in the new database.
+     * @return void
+     * @throws InvalidValueException
+     */
+    abstract public function validateMigration(): void;
 
     /**
      * Validate data within a row before insertion into new database.
