@@ -119,6 +119,26 @@ abstract class ETLBase extends MySQLConnection
     }
 
     /**
+     * Fetches a random record id from the table in the old database.
+     * @return int|null
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    public function fetchRandomId(): int|null
+    {
+        $query = 'SELECT id ' .
+            'FROM `' . static::getTableName() . '` ' .
+            'WHERE id >= ('.
+            'SELECT FLOOR(RAND() * (MAX(id) - MIN(id) + 1)) + MIN(id)' .
+            'FROM cart_order' .
+            ') ' .
+            'ORDER BY id ' .
+            'LIMIT 1';
+        $result = $this->legacyDB->fetchRecords($query);
+        return $result[0]->id ?? null;
+    }
+
+    /**
      * Returns the query to use to fetch data from the table in the old database.
      * @return string
      */
