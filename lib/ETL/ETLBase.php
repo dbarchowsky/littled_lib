@@ -6,7 +6,9 @@ use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
+use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
+use stdClass;
 
 
 abstract class ETLBase extends MySQLConnection
@@ -53,6 +55,27 @@ abstract class ETLBase extends MySQLConnection
         $result = $this->legacyDB->fetchRecords($this->formatFetchQuery(), 'ii', $this->chunkSize, $this->offset);
         $this->offset += $this->chunkSize;
         return $result;
+    }
+
+    /**
+     * @param int $recordId
+     * @return stdClass[]
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     */
+    protected function fetchSampleRecord(int $recordId): array
+    {
+        $query = 'SELECT * FROM `' . static::getTableName() . '` WHERE id = ?';
+        $legacy = $this->legacyDB->fetchRecords($query, 'i', $recordId);
+        if (empty($legacy)) {
+            throw new RecordNotFoundException(static::getTableName() . " record id $recordId not found in legacy database.");
+        }
+        $new = $this->fetchRecords($query, 'i', $recordId);
+        if (empty($new)) {
+            throw new RecordNotFoundException(static::getTableName() . " record id $recordId not found in new database.");
+        }
+        return [$legacy[0], $new[0]];
     }
 
     /**
