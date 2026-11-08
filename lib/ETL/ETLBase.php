@@ -104,7 +104,7 @@ abstract class ETLBase extends MySQLConnection
     public function fetchMaxId(): int|null
     {
         $result = $this->legacyDB->fetchRecords('SELECT MAX(id) as maxId FROM `' . static::getTableName() . '`');
-        return $result[0]['maxId'] ?? null;
+        return $result[0]->maxId ?? null;
     }
 
     /**
@@ -115,7 +115,7 @@ abstract class ETLBase extends MySQLConnection
     public function fetchMinId(): int|null
     {
         $result = $this->legacyDB->fetchRecords('SELECT MIN(id) as minId FROM `' . static::getTableName() . '`');
-        return $result[0]['minId'] ?? null;
+        return $result[0]->minId ?? null;
     }
 
     /**
