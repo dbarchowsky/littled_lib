@@ -62,6 +62,9 @@ abstract class ETLBase extends MySQLConnection
             $this->fetchRandomId(),
             $this->fetchMaxId(),
         ];
+        $this->sampleIds = array_filter($this->sampleIds, static function ($value) {
+            return $value !== null && $value !== 0;
+        });
     }
 
     /**
@@ -230,15 +233,19 @@ abstract class ETLBase extends MySQLConnection
 
     /**
      * Compares data from the old database against the data in the new database.
+     * @param bool $verbose
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
-    public function validateMigration(): void
+    public function validateMigration(bool $verbose = false): void
     {
         foreach($this->sampleIds as $recordId) {
             $this->validateRecordData($recordId);
+            if ($verbose) {
+                print 'Confirmed ' . static::getTableName() . " record $recordId data matches.\n";
+            }
         }
     }
 
