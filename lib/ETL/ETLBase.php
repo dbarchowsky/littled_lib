@@ -193,7 +193,7 @@ abstract class ETLBase extends MySQLConnection
         if (is_object($data)) {
             $args = array_values((array)$data);
         } else {
-            $args = $data;
+            $args = array_values($data);
         }
         $this->query(...$this->formatInsertQuery(), ...$args);
     }
