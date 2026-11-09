@@ -20,6 +20,8 @@ abstract class ETLBase extends MySQLConnection
     public int                  $chunkSize = 500;
     protected MySQLConnection   $legacyDB;
     public int                  $offset = 0;
+    /** @var int[] */
+    protected array             $sampleIds = [];
 
     /**
      * @throws ConfigurationUndefinedException
@@ -44,6 +46,22 @@ abstract class ETLBase extends MySQLConnection
         if ($expected !== $actual) {
             throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $actual does not match expected $expected");
         }
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    protected function collectSampleRecordIds(): void
+    {
+        $this->sampleIds = [
+            $this->fetchMinId(),
+            $this->fetchRandomId(),
+            $this->fetchRandomId(),
+            $this->fetchRandomId(),
+            $this->fetchMaxId(),
+        ];
     }
 
     /**
@@ -213,8 +231,16 @@ abstract class ETLBase extends MySQLConnection
     /**
      * Compares data from the old database against the data in the new database.
      * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
      */
-    public function validateMigration(): void {}
+    public function validateMigration(): void
+    {
+        foreach($this->sampleIds as $recordId) {
+            $this->validateRecordData($recordId);
+        }
+    }
 
     /**
      * Validates the data for a single record.
