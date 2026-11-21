@@ -5,6 +5,7 @@ namespace Littled\ETL;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
 use Littled\Exception\RecordNotFoundException;
 use Littled\Log\Log;
@@ -45,6 +46,21 @@ abstract class ETLBase extends MySQLConnection
     {
         if ($expected !== $actual) {
             throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $actual does not match expected $expected");
+        }
+    }
+
+    /**
+     * Compare two values to see if they are the same.
+     * @param mixed $expected
+     * @param mixed $actual
+     * @param string $msg
+     * @return void
+     * @throws ContentValidationException
+     */
+    public function assertSame(mixed $expected, mixed $actual, string $msg=''): void
+    {
+        if ($expected !== $actual) {
+            throw new ContentValidationException(($msg ? "$msg\n" : '') . "Actual value $actual does not match expected $expected.");
         }
     }
 
