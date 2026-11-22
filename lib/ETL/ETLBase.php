@@ -21,8 +21,8 @@ abstract class ETLBase extends MySQLConnection
     public int                  $chunkSize = 500;
     protected MySQLConnection   $legacyDB;
     public int                  $offset = 0;
-    /** @var int[] */
-    protected array             $sampleIds = [];
+    /** @var SampleRecord[] */
+    protected array             $samples = [];
 
     /**
      * @throws ConfigurationUndefinedException
@@ -45,7 +45,7 @@ abstract class ETLBase extends MySQLConnection
     protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName, int $recordId): void
     {
         if ($expected !== $actual) {
-            throw new FailedQueryException("$propertyName property values do not match for " . static::getTableName() . "record $recordId. $actual does not match expected $expected");
+            throw new FailedQueryException("Values do not match for $propertyName property of " . static::getTableName() . " record $recordId. $actual does not match expected $expected.");
         }
     }
 
@@ -71,15 +71,15 @@ abstract class ETLBase extends MySQLConnection
      */
     protected function collectSampleRecordIds(): void
     {
-        $this->sampleIds = [
-            $this->fetchMinId(),
-            $this->fetchRandomId(),
-            $this->fetchRandomId(),
-            $this->fetchRandomId(),
-            $this->fetchMaxId(),
+        $this->samples = [
+            new SampleRecord()->setRecordId($this->fetchMinId())->setDescription('First record.'),
+            new SampleRecord()->setRecordId($this->fetchRandomId())->setDescription('Random record.'),
+            new SampleRecord()->setRecordId($this->fetchRandomId())->setDescription('Random record.'),
+            new SampleRecord()->setRecordId($this->fetchRandomId())->setDescription('Random record.'),
+            new SampleRecord()->setRecordId($this->fetchMaxId())->setDescription('Last record.'),
         ];
-        $this->sampleIds = array_filter($this->sampleIds, static function ($value) {
-            return $value !== null && $value !== 0;
+        $this->samples = array_filter($this->samples, static function ($record) {
+            return $record->recordId > 0;
         });
     }
 
@@ -257,10 +257,11 @@ abstract class ETLBase extends MySQLConnection
      */
     public function validateMigration(bool $verbose = false): void
     {
-        foreach($this->sampleIds as $recordId) {
-            $this->validateRecordData($recordId);
+        foreach($this->samples as $sample) {
+            $this->validateRecordData($sample->recordId);
             if ($verbose) {
-                print 'Confirmed ' . static::getTableName() . " record $recordId data matches.\n";
+                print 'Confirmed ' . static::getTableName() . " record $sample->recordId data matches. " .
+                    ($sample->description ?? '' ?: '') . "\n";
             }
         }
     }
