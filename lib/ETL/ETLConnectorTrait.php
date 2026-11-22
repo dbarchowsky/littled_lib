@@ -13,7 +13,6 @@ trait ETLConnectorTrait
     protected MySQLConnection   $legacyDB;
     protected string            $table;
 
-
     /**
      * @return $this
      * @throws ConfigurationUndefinedException
@@ -23,12 +22,7 @@ trait ETLConnectorTrait
     {
         $this->legacyDB = new MySQLConnection()
             ->withSharedConnection(false)
-            ->connectToDatabase(
-                $_ENV['MYSQL_LEGACY_HOST'],
-                $_ENV['MYSQL_USER'],
-                $_ENV['MYSQL_PASS'],
-                $_ENV['MYSQL_SCHEMA'],
-                $_ENV['MYSQL_PORT']);
+            ->connectToDatabase(...static::resolveLegacyConnectionProperties());
         return $this;
     }
 
@@ -62,6 +56,17 @@ trait ETLConnectorTrait
             throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class));
         }
         return $this->table;
+    }
+
+    protected static function resolveLegacyConnectionProperties(): array
+    {
+        return [
+            $_ENV['MYSQL_LEGACY_HOST'],
+            $_ENV['MYSQL_USER'],
+            $_ENV['MYSQL_PASS'],
+            $_ENV['MYSQL_SCHEMA'],
+            $_ENV['MYSQL_PORT'],
+        ];
     }
 
     /**
