@@ -28,7 +28,7 @@ class ETLValidator extends ETLConnector
     protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName, int $recordId): void
     {
         if ($expected !== $actual) {
-            throw new FailedQueryException("Values do not match for $propertyName property of " . static::getTableName() . " record $recordId. $actual does not match expected $expected.");
+            throw new FailedQueryException("Values do not match for $propertyName property of {$this->getTableName()} record $recordId. $actual does not match expected $expected.");
         }
     }
 
@@ -75,14 +75,14 @@ class ETLValidator extends ETLConnector
      */
     protected function fetchSampleRecord(int $recordId): array
     {
-        $query = 'SELECT * FROM `' . static::getTableName() . '` WHERE id = ?';
+        $query = "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
         $legacy = $this->legacyDB->fetchRecords($query, 'i', $recordId);
         if (empty($legacy)) {
-            throw new RecordNotFoundException(static::getTableName() . " record id $recordId not found in legacy database.");
+            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in legacy database.");
         }
         $new = $this->fetchRecords($query, 'i', $recordId);
         if (empty($new)) {
-            throw new RecordNotFoundException(static::getTableName() . " record id $recordId not found in new database.");
+            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in new database.");
         }
         return [$legacy[0], $new[0]];
     }
@@ -94,7 +94,7 @@ class ETLValidator extends ETLConnector
      */
     public function fetchMaxId(): int|null
     {
-        $result = $this->legacyDB->fetchRecords('SELECT MAX(id) as maxId FROM `' . static::getTableName() . '`');
+        $result = $this->legacyDB->fetchRecords("SELECT MAX(id) as maxId FROM `{$this->getTableName()}`");
         return $result[0]->maxId ?? null;
     }
 
@@ -105,7 +105,7 @@ class ETLValidator extends ETLConnector
      */
     public function fetchMinId(): int|null
     {
-        $result = $this->legacyDB->fetchRecords('SELECT MIN(id) as minId FROM `' . static::getTableName() . '`');
+        $result = $this->legacyDB->fetchRecords("SELECT MIN(id) as minId FROM `{$this->getTableName()}`");
         return $result[0]->minId ?? null;
     }
 
@@ -117,9 +117,9 @@ class ETLValidator extends ETLConnector
      */
     public function fetchRandomId(): int|null
     {
-        $this->legacyDB->query('SELECT COUNT(*) INTO @row_count FROM `' . static::getTableName() . '`');
+        $this->legacyDB->query("SELECT COUNT(*) INTO @row_count FROM `{$this->getTableName()}`");
         $this->legacyDB->query('SET @offset := FLOOR(RAND() * @row_count)');
-        $this->legacyDB->query('PREPARE stmt FROM \'SELECT id FROM `' . static::getTableName() . '` LIMIT 1 OFFSET ?\'');
+        $this->legacyDB->query("PREPARE stmt FROM 'SELECT id FROM `{$this->getTableName()}` LIMIT 1 OFFSET ?'");
         $result = $this->legacyDB->fetchRecords('EXECUTE stmt USING @offset');
         $this->legacyDB->query('DEALLOCATE PREPARE stmt');
         return $result[0]->id ?? null;
@@ -138,7 +138,7 @@ class ETLValidator extends ETLConnector
         foreach($this->samples as $sample) {
             $this->validateRecordData($sample->recordId);
             if ($verbose) {
-                print 'Confirmed ' . static::getTableName() . " record $sample->recordId data matches. " .
+                print "Confirmed {$this->getTableName()} record $sample->recordId data matches. " .
                     ($sample->description ?? '' ?: '') . "\n";
             }
         }

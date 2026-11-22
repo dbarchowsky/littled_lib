@@ -2,6 +2,7 @@
 
 namespace Littled\ETL;
 
+use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
 
 
@@ -13,6 +14,7 @@ abstract class ETLMigrator extends ETLConnector
     /**
      * Fetches one batch of data from the table in the old database
      * @return array
+     * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
     public function fetch(): array
@@ -25,10 +27,11 @@ abstract class ETLMigrator extends ETLConnector
     /**
      * Returns the query to use to fetch data from the table in the old database.
      * @return string
+     * @throws ConfigurationUndefinedException
      */
     protected function formatFetchQuery(): string
     {
-        return 'SELECT * FROM ' . static::$table . ' LIMIT ? OFFSET ?';
+        return "SELECT * FROM `{$this->getTableName()}` LIMIT ? OFFSET ?";
     }
 
     /**

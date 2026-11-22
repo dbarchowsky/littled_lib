@@ -11,7 +11,7 @@ use Littled\Log\Log;
 
 class ETLConnector extends MySQLConnection
 {
-    protected static string     $table;
+    protected string            $table;
     protected MySQLConnection   $legacyDB;
 
     /**
@@ -56,11 +56,17 @@ class ETLConnector extends MySQLConnection
      * @return string
      * @throws ConfigurationUndefinedException
      */
-    public static function getTableName(): string
+    public function getTableName(): string
     {
-        if (empty(static::$table)) {
+        if (empty($this->table)) {
             throw new ConfigurationUndefinedException('Table name not set in ' . Log::getClassBaseName(static::class));
         }
-        return static::$table;
+        return $this->table;
+    }
+
+    public function setTableName(string $table): static
+    {
+        $this->table = $table;
+        return $this;
     }
 }

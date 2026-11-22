@@ -25,4 +25,16 @@ class ETLBase extends ETLConnector
         }
         return $this;
     }
+
+    public function setTableName(string $table): static
+    {
+        $this->table = $table;
+        if (isset($this->migrator)) {
+            $this->migrator->setTableName($table);
+        }
+        if (isset($this->validator)) {
+            $this->validator->setTableName($table);
+        }
+        return $this;
+    }
 }
