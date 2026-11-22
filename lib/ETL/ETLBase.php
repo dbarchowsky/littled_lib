@@ -11,17 +11,17 @@ class ETLBase extends ETLConnector
     public function __construct()
     {
         $this->validator = new ETLValidator()->withConnection($this);
-        $this->validator->legacyDB->withConnection($this->legacyDB);
+        $this->validator->withLegacyConnection($this->legacyDB);
     }
 
     protected function connectToLegacy(): static
     {
         parent::connectToLegacy();
         if (isset($this->migrator)) {
-            $this->migrator->legacyDB->withConnection($this->legacyDB);
+            $this->migrator->withLegacyConnection($this->legacyDB);
         }
         if (isset($this->validator)) {
-            $this->validator->legacyDB->withConnection($this->legacyDB);
+            $this->validator->withLegacyConnection($this->legacyDB);
         }
         return $this;
     }

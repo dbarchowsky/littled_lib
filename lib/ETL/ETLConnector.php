@@ -64,9 +64,25 @@ class ETLConnector extends MySQLConnection
         return $this->table;
     }
 
+    /**
+     * Table name setter.
+     * @param string $table
+     * @return $this
+     */
     public function setTableName(string $table): static
     {
         $this->table = $table;
+        return $this;
+    }
+
+    /**
+     * Share legacy database connection with exiting connection.
+     * @param MySQLConnection $conn
+     * @return $this
+     */
+    public function withLegacyConnection(MySQLConnection $conn): static
+    {
+        $this->legacyDB->withConnection($conn);
         return $this;
     }
 }
