@@ -2,6 +2,7 @@
 
 namespace Littled\ETL;
 
+use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ContentValidationException;
 use Littled\Exception\FailedQueryException;
@@ -9,8 +10,10 @@ use Littled\Exception\RecordNotFoundException;
 use stdClass;
 
 
-class ETLValidator extends ETLConnector
+class ETLValidator extends MySQLConnection
 {
+    use ETLConnectorTrait;
+
     /** @var string[] */
     protected static array      $insertProperties;
     /** @var SampleRecord[] */

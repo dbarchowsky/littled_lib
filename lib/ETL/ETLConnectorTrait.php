@@ -8,11 +8,11 @@ use Littled\Exception\ConnectionException;
 use Littled\Exception\FailedQueryException;
 use Littled\Log\Log;
 
-
-class ETLConnector extends MySQLConnection
+trait ETLConnectorTrait
 {
-    protected string            $table;
     protected MySQLConnection   $legacyDB;
+    protected string            $table;
+
 
     /**
      * @return $this

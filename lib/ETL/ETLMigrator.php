@@ -2,12 +2,15 @@
 
 namespace Littled\ETL;
 
+use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\FailedQueryException;
 
 
-abstract class ETLMigrator extends ETLConnector
+abstract class ETLMigrator extends MySQLConnection
 {
+    use ETLConnectorTrait;
+
     public int                  $chunkSize = 500;
     public int                  $offset = 0;
 

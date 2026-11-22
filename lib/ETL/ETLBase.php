@@ -3,8 +3,12 @@
 namespace Littled\ETL;
 
 
-class ETLBase extends ETLConnector
+use Littled\Database\MySQLConnection;
+
+class ETLBase extends MySQLConnection
 {
+    use ETLConnectorTrait;
+
     public ETLMigrator      $migrator;
     public ETLValidator     $validator;
 
@@ -15,7 +19,6 @@ class ETLBase extends ETLConnector
 
     protected function connectToLegacy(): static
     {
-        parent::connectToLegacy();
         if (isset($this->migrator)) {
             $this->migrator->withLegacyConnection($this->legacyDB);
         }
@@ -27,7 +30,6 @@ class ETLBase extends ETLConnector
 
     public function setTableName(string $table): static
     {
-        $this->table = $table;
         if (isset($this->migrator)) {
             $this->migrator->setTableName($table);
         }
