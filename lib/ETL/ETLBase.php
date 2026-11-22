@@ -11,7 +11,6 @@ class ETLBase extends ETLConnector
     public function __construct()
     {
         $this->validator = new ETLValidator()->withConnection($this);
-        $this->validator->withLegacyConnection($this->legacyDB);
     }
 
     protected function connectToLegacy(): static
