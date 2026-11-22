@@ -27,7 +27,7 @@ class ETLConnector extends MySQLConnection
                 $_ENV['MYSQL_LEGACY_HOST'],
                 $_ENV['MYSQL_USER'],
                 $_ENV['MYSQL_PASS'],
-                $_ENV['MYSQL_LEGACY_SCHEMA'],
+                $_ENV['MYSQL_SCHEMA'],
                 $_ENV['MYSQL_PORT']);
         return $this;
     }
