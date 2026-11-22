@@ -5,6 +5,7 @@ namespace Littled\ETL;
 use Littled\Database\MySQLConnection;
 use Littled\Exception\ConfigurationUndefinedException;
 use Littled\Exception\ConnectionException;
+use Littled\Exception\FailedQueryException;
 use Littled\Log\Log;
 
 
@@ -37,6 +38,26 @@ class ETLConnector extends MySQLConnection
                 $_ENV['MYSQL_PASS'],
                 $_ENV['MYSQL_SCHEMA'],
                 $_ENV['MYSQL_PORT']);
+    }
+
+    /**
+     * @return string
+     * @throws FailedQueryException
+     */
+    public function getCurrentLegacySchema(): string
+    {
+        $result = $this->legacyDB->fetchRecords('SELECT DATABASE() AS `schema`');
+        return $result[0]->schema;
+    }
+
+    /**
+     * @return string
+     * @throws FailedQueryException
+     */
+    public function getCurrentSchema(): string
+    {
+        $result = $this->fetchRecords('SELECT DATABASE() AS `schema`');
+        return $result[0]->schema;
     }
 
     /**
