@@ -15,20 +15,11 @@ class ETLConnector extends MySQLConnection
     protected MySQLConnection   $legacyDB;
 
     /**
+     * @return $this
      * @throws ConfigurationUndefinedException
      * @throws ConnectionException
      */
-    public function __construct()
-    {
-        $this->connectToLegacy();
-    }
-
-    /**
-     * @return void
-     * @throws ConfigurationUndefinedException
-     * @throws ConnectionException
-     */
-    protected function connectToLegacy(): void
+    protected function connectToLegacy(): static
     {
         $this->legacyDB = new MySQLConnection()
             ->withSharedConnection(false)
@@ -38,6 +29,7 @@ class ETLConnector extends MySQLConnection
                 $_ENV['MYSQL_PASS'],
                 $_ENV['MYSQL_SCHEMA'],
                 $_ENV['MYSQL_PORT']);
+        return $this;
     }
 
     /**
