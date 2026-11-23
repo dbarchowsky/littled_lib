@@ -138,6 +138,7 @@ class ETLValidator extends MySQLConnection
      */
     public function validateMigration(bool $verbose = false): void
     {
+        $this->collectSampleRecordIds();
         foreach($this->samples as $sample) {
             $this->validateRecordData($sample->recordId);
             if ($verbose) {
