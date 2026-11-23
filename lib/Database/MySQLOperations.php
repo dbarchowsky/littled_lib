@@ -543,7 +543,7 @@ trait MySQLOperations
         $this->mysqli = $src->mysqli;
         $this->conn_id = $src->getConnectionId();
         foreach($this as $prop) {
-            if ($prop instanceof MySQLConnection) {
+            if ($prop instanceof MySQLConnection && $prop->shareConnection) {
                 $prop->withConnection($this);
             }
         }

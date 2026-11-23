@@ -87,6 +87,9 @@ trait ETLConnectorTrait
      */
     public function withLegacyConnection(MySQLConnection $conn): static
     {
+        if (!isset($this->legacyDB)) {
+            $this->legacyDB = new MySQLConnection()->withSharedConnection(false);
+        }
         $this->legacyDB->withConnection($conn);
         return $this;
     }
