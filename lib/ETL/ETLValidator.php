@@ -75,27 +75,6 @@ class ETLValidator extends MySQLConnection
     }
 
     /**
-     * @param int $recordId
-     * @return stdClass[]
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    protected function fetchSampleRecord(int $recordId): array
-    {
-        $query = "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
-        $legacy = $this->legacyDB->fetchRecords($query, 'i', $recordId);
-        if (empty($legacy)) {
-            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in legacy database.");
-        }
-        $new = $this->fetchRecords($query, 'i', $recordId);
-        if (empty($new)) {
-            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in new database.");
-        }
-        return [$legacy[0], $new[0]];
-    }
-
-    /**
      * @return int|null
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
@@ -131,6 +110,27 @@ class ETLValidator extends MySQLConnection
         $result = $this->legacyDB->fetchRecords('EXECUTE stmt USING @offset');
         $this->legacyDB->query('DEALLOCATE PREPARE stmt');
         return $result[0]->id ?? null;
+    }
+
+    /**
+     * @param int $recordId
+     * @return stdClass[]
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     * @throws RecordNotFoundException
+     */
+    protected function fetchSampleRecord(int $recordId): array
+    {
+        $query = "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
+        $legacy = $this->legacyDB->fetchRecords($query, 'i', $recordId);
+        if (empty($legacy)) {
+            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in legacy database.");
+        }
+        $new = $this->fetchRecords($query, 'i', $recordId);
+        if (empty($new)) {
+            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in new database.");
+        }
+        return [$legacy[0], $new[0]];
     }
 
     /**
