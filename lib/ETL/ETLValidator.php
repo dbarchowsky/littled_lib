@@ -15,7 +15,7 @@ class ETLValidator extends MySQLConnection
     use ETLConnectorTrait;
 
     /** @var string[] */
-    protected static array      $insertProperties;
+    protected array             $insertProperties;
     /** @var SampleRecord[] */
     protected array             $samples = [];
 
@@ -26,12 +26,12 @@ class ETLValidator extends MySQLConnection
      * @param int $recordId
      * @return void
      * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
+     * @throws ContentValidationException
      */
     protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName, int $recordId): void
     {
         if ($expected !== $actual) {
-            throw new FailedQueryException("Values do not match for $propertyName property of {$this->getTableName()} record $recordId. $actual does not match expected $expected.");
+            throw new ContentValidationException("Values do not match for $propertyName property of {$this->getTableName()} record $recordId. $actual does not match expected $expected.");
         }
     }
 
@@ -73,9 +73,9 @@ class ETLValidator extends MySQLConnection
      * Insert properties getter.
      * @return array|string[]
      */
-    public static function getInsertProperties(): array
+    public function getInsertProperties(): array
     {
-        return static::$insertProperties ?? [];
+        return $this->insertProperties ?? [];
     }
 
     /**
@@ -160,6 +160,17 @@ class ETLValidator extends MySQLConnection
     }
 
     /**
+     * Insert properties setter.
+     * @param array $insertProperties
+     * @return $this
+     */
+    public function setInsertProperties(array $insertProperties): static
+    {
+        $this->insertProperties = $insertProperties;
+        return $this;
+    }
+
+    /**
      * Compares data from the old database against the data in the new database.
      * @param bool $verbose
      * @return void
@@ -203,13 +214,17 @@ class ETLValidator extends MySQLConnection
      * @param int $recordId
      * @return void
      * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
     protected function validateRecordData(int $recordId): void
     {
         [$legacy, $new] = $this->fetchSampleRecord($recordId);
-        foreach(static::$insertProperties as $p) {
+        $insertProperties =
+            $this->insertProperties ??
+            array_keys(get_object_vars($legacy));
+        foreach($insertProperties as $p) {
             $this->assertPropertyMatches($legacy->$p, $new->$p, $p, $recordId);
         }
     }
