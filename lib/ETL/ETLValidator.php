@@ -164,11 +164,13 @@ class ETLValidator extends MySQLConnection
      * @param bool $verbose
      * @return void
      * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
     public function validateMigration(bool $verbose = false): void
     {
+        $this->validateRecordCount();
         $this->collectSampleRecordIds();
         foreach($this->samples as $sample) {
             $this->validateRecordData($sample->recordId);
@@ -177,6 +179,18 @@ class ETLValidator extends MySQLConnection
                     ($sample->description ?? '' ?: '') . "\n";
             }
         }
+    }
+
+    /**
+     * @return void
+     * @throws ConfigurationUndefinedException
+     * @throws ContentValidationException
+     * @throws FailedQueryException
+     */
+    protected function validateRecordCount(): void
+    {
+        $expected = $this->fetchLegacyRecordCount();
+        static::assertSame($expected, $this->fetchNewRecordCount(), "Expected record count in new table does not match expected $expected.");
     }
 
     /**
