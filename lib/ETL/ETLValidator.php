@@ -79,24 +79,6 @@ class ETLValidator extends MySQLConnection
     }
 
     /**
-     * Fetch selected record from legacy database.
-     * @param int $recordId
-     * @return array
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    protected function fetchLegacyRecord(int $recordId): array
-    {
-        $query = "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
-        $legacy = $this->legacyDB->fetchRecords($query, 'i', $recordId);
-        if (empty($legacy)) {
-            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in legacy database.");
-        }
-        return $legacy[0];
-    }
-
-    /**
      * Returns the number of records in the legacy database.
      * @return int
      * @throws ConfigurationUndefinedException
@@ -127,24 +109,6 @@ class ETLValidator extends MySQLConnection
     {
         $result = $this->legacyDB->fetchRecords("SELECT MIN(id) as minId FROM `{$this->getTableName()}`");
         return $result[0]->minId ?? null;
-    }
-
-    /**
-     * Retrieve selected record from new database.
-     * @param int $recordId
-     * @return array
-     * @throws ConfigurationUndefinedException
-     * @throws FailedQueryException
-     * @throws RecordNotFoundException
-     */
-    protected function fetchNewRecord(int $recordId): array
-    {
-        $query = "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
-        $new = $this->fetchRecords($query, 'i', $recordId);
-        if (empty($new)) {
-            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in new database.");
-        }
-        return $new[0];
     }
 
     /**
@@ -183,10 +147,35 @@ class ETLValidator extends MySQLConnection
      */
     protected function fetchSampleRecord(int $recordId): array
     {
-        return [
-            $this->fetchLegacyRecord($recordId),
-            $this->fetchNewRecord($recordId),
-        ];
+        $legacy = $this->legacyDB->fetchRecords($this->formatLegacyRecordQuery(), 'i', $recordId);
+        if (empty($legacy)) {
+            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in legacy database.");
+        }
+        $new = $this->fetchRecords($this->formatNewRecordQuery(), 'i', $recordId);
+        if (empty($new)) {
+            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in new database.");
+        }
+        return [$legacy[0], $new[0]];
+    }
+
+    /**
+     * Fetch selected record from legacy database.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    protected function formatLegacyRecordQuery(): string
+    {
+        return "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
+    }
+
+    /**
+     * Retrieve selected record from new database.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    protected function formatNewRecordQuery(): string
+    {
+        return "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
     }
 
     /**
