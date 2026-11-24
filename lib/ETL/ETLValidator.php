@@ -69,9 +69,24 @@ class ETLValidator extends MySQLConnection
         });
     }
 
+    /**
+     * Insert properties getter.
+     * @return array|string[]
+     */
     public static function getInsertProperties(): array
     {
         return static::$insertProperties ?? [];
+    }
+
+    /**
+     * Returns the number of records in the legacy database.
+     * @return int
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    public function fetchLegacyRecordCount(): int
+    {
+        return $this->legacyDB->fetchRecords("SELECT COUNT(*) as count FROM `{$this->getTableName()}`")[0]->count ?? 0;
     }
 
     /**
@@ -94,6 +109,17 @@ class ETLValidator extends MySQLConnection
     {
         $result = $this->legacyDB->fetchRecords("SELECT MIN(id) as minId FROM `{$this->getTableName()}`");
         return $result[0]->minId ?? null;
+    }
+
+    /**
+     * Returns the expected number of records in the new database.
+     * @return int
+     * @throws ConfigurationUndefinedException
+     * @throws FailedQueryException
+     */
+    public function fetchNewRecordCount(): int
+    {
+        return $this->fetchRecords("SELECT COUNT(*) as count FROM `{$this->getTableName()}`")[0]->count ?? 0;
     }
 
     /**
