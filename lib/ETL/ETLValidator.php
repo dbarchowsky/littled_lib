@@ -69,6 +69,11 @@ class ETLValidator extends MySQLConnection
         });
     }
 
+    public static function getInsertProperties(): array
+    {
+        return static::$insertProperties ?? [];
+    }
+
     /**
      * @param int $recordId
      * @return stdClass[]
