@@ -86,26 +86,26 @@ class ETLValidator extends MySQLConnection
      */
     public function fetchLegacyRecordCount(): int
     {
-        return $this->legacyDB->fetchRecords("SELECT COUNT(*) as count FROM `{$this->getTableName()}`")[0]->count ?? 0;
+        return $this->legacyDB->fetchRecords("SELECT COUNT(*) as `count` FROM `{$this->getTableName()}`")[0]->count ?? 0;
     }
 
     /**
-     * @return int|null
+     * @return int|object|null
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
-    public function fetchMaxId(): int|null
+    public function fetchMaxId(): int|object|null
     {
         $result = $this->legacyDB->fetchRecords("SELECT MAX(id) as maxId FROM `{$this->getTableName()}`");
         return $result[0]->maxId ?? null;
     }
 
     /**
-     * @return int|null
+     * @return int|stdClass|null
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
-    public function fetchMinId(): int|null
+    public function fetchMinId(): int|object|null
     {
         $result = $this->legacyDB->fetchRecords("SELECT MIN(id) as minId FROM `{$this->getTableName()}`");
         return $result[0]->minId ?? null;
@@ -124,36 +124,42 @@ class ETLValidator extends MySQLConnection
 
     /**
      * Fetches a random record id from the table in the old database.
-     * @return int|null
+     * @return int|object|null
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      */
-    public function fetchRandomId(): int|null
+    public function fetchRandomId(): int|object|null
     {
         $this->legacyDB->query("SELECT COUNT(*) INTO @row_count FROM `{$this->getTableName()}`");
         $this->legacyDB->query('SET @offset := FLOOR(RAND() * @row_count)');
-        $this->legacyDB->query("PREPARE stmt FROM 'SELECT id FROM `{$this->getTableName()}` LIMIT 1 OFFSET ?'");
+        $this->legacyDB->query($this->formatRandomIdQuery());
         $result = $this->legacyDB->fetchRecords('EXECUTE stmt USING @offset');
         $this->legacyDB->query('DEALLOCATE PREPARE stmt');
-        return $result[0]->id ?? null;
+        if (empty($result)) {
+            return null;
+        }
+        if (property_exists($result[0], 'id')) {
+            return $result[0]->id;
+        }
+        return $result[0];
     }
 
     /**
-     * @param int $recordId
+     * @param int|object $record
      * @return stdClass[]
      * @throws ConfigurationUndefinedException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
-    protected function fetchSampleRecord(int $recordId): array
+    protected function fetchSampleRecord(int|object $record): array
     {
-        $legacy = $this->legacyDB->fetchRecords($this->formatLegacyRecordQuery(), 'i', $recordId);
+        $legacy = $this->legacyDB->fetchRecords($this->formatLegacyRecordQuery(), 'i', $record);
         if (empty($legacy)) {
-            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in legacy database.");
+            throw new RecordNotFoundException("{$this->getTableName()} record id $record not found in legacy database.");
         }
-        $new = $this->fetchRecords($this->formatNewRecordQuery(), 'i', $recordId);
+        $new = $this->fetchRecords($this->formatNewRecordQuery(), 'i', $record);
         if (empty($new)) {
-            throw new RecordNotFoundException("{$this->getTableName()} record id $recordId not found in new database.");
+            throw new RecordNotFoundException("{$this->getTableName()} record id $record not found in new database.");
         }
         return [$legacy[0], $new[0]];
     }
@@ -175,7 +181,17 @@ class ETLValidator extends MySQLConnection
      */
     protected function formatNewRecordQuery(): string
     {
-        return "SELECT * FROM `{$this->getTableName()}` WHERE id = ?";
+        return $this->formatLegacyRecordQuery();
+    }
+
+    /**
+     * Formats query used to retrieve a random record id from the table in the old database.
+     * @return string
+     * @throws ConfigurationUndefinedException
+     */
+    protected function formatRandomIdQuery(): string
+    {
+        return "PREPARE stmt FROM 'SELECT id FROM `{$this->getTableName()}` LIMIT 1 OFFSET ?'";
     }
 
     /**
