@@ -4,12 +4,32 @@ namespace Littled\ETL;
 
 
 use Littled\Exception\ConfigurationUndefinedException;
+use Littled\Exception\ContentValidationException;
 use Littled\Exception\RecordNotFoundException;
 
 class ETLLinkedValidator extends ETLValidator
 {
     public string $parentId;
     public string $linkId;
+
+    /**
+     * @inheritDoc
+     */
+    protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName='', object|int|null $record=null): void
+    {
+        try {
+            parent::assertPropertyMatches($expected, $actual);
+        }
+        catch (ContentValidationException $ex) {
+            $msg = $ex->getMessage();
+            if ($propertyName && $record) {
+                $parentId = $record->{$this->parentId};
+                $linkedId = $record->{$this->linkId};
+                $msg = "Values do not match for $propertyName property of {$this->getTableName()} record $this->parentId $parentId / $this->linkId $linkedId. $msg";
+            }
+            throw new ContentValidationException($msg, $ex->getCode(), $ex);
+        }
+    }
 
     /**
      * @inheritDoc
@@ -114,5 +134,24 @@ class ETLLinkedValidator extends ETLValidator
             $r->description = $description;
         }
         return $r;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateMigration(bool $verbose = false): void
+    {
+        $this->validateRecordCount($verbose);
+        $this->collectSampleRecordIds();
+        foreach($this->samples as $sample) {
+            $this->validateRecordData((object)[
+                $this->parentId => $sample->parentId,
+                $this->linkId => $sample->linkId,
+            ]);
+            if ($verbose) {
+                print "Confirmed {$this->getTableName()} record $this->parentId $sample->parentId / $this->linkId $sample->linkId data matches. " .
+                    ($sample->description ?? '' ?: '') . "\n";
+            }
+        }
     }
 }

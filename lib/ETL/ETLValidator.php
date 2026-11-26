@@ -23,15 +23,19 @@ class ETLValidator extends MySQLConnection
      * @param mixed $expected
      * @param mixed $actual
      * @param string $propertyName
-     * @param int $recordId
+     * @param int|object|null $record
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      */
-    protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName, int $recordId): void
+    protected function assertPropertyMatches(mixed $expected, mixed $actual, string $propertyName='', int|object|null $record=null): void
     {
         if ($expected !== $actual) {
-            throw new ContentValidationException("Values do not match for $propertyName property of {$this->getTableName()} record $recordId. $actual does not match expected $expected.");
+            $msg = "$actual does not match expected $expected.";
+            if ($propertyName && $record) {
+                $msg = "Values do not match for $propertyName property of {$this->getTableName()} record $record. $msg";
+            }
+            throw new ContentValidationException($msg);
         }
     }
 
@@ -246,21 +250,21 @@ class ETLValidator extends MySQLConnection
 
     /**
      * Validates the data for a single record.
-     * @param int $recordId
+     * @param int|object $record
      * @return void
      * @throws ConfigurationUndefinedException
      * @throws ContentValidationException
      * @throws FailedQueryException
      * @throws RecordNotFoundException
      */
-    protected function validateRecordData(int $recordId): void
+    protected function validateRecordData(int|object $record): void
     {
-        [$legacy, $new] = $this->fetchSampleRecord($recordId);
+        [$legacy, $new] = $this->fetchSampleRecord($record);
         $insertProperties =
             $this->insertProperties ??
             array_keys(get_object_vars($legacy));
         foreach($insertProperties as $p) {
-            $this->assertPropertyMatches($legacy->$p, $new->$p, $p, $recordId);
+            $this->assertPropertyMatches($legacy->$p, $new->$p, $p, $record);
         }
     }
 }
