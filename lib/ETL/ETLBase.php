@@ -2,9 +2,8 @@
 
 namespace Littled\ETL;
 
-
 use Littled\Database\MySQLConnection;
-use Littled\Exception\NotInitializedException;
+
 
 class ETLBase extends MySQLConnection
 {
@@ -34,18 +33,6 @@ class ETLBase extends MySQLConnection
             $this->validator->withLegacyConnection($this->legacyDB);
         }
         return $this;
-    }
-
-    /**
-     * @return array
-     * @throws NotInitializedException
-     */
-    protected function getInsertProperties(): array
-    {
-        if (!isset($this->validator)) {
-            throw new NotInitializedException('The validator property is not initialized.');
-        }
-        return $this->validator->getInsertProperties();
     }
 
     /**
