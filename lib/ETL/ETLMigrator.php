@@ -12,6 +12,8 @@ abstract class ETLMigrator extends MySQLConnection
     use ETLConnectorTrait;
 
     public int                  $chunkSize = 500;
+    /** @var string[] */
+    public array                $insertColumns;
     public int                  $offset = 0;
 
     /**
@@ -42,6 +44,15 @@ abstract class ETLMigrator extends MySQLConnection
      * @return string[]
      */
     abstract protected function formatInsertQuery(): array;
+
+    /**
+     * Returns list of columns to insert data into the new database.
+     * @return array|string[]
+     */
+    protected function getInsertColumns(): array
+    {
+        return $this->insertColumns ?? [];
+    }
 
     /**
      * Inserts data into the table in the new database.
