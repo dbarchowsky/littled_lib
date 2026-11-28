@@ -13,7 +13,7 @@ abstract class ETLMigrator extends MySQLConnection
 
     public int                  $chunkSize = 500;
     /** @var string[] */
-    public array                $insertColumns;
+    protected array             $insertColumns;
     public int                  $offset = 0;
 
     /**
@@ -68,6 +68,17 @@ abstract class ETLMigrator extends MySQLConnection
             $args = array_values($data);
         }
         $this->query(...$this->formatInsertQuery(), ...$args);
+    }
+
+    /**
+     * Insert columns setter.
+     * @param array $columns
+     * @return $this
+     */
+    public function setInsertColumns(array $columns): static
+    {
+        $this->insertColumns = $columns;
+        return $this;
     }
 
     /**
